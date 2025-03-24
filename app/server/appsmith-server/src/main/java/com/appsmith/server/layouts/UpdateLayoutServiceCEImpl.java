@@ -77,52 +77,52 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final ObservationHelperImpl observationHelper;
 
     private final String layoutOnLoadActionErrorToastMessage =
-        "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
+            "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
-        String creatorId,
-        String layoutId,
-        JSONObject dsl,
-        boolean isSuccess,
-        Throwable error,
-        CreatorContextType creatorType) {
+            String creatorId,
+            String layoutId,
+            JSONObject dsl,
+            boolean isSuccess,
+            Throwable error,
+            CreatorContextType creatorType) {
         return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(creatorId))
-            .flatMap(tuple -> {
-                User t1 = tuple.getT1();
-                NewPage t2 = tuple.getT2();
+                .flatMap(tuple -> {
+                    User t1 = tuple.getT1();
+                    NewPage t2 = tuple.getT2();
 
-                final Map<String, Object> data = Map.of(
-                    "username",
-                    t1.getUsername(),
-                    "appId",
-                    t2.getApplicationId(),
-                    "creatorId",
-                    creatorId,
-                    "creatorType",
-                    creatorType,
-                    "layoutId",
-                    layoutId,
-                    "isSuccessfulExecution",
-                    isSuccess,
-                    "error",
-                    error == null ? "" : error.getMessage());
+                    final Map<String, Object> data = Map.of(
+                            "username",
+                            t1.getUsername(),
+                            "appId",
+                            t2.getApplicationId(),
+                            "creatorId",
+                            creatorId,
+                            "creatorType",
+                            creatorType,
+                            "layoutId",
+                            layoutId,
+                            "isSuccessfulExecution",
+                            isSuccess,
+                            "error",
+                            error == null ? "" : error.getMessage());
 
-                return analyticsService
-                    .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data)
-                    .thenReturn(isSuccess);
-            })
-            .onErrorResume(e -> {
-                log.warn("Error sending action execution data point", e);
-                return Mono.just(isSuccess);
-            });
+                    return analyticsService
+                            .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data)
+                            .thenReturn(isSuccess);
+                })
+                .onErrorResume(e -> {
+                    log.warn("Error sending action execution data point", e);
+                    return Mono.just(isSuccess);
+                });
     }
 
     private Mono<LayoutDTO> updateLayoutDsl(
-        String creatorId,
-        String layoutId,
-        Layout layout,
-        Integer evaluatedVersion,
-        CreatorContextType creatorType) {
+            String creatorId,
+            String layoutId,
+            Layout layout,
+            Integer evaluatedVersion,
+            CreatorContextType creatorType) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -134,17 +134,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Set<String> escapedWidgetNames = new HashSet<>();
 
         Span extractAllWidgetNamesAndDynamicBindingsFromDSLSpan =
-            observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
+                observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
 
         observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
 
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
 
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
-                .then(Mono.error(t));
+                    .then(Mono.error(t));
         }
 
         observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
@@ -169,80 +169,80 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = onLoadExecutablesUtil
-            .findAllOnLoadExecutables(
-                creatorId,
-                evaluatedVersion,
-                widgetNames,
-                edges,
-                widgetDynamicBindingsMap,
-                flatmapOnLoadExecutables,
-                executablesUsedInDSL,
-                creatorType)
-            .name(FIND_ALL_ON_LOAD_EXECUTABLES)
-            .tap(Micrometer.observation(observationRegistry))
-            .onErrorResume(AppsmithException.class, error -> {
-                log.info(error.getMessage());
-                validOnLoadExecutables.set(FALSE);
-                layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
-                    error.getAppErrorCode(),
-                    error.getErrorType(),
-                    layoutOnLoadActionErrorToastMessage,
-                    error.getMessage(),
-                    error.getTitle())));
-                return Mono.just(new ArrayList<>());
-            });
+                .findAllOnLoadExecutables(
+                        creatorId,
+                        evaluatedVersion,
+                        widgetNames,
+                        edges,
+                        widgetDynamicBindingsMap,
+                        flatmapOnLoadExecutables,
+                        executablesUsedInDSL,
+                        creatorType)
+                .name(FIND_ALL_ON_LOAD_EXECUTABLES)
+                .tap(Micrometer.observation(observationRegistry))
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    validOnLoadExecutables.set(FALSE);
+                    layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
+                            error.getAppErrorCode(),
+                            error.getErrorType(),
+                            layoutOnLoadActionErrorToastMessage,
+                            error.getMessage(),
+                            error.getTitle())));
+                    return Mono.just(new ArrayList<>());
+                });
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
 
         Mono<LayoutDTO> layoutDTOMono = allOnLoadExecutablesMono
-            .flatMap(allOnLoadExecutables -> {
-                // If there has been an error (e.g. cyclical dependency), then don't update any
-                // actions.
-                // This is so that unnecessary updates don't happen to actions while the page is
-                // in invalid state.
-                if (!validOnLoadExecutables.get()) {
-                    return Mono.just(allOnLoadExecutables);
-                }
-                // Update these executables to be executed on load, unless the user has touched
-                // the executeOnLoad
-                // setting for this
-                return onLoadExecutablesUtil
-                    .updateExecutablesExecuteOnLoad(
-                        flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
-                    .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
-                    .tap(Micrometer.observation(observationRegistry))
-                    .thenReturn(allOnLoadExecutables);
-            })
-            // Now update the page layout with the page load executables and the graph.
-            .flatMap(onLoadExecutables -> {
-                layout.setLayoutOnLoadActions(onLoadExecutables);
-                layout.setAllOnPageLoadActionNames(executableNames);
-                layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
-                // The below field is to ensure that we record if the page load actions
-                // computation was
-                // valid when last stored in the database.
-                layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
+                .flatMap(allOnLoadExecutables -> {
+                    // If there has been an error (e.g. cyclical dependency), then don't update any
+                    // actions.
+                    // This is so that unnecessary updates don't happen to actions while the page is
+                    // in invalid state.
+                    if (!validOnLoadExecutables.get()) {
+                        return Mono.just(allOnLoadExecutables);
+                    }
+                    // Update these executables to be executed on load, unless the user has touched
+                    // the executeOnLoad
+                    // setting for this
+                    return onLoadExecutablesUtil
+                            .updateExecutablesExecuteOnLoad(
+                                    flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
+                            .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
+                            .tap(Micrometer.observation(observationRegistry))
+                            .thenReturn(allOnLoadExecutables);
+                })
+                // Now update the page layout with the page load executables and the graph.
+                .flatMap(onLoadExecutables -> {
+                    layout.setLayoutOnLoadActions(onLoadExecutables);
+                    layout.setAllOnPageLoadActionNames(executableNames);
+                    layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
+                    // The below field is to ensure that we record if the page load actions
+                    // computation was
+                    // valid when last stored in the database.
+                    layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
-                return onLoadExecutablesUtil
-                    .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
-                    .tag("no_of_widgets", String.valueOf(widgetNames.size()))
-                    .tag("no_of_executables", String.valueOf(executableNames.size()))
-                    .name(FIND_AND_UPDATE_LAYOUT)
-                    .tap(Micrometer.observation(observationRegistry));
-            })
-            .map(savedLayout -> {
-                savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
-                return savedLayout;
-            })
-            .flatMap(savedLayout -> {
-                LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
-                layoutDTO.setActionUpdates(executableUpdatesRef);
-                layoutDTO.setMessages(messagesRef);
+                    return onLoadExecutablesUtil
+                            .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                            .tag("no_of_widgets", String.valueOf(widgetNames.size()))
+                            .tag("no_of_executables", String.valueOf(executableNames.size()))
+                            .name(FIND_AND_UPDATE_LAYOUT)
+                            .tap(Micrometer.observation(observationRegistry));
+                })
+                .map(savedLayout -> {
+                    savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
+                    return savedLayout;
+                })
+                .flatMap(savedLayout -> {
+                    LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
+                    layoutDTO.setActionUpdates(executableUpdatesRef);
+                    layoutDTO.setMessages(messagesRef);
 
-                return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, finalDsl, true, null, creatorType)
-                    .thenReturn(layoutDTO);
-            });
+                    return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, finalDsl, true, null, creatorType)
+                            .thenReturn(layoutDTO);
+                });
 
         return layoutDTOMono;
     }
@@ -250,29 +250,29 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     @Override
     public Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout) {
         return applicationService
-            .findById(applicationId)
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-            .flatMap(application -> {
-                Integer evaluationVersion = application.getEvaluationVersion();
-                if (evaluationVersion == null) {
-                    evaluationVersion = EVALUATION_VERSION;
-                }
-                return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
-                    .name(UPDATE_LAYOUT_DSL_METHOD);
-            });
+                .findById(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .flatMap(application -> {
+                    Integer evaluationVersion = application.getEvaluationVersion();
+                    if (evaluationVersion == null) {
+                        evaluationVersion = EVALUATION_VERSION;
+                    }
+                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
+                            .name(UPDATE_LAYOUT_DSL_METHOD);
+                });
     }
 
     @Override
     public Mono<Integer> updateMultipleLayouts(
-        String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
+            String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
         for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
-            updateMultiplePageLayoutDTO.getPageLayouts()) {
+                updateMultiplePageLayoutDTO.getPageLayouts()) {
             final Layout layout = new Layout();
             layout.setDsl(pageLayout.getLayout().dsl());
             Mono<LayoutDTO> updatedLayoutMono =
-                this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
+                    this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));
@@ -314,32 +314,32 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             return Mono.just("");
         }
         return Mono.justOrEmpty(pageId)
-            // fetch the unpublished page
-            .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
-            .name(GET_PAGE_BY_ID)
-            .tap(Micrometer.observation(observationRegistry))
-            .flatMapMany(page -> {
-                if (page.getLayouts() == null) {
-                    return Mono.empty();
-                }
-                return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
-                    layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                    return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
-                        .name(UPDATE_LAYOUT_METHOD)
-                        .tap(Micrometer.observation(observationRegistry));
-                });
-            })
-            .collectList()
-            .then(Mono.just(pageId));
+                // fetch the unpublished page
+                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
+                .name(GET_PAGE_BY_ID)
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMapMany(page -> {
+                    if (page.getLayouts() == null) {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
+                        layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                                .name(UPDATE_LAYOUT_METHOD)
+                                .tap(Micrometer.observation(observationRegistry));
+                    });
+                })
+                .collectList()
+                .then(Mono.just(pageId));
     }
 
     @Override
     public Mono<List<Set<DslExecutableDTO>>> getOnPageLoadActions(
-        String creatorId,
-        String layoutId,
-        Layout layout,
-        Integer evaluatedVersion,
-        CreatorContextType creatorType) {
+            String creatorId,
+            String layoutId,
+            Layout layout,
+            Integer evaluatedVersion,
+            CreatorContextType creatorType) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -352,10 +352,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         // observationHelper.createSpan()
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
-                .then(Mono.error(t));
+                    .then(Mono.error(t));
         }
 
         layout.setWidgetNames(widgetNames);
@@ -374,34 +374,34 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         return onLoadExecutablesUtil
-            .findAllOnLoadExecutables(
-                creatorId,
-                evaluatedVersion,
-                widgetNames,
-                edges,
-                widgetDynamicBindingsMap,
-                flatmapOnLoadExecutables,
-                executablesUsedInDSL,
-                creatorType)
-            .onErrorResume(AppsmithException.class, error -> {
-                log.info(error.getMessage());
-                validOnLoadExecutables.set(FALSE);
-                layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
-                    error.getAppErrorCode(),
-                    error.getErrorType(),
-                    layoutOnLoadActionErrorToastMessage,
-                    error.getMessage(),
-                    error.getTitle())));
-                return Mono.just(new ArrayList<>());
-            });
+                .findAllOnLoadExecutables(
+                        creatorId,
+                        evaluatedVersion,
+                        widgetNames,
+                        edges,
+                        widgetDynamicBindingsMap,
+                        flatmapOnLoadExecutables,
+                        executablesUsedInDSL,
+                        creatorType)
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    validOnLoadExecutables.set(FALSE);
+                    layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
+                            error.getAppErrorCode(),
+                            error.getErrorType(),
+                            layoutOnLoadActionErrorToastMessage,
+                            error.getMessage(),
+                            error.getTitle())));
+                    return Mono.just(new ArrayList<>());
+                });
     }
 
     @Override
     public Mono<String> updateLayoutByContextTypeAndContextId(CreatorContextType contextType, String contextId) {
         if (contextType == null || CreatorContextType.PAGE.equals(contextType)) {
             return this.updatePageLayoutsByPageId(contextId)
-                .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
-                .tap(Micrometer.observation(observationRegistry));
+                    .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
+                    .tap(Micrometer.observation(observationRegistry));
         } else {
             return Mono.just("");
         }
@@ -467,14 +467,14 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
      * @return
      */
     private JSONObject extractAllWidgetNamesAndDynamicBindingsFromDSL(
-        JSONObject dsl,
-        Set<String> widgetNames,
-        Map<String, Set<String>> widgetDynamicBindingsMap,
-        String creatorId,
-        String layoutId,
-        Set<String> escapedWidgetNames,
-        CreatorContextType creatorType)
-        throws AppsmithException {
+            JSONObject dsl,
+            Set<String> widgetNames,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
+            String creatorId,
+            String layoutId,
+            Set<String> escapedWidgetNames,
+            CreatorContextType creatorType)
+            throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isn't a valid widget configuration. No need to traverse this.
             return dsl;
@@ -505,8 +505,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 // iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields)
-                    .filter(fieldToken -> !fieldToken.isBlank())
-                    .iterator();
+                        .filter(fieldToken -> !fieldToken.isBlank())
+                        .iterator();
                 boolean isLeafNode = false;
                 Object oldParent;
                 // This loop will end at either a leaf node, or the last identified JSON field
@@ -528,6 +528,20 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                             } catch (IndexOutOfBoundsException e) {
                                 // The index being referred does not exist. Hence the path would not exist.
                                 throw new AppsmithException(
+                                        AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
+                                        widgetType,
+                                        widgetName,
+                                        widgetId,
+                                        fieldPath,
+                                        creatorId,
+                                        layoutId,
+                                        oldParent,
+                                        nextKey,
+                                        "Index out of bounds for list",
+                                        creatorType);
+                            }
+                        } else {
+                            throw new AppsmithException(
                                     AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
                                     widgetType,
                                     widgetName,
@@ -537,11 +551,13 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                                     layoutId,
                                     oldParent,
                                     nextKey,
-                                    "Index out of bounds for list",
+                                    "Child of list is not in an indexed path",
                                     creatorType);
-                            }
-                        } else {
-                            throw new AppsmithException(
+                        }
+                    }
+                    // After updating the parent, check for the types
+                    if (parent == null) {
+                        throw new AppsmithException(
                                 AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
                                 widgetType,
                                 widgetName,
@@ -551,24 +567,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                                 layoutId,
                                 oldParent,
                                 nextKey,
-                                "Child of list is not in an indexed path",
+                                "New element is null",
                                 creatorType);
-                        }
-                    }
-                    // After updating the parent, check for the types
-                    if (parent == null) {
-                        throw new AppsmithException(
-                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
-                            widgetType,
-                            widgetName,
-                            widgetId,
-                            fieldPath,
-                            creatorId,
-                            layoutId,
-                            oldParent,
-                            nextKey,
-                            "New element is null",
-                            creatorType);
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -583,17 +583,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                             try {
                                 String bindingAsString = objectMapper.writeValueAsString(parent);
                                 throw new AppsmithException(
-                                    AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
-                                    widgetType,
-                                    widgetName,
-                                    widgetId,
-                                    fieldPath,
-                                    creatorId,
-                                    layoutId,
-                                    bindingAsString,
-                                    nextKey,
-                                    "Binding path has no mustache bindings",
-                                    creatorType);
+                                        AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE,
+                                        widgetType,
+                                        widgetName,
+                                        widgetId,
+                                        fieldPath,
+                                        creatorId,
+                                        layoutId,
+                                        bindingAsString,
+                                        nextKey,
+                                        "Binding path has no mustache bindings",
+                                        creatorType);
                             } catch (JsonProcessingException e) {
                                 throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                             }
@@ -601,9 +601,9 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
                         // Stricter extraction of dynamic bindings
                         Set<String> mustacheKeysFromFields =
-                            MustacheHelper.extractMustacheKeysFromFields(parent).stream()
-                                .map(token -> token.getValue())
-                                .collect(Collectors.toSet());
+                                MustacheHelper.extractMustacheKeysFromFields(parent).stream()
+                                        .map(token -> token.getValue())
+                                        .collect(Collectors.toSet());
 
                         String completePath = widgetName + "." + fieldPath;
                         if (widgetDynamicBindingsMap.containsKey(completePath)) {
@@ -631,13 +631,13 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
                     JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                        object,
-                        widgetNames,
-                        widgetDynamicBindingsMap,
-                        creatorId,
-                        layoutId,
-                        escapedWidgetNames,
-                        creatorType);
+                            object,
+                            widgetNames,
+                            widgetDynamicBindingsMap,
+                            creatorId,
+                            layoutId,
+                            escapedWidgetNames,
+                            creatorType);
                     newChildren.add(child);
                 }
             }
