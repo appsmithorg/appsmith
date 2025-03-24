@@ -116,7 +116,7 @@ public class ActionCollectionControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{id}/actions")
-    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(
+    public Mono<ResponseDTO<ActionCollectionDTO>> createActions(
             @PathVariable String id, @Valid @RequestBody List<ActionDTO> actions) {
         log.debug("Going to create action for action collection with id: {}", id);
         return layoutCollectionService
@@ -126,7 +126,7 @@ public class ActionCollectionControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}/actions/{actionId}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(
+    public Mono<ResponseDTO<ActionCollectionDTO>> updateAction(
             @PathVariable String id, @PathVariable String actionId, @Valid @RequestBody ActionDTO action) {
         log.debug("Going to update action with id: {} for action collection with id: {}", actionId, id);
         return layoutCollectionService
@@ -136,7 +136,8 @@ public class ActionCollectionControllerCE {
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}/actions/{actionId}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(@PathVariable String id, @PathVariable String actionId) {
+    public Mono<ResponseDTO<ActionCollectionDTO>> deletemAction(
+            @PathVariable String id, @PathVariable String actionId) {
         log.debug("Going to delete action with id: {} for action collection with id: {}", actionId, id);
         return layoutCollectionService
                 .deleteAction(id, actionId)
