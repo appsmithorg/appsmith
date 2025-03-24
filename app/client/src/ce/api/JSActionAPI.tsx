@@ -162,7 +162,7 @@ class JSActionAPI extends API {
       },
     };
 
-    return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
+    return API.patch(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
   static async deleteJSCollection(id: string) {

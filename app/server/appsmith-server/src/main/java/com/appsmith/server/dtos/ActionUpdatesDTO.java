@@ -9,5 +9,5 @@ import java.util.List;
 public class ActionUpdatesDTO {
     List<ActionDTO> added;
     List<ActionDTO> deleted;
-    List<ActionDTO> modified;
+    List<ActionDTO> updated;
 }
