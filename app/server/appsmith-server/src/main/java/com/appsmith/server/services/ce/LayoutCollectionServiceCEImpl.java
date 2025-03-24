@@ -497,7 +497,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<List<ActionDTO>> deletedActionsMono = Mono.just(List.of());
         Mono<List<ActionDTO>> modifiedActionsMono = Mono.just(List.of());
 
-        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getAdded())) {
+        if (!CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getAdded())) {
             addedActionsMono = duplicateNamesMono
                     .zipWith(branchedActionCollectionMono)
                     .flatMap(tuple2 -> {
@@ -523,7 +523,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
         }
 
-        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getModified())) {
+        if (!CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getModified())) {
             modifiedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 return Flux.fromIterable(actionUpdatesDTO.getModified())
                         .flatMap(action -> {
@@ -538,7 +538,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             });
         }
 
-        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getDeleted())) {
+        if (!CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getDeleted())) {
             deletedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 ActionCollectionDTO actionCollectionDTO1 = branchedActionCollection.getUnpublishedCollection();
                 return Flux.fromIterable(actionUpdatesDTO.getDeleted())
