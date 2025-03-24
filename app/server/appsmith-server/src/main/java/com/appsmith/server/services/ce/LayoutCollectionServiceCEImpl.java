@@ -460,36 +460,37 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     @Override
-    public Mono<ActionCollectionDTO> updateUnpublishedActionCollectionWithSpecificActions(String id, ActionCollectionUpdateDTO resource) {
+    public Mono<ActionCollectionDTO> updateUnpublishedActionCollectionWithSpecificActions(
+            String id, ActionCollectionUpdateDTO resource) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
-            .findById(id, actionPermission.getEditPermission())
-            .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
-            .cache();
+                .findById(id, actionPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+                .cache();
 
         // create duplicate name map
         final Mono<List<String>> duplicateNamesMono = branchedActionCollectionMono
-            .flatMap(actionCollection ->
-                actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
-            .flatMapMany(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActions()))
-            .filter(actionDTO -> actionDTO.getId() == null)
-            .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
-            .handle((actionNameCountMap, sink) -> {
-                List<String> duplicateNames = actionNameCountMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() > 1)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-                if (!duplicateNames.isEmpty()) {
-                    sink.error(new AppsmithException(
-                        AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
-                    return;
-                }
-                sink.next(duplicateNames);
-            });
+                .flatMap(actionCollection ->
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
+                .flatMapMany(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActions()))
+                .filter(actionDTO -> actionDTO.getId() == null)
+                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
+                .handle((actionNameCountMap, sink) -> {
+                    List<String> duplicateNames = actionNameCountMap.entrySet().stream()
+                            .filter(entry -> entry.getValue() > 1)
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList());
+                    if (!duplicateNames.isEmpty()) {
+                        sink.error(new AppsmithException(
+                                AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
+                        return;
+                    }
+                    sink.next(duplicateNames);
+                });
         ActionCollectionDTO actionCollectionDTO = resource.getActionCollection();
         ActionUpdatesDTO actionUpdatesDTO = resource.getActions();
         Mono<List<ActionDTO>> addedActionsMono = Mono.just(List.of());
@@ -498,77 +499,78 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         if (actionUpdatesDTO.getAdded() != null && !actionUpdatesDTO.getAdded().isEmpty()) {
             addedActionsMono = duplicateNamesMono
-                .zipWith(branchedActionCollectionMono)
-                .flatMap(tuple2 -> {
-                    List<String> duplicateNames = tuple2.getT1();
-                    ActionCollection branchedActionCollection = tuple2.getT2();
-                    return Flux.fromIterable(actionUpdatesDTO.getAdded())
-                        .flatMap(actionDTO -> {
-                            populateActionFieldsFromCollection(actionDTO, branchedActionCollection);
+                    .zipWith(branchedActionCollectionMono)
+                    .flatMap(tuple2 -> {
+                        List<String> duplicateNames = tuple2.getT1();
+                        ActionCollection branchedActionCollection = tuple2.getT2();
+                        return Flux.fromIterable(actionUpdatesDTO.getAdded())
+                                .flatMap(actionDTO -> {
+                                    populateActionFieldsFromCollection(actionDTO, branchedActionCollection);
 
-                            if (duplicateNames.contains(actionDTO.getName())) {
-                                return Flux.error(new AppsmithException(
-                                    AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                    actionDTO.getName(),
-                                    FieldName.NAME));
-                            } else {
-                                return layoutActionService
-                                    .createSingleAction(actionDTO, Boolean.TRUE)
-                                    .name(CREATE_ACTION)
+                                    if (duplicateNames.contains(actionDTO.getName())) {
+                                        return Flux.error(new AppsmithException(
+                                                AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                                actionDTO.getName(),
+                                                FieldName.NAME));
+                                    } else {
+                                        return layoutActionService
+                                                .createSingleAction(actionDTO, Boolean.TRUE)
+                                                .name(CREATE_ACTION)
+                                                .tap(Micrometer.observation(observationRegistry));
+                                    }
+                                })
+                                .collectList();
+                    });
+        }
+
+        if (actionUpdatesDTO.getModified() != null
+                && !actionUpdatesDTO.getModified().isEmpty()) {
+            modifiedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
+                return Flux.fromIterable(actionUpdatesDTO.getModified())
+                        .flatMap(action -> {
+                            populateActionFieldsFromCollection(action, branchedActionCollection);
+
+                            return layoutActionService
+                                    .updateNewActionByBranchedId(action.getId(), action)
+                                    .name(UPDATE_ACTION)
                                     .tap(Micrometer.observation(observationRegistry));
-                            }
                         })
                         .collectList();
-                });
-        }
-
-        if (actionUpdatesDTO.getModified() != null && !actionUpdatesDTO.getModified().isEmpty()) {
-            modifiedActionsMono = branchedActionCollectionMono
-                .flatMap(branchedActionCollection -> {
-                    return Flux.fromIterable(actionUpdatesDTO.getModified())
-                    .flatMap(action -> {
-                        populateActionFieldsFromCollection(action, branchedActionCollection);
-
-                        return layoutActionService
-                            .updateNewActionByBranchedId(action.getId(), action)
-                            .name(UPDATE_ACTION)
-                            .tap(Micrometer.observation(observationRegistry));
-                    })
-                    .collectList();
-
             });
         }
 
-        if (actionUpdatesDTO.getDeleted() != null && !actionUpdatesDTO.getDeleted().isEmpty()) {
+        if (actionUpdatesDTO.getDeleted() != null
+                && !actionUpdatesDTO.getDeleted().isEmpty()) {
             deletedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 ActionCollectionDTO actionCollectionDTO1 = branchedActionCollection.getUnpublishedCollection();
-                return Flux.fromIterable(actionUpdatesDTO.getDeleted()).flatMap(actionDTO -> {
-                        return newActionService
-                            .deleteUnpublishedAction(actionDTO.getId())
-                            // return an empty action so that the filter can remove it from the list
-                            .onErrorResume(throwable -> {
-                                log.debug(
-                                    "Failed to delete action with id {}, {} {} for collection: {}",
-                                    actionDTO.getId(),
-                                    branchedActionCollection.getRefType(),
-                                    branchedActionCollection.getRefName(),
-                                    actionCollectionDTO1.getName());
-                                log.error(throwable.getMessage());
-                                return Mono.empty();
-                            })
-                            .name(DELETE_ACTION)
-                            .tap(Micrometer.observation(observationRegistry));
-                    })
-                    .collectList();
+                return Flux.fromIterable(actionUpdatesDTO.getDeleted())
+                        .flatMap(actionDTO -> {
+                            return newActionService
+                                    .deleteUnpublishedAction(actionDTO.getId())
+                                    // return an empty action so that the filter can remove it from the list
+                                    .onErrorResume(throwable -> {
+                                        log.debug(
+                                                "Failed to delete action with id {}, {} {} for collection: {}",
+                                                actionDTO.getId(),
+                                                branchedActionCollection.getRefType(),
+                                                branchedActionCollection.getRefName(),
+                                                actionCollectionDTO1.getName());
+                                        log.error(throwable.getMessage());
+                                        return Mono.empty();
+                                    })
+                                    .name(DELETE_ACTION)
+                                    .tap(Micrometer.observation(observationRegistry));
+                        })
+                        .collectList();
             });
         }
 
-        return  Mono.zip(addedActionsMono, deletedActionsMono, modifiedActionsMono)
-            .flatMap(tuple3 -> {
-                return updateLayoutService.updateLayoutByContextTypeAndContextId(
-                    actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId());
-            })
-            .flatMap(ignored -> postProcessingForActionChanges(id));
+        return Mono.zip(addedActionsMono, deletedActionsMono, modifiedActionsMono)
+                .flatMap(tuple3 -> {
+                    return updateLayoutService.updateLayoutByContextTypeAndContextId(
+                            actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId());
+                })
+                .flatMap(ignored -> postProcessingForActionChanges(id));
     }
 
     private void populateActionFieldsFromCollection(ActionDTO actionDTO, ActionCollection branchedActionCollection) {
@@ -595,7 +597,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     private Mono<ActionCollectionDTO> postProcessingForActionChanges(String id) {
-        return actionCollectionService.findById(id, actionPermission.getEditPermission())
+        return actionCollectionService
+                .findById(id, actionPermission.getEditPermission())
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(
                         savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))

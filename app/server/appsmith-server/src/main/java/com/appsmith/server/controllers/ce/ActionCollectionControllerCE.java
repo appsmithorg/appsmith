@@ -1,6 +1,5 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.Url;
