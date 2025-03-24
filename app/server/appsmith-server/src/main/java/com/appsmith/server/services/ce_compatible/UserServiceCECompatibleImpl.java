@@ -1,12 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.PagedDomain;
-import com.appsmith.server.dtos.ProvisionResourceDto;
-import com.appsmith.server.dtos.UserUpdateDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -25,8 +19,6 @@ import com.appsmith.server.services.ce.UserServiceCEImpl;
 import jakarta.validation.Validator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import reactor.core.publisher.Mono;
 
 @Service
 public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements UserServiceCECompatible {
@@ -66,25 +58,5 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 pacConfigurationService,
                 userServiceHelper,
                 instanceVariablesHelper);
-    }
-
-    @Override
-    public Mono<ProvisionResourceDto> createProvisionUser(User user) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<ProvisionResourceDto> updateProvisionUser(String userId, UserUpdateDTO userUpdateDTO) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<ProvisionResourceDto> getProvisionUser(String userId) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<PagedDomain<ProvisionResourceDto>> getProvisionUsers(MultiValueMap<String, String> queryParams) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }
