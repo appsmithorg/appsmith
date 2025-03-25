@@ -10,6 +10,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -35,6 +36,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -73,6 +75,8 @@ import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.DESERIALIZE_RESULT;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.EXECUTE_QUERY;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
@@ -121,10 +125,15 @@ public class MssqlPlugin extends BasePlugin {
         private final ConnectionPoolConfig connectionPoolConfig;
 
         private final ObservationRegistry observationRegistry;
+        private final ObservationHelper observationHelper;
 
-        public MssqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig, ObservationRegistry observationRegistry) {
+        public MssqlPluginExecutor(
+                ConnectionPoolConfig connectionPoolConfig,
+                ObservationRegistry observationRegistry,
+                ObservationHelper observationHelper) {
             this.connectionPoolConfig = connectionPoolConfig;
             this.observationRegistry = observationRegistry;
+            this.observationHelper = observationHelper;
         }
 
         /**
@@ -269,7 +278,10 @@ public class MssqlPlugin extends BasePlugin {
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = sqlConnectionFromPool.createStatement();
+
+                                Span exexuteQuerySpan = observationHelper.createSpan(EXECUTE_QUERY);
                                 isResultSet = statement.execute(query);
+                                exexuteQuerySpan.end();
                                 resultSet = statement.getResultSet();
                             } else {
                                 preparedQuery = sqlConnectionFromPool.prepareStatement(query);
@@ -290,7 +302,7 @@ public class MssqlPlugin extends BasePlugin {
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
-
+                            Span deserializeResultSpan = observationHelper.createSpan(DESERIALIZE_RESULT);
                             MssqlExecuteUtils.populateRowsAndColumns(
                                     rowsList,
                                     columnsList,
@@ -299,7 +311,7 @@ public class MssqlPlugin extends BasePlugin {
                                     preparedStatement,
                                     statement,
                                     preparedQuery);
-
+                            deserializeResultSpan.end();
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(
                                     MssqlPluginError.QUERY_EXECUTION_FAILED,

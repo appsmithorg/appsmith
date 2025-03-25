@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -31,7 +32,7 @@ public class PostgresDatasourceValidationTest {
     static SharedConfig mockSharedConfig = mock(SharedConfig.class);
     static ConnectionPoolConfig mockConnectionPoolConfig = mock(ConnectionPoolConfig.class);
     static PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(
-            mockSharedConfig, mockConnectionPoolConfig, ObservationRegistry.NOOP);
+            mockSharedConfig, mockConnectionPoolConfig, ObservationRegistry.NOOP, ObservationHelper.NOOP);
 
     private DatasourceConfiguration getDatasourceConfigurationWithStandardConnectionMethod() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
