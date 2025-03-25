@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type {
-  ApplicationPagePayload,
   ApplicationResponsePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
@@ -120,12 +119,7 @@ import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
-
-export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
-  const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
-
-  return defaultPage;
-};
+import { findDefaultPage } from "pages/utils";
 
 export let windowReference: Window | null = null;
 
