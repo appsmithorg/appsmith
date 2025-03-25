@@ -99,7 +99,7 @@ const mockTableProviderProps = {
   showConnectDataOverlay: false,
   onConnectData: jest.fn(),
   isInfiniteScrollEnabled: false,
-  isItemLoaded: jest.fn(),
+  endOfData: false,
 };
 
 // Test components
