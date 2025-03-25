@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.client.HttpClient;
@@ -45,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTUAL_API_CALL;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -60,6 +63,7 @@ public class RestAPIActivateUtils {
             "application/pdf",
             "application/pkcs8",
             "application/x-binary");
+
     public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(
@@ -72,8 +76,11 @@ public class RestAPIActivateUtils {
             Set<String> hintMessages,
             ActionExecutionResult errorResult,
             RequestCaptureFilter requestCaptureFilter,
-            DatasourceConfiguration datasourceConfiguration) {
+            DatasourceConfiguration datasourceConfiguration,
+            ObservationRegistry observationRegistry) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
+                .name(ACTUAL_API_CALL)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
                     HttpHeaders headers = stringResponseEntity.getHeaders();

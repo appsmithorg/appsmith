@@ -28,6 +28,7 @@ import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -36,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -46,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTUAL_API_CALL;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECUTE_COMMON;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -74,6 +78,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         private static final Set<String> jsonFields =
                 new HashSet<>(Arrays.asList(FieldName.ROW_OBJECT, FieldName.ROW_OBJECTS));
+
+        private final ObservationRegistry observationRegistry;
+
+        public GoogleSheetsPluginExecutor(ObservationRegistry observationRegistry) {
+            this.observationRegistry = observationRegistry;
+        }
 
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
@@ -150,7 +160,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, featureFlagMap);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, featureFlagMap)
+                    .name(PLUGIN_EXECUTE_COMMON)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         public Mono<ActionExecutionResult> executeCommon(
@@ -210,6 +222,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                 + oauth2.getAuthenticationResponse()
                                                         .getToken()))
                                 .exchange()
+                                .name(ACTUAL_API_CALL)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                                 .map(response -> {
                                     // Populate result object

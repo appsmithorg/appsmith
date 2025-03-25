@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.spans.ce.ActionSpanCE;
 import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -33,6 +34,7 @@ import com.external.plugins.utils.MssqlExecuteUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -40,6 +42,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -117,8 +120,11 @@ public class MssqlPlugin extends BasePlugin {
 
         private final ConnectionPoolConfig connectionPoolConfig;
 
-        public MssqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+        private final ObservationRegistry observationRegistry;
+
+        public MssqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig, ObservationRegistry observationRegistry) {
             this.connectionPoolConfig = connectionPoolConfig;
+            this.observationRegistry = observationRegistry;
         }
 
         /**
@@ -181,7 +187,9 @@ public class MssqlPlugin extends BasePlugin {
             // Replace all the bindings with a `?` as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
-            return executeCommon(hikariDSConnection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+            return executeCommon(hikariDSConnection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO)
+                    .name(ActionSpanCE.PLUGIN_EXECUTE_COMMON)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         public Mono<ActionExecutionResult> executeCommon(
