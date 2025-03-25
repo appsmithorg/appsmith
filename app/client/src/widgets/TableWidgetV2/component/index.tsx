@@ -15,7 +15,6 @@ import equal from "fast-deep-equal/es6";
 import { useCallback } from "react";
 import type { EditableCell, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
-import { useCachingVirtualization } from "./useCachingVirtualization";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -109,6 +108,7 @@ interface ReactTableComponentProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
+  endOfData: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -128,6 +128,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     disableDrag,
     editableCell,
     editMode,
+    endOfData,
     filters,
     handleColumnFreeze,
     handleReorderColumn,
@@ -171,18 +172,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     widgetName,
     width,
   } = props;
-
-  const { cachedRows, isItemLoaded, isLoadingData, loadMoreNextPage } =
-    useCachingVirtualization({
-      data: tableData,
-      editableCell,
-      isLoading,
-      nextPageClick,
-      isInfiniteScrollEnabled,
-      pageSize,
-      totalRecordsCount,
-      isAddRowInProgress,
-    });
 
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
@@ -249,13 +238,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode || CompactModeTypes.DEFAULT}
-      data={cachedRows}
+      data={tableData}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
       disabledAddNewRowSave={disabledAddNewRowSave}
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
+      endOfData={endOfData}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
@@ -263,15 +253,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       height={height}
       isAddRowInProgress={isAddRowInProgress}
       isInfiniteScrollEnabled={isInfiniteScrollEnabled}
-      isItemLoaded={isItemLoaded}
-      isLoading={isLoadingData}
+      isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
-      nextPageClick={loadMoreNextPage}
+      nextPageClick={nextPageClick}
       onAddNewRow={onAddNewRow}
       onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}

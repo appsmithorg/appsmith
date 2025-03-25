@@ -1,10 +1,9 @@
-import React, { type Ref } from "react";
+import React, { useMemo, type Ref } from "react";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
 import { LoadingIndicator } from "../../LoadingIndicator";
 import { VariableInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
-import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
 interface InfiniteScrollBodyProps {
   innerElementType: ReactElementType;
@@ -13,8 +12,8 @@ interface InfiniteScrollBodyProps {
 const InfiniteScrollBodyComponent = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
     const {
+      endOfData,
       height,
-      isItemLoaded,
       isLoading,
       nextPageClick,
       pageSize,
@@ -22,24 +21,24 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       tableSizes,
       totalRecordsCount,
     } = useAppsmithTable();
-    const { cachedRows, hasMoreData, itemCount } = useInfiniteVirtualization({
-      rows,
-      totalRecordsCount,
-      loadMore: nextPageClick,
-      pageSize,
-    });
+
+    const itemCount = useMemo(() => {
+      return totalRecordsCount && totalRecordsCount > 0
+        ? totalRecordsCount
+        : rows.length;
+    }, [totalRecordsCount, rows]);
 
     return (
       <div className="simplebar-content-wrapper">
         <VariableInfiniteVirtualList
-          hasMoreData={hasMoreData}
+          hasMoreData={!endOfData}
           height={height}
           innerElementType={props.innerElementType}
           itemCount={itemCount}
           loadMore={nextPageClick}
           outerRef={ref}
           pageSize={pageSize}
-          rows={cachedRows}
+          rows={rows}
           tableSizes={tableSizes}
         />
         {isLoading && <LoadingIndicator />}

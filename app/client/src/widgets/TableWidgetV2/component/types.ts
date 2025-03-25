@@ -80,7 +80,7 @@ export interface TableProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
-  isItemLoaded: (index: number) => boolean;
+  endOfData: boolean;
 }
 
 export interface TableProviderProps extends TableProps {
