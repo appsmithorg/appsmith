@@ -1,7 +1,10 @@
 import React, { useCallback, useMemo } from "react";
 import { EntityItem, EntityContextMenu } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
-import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
+import {
+  getJsCollectionByBaseId,
+  getJSCollectionSchemaDirtyState,
+} from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -105,6 +108,10 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
     validateName,
   ]);
 
+  const isJSActionSchemaDirty = useSelector((state: AppState) =>
+    getJSCollectionSchemaDirtyState(state, item.key),
+  );
+
   return (
     <EntityItem
       className={clsx("t--jsaction", {
@@ -119,6 +126,7 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
       rightControl={contextMenu}
       rightControlVisibility="hover"
       startIcon={JsFileIconV2(16, 16)}
+      statusIndicator={isJSActionSchemaDirty ? "warning" : undefined}
       title={item.title}
     />
   );

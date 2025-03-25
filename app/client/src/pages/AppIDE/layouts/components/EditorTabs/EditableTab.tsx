@@ -6,7 +6,11 @@ import { EditableDismissibleTab } from "@appsmith/ads";
 
 import { type EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
+import {
+  getActionSchemaDirtyState,
+  getIsSavingEntityName,
+  getJSCollectionSchemaDirtyState,
+} from "ee/selectors/entitiesSelector";
 
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { sanitizeString } from "utils/URLUtils";
@@ -61,6 +65,16 @@ export function EditableTab(props: EditableTabProps) {
     [dispatch, entity, id, segment],
   );
 
+  const isJSActionSchemaDirty = useSelector((state) =>
+    getJSCollectionSchemaDirtyState(state, id),
+  );
+
+  const isActionSchemaDirty = useSelector((state) =>
+    getActionSchemaDirtyState(state, id),
+  );
+
+  const isSchemaDirty = isJSActionSchemaDirty || isActionSchemaDirty;
+
   return (
     <EditableDismissibleTab
       dataTestId={`t--ide-tab-${sanitizeString(title)}`}
@@ -75,6 +89,7 @@ export function EditableTab(props: EditableTabProps) {
       onEnterEditMode={enterEditMode}
       onExitEditMode={exitEditMode}
       onNameSave={handleNameSave}
+      statusIndicator={isSchemaDirty ? "warning" : undefined}
       validateName={validateName}
     />
   );
