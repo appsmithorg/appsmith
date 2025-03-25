@@ -5,6 +5,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.dtos.ActionCollectionUpdateDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -104,12 +106,12 @@ public class ActionCollectionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(
-            @PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
+            @PathVariable String id, @Valid @RequestBody ActionCollectionUpdateDTO resource) {
         log.debug("Going to update action collection with id: {}", id);
         return layoutCollectionService
-                .updateUnpublishedActionCollection(id, resource)
+                .updateUnpublishedActionCollectionWithSpecificActions(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 

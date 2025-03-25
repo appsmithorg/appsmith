@@ -10,7 +10,7 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { findDefaultPage } from "ee/sagas/ApplicationSagas";
+import { findDefaultPage } from "pages/utils";
 import { fetchPageDSLSaga } from "ee/sagas/PageSagas";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";

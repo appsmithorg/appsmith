@@ -690,7 +690,7 @@ export const IMPORT_APP_FROM_GIT_TITLE = (isBeta: boolean = true) =>
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
-  "Import an application from its Git repository using its SSH URL";
+  "Import from a Git repository using its SSH URL";
 export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
@@ -2631,4 +2631,15 @@ export const DATASOURCE_SECURE_TEXT = () =>
 
 export const TABLE_LOADING_RECORDS = () => "loading records";
 
+export const TABLE_LOAD_MORE = () => "Load More";
+
 export const UPCOMING_SAAS_INTEGRATIONS = () => "Upcoming SaaS Integrations";
+
+export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
+  "No actions match your search";
+
+export const ADD_CUSTOM_ACTION = () => "Add custom action";
+
+export const CONFIG_PROPERTY_COMMAND = () => "command";
+
+export const CUSTOM_ACTION_LABEL = () => "Custom Action";

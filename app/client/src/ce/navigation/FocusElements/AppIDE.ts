@@ -249,7 +249,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.IDETabs,
       selector: getIDETabs,
       setter: setIDETabs,
-      defaultValue: {},
     },
   ],
 };

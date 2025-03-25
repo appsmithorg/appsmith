@@ -9,6 +9,7 @@ export const calcStatusChangeCount = (status: FetchStatusResponseData) => {
     modifiedJSLibs = 0,
     modifiedJSObjects = 0,
     modifiedModuleInstances = 0,
+    modifiedModules = 0,
     modifiedPages = 0,
     modifiedQueries = 0,
     modifiedSourceModules = 0,
@@ -25,6 +26,7 @@ export const calcStatusChangeCount = (status: FetchStatusResponseData) => {
     modifiedQueries +
     themeCount +
     modifiedSourceModules +
+    modifiedModules +
     modifiedModuleInstances +
     settingsCount
   );

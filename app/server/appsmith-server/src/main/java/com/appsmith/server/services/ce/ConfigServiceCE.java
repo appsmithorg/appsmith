@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
-import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -37,5 +36,5 @@ public interface ConfigServiceCE {
      * @param instanceVariables JSONObject containing the instance variables to update
      * @return Updated Config object
      */
-    Mono<Config> updateInstanceVariables(JSONObject instanceVariables);
+    Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables);
 }
