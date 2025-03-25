@@ -18,4 +18,5 @@ public class EmailVerificationToken extends BaseDomain {
     String tokenHash;
     String email;
     Instant tokenGeneratedAt;
+    String organizationId;
 }

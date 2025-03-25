@@ -133,26 +133,36 @@ class JSActionAPI extends API {
 
   static async updateJSCollection(
     jsConfig: JSCollection,
+    newActions?: Partial<JSAction>[],
+    updatedActions?: JSAction[],
+    deletedActions?: JSAction[],
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     const payload = {
-      ...jsConfig,
-      actions:
-        jsConfig.actions?.map((action) => ({
-          ...action,
-          entityReferenceType: undefined,
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          datasource: (action as any).datasource && {
+      actionCollection: {
+        ...jsConfig,
+        actions:
+          jsConfig.actions?.map((action) => ({
+            ...action,
+            entityReferenceType: undefined,
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...(action as any).datasource,
-            isValid: undefined,
-            new: undefined,
-          },
-        })) ?? undefined,
+            datasource: (action as any).datasource && {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ...(action as any).datasource,
+              isValid: undefined,
+              new: undefined,
+            },
+          })) ?? undefined,
+      },
+      actions: {
+        added: newActions,
+        updated: updatedActions,
+        deleted: deletedActions,
+      },
     };
 
-    return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
+    return API.patch(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
   static async deleteJSCollection(id: string) {

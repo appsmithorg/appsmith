@@ -166,7 +166,7 @@ export interface BaseAction {
   visualization?: {
     result: VisualizationElements;
   };
-  isDirtyMap: {
+  isDirtyMap?: {
     SCHEMA_GENERATION: boolean;
   };
 }

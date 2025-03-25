@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ConnectionContext;
 import com.external.utils.MySqlDatasourceUtils;
+import io.micrometer.observation.ObservationRegistry;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.R2dbcNonTransientResourceException;
@@ -35,7 +36,7 @@ public class MySqlStaleConnectionErrorMessageTest {
     }
 
     static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
-            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
     static MySqlDatasourceUtils mysqlDatasourceUtils = new MySqlDatasourceUtils();
 
     @Test
