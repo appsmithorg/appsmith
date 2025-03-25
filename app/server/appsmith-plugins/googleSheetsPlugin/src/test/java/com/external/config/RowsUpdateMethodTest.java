@@ -9,6 +9,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PaginationType;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RowsUpdateMethodTest {
 
-    GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
+    GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor =
+            new GoogleSheetsPlugin.GoogleSheetsPluginExecutor(ObservationRegistry.NOOP);
 
     @Test
     public void testRowUpdateMethodWithEmptyBody() {

@@ -107,12 +107,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
 
-    private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
+    protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
     private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
-            "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
+            "%s/user/verify?token=%s&email=%s&organizationId=%s&redirectUrl=%s";
 
     private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
@@ -415,20 +415,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithOrgMono = Mono.just(user)
-                .flatMap(userBeforeSave -> {
-                    if (userBeforeSave.getOrganizationId() == null) {
-                        return organizationService
-                                .getCurrentUserOrganizationId()
-                                .map(organizationId -> {
-                                    userBeforeSave.setOrganizationId(organizationId);
-                                    return userBeforeSave;
-                                });
-                    }
-                    // The org has been set already. No need to set the default org id.
-                    return Mono.just(userBeforeSave);
-                })
-                .cache();
+        Mono<User> userWithOrgMono =
+                Mono.just(user).flatMap(this::setOrganizationIdForUser).cache();
         // Save the new user
         return userWithOrgMono
                 .flatMap(this::validateObject)
@@ -542,6 +530,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     /**
+     * Sets the organization ID for a new user during signup.
+     *
+     * @param user User object for which to set the organization ID
+     * @return Mono<User> with organization ID set
+     */
+    protected Mono<User> setOrganizationIdForUser(User user) {
+        if (user.getOrganizationId() == null) {
+            return organizationService.getCurrentUserOrganizationId().map(organizationId -> {
+                user.setOrganizationId(organizationId);
+                return user;
+            });
+        }
+        return Mono.just(user);
+    }
+
+    /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
      * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
      * given admin permissions to the default workspace.
@@ -579,11 +583,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             isAdminUser = true;
         }
 
-        // No special configurations found, allow signup for the new user.
-        return userCreate(user, isAdminUser).elapsed().map(pair -> {
-            log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
-            return pair.getT2();
-        });
+        // First set the organization ID for the user
+        boolean finalIsAdminUser = isAdminUser;
+        return setOrganizationIdForUser(user)
+                // Then proceed with user creation
+                .flatMap(userWithOrgId -> userCreate(userWithOrgId, finalIsAdminUser))
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
+                    return pair.getT2();
+                });
     }
 
     @Override
@@ -701,7 +710,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+        // For anonymous users, build the profile directly from the in-memory user object
+        if (user.isAnonymous()) {
+            return getAnonymousUserProfile(user);
+        }
 
+        // For regular users, proceed with the existing flow
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
         Mono<Boolean> isSuperUserMono =
@@ -739,6 +753,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return pacConfigurationService.setRolesAndGroups(
                             profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
+    }
+
+    protected Mono<UserProfileDTO> getAnonymousUserProfile(User user) {
+        return this.isUsersEmpty().map(isUsersEmpty -> {
+            UserProfileDTO profile = new UserProfileDTO();
+            profile.setEmail(user.getEmail());
+            profile.setUsername(user.getUsername());
+            profile.setAnonymous(true);
+            profile.setEnabled(user.isEnabled());
+            profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
+            profile.setEmptyInstance(isUsersEmpty);
+            // Intercom consent is defaulted to true on cloud hosting
+            profile.setIntercomConsentGiven(commonConfig.isCloudHosting());
+
+            return profile;
+        });
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
@@ -807,12 +837,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     emailVerificationToken.setEmail(user.getEmail());
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
                                     emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    emailVerificationToken.setOrganizationId(user.getOrganizationId());
                                     return Mono.just(emailVerificationToken);
                                 }))
                                 .map(emailVerificationToken -> {
                                     // generate new token and update in db
                                     emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                    emailVerificationToken.setOrganizationId(user.getOrganizationId());
                                     return emailVerificationToken;
                                 });
                     });
@@ -822,9 +854,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     EmailVerificationToken emailVerificationToken = tuple.getT1();
                     User user = tuple.getT2();
-                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(3);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
+                    nameValuePairs.add(
+                            new BasicNameValuePair("organizationId", emailVerificationToken.getOrganizationId()));
                     String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String redirectUrlCopy = redirectUrl;
                     if (redirectUrlCopy == null) {
@@ -835,6 +869,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             resendEmailVerificationDTO.getBaseUrl(),
                             EncryptionHelper.encrypt(urlParams),
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
+                            emailVerificationToken.getOrganizationId(),
                             redirectUrlCopy);
 
                     return emailService.sendEmailVerificationEmail(
@@ -862,6 +897,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             String requestEmail = formData.getFirst("email");
             String requestedToken = formData.getFirst("token");
             String redirectUrl = formData.getFirst("redirectUrl");
+            String organizationId = formData.getFirst("organizationId");
             String enableFirstTimeUserExperienceParam =
                     ObjectUtils.defaultIfNull(formData.getFirst("enableFirstTimeUserExperience"), "false");
 
@@ -887,19 +923,30 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
             try {
                 parsedEmailTokenDTO = parseValueFromEncryptedToken(requestedToken);
-            } catch (ArrayIndexOutOfBoundsException | IllegalStateException | IllegalArgumentException e) {
-                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
-                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
                 return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
             }
 
-            Mono<WebSession> sessionMono = exchange.getSession();
-            Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
-            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
+            if (parsedEmailTokenDTO == null) {
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
+            }
 
             Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
-                    .findByEmail(parsedEmailTokenDTO.getEmail())
-                    .defaultIfEmpty(new EmailVerificationToken());
+                    .findByEmail(requestEmail)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email token")));
+
+            Mono<User> userMono = repository
+                    .findByEmailAndOrganizationId(requestEmail, organizationId)
+                    .switchIfEmpty(
+                            Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", requestEmail)));
+
+            Mono<WebSession> sessionMono = exchange.getSession();
+
+            Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
 
             return Mono.zip(emailVerificationTokenMono, userMono, sessionMono, securityContextMono)
                     .flatMap(tuple -> {
@@ -915,6 +962,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             return redirectStrategy.sendRedirect(
                                     webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
                         }
+
+                        if (!Objects.equals(emailVerificationToken.getOrganizationId(), organizationId)) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_PARAMETER, requestEmail, "Organization");
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+
                         if (FALSE.equals(isEmailVerificationTokenValid(emailVerificationToken))) {
                             errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
                                     AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED, requestEmail);
