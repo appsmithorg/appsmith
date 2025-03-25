@@ -61,6 +61,9 @@ const BASE_JS_ACTION = (useLiterals = false) => {
       timeoutInMillisecond: 1000,
       jsArguments: [],
     },
+    isDirtyMap: {
+      SCHEMA_GENERATION: false,
+    },
   };
 };
 

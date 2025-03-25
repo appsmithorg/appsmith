@@ -48,7 +48,6 @@ import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
 import CommunityTemplatesPublishInfo from "pages/Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "pages/Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
-import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAppsmithConfigs } from "ee/configs";
@@ -65,6 +64,7 @@ import useLibraryHeaderTitle from "ee/pages/AppIDE/layouts/components/Header/use
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import DeployButton from "./DeployButton";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
+import ChevronMenu from "./ChevronMenu";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -259,7 +259,7 @@ const Header = () => {
           />
           <div className="flex items-center">
             <DeployButton />
-            <DeployLinkButtonDialog link={deployLink} trigger="" />
+            <ChevronMenu deployLink={deployLink} />
           </div>
         </IDEHeader.Right>
       </IDEHeader>
