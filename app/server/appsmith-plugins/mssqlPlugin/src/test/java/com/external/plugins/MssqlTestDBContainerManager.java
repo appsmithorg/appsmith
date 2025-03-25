@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -28,8 +29,8 @@ public class MssqlTestDBContainerManager {
         }
     }
 
-    static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor =
-            new MssqlPlugin.MssqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
+    static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor = new MssqlPlugin.MssqlPluginExecutor(
+            new MockConnectionPoolConfig(), ObservationRegistry.NOOP, ObservationHelper.NOOP);
 
     public static MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 

@@ -5,6 +5,7 @@ import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -90,7 +91,7 @@ public class PostgresPluginTest {
     }
 
     PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(
-            new MockSharedConfig(), new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
+            new MockSharedConfig(), new MockConnectionPoolConfig(), ObservationRegistry.NOOP, ObservationHelper.NOOP);
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container

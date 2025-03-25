@@ -7,10 +7,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.DataTypeServiceUtils;
-import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SSHUtils;
-import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.helpers.*;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -42,6 +39,7 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -93,7 +91,7 @@ import java.util.stream.Stream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
 import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECUTE_COMMON;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.*;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_INVALID_SSH_HOSTNAME_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_HOSTNAME_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
@@ -161,6 +159,7 @@ public class PostgresPlugin extends BasePlugin {
 
     @Extension
     public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
+
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
@@ -209,15 +208,18 @@ public class PostgresPlugin extends BasePlugin {
         private final SharedConfig sharedConfig;
         private final ConnectionPoolConfig connectionPoolConfig;
         private final ObservationRegistry observationRegistry;
+        private final ObservationHelper observationHelper;
 
         public PostgresPluginExecutor(
                 SharedConfig sharedConfig,
                 ConnectionPoolConfig connectionPoolConfig,
-                ObservationRegistry observationRegistry) {
+                ObservationRegistry observationRegistry,
+                ObservationHelper observationHelper) {
             this.sharedConfig = sharedConfig;
             this.connectionPoolConfig = connectionPoolConfig;
             MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
             this.observationRegistry = observationRegistry;
+            this.observationHelper = observationHelper;
         }
 
         /**
@@ -435,7 +437,11 @@ public class PostgresPlugin extends BasePlugin {
                                                         parameters.get(i).getValue())));
 
                                 requestData.put("ps-parameters", parameters);
+                                Span executeQuerySpan = observationHelper.createSpan(EXECUTE_QUERY);
+
                                 isResultSet = preparedQuery.execute();
+                                executeQuerySpan.end();
+
                                 resultSet = preparedQuery.getResultSet();
                             }
 
@@ -454,6 +460,8 @@ public class PostgresPlugin extends BasePlugin {
                                 columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                                 int iterator = 0;
+                                Span deserializeResultSpan = observationHelper.createSpan(DESERIALIZE_RESULT);
+
                                 while (resultSet.next()) {
 
                                     // Only check the data size at low frequency to ensure the performance is not
@@ -539,6 +547,7 @@ public class PostgresPlugin extends BasePlugin {
 
                                     iterator++;
                                 }
+                                deserializeResultSpan.end();
                             }
 
                         } catch (SQLException e) {
