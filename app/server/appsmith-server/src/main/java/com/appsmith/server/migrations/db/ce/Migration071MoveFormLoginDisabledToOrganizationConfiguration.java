@@ -18,8 +18,8 @@ import static com.appsmith.server.migrations.db.ce.Migration021MoveGoogleMapsKey
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "070", id = "move-form-login-disabled-to-organization-configuration")
-public class Migration070MoveFormLoginDisabledToOrganizationConfiguration {
+@ChangeUnit(order = "071", id = "move-form-login-disabled-to-organization-configuration")
+public class Migration071MoveFormLoginDisabledToOrganizationConfiguration {
     private final MongoTemplate mongoTemplate;
     private final CommonConfig commonConfig;
 

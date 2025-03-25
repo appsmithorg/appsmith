@@ -175,8 +175,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                         config.addThirdPartyAuth("github");
                     }
 
-                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
-
                     return configService
                             .getInstanceVariables()
                             .map(instanceVariables -> instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
