@@ -1199,7 +1199,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formName,
     isInsideReconnectModal: props.isInsideReconnectModal ?? false,
     pluginId,
-    isSaving: datasources.loading,
+    isSaving: datasources.loading && datasources.loadingPluginId === pluginId,
     isDeleting: !!(datasource as Datasource)?.isDeleting,
     isPluginAuthorized: !!isPluginAuthorized,
     isTesting: datasources.isTesting,
