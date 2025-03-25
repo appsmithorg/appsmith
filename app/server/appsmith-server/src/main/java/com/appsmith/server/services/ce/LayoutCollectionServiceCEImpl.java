@@ -550,7 +550,37 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             });
         }
 
+        String body = actionCollectionDTO.getBody();
+        Number lineCount = 0;
+        if (body != null && !body.isEmpty()) {
+            lineCount = body.split("\n").length;
+        }
+        Number actionCount = 0;
+        if (actionCollectionDTO.getActions() != null
+                && !actionCollectionDTO.getActions().isEmpty()) {
+            actionCount = actionCollectionDTO.getActions().size();
+        }
+
         return Mono.zip(addedActionsMono, deletedActionsMono, modifiedActionsMono)
+                .flatMap(tuple -> {
+                    return branchedActionCollectionMono.map(dbActionCollection -> {
+                        actionCollectionDTO.setId(null);
+                        actionCollectionDTO.setBaseId(null);
+                        resetContextId(actionCollectionDTO);
+                        // Since we have a different endpoint to update the body, we need to remove it from the DTO
+                        actionCollectionDTO.setBody(null);
+
+                        copyNewFieldValuesIntoOldObject(
+                                actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+
+                        return dbActionCollection;
+                    });
+                })
+                .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .tag("lineCount", lineCount.toString())
+                .tag("actionCount", actionCount.toString())
+                .name(ACTION_COLLECTION_UPDATE)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tuple3 -> {
                     return updateLayoutService.updateLayoutByContextTypeAndContextId(
                             actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId());
