@@ -44,6 +44,7 @@ import { klona as klonaLite } from "klona/lite";
 import { klona as klonaJson } from "klona/json";
 
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
+import type { Property } from "entities/Action";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -1300,4 +1301,16 @@ export function getDomainFromEmail(email: string) {
   const final_domain = email_string_array[domain_string_location];
 
   return final_domain;
+}
+
+export function isEmptyKeyValue(value: Property | Property[]): boolean {
+  if (Array.isArray(value)) {
+    return value.every((item) => isEmptyKeyValue(item));
+  }
+
+  if (typeof value === "object") {
+    return !value.key && !value.value;
+  }
+
+  return false;
 }
