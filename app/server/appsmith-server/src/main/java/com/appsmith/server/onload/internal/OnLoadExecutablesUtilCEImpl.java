@@ -58,6 +58,7 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_T
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
+import static com.appsmith.external.constants.spans.ce.OnLoadSpanCE.GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -667,8 +668,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
             List<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
-                astService.getPossibleReferencesFromDynamicBinding(bindings, evalVersion);
+        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
+                .getPossibleReferencesFromDynamicBinding(bindings, evalVersion)
+                .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
+                .tap(Micrometer.observation(observationRegistry));
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 

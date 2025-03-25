@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_VARIABLES;
+
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
     private final ConfigRepository repository;
@@ -91,5 +93,34 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     @Override
     public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
         return repository.findByNameAsUser(name, user, permission);
+    }
+
+    @Override
+    public Mono<Map<String, Object>> getInstanceVariables() {
+        return getByName(FieldName.INSTANCE_CONFIG).map(config -> {
+            Object instanceVariablesObj = config.getConfig().getOrDefault(INSTANCE_VARIABLES, new JSONObject());
+            Map<String, Object> instanceVariables;
+
+            if (instanceVariablesObj instanceof JSONObject) {
+                instanceVariables = ((JSONObject) instanceVariablesObj);
+            } else if (instanceVariablesObj instanceof Map) {
+                instanceVariables = (Map<String, Object>) instanceVariablesObj;
+            } else {
+                instanceVariables = new JSONObject();
+            }
+
+            return instanceVariables;
+        });
+    }
+
+    @Override
+    public Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables) {
+        // TODO @CloudBilling add manage instance permission once the migration for variables is complete
+        return getByName(FieldName.INSTANCE_CONFIG).flatMap(config -> {
+            JSONObject configObj = config.getConfig();
+            configObj.put(INSTANCE_VARIABLES, instanceVariables);
+            config.setConfig(configObj);
+            return repository.save(config);
+        });
     }
 }

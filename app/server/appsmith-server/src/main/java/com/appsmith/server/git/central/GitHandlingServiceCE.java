@@ -55,12 +55,12 @@ public interface GitHandlingServiceCE {
 
     Mono<Boolean> removeRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
-    Mono<List<String>> listBranches(
+    Mono<List<GitRefDTO>> listBranches(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteBranches);
 
-    Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+    Mono<List<GitRefDTO>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
-    Mono<List<String>> listReferences(
+    Mono<List<GitRefDTO>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences);
 
     Mono<String> getDefaultBranchFromRepository(

@@ -13,6 +13,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.EnvManager;
@@ -81,6 +82,9 @@ class OrganizationServiceCETest {
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    @Autowired
+    ConfigService configService;
+
     OrganizationConfiguration originalOrganizationConfiguration;
 
     @BeforeEach
@@ -97,6 +101,7 @@ class OrganizationServiceCETest {
                         null)
                 .block();
 
+        configService.updateInstanceVariables(new HashMap<>()).block();
         // Make api_user super-user to test organization admin functionality
         // Todo change this to organization admin once we introduce multitenancy
         userRepository
@@ -117,16 +122,6 @@ class OrganizationServiceCETest {
                     System.err.println("Error during cleanup: " + error.getMessage());
                 })
                 .block();
-    }
-
-    @Test
-    void ensureMapsKey() {
-        StepVerifier.create(organizationService.getOrganizationConfiguration())
-                .assertNext(organization -> {
-                    assertThat(organization.getOrganizationConfiguration().getGoogleMapsKey())
-                            .isNull();
-                })
-                .verifyComplete();
     }
 
     @Test
@@ -240,7 +235,7 @@ class OrganizationServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(organizationConfiguration -> {
-                    assertThat(organizationConfiguration.isEmailVerificationEnabled())
+                    assertThat(organizationConfiguration.getEmailVerificationEnabled())
                             .isTrue();
                 })
                 .verifyComplete();
@@ -259,7 +254,7 @@ class OrganizationServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(organizationConfiguration -> {
-                    assertThat(organizationConfiguration.isEmailVerificationEnabled())
+                    assertThat(organizationConfiguration.getEmailVerificationEnabled())
                             .isFalse();
                 })
                 .verifyComplete();

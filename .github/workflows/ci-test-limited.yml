@@ -45,10 +45,6 @@ jobs:
         image: redis
         ports:
           - 6379:6379
-      postgres:
-        image: postgres:14
-        ports:
-          - 5432:5432
       mongo:
         image: mongo
         ports:

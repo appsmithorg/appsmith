@@ -34,6 +34,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
@@ -258,7 +259,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
-
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
@@ -361,6 +361,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 : getCachedPluginForActionExecution(datasourceStorageMono)
                         .name(GET_CACHED_PLUGIN_FOR_ACTION_EXECUTION)
                         .tap(Micrometer.observation(observationRegistry));
+
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                 .getPluginExecutor(pluginMono)
                 .name(GET_PLUGIN_EXECUTOR)
@@ -376,7 +377,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         executeActionMetaDTO.getHeaders())
                 .name(GET_ACTION_EXECUTION_RESULT)
                 .tap(Micrometer.observation(observationRegistry));
-
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceStorageMono);
 
         return actionExecutionResultMono
@@ -762,25 +762,34 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorage datasourceStorage,
             Plugin plugin,
             PluginExecutor pluginExecutor) {
-
-        Mono<ActionExecutionResult> executionMono = authenticationValidator
+        Mono<DatasourceStorage> validatedDatasourceMono = authenticationValidator
                 .validateAuthentication(datasourceStorage)
-                .zipWhen(validatedDatasource -> datasourceContextService
+                .cache()
+                .name(VALIDATE_AUTHENTICATION_DATASOURCE_STORAGE)
+                .tap(Micrometer.observation(observationRegistry));
+
+        Mono<DatasourceContext<?>> datasourceContextMono =
+                validatedDatasourceMono.flatMap(validatedDatasource -> datasourceContextService
                         .getDatasourceContext(validatedDatasource, plugin)
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
-                        .tap(Micrometer.observation(observationRegistry)))
-                .flatMap(tuple2 -> {
-                    DatasourceStorage datasourceStorage1 = tuple2.getT1();
-                    DatasourceContext<?> resourceContext = tuple2.getT2();
+                        .tap(Micrometer.observation(observationRegistry)));
+
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
+
+        Mono<ActionExecutionResult> executionMono = Mono.zip(
+                        validatedDatasourceMono, datasourceContextMono, organizationIdMono)
+                .flatMap(tuple3 -> {
+                    DatasourceStorage datasourceStorage1 = tuple3.getT1();
+                    DatasourceContext<?> resourceContext = tuple3.getT2();
+                    String organizationId = tuple3.getT3();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
-                            ? featureFlagService
-                                    .getCachedOrganizationFeatureFlags()
-                                    .getFeatures()
-                            : Collections.emptyMap();
+                    Map<String, Boolean> features = Optional.ofNullable(
+                                    featureFlagService.getCachedOrganizationFeatureFlags(organizationId))
+                            .map(CachedFeatures::getFeatures)
+                            .orElse(Collections.emptyMap());
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
@@ -907,17 +916,18 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     Mono<ActionDTO> actionDTOWithAutoGeneratedHeadersMono =
                             setAutoGeneratedHeaders(plugin, actionDTO, httpHeaders);
 
-                    Mono<ActionExecutionResult> actionExecutionResultMono =
-                            actionDTOWithAutoGeneratedHeadersMono.flatMap(actionDTO1 -> verifyDatasourceAndMakeRequest(
+                    Mono<ActionExecutionResult> actionExecutionResultMono = actionDTOWithAutoGeneratedHeadersMono
+                            .flatMap(actionDTO1 -> verifyDatasourceAndMakeRequest(
                                             executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
-                                    .timeout(Duration.ofMillis(timeoutDuration)));
+                                    .timeout(Duration.ofMillis(timeoutDuration)))
+                            .name(VERIFY_DATASOURCE_AND_MAKE_REQUEST)
+                            .tap(Micrometer.observation(observationRegistry));
 
                     ActionConfiguration finalRawActionConfiguration = rawActionConfiguration;
                     return actionExecutionResultMono
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
                             .elapsed()
-                            // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
                                 Long timeElapsed = tuple1.getT1();
                                 ActionExecutionResult result = tuple1.getT2();

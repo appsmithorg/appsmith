@@ -37,11 +37,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.postpublishhooks.base.PostPublishHookCoordinatorService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -66,12 +68,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -131,6 +136,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    private final PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -1037,9 +1044,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publishWithoutPermissionChecks(String applicationId, boolean isPublishedManually) {
+        Mono<SecurityContext> contextMono = ReactiveSecurityContextHolder.getContext();
+
         return publishAndGetMetadata(applicationId, isPublishedManually)
+                .zipWith(contextMono)
                 .flatMap(tuple2 -> {
-                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
+                    postApplicationPublishHookCoordinatorService
+                            .executePostPublishHooks(applicationId)
+                            .contextWrite(Context.of(SecurityContext.class, Mono.just(tuple2.getT2())))
+                            .subscribeOn(LoadShifter.elasticScheduler)
+                            .subscribe();
+                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT1().getT2();
                     return sendApplicationPublishedEvent(metaDTO);
                 })
                 .elapsed()

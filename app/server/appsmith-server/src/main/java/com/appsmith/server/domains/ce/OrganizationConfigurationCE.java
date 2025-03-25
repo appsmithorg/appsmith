@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,15 +21,21 @@ import java.util.Map;
 @FieldNameConstants
 public class OrganizationConfigurationCE implements Serializable {
 
+    @Transient
+    @Deprecated(forRemoval = true, since = "v1.65")
     private String googleMapsKey;
 
     private Boolean isFormLoginEnabled;
 
+    @Transient
+    @Deprecated(forRemoval = true, since = "v1.65")
     private String instanceName;
 
     protected License license;
 
     // organization admin can toggle this field to enable/disable email verification
+    @Transient
+    @Deprecated(forRemoval = true, since = "v1.65")
     private Boolean emailVerificationEnabled;
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
@@ -79,7 +86,7 @@ public class OrganizationConfigurationCE implements Serializable {
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         instanceName = ObjectUtils.defaultIfNull(organizationConfiguration.getInstanceName(), instanceName);
         emailVerificationEnabled = ObjectUtils.defaultIfNull(
-                organizationConfiguration.isEmailVerificationEnabled(), emailVerificationEnabled);
+                organizationConfiguration.getEmailVerificationEnabled(), emailVerificationEnabled);
 
         featuresWithPendingMigration = organizationConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = organizationConfiguration.getMigrationStatus();
@@ -87,9 +94,9 @@ public class OrganizationConfigurationCE implements Serializable {
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
     }
 
-    public Boolean isEmailVerificationEnabled() {
-        return Boolean.TRUE.equals(this.emailVerificationEnabled);
+    public static class Fields {
+        public Fields() {
+            // Public constructor for Fields class
+        }
     }
-
-    public static class Fields {}
 }

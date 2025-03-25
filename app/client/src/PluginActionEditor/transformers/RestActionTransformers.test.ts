@@ -40,6 +40,9 @@ const BASE_ACTION: ApiAction = {
     },
     timeoutInMillisecond: 5000,
   },
+  isDirtyMap: {
+    SCHEMA_GENERATION: false,
+  },
   jsonPathKeys: [],
   messages: [],
 };

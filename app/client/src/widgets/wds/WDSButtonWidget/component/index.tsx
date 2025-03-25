@@ -17,9 +17,13 @@ export interface ButtonComponentProps extends ButtonProps {
 }
 
 function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
-  const { icon, text, tooltip, ...rest } = props;
+  const { icon, onClick: onClickProp, text, tooltip, ...rest } = props;
   const { isFormValid, onReset } = useWDSZoneWidgetContext();
-  const { onClick, recpatcha } = useRecaptcha({ ...props, onReset });
+  const { onClick, recpatcha } = useRecaptcha({
+    ...props,
+    onClick: onClickProp,
+    onReset,
+  });
 
   const isDisabled =
     props.isDisabled || (props.disableOnInvalidForm && isFormValid === false);

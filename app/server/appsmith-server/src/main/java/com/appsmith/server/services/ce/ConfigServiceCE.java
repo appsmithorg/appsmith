@@ -24,4 +24,17 @@ public interface ConfigServiceCE {
     Mono<Config> getByName(String name, AclPermission permission);
 
     Mono<Config> getByNameAsUser(String name, User user, AclPermission permission);
+
+    /**
+     * Get the instance variables from the instance config
+     * @return Map containing the instance variables
+     */
+    Mono<Map<String, Object>> getInstanceVariables();
+
+    /**
+     * Update the instance variables in the instance config
+     * @param instanceVariables JSONObject containing the instance variables to update
+     * @return Updated Config object
+     */
+    Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables);
 }

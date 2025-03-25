@@ -22,6 +22,7 @@ export interface PluginActionEditorState {
   isCreating: boolean;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
+  isSchemaGenerating: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
@@ -34,6 +35,7 @@ const initialState: PluginActionEditorState = {
   isCreating: false,
   isRunning: {},
   isSaving: {},
+  isSchemaGenerating: {},
   isDeleting: {},
   isDirty: {},
   runErrorMessage: {},
@@ -140,6 +142,44 @@ export const handlers = {
 
     set(state, ["isRunning", id], false);
     set(state, ["runErrorMessage", id], error.message);
+  },
+  [ReduxActionTypes.GENERATE_PLUGIN_ACTION_SCHEMA_REQUEST]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{
+      id: string;
+    }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], true);
+  },
+  [ReduxActionTypes.GENERATE_PLUGIN_ACTION_SCHEMA_SUCCESS]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
+  },
+  [ReduxActionErrorTypes.GENERATE_PLUGIN_ACTION_SCHEMA_ERROR]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
+  },
+  [ReduxActionTypes.GENERATE_AI_AGENT_SCHEMA_REQUEST]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], true);
+  },
+  [ReduxActionTypes.GENERATE_AI_AGENT_SCHEMA_SUCCESS]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
+  },
+  [ReduxActionErrorTypes.GENERATE_AI_AGENT_SCHEMA_ERROR]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,

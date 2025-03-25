@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -56,6 +57,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     private final UserOrganizationHelper userOrganizationHelper;
 
+    private final InstanceVariablesHelper instanceVariablesHelper;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -66,7 +69,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
             ObservationRegistry observationRegistry,
-            UserOrganizationHelper userOrganizationHelper) {
+            UserOrganizationHelper userOrganizationHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -75,6 +79,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
         this.userOrganizationHelper = userOrganizationHelper;
+        this.instanceVariablesHelper = instanceVariablesHelper;
     }
 
     @Override
@@ -98,7 +103,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     }
                     Mono<Map<String, String>> envMono = Mono.empty();
                     // instance admin is setting the email verification to true but the SMTP settings are not configured
-                    if (organizationConfiguration.isEmailVerificationEnabled() == Boolean.TRUE) {
+                    if (Boolean.TRUE.equals(organizationConfiguration.getEmailVerificationEnabled())) {
                         envMono = envManager.getAllNonEmpty().flatMap(properties -> {
                             String mailHost = properties.get("APPSMITH_MAIL_HOST");
                             if (mailHost == null || mailHost == "") {
@@ -123,10 +128,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     Mono<Organization> updatedOrganizationMono = repository
                             .updateById(organizationId, organization, MANAGE_ORGANIZATION)
                             .cache();
+
                     // Firstly updating the Organization object in the database and then evicting the cache.
                     // returning the updatedOrganization, notice the updatedOrganizationMono is cached using .cache()
                     // hence it will not be evaluated again
                     return updatedOrganizationMono
+                            .then(instanceVariablesHelper.updateInstanceVariables(organizationConfiguration))
                             .then(Mono.defer(() -> evictOrganizationCache))
                             .then(Mono.defer(() -> allSideEffectsMono))
                             .then(updatedOrganizationMono);
@@ -149,17 +156,16 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
+
         Mono<Organization> clientOrganizationMono = configService
                 .getInstanceId()
-                .map(instanceId -> {
+                .flatMap(instanceId -> {
                     final Organization organization = new Organization();
                     organization.setInstanceId(instanceId);
                     organization.setAdminEmailDomainHash(adminEmailDomainHash);
 
                     final OrganizationConfiguration config = new OrganizationConfiguration();
                     organization.setOrganizationConfiguration(config);
-
-                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
                     if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
                         config.addThirdPartyAuth("google");
@@ -171,7 +177,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
                     config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
-                    return organization;
+                    return configService
+                            .getInstanceVariables()
+                            .map(instanceVariables -> instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
+                                    instanceVariables, config))
+                            .map(organizationConfiguration -> {
+                                organization.setOrganizationConfiguration(organizationConfiguration);
+                                return organization;
+                            });
                 });
 
         return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {

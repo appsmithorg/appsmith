@@ -152,5 +152,8 @@ export const newlyCreatedActions: Action[] = [
       "execute:actions",
       "manage:actions",
     ],
+    isDirtyMap: {
+      SCHEMA_GENERATION: false,
+    },
   },
 ];
