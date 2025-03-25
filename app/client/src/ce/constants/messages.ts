@@ -1579,6 +1579,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "What is your general development proficiency?";
+export const WELCOME_FORM_FULL_NAME = () => "What’s your full name?";
 
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
