@@ -32,7 +32,6 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTUAL_API_CALL;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECUTE_COMMON;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
@@ -81,7 +81,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         private final ObservationRegistry observationRegistry;
 
-        @Autowired
         public GoogleSheetsPluginExecutor(ObservationRegistry observationRegistry) {
             this.observationRegistry = observationRegistry;
         }
@@ -223,6 +222,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                 + oauth2.getAuthenticationResponse()
                                                         .getToken()))
                                 .exchange()
+                                .name(ACTUAL_API_CALL)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                                 .map(response -> {
                                     // Populate result object

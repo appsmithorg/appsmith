@@ -50,7 +50,6 @@ import org.pf4j.PluginWrapper;
 import org.postgresql.util.PGobject;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -211,7 +210,6 @@ public class PostgresPlugin extends BasePlugin {
         private final ConnectionPoolConfig connectionPoolConfig;
         private final ObservationRegistry observationRegistry;
 
-        @Autowired
         public PostgresPluginExecutor(
                 SharedConfig sharedConfig,
                 ConnectionPoolConfig connectionPoolConfig,

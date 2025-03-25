@@ -53,7 +53,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -171,7 +170,6 @@ public class MySqlPlugin extends BasePlugin {
 
         private final ObservationRegistry observationRegistry;
 
-        @Autowired
         public MySqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig, ObservationRegistry observationRegistry) {
             this.connectionPoolConfig = connectionPoolConfig;
             this.observationRegistry = observationRegistry;

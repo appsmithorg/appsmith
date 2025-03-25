@@ -23,6 +23,7 @@ public class ActionSpanCE {
     public static final String CREATE_AND_EXECUTE_QUERY_FROM_CONNECTION =
             APPSMITH_SPAN_PREFIX + "createAndExecuteQueryFromConnection";
 
+    public static final String ACTUAL_API_CALL = APPSMITH_SPAN_PREFIX + "actualApiCall";
     public static final String TRIGGER_API_CALL = APPSMITH_SPAN_PREFIX + "triggerApiCall";
 
     public static final String ACTION_EXECUTION_SERVER_EXECUTION = APPSMITH_SPAN_PREFIX + "total.server.execution";

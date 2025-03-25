@@ -25,7 +25,6 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.observability.micrometer.Micrometer;
@@ -54,7 +53,6 @@ public class RestApiPlugin extends BasePlugin {
     public static class RestApiPluginExecutor extends BaseRestApiPluginExecutor {
         private final ObservationRegistry observationRegistry;
 
-        @Autowired
         public RestApiPluginExecutor(SharedConfig sharedConfig, ObservationRegistry observationRegistry) {
             super(sharedConfig);
             this.observationRegistry = observationRegistry;
@@ -216,7 +214,8 @@ public class RestApiPlugin extends BasePlugin {
                             hintMessages,
                             errorResult,
                             requestCaptureFilter,
-                            datasourceConfiguration)
+                            datasourceConfiguration,
+                            observationRegistry)
                     .name(TRIGGER_API_CALL)
                     .tap(Micrometer.observation(observationRegistry))
                     .onErrorResume(error -> {

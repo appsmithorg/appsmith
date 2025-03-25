@@ -69,7 +69,6 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -230,7 +229,6 @@ public class MongoPlugin extends BasePlugin {
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
         private final ObservationRegistry observationRegistry;
 
-        @Autowired
         public MongoPluginExecutor(ObservationRegistry observationRegistry) {
             this.observationRegistry = observationRegistry;
         }
