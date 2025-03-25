@@ -6,7 +6,7 @@ import { EditableEntityName } from "../../EditableEntityName";
 import { useActiveDoubleClick } from "../../../__hooks__";
 
 export const EntityItem = (props: EntityItemProps) => {
-  const { onDoubleClick, startIcon, ...rest } = props;
+  const { onDoubleClick, startIcon, statusIndicator, ...rest } = props;
 
   const doubleClickOverride = useActiveDoubleClick(
     props.isSelected || false,
@@ -40,6 +40,7 @@ export const EntityItem = (props: EntityItemProps) => {
         onNameSave={onNameSave}
         showEllipsis
         size="medium"
+        statusIndicator={statusIndicator}
         validateName={validateName}
       />
     );
@@ -52,6 +53,7 @@ export const EntityItem = (props: EntityItemProps) => {
     onNameSave,
     props.title,
     startIcon,
+    statusIndicator,
     validateName,
   ]);
 

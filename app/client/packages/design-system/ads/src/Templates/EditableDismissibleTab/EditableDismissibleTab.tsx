@@ -22,6 +22,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
     onEnterEditMode: propOnEnterEditMode,
     onExitEditMode: propOnExitEditMode,
     onNameSave,
+    statusIndicator,
     validateName,
   } = props;
 
@@ -58,6 +59,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
         name={name}
         onExitEditing={handleExitEditMode}
         onNameSave={onNameSave}
+        statusIndicator={statusIndicator}
         validateName={validateName}
       />
     </DismissibleTab>
