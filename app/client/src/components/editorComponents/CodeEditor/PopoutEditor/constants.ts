@@ -16,7 +16,7 @@ export const RND_CONFIG = {
   bounds: "window",
   minHeight: 300,
   minWidth: 400,
-  defaultWith: 600,
+  defaultWidth: 600,
   defaultHeight: 400,
 };
 

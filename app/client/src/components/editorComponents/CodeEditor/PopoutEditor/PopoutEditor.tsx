@@ -51,7 +51,7 @@ export interface PopoutEditorProps extends Partial<EditorProps> {
   onClose: () => void;
   theme: EditorTheme;
   value: string;
-  widgetName: string;
+  widgetName?: string;
 }
 
 export function PopoutEditor(props: PopoutEditorProps) {
@@ -72,12 +72,12 @@ export function PopoutEditor(props: PopoutEditorProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   const defaultPosition = useMemo(() => {
-    const { defaultHeight, defaultWith } = RND_CONFIG;
+    const { defaultHeight, defaultWidth } = RND_CONFIG;
 
     return {
-      x: Math.max((window.innerWidth - defaultWith) / 2, 0),
+      x: Math.max((window.innerWidth - defaultWidth) / 2, 0),
       y: Math.max((window.innerHeight - defaultHeight) / 2, 0),
-      width: defaultWith,
+      width: defaultWidth,
       height: defaultHeight,
     };
   }, []);
@@ -89,6 +89,21 @@ export function PopoutEditor(props: PopoutEditorProps) {
     }),
     [onChange, value],
   );
+
+  const title = useMemo(() => {
+    if (widgetName) {
+      return (
+        <>
+          <Text color="var(--ads-v2-color-fg-subtle)" kind="heading-xs">
+            {widgetName}&nbsp;/
+          </Text>
+          <Text kind="heading-xs">&nbsp;{label}</Text>
+        </>
+      );
+    }
+
+    return <Text kind="heading-xs">&nbsp;{label}</Text>;
+  }, [label, widgetName]);
 
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [editorContainerHeight, setEditorContainerHeight] =
@@ -143,10 +158,7 @@ export function PopoutEditor(props: PopoutEditorProps) {
                 name="drag-control"
                 size="md"
               />
-              <Text color="var(--ads-v2-color-fg-subtle)" kind="heading-xs">
-                {widgetName}&nbsp;/
-              </Text>
-              <Text kind="heading-xs">&nbsp;{label}</Text>
+              {title}
             </Flex>
             <Button
               isIconButton

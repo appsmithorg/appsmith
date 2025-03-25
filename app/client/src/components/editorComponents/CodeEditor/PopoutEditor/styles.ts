@@ -6,7 +6,7 @@ export const Backdrop = styled.div`
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 20;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,7 +24,6 @@ export const PopoutContainer = styled.div`
   width: 100%;
   overflow: hidden;
   position: relative;
-  z-index: 21;
   pointer-events: auto;
 `;
 

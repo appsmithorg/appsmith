@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
@@ -17,6 +17,11 @@ import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { PopoutEditor } from "components/editorComponents/CodeEditor/PopoutEditor";
+import { useBoolean } from "usehooks-ts";
+import { Flex } from "@appsmith/ads";
+
+const HINT_HELPERS = [bindingHintHelper, slashCommandHintHelper];
 
 export function InputText(props: {
   label: string;
@@ -36,6 +41,7 @@ export function InputText(props: {
   enableAI?: boolean;
   isEditorHidden?: boolean;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
+  widgetName?: string;
 }) {
   const {
     blockCompletions,
@@ -50,38 +56,77 @@ export function InputText(props: {
     onChange,
     onFocus,
     placeholder,
+    theme = EditorTheme.LIGHT,
     value,
+    widgetName,
   } = props;
 
+  const {
+    setFalse: handlePopOutEditorClose,
+    setTrue: handlePopOutEditorOpen,
+    value: isPopoutOpen,
+  } = useBoolean(false);
+
+  const inputProps = useMemo(() => {
+    return {
+      value: value,
+      onChange: onChange,
+    };
+  }, [onChange, value]);
+
   return (
-    <StyledDynamicInput>
-      <LazyCodeEditor
-        AIAssisted={enableAI}
-        additionalDynamicData={props.additionalAutocomplete}
-        blockCompletions={blockCompletions}
-        border={CodeEditorBorder.ALL_SIDE}
-        dataTreePath={dataTreePath}
-        evaluatedPopUpLabel={label}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        hideEvaluatedValue={hideEvaluatedValue}
-        hinting={[bindingHintHelper, slashCommandHintHelper]}
-        hoverInteraction
-        input={{
-          value: value,
-          onChange: onChange,
-        }}
-        isEditorHidden={isEditorHidden}
-        mode={EditorModes.TEXT_WITH_BINDING}
-        onEditorBlur={onBlur}
-        onEditorFocus={onFocus}
-        placeholder={placeholder}
-        positionCursorInsideBinding
-        size={EditorSize.EXTENDED}
-        tabBehaviour={TabBehaviour.INDENT}
-        theme={props.theme || EditorTheme.LIGHT}
-      />
-    </StyledDynamicInput>
+    <div className="relative">
+      {isPopoutOpen ? (
+        <Flex
+          alignItems="center"
+          bg="var(--ads-v2-color-bg)"
+          border="1px solid var(--ads-v2-color-border)"
+          borderRadius="var(--ads-v2-border-radius)"
+          h="36px"
+          justifyContent="center"
+          w="100%"
+        />
+      ) : (
+        <StyledDynamicInput>
+          <LazyCodeEditor
+            AIAssisted={enableAI}
+            additionalDynamicData={props.additionalAutocomplete}
+            blockCompletions={blockCompletions}
+            border={CodeEditorBorder.ALL_SIDE}
+            dataTreePath={dataTreePath}
+            evaluatedPopUpLabel={label}
+            evaluatedValue={evaluatedValue}
+            expected={expected}
+            hideEvaluatedValue={hideEvaluatedValue}
+            hinting={HINT_HELPERS}
+            hoverInteraction
+            input={inputProps}
+            isEditorHidden={isEditorHidden}
+            mode={EditorModes.TEXT_WITH_BINDING}
+            onEditorBlur={onBlur}
+            onEditorFocus={onFocus}
+            onExpandTriggerClick={handlePopOutEditorOpen}
+            placeholder={placeholder}
+            positionCursorInsideBinding
+            showExpandTrigger
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={theme}
+          />
+        </StyledDynamicInput>
+      )}
+      {isPopoutOpen && (
+        <PopoutEditor
+          {...props}
+          label={label}
+          onChange={onChange}
+          onClose={handlePopOutEditorClose}
+          theme={theme}
+          value={value}
+          widgetName={widgetName}
+        />
+      )}
+    </div>
   );
 }
 
@@ -101,6 +146,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       onFocus,
       placeholderText,
       propertyValue,
+      widgetProperties: { widgetName },
     } = this.props;
 
     //subscribing to context to help re-render component on Property section open or close
@@ -120,6 +166,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         placeholder={placeholderText}
         theme={this.props.theme}
         value={propertyValue !== undefined ? propertyValue : defaultValue}
+        widgetName={widgetName}
       />
     );
   }
