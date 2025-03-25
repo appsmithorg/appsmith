@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.observation.ObservationRegistry;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -88,8 +89,8 @@ public class PostgresPluginTest {
         }
     }
 
-    PostgresPlugin.PostgresPluginExecutor pluginExecutor =
-            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig(), new MockConnectionPoolConfig());
+    PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(
+            new MockSharedConfig(), new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container

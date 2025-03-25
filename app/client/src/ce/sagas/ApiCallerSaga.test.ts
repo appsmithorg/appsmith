@@ -102,9 +102,17 @@ describe("updateJSCollectionAPICall", () => {
       },
       updateJSCollectionAPICall as Saga,
       jsCollection,
+      [],
+      [],
+      [],
     ).toPromise();
 
-    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(jsCollection);
+    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
+      jsCollection,
+      [],
+      [],
+      [],
+    );
     expect(result).toEqual(response);
   });
 
@@ -124,11 +132,19 @@ describe("updateJSCollectionAPICall", () => {
         },
         updateJSCollectionAPICall as Saga,
         jsCollection,
+        [],
+        [],
+        [],
       ).toPromise();
     } catch (e) {
       expect(e).toEqual(error);
     }
 
-    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(jsCollection);
+    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
+      jsCollection,
+      [],
+      [],
+      [],
+    );
   });
 });

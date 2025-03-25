@@ -11,6 +11,7 @@ import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.SharedConfig;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ public class PostgresDatasourceValidationTest {
 
     static SharedConfig mockSharedConfig = mock(SharedConfig.class);
     static ConnectionPoolConfig mockConnectionPoolConfig = mock(ConnectionPoolConfig.class);
-    static PostgresPlugin.PostgresPluginExecutor pluginExecutor =
-            new PostgresPlugin.PostgresPluginExecutor(mockSharedConfig, mockConnectionPoolConfig);
+    static PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(
+            mockSharedConfig, mockConnectionPoolConfig, ObservationRegistry.NOOP);
 
     private DatasourceConfiguration getDatasourceConfigurationWithStandardConnectionMethod() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();

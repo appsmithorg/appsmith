@@ -1,5 +1,6 @@
 import { getSearchQuery } from "utils/helpers";
 import type { Location } from "history";
+import type { ApplicationPagePayload } from "ee/api/ApplicationApi";
 
 export const getIsBranchUpdated = (
   prevLocation: Location<unknown>,
@@ -28,4 +29,9 @@ export const removeClassFromDocumentRoot = (className: string) => {
   if (!!element) {
     element.classList.remove(className);
   }
+};
+export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
+  const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
+
+  return defaultPage;
 };
