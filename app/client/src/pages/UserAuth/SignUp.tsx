@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, formValueSelector } from "redux-form";
-import { AUTH_LOGIN_URL } from "constants/routes";
+import { AUTH_LOGIN_URL, ORG_LOGIN_PATH } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "ee/constants/forms";
 import type { RouteComponentProps } from "react-router-dom";
 import { useHistory, useLocation, withRouter } from "react-router-dom";
@@ -208,7 +208,7 @@ export function SignUp(props: SignUpFormProps) {
             className="t--sign-up t--signup-link"
             kind="primary"
             target="_self"
-            to={AUTH_LOGIN_URL}
+            to={ORG_LOGIN_PATH}
           >
             {createMessage(SIGN_IN_TO_AN_EXISTING_ORGANISATION)}
           </Link>
