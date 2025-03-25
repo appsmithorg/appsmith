@@ -99,6 +99,8 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { fetchActionsForPage } from "actions/pluginActionActions";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -335,6 +337,11 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions, updatedActions } = data;
 
+    const isAnvilEnabled: boolean = yield select(
+      getIsAnvilEnabledInCurrentApplication,
+    );
+    const pageId: string = yield select(getCurrentPageId);
+
     if (jsCollection) {
       yield put(jsSaveActionStart({ id: jsCollection.id }));
       const response: JSCollectionCreateUpdateResponse = yield call(
@@ -347,6 +354,17 @@ function* updateJSCollection(data: {
       const isValidResponse: boolean = yield validateResponse(response);
 
       if (isValidResponse) {
+        // If Anvil is enabled and actions are added or deleted,
+        // fetch the actions for the page.
+        // This is to ensure that the actions are fetched and the schema is updated
+        if (
+          isAnvilEnabled &&
+          ((newActions && newActions.length) ||
+            (deletedActions && deletedActions.length))
+        ) {
+          yield put(fetchActionsForPage(pageId));
+        }
+
         if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
             newActions,

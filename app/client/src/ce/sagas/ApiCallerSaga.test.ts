@@ -102,13 +102,16 @@ describe("updateJSCollectionAPICall", () => {
       },
       updateJSCollectionAPICall as Saga,
       jsCollection,
+      [],
+      [],
+      [],
     ).toPromise();
 
     expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
       jsCollection,
-      undefined,
-      undefined,
-      undefined,
+      [],
+      [],
+      [],
     );
     expect(result).toEqual(response);
   });
@@ -129,6 +132,9 @@ describe("updateJSCollectionAPICall", () => {
         },
         updateJSCollectionAPICall as Saga,
         jsCollection,
+        [],
+        [],
+        [],
       ).toPromise();
     } catch (e) {
       expect(e).toEqual(error);
@@ -136,9 +142,9 @@ describe("updateJSCollectionAPICall", () => {
 
     expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
       jsCollection,
-      undefined,
-      undefined,
-      undefined,
+      [],
+      [],
+      [],
     );
   });
 });
