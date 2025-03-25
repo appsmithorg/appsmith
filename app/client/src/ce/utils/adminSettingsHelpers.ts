@@ -26,7 +26,7 @@ export const saveAllowed = (
         settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
         socialLoginList.includes("github");
 
-    return !checkFormLogin || checkGoogleAuth || checkGithubAuth;
+    return checkFormLogin || checkGoogleAuth || checkGithubAuth;
   } else {
     return connectedMethodsCount >= 2;
   }
