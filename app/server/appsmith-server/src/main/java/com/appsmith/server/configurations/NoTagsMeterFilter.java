@@ -11,6 +11,9 @@ import java.util.Map;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTION_EXECUTION_DATASOURCE_CONTEXT;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTION_EXECUTION_SERVER_EXECUTION;
+import static com.appsmith.external.git.constants.ce.GitSpanCE.FS_FETCH_REMOTE;
+import static com.appsmith.external.git.constants.ce.GitSpanCE.FS_RESET;
+import static com.appsmith.external.git.constants.ce.GitSpanCE.FS_STATUS;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.JGIT_FETCH_REMOTE;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.JGIT_RESET_HARD;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.JGIT_STATUS;
@@ -20,8 +23,11 @@ public class NoTagsMeterFilter implements MeterFilter {
             ACTION_EXECUTION_PLUGIN_EXECUTION, List.of("plugin"),
             ACTION_EXECUTION_SERVER_EXECUTION, List.of("plugin"),
             ACTION_EXECUTION_DATASOURCE_CONTEXT, List.of("plugin"),
+            FS_STATUS, List.of(),
             JGIT_STATUS, List.of(),
+            FS_RESET, List.of(),
             JGIT_RESET_HARD, List.of(),
+            FS_FETCH_REMOTE, List.of(),
             JGIT_FETCH_REMOTE, List.of());
 
     @Override
