@@ -92,6 +92,7 @@ import {
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
+import { validateSessionToken } from "utils/SessionUtils";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -462,6 +463,15 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
 }
 
 function* eagerPageInitSaga() {
+  try {
+    // Validate session token if present
+    yield call(validateSessionToken);
+  } catch (error) {
+    // Log error but don't block the rest of the initialization
+    log.error("Error validating session token:", error);
+    Sentry.captureException(error);
+  }
+
   const url = window.location.pathname;
   const search = window.location.search;
 

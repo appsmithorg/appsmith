@@ -19,7 +19,6 @@ const VerifyUser = (
 
   const token = queryParams.get("token");
   const email = queryParams.get("email");
-  const organizationId = queryParams.get("organizationId");
 
   useEffect(() => {
     if (!token || !email) {
@@ -50,18 +49,16 @@ const VerifyUser = (
     <Container title={"Verifying"}>
       <form action={submitUrl} id="verification-form" method="POST">
         <CsrfTokenInput />
-        <input name="email" type="hidden" value={email} />
-        <input name="token" type="hidden" value={token} />
-        {organizationId && (
-          <input name="organizationId" type="hidden" value={organizationId} />
-        )}
-        {queryParams.get("redirectUrl") && (
-          <input
-            name="redirectUrl"
-            type="hidden"
-            value={queryParams.get("redirectUrl") || ""}
-          />
-        )}
+        {Array.from(queryParams.entries()).map((param) => {
+          return (
+            <input
+              key={param[0]}
+              name={param[0]}
+              type="hidden"
+              value={param[1]}
+            />
+          );
+        })}
       </form>
       <Spinner size="lg" />
     </Container>
