@@ -454,6 +454,12 @@ export const getActions = (state: AppState): ActionDataState =>
 export const getJSCollections = (state: AppState): JSCollectionDataState =>
   state.entities.jsActions;
 
+export const getAllJSCollectionActions = (state: AppState) => {
+  return state.entities.jsActions.flatMap(
+    (jsCollection) => jsCollection.config.actions,
+  );
+};
+
 export const getDatasource = (
   state: AppState,
   datasourceId: string,
