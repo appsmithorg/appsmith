@@ -13,6 +13,7 @@ import {
   StyledListItem,
   TooltipTextWrapper,
   TopContentWrapper,
+  UnsavedChangesWrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
@@ -161,7 +162,11 @@ function ListItem(props: ListItemProps) {
             {rightControl}
           </RightControlWrapper>
         )}
-        {showUnsavedChanges ? <Badge kind="warning" /> : null}
+        {showUnsavedChanges ? (
+          <UnsavedChangesWrapper>
+            <Badge kind="info" size="small" />
+          </UnsavedChangesWrapper>
+        ) : null}
       </TopContentWrapper>
       {isBlockDescription && (
         <BottomContentWrapper data-isiconpresent={Boolean(startIcon)}>

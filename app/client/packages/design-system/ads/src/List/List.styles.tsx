@@ -44,6 +44,14 @@ export const RightControlWrapper = styled.div`
   align-items: center;
 `;
 
+export const UnsavedChangesWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+`;
+
 export const TopContentWrapper = styled.div`
   display: flex;
   align-items: center;

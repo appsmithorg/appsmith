@@ -62,7 +62,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
         onNameSave={onNameSave}
         validateName={validateName}
       />
-      {showUnsavedChanges ? <Badge kind="warning" /> : null}
+      {showUnsavedChanges ? <Badge kind="info" size="small" /> : null}
     </DismissibleTab>
   );
 };
