@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -64,6 +64,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import { getParentWidget } from "selectors/widgetSelectors";
+import { DisabledContext } from "./PropertySection";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -89,6 +90,8 @@ const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
+  // Get disabled state from context (from parent section if available)
+  const isSectionDisabled = useContext(DisabledContext);
 
   const controlRef = useRef<HTMLDivElement | null>(null);
   const [showEmptyBlock, setShowEmptyBlock] = React.useState(false);
@@ -104,6 +107,10 @@ const PropertyControl = memo((props: Props) => {
   const parentWidget = useSelector((state) =>
     getParentWidget(state, widgetProperties.widgetId),
   );
+
+  const isControlDisabled = props.disabled && props.disabled(widgetProperties, props.propertyName);
+
+  const isDisabled = isSectionDisabled || !!isControlDisabled;
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -882,8 +889,9 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    const helpText =
-      config.controlType === "ACTION_SELECTOR"
+    const helpText = isDisabled
+      ? props.disabledHelpText || ""
+      : config.controlType === "ACTION_SELECTOR"
         ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
         : props.helpText;
 
@@ -914,145 +922,66 @@ const PropertyControl = memo((props: Props) => {
         : "";
 
     try {
-      return (
-        <ControlWrapper
-          className={`t--property-control-wrapper t--property-control-${className} group relative`}
-          data-guided-tour-iid={propertyName}
-          id={uniqId}
-          key={config.id}
-          onFocus={handleOnFocus}
-          orientation={
-            config.controlType === "SWITCH" && !isDynamic
-              ? "HORIZONTAL"
-              : "VERTICAL"
-          }
-          ref={controlRef}
-        >
-          {isRenaming && config.controlConfig?.allowEdit ? (
-            <div className="flex items-center justify-between">
-              <div className="grow">
-                <input
-                  autoFocus
-                  className={clsx(
-                    "w-full rounded-sm !outline !outline-2 !outline-offset-1",
-                    hasRenamingError()
-                      ? "!outline-[var(--ads-v2-colors-control-field-error-border)]"
-                      : "!outline-[#8BB0FA]",
-                  )}
-                  onChange={(e) => {
-                    const value = e.target.value;
+      const controlWrapper = (
+          <ControlWrapper
+            className={`t--property-control-wrapper t--property-control-${className} group relative ${isDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+            data-guided-tour-iid={propertyName}
+            id={uniqId}
+            key={config.id}
+            onFocus={handleOnFocus}
+            orientation={
+              config.controlType === "SWITCH" && !isDynamic
+                ? "HORIZONTAL"
+                : "VERTICAL"
+            }
+            ref={controlRef}
+          >
+            {isRenaming && config.controlConfig?.allowEdit ? (
+              <div className="flex items-center justify-between">
+                <div className="grow">
+                  <input
+                    autoFocus
+                    className={clsx(
+                      "w-full rounded-sm !outline !outline-2 !outline-offset-1",
+                      hasRenamingError()
+                        ? "!outline-[var(--ads-v2-colors-control-field-error-border)]"
+                        : "!outline-[#8BB0FA]",
+                    )}
+                    onChange={(e) => {
+                      const value = e.target.value;
 
-                    // Non-word characters are replaced with underscores for valid property naming
-                    setEditedName(value.split(/\W+/).join("_"));
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                      // Non-word characters are replaced with underscores for valid property naming
+                      setEditedName(value.split(/\W+/).join("_"));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        onEditSave();
+                      } else if (e.key === "Escape") {
+                        resetEditing();
+                      }
+                    }}
+                    placeholder="Enter label"
+                    value={editedName}
+                  />
+                </div>
+                <div>
+                  <Button
+                    className={clsx(
+                      `${config.label}`,
+                      "edit-control flex items-center justify-center text-center h-7 w-7",
+                      `t--edit-control-${config.label}`,
+                    )}
+                    isDisabled={hasRenamingError()}
+                    isIconButton
+                    kind="tertiary"
+                    onClick={() => {
                       onEditSave();
-                    } else if (e.key === "Escape") {
-                      resetEditing();
-                    }
-                  }}
-                  placeholder="Enter label"
-                  value={editedName}
-                />
-              </div>
-              <div>
-                <Button
-                  className={clsx(
-                    `${config.label}`,
-                    "edit-control flex items-center justify-center text-center h-7 w-7",
-                    `t--edit-control-${config.label}`,
-                  )}
-                  isDisabled={hasRenamingError()}
-                  isIconButton
-                  kind="tertiary"
-                  onClick={() => {
-                    onEditSave();
-                  }}
-                  size="sm"
-                  startIcon="check-line"
-                />
-              </div>
-              <div>
-                <Button
-                  className={clsx(
-                    `${config.label}`,
-                    "edit-control flex items-center justify-center text-center h-7 w-7",
-                    `t--edit-control-${config.label}`,
-                  )}
-                  isIconButton
-                  kind="tertiary"
-                  onClick={() => {
-                    resetEditing();
-                  }}
-                  size="sm"
-                  startIcon="close-x"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <LabelContainer
-                className={clsx("flex items-center justify-right gap-1")}
-                hasEditIcon={
-                  !!config.controlConfig?.allowEdit ||
-                  !!config.controlConfig?.allowDelete
-                }
-              >
-                <PropertyHelpLabel
-                  className="fit-content"
-                  label={label}
-                  theme={props.theme}
-                  tooltip={helpText}
-                />
-                {isConvertible && (
-                  <Tooltip
-                    content={JSToggleTooltip}
-                    isDisabled={!JSToggleTooltip}
-                  >
-                    <span>
-                      <ToggleButton
-                        className={classNames({
-                          "t--js-toggle": true,
-                          "is-active": isDynamic,
-                          "!h-[20px]": experimentalJSToggle,
-                        })}
-                        icon="js-toggle-v2"
-                        isDisabled={isToggleDisabled}
-                        isSelected={isDynamic}
-                        onClick={() =>
-                          toggleDynamicProperty(
-                            propertyName,
-                            isDynamic,
-                            controlMethods?.shouldValidateValueOnDynamicPropertyOff(
-                              config,
-                              propertyValue,
-                            ),
-                          )
-                        }
-                        size={experimentalJSToggle ? "md" : "sm"}
-                      />
-                    </span>
-                  </Tooltip>
-                )}
-                {isPropertyDeviatedFromTheme && (
-                  <>
-                    <Tooltip content="Value deviated from theme">
-                      <StyledDeviated className="w-2 h-2 rounded-full" />
-                    </Tooltip>
-                    <button
-                      className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                      onClick={resetPropertyValueToTheme}
-                    >
-                      <Tooltip content="Reset value" placement="topRight">
-                        <ResetIcon className="w-5 h-5" />
-                      </Tooltip>
-                    </button>
-                  </>
-                )}
-              </LabelContainer>
-              <div className={clsx("flex items-center justify-right")}>
-                {config.controlConfig?.allowEdit && (
+                    }}
+                    size="sm"
+                    startIcon="check-line"
+                  />
+                </div>
+                <div>
                   <Button
                     className={clsx(
                       `${config.label}`,
@@ -1062,87 +991,167 @@ const PropertyControl = memo((props: Props) => {
                     isIconButton
                     kind="tertiary"
                     onClick={() => {
-                      setIsRenaming(true);
-                      AnalyticsUtil.logEvent(
-                        "CUSTOM_WIDGET_EDIT_EVENT_CLICKED",
-                        {
-                          widgetId: widgetProperties.widgetId,
-                        },
-                      );
+                      resetEditing();
                     }}
                     size="sm"
-                    startIcon="pencil-line"
+                    startIcon="close-x"
                   />
-                )}
-                {config.controlConfig?.allowDelete && (
-                  <Button
-                    className={clsx(
-                      `${config.label}`,
-                      "delete-control flex items-center justify-center text-center h-7 w-7",
-                      `t--delete-control-${config.label}`,
-                    )}
-                    isIconButton
-                    kind="tertiary"
-                    onClick={() => {
-                      if (
-                        config.controlConfig &&
-                        typeof config.controlConfig.onDelete === "function"
-                      ) {
-                        const updates =
-                          config.controlConfig.onDelete(widgetProperties);
-
-                        onBatchUpdateProperties(updates);
-                      }
-
-                      onDeleteProperties([config.propertyName]);
-
-                      AnalyticsUtil.logEvent(
-                        "CUSTOM_WIDGET_DELETE_EVENT_CLICKED",
-                        {
-                          widgetId: widgetProperties.widgetId,
-                        },
-                      );
-                    }}
-                    size="sm"
-                    startIcon="trash"
-                  />
-                )}
-                {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-                  <Button
-                    className={clsx(
-                      `${config.label}`,
-                      "add-action flex items-center justify-center text-center h-7 w-7",
-                      `t--add-action-${config.label}`,
-                    )}
-                    isIconButton
-                    kind="tertiary"
-                    onClick={() => setShowEmptyBlock(true)}
-                    startIcon="plus"
-                  />
-                )}
+                </div>
               </div>
-            </div>
-          )}
-          {PropertyControlFactory.createControl(
-            config,
-            {
-              onPropertyChange: onPropertyChange,
-              onBatchUpdateProperties: onBatchUpdateProperties,
-              openNextPanel: openPanel,
-              deleteProperties: onDeleteProperties,
-              onBatchUpdateWithAssociatedUpdates:
-                onBatchUpdateWithAssociatedWidgetUpdates,
-              theme: props.theme,
-            },
-            isDynamic,
-            customJSControl,
-            additionAutocomplete,
-            hideEvaluatedValue(),
-            props.isSearchResult,
-          )}
-          <PropertyPaneHelperText helperText={helperText} />
-        </ControlWrapper>
+            ) : (
+              <div className="flex items-center justify-between">
+                <LabelContainer
+                  className={clsx("flex items-center justify-right gap-1")}
+                  hasEditIcon={
+                    !!config.controlConfig?.allowEdit ||
+                    !!config.controlConfig?.allowDelete
+                  }
+                >
+                  <PropertyHelpLabel
+                    className="fit-content"
+                    label={label}
+                    theme={props.theme}
+                    tooltip={helpText}
+                  />
+                  {isConvertible && (
+                    <Tooltip
+                      content={JSToggleTooltip}
+                      isDisabled={!JSToggleTooltip}
+                    >
+                      <span>
+                        <ToggleButton
+                          className={classNames({
+                            "t--js-toggle": true,
+                            "is-active": isDynamic,
+                            "!h-[20px]": experimentalJSToggle,
+                          })}
+                          icon="js-toggle-v2"
+                          isDisabled={isToggleDisabled}
+                          isSelected={isDynamic}
+                          onClick={() =>
+                            toggleDynamicProperty(
+                              propertyName,
+                              isDynamic,
+                              controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                                config,
+                                propertyValue,
+                              ),
+                            )
+                          }
+                          size={experimentalJSToggle ? "md" : "sm"}
+                        />
+                      </span>
+                    </Tooltip>
+                  )}
+                  {isPropertyDeviatedFromTheme && (
+                    <>
+                      <Tooltip content="Value deviated from theme">
+                        <StyledDeviated className="w-2 h-2 rounded-full" />
+                      </Tooltip>
+                      <button
+                        className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                        onClick={resetPropertyValueToTheme}
+                      >
+                        <Tooltip content="Reset value" placement="topRight">
+                          <ResetIcon className="w-5 h-5" />
+                        </Tooltip>
+                      </button>
+                    </>
+                  )}
+                </LabelContainer>
+                <div className={clsx("flex items-center justify-right")}>
+                  {config.controlConfig?.allowEdit && (
+                    <Button
+                      className={clsx(
+                        `${config.label}`,
+                        "edit-control flex items-center justify-center text-center h-7 w-7",
+                        `t--edit-control-${config.label}`,
+                      )}
+                      isIconButton
+                      kind="tertiary"
+                      onClick={() => {
+                        setIsRenaming(true);
+                        AnalyticsUtil.logEvent(
+                          "CUSTOM_WIDGET_EDIT_EVENT_CLICKED",
+                          {
+                            widgetId: widgetProperties.widgetId,
+                          },
+                        );
+                      }}
+                      size="sm"
+                      startIcon="pencil-line"
+                    />
+                  )}
+                  {config.controlConfig?.allowDelete && (
+                    <Button
+                      className={clsx(
+                        `${config.label}`,
+                        "delete-control flex items-center justify-center text-center h-7 w-7",
+                        `t--delete-control-${config.label}`,
+                      )}
+                      isIconButton
+                      kind="tertiary"
+                      onClick={() => {
+                        if (
+                          config.controlConfig &&
+                          typeof config.controlConfig.onDelete === "function"
+                        ) {
+                          const updates =
+                            config.controlConfig.onDelete(widgetProperties);
+
+                          onBatchUpdateProperties(updates);
+                        }
+
+                        onDeleteProperties([config.propertyName]);
+
+                        AnalyticsUtil.logEvent(
+                          "CUSTOM_WIDGET_DELETE_EVENT_CLICKED",
+                          {
+                            widgetId: widgetProperties.widgetId,
+                          },
+                        );
+                      }}
+                      size="sm"
+                      startIcon="trash"
+                    />
+                  )}
+                  {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+                    <Button
+                      className={clsx(
+                        `${config.label}`,
+                        "add-action flex items-center justify-center text-center h-7 w-7",
+                        `t--add-action-${config.label}`,
+                      )}
+                      isIconButton
+                      kind="tertiary"
+                      onClick={() => setShowEmptyBlock(true)}
+                      startIcon="plus"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+            {PropertyControlFactory.createControl(
+                config,
+                {
+                  onPropertyChange: onPropertyChange,
+                  onBatchUpdateProperties: onBatchUpdateProperties,
+                  openNextPanel: openPanel,
+                  deleteProperties: onDeleteProperties,
+                  onBatchUpdateWithAssociatedUpdates:
+                    onBatchUpdateWithAssociatedWidgetUpdates,
+                  theme: props.theme,
+                },
+                isDynamic,
+                customJSControl,
+                additionAutocomplete,
+                hideEvaluatedValue(),
+                props.isSearchResult,
+              )}
+            <PropertyPaneHelperText helperText={helperText} />
+          </ControlWrapper>
       );
+      return controlWrapper
     } catch (e) {
       log.error(e);
 

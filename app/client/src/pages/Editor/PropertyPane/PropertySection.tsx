@@ -10,7 +10,7 @@ import React, {
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon, Tag } from "@appsmith/ads";
+import { Icon, Tag, Tooltip } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
@@ -20,6 +20,7 @@ import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBinding
 import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
 const TagContainer = styled.div``;
 
@@ -83,6 +84,9 @@ interface PropertySectionProps {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  disabled?: (props: any, propertyPath: string) => boolean;
+  disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
   tag?: string; // Used to show a tag on the section title on search results
@@ -93,8 +97,9 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id && prev.childrenId === next.childrenId;
 };
 
-//Context is being provided to re-render anything that subscribes to this context on open and close
+// Context is being provided to re-render anything that subscribes to this context on open and close
 export const CollapseContext: Context<boolean> = createContext<boolean>(false);
+export const DisabledContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
@@ -108,6 +113,9 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   );
   const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(!!isContextOpen);
+  
+  const widgetProps = useSelector(getWidgetPropsForPropertyPane);
+  const isSectionDisabled = props.disabled && props.disabled(widgetProps, props.propertyPath || "");
 
   const className = props.name.split(" ").join("").toLowerCase();
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -176,49 +184,60 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
   if (!currentWidgetId) return null;
 
-  return (
+  const sectionContent = (
     <SectionWrapper
-      className={`t--property-pane-section-wrapper ${props.className}`}
+    className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+  >
+    <div
+      className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
+        !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
+      }`}
+      onClick={!isSectionDisabled ? handleSectionTitleClick : undefined}
     >
-      <div
-        className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
-          !props.tag ? "cursor-pointer" : "cursor-default"
-        }`}
-        onClick={handleSectionTitleClick}
-      >
-        <SectionTitle>{props.name}</SectionTitle>
-        {props.tag && (
-          <TagContainer>
-            <Tag
-              className={`capitalize t--property-section-tag-${props.tag}`}
-              isClosable={false}
-            >
-              {props.tag.toLowerCase()}
-            </Tag>
-          </TagContainer>
-        )}
-        {props.collapsible && (
-          <Icon
-            className={`ml-auto t--chevron-icon`}
-            name={isOpen ? "expand-less" : "expand-more"}
-            size="md"
-          />
-        )}
-      </div>
-      {props.children && (
-        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
-          <div
-            className={`t--property-pane-section-${className}`}
-            ref={props.childrenWrapperRef}
-            style={{ position: "relative", zIndex: 1 }}
+      <SectionTitle>{props.name}</SectionTitle>
+      {props.tag && (
+        <TagContainer>
+          <Tag
+            className={`capitalize t--property-section-tag-${props.tag}`}
+            isClosable={false}
           >
-            <CollapseContext.Provider value={isOpen}>
-              {props.children}
-            </CollapseContext.Provider>
-          </div>
-        </Collapse>
+            {props.tag.toLowerCase()}
+          </Tag>
+        </TagContainer>
       )}
-    </SectionWrapper>
+      {props.collapsible && !isSectionDisabled && (
+        <Icon
+          className={`ml-auto t--chevron-icon`}
+          name={isOpen ? "expand-less" : "expand-more"}
+          size="md"
+        />
+      )}
+    </div>
+    {props.children && (
+      <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
+        <div
+          className={`t--property-pane-section-${className}`}
+          ref={props.childrenWrapperRef}
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          <CollapseContext.Provider value={isOpen}>
+            {props.children}
+          </CollapseContext.Provider>
+        </div>
+      </Collapse>
+    )}
+  </SectionWrapper>
+  )
+
+  return (
+      isSectionDisabled && props.disabledHelpText ? (
+        <Tooltip content={props.disabledHelpText}>
+        {sectionContent}
+        </Tooltip>
+      ) : (
+        sectionContent
+      )
+    
   );
 }, areEqual);
 

@@ -60,6 +60,8 @@ const generatePropertyControl = (
           childrenId={sectionConfig.childrenId}
           collapsible={sectionConfig.collapsible ?? true}
           hidden={sectionConfig.hidden}
+          disabled={sectionConfig.disabled}
+          disabledHelpText={sectionConfig.disabledHelpText}
           id={config.id || sectionConfig.sectionName}
           isDefaultOpen={shouldSectionBeExpanded(
             sectionConfig,
