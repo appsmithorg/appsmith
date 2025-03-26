@@ -1,7 +1,7 @@
 import { Button, Text } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import FormControl from "pages/Editor/FormControl";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { change, formValueSelector } from "redux-form";
 import styled from "styled-components";
@@ -52,6 +52,7 @@ export const FunctionCallingConfigToolField = ({
     formValueSelector(props.formName)(state, props.fieldPath),
   );
   const entityOptions = useSelector(selectEntityOptions);
+  const previousEntityId = useRef(fieldValue.entityId);
 
   const handleRemoveButtonClick = useCallback(() => {
     onRemove(index);
@@ -61,7 +62,7 @@ export const FunctionCallingConfigToolField = ({
     (entityId: string, items: FunctionCallingEntityTypeOption[]): boolean => {
       return items.find(({ value }) => value === entityId) !== undefined;
     },
-    [entityOptions],
+    [],
   );
 
   const findEntityType = useCallback(
@@ -75,20 +76,84 @@ export const FunctionCallingConfigToolField = ({
 
       return "";
     },
-    [fieldValue.entityId, entityOptions],
+    [findEntityOption, entityOptions.Query, entityOptions.JSFunction],
   );
 
   useEffect(
     // entityType is dependent on entityId
     // Every time entityId changes, we need to find the new entityType
     function handleEntityTypeChange() {
-      const entityType = findEntityType(fieldValue.entityId);
+      // Only update if entityId has actually changed
+      if (fieldValue.entityId !== previousEntityId.current) {
+        const entityType = findEntityType(fieldValue.entityId);
+        const currentEntityType = fieldValue.entityType;
 
-      dispatch(
-        change(props.formName, `${props.fieldPath}.entityType`, entityType),
-      );
+        // Only dispatch if the entityType has actually changed
+        if (entityType !== currentEntityType) {
+          dispatch(
+            change(props.formName, `${props.fieldPath}.entityType`, entityType),
+          );
+        }
+
+        previousEntityId.current = fieldValue.entityId;
+      }
     },
-    [fieldValue.entityId],
+    [
+      dispatch,
+      fieldValue.entityId,
+      fieldValue.entityType,
+      findEntityType,
+      props.fieldPath,
+      props.formName,
+    ],
+  );
+
+  const DropDownControlConfig = useMemo(() => {
+    return {
+      controlType: "DROP_DOWN",
+      configProperty: `${props.fieldPath}.entityId`,
+      formName: props.formName,
+      id: props.fieldPath,
+      label: "",
+      isValid: true,
+      isSearchable: true,
+      options: [...entityOptions.Query, ...entityOptions.JSFunction],
+      optionGroupConfig: {
+        Query: {
+          label: "Queries",
+          children: [],
+        },
+        JSFunction: {
+          label: "JS Functions",
+          children: [],
+        },
+      } satisfies Record<FunctionCallingEntityType, DropDownGroupedOptions>,
+    };
+  }, [entityOptions, props.fieldPath, props.formName]);
+
+  const ApprovalSwitchConfig = useMemo(
+    () => ({
+      controlType: "SWITCH",
+      configProperty: `${props.fieldPath}.isApprovalRequired`,
+      formName: props.formName,
+      id: props.fieldPath,
+      label: "Requires approval",
+      isValid: true,
+    }),
+    [props.fieldPath, props.formName],
+  );
+
+  const FunctionDescriptionInputConfig = useMemo(
+    () => ({
+      controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+      configProperty: `${props.fieldPath}.description`,
+      formName: props.formName,
+      id: props.fieldPath,
+      placeholderText: "Describe how this function should be used...",
+      label: "Description",
+      isValid: true,
+    }),
+    [props.fieldPath, props.formName],
   );
 
   return (
@@ -107,55 +172,14 @@ export const FunctionCallingConfigToolField = ({
       <ConfigItemRow>
         <ConfigItemSelectWrapper>
           <FormControl
-            config={{
-              controlType: "DROP_DOWN",
-              configProperty: `${props.fieldPath}.entityId`,
-              formName: props.formName,
-              id: props.fieldPath,
-              label: "",
-              isValid: true,
-              // @ts-expect-error FormControl component has incomplete TypeScript definitions for some valid properties
-              isSearchable: true,
-              options: [...entityOptions.Query, ...entityOptions.JSFunction],
-              optionGroupConfig: {
-                Query: {
-                  label: "Queries",
-                  children: [],
-                },
-                JSFunction: {
-                  label: "JS Functions",
-                  children: [],
-                },
-              } satisfies Record<
-                FunctionCallingEntityType,
-                DropDownGroupedOptions
-              >,
-            }}
+            config={DropDownControlConfig}
             formName={props.formName}
           />
         </ConfigItemSelectWrapper>
-        <FormControl
-          config={{
-            controlType: "SWITCH",
-            configProperty: `${props.fieldPath}.isApprovalRequired`,
-            formName: props.formName,
-            id: props.fieldPath,
-            label: "Requires approval",
-            isValid: true,
-          }}
-          formName={props.formName}
-        />
+        <FormControl config={ApprovalSwitchConfig} formName={props.formName} />
       </ConfigItemRow>
       <FormControl
-        config={{
-          controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-          configProperty: `${props.fieldPath}.description`,
-          formName: props.formName,
-          id: props.fieldPath,
-          placeholderText: "Describe how this function should be used...",
-          label: "Description",
-          isValid: true,
-        }}
+        config={FunctionDescriptionInputConfig}
         formName={props.formName}
       />
     </ConfigItemRoot>

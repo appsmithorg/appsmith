@@ -1,5 +1,5 @@
 import { Button, Text } from "@appsmith/ads";
-import { default as React, useCallback } from "react";
+import { default as React, useCallback, useRef, useEffect } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
@@ -29,6 +29,9 @@ export const FunctionCallingConfigForm = ({
   fields,
   formName,
 }: FunctionCallingConfigFormProps) => {
+  const latestFieldRef = useRef<HTMLDivElement>(null);
+  const previousFieldsLength = useRef(fields.length);
+
   const handleAddFunctionButtonClick = useCallback(() => {
     fields.push({
       id: uuid(),
@@ -44,6 +47,39 @@ export const FunctionCallingConfigForm = ({
       fields.remove(index);
     },
     [fields],
+  );
+
+  useEffect(
+    function handleAddFunction() {
+      // Only scroll and focus if a new field was added (length increased)
+      if (
+        fields.length > previousFieldsLength.current &&
+        latestFieldRef.current
+      ) {
+        // Scroll the new field into view
+        latestFieldRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        // Focus the dropdown in the latest field
+        // The dropdown is rendered by FormControl with a DROP_DOWN control type
+        // We need to find the select element within the latest field
+        const dropdown = latestFieldRef.current.querySelector(
+          ".rc-select-selector",
+        );
+
+        if (dropdown) {
+          // Use setTimeout to ensure the dropdown is fully rendered
+          setTimeout(() => {
+            (dropdown as HTMLElement).click();
+          }, 0);
+        }
+      }
+
+      previousFieldsLength.current = fields.length;
+    },
+    [fields.length],
   );
 
   return (
@@ -73,14 +109,17 @@ export const FunctionCallingConfigForm = ({
       ) : (
         <ConfigItems>
           {fields.map((field, index) => {
+            const isLastField = index === fields.length - 1;
+
             return (
-              <FunctionCallingConfigToolField
-                fieldPath={field}
-                formName={formName}
-                index={index}
-                key={field}
-                onRemove={handleRemoveToolButtonClick}
-              />
+              <div key={field} ref={isLastField ? latestFieldRef : undefined}>
+                <FunctionCallingConfigToolField
+                  fieldPath={field}
+                  formName={formName}
+                  index={index}
+                  onRemove={handleRemoveToolButtonClick}
+                />
+              </div>
             );
           })}
         </ConfigItems>
