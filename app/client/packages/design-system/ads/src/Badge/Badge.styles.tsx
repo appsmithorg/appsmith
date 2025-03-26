@@ -12,7 +12,7 @@ const Kind = {
     --badge-color-bg: var(--ads-v2-color-fg-success);
   `,
   info: css`
-    --badge-color-bg: var(--ads-v2-color-fg-information);
+    --badge-color-bg: var(--ads-v2-color-fg);
   `,
 };
 
