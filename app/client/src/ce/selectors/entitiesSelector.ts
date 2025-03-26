@@ -1753,11 +1753,20 @@ export const getIsSavingEntityName = (
   return isSavingEntityName;
 };
 
-export const getActionSchemaDirtyState = createSelector(getAction, (action) => {
-  if (!action) return false;
+export const getActionSchemaDirtyState = createSelector(
+  getAction,
+  (state: AppState) =>
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+  (action, agentPlugin) => {
+    if (!action) return false;
 
-  return action.isDirtyMap?.SCHEMA_GENERATION;
-});
+    if (agentPlugin?.id === action.pluginId) {
+      return false;
+    }
+
+    return action.isDirtyMap?.SCHEMA_GENERATION;
+  },
+);
 
 export const getJSCollectionSchemaDirtyState = createSelector(
   (state: AppState, collectionId: string) =>
