@@ -129,7 +129,7 @@ import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
-import { shouldBeDefined } from "utils/helpers";
+import { isEmptyKeyValue, shouldBeDefined } from "utils/helpers";
 import history from "utils/history";
 import { setAIPromptTriggered } from "utils/storage";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
@@ -1026,6 +1026,12 @@ export function* setActionPropertySaga(
       },
     });
 
+    return;
+  }
+
+  // The Rest Api editor adds empty key value pairs in the form for display.
+  // We don't need to save those empty key value pairs.
+  if (actionObj?.pluginType === PluginType.API && isEmptyKeyValue(value)) {
     return;
   }
 
