@@ -1,5 +1,4 @@
 import type { ListItemProps } from "../../../List";
-import type { StatusIndicator } from "../../EditableEntityName/EditableEntityName.types";
 export interface EntityItemProps
   extends Omit<
     ListItemProps,
@@ -7,8 +6,6 @@ export interface EntityItemProps
   > {
   /** ID of the entity. Will be added to the markup for identification */
   id: string;
-  /** status indicator for the list item */
-  statusIndicator?: StatusIndicator;
   /** Control the name editing behaviour */
   nameEditorConfig: {
     // Set editable based on user permissions

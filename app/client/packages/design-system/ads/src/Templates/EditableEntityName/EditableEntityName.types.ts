@@ -27,8 +27,4 @@ export interface EditableEntityNameProps {
   normalizeName?: boolean;
   /** Used for showing ellipsis for longer names */
   showEllipsis?: boolean;
-  /** status indicator for the list item */
-  statusIndicator?: StatusIndicator;
 }
-
-export type StatusIndicator = "warning" | "error" | "success";

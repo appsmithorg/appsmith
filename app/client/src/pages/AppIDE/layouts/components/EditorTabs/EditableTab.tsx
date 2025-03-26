@@ -89,7 +89,7 @@ export function EditableTab(props: EditableTabProps) {
       onEnterEditMode={enterEditMode}
       onExitEditMode={exitEditMode}
       onNameSave={handleNameSave}
-      statusIndicator={isSchemaDirty ? "warning" : undefined}
+      showUnsavedChanges={isSchemaDirty}
       validateName={validateName}
     />
   );

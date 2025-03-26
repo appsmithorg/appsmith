@@ -35,18 +35,3 @@ export const Text = styled(ADSText)`
     }
   }
 `;
-
-export const StatusIndicator = styled.div`
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  &[data-status="warning"] {
-    background-color: var(--ads-v2-color-fg-warning);
-  }
-  &[data-status="error"] {
-    background-color: var(--ads-v2-color-fg-error);
-  }
-  &[data-status="success"] {
-    background-color: var(--ads-v2-color-fg-success);
-  }
-`;

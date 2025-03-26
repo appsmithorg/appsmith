@@ -133,8 +133,8 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
+      showUnsavedChanges={isActionSchemaDirty}
       startIcon={icon}
-      statusIndicator={isActionSchemaDirty ? "warning" : undefined}
       title={item.title}
     />
   );

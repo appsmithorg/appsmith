@@ -11,7 +11,6 @@ import {
 import AppPluginActionToolbar from "./components/AppPluginActionToolbar";
 import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { SchemaIsDirtyCallout } from "./components/SchemaIsDirtyCallout";
 
 const AppPluginActionEditor = () => {
   const { pathname } = useLocation();
@@ -22,7 +21,6 @@ const AppPluginActionEditor = () => {
       <ConvertToModuleDisabler>
         <AppPluginActionToolbar />
         <ConvertToModuleCallout />
-        <SchemaIsDirtyCallout />
         <PluginActionForm />
         <PluginActionResponse />
       </ConvertToModuleDisabler>

@@ -1,5 +1,4 @@
 import type React from "react";
-import type { StatusIndicator } from "../EditableEntityName/EditableEntityName.types";
 
 export interface EditableDismissibleTabProps {
   /** Used for passing data-testid. */
@@ -29,6 +28,6 @@ export interface EditableDismissibleTabProps {
   onNameSave: (name: string) => void;
   /** Function to validate the name. */
   validateName: (name: string) => string | null;
-  /** Status indicator for the tab. */
-  statusIndicator?: StatusIndicator;
+  /** Show unsaved changes indicator. */
+  showUnsavedChanges?: boolean;
 }

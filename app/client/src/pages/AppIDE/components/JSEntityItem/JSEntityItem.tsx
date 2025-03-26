@@ -125,8 +125,8 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
       onDoubleClick={() => enterEditMode(jsAction.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
+      showUnsavedChanges={isJSActionSchemaDirty}
       startIcon={JsFileIconV2(16, 16)}
-      statusIndicator={isJSActionSchemaDirty ? "warning" : undefined}
       title={item.title}
     />
   );

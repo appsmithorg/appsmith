@@ -7,6 +7,7 @@ import { EditableEntityName } from "../EditableEntityName";
 
 import type { EditableDismissibleTabProps } from "./EditableDismissibleTab.types";
 import { useActiveDoubleClick } from "../../__hooks__";
+import { Badge } from "../../Badge";
 
 export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
   const {
@@ -22,7 +23,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
     onEnterEditMode: propOnEnterEditMode,
     onExitEditMode: propOnExitEditMode,
     onNameSave,
-    statusIndicator,
+    showUnsavedChanges,
     validateName,
   } = props;
 
@@ -59,9 +60,9 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
         name={name}
         onExitEditing={handleExitEditMode}
         onNameSave={onNameSave}
-        statusIndicator={statusIndicator}
         validateName={validateName}
       />
+      {showUnsavedChanges ? <Badge kind="warning" /> : null}
     </DismissibleTab>
   );
 };

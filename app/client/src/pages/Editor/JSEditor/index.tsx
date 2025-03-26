@@ -12,8 +12,6 @@ import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSEditorToolbar";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { getJSCollectionSchemaDirtyState } from "ee/selectors/entitiesSelector";
-import { SchemaIsDirtyCallout } from "./SchemaIsDirtyCallout";
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
@@ -36,18 +34,6 @@ function JSEditor() {
 
     return <AppJSEditorContextMenu jsCollection={jsCollection} />;
   }, [jsCollection]);
-
-  const isJSCollectionSchemaDirty = useSelector((state) =>
-    getJSCollectionSchemaDirtyState(state, jsCollectionData?.config.id || ""),
-  );
-
-  const notification = useMemo(() => {
-    if (!isJSCollectionSchemaDirty) {
-      return null;
-    }
-
-    return <SchemaIsDirtyCallout />;
-  }, [isJSCollectionSchemaDirty]);
 
   if (isCreating) {
     return (
@@ -72,7 +58,6 @@ function JSEditor() {
           jsCollectionData?.config.isMainJSCollection,
         )}
         jsCollectionData={jsCollectionData}
-        notification={notification}
         onUpdateSettings={onUpdateSettings}
         saveJSObjectName={saveJSObjectName}
       />

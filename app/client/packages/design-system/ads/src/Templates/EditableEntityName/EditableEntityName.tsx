@@ -8,7 +8,6 @@ import * as Styled from "./EditableEntityName.styles";
 
 import type { EditableEntityNameProps } from "./EditableEntityName.types";
 import clsx from "clsx";
-import { Flex } from "../../Flex";
 export const isEllipsisActive = (element: HTMLElement | null) => {
   return element && element.clientWidth < element.scrollWidth;
 };
@@ -27,7 +26,6 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     onNameSave,
     showEllipsis = false,
     size = "small",
-    statusIndicator,
     validateName,
   } = props;
 
@@ -119,11 +117,6 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
           </Styled.Text>
         </Tooltip>
       </Tooltip>
-      {statusIndicator ? (
-        <Flex alignItems="center" h="24px" justifyContent="center" w="24px">
-          <Styled.StatusIndicator data-status={statusIndicator} />
-        </Flex>
-      ) : null}
     </Styled.Root>
   );
 };
