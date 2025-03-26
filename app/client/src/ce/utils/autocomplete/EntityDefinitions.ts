@@ -276,6 +276,12 @@ export const GLOBAL_FUNCTIONS = {
       "Establish cross-origin communication between Window objects/page and iframes",
     "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
+  logoutUser: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/store-value",
+    "!doc": "Logout user",
+    "!type": "fn(redirectURL: string) -> void",
+  },
 };
 
 // TODO: Fix this the next time the file is edited
@@ -328,6 +334,9 @@ export const ternDocsInfo: Record<string, any> = {
   },
   postWindowMessage: {
     exampleArgs: ["message, 'Iframe1', '*'"],
+  },
+  logoutUser: {
+    exampleArgs: ["url"],
   },
 };
 
