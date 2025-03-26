@@ -349,15 +349,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
-
         // need to create default application
-        Application application = new Application();
-        application.setWorkspaceId(defaultWorkspaceId);
-        application.setName("My first application");
-        Mono<Application> applicationMono = Mono.just(application);
-        if (defaultWorkspaceId == null) {
+        return createWorkspaceIfNotExistsAndGetId(defaultWorkspaceId, authentication)
+                .flatMap(this::createFirstApplication);
+    }
 
-            applicationMono = workspaceRepository
+    protected Mono<String> createWorkspaceIfNotExistsAndGetId(
+            String defaultWorkspaceId, Authentication authentication) {
+        if (defaultWorkspaceId == null) {
+            return workspaceRepository
                     .findAll(workspacePermission.getEditPermission())
                     .take(1, true)
                     .collectList()
@@ -366,8 +366,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // workspace user has access to, and would be user's default workspace. Hence, we use this
                         // workspace to create the application.
                         if (workspaces.size() == 1) {
-                            application.setWorkspaceId(workspaces.get(0).getId());
-                            return Mono.just(application);
+                            return Mono.just(workspaces.get(0));
                         }
 
                         // In case no workspaces are found for the user, create a new default workspace
@@ -376,15 +375,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         return organizationService
                                 .getCurrentUserOrganizationId()
                                 .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(email, orgId))
-                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
-                                .map(workspace -> {
-                                    application.setWorkspaceId(workspace.getId());
-                                    return application;
-                                });
-                    });
+                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user));
+                    })
+                    .map(Workspace::getId);
         }
 
-        return applicationMono.flatMap(applicationPageService::createApplication);
+        return Mono.just(defaultWorkspaceId);
+    }
+
+    protected Mono<Application> createFirstApplication(String workspaceId) {
+        // need to create default application
+        Application application = new Application();
+        application.setWorkspaceId(workspaceId);
+        application.setName("My first application");
+        return applicationPageService.createApplication(application);
     }
 
     /**
