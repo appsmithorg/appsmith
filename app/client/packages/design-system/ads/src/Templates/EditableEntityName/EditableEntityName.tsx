@@ -8,6 +8,7 @@ import * as Styled from "./EditableEntityName.styles";
 
 import type { EditableEntityNameProps } from "./EditableEntityName.types";
 import clsx from "clsx";
+
 export const isEllipsisActive = (element: HTMLElement | null) => {
   return element && element.clientWidth < element.scrollWidth;
 };

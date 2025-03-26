@@ -1,4 +1,5 @@
 import type { ListItemProps } from "../../../List";
+
 export interface EntityItemProps
   extends Omit<
     ListItemProps,
