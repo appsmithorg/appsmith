@@ -16,6 +16,7 @@ import get from "lodash/get";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 
 export const selectEntityOptions = createSelector(
   getActions,
@@ -26,21 +27,22 @@ export const selectEntityOptions = createSelector(
   (
     actions,
     jsCollections,
-    agentChatQuery,
+    agentChatQuery: ActionData | undefined,
     currentPageId,
     plugins,
   ): Record<FunctionCallingEntityType, FunctionCallingEntityTypeOption[]> & {
     JSCollections: JSCollectionOption[];
     agentFunctions: Record<string, FunctionCallingConfigFormToolField>;
   } => {
-    const agentFunctions = keyBy(
-      get(
-        agentChatQuery,
-        "config.actionConfiguration.formData.aiChatAssistant.input.functions",
-        [],
-      ),
-      "entityId",
-    );
+    const agentFunctions: Record<string, FunctionCallingConfigFormToolField> =
+      keyBy(
+        get(
+          agentChatQuery,
+          "config.actionConfiguration.formData.aiChatAssistant.input.functions",
+          [],
+        ),
+        "entityId",
+      );
     const pluginGroups = keyBy(plugins, "id");
 
     const queryItems = actions
