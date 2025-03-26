@@ -12,6 +12,7 @@ import {
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
+  WELCOME_FORM_FULL_NAME,
 } from "ee/constants/messages";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
@@ -20,6 +21,8 @@ import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { proficiencyOptions, useCaseOptions } from "./constants";
 import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
+import FormTextField from "components/utils/ReduxFormTextField";
+import { useIsCloudBillingEnabled } from "hooks";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
@@ -64,13 +67,26 @@ const validate = (values: any) => {
 function NonSuperUserProfilingQuestions(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
+
   const onSubmit = (data: NonSuperUserFormData) => {
     props.onGetStarted && props.onGetStarted(data.proficiency, data.useCase);
   };
 
   return (
     <form onSubmit={props.handleSubmit(onSubmit)}>
-      <Space />
+      {isCloudBillingEnabled && (
+        <>
+          <Space />
+          <FormTextField
+            data-testid="t--user-full-name"
+            label={createMessage(WELCOME_FORM_FULL_NAME)}
+            name="fullName"
+            placeholder="Enter your full name"
+          />
+          <Space />
+        </>
+      )}
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}

@@ -4,6 +4,8 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -12,6 +14,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -54,14 +57,30 @@ public class UserServiceWithDisabledSignupTest {
     @SpyBean
     CommonConfig commonConfig;
 
+    @Autowired
+    OrganizationService organizationService;
+
     Mono<User> userMono;
 
     @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        Mockito.when(commonConfig.isSignupDisabled()).thenReturn(Boolean.TRUE);
+        Organization organization =
+                organizationService.getCurrentUserOrganization().block();
+        assert organization != null;
+        organization.getOrganizationConfiguration().setIsSignupDisabled(true);
+        organizationService.save(organization).block();
         Mockito.when(commonConfig.getAdminEmails())
                 .thenReturn(Set.of("dummy_admin@appsmith.com", "dummy2@appsmith.com"));
+    }
+
+    @AfterAll
+    public static void cleanup(@Autowired OrganizationService organizationService) {
+        OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
+        organizationConfiguration.setIsSignupDisabled(false);
+        Organization organization =
+                organizationService.getCurrentUserOrganization().block();
+        organizationService.save(organization).block();
     }
 
     @Test
