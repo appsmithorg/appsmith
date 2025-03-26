@@ -256,6 +256,10 @@ export const EditorWrapper = styled.div<{
       .CodeMirror-activeline-background {
         background-color: #ececec;
       }
+
+      .highlighted-line {
+        background-color: rgba(255, 255, 0, 0.2);
+      }
     }
     .CodeMirror-guttermarker-subtle {
       color: var(--ads-v2-color-fg-subtle);
