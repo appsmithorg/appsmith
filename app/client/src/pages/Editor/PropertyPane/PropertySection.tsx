@@ -1,10 +1,9 @@
 import { Classes } from "@blueprintjs/core";
-import type { ReactNode, Context } from "react";
+import type { ReactNode } from "react";
 import React, {
   memo,
   useState,
   useEffect,
-  createContext,
   useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
@@ -21,6 +20,7 @@ import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { CollapseContext, DisabledContext } from "./PropertyPaneContexts";
 
 const TagContainer = styled.div``;
 
@@ -96,10 +96,6 @@ interface PropertySectionProps {
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id && prev.childrenId === next.childrenId;
 };
-
-// Context is being provided to re-render anything that subscribes to this context on open and close
-export const CollapseContext: Context<boolean> = createContext<boolean>(false);
-export const DisabledContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();

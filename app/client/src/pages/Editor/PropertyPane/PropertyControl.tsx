@@ -64,7 +64,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import { getParentWidget } from "selectors/widgetSelectors";
-import { DisabledContext } from "./PropertySection";
+import { DisabledContext } from "./PropertyPaneContexts";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
