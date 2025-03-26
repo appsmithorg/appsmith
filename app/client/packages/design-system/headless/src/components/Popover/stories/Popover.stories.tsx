@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type FunctionComponent } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   Popover,
@@ -14,16 +14,17 @@ import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopov
  *
  * Based on the [headless Popover component](/?path=/docs/design-system-headless-popover--docs).
  *
- * A popover is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+ * A popover is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is
+ * dismissed.
  */
 
 const meta: Meta<typeof Popover> = {
   component: Popover,
   title: "WDS/Headless/Popover",
   subcomponents: {
-    PopoverTrigger,
-    PopoverContent,
-    PopoverModalContent,
+    PopoverTrigger: PopoverTrigger as FunctionComponent<unknown>,
+    PopoverContent: PopoverContent as FunctionComponent<unknown>,
+    PopoverModalContent: PopoverModalContent as FunctionComponent<unknown>,
   },
   render: (args) => (
     <Popover {...args}>
