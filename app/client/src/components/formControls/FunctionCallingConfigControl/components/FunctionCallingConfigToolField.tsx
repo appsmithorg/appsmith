@@ -1,16 +1,11 @@
 import { Button, Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
 import FormControl from "pages/Editor/FormControl";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { change, formValueSelector } from "redux-form";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
+import { change } from "redux-form";
 import styled from "styled-components";
-import type { DropDownGroupedOptions } from "../../DropDownControl";
-import type {
-  FunctionCallingEntityTypeOption,
-  FunctionCallingEntityType,
-} from "../types";
-import { selectEntityOptions } from "./selectors";
+import type { FunctionCallingEntityType } from "../types";
+import FunctionCallingMenuField from "./FunctionCallingMenuField";
 
 interface FunctionCallingConfigToolFieldProps {
   fieldPath: string;
@@ -48,88 +43,21 @@ export const FunctionCallingConfigToolField = ({
   ...props
 }: FunctionCallingConfigToolFieldProps) => {
   const dispatch = useDispatch();
-  const fieldValue = useSelector((state: AppState) =>
-    formValueSelector(props.formName)(state, props.fieldPath),
-  );
-  const entityOptions = useSelector(selectEntityOptions);
-  const previousEntityId = useRef(fieldValue.entityId);
 
   const handleRemoveButtonClick = useCallback(() => {
     onRemove(index);
   }, [onRemove, index]);
 
-  const findEntityOption = useCallback(
-    (entityId: string, items: FunctionCallingEntityTypeOption[]): boolean => {
-      return items.find(({ value }) => value === entityId) !== undefined;
+  // entityType is dependent on entityId
+  // Every time entityId changes, we need to find the new entityType
+  const handleFunctionChange = useCallback(
+    (entityId: string, entityType: FunctionCallingEntityType) => {
+      dispatch(
+        change(props.formName, `${props.fieldPath}.entityType`, entityType),
+      );
     },
-    [],
+    [dispatch, props.formName, props.fieldPath],
   );
-
-  const findEntityType = useCallback(
-    (entityId: string): string => {
-      switch (true) {
-        case findEntityOption(entityId, entityOptions.Query):
-          return "Query";
-        case findEntityOption(entityId, entityOptions.JSFunction):
-          return "JSFunction";
-      }
-
-      return "";
-    },
-    [findEntityOption, entityOptions.Query, entityOptions.JSFunction],
-  );
-
-  useEffect(
-    // entityType is dependent on entityId
-    // Every time entityId changes, we need to find the new entityType
-    function handleEntityTypeChange() {
-      // Only update if entityId has actually changed
-      if (fieldValue.entityId !== previousEntityId.current) {
-        const entityType = findEntityType(fieldValue.entityId);
-        const currentEntityType = fieldValue.entityType;
-
-        // Only dispatch if the entityType has actually changed
-        if (entityType !== currentEntityType) {
-          dispatch(
-            change(props.formName, `${props.fieldPath}.entityType`, entityType),
-          );
-        }
-
-        previousEntityId.current = fieldValue.entityId;
-      }
-    },
-    [
-      dispatch,
-      fieldValue.entityId,
-      fieldValue.entityType,
-      findEntityType,
-      props.fieldPath,
-      props.formName,
-    ],
-  );
-
-  const DropDownControlConfig = useMemo(() => {
-    return {
-      controlType: "DROP_DOWN",
-      configProperty: `${props.fieldPath}.entityId`,
-      formName: props.formName,
-      id: props.fieldPath,
-      label: "",
-      isValid: true,
-      isSearchable: true,
-      options: [...entityOptions.Query, ...entityOptions.JSFunction],
-      optionGroupConfig: {
-        Query: {
-          label: "Queries",
-          children: [],
-        },
-        JSFunction: {
-          label: "JS Functions",
-          children: [],
-        },
-      } satisfies Record<FunctionCallingEntityType, DropDownGroupedOptions>,
-    };
-  }, [entityOptions, props.fieldPath, props.formName]);
 
   const ApprovalSwitchConfig = useMemo(
     () => ({
@@ -171,9 +99,9 @@ export const FunctionCallingConfigToolField = ({
       </ConfigItemRow>
       <ConfigItemRow>
         <ConfigItemSelectWrapper>
-          <FormControl
-            config={DropDownControlConfig}
-            formName={props.formName}
+          <FunctionCallingMenuField
+            name={`${props.fieldPath}.entityId`}
+            onValueChange={handleFunctionChange}
           />
         </ConfigItemSelectWrapper>
         <FormControl config={ApprovalSwitchConfig} formName={props.formName} />

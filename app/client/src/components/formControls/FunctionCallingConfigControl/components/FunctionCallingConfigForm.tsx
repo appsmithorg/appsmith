@@ -62,18 +62,17 @@ export const FunctionCallingConfigForm = ({
           block: "center",
         });
 
-        // Focus the dropdown in the latest field
-        // The dropdown is rendered by FormControl with a DROP_DOWN control type
-        // We need to find the select element within the latest field
-        const dropdown = latestFieldRef.current.querySelector(
-          ".rc-select-selector",
+        // Focus the menu button in the latest field
+        // The menu button is rendered by the Menu component from @appsmith/ads
+        const menuButton = latestFieldRef.current.querySelector(
+          "button.rc-select-selector",
         );
 
-        if (dropdown) {
-          // Use setTimeout to ensure the dropdown is fully rendered
+        if (menuButton) {
+          // Use setTimeout to ensure the button is fully rendered
           setTimeout(() => {
-            (dropdown as HTMLElement).click();
-          }, 0);
+            (menuButton as HTMLButtonElement).focus();
+          }, 100);
         }
       }
 
