@@ -1309,7 +1309,7 @@ export function isEmptyKeyValue(value: Property | Property[]): boolean {
   }
 
   if (typeof value === "object") {
-    return !value.key && !value.value;
+    if (value.key === "" && value.value === "") return true;
   }
 
   return false;
