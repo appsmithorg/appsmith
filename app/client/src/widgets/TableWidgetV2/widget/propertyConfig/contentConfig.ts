@@ -179,16 +179,13 @@ export default [
       },
       {
         helpText:
-          "Enables load more data as the user scrolls down",
+          "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "infiniteScrollEnabled",
         label: "Infinite scroll",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (props: TableWidgetProps) =>
-          !props.serverSidePaginationEnabled ||
-          !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
-        dependencies: ["serverSidePaginationEnabled"],
+        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
