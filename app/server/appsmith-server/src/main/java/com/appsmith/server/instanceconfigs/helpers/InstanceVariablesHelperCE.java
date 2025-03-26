@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.server.instanceconfigs.helpers;
 
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.OrganizationConfiguration;
@@ -9,6 +9,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.appsmith.server.instanceconfigs.constants.AllowedInstanceVariables.EMAIL_VERIFICATION_ENABLED;
+import static com.appsmith.server.instanceconfigs.constants.AllowedInstanceVariables.GOOGLE_MAPS_KEY;
+import static com.appsmith.server.instanceconfigs.constants.AllowedInstanceVariables.INSTANCE_NAME;
 
 /**
  * Helper class for accessing instance variables from the instance config
@@ -23,7 +27,7 @@ public class InstanceVariablesHelperCE {
      */
     public Mono<String> getInstanceName() {
         return configService.getInstanceVariables().map(instanceVariables -> {
-            Object value = instanceVariables.getOrDefault("instanceName", Appsmith.DEFAULT_INSTANCE_NAME);
+            Object value = instanceVariables.getOrDefault(INSTANCE_NAME, Appsmith.DEFAULT_INSTANCE_NAME);
             return value != null ? value.toString() : Appsmith.DEFAULT_INSTANCE_NAME;
         });
     }
@@ -34,7 +38,7 @@ public class InstanceVariablesHelperCE {
      */
     public Mono<Boolean> isEmailVerificationEnabled() {
         return configService.getInstanceVariables().map(instanceVariables -> {
-            Object value = instanceVariables.getOrDefault("emailVerificationEnabled", false);
+            Object value = instanceVariables.getOrDefault(EMAIL_VERIFICATION_ENABLED, false);
             if (value instanceof Boolean) {
                 return (Boolean) value;
             }
@@ -48,24 +52,24 @@ public class InstanceVariablesHelperCE {
      */
     public Mono<String> getGoogleMapsKey() {
         return configService.getInstanceVariables().map(instanceVariables -> {
-            Object value = instanceVariables.getOrDefault("googleMapsKey", "");
+            Object value = instanceVariables.getOrDefault(GOOGLE_MAPS_KEY, "");
             return value != null ? value.toString() : "";
         });
     }
 
     public OrganizationConfiguration populateOrgConfigWithInstanceVariables(
             Map<String, Object> instanceVariables, OrganizationConfiguration organizationConfiguration) {
-        Object value = instanceVariables.getOrDefault("instanceName", Appsmith.DEFAULT_INSTANCE_NAME);
+        Object value = instanceVariables.getOrDefault(INSTANCE_NAME, Appsmith.DEFAULT_INSTANCE_NAME);
         organizationConfiguration.setInstanceName(value != null ? value.toString() : Appsmith.DEFAULT_INSTANCE_NAME);
 
-        value = instanceVariables.getOrDefault("emailVerificationEnabled", false);
+        value = instanceVariables.getOrDefault(EMAIL_VERIFICATION_ENABLED, false);
         if (value instanceof Boolean) {
             organizationConfiguration.setEmailVerificationEnabled((Boolean) value);
         } else {
             organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
         }
 
-        value = instanceVariables.getOrDefault("googleMapsKey", "");
+        value = instanceVariables.getOrDefault(GOOGLE_MAPS_KEY, "");
         organizationConfiguration.setGoogleMapsKey(value != null ? value.toString() : "");
 
         return organizationConfiguration;
@@ -85,13 +89,13 @@ public class InstanceVariablesHelperCE {
     protected Map<String, Object> updateAllowedInstanceVariables(OrganizationConfiguration orgConfig) {
         Map<String, Object> instanceVariables = new HashMap<>();
         if (StringUtils.hasLength(orgConfig.getInstanceName())) {
-            instanceVariables.put("instanceName", orgConfig.getInstanceName());
+            instanceVariables.put(INSTANCE_NAME, orgConfig.getInstanceName());
         }
         if (orgConfig.getEmailVerificationEnabled() != null) {
-            instanceVariables.put("emailVerificationEnabled", orgConfig.getEmailVerificationEnabled());
+            instanceVariables.put(EMAIL_VERIFICATION_ENABLED, orgConfig.getEmailVerificationEnabled());
         }
         if (StringUtils.hasLength(orgConfig.getGoogleMapsKey())) {
-            instanceVariables.put("googleMapsKey", orgConfig.getGoogleMapsKey());
+            instanceVariables.put(GOOGLE_MAPS_KEY, orgConfig.getGoogleMapsKey());
         }
         return instanceVariables;
     }

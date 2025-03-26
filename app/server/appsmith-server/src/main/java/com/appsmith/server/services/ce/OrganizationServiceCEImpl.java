@@ -14,8 +14,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -174,8 +174,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
                         config.addThirdPartyAuth("github");
                     }
-
-                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
                     return configService
                             .getInstanceVariables()
@@ -340,29 +338,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         return updatedOrganizationMono
                 .then(Mono.defer(() -> evictCachedOrganization))
                 .then(updatedOrganizationMono);
-    }
-
-    /**
-     * This function checks if the organization needs to be restarted, and executes the restart after the feature flag
-     * migrations are completed.
-     *
-     * @return  Mono<Void>
-     */
-    @Override
-    public Mono<Void> restartOrganization() {
-        // TODO @CloudBilling: remove this method once we move the form login env to DB variable which is currently
-        //  required as a part of downgrade migration for SSO
-        return this.retrieveAll()
-                .filter(organization ->
-                        TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
-                .take(1)
-                .hasElements()
-                .flatMap(hasElement -> {
-                    if (hasElement) {
-                        return repository.disableRestartForAllOrganizations().then(envManager.restartWithoutAclCheck());
-                    }
-                    return Mono.empty();
-                });
     }
 
     private boolean isMigrationRequired(Organization organization) {

@@ -48,13 +48,13 @@ const FormAuth: AdminConfigType = {
   canSave: true,
   settings: [
     {
-      id: "APPSMITH_FORM_LOGIN_DISABLED",
+      id: "isFormLoginEnabled",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "form login",
     },
     {
-      id: "APPSMITH_SIGNUP_DISABLED",
+      id: "isSignupDisabled",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "Form signup",

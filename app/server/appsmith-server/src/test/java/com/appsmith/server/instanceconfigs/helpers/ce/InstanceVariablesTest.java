@@ -1,7 +1,7 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.server.instanceconfigs.helpers.ce;
 
 import com.appsmith.server.constants.Appsmith;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.services.ConfigService;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
