@@ -9,3 +9,4 @@ export const InputStartIconClassName = `${InputIconClassName}-start`;
 export const InputEndIconClassName = `${InputIconClassName}-end`;
 export const InputStartIconDisabledClassName = `${InputStartIconClassName}-disabled`;
 export const InputEndIconDisabledClassName = `${InputEndIconClassName}-disabled`;
+export const InputPostfixClassName = `${InputClassName}-postfix`;
