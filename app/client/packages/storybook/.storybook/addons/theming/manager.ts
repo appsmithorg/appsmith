@@ -6,14 +6,5 @@ addons.register("widgets/theming", () => {
     type: types.TOOL,
     title: "Theming tool",
     render: ThemingTool,
-    match: (args) => {
-      const { viewMode, storyId } = args;
-
-      // show the addon only on wds
-      return Boolean(
-        (storyId && storyId?.includes("widgets")) ||
-          storyId?.includes("testing"),
-      );
-    },
   });
 });
