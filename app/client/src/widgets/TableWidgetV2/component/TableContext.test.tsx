@@ -207,6 +207,7 @@ describe("TableContext", () => {
         "showConnectDataOverlay",
         "onConnectData",
         "isInfiniteScrollEnabled",
+        "endOfData",
       ].sort();
 
       const result = Object.keys(
