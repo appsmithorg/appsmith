@@ -69,6 +69,10 @@ export function* updateOrganizationConfigSaga(
       "emailVerificationEnabled",
     );
 
+    const hasFormLoginSetting = settings.hasOwnProperty("isFormLoginEnabled");
+    const hasSignupDisabledSetting =
+      settings.hasOwnProperty("isSignupDisabled");
+
     const response: ApiResponse = yield call(
       OrganizationApi.updateOrganizationConfig,
       action.payload,
@@ -91,6 +95,18 @@ export function* updateOrganizationConfigSaga(
                   settings["showRolesAndGroups"],
               }
             : {}),
+        });
+      }
+
+      if (hasFormLoginSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          enabled: settings["isFormLoginEnabled"],
+        });
+      }
+
+      if (hasSignupDisabledSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          enabled: settings["isSignupDisabled"],
         });
       }
 

@@ -54,6 +54,7 @@ import {
   updateCurrentApplicationForkingEnabled,
   updateApplicationThemeSettingAction,
   fetchAllApplicationsOfWorkspace,
+  publishApplication,
 } from "ee/actions/applicationActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
@@ -1126,6 +1127,21 @@ export function* deleteNavigationLogoSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* publishAnvilApplicationSaga(
+  action: ReduxAction<PublishApplicationRequest>,
+) {
+  try {
+    yield put(publishApplication(action.payload.applicationId));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PUBLISH_ANVIL_APPLICATION_ERROR,
       payload: {
         error,
       },
