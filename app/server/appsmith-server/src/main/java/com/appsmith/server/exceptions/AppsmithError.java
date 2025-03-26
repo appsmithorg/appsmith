@@ -912,9 +912,9 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
-    ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED(
+    EMAIL_VERIFICATION_NOT_ENABLED(
             400,
-            AppsmithErrorCode.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED.getCode(),
+            AppsmithErrorCode.EMAIL_VERIFICATION_NOT_ENABLED.getCode(),
             "Email verification is not enabled. Please contact your admin",
             AppsmithErrorAction.DEFAULT,
             "Email verification not enabled",
