@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import styled from "styled-components";
-import { Button, Flex } from "@appsmith/ads";
+import {
+  Button,
+  Flex,
+  Input,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  ToggleButton,
+} from "@appsmith/ads";
 import type { ButtonProps } from "@appsmith/ads";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
@@ -80,6 +90,8 @@ type FormTemplateProps = FormTemplatePartialProps &
 export function FormTemplate(props: FormTemplateProps) {
   const { formName, formValues, options, updateFormProperty } = props;
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const isActive = (option: FormTemplateOption) => {
     // Checks if the option is active
     // An option is active if all the values in the option value are equal to the form values
@@ -113,6 +125,34 @@ export function FormTemplate(props: FormTemplateProps) {
           {option.label}
         </StyledButton>
       ))}
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
+        <PopoverTrigger>
+          <ToggleButton
+            icon="star-fill"
+            isSelected={isOpen}
+            onClick={() => setIsOpen(true)}
+            size="md"
+          >
+            Generate prompt
+          </ToggleButton>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          avoidCollisions={false}
+          showArrow
+          side="bottom"
+        >
+          <PopoverHeader>Generate prompt</PopoverHeader>
+          <PopoverBody>
+            <Flex flexDirection="column" gap="spaces-2">
+              <Input autoFocus renderAs="textarea" />
+              <Button kind="primary" size="sm">
+                Generate
+              </Button>
+            </Flex>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
     </Flex>
   );
 }
