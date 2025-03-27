@@ -92,7 +92,7 @@ import { isEmpty, merge } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "ee/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
-import DatasourcesApi from "api/DatasourcesApi";
+import DatasourcesApi from "ee/api/DatasourcesApi";
 import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
