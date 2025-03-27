@@ -19,7 +19,6 @@ describe("Form Login test functionality", function () {
     cy.get(adminSettings.saveButton).should("be.visible");
     cy.get(adminSettings.saveButton).should("not.be.disabled");
     cy.get(adminSettings.saveButton).click();
-    cy.waitForServerRestart();
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -43,7 +42,6 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.formSignupDisabled).click({ force: true });
       cy.wait(2000);
       cy.get(adminSettings.saveButton).click();
-      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
@@ -90,7 +88,6 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
-      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
@@ -115,7 +112,6 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
-      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.reload();
 
