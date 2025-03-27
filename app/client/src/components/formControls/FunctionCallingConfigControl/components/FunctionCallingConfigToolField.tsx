@@ -12,6 +12,7 @@ interface FunctionCallingConfigToolFieldProps {
   formName: string;
   index: number;
   onRemove: (index: number) => void;
+  isLastAdded?: boolean;
 }
 
 const ConfigItemRoot = styled.div`
@@ -39,6 +40,7 @@ const ConfigItemSelectWrapper = styled.div`
 
 export const FunctionCallingConfigToolField = ({
   index,
+  isLastAdded,
   onRemove,
   ...props
 }: FunctionCallingConfigToolFieldProps) => {
@@ -100,6 +102,7 @@ export const FunctionCallingConfigToolField = ({
       <ConfigItemRow>
         <ConfigItemSelectWrapper>
           <FunctionCallingMenuField
+            autoFocus={isLastAdded}
             name={`${props.fieldPath}.entityId`}
             onValueChange={handleFunctionChange}
           />
