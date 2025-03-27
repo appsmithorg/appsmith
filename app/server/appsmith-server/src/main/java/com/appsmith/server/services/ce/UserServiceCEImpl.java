@@ -715,12 +715,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        // For anonymous users, build the profile directly from the in-memory user object
-        if (user.isAnonymous()) {
-            return getAnonymousUserProfile(user);
-        }
 
-        // For regular users, proceed with the existing flow
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
         Mono<Boolean> isSuperUserMono =
@@ -758,22 +753,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return pacConfigurationService.setRolesAndGroups(
                             profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
-    }
-
-    protected Mono<UserProfileDTO> getAnonymousUserProfile(User user) {
-        return this.isUsersEmpty().map(isUsersEmpty -> {
-            UserProfileDTO profile = new UserProfileDTO();
-            profile.setEmail(user.getEmail());
-            profile.setUsername(user.getUsername());
-            profile.setAnonymous(true);
-            profile.setEnabled(user.isEnabled());
-            profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
-            profile.setEmptyInstance(isUsersEmpty);
-            // Intercom consent is defaulted to true on cloud hosting
-            profile.setIntercomConsentGiven(commonConfig.isCloudHosting());
-
-            return profile;
-        });
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
