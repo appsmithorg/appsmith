@@ -21,15 +21,15 @@ const MockPropertyControl = (props: MockPropertyControlProps) => {
 
   return (
     <div
-      data-testid="t--property-control-wrapper"
       className={isDisabled ? "cursor-not-allowed opacity-50" : ""}
+      data-testid="t--property-control-wrapper"
     >
       <label>{props.label}</label>
       <input
-        type="text"
-        role="textbox"
-        disabled={isDisabled}
         data-testid="t--property-input"
+        disabled={isDisabled}
+        role="textbox"
+        type="text"
       />
       {isDisabled && props.disabledHelpText && (
         <div data-testid="t--disabled-help-text">{props.disabledHelpText}</div>
@@ -84,6 +84,7 @@ describe("PropertyControl", () => {
     const { getByTestId } = render(<PropertyControl {...disabledProps} />);
 
     const wrapper = getByTestId("t--property-control-wrapper");
+
     expect(wrapper.classList.contains("cursor-not-allowed")).toBe(true);
     expect(wrapper.classList.contains("opacity-50")).toBe(true);
     expect(
