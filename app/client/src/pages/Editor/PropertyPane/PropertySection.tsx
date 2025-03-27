@@ -1,11 +1,6 @@
 import { Classes } from "@blueprintjs/core";
 import type { ReactNode } from "react";
-import React, {
-  memo,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { memo, useState, useEffect, useCallback } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -109,9 +104,10 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   );
   const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(!!isContextOpen);
-  
+
   const widgetProps = useSelector(getWidgetPropsForPropertyPane);
-  const isSectionDisabled = props.disabled && props.disabled(widgetProps, props.propertyPath || "");
+  const isSectionDisabled =
+    props.disabled && props.disabled(widgetProps, props.propertyPath || "");
 
   const className = props.name.split(" ").join("").toLowerCase();
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -182,58 +178,53 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
   const sectionContent = (
     <SectionWrapper
-    className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
-  >
-    <div
-      className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
-        !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
-      }`}
-      onClick={!isSectionDisabled ? handleSectionTitleClick : undefined}
+      className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
     >
-      <SectionTitle>{props.name}</SectionTitle>
-      {props.tag && (
-        <TagContainer>
-          <Tag
-            className={`capitalize t--property-section-tag-${props.tag}`}
-            isClosable={false}
+      <div
+        className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
+          !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
+        }`}
+        onClick={!isSectionDisabled ? handleSectionTitleClick : undefined}
+      >
+        <SectionTitle>{props.name}</SectionTitle>
+        {props.tag && (
+          <TagContainer>
+            <Tag
+              className={`capitalize t--property-section-tag-${props.tag}`}
+              isClosable={false}
+            >
+              {props.tag.toLowerCase()}
+            </Tag>
+          </TagContainer>
+        )}
+        {props.collapsible && !isSectionDisabled && (
+          <Icon
+            className={`ml-auto t--chevron-icon`}
+            name={isOpen ? "expand-less" : "expand-more"}
+            size="md"
+          />
+        )}
+      </div>
+      {props.children && (
+        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
+          <div
+            className={`t--property-pane-section-${className}`}
+            ref={props.childrenWrapperRef}
+            style={{ position: "relative", zIndex: 1 }}
           >
-            {props.tag.toLowerCase()}
-          </Tag>
-        </TagContainer>
+            <CollapseContext.Provider value={isOpen}>
+              {props.children}
+            </CollapseContext.Provider>
+          </div>
+        </Collapse>
       )}
-      {props.collapsible && !isSectionDisabled && (
-        <Icon
-          className={`ml-auto t--chevron-icon`}
-          name={isOpen ? "expand-less" : "expand-more"}
-          size="md"
-        />
-      )}
-    </div>
-    {props.children && (
-      <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
-        <div
-          className={`t--property-pane-section-${className}`}
-          ref={props.childrenWrapperRef}
-          style={{ position: "relative", zIndex: 1 }}
-        >
-          <CollapseContext.Provider value={isOpen}>
-            {props.children}
-          </CollapseContext.Provider>
-        </div>
-      </Collapse>
-    )}
-  </SectionWrapper>
-  )
+    </SectionWrapper>
+  );
 
-  return (
-      isSectionDisabled && props.disabledHelpText ? (
-        <Tooltip content={props.disabledHelpText}>
-        {sectionContent}
-        </Tooltip>
-      ) : (
-        sectionContent
-      )
-    
+  return isSectionDisabled && props.disabledHelpText ? (
+    <Tooltip content={props.disabledHelpText}>{sectionContent}</Tooltip>
+  ) : (
+    sectionContent
   );
 }, areEqual);
 

@@ -4,14 +4,19 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import type { IPanelProps } from "@blueprintjs/core";
 
 const MockPropertyControl = (props: any) => {
-  const isDisabled = props.disabled ? props.disabled(props.widgetProperties, props.propertyName) : false;
-  
+  const isDisabled = props.disabled
+    ? props.disabled(props.widgetProperties, props.propertyName)
+    : false;
+
   return (
-    <div data-testid="t--property-control-wrapper" className={isDisabled ? "cursor-not-allowed opacity-50" : ""}>
+    <div
+      data-testid="t--property-control-wrapper"
+      className={isDisabled ? "cursor-not-allowed opacity-50" : ""}
+    >
       <label>{props.label}</label>
-      <input 
-        type="text" 
-        role="textbox" 
+      <input
+        type="text"
+        role="textbox"
         disabled={isDisabled}
         data-testid="property-input"
       />
@@ -22,7 +27,9 @@ const MockPropertyControl = (props: any) => {
   );
 };
 
-jest.mock("./PropertyControl", () => (props: any) => <MockPropertyControl {...props} />);
+jest.mock("./PropertyControl", () => (props: any) => (
+  <MockPropertyControl {...props} />
+));
 
 describe("PropertyControl", () => {
   const mockPanel: IPanelProps = {
@@ -43,15 +50,17 @@ describe("PropertyControl", () => {
       widgetId: "test-widget",
       widgetName: "TestWidget",
       type: "CONTAINER_WIDGET",
-      testProperty: "test value"
-    }
+      testProperty: "test value",
+    },
   };
 
   it("should render property control normally when not disabled", () => {
     const PropertyControl = require("./PropertyControl");
     const { getByTestId } = render(<PropertyControl {...defaultProps} />);
-    
-    expect((getByTestId("property-input") as HTMLInputElement).disabled).toBe(false);
+
+    expect((getByTestId("property-input") as HTMLInputElement).disabled).toBe(
+      false,
+    );
     expect(getByTestId("t--property-control-wrapper").className).toBe("");
   });
 
@@ -67,7 +76,9 @@ describe("PropertyControl", () => {
     const wrapper = getByTestId("t--property-control-wrapper");
     expect(wrapper.classList.contains("cursor-not-allowed")).toBe(true);
     expect(wrapper.classList.contains("opacity-50")).toBe(true);
-    expect((getByTestId("property-input") as HTMLInputElement).disabled).toBe(true);
+    expect((getByTestId("property-input") as HTMLInputElement).disabled).toBe(
+      true,
+    );
   });
 
   it("should show disabled help text when property is disabled", () => {
@@ -81,7 +92,9 @@ describe("PropertyControl", () => {
     const { getByTestId } = render(<PropertyControl {...disabledProps} />);
 
     expect(getByTestId("disabled-help-text")).toBeTruthy();
-    expect(getByTestId("disabled-help-text").textContent).toBe("This property is disabled because...");
+    expect(getByTestId("disabled-help-text").textContent).toBe(
+      "This property is disabled because...",
+    );
   });
 
   it("should not show disabled help text when property is not disabled", () => {
@@ -96,4 +109,4 @@ describe("PropertyControl", () => {
 
     expect(queryByTestId("disabled-help-text")).toBeFalsy();
   });
-}); 
+});

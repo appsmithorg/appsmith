@@ -27,13 +27,15 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     // PropertyPaneControlConfig's disabled is a function (props: any, propertyPath: string) => boolean
     // while LazyCodeEditor expects a boolean. Convert function to boolean result.
-    const isReadOnly = typeof disabled === "function"
-      ? disabled(this.props.widgetProperties, this.props.propertyName)
-      : !!disabled;
-    
-    const maxHeight = controlConfig?.maxHeight ? 
-      String(controlConfig.maxHeight) : undefined;
-    
+    const isReadOnly =
+      typeof disabled === "function"
+        ? disabled(this.props.widgetProperties, this.props.propertyName)
+        : !!disabled;
+
+    const maxHeight = controlConfig?.maxHeight
+      ? String(controlConfig.maxHeight)
+      : undefined;
+
     return (
       <LazyCodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
@@ -49,7 +51,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
-        theme={EditorTheme.LIGHT} 
+        theme={EditorTheme.LIGHT}
         useValidationMessage={useValidationMessage}
         AIAssisted
       />

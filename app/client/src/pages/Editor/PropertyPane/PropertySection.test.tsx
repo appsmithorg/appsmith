@@ -1,16 +1,17 @@
 import React from "react";
 import { render } from "@testing-library/react";
 
-
 const MockPropertySection = (props: any) => {
-  const isSectionDisabled = props.disabled && props.disabled(props.widgetProps, props.propertyPath || "");
-  
+  const isSectionDisabled =
+    props.disabled &&
+    props.disabled(props.widgetProps, props.propertyPath || "");
+
   return (
-    <div 
+    <div
       data-testid="t--property-pane-section-wrapper"
-      className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+      className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
     >
-      <div 
+      <div
         className={`section-title-wrapper flex items-center ${
           !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
         }`}
@@ -19,9 +20,7 @@ const MockPropertySection = (props: any) => {
       >
         <span>{props.name}</span>
         {props.children && (
-          <div data-testid="section-content">
-            {props.children}
-          </div>
+          <div data-testid="section-content">{props.children}</div>
         )}
       </div>
 
@@ -32,11 +31,13 @@ const MockPropertySection = (props: any) => {
   );
 };
 
-jest.mock("./PropertySection", () => (props: any) => <MockPropertySection {...props} />);
+jest.mock("./PropertySection", () => (props: any) => (
+  <MockPropertySection {...props} />
+));
 
 describe("PropertySection", () => {
   const mockOnToggle = jest.fn();
-  
+
   const getDefaultProps = () => ({
     id: "test-section",
     name: "Test Section",
@@ -47,11 +48,11 @@ describe("PropertySection", () => {
       widgetId: "test-widget",
       widgetName: "TestWidget",
       type: "CONTAINER_WIDGET",
-      testProperty: "test value"
+      testProperty: "test value",
     },
-    onToggle: mockOnToggle
+    onToggle: mockOnToggle,
   });
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -59,11 +60,11 @@ describe("PropertySection", () => {
   it("should render section normally when not disabled", () => {
     const PropertySection = require("./PropertySection");
     const { getByTestId } = render(<PropertySection {...getDefaultProps()} />);
-    
+
     const wrapper = getByTestId("t--property-pane-section-wrapper");
     expect(wrapper.className).not.toContain("cursor-not-allowed");
     expect(wrapper.className).not.toContain("opacity-50");
-    
+
     const sectionTitle = getByTestId("section-title");
     expect(sectionTitle.className).toContain("cursor-pointer");
   });
@@ -72,7 +73,7 @@ describe("PropertySection", () => {
     const PropertySection = require("./PropertySection");
     const props = {
       ...getDefaultProps(),
-      disabled: () => true
+      disabled: () => true,
     };
 
     const { getByTestId } = render(<PropertySection {...props} />);
@@ -80,7 +81,7 @@ describe("PropertySection", () => {
     const wrapper = getByTestId("t--property-pane-section-wrapper");
     expect(wrapper.classList.contains("cursor-not-allowed")).toBe(true);
     expect(wrapper.classList.contains("opacity-50")).toBe(true);
-    
+
     const sectionTitle = getByTestId("section-title");
     expect(sectionTitle.className).toContain("cursor-default");
   });
@@ -90,13 +91,15 @@ describe("PropertySection", () => {
     const props = {
       ...getDefaultProps(),
       disabled: () => true,
-      disabledHelpText: "This section is disabled because..."
+      disabledHelpText: "This section is disabled because...",
     };
 
     const { getByTestId } = render(<PropertySection {...props} />);
 
     expect(getByTestId("disabled-tooltip")).toBeTruthy();
-    expect(getByTestId("disabled-tooltip").textContent).toBe("This section is disabled because...");
+    expect(getByTestId("disabled-tooltip").textContent).toBe(
+      "This section is disabled because...",
+    );
   });
 
   it("should not show disabled help text when section is not disabled", () => {
@@ -104,7 +107,7 @@ describe("PropertySection", () => {
     const props = {
       ...getDefaultProps(),
       disabled: () => false,
-      disabledHelpText: "This section is disabled because..."
+      disabledHelpText: "This section is disabled because...",
     };
 
     const { queryByTestId } = render(<PropertySection {...props} />);
@@ -115,10 +118,10 @@ describe("PropertySection", () => {
   it("clicking on section title should trigger toggle when not disabled", () => {
     const PropertySection = require("./PropertySection");
     const { getByTestId } = render(<PropertySection {...getDefaultProps()} />);
-    
+
     const sectionTitle = getByTestId("section-title");
     sectionTitle.click();
-    
+
     expect(mockOnToggle).toHaveBeenCalled();
   });
 
@@ -126,14 +129,14 @@ describe("PropertySection", () => {
     const PropertySection = require("./PropertySection");
     const props = {
       ...getDefaultProps(),
-      disabled: () => true
+      disabled: () => true,
     };
 
     const { getByTestId } = render(<PropertySection {...props} />);
-    
+
     const sectionTitle = getByTestId("section-title");
     sectionTitle.click();
-    
+
     expect(mockOnToggle).not.toHaveBeenCalled();
   });
-}); 
+});
