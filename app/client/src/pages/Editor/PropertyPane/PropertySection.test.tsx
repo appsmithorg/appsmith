@@ -1,22 +1,36 @@
 import React from "react";
 import { render } from "@testing-library/react";
+import type { WidgetProps } from "widgets/BaseWidget";
+import PropertySection from "./PropertySection";
 
-const MockPropertySection = (props: any) => {
+interface MockPropertySectionProps {
+  disabled?: (widgetProps: WidgetProps, propertyPath: string) => boolean;
+  widgetProps: WidgetProps;
+  propertyPath?: string;
+  className?: string;
+  name: string;
+  tag?: string;
+  onToggle?: () => void;
+  children?: React.ReactNode;
+  disabledHelpText?: string;
+}
+
+const MockPropertySection = (props: MockPropertySectionProps) => {
   const isSectionDisabled =
     props.disabled &&
     props.disabled(props.widgetProps, props.propertyPath || "");
 
   return (
     <div
-      data-testid="t--property-pane-section-wrapper"
       className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+      data-testid="t--property-pane-section-wrapper"
     >
       <div
         className={`section-title-wrapper flex items-center ${
           !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
         }`}
-        onClick={!isSectionDisabled ? props.onToggle : undefined}
         data-testid="section-title"
+        onClick={!isSectionDisabled ? props.onToggle : undefined}
       >
         <span>{props.name}</span>
         {props.children && (
@@ -31,7 +45,7 @@ const MockPropertySection = (props: any) => {
   );
 };
 
-jest.mock("./PropertySection", () => (props: any) => (
+jest.mock("./PropertySection", () => (props: MockPropertySectionProps) => (
   <MockPropertySection {...props} />
 ));
 
@@ -58,7 +72,6 @@ describe("PropertySection", () => {
   });
 
   it("should render section normally when not disabled", () => {
-    const PropertySection = require("./PropertySection");
     const { getByTestId } = render(<PropertySection {...getDefaultProps()} />);
 
     const wrapper = getByTestId("t--property-pane-section-wrapper");
@@ -70,7 +83,6 @@ describe("PropertySection", () => {
   });
 
   it("should render disabled section when disabled prop is true", () => {
-    const PropertySection = require("./PropertySection");
     const props = {
       ...getDefaultProps(),
       disabled: () => true,
@@ -87,7 +99,6 @@ describe("PropertySection", () => {
   });
 
   it("should show disabled help text when section is disabled", () => {
-    const PropertySection = require("./PropertySection");
     const props = {
       ...getDefaultProps(),
       disabled: () => true,

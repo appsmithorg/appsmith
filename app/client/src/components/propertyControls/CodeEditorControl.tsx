@@ -38,6 +38,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     return (
       <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={this.props.additionalAutoComplete}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -53,7 +54,6 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         tabBehaviour={TabBehaviour.INDENT}
         theme={EditorTheme.LIGHT}
         useValidationMessage={useValidationMessage}
-        AIAssisted
       />
     );
   }
