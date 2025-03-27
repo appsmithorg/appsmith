@@ -16,6 +16,7 @@ import { Flex } from "@appsmith/ads";
 
 interface Props {
   executing: boolean;
+  highlightedLines?: number[];
   onValueChange: (value: string) => void;
   value: JSEditorTab;
   showSettings: undefined | boolean;
@@ -44,6 +45,7 @@ export const JSEditorForm = (props: Props) => {
         folding
         height={"100%"}
         hideEvaluatedValue
+        highlightedLines={props.highlightedLines}
         input={{
           value: props.currentJSCollection.body,
           onChange: props.onChange,

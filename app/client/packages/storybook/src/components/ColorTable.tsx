@@ -23,7 +23,7 @@ export const ColorTable = ({
   const [isDarkMode, setDarkMode] = useState<boolean | undefined>(false);
   const { theme } = useTheme({
     seedColor,
-    colorMode: isDarkMode != null ? "dark" : "light",
+    colorMode: Boolean(isDarkMode) ? "dark" : "light",
   });
   const { color } = theme;
 

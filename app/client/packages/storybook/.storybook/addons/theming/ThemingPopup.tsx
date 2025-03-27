@@ -53,6 +53,7 @@ export const ThemingPopup: React.FC<PanelProps> = ({ leftShift, onClose }) => {
   return (
     <Wrapper style={{ left: `${leftShift}px` }}>
       <ThemeSettings
+        isHintVisible
         isDarkMode={globals.colorMode === "dark"}
         setDarkMode={(value) =>
           updateGlobal("colorMode", value ? "dark" : "light")
