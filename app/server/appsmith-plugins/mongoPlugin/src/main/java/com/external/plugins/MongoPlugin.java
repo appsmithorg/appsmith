@@ -297,6 +297,7 @@ public class MongoPlugin extends BasePlugin {
             actionConfiguration.setFormData(formData);
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters)
+                    .tag("plugin", this.getClass().getName())
                     .name(PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
         }
