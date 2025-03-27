@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo } from "react";
 import {
   Button,
   Menu,
@@ -12,7 +13,6 @@ import {
   MenuSubTrigger,
   MenuSubContent,
 } from "@appsmith/ads";
-import React, { useCallback, useMemo } from "react";
 import { Field, type WrappedFieldProps, type BaseFieldProps } from "redux-form";
 import type {
   FunctionCallingEntityType,
@@ -153,7 +153,7 @@ const FunctionCallingMenuFieldRender = (props: FieldRenderProps) => {
 
   return (
     <Menu>
-      <MenuTrigger autoFocus={autoFocus}>
+      <MenuTrigger>
         <Button
           autoFocus={autoFocus}
           className="rc-select-selector"
