@@ -38,6 +38,8 @@ export interface ListItemProps {
   customTitleComponent?: ReactNode | ReactNode[];
   /** dataTestId which will be used in automated tests */
   dataTestId?: string;
+  /** Whether to show the unsaved changes indicator */
+  showUnsavedChanges?: boolean;
 }
 
 export interface ListProps {

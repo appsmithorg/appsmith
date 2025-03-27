@@ -3,6 +3,7 @@ import { EntityItem, EntityContextMenu } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import {
   getActionByBaseId,
+  getActionSchemaDirtyState,
   getDatasource,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
@@ -117,6 +118,10 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     validateName,
   ]);
 
+  const isActionSchemaDirty = useSelector((state: AppState) =>
+    getActionSchemaDirtyState(state, action.id),
+  );
+
   return (
     <EntityItem
       className="action t--action-entity"
@@ -128,6 +133,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
+      showUnsavedChanges={isActionSchemaDirty}
       startIcon={icon}
       title={item.title}
     />

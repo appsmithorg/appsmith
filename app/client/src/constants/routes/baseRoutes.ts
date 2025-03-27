@@ -29,6 +29,7 @@ export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
 export const WORKSPACE_SETTINGS_GENERAL_PAGE_URL = `${WORKSPACE_URL}/settings/general`;
 export const WORKSPACE_SETTINGS_MEMBERS_PAGE_URL = `${WORKSPACE_URL}/settings/members`;
 export const WORKSPACE_SETTINGS_LICENSE_PAGE_URL = `/settings/license`;
+export const ORG_LOGIN_PATH = "/org";
 
 export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchTemplatesPath = match(TEMPLATES_PATH);
