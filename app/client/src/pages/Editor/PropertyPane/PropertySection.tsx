@@ -1,21 +1,22 @@
-import { Classes } from "@blueprintjs/core";
-import type { ReactNode } from "react";
-import React, { memo, useState, useEffect, useCallback } from "react";
-import { Collapse } from "@blueprintjs/core";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Icon, Tag, Tooltip } from "@appsmith/ads";
+import { Classes, Collapse } from "@blueprintjs/core";
+import { setPropertySectionState } from "actions/propertyPaneActions";
+import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
+import { Colors } from "constants/Colors";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import type { AppState } from "ee/reducers";
+import type { ReactNode } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
-import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
-import { setPropertySectionState } from "actions/propertyPaneActions";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import {
+  getCurrentWidgetId,
+  getWidgetPropsForPropertyPane,
+} from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
 import localStorage from "utils/localStorage";
-import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { CollapseContext, DisabledContext } from "./PropertyPaneContexts";
+import { CollapseContext } from "./PropertyPaneContexts";
 
 const TagContainer = styled.div``;
 
