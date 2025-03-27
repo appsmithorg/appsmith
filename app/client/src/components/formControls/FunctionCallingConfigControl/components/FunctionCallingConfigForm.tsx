@@ -1,5 +1,5 @@
 import { Button, Text } from "@appsmith/ads";
-import { default as React, useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
@@ -29,17 +29,19 @@ export const FunctionCallingConfigForm = ({
   fields,
   formName,
 }: FunctionCallingConfigFormProps) => {
-  const latestFieldRef = useRef<HTMLDivElement>(null);
-  const previousFieldsLength = useRef(fields.length);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
 
   const handleAddFunctionButtonClick = useCallback(() => {
+    const id = uuid();
+
     fields.push({
-      id: uuid(),
+      id,
       description: "",
       entityId: "",
       isApprovalRequired: false,
       entityType: "Query",
     });
+    setNewlyAddedId(id);
   }, [fields]);
 
   const handleRemoveToolButtonClick = useCallback(
@@ -47,38 +49,6 @@ export const FunctionCallingConfigForm = ({
       fields.remove(index);
     },
     [fields],
-  );
-
-  useEffect(
-    function handleAddFunction() {
-      // Only scroll and focus if a new field was added (length increased)
-      if (
-        fields.length > previousFieldsLength.current &&
-        latestFieldRef.current
-      ) {
-        // Scroll the new field into view
-        latestFieldRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-
-        // Focus the menu button in the latest field
-        // The menu button is rendered by the Menu component from @appsmith/ads
-        const menuButton = latestFieldRef.current.querySelector(
-          "button.rc-select-selector",
-        );
-
-        if (menuButton) {
-          // Use setTimeout to ensure the button is fully rendered
-          setTimeout(() => {
-            (menuButton as HTMLButtonElement).focus();
-          }, 100);
-        }
-      }
-
-      previousFieldsLength.current = fields.length;
-    },
-    [fields.length],
   );
 
   return (
@@ -108,14 +78,21 @@ export const FunctionCallingConfigForm = ({
       ) : (
         <ConfigItems>
           {fields.map((field, index) => {
-            const isLastField = index === fields.length - 1;
+            const fieldValue = fields.get(index);
+            const isNewlyAdded = fieldValue.id === newlyAddedId;
+
+            // Reset the newly added ID after rendering to ensure focus only happens once
+            if (isNewlyAdded) {
+              setTimeout(() => setNewlyAddedId(null), 100);
+            }
 
             return (
-              <div key={field} ref={isLastField ? latestFieldRef : undefined}>
+              <div key={field}>
                 <FunctionCallingConfigToolField
                   fieldPath={field}
                   formName={formName}
                   index={index}
+                  isLastAdded={isNewlyAdded}
                   onRemove={handleRemoveToolButtonClick}
                 />
               </div>

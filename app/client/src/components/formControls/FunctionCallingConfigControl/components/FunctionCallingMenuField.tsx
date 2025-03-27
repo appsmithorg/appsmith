@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo } from "react";
 import {
   Button,
   Menu,
@@ -12,7 +13,6 @@ import {
   MenuSubTrigger,
   MenuSubContent,
 } from "@appsmith/ads";
-import React, { useCallback, useMemo } from "react";
 import { Field, type WrappedFieldProps, type BaseFieldProps } from "redux-form";
 import type {
   FunctionCallingEntityType,
@@ -35,6 +35,7 @@ interface FunctionCallingMenuFieldProps {
     value: string,
     entityType: FunctionCallingEntityType,
   ) => void;
+  autoFocus?: boolean;
 }
 
 interface FieldRenderProps
@@ -82,7 +83,7 @@ const getSelectedValueInfo = (
 };
 
 const FunctionCallingMenuFieldRender = (props: FieldRenderProps) => {
-  const { children, disabled, input, onValueChange } = props;
+  const { autoFocus, children, disabled, input, onValueChange } = props;
   const options = useSelector(selectEntityOptions);
 
   const dispatch = useDispatch();
@@ -154,6 +155,7 @@ const FunctionCallingMenuFieldRender = (props: FieldRenderProps) => {
     <Menu>
       <MenuTrigger>
         <Button
+          autoFocus={autoFocus}
           className="rc-select-selector"
           disabled={disabled}
           endIcon="arrow-down-s-line"
