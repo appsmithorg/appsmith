@@ -301,6 +301,7 @@ public class PostgresPlugin extends BasePlugin {
                             mustacheKeysInOrder,
                             executeActionDTO,
                             explicitCastDataTypes)
+                    .tag("plugin", this.getClass().getName())
                     .name(PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
         }
