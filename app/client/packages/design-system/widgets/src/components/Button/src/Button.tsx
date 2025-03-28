@@ -36,7 +36,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
               data-text=""
               fontWeight={500}
               lineClamp={1}
-              size={size === "xSmall" ? "footnote" : "body"}
+              size={size === "xSmall" || size === "small" ? "caption" : "body"}
             >
               {children}
             </Text>
@@ -48,7 +48,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
           {!Boolean(children) && (
             <Text
               data-empty-text=""
-              size={size === "xSmall" ? "footnote" : "body"}
+              size={size === "xSmall" || size === "small" ? "caption" : "body"}
             >
               &#8203;
             </Text>
