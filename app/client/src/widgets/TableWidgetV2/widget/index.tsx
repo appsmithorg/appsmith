@@ -899,7 +899,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const { canFreezeColumn, renderMode, tableData } = this.props;
+    const {
+      cachedTableData,
+      canFreezeColumn,
+      infiniteScrollEnabled,
+      pageNo,
+      pageSize,
+      pushBatchMetaUpdates,
+      renderMode,
+      tableData,
+    } = this.props;
 
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
@@ -913,6 +922,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (canFreezeColumn && renderMode === RenderModes.PAGE) {
       //dont neet to batch this since single action
       this.hydrateStickyColumns();
+    }
+
+    if (infiniteScrollEnabled) {
+      pushBatchMetaUpdates("cachedTableData", {
+        ...(cachedTableData || {}),
+        [pageNo]: tableData,
+      });
+
+      if (tableData.length < pageSize) {
+        pushBatchMetaUpdates("endOfData", true);
+      }
     }
   }
 
@@ -984,16 +1004,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("filters", []);
       }
-    }
 
-    /*
-     * Clear transient table data and editablecell when tableData changes
-     */
-    if (isTableDataModified) {
+      /*
+       * Clear transient table data and editablecell when tableData changes
+       */
       pushBatchMetaUpdates("transientTableData", {});
       // reset updatedRowIndex whenever transientTableData is flushed.
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
+      /*
+       * Updating the caching layer on table modification
+       */
       if (this.props.infiniteScrollEnabled) {
         pushBatchMetaUpdates("cachedTableData", {
           ...(this.props.cachedTableData || {}),
@@ -1007,6 +1028,20 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
+    } else {
+      if (
+        !prevProps.infiniteScrollEnabled &&
+        this.props.infiniteScrollEnabled
+      ) {
+        pushBatchMetaUpdates("cachedTableData", {
+          ...(this.props.cachedTableData || {}),
+          [pageNo]: this.props.tableData,
+        });
+
+        if (this.props.tableData.length < this.props.pageSize) {
+          pushBatchMetaUpdates("endOfData", true);
+        }
+      }
     }
 
     if (!pageNo) {
