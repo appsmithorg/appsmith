@@ -1,11 +1,8 @@
-import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
 import type {
   CodeEditorExpected,
   EditorProps,
 } from "components/editorComponents/CodeEditor";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -13,16 +10,19 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import styled from "styled-components";
-import { isString } from "utils/helpers";
-import { JSToString, stringToJS } from "./utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
-import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
-import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertyPaneContexts";
+import React from "react";
+import styled from "styled-components";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { isString } from "utils/helpers";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
+import { JSToString, stringToJS } from "./utils";
 
 const PromptMessage = styled.span`
   line-height: 17px;

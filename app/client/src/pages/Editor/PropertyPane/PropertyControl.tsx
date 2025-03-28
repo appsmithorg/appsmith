@@ -1,4 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -64,6 +71,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import { getParentWidget } from "selectors/widgetSelectors";
+import { DisabledContext } from "./PropertyPaneContexts";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -89,6 +97,8 @@ const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
+  // Get disabled state from context (from parent section if available)
+  const isSectionDisabled = useContext(DisabledContext);
 
   const controlRef = useRef<HTMLDivElement | null>(null);
   const [showEmptyBlock, setShowEmptyBlock] = React.useState(false);
@@ -104,6 +114,11 @@ const PropertyControl = memo((props: Props) => {
   const parentWidget = useSelector((state) =>
     getParentWidget(state, widgetProperties.widgetId),
   );
+
+  const isControlDisabled =
+    props.disabled && props.disabled(widgetProperties, props.propertyName);
+
+  const isDisabled = isSectionDisabled || !!isControlDisabled;
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -882,8 +897,9 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    const helpText =
-      config.controlType === "ACTION_SELECTOR"
+    const helpText = isDisabled
+      ? props.disabledHelpText || ""
+      : config.controlType === "ACTION_SELECTOR"
         ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
         : props.helpText;
 
@@ -916,7 +932,7 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-wrapper t--property-control-${className} group relative`}
+          className={`t--property-control-wrapper t--property-control-${className} group relative ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
