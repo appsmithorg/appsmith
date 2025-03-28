@@ -17,6 +17,7 @@ export const FEATURE_FLAG = {
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
   release_anvil_enabled: "release_anvil_enabled",
+  license_ai_agent_enabled: "license_ai_agent_enabled",
   license_git_branch_protection_enabled:
     "license_git_branch_protection_enabled",
   license_git_continuous_delivery_enabled:
@@ -75,6 +76,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
   release_anvil_enabled: false,
+  license_ai_agent_enabled: false,
   release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   license_git_continuous_delivery_enabled: false,

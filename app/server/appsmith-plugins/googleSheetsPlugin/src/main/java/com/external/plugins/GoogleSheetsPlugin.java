@@ -161,6 +161,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, featureFlagMap)
+                    .tag("plugin", this.getClass().getName())
                     .name(PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
         }
@@ -222,6 +223,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                 + oauth2.getAuthenticationResponse()
                                                         .getToken()))
                                 .exchange()
+                                .tag("plugin", this.getClass().getName())
                                 .name(ACTUAL_API_CALL)
                                 .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
