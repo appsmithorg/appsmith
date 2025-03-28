@@ -198,10 +198,17 @@ export default {
   //
   getProcessedTableData: (props, moment, _) => {
     let data;
+    let tableData;
 
-    if (_.isArray(props.tableData)) {
+    if (props.infiniteScrollEnabled) {
+      tableData = _.flatten(_.values(props.cachedTableData));
+    } else {
+      tableData = props.tableData;
+    }
+
+    if (_.isArray(tableData)) {
       /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
-      data = props.tableData.map((row, index) => ({
+      data = tableData.map((row, index) => ({
         ...row,
         __originalIndex__: index,
         __primaryKey__: props.primaryColumnId

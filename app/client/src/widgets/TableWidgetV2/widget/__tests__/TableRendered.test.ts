@@ -108,6 +108,8 @@ describe("TableWidgetV2 getWidgetView", () => {
     defaultNewRow: {},
     frozenColumnIndices: { a: 1 },
     infiniteScrollEnabled: false,
+    endOfData: false,
+    cachedTableData: {},
   };
 
   describe("TableWidgetV2 loading checks", () => {
