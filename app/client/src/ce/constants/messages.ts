@@ -214,6 +214,10 @@ export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
+export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no AI Agents in this workspace.`;
+export const AI_AGENT_AUTH_SUBTITLE = () =>
+  `Sign up with any Google account.\n Support for email will be available soon.`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";

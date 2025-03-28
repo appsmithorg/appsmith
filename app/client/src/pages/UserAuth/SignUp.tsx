@@ -28,6 +28,8 @@ import {
   VISIT_OUR_DOCS,
   ALREADY_USING_APPSMITH,
   SIGN_IN_TO_AN_EXISTING_ORGANISATION,
+  AI_AGENT_AUTH_SUBTITLE,
+  LOGIN_PAGE_TITLE,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
@@ -63,6 +65,7 @@ import * as Sentry from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 declare global {
   interface Window {
@@ -100,9 +103,10 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   useEffect(() => {
-    if (!isFormLoginEnabled) {
+    if (!isFormLoginEnabled && !isAiAgentFlowEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
 
       history.replace({
@@ -226,7 +230,7 @@ export function SignUp(props: SignUpFormProps) {
           </Link>
         </div>
       )}
-      {cloudHosting && (
+      {cloudHosting && !isAiAgentFlowEnabled && (
         <>
           <OrWithLines>or</OrWithLines>
           <div className="px-2 text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
@@ -247,7 +251,15 @@ export function SignUp(props: SignUpFormProps) {
   );
 
   return (
-    <Container footer={footerSection} title={createMessage(SIGNUP_PAGE_TITLE)}>
+    <Container
+      footer={footerSection}
+      subtitle={
+        isAiAgentFlowEnabled ? createMessage(AI_AGENT_AUTH_SUBTITLE) : ""
+      }
+      title={createMessage(
+        isAiAgentFlowEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
+      )}
+    >
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>
