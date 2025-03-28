@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import { get, omit } from "lodash";
 import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
+import { GeneratePromptButton } from "ee/components/GeneratePromptButton";
 
 const StyledButton = styled((props: ButtonProps & { isActive: boolean }) => (
   <Button {...omit(props, ["isActive"])} />
@@ -77,6 +78,9 @@ type FormTemplateProps = FormTemplatePartialProps &
   ReduxDispatchProps &
   ReduxStateProps;
 
+const SYSTEM_INSTRUCTIONS_FIELD =
+  "actionConfiguration.formData.aiChatAssistant.input.instructions";
+
 export function FormTemplate(props: FormTemplateProps) {
   const { formName, formValues, options, updateFormProperty } = props;
 
@@ -88,6 +92,12 @@ export function FormTemplate(props: FormTemplateProps) {
     return Object.keys(value).every((key) => {
       return get(formValues, key) === value[key];
     });
+  };
+
+  const existingPrompt = get(formValues, SYSTEM_INSTRUCTIONS_FIELD, "");
+
+  const onGeneratedPrompt = (prompt: string) => {
+    updateFormProperty(formName, SYSTEM_INSTRUCTIONS_FIELD, prompt);
   };
 
   const onClick = (option: FormTemplateOption) => {
@@ -113,6 +123,10 @@ export function FormTemplate(props: FormTemplateProps) {
           {option.label}
         </StyledButton>
       ))}
+      <GeneratePromptButton
+        existingPrompt={existingPrompt}
+        onSubmit={onGeneratedPrompt}
+      />
     </Flex>
   );
 }
