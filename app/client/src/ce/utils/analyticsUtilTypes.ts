@@ -14,7 +14,8 @@ export type EventLocation =
   | "JS_OBJECT_RESPONSE_RUN_BUTTON"
   | "ONE_CLICK_BINDING"
   | "PAGES_PANE"
-  | "ADD_PANE";
+  | "ADD_PANE"
+  | "AI_QUERY_FUNCTION_CALLING_CONFIG";
 
 export type EventName =
   | "APP_CRASH"

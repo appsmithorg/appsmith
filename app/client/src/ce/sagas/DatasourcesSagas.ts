@@ -61,8 +61,8 @@ import {
   updateDatasourceSuccess,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import DatasourcesApi from "api/DatasourcesApi";
+import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
+import DatasourcesApi from "ee/api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,

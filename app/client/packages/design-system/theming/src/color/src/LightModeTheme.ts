@@ -990,7 +990,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of accent border, used in outlined buttons
     const color = this.bdAccent.clone();
 
-    color.oklch.l += 0.35;
+    color.oklch.l += 0.42;
 
     return color;
   }
@@ -1053,7 +1053,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of neutral border, used in outlined buttons
     const color = this.bdNeutral.clone();
 
-    color.oklch.l += 0.35;
+    color.oklch.l += 0.47;
 
     return color;
   }
@@ -1095,7 +1095,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdPositiveSubtle() {
-    // Slightly subtler version of negative border, used in outlined buttons
+    // Slightly subtler version of positive border, used in outlined buttons
     const color = this.bdPositive.clone();
 
     color.oklch.l += 0.07;
@@ -1190,7 +1190,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of warning border, used in outlined buttons
     const color = this.bdWarning.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.06;
     color.oklch.c -= 0.05;
 
     return color;

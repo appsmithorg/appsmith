@@ -1,9 +1,9 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import API from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
 
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
+import type { ApiResponse } from "api/ApiResponses";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;

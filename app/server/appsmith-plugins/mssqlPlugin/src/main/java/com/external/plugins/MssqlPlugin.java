@@ -188,6 +188,7 @@ public class MssqlPlugin extends BasePlugin {
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(hikariDSConnection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO)
+                    .tag("plugin", this.getClass().getName())
                     .name(ActionSpanCE.PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
         }

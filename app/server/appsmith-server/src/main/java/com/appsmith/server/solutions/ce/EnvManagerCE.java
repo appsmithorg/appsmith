@@ -11,11 +11,9 @@ import java.util.Map;
 
 public interface EnvManagerCE {
 
-    List<String> transformEnvContent(String envContent, Map<String, String> changes);
+    Mono<List<String>> transformEnvContent(String envContent, Map<String, String> changes);
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
-
-    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes);
 
     Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 

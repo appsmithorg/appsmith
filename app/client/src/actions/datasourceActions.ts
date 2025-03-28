@@ -1,6 +1,6 @@
 import type { ReduxAction, ReduxActionWithCallbacks } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
 import type {
   AuthenticationStatus,
   Datasource,

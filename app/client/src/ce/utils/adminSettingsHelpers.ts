@@ -65,7 +65,11 @@ export const getWrapperCategory = (
   return categories[subCategory || category];
 };
 
-export const getFilteredGeneralCategories = (categories: Category[]) => {
+export const getFilteredGeneralCategories = (
+  categories: Category[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  featureFlags?: Record<string, boolean>,
+) => {
   return categories
     ?.map((category: Category) => {
       return category;

@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.BlacklistedEnvVariableHelper;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -32,9 +33,10 @@ import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -87,14 +89,16 @@ public class EnvManagerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private AssetService assetService;
+    AssetService assetService;
 
     @MockBean
+    BlacklistedEnvVariableHelper blacklistedEnvVariableHelper;
+
     private EmailService emailService;
 
     @BeforeEach
     public void setup() {
-        envManager = new EnvManagerImpl(
+        EnvManager realEnvManager = new EnvManagerImpl(
                 sessionUserService,
                 userService,
                 analyticsService,
@@ -110,7 +114,15 @@ public class EnvManagerTest {
                 userUtils,
                 organizationService,
                 objectMapper,
-                emailService);
+                emailService,
+                blacklistedEnvVariableHelper);
+
+        // Create a spy of the real env manager
+        envManager = Mockito.spy(realEnvManager);
+
+        Mockito.when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-id"));
+        Mockito.when(blacklistedEnvVariableHelper.getBlacklistedEnvVariableForAppsmithCloud(eq("org-id")))
+                .thenReturn(Set.of());
     }
 
     @Test
@@ -118,53 +130,81 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_DB_URL='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_DB_URL", "new first value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='new first value'",
-                        "APPSMITH_REDIS_URL='second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'");
+        StepVerifier.create(envManager.transformEnvContent(content, Map.of("APPSMITH_DB_URL", "new first value")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='new first value'",
+                                    "APPSMITH_REDIS_URL='second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='first value'",
-                        "APPSMITH_REDIS_URL='new second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'");
+        StepVerifier.create(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='first value'",
+                                    "APPSMITH_REDIS_URL='new second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_INSTANCE_NAME", "new third value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='first value'",
-                        "APPSMITH_REDIS_URL='second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='new third value'");
+        StepVerifier.create(
+                        envManager.transformEnvContent(content, Map.of("APPSMITH_INSTANCE_NAME", "new third value")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='first value'",
+                                    "APPSMITH_REDIS_URL='second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='new third value'");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_DB_URL", "new first value",
                                 "APPSMITH_INSTANCE_NAME", "new third value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='new first value'",
-                        "APPSMITH_REDIS_URL='second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='new third value'");
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='new first value'",
+                                    "APPSMITH_REDIS_URL='second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='new third value'");
+                })
+                .verifyComplete();
     }
 
     @Test
     public void emptyValues() {
         final String content = "APPSMITH_DB_URL=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value";
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL=first value",
-                        "APPSMITH_REDIS_URL='new second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME=third value");
+        StepVerifier.create(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL=first value",
+                                    "APPSMITH_REDIS_URL='new second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME=third value");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
-                .containsExactly(
-                        "APPSMITH_DB_URL=first value", "APPSMITH_REDIS_URL=", "", "APPSMITH_INSTANCE_NAME=third value");
+        StepVerifier.create(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL=first value",
+                                    "APPSMITH_REDIS_URL=",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME=third value");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -172,34 +212,46 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_DB_URL='first value'\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
-        assertThat(envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_DB_URL", "new first value",
                                 "APPSMITH_REDIS_URL", "new second value")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='new first value'",
-                        "APPSMITH_REDIS_URL='new second value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'");
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='new first value'",
+                                    "APPSMITH_REDIS_URL='new second value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='first value'",
-                        "APPSMITH_REDIS_URL=",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'");
+        StepVerifier.create(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='first value'",
+                                    "APPSMITH_REDIS_URL=",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'");
+                })
+                .verifyComplete();
 
-        assertThat(envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance",
                                 "APPSMITH_REDIS_URL", "value with \" char in it")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='first value'",
-                        "APPSMITH_REDIS_URL='value with \" char in it'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='Sponge-bob'\"'\"'s Instance'");
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='first value'",
+                                    "APPSMITH_REDIS_URL='value with \" char in it'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='Sponge-bob'\"'\"'s Instance'");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -242,13 +294,14 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_DB_URL=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
 
-        assertThatThrownBy(() -> envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_DB_URL", "new first value",
                                 "DISALLOWED_NASTY_STUFF", "new second value")))
-                .matches(value -> value instanceof AppsmithException
-                        && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable).getError().equals(AppsmithError.GENERIC_BAD_REQUEST))
+                .verify();
     }
 
     @Test
@@ -256,17 +309,21 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_DB_URL='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
-        assertThat(envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_DB_URL", "new first value",
                                 "APPSMITH_DISABLE_TELEMETRY", "false")))
-                .containsExactly(
-                        "APPSMITH_DB_URL='new first value'",
-                        "APPSMITH_REDIS_URL='quoted value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'",
-                        "APPSMITH_DISABLE_TELEMETRY=false");
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL='new first value'",
+                                    "APPSMITH_REDIS_URL='quoted value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'",
+                                    "APPSMITH_DISABLE_TELEMETRY=false");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -274,17 +331,21 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_DB_URL='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
-        assertThat(envManager.transformEnvContent(
+        StepVerifier.create(envManager.transformEnvContent(
                         content,
                         Map.of(
                                 "APPSMITH_DB_URL", "'just quotes'",
                                 "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it")))
-                .containsExactly(
-                        "APPSMITH_DB_URL=\"'\"'just quotes'\"'\"",
-                        "APPSMITH_REDIS_URL='quoted value'",
-                        "",
-                        "APPSMITH_INSTANCE_NAME='third value'",
-                        "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'");
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_DB_URL=\"'\"'just quotes'\"'\"",
+                                    "APPSMITH_REDIS_URL='quoted value'",
+                                    "",
+                                    "APPSMITH_INSTANCE_NAME='third value'",
+                                    "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -302,21 +363,47 @@ public class EnvManagerTest {
 
     @Test
     public void setEnv_AndGetAll() {
-        EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
-
+        // Create a test map of environment variables
         Map<String, String> envs = new HashMap<>();
         envs.put("APPSMITH_DB_URL", "mongo-url");
         envs.put("APPSMITH_DISABLE_TELEMETRY", "");
 
-        Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
-        Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
+        // Mock the getAll method on the spy to return our test environment variables
+        Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
 
-        Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
-
-        StepVerifier.create(envMono)
+        // Test the getAllNonEmpty method (which filters out empty values)
+        StepVerifier.create(envManager.getAllNonEmpty())
                 .assertNext(map -> {
                     assertThat(map).hasSize(1);
-                    assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
+                    assertThat(map).containsKey("APPSMITH_DB_URL");
+                    assertThat(map).containsValue("mongo-url");
+                    assertThat(map).doesNotContainKey("APPSMITH_DISABLE_TELEMETRY");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllNonEmpty_WithMultipleVariables_FiltersEmptyOnes() {
+        // Create a test map with multiple environment variables
+        Map<String, String> envs = new HashMap<>();
+        envs.put("APPSMITH_DB_URL", "mongo-url");
+        envs.put("APPSMITH_DISABLE_TELEMETRY", "");
+        envs.put("APPSMITH_INSTANCE_NAME", "test-instance");
+        envs.put("APPSMITH_ADMIN_EMAILS", "");
+        envs.put("APPSMITH_MAIL_HOST", "smtp.example.com");
+
+        // Mock the getAll method on the spy to return our test environment variables
+        Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
+
+        // Test the getAllNonEmpty method (which filters out empty values)
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).hasSize(3);
+                    assertThat(map).containsEntry("APPSMITH_DB_URL", "mongo-url");
+                    assertThat(map).containsEntry("APPSMITH_INSTANCE_NAME", "test-instance");
+                    assertThat(map).containsEntry("APPSMITH_MAIL_HOST", "smtp.example.com");
+                    assertThat(map).doesNotContainKey("APPSMITH_DISABLE_TELEMETRY");
+                    assertThat(map).doesNotContainKey("APPSMITH_ADMIN_EMAILS");
                 })
                 .verifyComplete();
     }

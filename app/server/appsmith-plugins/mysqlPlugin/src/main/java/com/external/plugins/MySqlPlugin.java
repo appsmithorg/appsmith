@@ -240,6 +240,7 @@ public class MySqlPlugin extends BasePlugin {
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connectionContext, actionConfiguration, FALSE, null, null, requestData)
+                        .tag("plugin", this.getClass().getName())
                         .name(PLUGIN_EXECUTE_COMMON)
                         .tap(Micrometer.observation(observationRegistry));
             }
@@ -258,6 +259,7 @@ public class MySqlPlugin extends BasePlugin {
                             mustacheKeysInOrder,
                             executeActionDTO,
                             requestData)
+                    .tag("plugin", this.getClass().getName())
                     .name(PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
         }
@@ -364,6 +366,9 @@ public class MySqlPlugin extends BasePlugin {
                                                                 executeActionDTO,
                                                                 requestData,
                                                                 psParams)
+                                                        .tag(
+                                                                "plugin",
+                                                                this.getClass().getName())
                                                         .name(CREATE_AND_EXECUTE_QUERY_FROM_CONNECTION)
                                                         .tap(Micrometer.observation(observationRegistry));
                                             }
