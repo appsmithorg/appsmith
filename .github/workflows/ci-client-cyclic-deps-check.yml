@@ -29,7 +29,7 @@ jobs:
 
       - name: Check for changes in app/client/src
         id: changed-files
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             app/client/src/**

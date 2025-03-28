@@ -102,7 +102,7 @@ jobs:
 
       - name: Get changed files in the server folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v46
         with:
           files: "app/server/**"
           write_output_files: true
