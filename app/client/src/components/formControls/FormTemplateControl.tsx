@@ -1,25 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import styled from "styled-components";
-import {
-  Button,
-  Flex,
-  Input,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  ToggleButton,
-} from "@appsmith/ads";
+import { Button, Flex } from "@appsmith/ads";
 import type { ButtonProps } from "@appsmith/ads";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
 import { get, omit } from "lodash";
 import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
+import { GeneratePromptButton } from "ee/components/GeneratePromptButton";
 
 const StyledButton = styled((props: ButtonProps & { isActive: boolean }) => (
   <Button {...omit(props, ["isActive"])} />
@@ -87,10 +78,11 @@ type FormTemplateProps = FormTemplatePartialProps &
   ReduxDispatchProps &
   ReduxStateProps;
 
+const SYSTEM_INSTRUCTIONS_FIELD =
+  "actionConfiguration.formData.aiChatAssistant.input.instructions";
+
 export function FormTemplate(props: FormTemplateProps) {
   const { formName, formValues, options, updateFormProperty } = props;
-
-  const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (option: FormTemplateOption) => {
     // Checks if the option is active
@@ -100,6 +92,12 @@ export function FormTemplate(props: FormTemplateProps) {
     return Object.keys(value).every((key) => {
       return get(formValues, key) === value[key];
     });
+  };
+
+  const existingPrompt = get(formValues, SYSTEM_INSTRUCTIONS_FIELD, "");
+
+  const onGeneratedPrompt = (prompt: string) => {
+    updateFormProperty(formName, SYSTEM_INSTRUCTIONS_FIELD, prompt);
   };
 
   const onClick = (option: FormTemplateOption) => {
@@ -125,34 +123,10 @@ export function FormTemplate(props: FormTemplateProps) {
           {option.label}
         </StyledButton>
       ))}
-      <Popover onOpenChange={setIsOpen} open={isOpen}>
-        <PopoverTrigger>
-          <ToggleButton
-            icon="star-fill"
-            isSelected={isOpen}
-            onClick={() => setIsOpen(true)}
-            size="md"
-          >
-            Generate prompt
-          </ToggleButton>
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          avoidCollisions={false}
-          showArrow
-          side="bottom"
-        >
-          <PopoverHeader>Generate prompt</PopoverHeader>
-          <PopoverBody>
-            <Flex flexDirection="column" gap="spaces-2">
-              <Input autoFocus renderAs="textarea" />
-              <Button kind="primary" size="sm">
-                Generate
-              </Button>
-            </Flex>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
+      <GeneratePromptButton
+        existingPrompt={existingPrompt}
+        onSubmit={onGeneratedPrompt}
+      />
     </Flex>
   );
 }
