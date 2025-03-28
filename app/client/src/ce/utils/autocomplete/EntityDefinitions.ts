@@ -278,7 +278,7 @@ export const GLOBAL_FUNCTIONS = {
   },
   logoutUser: {
     "!url":
-      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/store-value",
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/logout-user",
     "!doc": "Logout user",
     "!type": "fn(redirectURL: string) -> void",
   },
