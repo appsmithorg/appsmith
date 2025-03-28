@@ -14,6 +14,7 @@ export enum APPSMITH_GLOBAL_FUNCTIONS {
   setInterval = "setInterval",
   clearInterval = "clearInterval",
   postWindowMessage = "postWindowMessage",
+  logoutUser = "logoutUser",
 }
 
 export enum APPSMITH_NAMESPACED_FUNCTIONS {
