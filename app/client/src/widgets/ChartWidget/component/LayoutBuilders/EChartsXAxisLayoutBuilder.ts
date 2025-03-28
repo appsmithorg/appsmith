@@ -32,7 +32,12 @@ export class EChartsXAxisLayoutBuilder {
 
   axisLabelConfig = (allocatedXAxisHeight: number) => {
     if (this.props.labelOrientation == LabelOrientation.AUTO) {
-      return {};
+      return {
+        width: allocatedXAxisHeight,
+        overflow: "truncate",
+        hideOverlap: true,
+        interval: 0,
+      };
     } else {
       return {
         width:
@@ -40,6 +45,8 @@ export class EChartsXAxisLayoutBuilder {
           this.defaultHeightForXAxisName -
           this.gapBetweenLabelAndName,
         overflow: "truncate",
+        hideOverlap: true,
+        interval: 0,
       };
     }
   };
