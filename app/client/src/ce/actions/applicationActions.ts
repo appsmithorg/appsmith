@@ -5,7 +5,10 @@ import type {
   ImportApplicationRequest,
   UpdateApplicationPayload,
 } from "ee/api/ApplicationApi";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { IconNames } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
@@ -151,6 +154,27 @@ export const publishApplication = (applicationId: string) => {
     payload: {
       applicationId,
     },
+  };
+};
+
+export const publishAnvilApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.PUBLISH_ANVIL_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
+export const publishAnvilApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PUBLISH_ANVIL_APPLICATION_SUCCESS,
+  };
+};
+
+export const publishAnvilApplicationError = () => {
+  return {
+    type: ReduxActionErrorTypes.PUBLISH_ANVIL_APPLICATION_ERROR,
   };
 };
 

@@ -75,4 +75,7 @@ export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
     "manage:actions",
   ],
   confirmBeforeExecute: false,
+  isDirtyMap: {
+    SCHEMA_GENERATION: false,
+  },
 });

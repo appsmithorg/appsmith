@@ -9,6 +9,7 @@ import {
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   AI_AGENTS_APPLICATIONS,
+  AI_APPLICATION_CARD_LIST_ZERO_STATE,
   APPLICATIONS,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
@@ -17,6 +18,7 @@ import {
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "ee/constants/messages";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
@@ -552,6 +554,7 @@ export function ApplicationsSection(props: any) {
   // This checks if the Anvil feature flag is enabled and shows different sections in the workspace
   // for Anvil and Classic applications
   const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -896,42 +899,47 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
-              <ApplicationCardList
-                applications={nonAnvilApplications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                title={createMessage(APPLICATIONS)}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={activeWorkspace.id}
-              />
-              {isAnvilEnabled &&
-                anvilApplications.length > 0 && ( // AI Agents list
-                  <ApplicationCardList
-                    applications={anvilApplications}
-                    canInviteToWorkspace={canInviteToWorkspace}
-                    deleteApplication={deleteApplication}
-                    enableImportExport={enableImportExport}
-                    hasCreateNewApplicationPermission={
-                      hasCreateNewApplicationPermission
-                    }
-                    hasManageWorkspacePermissions={
-                      hasManageWorkspacePermissions
-                    }
-                    isMobile={isMobile}
-                    onClickAddNewButton={onClickAddNewAppButton}
-                    title={createMessage(AI_AGENTS_APPLICATIONS)}
-                    titleTag={BetaTag}
-                    updateApplicationDispatch={updateApplicationDispatch}
-                    workspaceId={activeWorkspace.id}
-                  />
-                )}
+              {!isAiAgentFlowEnabled && (
+                <ApplicationCardList
+                  applications={nonAnvilApplications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  title={createMessage(APPLICATIONS)}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={activeWorkspace.id}
+                />
+              )}
+              {((isAnvilEnabled && anvilApplications.length > 0) ||
+                isAiAgentFlowEnabled) && (
+                <ApplicationCardList
+                  applications={anvilApplications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  emptyStateMessage={
+                    isAiAgentFlowEnabled
+                      ? createMessage(AI_APPLICATION_CARD_LIST_ZERO_STATE)
+                      : undefined
+                  }
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  title={createMessage(AI_AGENTS_APPLICATIONS)}
+                  titleTag={BetaTag}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={activeWorkspace.id}
+                />
+              )}
               <PackageCardList
                 isMobile={isMobile}
                 packages={packages}

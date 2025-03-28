@@ -37,9 +37,6 @@ public class CommonConfig {
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Setter(AccessLevel.NONE)
-    private boolean isSignupDisabled = false;
-
-    @Setter(AccessLevel.NONE)
     private Set<String> adminEmails = Collections.emptySet();
 
     @Value("${oauth2.allowed-domains}")
@@ -127,12 +124,6 @@ public class CommonConfig {
     @Autowired
     public void setAdminEmails(@Value("${admin.emails}") String value) {
         adminEmails = Set.of(value.trim().split("\\s*,\\s*"));
-    }
-
-    @Autowired
-    public void setSignupDisabled(@Value("${signup.disabled}") String value) {
-        // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
-        isSignupDisabled = "true".equalsIgnoreCase(value);
     }
 
     public Long getCurrentTimeInstantEpochMilli() {

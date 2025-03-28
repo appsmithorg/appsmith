@@ -22,9 +22,9 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -107,12 +107,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
 
-    private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
+    protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
     private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
-            "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
+            "%s/user/verify?token=%s&email=%s&organizationId=%s&redirectUrl=%s";
 
     private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
@@ -415,20 +415,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithOrgMono = Mono.just(user)
-                .flatMap(userBeforeSave -> {
-                    if (userBeforeSave.getOrganizationId() == null) {
-                        return organizationService
-                                .getCurrentUserOrganizationId()
-                                .map(organizationId -> {
-                                    userBeforeSave.setOrganizationId(organizationId);
-                                    return userBeforeSave;
-                                });
-                    }
-                    // The org has been set already. No need to set the default org id.
-                    return Mono.just(userBeforeSave);
-                })
-                .cache();
+        Mono<User> userWithOrgMono =
+                Mono.just(user).flatMap(this::setOrganizationIdForUser).cache();
         // Save the new user
         return userWithOrgMono
                 .flatMap(this::validateObject)
@@ -542,6 +530,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     /**
+     * Sets the organization ID for a new user during signup.
+     *
+     * @param user User object for which to set the organization ID
+     * @return Mono<User> with organization ID set
+     */
+    protected Mono<User> setOrganizationIdForUser(User user) {
+        if (user.getOrganizationId() == null) {
+            return organizationService.getCurrentUserOrganizationId().map(organizationId -> {
+                user.setOrganizationId(organizationId);
+                return user;
+            });
+        }
+        return Mono.just(user);
+    }
+
+    /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
      * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
      * given admin permissions to the default workspace.
@@ -553,37 +557,47 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      */
     @Override
     public Mono<User> signupIfAllowed(User user) {
-        boolean isAdminUser = false;
+        Mono<Boolean> isAdminUserMono;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
             // If this is not an admin email address, only then do we check if signup should be allowed or not. Being an
             // explicitly set admin email address trumps all everything and signup for this email can never be disabled.
-
-            if (commonConfig.isSignupDisabled()) {
-                // Signing up has been globally disabled. Reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
-            }
-
-            final List<String> allowedDomains = user.getSource() == LoginSource.FORM
-                    ? commonConfig.getAllowedDomains()
-                    : commonConfig.getOauthAllowedDomains();
-            if (!CollectionUtils.isEmpty(allowedDomains)
-                    && StringUtils.hasText(user.getEmail())
-                    && user.getEmail().contains("@")
-                    && !allowedDomains.contains(user.getEmail().split("@")[1])) {
-                // There is an explicit whitelist of email address domains that should be allowed. If the new email is
-                // of a different domain, reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
-            }
+            isAdminUserMono = organizationService.getCurrentUserOrganization().map(organization -> {
+                OrganizationConfiguration organizationConfiguration =
+                        organization.getOrganizationConfiguration() == null
+                                ? new OrganizationConfiguration()
+                                : organization.getOrganizationConfiguration();
+                if (TRUE.equals(organizationConfiguration.getIsSignupDisabled())) {
+                    // Signing up has been globally disabled. Reject.
+                    throw new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername());
+                }
+                final List<String> allowedDomains = user.getSource() == LoginSource.FORM
+                        ? commonConfig.getAllowedDomains()
+                        : commonConfig.getOauthAllowedDomains();
+                if (!CollectionUtils.isEmpty(allowedDomains)
+                        && StringUtils.hasText(user.getEmail())
+                        && user.getEmail().contains("@")
+                        && !allowedDomains.contains(user.getEmail().split("@")[1])) {
+                    // There is an explicit whitelist of email address domains that should be allowed. If the new email
+                    // is
+                    // of a different domain, reject.
+                    throw new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername());
+                }
+                return FALSE;
+            });
         } else {
-            isAdminUser = true;
+            isAdminUserMono = Mono.just(true);
         }
 
         // No special configurations found, allow signup for the new user.
-        return userCreate(user, isAdminUser).elapsed().map(pair -> {
-            log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
-            return pair.getT2();
-        });
+        return setOrganizationIdForUser(user)
+                .zipWhen(userWithOrgId -> isAdminUserMono)
+                .flatMap(tuple2 -> userCreate(tuple2.getT1(), tuple2.getT2()))
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
+                    return pair.getT2();
+                });
     }
 
     @Override
@@ -796,8 +810,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return instanceVariablesHelper.isEmailVerificationEnabled().flatMap(emailVerificationEnabled -> {
                         // Email verification not enabled at instance level
                         if (!TRUE.equals(emailVerificationEnabled)) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED));
+                            return Mono.error(new AppsmithException(AppsmithError.EMAIL_VERIFICATION_NOT_ENABLED));
                         }
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())
@@ -807,12 +820,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     emailVerificationToken.setEmail(user.getEmail());
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
                                     emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    emailVerificationToken.setOrganizationId(user.getOrganizationId());
                                     return Mono.just(emailVerificationToken);
                                 }))
                                 .map(emailVerificationToken -> {
                                     // generate new token and update in db
                                     emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                    emailVerificationToken.setOrganizationId(user.getOrganizationId());
                                     return emailVerificationToken;
                                 });
                     });
@@ -822,9 +837,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     EmailVerificationToken emailVerificationToken = tuple.getT1();
                     User user = tuple.getT2();
-                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(3);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
+                    nameValuePairs.add(
+                            new BasicNameValuePair("organizationId", emailVerificationToken.getOrganizationId()));
                     String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String redirectUrlCopy = redirectUrl;
                     if (redirectUrlCopy == null) {
@@ -835,6 +852,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             resendEmailVerificationDTO.getBaseUrl(),
                             EncryptionHelper.encrypt(urlParams),
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
+                            emailVerificationToken.getOrganizationId(),
                             redirectUrlCopy);
 
                     return emailService.sendEmailVerificationEmail(
@@ -862,6 +880,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             String requestEmail = formData.getFirst("email");
             String requestedToken = formData.getFirst("token");
             String redirectUrl = formData.getFirst("redirectUrl");
+            String organizationId = formData.getFirst("organizationId");
             String enableFirstTimeUserExperienceParam =
                     ObjectUtils.defaultIfNull(formData.getFirst("enableFirstTimeUserExperience"), "false");
 
@@ -887,19 +906,30 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
             try {
                 parsedEmailTokenDTO = parseValueFromEncryptedToken(requestedToken);
-            } catch (ArrayIndexOutOfBoundsException | IllegalStateException | IllegalArgumentException e) {
-                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
-                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
                 return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
             }
 
-            Mono<WebSession> sessionMono = exchange.getSession();
-            Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
-            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
+            if (parsedEmailTokenDTO == null) {
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
+            }
 
             Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
-                    .findByEmail(parsedEmailTokenDTO.getEmail())
-                    .defaultIfEmpty(new EmailVerificationToken());
+                    .findByEmail(requestEmail)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email token")));
+
+            Mono<User> userMono = repository
+                    .findByEmailAndOrganizationId(requestEmail, organizationId)
+                    .switchIfEmpty(
+                            Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", requestEmail)));
+
+            Mono<WebSession> sessionMono = exchange.getSession();
+
+            Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
 
             return Mono.zip(emailVerificationTokenMono, userMono, sessionMono, securityContextMono)
                     .flatMap(tuple -> {
@@ -915,6 +945,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             return redirectStrategy.sendRedirect(
                                     webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
                         }
+
+                        if (!Objects.equals(emailVerificationToken.getOrganizationId(), organizationId)) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_PARAMETER, requestEmail, "Organization");
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+
                         if (FALSE.equals(isEmailVerificationTokenValid(emailVerificationToken))) {
                             errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
                                     AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED, requestEmail);

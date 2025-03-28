@@ -13,14 +13,20 @@ export default {
 	justify-content: center;
 	border-radius: var(--appsmith-theme-borderRadius);
 	box-shadow: var(--appsmith-theme-boxShadow);
+	padding: 29px 25px;
+	box-sizing: border-box;
+	font-family: system-ui;
+	background: #fff;
 }
 
 .tip-container {
-  margin-bottom: 20px;
+	margin-bottom: 20px;
+	font-size: 14px;
+	line-height: 1.571429;
 }
 
 .tip-container h2 {
-  margin-bottom: 20px;
+	margin-bottom: 20px;
 	font-size: 16px;
 	font-weight: 700;
 }
@@ -29,33 +35,64 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: baseline;
+	margin-bottom: 9px;
 }
 
 .tip-header div {
 	color: #999;
 }
 
+.content {
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-size: 14px;
+	line-height: 1.571429;
+}
+
 .button-container {
 	text-align: right;
+	padding-top: 4px;
 }
 
 .button-container button {
-  margin: 0 10px;
+	margin: 0 10px;
+	cursor: pointer;
 	border-radius: var(--appsmith-theme-borderRadius);
+	padding: 6px 16px;
+	background: none;
+	height: auto;
+	transition: all 0.3s ease;
 }
 
 .button-container button.primary {
 	background: var(--appsmith-theme-primaryColor) !important;
+	color: #fff;
+	border: 1px solid var(--appsmith-theme-primaryColor) !important;
 }
 
 .button-container button.reset {
-	color: var(--appsmith-theme-primaryColor) !important;
-	border-color: var(--appsmith-theme-primaryColor) !important;
+	border: 1px solid #999;
+	color: #999;
+	outline: none;
+	box-shadow: none;
+}
+
+.button-container button.reset:hover:not(:disabled) {
+	color: var(--appsmith-theme-primaryColor);
+	border-color: var(--appsmith-theme-primaryColor);
+}
+
+.button-container button.reset:disabled {
+	cursor: default;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
-import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.15.0/+esm'
-import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm'
+
+const Button = ({ children, className, ...props }) => (
+	<button className={className} {...props}>
+		{children}
+	</button>
+);
 
 function App() {
 	const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -70,20 +107,20 @@ function App() {
 	};
 
 	return (
-		<Card className="app">
+		<div className="app">
 			<div className="tip-container">
 				<div className="tip-header">
 					<h2>Custom Widget</h2>
-					<div>{currentIndex + 1} / {appsmith.model.tips.length}		</div>
+					<div>{currentIndex + 1} / {appsmith.model.tips.length}</div>
 				</div>
-				<Markdown>{appsmith.model.tips[currentIndex]}</Markdown>
+				<div className="content">{appsmith.model.tips[currentIndex]}</div>
 			</div>
 			<div className="button-container">
-				<Button className="primary" onClick={handleNext} type="primary">Next Tip</Button>
-				<Button onClick={handleReset}>Reset</Button>
+				<Button className="primary" onClick={handleNext}>Next Tip</Button>
+				<Button className="reset" disabled={currentIndex === 0} onClick={handleReset}>Reset</Button>
 			</div>
-	</Card>
-);
+		</div>
+	);
 }
 
 appsmith.onReady(() => {

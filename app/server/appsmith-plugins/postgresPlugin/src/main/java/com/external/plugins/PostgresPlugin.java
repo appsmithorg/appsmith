@@ -41,6 +41,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -51,6 +52,7 @@ import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -91,6 +93,7 @@ import java.util.stream.Stream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
 import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECUTE_COMMON;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_INVALID_SSH_HOSTNAME_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_HOSTNAME_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
@@ -205,11 +208,16 @@ public class PostgresPlugin extends BasePlugin {
 
         private final SharedConfig sharedConfig;
         private final ConnectionPoolConfig connectionPoolConfig;
+        private final ObservationRegistry observationRegistry;
 
-        public PostgresPluginExecutor(SharedConfig sharedConfig, ConnectionPoolConfig connectionPoolConfig) {
+        public PostgresPluginExecutor(
+                SharedConfig sharedConfig,
+                ConnectionPoolConfig connectionPoolConfig,
+                ObservationRegistry observationRegistry) {
             this.sharedConfig = sharedConfig;
             this.connectionPoolConfig = connectionPoolConfig;
             MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
+            this.observationRegistry = observationRegistry;
         }
 
         /**
@@ -286,13 +294,16 @@ public class PostgresPlugin extends BasePlugin {
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(
-                    connection,
-                    datasourceConfiguration,
-                    actionConfiguration,
-                    TRUE,
-                    mustacheKeysInOrder,
-                    executeActionDTO,
-                    explicitCastDataTypes);
+                            connection,
+                            datasourceConfiguration,
+                            actionConfiguration,
+                            TRUE,
+                            mustacheKeysInOrder,
+                            executeActionDTO,
+                            explicitCastDataTypes)
+                    .tag("plugin", this.getClass().getName())
+                    .name(PLUGIN_EXECUTE_COMMON)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         @Override

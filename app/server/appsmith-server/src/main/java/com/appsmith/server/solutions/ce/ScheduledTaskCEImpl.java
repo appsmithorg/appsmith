@@ -39,7 +39,6 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                     log.error("Error while fetching organization feature flags", error);
                     return Flux.empty();
                 })
-                .then(organizationService.restartOrganization())
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
     }

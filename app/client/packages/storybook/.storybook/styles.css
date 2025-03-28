@@ -42,3 +42,8 @@ body,
 .docblock-argstable-body td {
   background: none !important;
 }
+
+label[for="control-color-scheme"][aria-label="color-scheme"] > span {
+  font-size: 13px !important;
+  line-height: 18px;
+}

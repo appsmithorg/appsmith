@@ -28,4 +28,6 @@ export interface EditableDismissibleTabProps {
   onNameSave: (name: string) => void;
   /** Function to validate the name. */
   validateName: (name: string) => string | null;
+  /** Show unsaved changes indicator. */
+  showUnsavedChanges?: boolean;
 }

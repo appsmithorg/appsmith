@@ -18,8 +18,7 @@ export const saveAllowed = (
     socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
 
   if (connectedMethodsCount === 1) {
-    const checkFormLogin =
-        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
+    const checkFormLogin = isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
         socialLoginList.includes("google"),
