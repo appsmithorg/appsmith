@@ -137,7 +137,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   });
 }
 
-function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
+export function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   const pathname = window.location.pathname;
   const entityInfo = identifyEntityFromPath(pathname);
   let widgets: string[] = [];

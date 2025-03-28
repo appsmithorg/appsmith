@@ -116,6 +116,12 @@ export const isViewerPath = (path: string) => {
   return !!matchViewerPath(path);
 };
 
+// Extended in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const isUIPackageEditorPath = (path: string) => {
+  return false;
+};
+
 export const getJSCollectionIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
 

@@ -27,7 +27,7 @@ export const compareAndGenerateImmutableCanvasStructure = (
   return newStructure;
 };
 
-const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
+export const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
   let children = dsl.children;
   let structureChildren: CanvasStructure[] | undefined = undefined;
 
