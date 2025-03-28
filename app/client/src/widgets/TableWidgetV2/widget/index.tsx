@@ -994,13 +994,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       // reset updatedRowIndex whenever transientTableData is flushed.
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
-      pushBatchMetaUpdates("cachedTableData", {
-        ...(this.props.cachedTableData || {}),
-        [pageNo]: this.props.tableData,
-      });
+      if (this.props.infiniteScrollEnabled) {
+        pushBatchMetaUpdates("cachedTableData", {
+          ...(this.props.cachedTableData || {}),
+          [pageNo]: this.props.tableData,
+        });
 
-      if (this.props.tableData.length < this.props.pageSize) {
-        pushBatchMetaUpdates("endOfData", true);
+        if (this.props.tableData.length < this.props.pageSize) {
+          pushBatchMetaUpdates("endOfData", true);
+        }
       }
 
       this.pushClearEditableCellsUpdates();
@@ -1283,7 +1285,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           disabledAddNewRowSave={this.hasInvalidColumnCell()}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
-          endOfData={!!this.props.endOfData}
+          endOfData={this.props.endOfData}
           filters={this.props.filters}
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
