@@ -140,4 +140,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 
     Flux<NewAction> findByCollectionIdAndViewMode(String collectionId, boolean viewMode, AclPermission aclPermission);
+
+    Mono<Void> postProcessDeletedActions(List<ActionDTO> actionDTOs);
 }

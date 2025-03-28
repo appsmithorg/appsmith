@@ -546,7 +546,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                     .name(DELETE_ACTION)
                                     .tap(Micrometer.observation(observationRegistry));
                         })
-                        .collectList();
+                        .collectList()
+                        .flatMap(actionsList -> newActionService
+                                .postProcessDeletedActions(actionsList)
+                                .thenReturn(actionsList));
             });
         }
 
