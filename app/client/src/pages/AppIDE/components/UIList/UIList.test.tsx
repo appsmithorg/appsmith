@@ -57,7 +57,6 @@ jest.mock("ee/selectors/featureFlagsSelectors", () => ({
   ...jest.requireActual("ee/selectors/featureFlagsSelectors"),
   selectFeatureFlags: () => ({
     ...DEFAULT_FEATURE_FLAG_VALUE,
-    release_ads_entity_item_enabled: true,
   }),
 }));
 

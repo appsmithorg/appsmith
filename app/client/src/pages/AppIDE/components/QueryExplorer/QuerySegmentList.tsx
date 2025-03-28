@@ -1,29 +1,19 @@
 import React, { useState } from "react";
 import {
   Flex,
-  Text,
   SearchAndAdd,
   NoSearchResults,
   EntityGroupsList,
 } from "@appsmith/ads";
 import { useSelector } from "react-redux";
-
-import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useQueryAdd } from "../QueryAdd";
-import { QueryListItem } from "ee/pages/AppIDE/components/QueryEntityItem/old/ListItem";
-import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { ActionEntityItem } from "ee/pages/AppIDE/components/QueryEntityItem/ListItem";
-import { useLocation } from "react-router";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { objectKeys } from "@appsmith/utils";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { getPagePermissions } from "selectors/editorSelectors";
@@ -32,24 +22,13 @@ import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissi
 export const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const itemGroups = useSelector(selectQuerySegmentEditorList);
-  const activeActionBaseId = useActiveActionBaseId();
 
-  const location = useLocation();
-  const ideType = getIDETypeByUrl(location.pathname);
-  const { editorId, parentEntityId } = useParentEntityInfo(ideType);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const pagePermissions = useSelector(getPagePermissions);
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
     pagePermissions,
   );
-
-  const showWorkflows = useSelector(getShowWorkflowFeature);
-
-  const isNewADSTemplatesEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_ads_entity_item_enabled,
-  );
-
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
     itemGroups,
@@ -81,53 +60,18 @@ export const ListQuery = () => {
         gap="spaces-3"
         overflowY="auto"
       >
-        {isNewADSTemplatesEnabled ? (
-          <EntityGroupsList
-            groups={filteredItemGroups.map(({ group, items }) => {
-              return {
-                groupTitle: group,
-                items: items,
-                className: "",
-                renderList: (item: EntityItem) => {
-                  return <ActionEntityItem item={item} key={item.key} />;
-                },
-              };
-            })}
-          />
-        ) : (
-          filteredItemGroups.map(({ group, items }) => {
-            return (
-              <Flex flexDirection={"column"} key={group}>
-                <Flex py="spaces-1">
-                  <Text
-                    className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                    kind="body-s"
-                  >
-                    {group}
-                  </Text>
-                </Flex>
-                <FilesContextProvider
-                  canCreateActions={canCreateActions}
-                  editorId={editorId}
-                  parentEntityId={parentEntityId}
-                  parentEntityType={ActionParentEntityType.PAGE}
-                  showWorkflows={showWorkflows}
-                >
-                  {items.map((file) => {
-                    return (
-                      <QueryListItem
-                        isActive={file.key === activeActionBaseId}
-                        item={file}
-                        key={file.key}
-                        parentEntityId={parentEntityId}
-                      />
-                    );
-                  })}
-                </FilesContextProvider>
-              </Flex>
-            );
-          })
-        )}
+        <EntityGroupsList
+          groups={filteredItemGroups.map(({ group, items }) => {
+            return {
+              groupTitle: group,
+              items: items,
+              className: "",
+              renderList: (item: EntityItem) => {
+                return <ActionEntityItem item={item} key={item.key} />;
+              },
+            };
+          })}
+        />
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults
             text={createMessage(
