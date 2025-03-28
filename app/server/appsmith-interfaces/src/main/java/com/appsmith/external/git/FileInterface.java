@@ -32,7 +32,10 @@ public interface FileInterface {
      *       --page2
      */
     Mono<Path> saveApplicationToGitRepo(
-            Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
+            Path baseRepoSuffix,
+            ArtifactGitReference artifactGitReference,
+            String branchName,
+            Boolean isRtsResetEnabled)
             throws IOException, GitAPIException;
 
     Mono<Path> saveArtifactToGitRepo(Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName)

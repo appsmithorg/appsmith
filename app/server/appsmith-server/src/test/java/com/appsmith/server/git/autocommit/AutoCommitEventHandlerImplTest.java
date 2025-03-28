@@ -191,7 +191,9 @@ public class AutoCommitEventHandlerImplTest {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
-        doReturn(Mono.just(TRUE)).when(gitExecutor).resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        doReturn(Mono.just(TRUE))
+                .when(gitExecutor)
+                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
 
         doReturn(Mono.just(applicationJson))
                 .when(commonGitFileUtils)
@@ -261,7 +263,9 @@ public class AutoCommitEventHandlerImplTest {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
-        doReturn(Mono.just(TRUE)).when(gitExecutor).resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        doReturn(Mono.just(TRUE))
+                .when(gitExecutor)
+                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
 
         doReturn(Mono.just(applicationJson))
                 .when(commonGitFileUtils)
@@ -292,7 +296,9 @@ public class AutoCommitEventHandlerImplTest {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
-        doReturn(Mono.just(TRUE)).when(gitExecutor).resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        doReturn(Mono.just(TRUE))
+                .when(gitExecutor)
+                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
 
         doReturn(Mono.just(applicationJson))
                 .when(commonGitFileUtils)
@@ -367,7 +373,9 @@ public class AutoCommitEventHandlerImplTest {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
-        doReturn(Mono.just(TRUE)).when(gitExecutor).resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        doReturn(Mono.just(TRUE))
+                .when(gitExecutor)
+                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
 
         doReturn(Mono.just(applicationJson))
                 .when(commonGitFileUtils)
@@ -411,7 +419,9 @@ public class AutoCommitEventHandlerImplTest {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
-        doReturn(Mono.just(TRUE)).when(gitExecutor).resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        doReturn(Mono.just(TRUE))
+                .when(gitExecutor)
+                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
 
         ApplicationGitReference appReference =
                 (ApplicationGitReference) commonGitFileUtils.createArtifactReference(applicationJson);

@@ -11,6 +11,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.CommonConstants;
@@ -61,6 +62,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -94,6 +96,7 @@ public class GitExecutorCEImpl implements GitExecutor {
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
     private final ObservationHelper observationHelper;
+    private final RTSCaller rtsCaller;
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -854,7 +857,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                 })
                                 .onErrorResume(error -> {
                                     try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
+                                        return resetToLastCommit(repoSuffix, destinationBranch, false)
                                                 .thenReturn(error.getMessage());
                                     } catch (GitAPIException | IOException e) {
                                         log.error("Error while hard resetting to latest commit {0}", e);
@@ -1031,7 +1034,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                 .flatMap(status -> {
                                     try {
                                         // Revert uncommitted changes if any
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
+                                        return resetToLastCommit(repoSuffix, destinationBranch, false)
                                                 .map(ignore -> {
                                                     processStopwatch.stopAndLogTimeInMillis();
                                                     return status;
@@ -1121,7 +1124,33 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+    private Mono<Boolean> resetRts(Path repoSuffix, String branchName) {
+        Path repoPath = createRepoPath(repoSuffix);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("repoPath", repoPath.toAbsolutePath().toString());
+        log.debug(
+                "Getting git reset for repo: {}, branch: {}",
+                repoPath.toAbsolutePath().toString(),
+                branchName);
+
+        return rtsCaller
+                .post("/rts-api/v1/git/reset", requestBody)
+                .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
+                .thenReturn(true);
+    }
+
+    public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
+        return resetRts(repoSuffix, branchName)
+                .flatMap(reset -> checkoutToBranch(repoSuffix, branchName))
+                .flatMap(checkedOut -> resetRts(repoSuffix, branchName).thenReturn(true));
+    }
+
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, Boolean isRtsResetEnabled)
+            throws GitAPIException, IOException {
+        if (isRtsResetEnabled) {
+            return resetToLastCommitRts(repoSuffix, branchName);
+        }
+
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
