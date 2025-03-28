@@ -94,7 +94,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
         try {
-            return gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+            return gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
         } catch (Exception e) {
             log.error(
                     "failed to reset to last commit before auto commit. application {} branch {}",

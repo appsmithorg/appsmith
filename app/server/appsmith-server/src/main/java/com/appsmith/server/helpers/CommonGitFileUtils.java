@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,8 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             JsonSchemaVersions jsonSchemaVersions,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            FeatureFlagService featureFlagService) {
         super(
                 applicationGitFileUtils,
                 gitServiceConfig,
@@ -42,6 +44,7 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
                 newActionService,
                 actionCollectionService,
                 jsonSchemaVersions,
-                objectMapper);
+                objectMapper,
+                featureFlagService);
     }
 }

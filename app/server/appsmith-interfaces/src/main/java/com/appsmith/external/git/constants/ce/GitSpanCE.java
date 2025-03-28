@@ -26,6 +26,7 @@ public class GitSpanCE {
     public static final String JGIT_BRANCH_TRACK = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "jgit_branch_track";
     public static final String FS_CREATE_REPO = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "fs_create_repo";
     public static final String FS_RESET = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "fs_reset";
+    public static final String SIMPLE_GIT_RESET = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "simple_git_reset";
     public static final String JGIT_RESET_HARD = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "jgit_reset_hard";
     public static final String JGIT_CLEAN = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "jgit_clean";
     public static final String FS_MERGE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "fs_merge";

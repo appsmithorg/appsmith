@@ -67,7 +67,7 @@ public class FileUtilsImplTest {
         Files.createDirectories(actionDirectoryPath);
         Files.createDirectories(actionCollectionDirectoryPath);
 
-        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any()))
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(true));
 
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
@@ -80,7 +80,7 @@ public class FileUtilsImplTest {
         applicationGitReference.setDatasources(new HashMap<>());
         applicationGitReference.setJsLibraries(new HashMap<>());
         fileUtils
-                .saveApplicationToGitRepo(Path.of(""), applicationGitReference, "branch")
+                .saveApplicationToGitRepo(Path.of(""), applicationGitReference, "branch", false)
                 .block();
 
         Assertions.assertFalse(actionDirectoryPath.toFile().exists());

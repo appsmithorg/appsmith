@@ -174,7 +174,8 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException;
+    Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, Boolean isRtsResetEnabled)
+            throws GitAPIException, IOException;
 
     /**
      *

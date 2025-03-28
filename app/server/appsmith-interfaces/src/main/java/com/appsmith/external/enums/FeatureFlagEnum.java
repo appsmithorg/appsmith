@@ -16,6 +16,7 @@ public enum FeatureFlagEnum {
     rollout_datasource_test_rate_limit_enabled,
     release_google_sheets_shared_drive_support_enabled,
     release_gs_all_sheets_options_enabled,
+    ab_rts_git_reset_enabled,
 
     // Deprecated CE flags over here
     release_git_autocommit_feature_enabled,
