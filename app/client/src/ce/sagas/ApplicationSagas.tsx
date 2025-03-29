@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type {
-  ApplicationPagePayload,
   ApplicationResponsePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
@@ -29,7 +28,10 @@ import ApplicationApi from "ee/api/ApplicationApi";
 import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getCurrentApplicationIdForCreateNewApp,
+} from "ee/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import type { AppState } from "ee/reducers";
@@ -52,6 +54,7 @@ import {
   updateCurrentApplicationForkingEnabled,
   updateApplicationThemeSettingAction,
   fetchAllApplicationsOfWorkspace,
+  publishApplication,
 } from "ee/actions/applicationActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
@@ -89,7 +92,7 @@ import { isEmpty, merge } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "ee/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
-import DatasourcesApi from "api/DatasourcesApi";
+import DatasourcesApi from "ee/api/DatasourcesApi";
 import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
@@ -103,6 +106,7 @@ import type { IconNames } from "@appsmith/ads";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
+  type NavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
@@ -115,18 +119,52 @@ import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
-
-export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
-  const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
-
-  return defaultPage;
-};
+import { objectKeys } from "@appsmith/utils";
+import { findDefaultPage } from "pages/utils";
 
 export let windowReference: Window | null = null;
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (currentApplication) {
+    const appName = currentApplication.name;
+    const appId = currentApplication?.id;
+    const pageCount = currentApplication?.pages?.length;
+    const navigationSettingsWithPrefix: Record<
+      string,
+      NavigationSetting[keyof NavigationSetting]
+    > = {};
+
+    if (currentApplication.applicationDetail?.navigationSetting) {
+      const settingKeys = objectKeys(
+        currentApplication.applicationDetail.navigationSetting,
+      ) as Array<keyof NavigationSetting>;
+
+      settingKeys.map((key: keyof NavigationSetting) => {
+        if (currentApplication.applicationDetail?.navigationSetting?.[key]) {
+          const value: NavigationSetting[keyof NavigationSetting] =
+            currentApplication.applicationDetail.navigationSetting[key];
+
+          navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
+        }
+      });
+    }
+
+    AnalyticsUtil.logEvent("PUBLISH_APP", {
+      appId,
+      appName,
+      pageCount,
+      ...navigationSettingsWithPrefix,
+      isPublic: !!currentApplication?.isPublic,
+      templateTitle: currentApplication?.forkedFromTemplateTitle,
+    });
+  }
+
   try {
     const request = requestAction.payload;
     const response: PublishApplicationResponse = yield call(
@@ -1089,6 +1127,21 @@ export function* deleteNavigationLogoSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* publishAnvilApplicationSaga(
+  action: ReduxAction<PublishApplicationRequest>,
+) {
+  try {
+    yield put(publishApplication(action.payload.applicationId));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PUBLISH_ANVIL_APPLICATION_ERROR,
       payload: {
         error,
       },

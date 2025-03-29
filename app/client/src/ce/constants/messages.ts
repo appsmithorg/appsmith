@@ -86,6 +86,9 @@ export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 export const LOOKING_TO_SELF_HOST = () => "Looking to self-host Appsmith?";
 export const VISIT_OUR_DOCS = () => "Visit our docs";
+export const ALREADY_USING_APPSMITH = () => `Already using Appsmith?`;
+export const SIGN_IN_TO_AN_EXISTING_ORGANISATION = () =>
+  `Sign in to an existing organisation`;
 
 export const SIGNUP_PAGE_SUCCESS = () =>
   `Awesome! You have successfully registered.`;
@@ -211,6 +214,10 @@ export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
+export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no AI Agents in this workspace.`;
+export const AI_AGENT_AUTH_SUBTITLE = () =>
+  `Sign up with any Google account.\n Support for email will be available soon.`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -1576,6 +1583,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "What is your general development proficiency?";
+export const WELCOME_FORM_FULL_NAME = () => "What’s your full name?";
 
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";

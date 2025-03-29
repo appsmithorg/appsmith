@@ -693,7 +693,7 @@ public class UserServiceTest {
         Mono<Boolean> resultMono = userMono.then(organizationMono).then(emailVerificationMono);
 
         StepVerifier.create(resultMono)
-                .expectErrorMessage(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED.getMessage())
+                .expectErrorMessage(AppsmithError.EMAIL_VERIFICATION_NOT_ENABLED.getMessage())
                 .verify();
     }
 

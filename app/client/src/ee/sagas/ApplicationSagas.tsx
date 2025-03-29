@@ -17,6 +17,7 @@ import {
   uploadNavigationLogoSaga,
   deleteNavigationLogoSaga,
   fetchAllApplicationsOfWorkspaceSaga,
+  publishAnvilApplicationSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -66,6 +67,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
       fetchUnconfiguredDatasourceList,
+    ),
+    takeLatest(
+      ReduxActionTypes.PUBLISH_ANVIL_APPLICATION_INIT,
+      publishAnvilApplicationSaga,
     ),
   ]);
 }

@@ -37,7 +37,7 @@ describe(
     it("should check that custom widget default component loaded and working properly", () => {
       getIframeBody().find(".tip-container").should("exist");
       getIframeBody()
-        .find(".tip-container p")
+        .find(".tip-container .content")
         .should(
           "have.text",
           "Pass data to this widget in the default model field",
@@ -46,7 +46,7 @@ describe(
       getIframeBody().find("button.primary").trigger("click");
 
       getIframeBody()
-        .find(".tip-container p")
+        .find(".tip-container .content")
         .should(
           "have.text",
           "Access data in the javascript file using the appsmith.model variable",
@@ -62,7 +62,7 @@ describe(
 
       getIframeBody().find(".tip-container").should("exist");
       getIframeBody()
-        .find(".tip-container p")
+        .find(".tip-container .content")
         .should(
           "have.text",
           "Pass data to this widget in the default model field",
@@ -71,7 +71,7 @@ describe(
       getIframeBody().find("button.primary").trigger("click");
 
       getIframeBody()
-        .find(".tip-container p")
+        .find(".tip-container .content")
         .should(
           "have.text",
           "Access data in the javascript file using the appsmith.model variable",

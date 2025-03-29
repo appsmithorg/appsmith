@@ -17,6 +17,15 @@ public class ActionSpanCE {
     public static final String ACTION_EXECUTION_DATASOURCE_CONTEXT = APPSMITH_SPAN_PREFIX + "get.datasource.context";
     public static final String ACTION_EXECUTION_EDITOR_CONFIG = APPSMITH_SPAN_PREFIX + "get.editorConfig.cached";
     public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = APPSMITH_SPAN_PREFIX + "total.plugin.execution";
+    public static final String PLUGIN_EXECUTE_COMMON = APPSMITH_SPAN_PREFIX + "pluginExecuteCommon";
+    public static final String MONGO_OUTPUT_MONO = APPSMITH_SPAN_PREFIX + "mongoOutputMono";
+
+    public static final String CREATE_AND_EXECUTE_QUERY_FROM_CONNECTION =
+            APPSMITH_SPAN_PREFIX + "createAndExecuteQueryFromConnection";
+
+    public static final String ACTUAL_API_CALL = APPSMITH_SPAN_PREFIX + "actualApiCall";
+    public static final String TRIGGER_API_CALL = APPSMITH_SPAN_PREFIX + "triggerApiCall";
+
     public static final String ACTION_EXECUTION_SERVER_EXECUTION = APPSMITH_SPAN_PREFIX + "total.server.execution";
 
     public static final String GET_ENVIRONMENT_ID = APPSMITH_SPAN_PREFIX + "getEnvironmentId";

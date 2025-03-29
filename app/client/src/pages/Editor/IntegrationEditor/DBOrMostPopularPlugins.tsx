@@ -41,7 +41,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
 import type { Datasource } from "entities/Datasource";
 import type { AnyAction, Dispatch } from "redux";
 import {

@@ -454,6 +454,12 @@ export const getActions = (state: AppState): ActionDataState =>
 export const getJSCollections = (state: AppState): JSCollectionDataState =>
   state.entities.jsActions;
 
+export const getAllJSCollectionActions = (state: AppState) => {
+  return state.entities.jsActions.flatMap(
+    (jsCollection) => jsCollection.config.actions,
+  );
+};
+
 export const getDatasource = (
   state: AppState,
   datasourceId: string,
@@ -1752,3 +1758,40 @@ export const getIsSavingEntityName = (
 
   return isSavingEntityName;
 };
+
+export const getActionSchemaDirtyState = createSelector(
+  getAction,
+  (state: AppState) =>
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+  (action, agentPlugin) => {
+    if (!action) return false;
+
+    if (agentPlugin?.id === action.pluginId) {
+      return false;
+    }
+
+    return action.isDirtyMap?.SCHEMA_GENERATION;
+  },
+);
+
+export const getJSCollectionSchemaDirtyState = createSelector(
+  (state: AppState, collectionId: string) =>
+    getJSCollection(state, collectionId),
+  (jsCollection) => {
+    if (!jsCollection) return false;
+
+    return jsCollection.actions.some(
+      (action) => action.isDirtyMap?.SCHEMA_GENERATION,
+    );
+  },
+);
+
+export const getJSCollectionActionSchemaDirtyState = createSelector(
+  (state: AppState, collectionId: string, actionId: string) =>
+    getJSCollectionAction(state, collectionId, actionId),
+  (action) => {
+    if (!action) return false;
+
+    return action.isDirtyMap?.SCHEMA_GENERATION;
+  },
+);
