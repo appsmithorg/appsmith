@@ -122,7 +122,7 @@ describe("Test Field Group Config", () => {
       expectedFields: [],
     },
     {
-      index: 15,
+      index: 16,
       input: AppsmithFunction.postWindowMessage,
       expectedLabel: "Post message",
       expectedFields: [
@@ -132,7 +132,7 @@ describe("Test Field Group Config", () => {
       ],
     },
     {
-      index: 15,
+      index: 17,
       input: AppsmithFunction.logoutUser,
       expectedLabel: "Logout user",
       expectedFields: [FieldType.URL_FIELD],
