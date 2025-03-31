@@ -3015,15 +3015,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (infiniteScrollEnabled) {
       // Update the cache key for a particular page whenever this function is called. The pageNo data is updated with the tableData.
-      pushBatchMetaUpdates("cachedTableData", {
+      const updatedCachedTableData = {
         ...(cachedTableData || {}),
         [pageNo]: tableData,
-      });
+      };
 
-      // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
+      pushBatchMetaUpdates("cachedTableData", updatedCachedTableData);
+
+      // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array except the current tableData page i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
       if (
         (!!totalRecordsCount &&
-          processedTableData.length === totalRecordsCount) ||
+          processedTableData.length + tableData.length === totalRecordsCount) ||
         tableData.length < pageSize
       ) {
         pushBatchMetaUpdates("endOfData", true);
