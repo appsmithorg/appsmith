@@ -77,14 +77,10 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  hidden?: <T = Record<string, unknown>>(
-    props: T,
-    propertyPath: string,
-  ) => boolean;
-  disabled?: <T = Record<string, unknown>>(
-    props: T,
-    propertyPath: string,
-  ) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hidden?: (props: any, propertyPath: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  disabled?: (props: any, propertyPath: string) => boolean;
   disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
