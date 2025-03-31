@@ -11,23 +11,24 @@ import type {
   JSCollectionOption,
   FunctionCallingConfigFormToolField,
 } from "../types";
-import { getAgentChatQuery } from "ee/selectors/aiAgentSelectors";
 import get from "lodash/get";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import { getFormValues } from "redux-form";
+import type { Action } from "entities/Action";
 
 export const selectEntityOptions = createSelector(
+  (state) => getFormValues(QUERY_EDITOR_FORM_NAME)(state) as Action,
   getActions,
   getJSCollections,
-  getAgentChatQuery,
   getCurrentPageId,
   getPlugins,
   (
+    formValues: Action,
     actions,
     jsCollections,
-    agentChatQuery: ActionData | undefined,
     currentPageId,
     plugins,
   ): Record<FunctionCallingEntityType, FunctionCallingEntityTypeOption[]> & {
@@ -37,8 +38,8 @@ export const selectEntityOptions = createSelector(
     const agentFunctions: Record<string, FunctionCallingConfigFormToolField> =
       keyBy(
         get(
-          agentChatQuery,
-          "config.actionConfiguration.formData.aiChatAssistant.input.functions",
+          formValues,
+          "actionConfiguration.formData.aiChatAssistant.input.functions",
           [],
         ),
         "entityId",
@@ -46,7 +47,7 @@ export const selectEntityOptions = createSelector(
     const pluginGroups = keyBy(plugins, "id");
 
     const queryItems = actions
-      .filter((action) => action.config.id !== agentChatQuery?.config.id)
+      .filter((action) => action.config.id !== formValues?.id)
       .filter((action) => action.config.pageId === currentPageId)
       .map((action) => {
         const config = getActionConfig(action.config.pluginType);
