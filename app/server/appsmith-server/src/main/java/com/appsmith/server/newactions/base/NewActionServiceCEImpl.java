@@ -1527,4 +1527,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             String collectionId, boolean viewMode, AclPermission aclPermission) {
         return repository.findAllByCollectionIds(List.of(collectionId), viewMode, aclPermission);
     }
+
+    @Override
+    public Mono<Void> postProcessDeletedActions(List<ActionDTO> actionDTOs) {
+        return Mono.empty().then();
+    }
 }

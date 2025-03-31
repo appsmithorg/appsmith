@@ -30,7 +30,5 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
 
     Mono<Organization> retrieveById(String id);
 
-    Mono<Void> restartOrganization();
-
     Flux<Organization> retrieveAll();
 }

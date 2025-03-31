@@ -42,7 +42,7 @@ import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
-import { findDefaultPage } from "ee/sagas/ApplicationSagas";
+import { findDefaultPage } from "pages/utils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getOAuthAccessToken,

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, formValueSelector } from "redux-form";
-import { AUTH_LOGIN_URL } from "constants/routes";
+import { AUTH_LOGIN_URL, ORG_LOGIN_PATH } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "ee/constants/forms";
 import type { RouteComponentProps } from "react-router-dom";
 import { useHistory, useLocation, withRouter } from "react-router-dom";
@@ -26,6 +26,10 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   LOOKING_TO_SELF_HOST,
   VISIT_OUR_DOCS,
+  ALREADY_USING_APPSMITH,
+  SIGN_IN_TO_AN_EXISTING_ORGANISATION,
+  AI_AGENT_AUTH_SUBTITLE,
+  LOGIN_PAGE_TITLE,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
@@ -59,6 +63,9 @@ import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { faro } from "instrumentation";
+import { useIsCloudBillingEnabled } from "hooks";
+import { isLoginHostname } from "utils/cloudBillingUtils";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 declare global {
   interface Window {
@@ -96,9 +103,10 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   useEffect(() => {
-    if (!isFormLoginEnabled) {
+    if (!isFormLoginEnabled && !isAiAgentFlowEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
 
       history.replace({
@@ -122,6 +130,8 @@ export function SignUp(props: SignUpFormProps) {
   const organizationConfig = useSelector(getOrganizationConfig);
   const { instanceName } = organizationConfig;
   const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isHostnameEqualtoLogin = isLoginHostname();
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
@@ -199,18 +209,32 @@ export function SignUp(props: SignUpFormProps) {
 
   const footerSection = (
     <>
-      <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
-        <Link
-          className="t--sign-up t--signup-link"
-          kind="primary"
-          target="_self"
-          to={AUTH_LOGIN_URL}
-        >
-          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-        </Link>
-      </div>
-      {cloudHosting && (
+      {isCloudBillingEnabled && isHostnameEqualtoLogin ? (
+        <div className="px-2 flex flex-col items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+          {createMessage(ALREADY_USING_APPSMITH)}
+          <Link
+            className="t--sign-up t--signup-link"
+            kind="primary"
+            target="_self"
+            to={ORG_LOGIN_PATH}
+          >
+            {createMessage(SIGN_IN_TO_AN_EXISTING_ORGANISATION)}
+          </Link>
+        </div>
+      ) : (
+        <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+          {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
+          <Link
+            className="t--sign-up t--signup-link"
+            kind="primary"
+            target="_self"
+            to={AUTH_LOGIN_URL}
+          >
+            {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
+          </Link>
+        </div>
+      )}
+      {cloudHosting && !isAiAgentFlowEnabled && (
         <>
           <OrWithLines>or</OrWithLines>
           <div className="px-2 text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
@@ -231,7 +255,15 @@ export function SignUp(props: SignUpFormProps) {
   );
 
   return (
-    <Container footer={footerSection} title={createMessage(SIGNUP_PAGE_TITLE)}>
+    <Container
+      footer={footerSection}
+      subtitle={
+        isAiAgentFlowEnabled ? createMessage(AI_AGENT_AUTH_SUBTITLE) : ""
+      }
+      title={createMessage(
+        isAiAgentFlowEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
+      )}
+    >
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>

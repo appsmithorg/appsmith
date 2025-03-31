@@ -22,6 +22,7 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.GraphQLErrorMessages;
 import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -284,7 +285,9 @@ public class GraphQLPlugin extends BasePlugin {
                             hintMessages,
                             errorResult,
                             requestCaptureFilter,
-                            datasourceConfiguration)
+                            datasourceConfiguration,
+                            this.getClass().getName(),
+                            ObservationRegistry.NOOP)
                     .onErrorResume(error -> {
                         boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(

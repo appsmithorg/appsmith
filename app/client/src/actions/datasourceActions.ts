@@ -1,6 +1,6 @@
 import type { ReduxAction, ReduxActionWithCallbacks } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
 import type {
   AuthenticationStatus,
   Datasource,
@@ -395,6 +395,17 @@ export const setUnconfiguredDatasourcesDuringImport = (
   type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
   payload,
 });
+
+// this actions concats the newly created datasource to the datasource list
+// it's not required if createDatasourceSuccess is used, that also concats the new datasource to the datasource list
+// The main difference between this and createDatasourceSuccess is that this action only adds the datasource to the datasource list
+// and is not tracked by any saga, whereas createDatasourceSuccess is tracked by many sagas with different logic.
+export const updateDatasoruceRefs = (datasource: Datasource) => {
+  return {
+    type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
+    payload: datasource,
+  };
+};
 
 export const removeTempDatasource = () => {
   return {

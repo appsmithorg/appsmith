@@ -374,7 +374,7 @@
     "postcss-normalize": "^10.0.1",
     "postcss-preset-env": "^7.0.1",
     "postcss-url": "^10.1.3",
-    "prettier": "^3.0.3",
+    "prettier": "3.2.5",
     "prop-types": "^15.8.1",
     "raw-loader": "^4.0.2",
     "react-is": "^16.12.0",

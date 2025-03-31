@@ -7,6 +7,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.utils.MssqlDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
+import io.micrometer.observation.ObservationRegistry;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
@@ -28,7 +29,7 @@ public class MssqlTestDBContainerManager {
     }
 
     static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor =
-            new MssqlPlugin.MssqlPluginExecutor(new MockConnectionPoolConfig());
+            new MssqlPlugin.MssqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
 
     public static MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 

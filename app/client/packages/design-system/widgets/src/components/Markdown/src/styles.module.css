@@ -108,6 +108,7 @@
   pre {
     margin-top: var(--inner-spacing-4);
     margin-bottom: var(--inner-spacing-4);
+    font-family: unset;
   }
 
   blockquote {

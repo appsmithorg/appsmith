@@ -1,9 +1,9 @@
 import { Button, Tooltip } from "@appsmith/ads";
-import { objectKeys } from "@appsmith/utils";
 import { showConnectGitModal } from "actions/gitSyncActions";
-import { publishApplication } from "ee/actions/applicationActions";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { NavigationSetting } from "constants/AppConstants";
+import {
+  publishAnvilApplication,
+  publishApplication,
+} from "ee/actions/applicationActions";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -25,6 +25,7 @@ import {
   getIsPublishingApplication,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 // This wrapper maintains pointer events for tooltips when the child button is disabled.
 // Without this, disabled buttons won't trigger tooltips because they have pointer-events: none
@@ -34,7 +35,6 @@ const StyledTooltipTarget = styled.span`
 
 function DeployButton() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const currentApplication = useSelector(getCurrentApplication);
   const isPackageUpgrading = useSelector(getIsPackageUpgrading);
   const isProtectedMode = useGitProtectedMode();
   const isDeployDisabled = isPackageUpgrading || isProtectedMode;
@@ -49,42 +49,7 @@ function DeployButton() {
 
   const dispatch = useDispatch();
 
-  const handlePublish = useCallback(() => {
-    if (applicationId) {
-      dispatch(publishApplication(applicationId));
-
-      const appName = currentApplication ? currentApplication.name : "";
-      const pageCount = currentApplication?.pages?.length;
-      const navigationSettingsWithPrefix: Record<
-        string,
-        NavigationSetting[keyof NavigationSetting]
-      > = {};
-
-      if (currentApplication?.applicationDetail?.navigationSetting) {
-        const settingKeys = objectKeys(
-          currentApplication.applicationDetail.navigationSetting,
-        ) as Array<keyof NavigationSetting>;
-
-        settingKeys.map((key: keyof NavigationSetting) => {
-          if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {
-            const value: NavigationSetting[keyof NavigationSetting] =
-              currentApplication.applicationDetail.navigationSetting[key];
-
-            navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
-          }
-        });
-      }
-
-      AnalyticsUtil.logEvent("PUBLISH_APP", {
-        appId: applicationId,
-        appName,
-        pageCount,
-        ...navigationSettingsWithPrefix,
-        isPublic: !!currentApplication?.isPublic,
-        templateTitle: currentApplication?.forkedFromTemplateTitle,
-      });
-    }
-  }, [applicationId, currentApplication, dispatch]);
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const handleClickDeploy = useCallback(() => {
     if (isGitConnected) {
@@ -97,12 +62,15 @@ function DeployButton() {
       AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
         source: "Deploy button",
       });
+    } else if (isAnvilEnabled) {
+      dispatch(publishAnvilApplication(applicationId));
     } else {
-      handlePublish();
+      dispatch(publishApplication(applicationId));
     }
   }, [
+    applicationId,
     dispatch,
-    handlePublish,
+    isAnvilEnabled,
     isGitConnected,
     isGitModEnabled,
     toggleOpsModal,

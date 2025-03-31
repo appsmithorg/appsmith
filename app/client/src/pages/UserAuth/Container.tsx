@@ -68,7 +68,7 @@ function Container(props: ContainerProps) {
               {title}
             </h1>
             {subtitle && (
-              <p className="text-[14px] text-center text-[color:var(--ads-v2\-color-fg)]">
+              <p className="text-[14px] text-center text-[color:var(--ads-v2\-color-fg)] whitespace-pre-line">
                 {subtitle}
               </p>
             )}

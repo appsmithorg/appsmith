@@ -10,6 +10,13 @@ import { StyledBadge } from "./Badge.styles";
  * @param className
  * @constructor
  */
-export function Badge({ className, kind = "success", ...rest }: BadgeProps) {
-  return <StyledBadge className={className} kind={kind} {...rest} />;
+export function Badge({
+  className,
+  kind = "success",
+  size = "medium",
+  ...rest
+}: BadgeProps) {
+  return (
+    <StyledBadge className={className} kind={kind} size={size} {...rest} />
+  );
 }

@@ -51,7 +51,10 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "ee/constants/messages";
-import type { ReduxAction } from "actions/ReduxActionTypes";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -129,7 +132,7 @@ import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
-import { shouldBeDefined } from "utils/helpers";
+import { isEmptyKeyValue, shouldBeDefined } from "utils/helpers";
 import history from "utils/history";
 import { setAIPromptTriggered } from "utils/storage";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
@@ -271,24 +274,31 @@ export function* getPluginActionDefaultValues(pluginId: string) {
   return initialValues;
 }
 
+type CreateActionRequestSagaAction = Partial<Action> & {
+  eventData?: unknown;
+  pluginId: string;
+  shouldRedirectToQueryEditor?: boolean;
+};
+
 /**
  * This saga prepares the action request i.e it helps generating a
  * new name of an action. This is to reduce any dependency on name generation
  * on the caller of this saga.
  */
 export function* createActionRequestSaga(
-  actionPayload: ReduxAction<
-    Partial<Action> & { eventData?: unknown; pluginId: string }
+  action: ReduxActionWithCallbacks<
+    CreateActionRequestSagaAction,
+    unknown,
+    unknown
   >,
 ) {
-  const payload = { ...actionPayload.payload };
+  const payload = { ...action.payload };
   const pluginId =
-    actionPayload.payload.pluginId ||
-    actionPayload.payload.datasource?.pluginId;
+    action.payload.pluginId || action.payload.datasource?.pluginId;
 
-  if (!actionPayload.payload.name) {
+  if (!action.payload.name) {
     const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
-      actionPayload.payload,
+      action.payload,
     );
 
     if (!parentEntityId || !parentEntityKey) return;
@@ -314,20 +324,22 @@ export function* createActionRequestSaga(
     });
   }
 
-  yield put(createActionInit(payload));
+  yield put(createActionInit(payload, action.onSuccess));
 }
 
+type CreateActionSagaPayload = Partial<Action> & {
+  eventData: unknown;
+  pluginId: string;
+  shouldRedirectToQueryEditor?: boolean;
+};
+
 export function* createActionSaga(
-  actionPayload: ReduxAction<
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Partial<Action> & { eventData: any; pluginId: string }
-  >,
+  action: ReduxActionWithCallbacks<CreateActionSagaPayload, unknown, unknown>,
 ) {
   try {
     // Indicates that source of action creation is self
-    actionPayload.payload.source = ActionCreationSourceTypeEnum.SELF;
-    const payload = actionPayload.payload;
+    action.payload.source = ActionCreationSourceTypeEnum.SELF;
+    const payload = action.payload;
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(payload);
@@ -344,7 +356,7 @@ export function* createActionSaga(
         // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
         actionName: response.data.name,
         pageName: pageName,
-        ...actionPayload.payload.eventData,
+        ...action.payload.eventData,
       });
 
       AppsmithConsole.info({
@@ -360,8 +372,17 @@ export function* createActionSaga(
 
       const newAction = response.data;
 
-      // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
-      yield put(createActionSuccess(newAction));
+      yield put(
+        createActionSuccess({
+          ...(newAction as unknown as Action),
+          shouldRedirectToQueryEditor:
+            action.payload.shouldRedirectToQueryEditor,
+        }),
+      );
+
+      if (action.onSuccess) {
+        yield put(action.onSuccess);
+      }
 
       // we fork to prevent the call from blocking
       yield fork(fetchActionDatasourceStructure, newAction);
@@ -369,7 +390,7 @@ export function* createActionSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
-      payload: actionPayload.payload,
+      payload: action.payload,
     });
   }
 }
@@ -1026,6 +1047,12 @@ export function* setActionPropertySaga(
       },
     });
 
+    return;
+  }
+
+  // The Rest Api editor adds empty key value pairs in the form for display.
+  // We don't need to save those empty key value pairs.
+  if (actionObj?.pluginType === PluginType.API && isEmptyKeyValue(value)) {
     return;
   }
 

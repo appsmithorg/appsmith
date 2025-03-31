@@ -18,8 +18,7 @@ export const saveAllowed = (
     socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
 
   if (connectedMethodsCount === 1) {
-    const checkFormLogin =
-        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
+    const checkFormLogin = isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
         socialLoginList.includes("google"),
@@ -66,7 +65,11 @@ export const getWrapperCategory = (
   return categories[subCategory || category];
 };
 
-export const getFilteredGeneralCategories = (categories: Category[]) => {
+export const getFilteredGeneralCategories = (
+  categories: Category[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  featureFlags?: Record<string, boolean>,
+) => {
   return categories
     ?.map((category: Category) => {
       return category;
