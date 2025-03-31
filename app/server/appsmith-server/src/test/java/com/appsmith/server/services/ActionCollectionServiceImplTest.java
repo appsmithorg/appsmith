@@ -546,6 +546,10 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(actionCollectionRepository.archive(Mockito.any())).thenReturn(Mono.empty());
 
+        Mockito.when(newActionService.generateActionByViewMode(any(NewAction.class), Mockito.anyBoolean()))
+                .thenAnswer(x -> x.getArgument(0, NewAction.class).getUnpublishedAction());
+        Mockito.when(newActionService.postProcessDeletedActions(Mockito.any())).thenReturn(Mono.empty());
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
 
@@ -588,6 +592,10 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(newActionService.archiveById(Mockito.any())).thenReturn(Mono.just(new NewAction()));
 
         Mockito.when(actionCollectionRepository.archive(Mockito.any())).thenReturn(Mono.empty());
+
+        Mockito.when(newActionService.generateActionByViewMode(any(NewAction.class), Mockito.anyBoolean()))
+                .thenAnswer(x -> x.getArgument(0, NewAction.class).getUnpublishedAction());
+        Mockito.when(newActionService.postProcessDeletedActions(Mockito.any())).thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
