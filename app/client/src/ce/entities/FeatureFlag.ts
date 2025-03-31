@@ -56,6 +56,8 @@ export const FEATURE_FLAG = {
   license_multi_org_enabled: "license_multi_org_enabled",
   release_table_custom_sort_function_enabled:
     "release_table_custom_sort_function_enabled",
+  license_external_saas_plugins_enabled:
+    "license_external_saas_plugins_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -103,6 +105,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_table_infinitescroll_enabled: false,
   license_multi_org_enabled: false,
   release_table_custom_sort_function_enabled: false,
+  license_external_saas_plugins_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

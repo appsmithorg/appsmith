@@ -43,6 +43,12 @@ export default function EmptySearchedPlugins({
       FEATURE_FLAG.release_external_saas_plugins_enabled,
     ),
   );
+  const isIntegrationsEnabledForPaid = useSelector((state) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.license_external_saas_plugins_enabled,
+    ),
+  );
 
   const pluginNames = plugins.map((plugin) => plugin.name.toLocaleLowerCase());
 
@@ -53,7 +59,10 @@ export default function EmptySearchedPlugins({
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
         ...(isPremiumDatasourcesViewEnabled
-          ? getFilteredPremiumIntegrations(isExternalSaasEnabled, pluginNames)
+          ? getFilteredPremiumIntegrations(
+              isExternalSaasEnabled || isIntegrationsEnabledForPaid,
+              pluginNames,
+            )
           : []),
       ],
       searchedPlugin,
