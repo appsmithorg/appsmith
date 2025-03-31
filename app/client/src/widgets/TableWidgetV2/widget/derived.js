@@ -201,6 +201,7 @@ export default {
     let tableData;
 
     if (props.infiniteScrollEnabled) {
+      /* This logic is needed as the cachedTableData will have data based on each pageNo. Since the object would be { 1: array of page 1 data, 2: array of page 2 data }, hence the values will have array of array data, hence it is flattened to store back in tableData for processing. */
       tableData = _.flatten(_.values(props.cachedTableData));
     } else {
       tableData = props.tableData;

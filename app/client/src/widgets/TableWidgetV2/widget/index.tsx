@@ -899,16 +899,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const {
-      cachedTableData,
-      canFreezeColumn,
-      infiniteScrollEnabled,
-      pageNo,
-      pageSize,
-      pushBatchMetaUpdates,
-      renderMode,
-      tableData,
-    } = this.props;
+    const { canFreezeColumn, renderMode, tableData } = this.props;
 
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
@@ -924,16 +915,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.hydrateStickyColumns();
     }
 
-    if (infiniteScrollEnabled) {
-      pushBatchMetaUpdates("cachedTableData", {
-        ...(cachedTableData || {}),
-        [pageNo]: tableData,
-      });
-
-      if (tableData.length < pageSize) {
-        pushBatchMetaUpdates("endOfData", true);
-      }
-    }
+    this.updateInfiniteScrollProperties();
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -1013,34 +995,19 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
       /*
-       * Updating the caching layer on table modification
+       * Updating the caching layer on table data modification
        */
-      if (this.props.infiniteScrollEnabled) {
-        pushBatchMetaUpdates("cachedTableData", {
-          ...(this.props.cachedTableData || {}),
-          [pageNo]: this.props.tableData,
-        });
-
-        if (this.props.tableData.length < this.props.pageSize) {
-          pushBatchMetaUpdates("endOfData", true);
-        }
-      }
+      this.updateInfiniteScrollProperties();
 
       this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
     } else {
+      // TODO: reset the widget on any property change, like if the toggle of infinite scroll is enabled and previously it was disabled, currently we update cachedTableData property to the current tableData at pageNo.
       if (
         !prevProps.infiniteScrollEnabled &&
         this.props.infiniteScrollEnabled
       ) {
-        pushBatchMetaUpdates("cachedTableData", {
-          ...(this.props.cachedTableData || {}),
-          [pageNo]: this.props.tableData,
-        });
-
-        if (this.props.tableData.length < this.props.pageSize) {
-          pushBatchMetaUpdates("endOfData", true);
-        }
+        this.updateInfiniteScrollProperties();
       }
     }
 
@@ -3033,6 +3000,36 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateOneClickBindingOptionsVisibility(true);
     }
   };
+
+  updateInfiniteScrollProperties() {
+    const {
+      cachedTableData,
+      infiniteScrollEnabled,
+      pageNo,
+      pageSize,
+      processedTableData,
+      pushBatchMetaUpdates,
+      tableData,
+      totalRecordsCount,
+    } = this.props;
+
+    if (infiniteScrollEnabled) {
+      // Update the cache key for a particular page whenever this function is called. The pageNo data is updated with the tableData.
+      pushBatchMetaUpdates("cachedTableData", {
+        ...(cachedTableData || {}),
+        [pageNo]: tableData,
+      });
+
+      // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
+      if (
+        (!!totalRecordsCount &&
+          processedTableData.length === totalRecordsCount) ||
+        tableData.length < pageSize
+      ) {
+        pushBatchMetaUpdates("endOfData", true);
+      }
+    }
+  }
 }
 
 export default TableWidgetV2;
