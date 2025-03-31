@@ -286,6 +286,7 @@ public class GraphQLPlugin extends BasePlugin {
                             errorResult,
                             requestCaptureFilter,
                             datasourceConfiguration,
+                            this.getClass().getName(),
                             ObservationRegistry.NOOP)
                     .onErrorResume(error -> {
                         boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;

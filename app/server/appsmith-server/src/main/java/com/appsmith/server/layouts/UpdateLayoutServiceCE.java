@@ -23,4 +23,6 @@ public interface UpdateLayoutServiceCE {
 
     Mono<List<Set<DslExecutableDTO>>> getOnPageLoadActions(
             String creatorId, String layoutId, Layout layout, Integer evaluatedVersion, CreatorContextType creatorType);
+
+    Mono<String> updateLayoutByContextTypeAndContextId(CreatorContextType contextType, String contextId);
 }

@@ -10,9 +10,9 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -103,13 +103,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.just(FALSE);
                 } else {
                     return emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
-                        // email verification not enabled at the org
+                        // email verification not enabled
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             user.setEmailVerificationRequired(FALSE);
                             return userRepository.save(user).then(Mono.just(FALSE));
                         } else {
-                            // scenario when at the time of signup, the email verification was disabled at the org
-                            // but later on turned on, now when this user logs in, it will not be prompted to verify
+                            // scenario when at the time of signup, the email verification was disabled but later on
+                            // turned on, now when this user logs in, it will not be prompted to verify
                             // as the configuration at time of signup is considered for any user.
                             // for old users, the login works as expected, without the need to verify
                             if (!TRUE.equals(user.getEmailVerificationRequired())) {
@@ -349,15 +349,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
-
         // need to create default application
-        Application application = new Application();
-        application.setWorkspaceId(defaultWorkspaceId);
-        application.setName("My first application");
-        Mono<Application> applicationMono = Mono.just(application);
-        if (defaultWorkspaceId == null) {
+        return createWorkspaceIfNotExistsAndGetId(defaultWorkspaceId, authentication)
+                .flatMap(this::createFirstApplication);
+    }
 
-            applicationMono = workspaceRepository
+    protected Mono<String> createWorkspaceIfNotExistsAndGetId(
+            String defaultWorkspaceId, Authentication authentication) {
+        if (defaultWorkspaceId == null) {
+            return workspaceRepository
                     .findAll(workspacePermission.getEditPermission())
                     .take(1, true)
                     .collectList()
@@ -366,8 +366,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // workspace user has access to, and would be user's default workspace. Hence, we use this
                         // workspace to create the application.
                         if (workspaces.size() == 1) {
-                            application.setWorkspaceId(workspaces.get(0).getId());
-                            return Mono.just(application);
+                            return Mono.just(workspaces.get(0));
                         }
 
                         // In case no workspaces are found for the user, create a new default workspace
@@ -376,15 +375,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         return organizationService
                                 .getCurrentUserOrganizationId()
                                 .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(email, orgId))
-                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
-                                .map(workspace -> {
-                                    application.setWorkspaceId(workspace.getId());
-                                    return application;
-                                });
-                    });
+                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user));
+                    })
+                    .map(Workspace::getId);
         }
 
-        return applicationMono.flatMap(applicationPageService::createApplication);
+        return Mono.just(defaultWorkspaceId);
+    }
+
+    protected Mono<Application> createFirstApplication(String workspaceId) {
+        // need to create default application
+        Application application = new Application();
+        application.setWorkspaceId(workspaceId);
+        application.setName("My first application");
+        return applicationPageService.createApplication(application);
     }
 
     /**

@@ -22,9 +22,9 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -557,37 +557,42 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      */
     @Override
     public Mono<User> signupIfAllowed(User user) {
-        boolean isAdminUser = false;
+        Mono<Boolean> isAdminUserMono;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
             // If this is not an admin email address, only then do we check if signup should be allowed or not. Being an
             // explicitly set admin email address trumps all everything and signup for this email can never be disabled.
-
-            if (commonConfig.isSignupDisabled()) {
-                // Signing up has been globally disabled. Reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
-            }
-
-            final List<String> allowedDomains = user.getSource() == LoginSource.FORM
-                    ? commonConfig.getAllowedDomains()
-                    : commonConfig.getOauthAllowedDomains();
-            if (!CollectionUtils.isEmpty(allowedDomains)
-                    && StringUtils.hasText(user.getEmail())
-                    && user.getEmail().contains("@")
-                    && !allowedDomains.contains(user.getEmail().split("@")[1])) {
-                // There is an explicit whitelist of email address domains that should be allowed. If the new email is
-                // of a different domain, reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
-            }
+            isAdminUserMono = organizationService.getCurrentUserOrganization().map(organization -> {
+                OrganizationConfiguration organizationConfiguration =
+                        organization.getOrganizationConfiguration() == null
+                                ? new OrganizationConfiguration()
+                                : organization.getOrganizationConfiguration();
+                if (TRUE.equals(organizationConfiguration.getIsSignupDisabled())) {
+                    // Signing up has been globally disabled. Reject.
+                    throw new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername());
+                }
+                final List<String> allowedDomains = user.getSource() == LoginSource.FORM
+                        ? commonConfig.getAllowedDomains()
+                        : commonConfig.getOauthAllowedDomains();
+                if (!CollectionUtils.isEmpty(allowedDomains)
+                        && StringUtils.hasText(user.getEmail())
+                        && user.getEmail().contains("@")
+                        && !allowedDomains.contains(user.getEmail().split("@")[1])) {
+                    // There is an explicit whitelist of email address domains that should be allowed. If the new email
+                    // is
+                    // of a different domain, reject.
+                    throw new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername());
+                }
+                return FALSE;
+            });
         } else {
-            isAdminUser = true;
+            isAdminUserMono = Mono.just(true);
         }
 
-        // First set the organization ID for the user
-        boolean finalIsAdminUser = isAdminUser;
+        // No special configurations found, allow signup for the new user.
         return setOrganizationIdForUser(user)
-                // Then proceed with user creation
-                .flatMap(userWithOrgId -> userCreate(userWithOrgId, finalIsAdminUser))
+                .zipWhen(userWithOrgId -> isAdminUserMono)
+                .flatMap(tuple2 -> userCreate(tuple2.getT1(), tuple2.getT2()))
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
@@ -710,12 +715,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        // For anonymous users, build the profile directly from the in-memory user object
-        if (user.isAnonymous()) {
-            return getAnonymousUserProfile(user);
-        }
 
-        // For regular users, proceed with the existing flow
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
         Mono<Boolean> isSuperUserMono =
@@ -753,22 +753,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return pacConfigurationService.setRolesAndGroups(
                             profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
-    }
-
-    protected Mono<UserProfileDTO> getAnonymousUserProfile(User user) {
-        return this.isUsersEmpty().map(isUsersEmpty -> {
-            UserProfileDTO profile = new UserProfileDTO();
-            profile.setEmail(user.getEmail());
-            profile.setUsername(user.getUsername());
-            profile.setAnonymous(true);
-            profile.setEnabled(user.isEnabled());
-            profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
-            profile.setEmptyInstance(isUsersEmpty);
-            // Intercom consent is defaulted to true on cloud hosting
-            profile.setIntercomConsentGiven(commonConfig.isCloudHosting());
-
-            return profile;
-        });
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
@@ -826,8 +810,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return instanceVariablesHelper.isEmailVerificationEnabled().flatMap(emailVerificationEnabled -> {
                         // Email verification not enabled at instance level
                         if (!TRUE.equals(emailVerificationEnabled)) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED));
+                            return Mono.error(new AppsmithException(AppsmithError.EMAIL_VERIFICATION_NOT_ENABLED));
                         }
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())

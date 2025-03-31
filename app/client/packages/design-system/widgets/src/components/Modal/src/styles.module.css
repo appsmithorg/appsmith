@@ -14,16 +14,19 @@
   outline: none;
   display: flex;
   flex-direction: column;
-  padding-inline: var(--outer-spacing-4);
+  padding-inline: var(--outer-spacing-5) var(--outer-spacing-4);
   padding-block: var(--outer-spacing-4);
-  gap: var(--outer-spacing-2);
+  gap: var(--outer-spacing-3);
   flex: 1;
 }
 
 .overlay .content .header {
   /* Needed to align the close button */
-  padding-inline: 0 calc(var(--outer-spacing-2));
-  margin-inline: 0 calc(-1 * var(--outer-spacing-4));
+  margin-inline: 0 calc(-0.5 * var(--inner-spacing-3));
+}
+
+.overlay .content .header button {
+  margin-block: calc(-0.5 * var(--inner-spacing-3)) 0;
 }
 
 .overlay .content .body {

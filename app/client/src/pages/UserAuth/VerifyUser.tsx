@@ -13,6 +13,7 @@ const VerifyUser = (
     email: string;
     token: string;
     redirectUrl: string;
+    organizationId: string;
   }>,
 ) => {
   const queryParams = new URLSearchParams(props.location.search);

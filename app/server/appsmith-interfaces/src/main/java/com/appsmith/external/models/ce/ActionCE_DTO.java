@@ -348,6 +348,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
         return this.getPageId();
     }
 
+    public void setContextId(String contextId) {
+        this.pageId = contextId;
+    }
+
     public static class Fields {}
 
     @JsonIgnore

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { saveSettings } from "ee/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -89,6 +89,8 @@ export function SettingsForm(
   );
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
+  const [initialFormLoginEnabled, setInitialFormLoginEnabled] =
+    useState(isFormLoginEnabled);
 
   const updatedOrganizationSettings = useMemo(
     () => Object.keys(props.settings).filter((s) => isOrganizationConfig(s)),
@@ -102,6 +104,11 @@ export function SettingsForm(
       s.controlType != SettingTypes.CALLOUT &&
       !isOrganizationConfig(s.id),
   );
+
+  // Store the initial value of isFormLoginEnabled on component mount
+  useEffect(() => {
+    setInitialFormLoginEnabled(isFormLoginEnabled);
+  }, [category, subCategory]);
 
   const saveChangedSettings = () => {
     const settingsKeyLength = Object.keys(props.settings).length;
@@ -151,7 +158,23 @@ export function SettingsForm(
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
+      // Use initialFormLoginEnabled instead of the current state value for the check
+      let effectiveFormLoginEnabled = initialFormLoginEnabled;
+
+      // Check if isFormLoginEnabled is being updated in the current form
+      if (props.settings["isFormLoginEnabled"] !== undefined) {
+        // Convert to boolean if it's a string, otherwise use as is since we expect a boolean
+        const settingValue = props.settings["isFormLoginEnabled"];
+
+        effectiveFormLoginEnabled =
+          typeof settingValue === "string"
+            ? settingValue === "true"
+            : Boolean(settingValue);
+      }
+
+      if (
+        saveAllowed(props.settings, effectiveFormLoginEnabled, socialLoginList)
+      ) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
@@ -224,6 +247,13 @@ export function SettingsForm(
 
   useEffect(onClear, [subCategory]);
 
+  useEffect(() => {
+    // Reset the initialFormLoginEnabled value when navigating to a different category
+    return () => {
+      setInitialFormLoginEnabled(isFormLoginEnabled);
+    };
+  }, [category, subCategory]);
+
   const onReleaseNotesClose = useCallback(() => {
     dispatch({
       type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
@@ -244,8 +274,9 @@ export function SettingsForm(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedSettings: any = {};
+    // Use the initial value to determine if there are enough login methods
     const connectedMethodsCount =
-      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+      socialLoginList.length + (initialFormLoginEnabled ? 1 : 0);
 
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {

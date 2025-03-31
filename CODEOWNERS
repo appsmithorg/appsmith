@@ -6,26 +6,26 @@
 # Some paths highlighted as not existing. This may be due to the fact that we use same file for EE repo as well.
 # Before deleting, make sure that the path does not really exist.
 
-app/client/.husky/** @KelvinOm
-app/client/.yarn/** @KelvinOm
-app/client/.editorconfig @KelvinOm
-app/client/.eslintrc.base.json @KelvinOm
-app/client/.eslintrc.js @KelvinOm
-app/client/.gitignore @KelvinOm
-app/client/.lintstagedrc.json @KelvinOm
-app/client/.nvmrc @KelvinOm
-app/client/.prettierignore @KelvinOm
-app/client/.prettierrc @KelvinOm
-app/client/.yarnrc.yml @KelvinOm
-app/client/jest.config.js @KelvinOm
-app/client/knip.json @KelvinOm
-app/client/package.json @KelvinOm
-app/client/tsconfig.json @KelvinOm
-app/client/tsconfig.path.json @KelvinOm
-app/client/packages/utils/** @KelvinOm
-app/client/packages/eslint-plugin/** @KelvinOm
-app/client/config/** @KelvinOm @alex-golovanov @riodeuno
-app/client/scripts/** @KelvinOm @alex-golovanov @riodeuno
+app/client/.husky/** @riodeuno
+app/client/.yarn/** @riodeuno
+app/client/.editorconfig @riodeuno
+app/client/.eslintrc.base.json @riodeuno
+app/client/.eslintrc.js @riodeuno
+app/client/.gitignore @riodeuno
+app/client/.lintstagedrc.json @riodeuno
+app/client/.nvmrc @riodeuno
+app/client/.prettierignore @riodeuno
+app/client/.prettierrc @riodeuno
+app/client/.yarnrc.yml @riodeuno
+app/client/jest.config.js @riodeuno
+app/client/knip.json @riodeuno
+app/client/package.json @riodeuno
+app/client/tsconfig.json @riodeuno
+app/client/tsconfig.path.json @riodeuno
+app/client/packages/utils/** @riodeuno
+app/client/packages/eslint-plugin/** @riodeuno
+app/client/config/** @riodeuno
+app/client/scripts/** @riodeuno
 
 # App viewers pod
 app/client/src/widgets/** @appsmithorg/widgets-blocks

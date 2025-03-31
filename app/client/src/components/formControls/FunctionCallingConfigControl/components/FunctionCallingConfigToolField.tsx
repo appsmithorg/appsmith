@@ -1,22 +1,18 @@
 import { Button, Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
 import FormControl from "pages/Editor/FormControl";
-import React, { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { change, formValueSelector } from "redux-form";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
+import { change } from "redux-form";
 import styled from "styled-components";
-import type { DropDownGroupedOptions } from "../../DropDownControl";
-import type {
-  FunctionCallingEntityTypeOption,
-  FunctionCallingEntityType,
-} from "../types";
-import { selectEntityOptions } from "./selectors";
+import type { FunctionCallingEntityType } from "../types";
+import FunctionCallingMenuField from "./FunctionCallingMenuField";
 
 interface FunctionCallingConfigToolFieldProps {
   fieldPath: string;
   formName: string;
   index: number;
   onRemove: (index: number) => void;
+  isLastAdded?: boolean;
 }
 
 const ConfigItemRoot = styled.div`
@@ -44,51 +40,50 @@ const ConfigItemSelectWrapper = styled.div`
 
 export const FunctionCallingConfigToolField = ({
   index,
+  isLastAdded,
   onRemove,
   ...props
 }: FunctionCallingConfigToolFieldProps) => {
   const dispatch = useDispatch();
-  const fieldValue = useSelector((state: AppState) =>
-    formValueSelector(props.formName)(state, props.fieldPath),
-  );
-  const entityOptions = useSelector(selectEntityOptions);
 
   const handleRemoveButtonClick = useCallback(() => {
     onRemove(index);
   }, [onRemove, index]);
 
-  const findEntityOption = useCallback(
-    (entityId: string, items: FunctionCallingEntityTypeOption[]): boolean => {
-      return items.find(({ value }) => value === entityId) !== undefined;
-    },
-    [entityOptions],
-  );
-
-  const findEntityType = useCallback(
-    (entityId: string): string => {
-      switch (true) {
-        case findEntityOption(entityId, entityOptions.Query):
-          return "Query";
-        case findEntityOption(entityId, entityOptions.JSFunction):
-          return "JSFunction";
-      }
-
-      return "";
-    },
-    [fieldValue.entityId, entityOptions],
-  );
-
-  useEffect(
-    // entityType is dependent on entityId
-    // Every time entityId changes, we need to find the new entityType
-    function handleEntityTypeChange() {
-      const entityType = findEntityType(fieldValue.entityId);
-
+  // entityType is dependent on entityId
+  // Every time entityId changes, we need to find the new entityType
+  const handleFunctionChange = useCallback(
+    (entityId: string, entityType: FunctionCallingEntityType) => {
       dispatch(
         change(props.formName, `${props.fieldPath}.entityType`, entityType),
       );
     },
-    [fieldValue.entityId],
+    [dispatch, props.formName, props.fieldPath],
+  );
+
+  const ApprovalSwitchConfig = useMemo(
+    () => ({
+      controlType: "SWITCH",
+      configProperty: `${props.fieldPath}.isApprovalRequired`,
+      formName: props.formName,
+      id: props.fieldPath,
+      label: "Requires approval",
+      isValid: true,
+    }),
+    [props.fieldPath, props.formName],
+  );
+
+  const FunctionDescriptionInputConfig = useMemo(
+    () => ({
+      controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+      configProperty: `${props.fieldPath}.description`,
+      formName: props.formName,
+      id: props.fieldPath,
+      placeholderText: "Describe how this function should be used...",
+      label: "Description",
+      isValid: true,
+    }),
+    [props.fieldPath, props.formName],
   );
 
   return (
@@ -106,56 +101,16 @@ export const FunctionCallingConfigToolField = ({
       </ConfigItemRow>
       <ConfigItemRow>
         <ConfigItemSelectWrapper>
-          <FormControl
-            config={{
-              controlType: "DROP_DOWN",
-              configProperty: `${props.fieldPath}.entityId`,
-              formName: props.formName,
-              id: props.fieldPath,
-              label: "",
-              isValid: true,
-              // @ts-expect-error FormControl component has incomplete TypeScript definitions for some valid properties
-              isSearchable: true,
-              options: [...entityOptions.Query, ...entityOptions.JSFunction],
-              optionGroupConfig: {
-                Query: {
-                  label: "Queries",
-                  children: [],
-                },
-                JSFunction: {
-                  label: "JS Functions",
-                  children: [],
-                },
-              } satisfies Record<
-                FunctionCallingEntityType,
-                DropDownGroupedOptions
-              >,
-            }}
-            formName={props.formName}
+          <FunctionCallingMenuField
+            autoFocus={isLastAdded}
+            name={`${props.fieldPath}.entityId`}
+            onValueChange={handleFunctionChange}
           />
         </ConfigItemSelectWrapper>
-        <FormControl
-          config={{
-            controlType: "SWITCH",
-            configProperty: `${props.fieldPath}.isApprovalRequired`,
-            formName: props.formName,
-            id: props.fieldPath,
-            label: "Requires approval",
-            isValid: true,
-          }}
-          formName={props.formName}
-        />
+        <FormControl config={ApprovalSwitchConfig} formName={props.formName} />
       </ConfigItemRow>
       <FormControl
-        config={{
-          controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-          configProperty: `${props.fieldPath}.description`,
-          formName: props.formName,
-          id: props.fieldPath,
-          placeholderText: "Describe how this function should be used...",
-          label: "Description",
-          isValid: true,
-        }}
+        config={FunctionDescriptionInputConfig}
         formName={props.formName}
       />
     </ConfigItemRoot>
