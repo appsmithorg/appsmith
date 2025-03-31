@@ -4,7 +4,6 @@ import ReleaseVersionRadioGroupView from "./ReleaseVersionRadioGroupView";
 import "@testing-library/jest-dom";
 
 describe("ReleaseVersionRadioGroupView", () => {
-  const releasedAt = Math.floor((Date.now() - 3600000) / 1000);
   const mockOnVersionChange = jest.fn();
 
   const renderComponent = (props = {}) => {
@@ -12,7 +11,6 @@ describe("ReleaseVersionRadioGroupView", () => {
       <ReleaseVersionRadioGroupView
         latestReleaseVersion="v1.0.0"
         onVersionChange={mockOnVersionChange}
-        releasedAt={releasedAt}
         {...props}
       />,
     );
