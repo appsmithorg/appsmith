@@ -324,7 +324,7 @@ export function* createActionRequestSaga(
     });
   }
 
-  yield put(createActionInit(payload));
+  yield put(createActionInit(payload, action.onSuccess));
 }
 
 type CreateActionSagaPayload = Partial<Action> & {
