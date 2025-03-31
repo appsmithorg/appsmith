@@ -50,6 +50,7 @@ import {
 } from "ee/selectors/organizationSelectors";
 import { updateOrganizationConfig } from "ee/actions/organizationActions";
 import { organizationConfigConnection } from "ee/constants/organizationConstants";
+import { useIsCloudBillingEnabled } from "hooks";
 
 interface FormProps {
   settings: Record<string, string>;
@@ -91,6 +92,7 @@ export function SettingsForm(
   const socialLoginList = useSelector(getThirdPartyAuths);
   const [initialFormLoginEnabled, setInitialFormLoginEnabled] =
     useState(isFormLoginEnabled);
+  const isMultiOrgEnabled = useIsCloudBillingEnabled();
 
   const updatedOrganizationSettings = useMemo(
     () => Object.keys(props.settings).filter((s) => isOrganizationConfig(s)),
@@ -339,7 +341,7 @@ export function SettingsForm(
             valid={props.valid}
           />
         )}
-        {details?.isConnected && (
+        {details?.isConnected && !isMultiOrgEnabled && (
           <DisconnectService
             disconnect={() => disconnect(settingsDetails)}
             subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
