@@ -87,11 +87,8 @@ describe(
 
     it("Validate onCheckChange event is triggered on programmatic state change", function () {
       cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(
-        ".t--property-control-text",
-        `{{Checkbox1.isChecked}}`,
-      );
-      _.agHelper.GetNAssertElementText(_.locators._textWidget, "true");
+      cy.updateCodeInput(".t--property-control-text", `{{checker.isChecked}}`);
+      _.agHelper.GetNAssertElementText(_.locators._textWidget, "false");
 
       cy.openPropertyPane("checkboxwidget");
       _.propPane.EnterJSContext(
@@ -102,15 +99,8 @@ describe(
       cy.openPropertyPane("buttonwidget");
       _.propPane.EnterJSContext(
         "onClick",
-        "{{Checkbox1.setValue(!Checkbox1.isChecked)}}",
+        "{{checker.setValue(!checker.isChecked)}}",
       );
-
-      _.agHelper.ClickButton("Submit");
-      _.agHelper.ValidateToastMessage(
-        "Checkbox state changed programmatically",
-      );
-
-      _.agHelper.GetNAssertElementText(_.locators._textWidget, "false");
 
       _.agHelper.ClickButton("Submit");
       _.agHelper.ValidateToastMessage(
@@ -118,6 +108,13 @@ describe(
       );
 
       _.agHelper.GetNAssertElementText(_.locators._textWidget, "true");
+
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.ValidateToastMessage(
+        "Checkbox state changed programmatically",
+      );
+
+      _.agHelper.GetNAssertElementText(_.locators._textWidget, "false");
 
       _.deployMode.DeployApp();
     });
