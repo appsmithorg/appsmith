@@ -485,7 +485,19 @@ function* eagerPageInitSaga() {
   } catch (error) {
     // Log error but don't block the rest of the initialization
     log.error("Error validating session token:", error);
-    Sentry.captureException(error);
+    faro?.api.pushError(
+      {
+        ...new Error("Error validating session token"),
+        name: "",
+      },
+      {
+        type: "error",
+        context: {
+          name: "SessionTokenValidationError",
+          message: error instanceof Error ? error.message : String(error),
+        },
+      },
+    );
   }
 
   const url = window.location.pathname;
