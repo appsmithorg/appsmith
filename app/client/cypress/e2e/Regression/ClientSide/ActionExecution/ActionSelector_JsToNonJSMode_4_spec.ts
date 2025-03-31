@@ -15,7 +15,7 @@ describe(
       agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     });
 
-    it("10. Bug 23167 - Message field in PostMessage should accept all type of values", () => {
+    it("1. Bug 23167 - Message field in PostMessage should accept all type of values", () => {
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
@@ -52,6 +52,24 @@ describe(
         propPane._textView,
         "{{{\n x: Input1.text \n}}}window*",
       );
+    });
+
+    it("2. should logout user successfully using global logoutUser function and should redirect to the same app on login", () => {
+      agHelper.RefreshPage();
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.EnterJSContext(
+        "onClick",
+        "{{logoutUser(appsmith.URL.pathname)}}",
+        true,
+        false,
+      );
+      propPane.ToggleJSMode("onClick", false);
+      propPane.UpdatePropertyFieldValue("Label", "");
+      propPane.TypeTextIntoField("Label", "LOGOUT GLOBAL");
+      agHelper.ClickButton("LOGOUT GLOBAL");
+      cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+      agHelper.AssertElementVisibility(locators._buttonByText(""));
     });
   },
 );
