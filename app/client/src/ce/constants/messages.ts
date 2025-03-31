@@ -1492,15 +1492,15 @@ export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 export const FORM_LOGIN_DESC = () =>
-  "Enable your workspace to sign in with Appsmith Form.";
+  "Enable your organization to sign in with Appsmith Form.";
 export const GOOGLE_AUTH_DESC = () =>
-  "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).";
+  "Enable your organization to sign in with Google (OAuth 2.0) single sign-on (SSO).";
 export const GITHUB_AUTH_DESC = () =>
-  "Enable your workspace to sign in with GitHub (OAuth 2.0) single sign-on (SSO).";
+  "Enable your organization to sign in with GitHub (OAuth 2.0) single sign-on (SSO).";
 export const SAML_AUTH_DESC = () =>
-  "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
+  "Enable your organization to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
-  "Enable your workspace to sign in with your preferred OIDC compliant provider.";
+  "Enable your organization to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
