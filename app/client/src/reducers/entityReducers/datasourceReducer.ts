@@ -19,8 +19,6 @@ import { assign } from "lodash";
 export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
-  // this prop tells which plugin is being loaded. Mainly used on the save button of datasource editor page.
-  loadingPluginId: string | null;
   loadingTokenForDatasourceId: string | null;
   isTesting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
@@ -51,7 +49,6 @@ export interface DatasourceDataState {
 const initialState: DatasourceDataState = {
   list: [],
   loading: false,
-  loadingPluginId: null,
   loadingTokenForDatasourceId: null,
   isTesting: false,
   isListing: false,
@@ -121,14 +118,10 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_DATASOURCES_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
-  [ReduxActionTypes.CREATE_DATASOURCE_INIT]: (
-    state: DatasourceDataState,
-    action: ReduxAction<{ pluginId: string }>,
-  ) => {
+  [ReduxActionTypes.CREATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return {
       ...state,
       loading: true,
-      loadingPluginId: action.payload.pluginId,
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT]: (
@@ -340,6 +333,15 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_REFS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      list: state.list.concat(action.payload),
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (

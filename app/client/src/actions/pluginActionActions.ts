@@ -21,10 +21,14 @@ import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
-export const createActionRequest = (payload: Partial<Action>) => {
+export const createActionRequest = (
+  payload: Partial<Action>,
+  onSuccess?: ReduxAction<unknown>,
+) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_REQUEST,
     payload,
+    onSuccess,
   };
 };
 export const createActionInit = (payload: Partial<Action>) => {
@@ -34,7 +38,9 @@ export const createActionInit = (payload: Partial<Action>) => {
   };
 };
 
-export const createActionSuccess = (payload: Action) => {
+export const createActionSuccess = (
+  payload: Action & { shouldRedirectToQueryEditor?: boolean },
+) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_SUCCESS,
     payload,
