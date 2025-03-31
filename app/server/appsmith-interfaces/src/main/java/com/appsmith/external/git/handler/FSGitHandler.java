@@ -204,6 +204,13 @@ public interface FSGitHandler {
     Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException;
 
     /**
+     * This method will reset the repo to last commit for the current branch on which it's present
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
+     * @return success status
+     */
+    Mono<Boolean> resetToLastCommit(Path repoSuffix);
+
+    /**
      *
      * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
      * @param branchName Name of the remote branch

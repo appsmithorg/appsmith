@@ -869,7 +869,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                 new AppsmithException(
                                                         AppsmithError.GIT_ACTION_FAILED,
                                                         "ref creation",
-                                                        "either ref name is already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
+                                                        "either ref name already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
                                     }
 
                                     Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
