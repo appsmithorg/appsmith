@@ -1,5 +1,6 @@
 import { Icon, Tag, Tooltip } from "@appsmith/ads";
 import { Classes, Collapse } from "@blueprintjs/core";
+import type { WidgetProps } from "widgets/WidgetProps";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 import { Colors } from "constants/Colors";
@@ -77,11 +78,8 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hidden?: (props: any, propertyPath: string) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  hidden?: (props: WidgetProps, propertyPath: string) => boolean;
+  disabled?: (props: WidgetProps, propertyPath: string) => boolean;
   disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -106,9 +104,11 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(!!isContextOpen);
 
-  const widgetProps = useSelector(getWidgetPropsForPropertyPane);
+  const widgetPropsValue = useSelector(getWidgetPropsForPropertyPane);
   const isSectionDisabled =
-    props.disabled && props.disabled(widgetProps, props.propertyPath || "");
+    widgetPropsValue &&
+    props.disabled &&
+    props.disabled(widgetPropsValue, props.propertyPath || "");
 
   const className = props.name.split(" ").join("").toLowerCase();
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);

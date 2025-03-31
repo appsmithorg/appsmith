@@ -27,7 +27,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     // PropertyPaneControlConfig's disabled is a function (props: any, propertyPath: string) => boolean
     // while LazyCodeEditor expects a boolean. Convert function to boolean result.
-    const isReadOnly =
+    const isControlDisabled =
       typeof disabled === "function"
         ? disabled(this.props.widgetProperties, this.props.propertyName)
         : !!disabled;
@@ -45,7 +45,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         expected={expected}
         hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{ value: propertyValue, onChange: this.onChange }}
-        isReadOnly={isReadOnly}
+        isReadOnly={isControlDisabled}
         marking={[]}
         maxHeight={maxHeight}
         mode={EditorModes.TEXT_WITH_BINDING}

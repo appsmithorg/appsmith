@@ -50,16 +50,13 @@ export interface PropertyPaneSectionConfig {
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be hidden, false otherwise
    */
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (props: WidgetProps, propertyPath: string) => boolean;
   /**
    * @param props - Current widget properties
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be disabled, false otherwise
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  disabled?: (props: WidgetProps, propertyPath: string) => boolean;
   /**
    * Help text to show when section is disabled.
    * Appears as a tooltip when hovering over the disabled section.
