@@ -3,7 +3,7 @@ import {
   getJSCollections,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { createSelector, type ParametricSelector } from "reselect";
+import { createSelector } from "reselect";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type {
   FunctionCallingEntityType,
@@ -20,11 +20,7 @@ import { getFormValues } from "redux-form";
 import type { Action } from "entities/Action";
 
 export const selectEntityOptions = createSelector(
-  getFormValues(QUERY_EDITOR_FORM_NAME) as unknown as ParametricSelector<
-    object,
-    Action,
-    Action
-  >,
+  (state) => getFormValues(QUERY_EDITOR_FORM_NAME)(state) as Action,
   getActions,
   getJSCollections,
   getCurrentPageId,
