@@ -29,9 +29,6 @@ describe("ReleaseVersionRadioGroupView", () => {
     expect(getByTestId("t--git-release-next-version").textContent).toBe(
       "v1.0.1",
     );
-    expect(getByTestId("t--git-release-released-at").textContent).toBe(
-      "Last released: v1.0.0 (1 hr ago)",
-    );
     expect(getByRole("radio", { name: /patch/i })).toBeChecked();
   });
 

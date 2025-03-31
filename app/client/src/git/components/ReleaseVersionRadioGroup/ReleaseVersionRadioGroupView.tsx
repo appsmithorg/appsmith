@@ -71,7 +71,7 @@ function ReleaseVersionRadioGroupView({
       <Flex gap="spaces-2">
         {latestReleaseVersion && (
           <CurrentVersionTag
-            data-testid="t--git-release-next-version"
+            data-testid="t--git-release-current-version"
             isClosable={false}
             kind="neutral"
           >
