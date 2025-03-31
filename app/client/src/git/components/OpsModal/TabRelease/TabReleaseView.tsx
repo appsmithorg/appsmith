@@ -42,7 +42,7 @@ function TabReleaseView({
   const [releaseVersion, setReleaseVersion] = useState<string | null>(null);
   const [releaseNotes, setReleaseNotes] = useState<string | null>(null);
 
-  const isReleaseDisabled = !releaseVersion || !releaseNotes;
+  const isReleaseDisabled = !releaseVersion;
 
   useEffect(
     function fetchPretagOnInitEffect() {
