@@ -35,7 +35,7 @@ export interface BottomTab {
   title: string;
   count?: number;
   panelComponent: React.ReactNode;
-  forceMount?: boolean;
+  forceMount?: true;
 }
 
 interface EntityBottomTabsProps {
