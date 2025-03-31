@@ -3006,6 +3006,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       cachedTableData,
       infiniteScrollEnabled,
       pageNo,
+      pageSize,
       processedTableData,
       pushBatchMetaUpdates,
       tableData,
