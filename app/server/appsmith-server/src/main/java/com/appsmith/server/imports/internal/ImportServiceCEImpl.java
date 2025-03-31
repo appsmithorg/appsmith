@@ -541,7 +541,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
             return importMono
                     .flatMap(importableArtifact -> {
-                        return postImportHook(importableArtifact)
+                        return Mono.defer(
+                                        () -> postImportHook(importableArtifact).onErrorResume(error -> {
+                                            log.error("Post import hook failed: {}", error.getMessage(), error);
+                                            return Mono.empty();
+                                        }))
                                 .then(sendImportedContextAnalyticsEvent(
                                         artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT));
                     })
