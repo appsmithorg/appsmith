@@ -50,13 +50,13 @@ export interface PropertyPaneSectionConfig {
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be hidden, false otherwise
    */
-  hidden?: (props: unknown, propertyPath: string) => boolean;
+  hidden?: (props: Record<string, unknown>, propertyPath: string) => boolean;
   /**
    * @param props - Current widget properties
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be disabled, false otherwise
    */
-  disabled?: (props: unknown, propertyPath: string) => boolean;
+  disabled?: (props: Record<string, unknown>, propertyPath: string) => boolean;
   /**
    * Help text to show when section is disabled.
    * Appears as a tooltip when hovering over the disabled section.
