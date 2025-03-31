@@ -85,7 +85,7 @@ describe(
       _.deployMode.DeployApp();
     });
 
-    it.only("Validate onCheckChange event is triggered on programmatic state change", function () {
+    it("Validate onCheckChange event is triggered on programmatic state change", function () {
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
