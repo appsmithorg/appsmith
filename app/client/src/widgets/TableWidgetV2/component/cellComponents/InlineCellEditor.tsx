@@ -20,7 +20,7 @@ import {
 } from "widgets/WidgetUtils";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import { getLocale } from "utils/helpers";
-import { faro } from "@grafana/faro-react";
+import { faro } from "instrumentation";
 
 const FOCUS_CLASS = "has-focus";
 
