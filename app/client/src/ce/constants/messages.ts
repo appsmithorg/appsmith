@@ -2372,10 +2372,12 @@ export const EDITOR_PANE_TEXTS = {
   query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object from",
-  js_create_modules: () => "JS modules (Beta)",
+  js_create_modules: (isBeta: boolean) =>
+    `JS modules ${isBeta ? "(Beta)" : ""}`,
   queries_create_from_existing: () => "Datasources",
   queries_create_new: () => "Quick actions",
-  queries_create_modules: () => "Query modules (Beta)",
+  queries_create_modules: (isBeta: boolean) =>
+    `Query modules ${isBeta ? "(Beta)" : ""}`,
   loading_building_blocks: () => "Loading building blocks",
   empty_search_result: (type: string) => `No ${type} match your search`,
   search_objects: {
