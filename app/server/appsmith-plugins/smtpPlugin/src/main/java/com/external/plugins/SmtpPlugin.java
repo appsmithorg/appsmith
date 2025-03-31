@@ -21,7 +21,6 @@ import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
-import jakarta.mail.NoSuchProviderException;
 import jakarta.mail.Part;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
@@ -205,19 +204,20 @@ public class SmtpPlugin extends BasePlugin {
 
             Properties prop = new Properties();
             prop.put("mail.transport.protocol", "smtp");
-            prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
             Long port = (endpoint.getPort() == null || endpoint.getPort() < 0) ? 25 : endpoint.getPort();
             prop.put("mail.smtp.port", String.valueOf(port));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
 
+            // Don't set mail.smtp.auth initially - let the server determine if auth is needed
             Session session;
 
             if (authentication != null
                     && StringUtils.hasText(authentication.getUsername())
                     && StringUtils.hasText(authentication.getPassword())) {
-
+                // If credentials are provided, enable auth
+                prop.put("mail.smtp.auth", "true");
                 String username = authentication.getUsername();
                 String password = authentication.getPassword();
 
@@ -228,6 +228,7 @@ public class SmtpPlugin extends BasePlugin {
                     }
                 });
             } else {
+                // If no credentials provided, try without auth first
                 prop.put("mail.smtp.auth", "false");
                 session = Session.getInstance(prop);
             }
@@ -262,28 +263,64 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(Session connection) {
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.");
             return Mono.fromCallable(() -> {
-                        Set<String> invalids = new HashSet<>();
+                Set<String> invalids = new HashSet<>();
+                try {
+                    // Create a session using the datasource configuration
+                    Session session = Session.getInstance(createProperties(datasourceConfiguration));
+                    Transport transport = session.getTransport("smtp");
 
+                    if (transport != null) {
                         try {
-                            Transport transport = connection.getTransport();
-                            if (transport != null) {
-                                transport.connect();
-                            }
-                            return invalids;
-                        } catch (NoSuchProviderException e) {
-                            invalids.add(SMTPErrorMessages.DS_NO_SUCH_PROVIDER_ERROR_MSG);
+                            transport.connect();
+                            // If we get here, connection was successful
+                            return new DatasourceTestResult();
                         } catch (AuthenticationFailedException e) {
+                            // If auth fails, try without auth if we were using auth
+                            if ("true".equals(session.getProperty("mail.smtp.auth"))) {
+                                log.debug("Authentication failed, retrying without authentication");
+                                Properties newProps = createProperties(datasourceConfiguration);
+                                newProps.put("mail.smtp.auth", "false");
+                                Session newSession = Session.getInstance(newProps);
+                                Transport newTransport = newSession.getTransport("smtp");
+                                newTransport.connect();
+                                return new DatasourceTestResult();
+                            }
                             invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
-                            log.error(e.getMessage());
-                            invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
+                            invalids.add(e.getMessage());
                         }
-                        return invalids;
-                    })
-                    .map(DatasourceTestResult::new);
+                    }
+                } catch (Exception e) {
+                    invalids.add(e.getMessage());
+                }
+                return new DatasourceTestResult(invalids);
+            });
+        }
+
+        private Properties createProperties(DatasourceConfiguration datasourceConfiguration) {
+            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+
+            Properties prop = new Properties();
+            prop.put("mail.transport.protocol", "smtp");
+            prop.put("mail.smtp.starttls.enable", "true");
+            prop.put("mail.smtp.host", endpoint.getHost());
+            Long port = (endpoint.getPort() == null || endpoint.getPort() < 0) ? 25 : endpoint.getPort();
+            prop.put("mail.smtp.port", String.valueOf(port));
+            prop.put("mail.smtp.ssl.trust", endpoint.getHost());
+
+            if (authentication != null
+                    && StringUtils.hasText(authentication.getUsername())
+                    && StringUtils.hasText(authentication.getPassword())) {
+                prop.put("mail.smtp.auth", "true");
+            } else {
+                prop.put("mail.smtp.auth", "false");
+            }
+
+            return prop;
         }
 
         @Override
