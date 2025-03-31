@@ -275,8 +275,18 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> reconstructArtifactJsonFromGitRepository(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
-        return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
-                artifactJsonTransformationDTO);
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                artifactJsonTransformationDTO.getWorkspaceId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
+                artifactJsonTransformationDTO.getRepoName());
+
+        return fsGitHandler
+                .resetToLastCommit(repoSuffix)
+                .then(commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+                        artifactJsonTransformationDTO));
     }
 
     @Override
