@@ -136,7 +136,6 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: !!action.payload.loading,
-      loadingPluginId: null,
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {

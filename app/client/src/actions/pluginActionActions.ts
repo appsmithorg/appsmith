@@ -31,10 +31,14 @@ export const createActionRequest = (
     onSuccess,
   };
 };
-export const createActionInit = (payload: Partial<Action>) => {
+export const createActionInit = (
+  payload: Partial<Action>,
+  onSuccess?: ReduxAction<unknown>,
+) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
+    onSuccess,
   };
 };
 

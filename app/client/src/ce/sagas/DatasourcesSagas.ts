@@ -1191,8 +1191,7 @@ export function* createDatasourceFromFormSaga(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
     );
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const formConfig: ReturnType<typeof getPluginForm> = yield select(
       getPluginForm,
       actionPayload.payload.pluginId,
