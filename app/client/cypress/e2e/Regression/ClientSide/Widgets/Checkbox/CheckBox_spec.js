@@ -84,6 +84,43 @@ describe(
       cy.get(".t--widget-textwidget").should("contain", "false");
       _.deployMode.DeployApp();
     });
+
+    it.only("Validate onCheckChange event is triggered on programmatic state change", function () {
+      cy.openPropertyPane("textwidget");
+      cy.updateCodeInput(
+        ".t--property-control-text",
+        `{{Checkbox1.isChecked}}`,
+      );
+      _.agHelper.GetNAssertElementText(_.locators._textWidget, "true");
+
+      cy.openPropertyPane("checkboxwidget");
+      _.propPane.EnterJSContext(
+        "onCheckChange",
+        "{{showAlert('Checkbox state changed programmatically')}}",
+      );
+
+      cy.openPropertyPane("buttonwidget");
+      _.propPane.EnterJSContext(
+        "onClick",
+        "{{Checkbox1.setValue(!Checkbox1.isChecked)}}",
+      );
+
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.ValidateToastMessage(
+        "Checkbox state changed programmatically",
+      );
+
+      _.agHelper.GetNAssertElementText(_.locators._textWidget, "false");
+
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.ValidateToastMessage(
+        "Checkbox state changed programmatically",
+      );
+
+      _.agHelper.GetNAssertElementText(_.locators._textWidget, "true");
+
+      _.deployMode.DeployApp();
+    });
   },
 );
 
