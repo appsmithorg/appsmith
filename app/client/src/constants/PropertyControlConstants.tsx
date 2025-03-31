@@ -50,13 +50,19 @@ export interface PropertyPaneSectionConfig {
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be hidden, false otherwise
    */
-  hidden?: (props: Record<string, unknown>, propertyPath: string) => boolean;
+  hidden?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
   /**
    * @param props - Current widget properties
    * @param propertyPath - Path to the widget property
    * @returns - True if the section should be disabled, false otherwise
    */
-  disabled?: (props: Record<string, unknown>, propertyPath: string) => boolean;
+  disabled?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
   /**
    * Help text to show when section is disabled.
    * Appears as a tooltip when hovering over the disabled section.
@@ -213,7 +219,10 @@ export interface PropertyPaneControlConfig {
    */
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
   /**
    * callback function to determine if the property should be disabled.
 
@@ -222,7 +231,10 @@ export interface PropertyPaneControlConfig {
    * @returns - True if the property should be disabled, false otherwise
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  disabled?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
   /**
    * Help text to show when property is disabled.
    * Appears as a tooltip when hovering over the disabled property.

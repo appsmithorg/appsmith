@@ -77,8 +77,14 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  hidden?: (props: Record<string, unknown>, propertyPath: string) => boolean;
-  disabled?: (props: Record<string, unknown>, propertyPath: string) => boolean;
+  hidden?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
+  disabled?: <T = Record<string, unknown>>(
+    props: T,
+    propertyPath: string,
+  ) => boolean;
   disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
