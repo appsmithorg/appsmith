@@ -1,6 +1,5 @@
 import { Icon, Tag, Tooltip } from "@appsmith/ads";
 import { Classes, Collapse } from "@blueprintjs/core";
-import type { WidgetProps } from "widgets/WidgetProps";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 import { Colors } from "constants/Colors";
@@ -78,8 +77,8 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  hidden?: (props: WidgetProps, propertyPath: string) => boolean;
-  disabled?: (props: WidgetProps, propertyPath: string) => boolean;
+  hidden?: (props: Record<string, unknown>, propertyPath: string) => boolean;
+  disabled?: (props: Record<string, unknown>, propertyPath: string) => boolean;
   disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
