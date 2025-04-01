@@ -178,6 +178,7 @@ describe("Infinite Scroll Update Hooks - ", () => {
 
     // Test with no primary columns
     const propsWithoutColumns = {} as TableWidgetProps;
+
     expect(
       updateCellEditabilityOnInfiniteScrollChange(
         propsWithoutColumns,

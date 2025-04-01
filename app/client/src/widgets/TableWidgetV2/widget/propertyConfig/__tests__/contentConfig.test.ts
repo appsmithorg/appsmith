@@ -42,8 +42,17 @@ describe("TableWidgetV2 contentConfig tests", () => {
     if (paginationSection && paginationSection.children) {
       const serverSidePagination = paginationSection.children.find(
         (child) =>
-          (child as any).propertyName === "serverSidePaginationEnabled",
-      ) as any;
+          (child as PropertyPaneSectionConfig & { propertyName: string })
+            .propertyName === "serverSidePaginationEnabled",
+      ) as PropertyPaneSectionConfig & {
+        propertyName: string;
+        shouldDisableSection: (
+          props: TableWidgetProps,
+          propertyPath: string,
+        ) => boolean;
+        disabledHelpText: string;
+        dependencies: string[];
+      };
 
       expect(serverSidePagination).toBeDefined();
 
@@ -82,8 +91,14 @@ describe("TableWidgetV2 contentConfig tests", () => {
 
     if (paginationSection && paginationSection.children) {
       const infiniteScrollProperty = paginationSection.children.find(
-        (child) => (child as any).propertyName === "infiniteScrollEnabled",
-      ) as any;
+        (child) =>
+          (child as PropertyPaneSectionConfig & { propertyName: string })
+            .propertyName === "infiniteScrollEnabled",
+      ) as PropertyPaneSectionConfig & {
+        propertyName: string;
+        updateHook: unknown;
+        dependencies: string[];
+      };
       expect(infiniteScrollProperty).toBeDefined();
 
       if (infiniteScrollProperty) {

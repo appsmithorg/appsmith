@@ -1525,7 +1525,7 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
   const updates: Array<{ propertyPath: string; propertyValue: unknown }> = [];
 
   if (propertyValue === true) {
-    Object.entries(props.primaryColumns).forEach(([_, column]) => {
+    Object.entries(props.primaryColumns).forEach(([, column]) => {
       const columnName = column.alias;
 
       updates.push({
@@ -1539,7 +1539,7 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
       });
     });
   } else if (propertyValue === false) {
-    Object.entries(props.primaryColumns).forEach(([_, column]) => {
+    Object.entries(props.primaryColumns).forEach(([, column]) => {
       const columnName = column.alias;
 
       updates.push({
