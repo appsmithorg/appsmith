@@ -1138,8 +1138,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
                 .thenReturn(true)
                 .name(GitSpan.SIMPLE_GIT_RESET)
-                .tap(Micrometer.observation(observationRegistry))
-                .subscribeOn(scheduler);
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
@@ -1149,8 +1148,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(HARD_RESET, Boolean.FALSE.toString())
                 .name(GitSpan.FS_RESET)
-                .tap(Micrometer.observation(observationRegistry))
-                .subscribeOn(scheduler);
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, Boolean isRtsResetEnabled)
