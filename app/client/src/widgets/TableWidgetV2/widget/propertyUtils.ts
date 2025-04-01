@@ -1447,3 +1447,27 @@ export function colorForEachRowValidation(
 
   return generateResponseAndReturn(false, DEFAULT_MESSAGE);
 }
+
+export const updateAllowAddNewRowOnInfiniteScrollChange = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  if (propertyValue === true) {
+    return [
+      {
+        propertyPath: "allowAddNewRow",
+        propertyValue: false,
+      },
+    ];
+  } else if (propertyValue === false) {
+    return [
+      {
+        propertyPath: "allowAddNewRow",
+        propertyValue: true,
+      },
+    ];
+  }
+
+  return;
+};

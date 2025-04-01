@@ -17,6 +17,7 @@ import {
   tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
+  updateAllowAddNewRowOnInfiniteScrollChange,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
@@ -185,6 +186,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+        updateHook: updateAllowAddNewRowOnInfiniteScrollChange,
         hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
@@ -438,6 +440,11 @@ export default [
 
   {
     sectionName: "Adding a row",
+    shouldDisableSection: (props: TableWidgetProps) =>
+      props.infiniteScrollEnabled,
+    disabledHelpText:
+      "This feature is disabled because infinite scroll is enabled",
+    dependencies: ["infiniteScrollEnabled"],
     children: [
       {
         propertyName: "allowAddNewRow",
