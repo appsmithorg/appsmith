@@ -12,7 +12,7 @@ import type {
   TRemoveValueDescription,
   TStoreValueDescription,
 } from "workers/Evaluation/fns/storeFns";
-import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 type StoreOperation =
   | TStoreValueDescription
@@ -21,9 +21,7 @@ type StoreOperation =
 
 export function* handleStoreOperations(triggers: StoreOperation[]) {
   const applicationId: string = yield select(getCurrentApplicationId);
-  const branch: string | undefined = yield select(
-    selectGitApplicationCurrentBranch,
-  );
+  const branch: string | undefined = yield select(getCurrentGitBranch);
   const appStoreName = getAppStoreName(applicationId, branch);
   const existingLocalStore = localStorage.getItem(appStoreName) || "{}";
   let parsedLocalStore = JSON.parse(existingLocalStore);

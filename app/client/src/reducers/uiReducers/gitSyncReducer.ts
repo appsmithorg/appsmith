@@ -6,7 +6,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
-import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import type { GetSSHKeyResponseData, SSHKeyType } from "git/types";
 import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 
 export enum GitSettingsTab {

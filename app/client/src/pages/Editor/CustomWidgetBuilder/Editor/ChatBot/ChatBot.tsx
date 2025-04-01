@@ -18,7 +18,7 @@ import { isObject } from "lodash";
 export const ChatBot = (props: ContentProps) => {
   const ref = useRef<HTMLIFrameElement>(null);
   const lastUpdateFromBot = useRef<number>(0);
-  const { bulkUpdate, parentEntityId, uncompiledSrcDoc, widgetId } = useContext(
+  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
 
@@ -63,19 +63,20 @@ export const ChatBot = (props: ContentProps) => {
         return;
       }
 
-      if (!bulkUpdate) return;
+      if (!update) return;
 
       if (isObject(event.data)) {
         lastUpdateFromBot.current = Date.now();
+        const { css_code, html_code, js_code } = event.data;
 
-        bulkUpdate({
-          html: event.data.html_code || "",
-          css: event.data.css_code || "",
-          js: event.data.js_code || "",
-        });
+        if (html_code && html_code !== "") update("html", html_code);
+
+        if (css_code && css_code !== "") update("css", css_code);
+
+        if (js_code && js_code !== "") update("js", js_code);
       }
     },
-    [bulkUpdate, handleSrcDocUpdates],
+    [handleSrcDocUpdates, update],
   );
 
   useEffect(

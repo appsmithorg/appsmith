@@ -1,0 +1,42 @@
+{
+  "commitRules": {
+    "style": {
+      "concise": true,
+      "singleLine": true,
+      "format": {
+        "prefix": "verb",
+        "allowedPrefixes": [
+          "adds",
+          "removes",
+          "updates",
+          "fixes",
+          "refactors",
+          "implements",
+          "improves"
+        ],
+        "bigChanges": {
+          "format": "heading + description",
+          "separator": "\n\n"
+        }
+      }
+    }
+  },
+  "workspaceRules": {
+    "derivedFiles": {
+      "commentStyle": {
+        "forbidden": "//",
+        "required": "/*** */"
+      }
+    },
+    "cypressTests": {
+      "runCommand": {
+        "directory": "app/client",
+        "command": "yarn cypress run --browser chrome --headless --spec {fileName}",
+        "filePathFormat": {
+          "input": "app/client/cypress/e2e/...",
+          "usage": "cypress/e2e/..."
+        }
+      }
+    }
+  }
+}

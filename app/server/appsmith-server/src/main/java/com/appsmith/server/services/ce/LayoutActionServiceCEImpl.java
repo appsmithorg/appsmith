@@ -35,6 +35,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.List;
+
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_SINGLE_ACTION;
@@ -316,6 +318,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
         return newActionService
                 .deleteUnpublishedAction(id)
+                .flatMap(actionDTO -> newActionService
+                        .postProcessDeletedActions(List.of(actionDTO))
+                        .thenReturn(actionDTO))
                 .flatMap(actionDTO -> Mono.zip(
                         Mono.just(actionDTO), updateLayoutService.updatePageLayoutsByPageId(actionDTO.getPageId())))
                 .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)

@@ -117,7 +117,12 @@ public interface FSGitHandler {
      * @return success message
      */
     Mono<MergeStatusDTO> pullArtifactWithoutCheckout(
-            Path repoSuffix, String remoteUrl, String branchName, String privateKey, String publicKey)
+            Path repoSuffix,
+            String remoteUrl,
+            String branchName,
+            String privateKey,
+            String publicKey,
+            boolean keepWorkingDirChanges)
             throws IOException;
 
     /**
@@ -153,7 +158,7 @@ public interface FSGitHandler {
      * @param branchName branch name for which the status is required
      * @return Map of file names those are added, removed, modified
      */
-    Mono<GitStatusDTO> getStatus(Path repoPath, String branchName);
+    Mono<GitStatusDTO> getStatus(Path repoPath, String branchName, boolean keepWorkingDirChanges);
 
     /**
      * This method merges source branch into destination branch for a git repository which is present on the partial
@@ -163,7 +168,8 @@ public interface FSGitHandler {
      * @param destinationBranch Merge operation is performed on this branch
      * @return Merge status
      */
-    Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch);
+    Mono<String> mergeBranch(
+            Path repoSuffix, String sourceBranch, String destinationBranch, boolean keepWorkingDirChanges);
 
     /**
      * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
@@ -190,7 +196,8 @@ public interface FSGitHandler {
      * @param destinationBranch Merge operation is performed on this branch
      * @return Whether the two branches can be merged or not with list of files where the conflicts are present
      */
-    Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch);
+    Mono<MergeStatusDTO> isMergeBranch(
+            Path repoSuffix, String sourceBranch, String destinationBranch, boolean keepWorkingDirChanges);
 
     /**
      * This method will reset the repo to last commit for the specific branch
@@ -201,7 +208,15 @@ public interface FSGitHandler {
      * @throws GitAPIException
      * @throws IOException
      */
-    Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException;
+    Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, boolean keepWorkingDirChanges)
+            throws GitAPIException, IOException;
+
+    /**
+     * This method will reset the repo to last commit for the current branch on which it's present
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
+     * @return success status
+     */
+    Mono<Boolean> resetToLastCommit(Path repoSuffix);
 
     /**
      *
@@ -230,7 +245,7 @@ public interface FSGitHandler {
 
     Mono<Boolean> resetHard(Path repoSuffix, String branchName);
 
-    Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName);
+    Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName, boolean keepWorkingDirChanges);
 
     Path createRepoPath(Path suffix);
 

@@ -85,8 +85,8 @@ export default {
 .button-container button.reset:disabled {
 	cursor: default;
 }`,
-    js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
-import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
+    js: `import React from "https://esm.sh/react@18.2.0";
+import ReactDOM from "https://esm.sh/react-dom@18.2.0";
 
 const Button = ({ children, className, ...props }) => (
 	<button className={className} {...props}>
@@ -129,7 +129,7 @@ appsmith.onReady(() => {
 	 * Initialize your component here
 	 * more info - ${CUSTOM_WIDGET_ONREADY_DOC_URL}
 	 */
-	reactDom.render(<App />, document.getElementById("root"));
+	ReactDOM.render(<App />, document.getElementById("root"));
 });`,
   },
 };

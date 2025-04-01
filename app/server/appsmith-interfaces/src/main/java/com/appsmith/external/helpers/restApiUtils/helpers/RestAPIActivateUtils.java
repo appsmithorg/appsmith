@@ -77,8 +77,10 @@ public class RestAPIActivateUtils {
             ActionExecutionResult errorResult,
             RequestCaptureFilter requestCaptureFilter,
             DatasourceConfiguration datasourceConfiguration,
+            String className,
             ObservationRegistry observationRegistry) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
+                .tag("plugin", className)
                 .name(ACTUAL_API_CALL)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))

@@ -35,7 +35,8 @@ public interface FileInterface {
             Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
             throws IOException, GitAPIException;
 
-    Mono<Path> saveArtifactToGitRepo(Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName)
+    Mono<Path> saveArtifactToGitRepo(
+            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException;
 
     /**

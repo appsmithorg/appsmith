@@ -214,6 +214,10 @@ export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
+export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no AI Agents in this workspace.`;
+export const AI_AGENT_AUTH_SUBTITLE = () =>
+  `Sign up with any Google account.\n Support for email will be available soon.`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -1488,15 +1492,15 @@ export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 export const FORM_LOGIN_DESC = () =>
-  "Enable your workspace to sign in with Appsmith Form.";
+  "Enable your organization to sign in with Appsmith Form.";
 export const GOOGLE_AUTH_DESC = () =>
-  "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).";
+  "Enable your organization to sign in with Google (OAuth 2.0) single sign-on (SSO).";
 export const GITHUB_AUTH_DESC = () =>
-  "Enable your workspace to sign in with GitHub (OAuth 2.0) single sign-on (SSO).";
+  "Enable your organization to sign in with GitHub (OAuth 2.0) single sign-on (SSO).";
 export const SAML_AUTH_DESC = () =>
-  "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
+  "Enable your organization to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
-  "Enable your workspace to sign in with your preferred OIDC compliant provider.";
+  "Enable your organization to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
@@ -2368,10 +2372,12 @@ export const EDITOR_PANE_TEXTS = {
   query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object from",
-  js_create_modules: () => "JS modules (Beta)",
+  js_create_modules: (isBeta: boolean) =>
+    `JS modules ${isBeta ? "(Beta)" : ""}`,
   queries_create_from_existing: () => "Datasources",
   queries_create_new: () => "Quick actions",
-  queries_create_modules: () => "Query modules (Beta)",
+  queries_create_modules: (isBeta: boolean) =>
+    `Query modules ${isBeta ? "(Beta)" : ""}`,
   loading_building_blocks: () => "Loading building blocks",
   empty_search_result: (type: string) => `No ${type} match your search`,
   search_objects: {
