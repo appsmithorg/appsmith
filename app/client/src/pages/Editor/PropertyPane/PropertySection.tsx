@@ -1,25 +1,22 @@
-import { Classes } from "@blueprintjs/core";
-import type { ReactNode, Context } from "react";
-import React, {
-  memo,
-  useState,
-  useEffect,
-  createContext,
-  useCallback,
-} from "react";
-import { Collapse } from "@blueprintjs/core";
-import styled from "styled-components";
+import { Icon, Tag, Tooltip } from "@appsmith/ads";
+import { Classes, Collapse } from "@blueprintjs/core";
+import { setPropertySectionState } from "actions/propertyPaneActions";
+import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 import { Colors } from "constants/Colors";
-import { Icon, Tag } from "@appsmith/ads";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import type { AppState } from "ee/reducers";
+import type { ReactNode } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
-import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
-import { setPropertySectionState } from "actions/propertyPaneActions";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import {
+  getCurrentWidgetId,
+  getWidgetPropsForPropertyPane,
+} from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
 import localStorage from "utils/localStorage";
-import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
+import { CollapseContext } from "./PropertyPaneContexts";
 
 const TagContainer = styled.div``;
 
@@ -80,9 +77,11 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
+  disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
   tag?: string; // Used to show a tag on the section title on search results
@@ -92,9 +91,6 @@ interface PropertySectionProps {
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id && prev.childrenId === next.childrenId;
 };
-
-//Context is being provided to re-render anything that subscribes to this context on open and close
-export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
@@ -108,6 +104,12 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   );
   const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(!!isContextOpen);
+
+  const widgetPropsValue = useSelector(getWidgetPropsForPropertyPane);
+  const isSectionDisabled =
+    widgetPropsValue &&
+    props.shouldDisableSection &&
+    props.shouldDisableSection(widgetPropsValue, props.propertyPath || "");
 
   const className = props.name.split(" ").join("").toLowerCase();
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -176,15 +178,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
   if (!currentWidgetId) return null;
 
-  return (
+  const sectionContent = (
     <SectionWrapper
-      className={`t--property-pane-section-wrapper ${props.className}`}
+      className={`t--property-pane-section-wrapper ${props.className} ${isSectionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
     >
       <div
         className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
-          !props.tag ? "cursor-pointer" : "cursor-default"
+          !props.tag && !isSectionDisabled ? "cursor-pointer" : "cursor-default"
         }`}
-        onClick={handleSectionTitleClick}
+        onClick={!isSectionDisabled ? handleSectionTitleClick : undefined}
       >
         <SectionTitle>{props.name}</SectionTitle>
         {props.tag && (
@@ -197,7 +199,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
             </Tag>
           </TagContainer>
         )}
-        {props.collapsible && (
+        {props.collapsible && !isSectionDisabled && (
           <Icon
             className={`ml-auto t--chevron-icon`}
             name={isOpen ? "expand-less" : "expand-more"}
@@ -219,6 +221,12 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         </Collapse>
       )}
     </SectionWrapper>
+  );
+
+  return isSectionDisabled && props.disabledHelpText ? (
+    <Tooltip content={props.disabledHelpText}>{sectionContent}</Tooltip>
+  ) : (
+    sectionContent
   );
 }, areEqual);
 
