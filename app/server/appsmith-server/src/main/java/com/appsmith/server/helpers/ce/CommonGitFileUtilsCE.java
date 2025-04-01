@@ -101,7 +101,6 @@ public class CommonGitFileUtilsCE {
 
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
@@ -159,16 +158,19 @@ public class CommonGitFileUtilsCE {
 
         // this should come from the specific files
         ArtifactGitReference artifactGitReference = createArtifactReference(artifactExchangeJson);
+        Mono<Boolean> isRtsResetEnabledMono = featureFlagService.check(FeatureFlagEnum.ab_rts_git_reset_enabled);
 
         // Save application to git repo
-        try {
-            return fileUtils
-                    .saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName)
-                    .subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException | GitAPIException e) {
-            log.error("Error occurred while saving files to local git repo: ", e);
-            throw Exceptions.propagate(e);
-        }
+        return isRtsResetEnabledMono
+                .flatMap(isRtsEnabled -> {
+                    try {
+                        return fileUtils.saveApplicationToGitRepo(
+                                baseRepoSuffix, artifactGitReference, branchName, isRtsEnabled);
+                    } catch (IOException | GitAPIException e) {
+                        throw Exceptions.propagate(e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Path> saveArtifactToLocalRepoNew(

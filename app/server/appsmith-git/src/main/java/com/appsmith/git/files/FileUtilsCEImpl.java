@@ -220,10 +220,14 @@ public class FileUtilsCEImpl implements FileInterface {
      * @param baseRepoSuffix       path suffix used to create a repo path
      * @param artifactGitReference application reference object from which entire application can be rehydrated
      * @param branchName           name of the branch for the current application
+     * @param isRtsResetEnabled    flag to check if RTS reset is enabled
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToGitRepo(
-            Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
+            Path baseRepoSuffix,
+            ArtifactGitReference artifactGitReference,
+            String branchName,
+            Boolean isRtsResetEnabled)
             throws GitAPIException, IOException {
 
         ApplicationGitReference applicationGitReference = (ApplicationGitReference) artifactGitReference;
@@ -233,7 +237,7 @@ public class FileUtilsCEImpl implements FileInterface {
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor
-                .resetToLastCommit(baseRepoSuffix, branchName)
+                .resetToLastCommit(baseRepoSuffix, branchName, isRtsResetEnabled)
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
@@ -1226,7 +1230,7 @@ public class FileUtilsCEImpl implements FileInterface {
             if (Boolean.TRUE.equals(isResetToLastCommitRequired)) {
                 // instead of checking out to last branch we are first cleaning the git repo,
                 // then checking out to the desired branch
-                gitResetMono = gitExecutor.resetToLastCommit(baseRepoSuffix, branchName);
+                gitResetMono = gitExecutor.resetToLastCommit(baseRepoSuffix, branchName, false);
             }
 
             metadataMono = gitResetMono.map(isSwitched -> {
@@ -1262,7 +1266,7 @@ public class FileUtilsCEImpl implements FileInterface {
             if (Boolean.TRUE.equals(resetToLastCommitRequired)) {
                 // instead of checking out to last branch we are first cleaning the git repo,
                 // then checking out to the desired branch
-                resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName);
+                resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName, false);
             }
 
             pageObjectMono = resetToLastCommit.map(isSwitched -> {
