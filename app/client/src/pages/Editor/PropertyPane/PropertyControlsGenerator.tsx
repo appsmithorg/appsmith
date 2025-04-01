@@ -59,7 +59,6 @@ const generatePropertyControl = (
         <PropertySection
           childrenId={sectionConfig.childrenId}
           collapsible={sectionConfig.collapsible ?? true}
-          shouldDisableSection={sectionConfig.shouldDisableSection}
           disabledHelpText={sectionConfig.disabledHelpText}
           hidden={sectionConfig.hidden}
           id={config.id || sectionConfig.sectionName}
@@ -71,6 +70,7 @@ const generatePropertyControl = (
           name={sectionConfig.sectionName}
           panelPropertyPath={props.panelPropertyPath}
           propertyPath={sectionConfig.propertySectionPath}
+          shouldDisableSection={sectionConfig.shouldDisableSection}
           tag={sectionConfig.tag}
         >
           {config.children &&
