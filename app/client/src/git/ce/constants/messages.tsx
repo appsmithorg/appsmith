@@ -29,7 +29,7 @@ export const OPS_MODAL = {
 };
 
 export const TAB_RELEASE = {
-  TITLE: "Release version",
+  TITLE: "Release a new version",
   RELEASE_BTN: "Release",
 };
 
@@ -44,6 +44,7 @@ export const RELEASE_NOTES_INPUT = {
 };
 
 export const LATEST_COMMIT_INFO = {
+  TITLE: "Commit",
   LOADING_COMMIT_MESSAGE: "Fetching latest commit...",
   NO_COMMIT_MESSAGE: "No commit message found",
 };

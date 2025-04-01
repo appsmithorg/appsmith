@@ -13,7 +13,6 @@ import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type { Page } from "entities/Page";
 import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "entities/Plugin";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
@@ -248,7 +247,7 @@ export const getIsNewWidgetBeingDragged = (state: AppState) => {
 
   if (!isDragging) return false;
 
-  const dragDetails: DragDetails = getDragDetails(state);
+  const dragDetails = getDragDetails(state);
   const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
 
   return !!newWidget && !dragParent;
@@ -258,7 +257,7 @@ export const isCurrentCanvasDragging = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   getDragDetails,
   (state: AppState, canvasId: string) => canvasId,
-  (isDragging: boolean, dragDetails: DragDetails, canvasId: string) => {
+  (isDragging: boolean, dragDetails, canvasId: string) => {
     return dragDetails?.draggedOn === canvasId && isDragging;
   },
 );

@@ -322,10 +322,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 },
                 baseArtifact -> {
                     // on success send analytics
-                    return gitAnalyticsUtils.addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_IMPORT,
-                            baseArtifact,
-                            baseArtifact.getGitArtifactMetadata().getIsRepoPrivate());
+
+                    return Mono.defer(() -> hydrateLatest(baseArtifact))
+                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_IMPORT,
+                                    baseArtifact,
+                                    baseArtifact.getGitArtifactMetadata().getIsRepoPrivate()));
                 },
                 (baseArtifact, throwableError) -> {
                     // on error
@@ -338,6 +340,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         return Mono.create(
                 sink -> importGitArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Artifact> hydrateLatest(Artifact artifact) {
+        return Mono.just(artifact);
     }
 
     @Override
@@ -850,22 +856,33 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(ignoreFetchString -> gitHandlingService
                         .listReferences(createRefTransformationDTO, TRUE)
                         .flatMap(gitRefDTOs -> {
-                            Mono<Boolean> refCreationValidationMono = isValidationForRefCreationComplete(
-                                    baseArtifact, sourceArtifact, gitType, gitRefDTOs, refDTO);
+                            Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
+                                    getArtifactExchangeJsonForRefCreation(sourceArtifact, refType, gitType)
+                                            .cache();
 
-                            return refCreationValidationMono.flatMap(isOkayToProceed -> {
-                                if (!TRUE.equals(isOkayToProceed)) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.GIT_ACTION_FAILED, "ref creation", "status unclean"));
-                                }
+                            return artifactExchangeJsonMono.flatMap(artifactExchangeJson -> {
+                                Mono<Boolean> refCreationValidationMono = isValidationForRefCreationComplete(
+                                        baseArtifact,
+                                        sourceArtifact,
+                                        gitType,
+                                        gitRefDTOs,
+                                        refDTO,
+                                        artifactExchangeJson);
 
-                                Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
-                                        getArtifactExchangeJsonForRefCreation(sourceArtifact, refType, gitType);
+                                return refCreationValidationMono.flatMap(isOkayToProceed -> {
+                                    if (!TRUE.equals(isOkayToProceed)) {
+                                        return Mono.error(
+                                                new AppsmithException(
+                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                        "ref creation",
+                                                        "either ref name already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
+                                    }
 
-                                Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
-                                        sourceArtifact, refDTO.getRefName(), refDTO.getRefType());
+                                    Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
+                                            sourceArtifact, refDTO.getRefName(), refDTO.getRefType());
 
-                                return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                    return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                });
                             });
                         }))
                 .flatMap(tuple -> {
@@ -908,7 +925,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 newImportedArtifact,
                                 newImportedArtifact.getGitArtifactMetadata().getIsRepoPrivate())))
                 .onErrorResume(error -> {
-                    log.error("An error occurred while creating reference. error {}", error.getMessage());
+                    log.error("An error occurred while creating reference. error {}", error.getMessage(), error);
                     return gitRedisUtils
                             .releaseFileLock(artifactType, baseArtifactId, TRUE)
                             .then(Mono.error(new AppsmithException(
@@ -937,7 +954,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             Artifact parentArtifact,
             GitType gitType,
             List<GitRefDTO> fetchedGitRefDTOS,
-            GitRefDTO incomingGitRefDTO) {
+            GitRefDTO incomingGitRefDTO,
+            ArtifactExchangeJson artifactExchangeJson) {
 
         RefType refType = incomingGitRefDTO.getRefType();
         if (RefType.tag.equals(refType)) {

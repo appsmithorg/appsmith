@@ -85,7 +85,6 @@ public class GitArtifactControllerCE {
     public Mono<ResponseDTO<? extends ArtifactImportDTO>> importArtifactFromGit(
             @RequestParam String workspaceId, @RequestBody GitConnectDTO gitConnectDTO) {
 
-        // TODO: remove artifact type from methods.
         return centralGitService
                 .importArtifactFromGit(workspaceId, gitConnectDTO, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));

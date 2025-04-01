@@ -38,7 +38,8 @@ public interface FileInterface {
             Boolean isRtsResetEnabled)
             throws IOException, GitAPIException;
 
-    Mono<Path> saveArtifactToGitRepo(Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName)
+    Mono<Path> saveArtifactToGitRepo(
+            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException;
 
     /**

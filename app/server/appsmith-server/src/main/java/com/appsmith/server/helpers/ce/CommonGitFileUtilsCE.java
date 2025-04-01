@@ -178,15 +178,19 @@ public class CommonGitFileUtilsCE {
 
         // this should come from the specific files
         GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // Save application to git repo
-        try {
-            return fileUtils
-                    .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
-                    .subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException | GitAPIException exception) {
-            return Mono.error(exception);
-        }
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            try {
+                return fileUtils
+                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName, keepWorkingDirChanges)
+                        .subscribeOn(Schedulers.boundedElastic());
+            } catch (IOException | GitAPIException exception) {
+                return Mono.error(exception);
+            }
+        });
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
