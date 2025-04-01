@@ -1474,6 +1474,18 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .subscribeOn(scheduler);
     }
 
+    /**
+     * reset to last commit on the current branch itself but doesn't checkout to any specific branch
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
+     * @return a boolean whether the operation was successfull or not
+     */
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix) {
+        return Mono.using(
+                () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                git -> this.resetToLastCommit(git).thenReturn(true).onErrorReturn(false),
+                Git::close);
+    }
+
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, boolean keepWorkingDirChanges) {
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
