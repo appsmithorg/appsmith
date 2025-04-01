@@ -12,6 +12,7 @@ import { isValidLicense } from "ee/selectors/organizationSelectors";
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -27,17 +28,17 @@ export function SignupSuccess() {
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 
-  const isNonInvitedUser = shouldEnableFirstTimeUserOnboarding === "true";
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   const redirectUsingQueryParam = useCallback(
     () =>
-      redirectUserAfterSignup(
+      redirectUserAfterSignup({
         redirectUrl,
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
-        isNonInvitedUser,
-      ),
+        isAiAgentFlowEnabled,
+      }),
     [],
   );
 

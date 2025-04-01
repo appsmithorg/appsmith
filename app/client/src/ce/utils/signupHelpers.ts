@@ -1,7 +1,4 @@
-import {
-  firstTimeUserOnboardingInit,
-  setCurrentApplicationIdForCreateNewApp,
-} from "actions/onboardingActions";
+import { setCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import {
   SIGNUP_SUCCESS_URL,
   BUILDER_PATH,
@@ -19,18 +16,21 @@ import type {
   SocialLoginType,
 } from "ee/constants/SocialLogin";
 import { SocialLoginButtonPropsList } from "ee/constants/SocialLogin";
+import type { Dispatch } from "redux";
+
+export interface RedirectUserAfterSignupProps {
+  redirectUrl: string;
+  shouldEnableFirstTimeUserOnboarding: string | null;
+  validLicense?: boolean;
+  dispatch: Dispatch;
+  isAiAgentFlowEnabled: boolean;
+}
 
 export const redirectUserAfterSignup = (
-  redirectUrl: string,
-  shouldEnableFirstTimeUserOnboarding: string | null,
-  _validLicense?: boolean,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dispatch?: any,
-  isEnabledForCreateNew?: boolean, // is Enabled for only non-invited users
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any => {
+  props: RedirectUserAfterSignupProps,
+) => {
+  const { dispatch, redirectUrl, shouldEnableFirstTimeUserOnboarding } = props;
+
   if (redirectUrl) {
     try {
       if (
@@ -65,21 +65,10 @@ export const redirectUserAfterSignup = (
          *  passing baseApplicationId as applicationId should be fine
          * **/
         if (baseApplicationId || basePageId) {
-          if (isEnabledForCreateNew) {
-            dispatch(
-              setCurrentApplicationIdForCreateNewApp(
-                baseApplicationId as string,
-              ),
-            );
-            history.replace(APPLICATIONS_URL);
-          } else {
-            dispatch(
-              firstTimeUserOnboardingInit(
-                baseApplicationId,
-                basePageId as string,
-              ),
-            );
-          }
+          dispatch(
+            setCurrentApplicationIdForCreateNewApp(baseApplicationId as string),
+          );
+          history.replace(APPLICATIONS_URL);
         } else {
           if (!urlObject) {
             try {
