@@ -28,6 +28,8 @@ RUN set -o xtrace \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
+  # install git
+  && apt-get install --no-install-recommends --yes git \
   && apt-get clean
 
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
