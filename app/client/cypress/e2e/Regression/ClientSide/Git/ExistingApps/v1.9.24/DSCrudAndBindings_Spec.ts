@@ -51,8 +51,6 @@ describe(
       homePage.AssertNCloseImport();
       homePage.RenameApplication(appName);
       PageList.assertPresence("ListingAndReviews");
-
-      // this logic will have to be removed after decimal issue with auto-commit is resolved
       assertHelper.AssertNetworkResponseData("gitStatus");
       agHelper.AssertElementExist(
         gitSync.locators.quickActionsCommitBtn,
@@ -61,8 +59,7 @@ describe(
       );
       agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
       agHelper.AssertElementVisibility(gitSync.locators.opsModal);
-      agHelper.GetNClick(gitSync.locators.opsCommitBtn);
-      assertHelper.AssertNetworkStatus("@commit", 201);
+      agHelper.AssertElementVisibility(gitSync.locators.opsCommitBtn);
       gitSync.CloseOpsModal();
     });
 
