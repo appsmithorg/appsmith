@@ -18,10 +18,10 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     const {
       controlConfig,
       dataTreePath,
-      shouldDisableSection,
       evaluatedValue,
       expected,
       propertyValue,
+      shouldDisableSection,
       useValidationMessage,
     } = this.props;
 
