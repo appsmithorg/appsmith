@@ -66,7 +66,6 @@ describe(
     it("1. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
       //Mongo CRUD page validation
       //Assert table data
-      cy.latestDeployPreview();
       agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.TEXT),
         "text",
