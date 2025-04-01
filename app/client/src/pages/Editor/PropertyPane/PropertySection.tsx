@@ -80,7 +80,7 @@ interface PropertySectionProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
   disabledHelpText?: string;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -108,8 +108,8 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const widgetPropsValue = useSelector(getWidgetPropsForPropertyPane);
   const isSectionDisabled =
     widgetPropsValue &&
-    props.disabled &&
-    props.disabled(widgetPropsValue, props.propertyPath || "");
+    props.shouldDisableSection &&
+    props.shouldDisableSection(widgetPropsValue, props.propertyPath || "");
 
   const className = props.name.split(" ").join("").toLowerCase();
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);

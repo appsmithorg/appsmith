@@ -60,7 +60,7 @@ export interface PropertyPaneSectionConfig {
    */
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
   /**
    * Help text to show when section is disabled.
    * Appears as a tooltip when hovering over the disabled section.
@@ -226,7 +226,7 @@ export interface PropertyPaneControlConfig {
    * @returns - True if the property should be disabled, false otherwise
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  disabled?: (props: any, propertyPath: string) => boolean;
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
   /**
    * Help text to show when property is disabled.
    * Appears as a tooltip when hovering over the disabled property.

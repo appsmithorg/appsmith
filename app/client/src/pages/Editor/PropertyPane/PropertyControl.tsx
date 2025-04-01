@@ -106,7 +106,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const isControlDisabled =
-    props.disabled && props.disabled(widgetProperties, props.propertyName);
+    props.shouldDisableSection &&
+    props.shouldDisableSection(widgetProperties, props.propertyName);
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =

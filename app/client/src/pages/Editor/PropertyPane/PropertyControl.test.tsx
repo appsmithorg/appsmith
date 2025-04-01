@@ -7,7 +7,10 @@ import PropertyControl from "./PropertyControl";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 
 interface MockPropertyControlProps {
-  disabled?: (widgetProperties: WidgetProps, propertyName: string) => boolean;
+  shouldDisableSection?: (
+    widgetProperties: WidgetProps,
+    propertyName: string,
+  ) => boolean;
   disabledHelpText?: string;
   label: string;
   propertyName: string;
@@ -15,8 +18,8 @@ interface MockPropertyControlProps {
 }
 
 const MockPropertyControl = (props: MockPropertyControlProps) => {
-  const isDisabled = props.disabled
-    ? props.disabled(props.widgetProperties, props.propertyName)
+  const isDisabled = props.shouldDisableSection
+    ? props.shouldDisableSection(props.widgetProperties, props.propertyName)
     : false;
 
   return (
@@ -78,7 +81,7 @@ describe("PropertyControl", () => {
   it("should render disabled property control when disabled prop is true", () => {
     const disabledProps = {
       ...defaultProps,
-      disabled: () => true,
+      shouldDisableSection: () => true,
     };
 
     const { getByTestId } = render(<PropertyControl {...disabledProps} />);
@@ -95,7 +98,7 @@ describe("PropertyControl", () => {
   it("should show disabled help text when property is disabled", () => {
     const disabledProps = {
       ...defaultProps,
-      disabled: () => true,
+      shouldDisableSection: () => true,
       disabledHelpText: "This property is disabled because...",
     };
 
@@ -110,7 +113,7 @@ describe("PropertyControl", () => {
   it("should not show disabled help text when property is not disabled", () => {
     const props = {
       ...defaultProps,
-      disabled: () => false,
+      shouldDisableSection: () => false,
       disabledHelpText: "This property is disabled because...",
     };
 

@@ -4,7 +4,10 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import PropertySection from "./PropertySection";
 
 interface MockPropertySectionProps {
-  disabled?: (widgetProps: WidgetProps, propertyPath: string) => boolean;
+  shouldDisableSection?: (
+    widgetProps: WidgetProps,
+    propertyPath: string,
+  ) => boolean;
   widgetProps: WidgetProps;
   propertyPath?: string;
   className?: string;
@@ -17,8 +20,8 @@ interface MockPropertySectionProps {
 
 const MockPropertySection = (props: MockPropertySectionProps) => {
   const isSectionDisabled =
-    props.disabled &&
-    props.disabled(props.widgetProps, props.propertyPath || "");
+    props.shouldDisableSection &&
+    props.shouldDisableSection(props.widgetProps, props.propertyPath || "");
 
   return (
     <div
@@ -87,7 +90,7 @@ describe("PropertySection", () => {
   it("should render disabled section when disabled prop is true", () => {
     const props = {
       ...getDefaultProps(),
-      disabled: () => true,
+      shouldDisableSection: () => true,
     };
 
     const { getByTestId } = render(<PropertySection {...props} />);
@@ -105,7 +108,7 @@ describe("PropertySection", () => {
   it("should show disabled help text when section is disabled", () => {
     const props = {
       ...getDefaultProps(),
-      disabled: () => true,
+      shouldDisableSection: () => true,
       disabledHelpText: "This section is disabled because...",
     };
 
@@ -120,7 +123,7 @@ describe("PropertySection", () => {
   it("should not show disabled help text when section is not disabled", () => {
     const props = {
       ...getDefaultProps(),
-      disabled: () => false,
+      shouldDisableSection: () => false,
       disabledHelpText: "This section is disabled because...",
     };
 
@@ -142,7 +145,7 @@ describe("PropertySection", () => {
   it("clicking on section title should not trigger toggle when disabled", () => {
     const props = {
       ...getDefaultProps(),
-      disabled: () => true,
+      shouldDisableSection: () => true,
     };
 
     const { getByTestId } = render(<PropertySection {...props} />);

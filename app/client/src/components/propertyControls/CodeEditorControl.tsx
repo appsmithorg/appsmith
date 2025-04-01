@@ -18,7 +18,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     const {
       controlConfig,
       dataTreePath,
-      disabled,
+      shouldDisableSection,
       evaluatedValue,
       expected,
       propertyValue,
@@ -28,9 +28,12 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     // PropertyPaneControlConfig's disabled is a function (props: any, propertyPath: string) => boolean
     // while LazyCodeEditor expects a boolean. Convert function to boolean result.
     const isControlDisabled =
-      typeof disabled === "function"
-        ? disabled(this.props.widgetProperties, this.props.propertyName)
-        : !!disabled;
+      typeof shouldDisableSection === "function"
+        ? shouldDisableSection(
+            this.props.widgetProperties,
+            this.props.propertyName,
+          )
+        : !!shouldDisableSection;
 
     const maxHeight = controlConfig?.maxHeight
       ? String(controlConfig.maxHeight)

@@ -155,6 +155,8 @@ export default [
   },
   {
     sectionName: "Pagination",
+    shouldDisableSection: () => true,
+    disabledHelpText: "This feature is disbaled",
     children: [
       {
         propertyName: "isVisiblePagination",
@@ -246,6 +248,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        shouldDisableSection: () => true,
+        disabledHelpText: "This feature is disbaled",
       },
       {
         propertyName: "enableClientSideSearch",

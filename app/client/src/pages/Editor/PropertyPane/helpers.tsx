@@ -60,14 +60,11 @@ export function evaluateHiddenProperty(
         );
 
         if (children.length > 0) {
-          // Pass through the disabled property if it exists
-          const sectionWithChildren = {
+          finalConfig.push({
             ...sectionConfig,
             childrenId: children.map((configItem) => configItem.id).join(""),
             children,
-          };
-
-          finalConfig.push(sectionWithChildren);
+          });
         }
       }
     } else if (controlConfig.controlType) {
