@@ -49,7 +49,6 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{ value: propertyValue, onChange: this.onChange }}
         isReadOnly={isControlDisabled}
-        marking={[]}
         maxHeight={maxHeight}
         mode={EditorModes.TEXT_WITH_BINDING}
         positionCursorInsideBinding
