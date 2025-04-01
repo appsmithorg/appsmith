@@ -37,7 +37,10 @@ export function* fetchCurrentOrganizationConfigSaga(action?: {
 
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS,
-        payload: data,
+        payload: {
+          ...data,
+          tenantId: data.id,
+        },
       });
       AnalyticsUtil.initInstanceId(data.instanceId);
     }

@@ -202,7 +202,9 @@ public class GitDiscardTests {
         Mockito.doReturn(Mono.just(artifactExchangeJson))
                 .when(gitHandlingService)
                 .recreateArtifactJsonFromLastCommit(Mockito.any());
-        Mockito.doReturn(Mono.just(true)).when(fsGitHandler).rebaseBranch(any(Path.class), Mockito.anyString());
+        Mockito.doReturn(Mono.just(true))
+                .when(fsGitHandler)
+                .rebaseBranch(any(Path.class), Mockito.anyString(), Mockito.anyBoolean());
 
         Mono<Application> applicationMono = centralGitService
                 .discardChanges(application.getId(), ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
@@ -255,7 +257,9 @@ public class GitDiscardTests {
                         Mockito.anyString(),
                         Mockito.anyString(),
                         Mockito.anyString());
-        Mockito.doReturn(Mono.just(gitStatusDTO)).when(fsGitHandler).getStatus(any(Path.class), Mockito.anyString());
+        Mockito.doReturn(Mono.just(gitStatusDTO))
+                .when(fsGitHandler)
+                .getStatus(any(Path.class), Mockito.anyString(), Mockito.anyBoolean());
         Mockito.doReturn(Mono.just("fetched"))
                 .when(fsGitHandler)
                 .fetchRemote(
