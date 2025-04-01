@@ -31,6 +31,7 @@ public class GitConstantsCE {
     public class GitMetricConstantsCE {
         public static final String CHECKOUT_REMOTE = "checkout-remote";
         public static final String HARD_RESET = "hard-reset";
+        public static final String RTS_RESET = "rts-reset";
         public static final String RESOURCE_TYPE = "resource-type";
         public static final String METADATA = "Metadata";
         public static final String WIDGETS = "Widgets";

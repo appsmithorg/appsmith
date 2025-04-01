@@ -73,6 +73,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.CHECKOUT_REMOTE;
 import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.HARD_RESET;
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.RTS_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -1136,9 +1137,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return rtsCaller
                 .post("/rts-api/v1/git/reset", requestBody)
                 .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
-                .thenReturn(true)
-                .name(GitSpan.SIMPLE_GIT_RESET)
-                .tap(Micrometer.observation(observationRegistry));
+                .thenReturn(true);
     }
 
     public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
@@ -1147,6 +1146,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .flatMap(checkedOut -> resetRts(repoSuffix, branchName).thenReturn(true))
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(HARD_RESET, Boolean.FALSE.toString())
+                .tag(RTS_RESET, "true")
                 .name(GitSpan.FS_RESET)
                 .tap(Micrometer.observation(observationRegistry));
     }
