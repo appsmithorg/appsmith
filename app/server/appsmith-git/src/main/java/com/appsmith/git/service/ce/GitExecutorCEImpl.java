@@ -1134,33 +1134,28 @@ public class GitExecutorCEImpl implements GitExecutor {
                 repoPath.toAbsolutePath().toString(),
                 branchName);
 
-        Span rtsResetSpan = observationHelper.createSpan(GitSpan.SIMPLE_GIT_RESET);
         return rtsCaller
                 .post("/rts-api/v1/git/reset", requestBody)
                 .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
                 .thenReturn(true)
-                .doFinally(signalType -> rtsResetSpan.end());
-    }
-
-    public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
-        return resetRts(repoSuffix, branchName)
-                .flatMap(reset -> checkoutToBranch(repoSuffix, branchName))
-                .flatMap(checkedOut -> resetRts(repoSuffix, branchName).thenReturn(true))
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(HARD_RESET, Boolean.FALSE.toString())
                 .tag(RTS_RESET, "true")
                 .name(GitSpan.FS_RESET)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
+    public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
+        return resetRts(repoSuffix, branchName)
+                .flatMap(reset -> checkoutToBranch(repoSuffix, branchName))
+                .flatMap(checkedOut -> resetRts(repoSuffix, branchName).thenReturn(true))
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS));
+    }
+
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, Boolean isRtsResetEnabled)
             throws GitAPIException, IOException {
         if (isRtsResetEnabled) {
             log.info("Resetting to last commit using RTS");
-            return Mono.fromCallable(() -> {
-                        return resetToLastCommitRts(repoSuffix, branchName);
-                    })
-                    .then(Mono.just(true));
+            return resetToLastCommitRts(repoSuffix, branchName).thenReturn(true);
         }
 
         return Mono.using(
