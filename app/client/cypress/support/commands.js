@@ -219,7 +219,9 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword, redirectUrl) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      assertHelper.AssertNetworkStatus("getAllWorkspaces");
+      if (!redirectUrl) {
+        assertHelper.AssertNetworkStatus("getAllWorkspaces");
+      }
       assertHelper.AssertNetworkStatus("getConsolidatedData");
     }
   });
