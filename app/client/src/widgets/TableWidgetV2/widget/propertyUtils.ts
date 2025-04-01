@@ -1473,6 +1473,47 @@ export const updateAllowAddNewRowOnInfiniteScrollChange = (
   return;
 };
 
+// Infinite scroll not supported for search, sort and filters yet
+export const updateSearchSortFilterOnInfiniteScrollChange = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  if (propertyValue === true) {
+    return [
+      {
+        propertyPath: "isVisibleSearch",
+        propertyValue: false,
+      },
+      {
+        propertyPath: "isVisibleFilters",
+        propertyValue: false,
+      },
+      {
+        propertyPath: "isSortable",
+        propertyValue: false,
+      },
+    ];
+  } else if (propertyValue === false) {
+    return [
+      {
+        propertyPath: "isVisibleFilters",
+        propertyValue: true,
+      },
+      {
+        propertyPath: "isVisibleSearch",
+        propertyValue: true,
+      },
+      {
+        propertyPath: "isSortable",
+        propertyValue: true,
+      },
+    ];
+  }
+
+  return;
+};
+
 // Disable cell editability when infinite scroll is enabled
 export const updateCellEditabilityOnInfiniteScrollChange = (
   props: TableWidgetProps,

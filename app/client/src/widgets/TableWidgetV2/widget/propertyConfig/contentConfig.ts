@@ -1,18 +1,22 @@
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "ee/constants/messages";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
+  INFINITE_SCROLL_ENABLED,
+  InlineEditingSaveOptions,
+} from "widgets/TableWidgetV2/constants";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   CUSTOM_SORT_FUNCTION_ENABLED,
 } from "../../constants";
-import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import Widget from "../index";
 import {
   tableDataValidation,
   totalRecordsCountValidation,
@@ -23,10 +27,12 @@ import {
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
   updateInlineEditingSaveOptionHook,
+  updateSearchSortFilterOnInfiniteScrollChange,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
-import Widget from "../index";
-import { INFINITE_SCROLL_ENABLED } from "../../constants";
+
+const INFINITE_SCROLL_DISABLED_HELP_TEXT =
+  "This feature is disabled because infinite scroll is enabled";
 
 export default [
   {
@@ -167,10 +173,6 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-        shouldDisableSection: (props: TableWidgetProps) =>
-          props.infiniteScrollEnabled,
-        disabledHelpText: "Infinite scroll is enabled",
-        dependencies: ["infiniteScrollEnabled"],
       },
       {
         helpText:
@@ -180,6 +182,10 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+        shouldDisableSection: (props: TableWidgetProps) =>
+          props.infiniteScrollEnabled,
+        disabledHelpText: INFINITE_SCROLL_DISABLED_HELP_TEXT,
+        dependencies: ["infiniteScrollEnabled"],
       },
       {
         helpText:
@@ -192,9 +198,10 @@ export default [
         updateHook: composePropertyUpdateHook([
           updateAllowAddNewRowOnInfiniteScrollChange,
           updateCellEditabilityOnInfiniteScrollChange,
+          updateSearchSortFilterOnInfiniteScrollChange,
         ]),
         dependencies: ["primaryColumns"],
-        // hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
+        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
@@ -245,6 +252,10 @@ export default [
   },
   {
     sectionName: "Search & filters",
+    shouldDisableSection: (props: TableWidgetProps) =>
+      props.infiniteScrollEnabled,
+    disabledHelpText: INFINITE_SCROLL_DISABLED_HELP_TEXT,
+    dependencies: ["infiniteScrollEnabled"],
     children: [
       {
         propertyName: "isVisibleSearch",
@@ -394,6 +405,10 @@ export default [
   },
   {
     sectionName: "Sorting",
+    shouldDisableSection: (props: TableWidgetProps) =>
+      props.infiniteScrollEnabled,
+    disabledHelpText: INFINITE_SCROLL_DISABLED_HELP_TEXT,
+    dependencies: ["infiniteScrollEnabled"],
     children: [
       {
         helpText: "Controls sorting in View Mode",
@@ -449,8 +464,7 @@ export default [
     sectionName: "Adding a row",
     shouldDisableSection: (props: TableWidgetProps) =>
       props.infiniteScrollEnabled,
-    disabledHelpText:
-      "This feature is disabled because infinite scroll is enabled",
+    disabledHelpText: INFINITE_SCROLL_DISABLED_HELP_TEXT,
     dependencies: ["infiniteScrollEnabled"],
     children: [
       {
