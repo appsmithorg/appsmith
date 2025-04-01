@@ -1149,7 +1149,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         return resetToLastCommit(repoSuffix, destinationBranch, keepWorkingDirChanges)
                                                 .thenReturn(error.getMessage());
                                     } catch (Exception e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
+                                        log.error("Error while hard resetting to latest commit", e);
                                         return Mono.error(e);
                                     }
                                 })
@@ -1348,7 +1348,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                     return status;
                                                 });
                                     } catch (Exception e) {
-                                        log.error("Error for hard resetting to latest commit {0}", e);
+                                        log.error("Error for hard resetting to latest commit", e);
                                         return Mono.error(e);
                                     }
                                 })
@@ -1366,7 +1366,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         return resetToLastCommit(repoSuffix, destinationBranch, keepWorkingDirChanges)
                                                 .thenReturn(mergeStatusDTO);
                                     } catch (Exception e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
+                                        log.error("Error while hard resetting to latest commit", e);
                                         return Mono.error(e);
                                     }
                                 })
