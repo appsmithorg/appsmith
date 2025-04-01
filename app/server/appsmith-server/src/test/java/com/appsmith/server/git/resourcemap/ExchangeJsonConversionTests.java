@@ -127,7 +127,9 @@ public class ExchangeJsonConversionTests {
             ExchangeJsonContext context) throws IOException, GitAPIException {
         ArtifactExchangeJson originalArtifactJson = createArtifactJson(context).block();
 
-        Mockito.doReturn(Mono.just(true)).when(fsGitHandler).resetToLastCommit(Mockito.any(), Mockito.anyString());
+        Mockito.doReturn(Mono.just(true))
+                .when(fsGitHandler)
+                .resetToLastCommit(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean());
 
         Files.createDirectories(Path.of("./container-volumes/git-storage/test123"));
 

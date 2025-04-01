@@ -16,6 +16,10 @@ public enum FeatureFlagEnum {
     rollout_datasource_test_rate_limit_enabled,
     release_google_sheets_shared_drive_support_enabled,
     release_gs_all_sheets_options_enabled,
+    /**
+     * Feature flag to detect if the git reset optimization is enabled
+     */
+    release_git_reset_optimization_enabled,
 
     // Deprecated CE flags over here
     release_git_autocommit_feature_enabled,

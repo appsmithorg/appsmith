@@ -246,14 +246,15 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Path> saveArtifactToGitRepo(Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName)
+    public Mono<Path> saveArtifactToGitRepo(
+            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException {
 
         // Repo path will be:
         // baseRepo : root/workspaceId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
         return fsGitHandler
-                .resetToLastCommit(baseRepoSuffix, branchName)
+                .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 

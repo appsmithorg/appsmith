@@ -236,10 +236,11 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      * @param request ServerHttpRequest object for which a key will be generated.
      * @return Publishes a single String, that is the generated key.
      */
-    private Mono<String> generateKey(ServerHttpRequest request) {
+    protected Mono<String> generateKey(ServerHttpRequest request) {
         return redirectHelper.getRedirectUrl(request).map(redirectUrl -> {
             String stateKey = this.stateGenerator.generateKey();
             stateKey = stateKey + "@" + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
+
             return stateKey;
         });
     }
