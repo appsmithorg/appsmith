@@ -1134,10 +1134,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                 repoPath.toAbsolutePath().toString(),
                 branchName);
 
+        Span rtsResetSpan = observationHelper.createSpan(GitSpan.SIMPLE_GIT_RESET);
         return rtsCaller
                 .post("/rts-api/v1/git/reset", requestBody)
                 .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
-                .thenReturn(true);
+                .thenReturn(true)
+                .doFinally(signalType -> rtsResetSpan.end());
     }
 
     public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
