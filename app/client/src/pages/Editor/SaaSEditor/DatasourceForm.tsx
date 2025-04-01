@@ -858,7 +858,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourceButtonConfiguration,
     datasourceId,
     documentationLink: documentationLinks[pluginId],
-    isSaving: datasources.loading && datasources.loadingPluginId === pluginId,
+    isSaving: datasources.loading,
     isDeleting: !!datasource?.isDeleting,
     isTesting: datasources.isTesting,
     formData: formData,

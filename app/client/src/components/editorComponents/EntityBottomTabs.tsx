@@ -35,6 +35,7 @@ export interface BottomTab {
   title: string;
   count?: number;
   panelComponent: React.ReactNode;
+  forceMount?: true;
 }
 
 interface EntityBottomTabsProps {
@@ -93,7 +94,11 @@ function EntityBottomTabs(
         })}
       </TabsListWrapper>
       {props.tabs.map((tab) => (
-        <TabPanelWrapper key={tab.key} value={tab.key}>
+        <TabPanelWrapper
+          forceMount={tab.forceMount}
+          key={tab.key}
+          value={tab.key}
+        >
           {tab.panelComponent}
         </TabPanelWrapper>
       ))}

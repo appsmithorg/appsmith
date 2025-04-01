@@ -850,22 +850,33 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(ignoreFetchString -> gitHandlingService
                         .listReferences(createRefTransformationDTO, TRUE)
                         .flatMap(gitRefDTOs -> {
-                            Mono<Boolean> refCreationValidationMono = isValidationForRefCreationComplete(
-                                    baseArtifact, sourceArtifact, gitType, gitRefDTOs, refDTO);
+                            Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
+                                    getArtifactExchangeJsonForRefCreation(sourceArtifact, refType, gitType)
+                                            .cache();
 
-                            return refCreationValidationMono.flatMap(isOkayToProceed -> {
-                                if (!TRUE.equals(isOkayToProceed)) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.GIT_ACTION_FAILED, "ref creation", "status unclean"));
-                                }
+                            return artifactExchangeJsonMono.flatMap(artifactExchangeJson -> {
+                                Mono<Boolean> refCreationValidationMono = isValidationForRefCreationComplete(
+                                        baseArtifact,
+                                        sourceArtifact,
+                                        gitType,
+                                        gitRefDTOs,
+                                        refDTO,
+                                        artifactExchangeJson);
 
-                                Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
-                                        getArtifactExchangeJsonForRefCreation(sourceArtifact, refType, gitType);
+                                return refCreationValidationMono.flatMap(isOkayToProceed -> {
+                                    if (!TRUE.equals(isOkayToProceed)) {
+                                        return Mono.error(
+                                                new AppsmithException(
+                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                        "ref creation",
+                                                        "either ref name already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
+                                    }
 
-                                Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
-                                        sourceArtifact, refDTO.getRefName(), refDTO.getRefType());
+                                    Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
+                                            sourceArtifact, refDTO.getRefName(), refDTO.getRefType());
 
-                                return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                    return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                });
                             });
                         }))
                 .flatMap(tuple -> {
@@ -937,7 +948,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             Artifact parentArtifact,
             GitType gitType,
             List<GitRefDTO> fetchedGitRefDTOS,
-            GitRefDTO incomingGitRefDTO) {
+            GitRefDTO incomingGitRefDTO,
+            ArtifactExchangeJson artifactExchangeJson) {
 
         RefType refType = incomingGitRefDTO.getRefType();
         if (RefType.tag.equals(refType)) {

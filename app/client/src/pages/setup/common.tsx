@@ -124,3 +124,57 @@ export function withDropdown(options: OptionType[]) {
     );
   };
 }
+
+export const UserWelcomeScreenWrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 auto;
+  overflow: auto;
+  min-width: 800px;
+  background: var(--ads-v2-color-gray-50);
+`;
+
+export const UserWelcomeScreenContent = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  position: relative;
+  z-index: 100;
+`;
+
+export const UserWelcomeScreenTextBanner = styled.div<{
+  isSuperUser?: boolean;
+}>`
+  width: 60%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  ${(props) =>
+    props.isSuperUser
+      ? "padding: calc(2*var(--ads-spaces-17)) 0 0;"
+      : "justify-content: center;"}
+  margin-left: 8rem;
+`;
+
+export const UserWelcomeScreenBannerHeader = styled.div`
+  font-size: calc(2 * var(--ads-v2-font-size-10));
+  margin: 0px;
+  font-weight: var(--ads-font-weight-bold-xl);
+  color: var(--ads-v2-color-fg-emphasis-plus);
+`;
+
+export const UserWelcomeScreenBannerBody = styled.div`
+  font-size: 24px;
+  margin: 0px;
+  font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
+`;
+
+export const UserWelcomeScreenActionContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[15]}px;
+`;
