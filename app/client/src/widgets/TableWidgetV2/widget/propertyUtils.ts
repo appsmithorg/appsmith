@@ -1448,6 +1448,7 @@ export function colorForEachRowValidation(
   return generateResponseAndReturn(false, DEFAULT_MESSAGE);
 }
 
+// Infinite scroll not supported for add new row yet
 export const updateAllowAddNewRowOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -1470,4 +1471,47 @@ export const updateAllowAddNewRowOnInfiniteScrollChange = (
   }
 
   return;
+};
+
+// Disable cell editability when infinite scroll is enabled
+export const updateCellEditabilityOnInfiniteScrollChange = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  if (!props.primaryColumns) return;
+
+  const updates: Array<{ propertyPath: string; propertyValue: unknown }> = [];
+
+  if (propertyValue === true) {
+    Object.entries(props.primaryColumns).forEach(([columnId, column]) => {
+      const columnName = column.alias;
+
+      updates.push({
+        propertyPath: `primaryColumns.${columnName}.isCellEditable`,
+        propertyValue: false,
+      });
+
+      updates.push({
+        propertyPath: `primaryColumns.${columnName}.isEditable`,
+        propertyValue: false,
+      });
+    });
+  } else if (propertyValue === false) {
+    Object.entries(props.primaryColumns).forEach(([columnId, column]) => {
+      const columnName = column.alias;
+
+      updates.push({
+        propertyPath: `primaryColumns.${columnName}.isCellEditable`,
+        propertyValue: true,
+      });
+
+      updates.push({
+        propertyPath: `primaryColumns.${columnName}.isEditable`,
+        propertyValue: true,
+      });
+    });
+  }
+
+  return updates.length > 0 ? updates : undefined;
 };

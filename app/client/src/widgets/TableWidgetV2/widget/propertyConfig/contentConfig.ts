@@ -18,6 +18,7 @@ import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateAllowAddNewRowOnInfiniteScrollChange,
+  updateCellEditabilityOnInfiniteScrollChange,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
@@ -166,7 +167,9 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (props: TableWidgetProps) => props.infiniteScrollEnabled,
+        shouldDisableSection: (props: TableWidgetProps) =>
+          props.infiniteScrollEnabled,
+        disabledHelpText: "Infinite scroll is enabled",
         dependencies: ["infiniteScrollEnabled"],
       },
       {
@@ -186,8 +189,12 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        updateHook: updateAllowAddNewRowOnInfiniteScrollChange,
-        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
+        updateHook: composePropertyUpdateHook([
+          updateAllowAddNewRowOnInfiniteScrollChange,
+          updateCellEditabilityOnInfiniteScrollChange,
+        ]),
+        dependencies: ["primaryColumns"],
+        // hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
