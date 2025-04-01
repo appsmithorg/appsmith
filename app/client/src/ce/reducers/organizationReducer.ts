@@ -17,6 +17,7 @@ export interface OrganizationReduxState<T> {
   new: boolean;
   isLoading: boolean;
   instanceId: string;
+  tenantId: string;
 }
 
 export const defaultBrandingConfig = {
@@ -37,6 +38,7 @@ export const initialState: OrganizationReduxState<any> = {
   new: false,
   isLoading: true,
   instanceId: "",
+  tenantId: "",
 };
 
 export const handlers = {
@@ -70,6 +72,7 @@ export const handlers = {
     },
     isLoading: false,
     instanceId: action.payload.instanceId,
+    tenantId: action.payload.tenantId,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR]: (
     // TODO: Fix this the next time the file is edited

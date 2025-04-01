@@ -188,7 +188,10 @@ public class GitFileUtilsTest {
         ApplicationJson validAppJson = createAppJson(filePath).block();
 
         Mockito.when(fileInterface.saveApplicationToGitRepo(
-                        Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
+                        Mockito.any(Path.class),
+                        Mockito.any(ApplicationGitReference.class),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
                 .thenReturn(Mono.just(Path.of("workspaceId", "appId", "repoName")));
 
         Mono<Path> resultMono = commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(

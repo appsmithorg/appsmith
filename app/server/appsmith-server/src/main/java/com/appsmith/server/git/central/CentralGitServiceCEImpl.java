@@ -322,10 +322,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 },
                 baseArtifact -> {
                     // on success send analytics
-                    return gitAnalyticsUtils.addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_IMPORT,
-                            baseArtifact,
-                            baseArtifact.getGitArtifactMetadata().getIsRepoPrivate());
+
+                    return Mono.defer(() -> hydrateLatest(baseArtifact))
+                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_IMPORT,
+                                    baseArtifact,
+                                    baseArtifact.getGitArtifactMetadata().getIsRepoPrivate()));
                 },
                 (baseArtifact, throwableError) -> {
                     // on error
@@ -338,6 +340,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         return Mono.create(
                 sink -> importGitArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Artifact> hydrateLatest(Artifact artifact) {
+        return Mono.just(artifact);
     }
 
     @Override
@@ -869,7 +875,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                 new AppsmithException(
                                                         AppsmithError.GIT_ACTION_FAILED,
                                                         "ref creation",
-                                                        "either ref name is already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
+                                                        "either ref name already exists or it doesn't meet naming criteria, or the artifact is not in a publishable state"));
                                     }
 
                                     Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
@@ -919,7 +925,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 newImportedArtifact,
                                 newImportedArtifact.getGitArtifactMetadata().getIsRepoPrivate())))
                 .onErrorResume(error -> {
-                    log.error("An error occurred while creating reference. error {}", error.getMessage());
+                    log.error("An error occurred while creating reference. error {}", error.getMessage(), error);
                     return gitRedisUtils
                             .releaseFileLock(artifactType, baseArtifactId, TRUE)
                             .then(Mono.error(new AppsmithException(
