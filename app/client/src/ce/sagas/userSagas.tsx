@@ -728,7 +728,7 @@ export const setMessageConfig = (id: string, config: ProductAlertConfig) => {
 export function* globalFunctionLogoutUser(
   action: ReduxAction<{ redirectURL: string }>,
 ) {
-  const redirectURL = `${AUTH_LOGIN_URL}${action.payload?.redirectURL ? "?redirectUrl=" + action.payload?.redirectURL : ""}`;
+  const redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${action.payload?.redirectURL ? action.payload?.redirectURL : history.location.pathname}`;
 
   yield call(logoutSaga, {
     type: ReduxActionTypes.LOGOUT_USER_INIT,

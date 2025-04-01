@@ -55,21 +55,28 @@ describe(
     });
 
     it("2. should logout user successfully using global logoutUser function and should redirect to the same app on login", () => {
-      agHelper.RefreshPage();
+      let applicationUrl = "";
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{logoutUser(appsmith.URL.pathname)}}",
-        true,
-        false,
-      );
-      propPane.ToggleJSMode("onClick", false);
-      propPane.UpdatePropertyFieldValue("Label", "");
-      propPane.TypeTextIntoField("Label", "LOGOUT GLOBAL");
-      agHelper.ClickButton("LOGOUT GLOBAL");
-      cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
-      agHelper.AssertElementVisibility(locators._buttonByText(""));
+      propPane.EnterJSContext("onClick", "{{logoutUser()}}", true, false);
+      cy.location().then((loc) => {
+        applicationUrl = loc.pathname;
+        propPane.ToggleJSMode("onClick", false);
+        propPane.UpdatePropertyFieldValue("Label", "");
+        propPane.TypeTextIntoField("Label", "LOGOUT GLOBAL");
+        agHelper.ClickButton("LOGOUT GLOBAL");
+        cy.location().should((loc) => {
+          expect(loc.pathname).to.eq("/user/login");
+        });
+        cy.LoginFromAPI(
+          Cypress.env("USERNAME"),
+          Cypress.env("PASSWORD"),
+          applicationUrl,
+        );
+        agHelper.AssertElementVisibility(
+          locators._buttonByText("LOGOUT GLOBAL"),
+        );
+      });
     });
   },
 );
