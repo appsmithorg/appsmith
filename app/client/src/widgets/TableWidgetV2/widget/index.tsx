@@ -3034,9 +3034,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       if (
         (!!totalRecordsCount &&
           processedTableData.length + tableData.length === totalRecordsCount) ||
-        tableData.length < pageSize
+        (!totalRecordsCount && tableData.length < pageSize)
       ) {
         pushBatchMetaUpdates("endOfData", true);
+      } else {
+        pushBatchMetaUpdates("endOfData", false);
       }
 
       if (shouldCommitBatchUpdates) {
