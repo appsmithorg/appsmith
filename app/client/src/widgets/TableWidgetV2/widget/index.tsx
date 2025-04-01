@@ -915,7 +915,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.hydrateStickyColumns();
     }
 
-    this.updateInfiniteScrollProperties();
+    // Commit Batch Updates property `true` is passed as commitBatchMetaUpdates is not called on componentDidMount and we need to call it for updating the batch updates
+    this.updateInfiniteScrollProperties(true);
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -996,13 +997,19 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       /*
        * Updating the caching layer on table data modification
-       */
+       * Commit Batch Updates property `false` is passed as commitBatchMetaUpdates is called on componentDidUpdate
+       * and we need not to explicitly call it for updating the batch updates
+       * */
       this.updateInfiniteScrollProperties();
 
       this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
     } else {
       // TODO: reset the widget on any property change, like if the toggle of infinite scroll is enabled and previously it was disabled, currently we update cachedTableData property to the current tableData at pageNo.
+      /*
+       * Commit Batch Updates property `false` is passed as commitBatchMetaUpdates is called on componentDidUpdate
+       * and we need not to explicitly call it for updating the batch updates
+       * */
       if (
         !prevProps.infiniteScrollEnabled &&
         this.props.infiniteScrollEnabled
@@ -3001,9 +3008,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  updateInfiniteScrollProperties() {
+  updateInfiniteScrollProperties(shouldCommitBatchUpdates?: boolean) {
     const {
       cachedTableData,
+      commitBatchMetaUpdates,
       infiniteScrollEnabled,
       pageNo,
       pageSize,
@@ -3029,6 +3037,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         tableData.length < pageSize
       ) {
         pushBatchMetaUpdates("endOfData", true);
+      }
+
+      if (shouldCommitBatchUpdates) {
+        commitBatchMetaUpdates();
       }
     }
   }
