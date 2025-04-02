@@ -52,6 +52,7 @@ import {
   changeDatasource,
   createDatasourceSuccess,
   createTempDatasourceFromForm,
+  deleteTempDSFromDraft,
   fetchDatasourceStructure,
   removeTempDatasource,
   resetDefaultKeyValPairFlag,
@@ -61,8 +62,8 @@ import {
   updateDatasourceSuccess,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import DatasourcesApi from "api/DatasourcesApi";
+import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
+import DatasourcesApi from "ee/api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,
@@ -184,6 +185,7 @@ import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionH
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
 import { openGeneratePageModalWithSelectedDS } from "../../utils/GeneratePageUtils";
+import { createDatasourceAPIPayloadFromAction } from "ee/sagas/helpers";
 
 export function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -1189,9 +1191,8 @@ export function* createDatasourceFromFormSaga(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
     );
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formConfig: Record<string, any>[] = yield select(
+
+    const formConfig: ReturnType<typeof getPluginForm> = yield select(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
@@ -1199,35 +1200,16 @@ export function* createDatasourceFromFormSaga(
       getCurrentEditingEnvironmentId,
     );
 
-    const initialValues: unknown = yield call(
+    const initialValues: ReturnType<typeof getConfigInitialValues> = yield call(
       getConfigInitialValues,
       formConfig,
     );
-    let datasourceStoragePayload =
-      actionPayload.payload.datasourceStorages[currentEnvironment];
 
-    datasourceStoragePayload = merge(initialValues, datasourceStoragePayload);
-
-    // in the datasourcestorages, we only need one key, the currentEnvironment
-    // we need to remove any other keys present
-    const datasourceStorages = {
-      [currentEnvironment]: datasourceStoragePayload,
-    };
-
-    const payload = omit(
-      {
-        ...actionPayload.payload,
-        datasourceStorages,
-      },
-      ["id", "new", "type", "datasourceConfiguration"],
-    );
-
-    if (payload.datasourceStorages)
-      datasourceStoragePayload.isConfigured = true;
-
-    // remove datasourceId from payload if it is equal to TEMP_DATASOURCE_ID
-    if (datasourceStoragePayload.datasourceId === TEMP_DATASOURCE_ID)
-      datasourceStoragePayload.datasourceId = "";
+    const payload = createDatasourceAPIPayloadFromAction({
+      actionPayload: actionPayload.payload,
+      currentEnvId: currentEnvironment,
+      initialValues,
+    });
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.createDatasource({
@@ -1260,14 +1242,11 @@ export function* createDatasourceFromFormSaga(
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
         connectionMethod: getConnectionMethod(
-          datasourceStoragePayload,
+          payload.datasourceStorages?.[currentEnvironment] as DatasourceStorage,
           plugin?.packageName,
         ),
       });
-      yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
-        payload: response.data,
-      });
+
       yield put(
         createDatasourceSuccess(
           response.data,
@@ -1307,12 +1286,7 @@ export function* createDatasourceFromFormSaga(
         yield put(actionPayload.onSuccess);
       }
 
-      yield put({
-        type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
-        payload: {
-          id: TEMP_DATASOURCE_ID,
-        },
-      });
+      yield put(deleteTempDSFromDraft());
 
       // for all datasources, except for REST and GraphQL, need to delete temp datasource data
       // as soon as possible, for REST and GraphQL it is getting deleted in APIPaneSagas.ts
@@ -1323,6 +1297,8 @@ export function* createDatasourceFromFormSaga(
       // updating form initial values to latest data, so that next time when form is opened
       // isDirty will use updated initial values data to compare actual values with
       yield put(initialize(DATASOURCE_DB_FORM, response.data));
+
+      return response.data;
     }
   } catch (error) {
     yield put({

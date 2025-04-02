@@ -216,7 +216,7 @@ function PropertyPaneView(
     tooltipContent: string;
     icon: ReactElement;
   }> => {
-    return [
+    const widgetActions = [
       {
         tooltipContent: createMessage(CONTEXT_INSPECT_STATE),
         icon: (
@@ -237,7 +237,10 @@ function PropertyPaneView(
           />
         ),
       },
-      {
+    ];
+
+    if (widgetProperties?.isDeletable !== false) {
+      widgetActions.push({
         tooltipContent: "Delete widget",
         icon: (
           <Button
@@ -248,9 +251,16 @@ function PropertyPaneView(
             startIcon="delete-bin-line"
           />
         ),
-      },
-    ];
-  }, [onCopy, onDelete, widgetProperties?.widgetId]);
+      });
+    }
+
+    return widgetActions;
+  }, [
+    onCopy,
+    onDelete,
+    widgetProperties?.isDeletable,
+    widgetProperties?.widgetId,
+  ]);
 
   useEffect(() => {
     setSearchText("");

@@ -119,7 +119,10 @@ const datasourceReducer = createReducer(initialState, {
     return { ...state, loading: true };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
-    return { ...state, loading: true };
+    return {
+      ...state,
+      loading: true,
+    };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT]: (
     state: DatasourceDataState,
@@ -130,7 +133,10 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ loading?: boolean }>,
   ) => {
-    return { ...state, loading: !!action.payload.loading };
+    return {
+      ...state,
+      loading: !!action.payload.loading,
+    };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
@@ -326,6 +332,15 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_REFS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      list: state.list.concat(action.payload),
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (

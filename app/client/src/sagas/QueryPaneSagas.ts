@@ -392,14 +392,17 @@ function* formValueChangeSaga(
   }
 }
 
-function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
+function* handleQueryCreatedSaga(
+  action: ReduxAction<QueryAction & { shouldRedirectToQueryEditor?: boolean }>,
+) {
   const {
     actionConfiguration,
     baseId: baseActionId,
     pageId,
     pluginId,
     pluginType,
-  } = actionPayload.payload;
+    shouldRedirectToQueryEditor = true,
+  } = action.payload;
 
   if (
     ![
@@ -424,17 +427,19 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 
   const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
 
-  history.replace(
-    queryEditorIdURL({
-      basePageId,
-      baseQueryId: baseActionId,
-      params: {
-        editName: "true",
-        showTemplate,
-        from: "datasources",
-      },
-    }),
-  );
+  if (shouldRedirectToQueryEditor) {
+    history.replace(
+      queryEditorIdURL({
+        basePageId,
+        baseQueryId: baseActionId,
+        params: {
+          editName: "true",
+          showTemplate,
+          from: "datasources",
+        },
+      }),
+    );
+  }
 }
 
 function* handleDatasourceCreatedSaga(

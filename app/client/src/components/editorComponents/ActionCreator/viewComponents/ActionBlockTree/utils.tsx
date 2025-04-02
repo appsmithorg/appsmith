@@ -89,6 +89,9 @@ function GetIconForAction(
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="chat-upload-icon" />;
 
+    case AppsmithFunction.logoutUser:
+      return () => <Icon name="logout" />;
+
     default:
       return () => <Icon name="js" />;
   }
@@ -204,6 +207,11 @@ function getActionHeading(
     case AppsmithFunction.postWindowMessage:
       return (
         FIELD_CONFIG[FieldType.MESSAGE_FIELD].getter(code) || "Add message"
+      );
+
+    case AppsmithFunction.logoutUser:
+      return (
+        FIELD_CONFIG[FieldType.URL_FIELD].getter(code) || "Add redirect url"
       );
   }
 

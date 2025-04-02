@@ -11,6 +11,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.CommonConstants;
@@ -61,6 +62,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -71,6 +73,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.CHECKOUT_REMOTE;
 import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.HARD_RESET;
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.RTS_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -94,6 +97,7 @@ public class GitExecutorCEImpl implements GitExecutor {
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
     private final ObservationHelper observationHelper;
+    private final RTSCaller rtsCaller;
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -499,7 +503,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> Mono.error(error))
+                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -626,6 +630,15 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         response.setRemoteBranch("untracked");
                                     }
 
+                                    // Remove modified changes from current branch so that checkout to other branches
+                                    // will be possible
+                                    if (!status.isClean()) {
+                                        return resetToLastCommit(git).map(ref -> {
+                                            processStopwatch.stopAndLogTimeInMillis();
+                                            jgitStatusSpan.end();
+                                            return response;
+                                        });
+                                    }
                                     processStopwatch.stopAndLogTimeInMillis();
                                     jgitStatusSpan.end();
                                     return Mono.just(response);
@@ -844,7 +857,13 @@ public class GitExecutorCEImpl implements GitExecutor {
                                     }
                                 })
                                 .onErrorResume(error -> {
-                                    return Mono.error(error);
+                                    try {
+                                        return resetToLastCommit(repoSuffix, destinationBranch, false)
+                                                .thenReturn(error.getMessage());
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error while hard resetting to latest commit {0}", e);
+                                        return Mono.error(e);
+                                    }
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_MERGE)
@@ -1013,6 +1032,19 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             mergeResult.getMergeStatus().name());
                                     return mergeStatus;
                                 })
+                                .flatMap(status -> {
+                                    try {
+                                        // Revert uncommitted changes if any
+                                        return resetToLastCommit(repoSuffix, destinationBranch, false)
+                                                .map(ignore -> {
+                                                    processStopwatch.stopAndLogTimeInMillis();
+                                                    return status;
+                                                });
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error for hard resetting to latest commit {0}", e);
+                                        return Mono.error(e);
+                                    }
+                                })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
                 .subscribeOn(scheduler);
@@ -1093,12 +1125,44 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) {
+    private Mono<Boolean> resetRts(Path repoSuffix, String branchName) {
+        Path repoPath = createRepoPath(repoSuffix);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("repoPath", repoPath.toAbsolutePath().toString());
+        log.debug(
+                "Getting git reset for repo: {}, branch: {}",
+                repoPath.toAbsolutePath().toString(),
+                branchName);
+
+        return rtsCaller
+                .post("/rts-api/v1/git/reset", requestBody)
+                .flatMap(spec -> spec.retrieve().bodyToMono(Object.class))
+                .thenReturn(true)
+                .tag(HARD_RESET, Boolean.FALSE.toString())
+                .tag(RTS_RESET, "true")
+                .name(GitSpan.FS_RESET)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    public Mono<Boolean> resetToLastCommitRts(Path repoSuffix, String branchName) {
+        return resetRts(repoSuffix, branchName)
+                .flatMap(reset -> checkoutToBranch(repoSuffix, branchName))
+                .flatMap(checkedOut -> resetRts(repoSuffix, branchName).thenReturn(true))
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS));
+    }
+
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName, Boolean isRtsResetEnabled)
+            throws GitAPIException, IOException {
+        if (isRtsResetEnabled) {
+            log.info("Resetting to last commit using RTS");
+            return resetToLastCommitRts(repoSuffix, branchName).thenReturn(true);
+        }
+
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
                         .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                        .thenReturn(true),
+                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
                 Git::close);
     }
 
@@ -1128,7 +1192,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     }
 
     public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
-        return this.resetToLastCommit(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
+        return this.checkoutToBranch(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     Span jgitRebaseSpan = observationHelper.createSpan(GitSpan.JGIT_REBASE);

@@ -101,7 +101,7 @@ describe("ConnectButton Component", () => {
 
     expect(tooltipContent).toBeInTheDocument();
     expect(tooltipContent).toHaveTextContent(
-      "Please contact your workspace admin to connect your artifact to a git repo",
+      "Please contact your workspace admin to connect your artifact to a Git repo",
     );
 
     // Icon should be rendered

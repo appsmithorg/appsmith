@@ -22,4 +22,6 @@ public class GitRefDTO {
     boolean isDefault;
 
     boolean createdFromLocal;
+
+    String sha;
 }

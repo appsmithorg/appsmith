@@ -229,6 +229,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         : undefined,
       customIsLoading: false,
       customIsLoadingValue: "",
+      cachedTableData: {},
+      endOfData: false,
     };
   }
 
@@ -912,6 +914,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       //dont neet to batch this since single action
       this.hydrateStickyColumns();
     }
+
+    // Commit Batch Updates property `true` is passed as commitBatchMetaUpdates is not called on componentDidMount and we need to call it for updating the batch updates
+    this.updateInfiniteScrollProperties(true);
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -982,18 +987,35 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("filters", []);
       }
-    }
 
-    /*
-     * Clear transient table data and editablecell when tableData changes
-     */
-    if (isTableDataModified) {
+      /*
+       * Clear transient table data and editablecell when tableData changes
+       */
       pushBatchMetaUpdates("transientTableData", {});
       // reset updatedRowIndex whenever transientTableData is flushed.
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
+      /*
+       * Updating the caching layer on table data modification
+       * Commit Batch Updates property `false` is passed as commitBatchMetaUpdates is called on componentDidUpdate
+       * and we need not to explicitly call it for updating the batch updates
+       * */
+      this.updateInfiniteScrollProperties();
+
       this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
+    } else {
+      // TODO: reset the widget on any property change, like if the toggle of infinite scroll is enabled and previously it was disabled, currently we update cachedTableData property to the current tableData at pageNo.
+      /*
+       * Commit Batch Updates property `false` is passed as commitBatchMetaUpdates is called on componentDidUpdate
+       * and we need not to explicitly call it for updating the batch updates
+       * */
+      if (
+        !prevProps.infiniteScrollEnabled &&
+        this.props.infiniteScrollEnabled
+      ) {
+        this.updateInfiniteScrollProperties();
+      }
     }
 
     if (!pageNo) {
@@ -1216,6 +1238,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       customIsLoading,
       customIsLoadingValue,
+      customSortFunction: customSortFunctionData,
       delimiter,
       filteredTableData = [],
       isVisibleDownload,
@@ -1228,7 +1251,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
-    const transformedData = this.transformData(filteredTableData, tableColumns);
+    let data = filteredTableData;
+
+    if (customSortFunctionData && Array.isArray(customSortFunctionData)) {
+      data = customSortFunctionData;
+    }
+
+    const transformedData = this.transformData(data, tableColumns);
+
     const isVisibleHeaderOptions =
       isVisibleDownload ||
       isVisibleFilters ||
@@ -1264,6 +1294,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           disabledAddNewRowSave={this.hasInvalidColumnCell()}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
+          endOfData={this.props.endOfData}
           filters={this.props.filters}
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
@@ -1957,7 +1988,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (this.props.isAddRowInProgress) {
       row = filteredTableData[rowIndex - 1];
-      originalIndex = rowIndex === 0 ? -1 : row[ORIGINAL_INDEX_KEY] ?? rowIndex;
+      originalIndex =
+        rowIndex === 0 ? -1 : row?.[ORIGINAL_INDEX_KEY] ?? rowIndex;
     } else {
       row = filteredTableData[rowIndex];
       originalIndex = row ? row[ORIGINAL_INDEX_KEY] ?? rowIndex : rowIndex;
@@ -2975,6 +3007,45 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateOneClickBindingOptionsVisibility(true);
     }
   };
+
+  updateInfiniteScrollProperties(shouldCommitBatchUpdates?: boolean) {
+    const {
+      cachedTableData,
+      commitBatchMetaUpdates,
+      infiniteScrollEnabled,
+      pageNo,
+      pageSize,
+      processedTableData,
+      pushBatchMetaUpdates,
+      tableData,
+      totalRecordsCount,
+    } = this.props;
+
+    if (infiniteScrollEnabled) {
+      // Update the cache key for a particular page whenever this function is called. The pageNo data is updated with the tableData.
+      const updatedCachedTableData = {
+        ...(cachedTableData || {}),
+        [pageNo]: tableData,
+      };
+
+      pushBatchMetaUpdates("cachedTableData", updatedCachedTableData);
+
+      // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array except the current tableData page i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
+      if (
+        (!!totalRecordsCount &&
+          processedTableData.length + tableData.length === totalRecordsCount) ||
+        (!totalRecordsCount && tableData.length < pageSize)
+      ) {
+        pushBatchMetaUpdates("endOfData", true);
+      } else {
+        pushBatchMetaUpdates("endOfData", false);
+      }
+
+      if (shouldCommitBatchUpdates) {
+        commitBatchMetaUpdates();
+      }
+    }
+  }
 }
 
 export default TableWidgetV2;

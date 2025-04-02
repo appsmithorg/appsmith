@@ -67,6 +67,7 @@ export interface TableWidgetProps
   onRowSelected?: string;
   onSearchTextChanged: string;
   onSort: string;
+  customSortFunction?: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;
@@ -112,6 +113,8 @@ export interface TableWidgetProps
   customIsLoading: boolean;
   customIsLoadingValue: boolean;
   infiniteScrollEnabled: boolean;
+  cachedTableData: Record<number, Array<Record<string, unknown>>>;
+  endOfData: boolean;
 }
 
 export enum TableVariantTypes {
@@ -246,4 +249,7 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
   FEATURE_FLAG["release_table_serverside_filtering_enabled"];
 
 export const INFINITE_SCROLL_ENABLED =
-  FEATURE_FLAG["release_tablev2_infinitescroll_enabled"];
+  FEATURE_FLAG["release_table_infinitescroll_enabled"];
+
+export const CUSTOM_SORT_FUNCTION_ENABLED =
+  FEATURE_FLAG["release_table_custom_sort_function_enabled"];

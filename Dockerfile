@@ -11,6 +11,12 @@ ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 
 COPY deploy/docker/fs /
 
+# Install git
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN <<END
   if ! [ -f info.json ]; then
     echo "Missing info.json" >&2

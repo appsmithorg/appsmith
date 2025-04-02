@@ -13,6 +13,7 @@ import {
   StyledListItem,
   TooltipTextWrapper,
   TopContentWrapper,
+  UnsavedChangesWrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
@@ -26,6 +27,7 @@ import {
   ListItemTitleClassName,
 } from "./List.constants";
 import { useEventCallback } from "usehooks-ts";
+import { Badge } from "../Badge";
 
 function List({ children, className, groupTitle, ...rest }: ListProps) {
   return groupTitle ? (
@@ -86,6 +88,7 @@ function ListItem(props: ListItemProps) {
     hasError,
     rightControl,
     rightControlVisibility = "always",
+    showUnsavedChanges,
     size = "md",
     startIcon,
     title,
@@ -159,6 +162,11 @@ function ListItem(props: ListItemProps) {
             {rightControl}
           </RightControlWrapper>
         )}
+        {showUnsavedChanges ? (
+          <UnsavedChangesWrapper>
+            <Badge kind="info" size="small" />
+          </UnsavedChangesWrapper>
+        ) : null}
       </TopContentWrapper>
       {isBlockDescription && (
         <BottomContentWrapper data-isiconpresent={Boolean(startIcon)}>

@@ -58,3 +58,15 @@ export interface GitPackageArtifact {
 }
 
 export type GitArtifact = GitApplicationArtifact | GitPackageArtifact;
+
+export interface SSHKeyType {
+  keySize: number;
+  platFormSupported: string;
+  protocolName: string;
+}
+
+export interface GetSSHKeyResponseData {
+  gitSupportedSSHKeyType: SSHKeyType[];
+  docUrl: string;
+  publicKey?: string;
+}

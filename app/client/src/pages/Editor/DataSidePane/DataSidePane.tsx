@@ -124,7 +124,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
                   startIcon: (
                     <DatasourceIcon
                       src={getAssetUrl(
-                        groupedPlugins[data.pluginId].iconLocation,
+                        groupedPlugins[data.pluginId]?.iconLocation || "",
                       )}
                     />
                   ),

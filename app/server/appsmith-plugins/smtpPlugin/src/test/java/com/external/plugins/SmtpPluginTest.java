@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -145,6 +146,15 @@ public class SmtpPluginTest {
         DatasourceConfiguration noAuthDatasourceConfiguration = createDatasourceConfiguration();
         noAuthDatasourceConfiguration.setAuthentication(null); // No authentication
 
+        // First create the session and verify its properties
+        Session session =
+                pluginExecutor.datasourceCreate(noAuthDatasourceConfiguration).block();
+        assertNotNull(session);
+        assertEquals("false", session.getProperties().getProperty("mail.smtp.auth"));
+        // Verify STARTTLS is not enabled when there's no authentication
+        assertNull(session.getProperties().getProperty("mail.smtp.starttls.enable"));
+
+        // Then test the datasource connection
         Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(noAuthDatasourceConfiguration);
 
         StepVerifier.create(testDatasourceMono)

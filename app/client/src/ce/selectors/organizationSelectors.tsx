@@ -48,6 +48,9 @@ export const getThirdPartyAuths = (state: AppState): string[] =>
 export const getIsFormLoginEnabled = (state: AppState): boolean =>
   state.organization?.organizationConfiguration?.isFormLoginEnabled ?? true;
 
+export const getIsSignupDisabled = (state: AppState): boolean =>
+  state.organization?.organizationConfiguration?.isSignupDisabled ?? false;
+
 export const getInstanceId = (state: AppState): string =>
   state.organization?.instanceId;
 
@@ -59,3 +62,6 @@ export const getHideWatermark = (state: AppState): boolean =>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const isFreePlan = (state: AppState) => true;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const isWithinAnOrganization = (state: AppState) => true;

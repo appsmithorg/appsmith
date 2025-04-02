@@ -124,6 +124,10 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
     return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
       const plugin = groupedPlugins[d.pluginId];
 
+      if (!plugin) {
+        return PluginCategory.SAAS;
+      }
+
       if (
         plugin.type === PluginType.SAAS ||
         plugin.type === PluginType.REMOTE ||
@@ -453,6 +457,12 @@ export const getActions = (state: AppState): ActionDataState =>
 
 export const getJSCollections = (state: AppState): JSCollectionDataState =>
   state.entities.jsActions;
+
+export const getAllJSCollectionActions = (state: AppState) => {
+  return state.entities.jsActions.flatMap(
+    (jsCollection) => jsCollection.config.actions,
+  );
+};
 
 export const getDatasource = (
   state: AppState,
@@ -832,6 +842,20 @@ export const getJsCollectionByBaseId = (
   );
 
   return jsaction && jsaction.config;
+};
+
+export const getJSCollectionAction = (
+  state: AppState,
+  collectionId: string,
+  actionId: string,
+) => {
+  const jsCollection = getJSCollection(state, collectionId);
+
+  if (jsCollection) {
+    return jsCollection.actions.find((action) => action.id === actionId);
+  }
+
+  return null;
 };
 
 /**
@@ -1738,3 +1762,40 @@ export const getIsSavingEntityName = (
 
   return isSavingEntityName;
 };
+
+export const getActionSchemaDirtyState = createSelector(
+  getAction,
+  (state: AppState) =>
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+  (action, agentPlugin) => {
+    if (!action) return false;
+
+    if (agentPlugin?.id === action.pluginId) {
+      return false;
+    }
+
+    return action.isDirtyMap?.SCHEMA_GENERATION;
+  },
+);
+
+export const getJSCollectionSchemaDirtyState = createSelector(
+  (state: AppState, collectionId: string) =>
+    getJSCollection(state, collectionId),
+  (jsCollection) => {
+    if (!jsCollection) return false;
+
+    return jsCollection.actions.some(
+      (action) => action.isDirtyMap?.SCHEMA_GENERATION,
+    );
+  },
+);
+
+export const getJSCollectionActionSchemaDirtyState = createSelector(
+  (state: AppState, collectionId: string, actionId: string) =>
+    getJSCollectionAction(state, collectionId, actionId),
+  (action) => {
+    if (!action) return false;
+
+    return action.isDirtyMap?.SCHEMA_GENERATION;
+  },
+);

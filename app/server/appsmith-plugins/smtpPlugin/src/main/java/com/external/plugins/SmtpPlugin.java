@@ -205,8 +205,6 @@ public class SmtpPlugin extends BasePlugin {
 
             Properties prop = new Properties();
             prop.put("mail.transport.protocol", "smtp");
-            prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
             Long port = (endpoint.getPort() == null || endpoint.getPort() < 0) ? 25 : endpoint.getPort();
             prop.put("mail.smtp.port", String.valueOf(port));
@@ -218,6 +216,10 @@ public class SmtpPlugin extends BasePlugin {
                     && StringUtils.hasText(authentication.getUsername())
                     && StringUtils.hasText(authentication.getPassword())) {
 
+                // Set authentication specific properties only when credentials are provided
+                prop.put("mail.smtp.auth", "true");
+                prop.put("mail.smtp.starttls.enable", "true");
+
                 String username = authentication.getUsername();
                 String password = authentication.getPassword();
 
@@ -228,6 +230,7 @@ public class SmtpPlugin extends BasePlugin {
                     }
                 });
             } else {
+                // For non-authenticated SMTP servers
                 prop.put("mail.smtp.auth", "false");
                 session = Session.getInstance(prop);
             }

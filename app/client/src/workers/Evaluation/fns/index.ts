@@ -60,6 +60,7 @@ import {
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
 import { isRunNClearFnQualifierEntity } from "ee/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
+import { logoutUser, type TSLogoutActionType } from "./logout";
 
 export const getPlatformFunctions = () => {
   return platformFns;
@@ -113,6 +114,10 @@ const platformFns = [
   {
     name: "clearStore",
     fn: clearStore,
+  },
+  {
+    name: "logoutUser",
+    fn: logoutUser,
   },
 ];
 
@@ -215,6 +220,7 @@ const ActionTriggerFunctionNames: Record<string, string> = {
   POST_MESSAGE: "postWindowMessage",
   SET_TIMEOUT: "setTimeout",
   CLEAR_TIMEOUT: "clearTimeout",
+  LOGOUT_USER_INIT: "logoutUser",
 };
 
 export type ActionDescription =
@@ -234,4 +240,5 @@ export type ActionDescription =
   | TCopyToClipboardDescription
   | TGetGeoLocationDescription
   | TWatchGeoLocationDescription
-  | TStopWatchGeoLocationDescription;
+  | TStopWatchGeoLocationDescription
+  | TSLogoutActionType;

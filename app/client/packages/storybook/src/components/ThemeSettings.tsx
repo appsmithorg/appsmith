@@ -1,6 +1,6 @@
 import { Form } from "@storybook/components";
 import React, { useCallback } from "react";
-import { Flex, Text } from "@appsmith/wds";
+import { Flex } from "@appsmith/wds";
 import { ColorControl, BooleanControl, RangeControl } from "@storybook/blocks";
 import styled from "styled-components";
 import { debounce } from "lodash";
@@ -36,12 +36,14 @@ interface ThemeSettingsProps {
   setUserDensity?: (value: number) => void;
   setUserSizing?: (value: number) => void;
   direction?: "column" | "row";
+  isHintVisible?: boolean;
 }
 
 export const ThemeSettings = ({
   borderRadius,
   direction = "column",
   isDarkMode,
+  isHintVisible = false,
   seedColor,
   setBorderRadius,
   setDarkMode,
@@ -65,7 +67,7 @@ export const ThemeSettings = ({
             gap="4px"
             marginBottom="-8px"
           >
-            <Text>Dark mode</Text>
+            <small>Dark mode</small>
             <BooleanControl
               name="color-scheme"
               onChange={setDarkMode}
@@ -76,7 +78,7 @@ export const ThemeSettings = ({
 
         {setSeedColor && (
           <Flex direction="column" gap="4px">
-            <Text>Seed</Text>
+            <small>Seed</small>
             <ColorControl
               defaultValue={seedColor}
               name="seed-color"
@@ -88,7 +90,7 @@ export const ThemeSettings = ({
 
         {setBorderRadius && (
           <Flex direction="column" gap="4px">
-            <Text>Border Radius</Text>
+            <small>Border Radius</small>
             <StyledSelect
               defaultValue={borderRadius}
               id="border-radius"
@@ -105,7 +107,7 @@ export const ThemeSettings = ({
 
         {setUserDensity && (
           <Flex direction="column" gap="4px">
-            <Text>Density</Text>
+            <small>Density</small>
             <RangeControl
               max={120}
               min={80}
@@ -121,7 +123,7 @@ export const ThemeSettings = ({
 
         {setUserSizing && (
           <Flex direction="column" gap="4px">
-            <Text>Sizing</Text>
+            <small>Sizing</small>
             <RangeControl
               max={120}
               min={80}
@@ -133,6 +135,13 @@ export const ThemeSettings = ({
               value={userSizing * 100}
             />
           </Flex>
+        )}
+
+        {isHintVisible && (
+          <small style={{ borderTop: "1px solid #ccc", paddingTop: "10px" }}>
+            This add-on tests WDS widget theming and may impact other stories.
+            Dark mode works correctly only for WDS component pages.
+          </small>
         )}
       </Flex>
     </AddonPanel>

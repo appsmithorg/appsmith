@@ -2678,7 +2678,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                         .onErrorResume(error -> {
                                             try {
                                                 return gitExecutor
-                                                        .resetToLastCommit(repoSuffix, destinationBranch)
+                                                        .resetToLastCommit(repoSuffix, destinationBranch, false)
                                                         .map(reset -> {
                                                             MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                             mergeStatus.setMergeAble(false);

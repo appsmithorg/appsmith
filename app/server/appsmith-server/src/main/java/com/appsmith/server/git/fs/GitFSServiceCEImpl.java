@@ -1,10 +1,10 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
@@ -39,6 +39,7 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -98,13 +99,14 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     private final ExportService exportService;
     private final ImportService importService;
 
-    private final FSGitHandler fsGitHandler;
+    protected final FSGitHandler fsGitHandler;
     private final GitAutoCommitHelper gitAutoCommitHelper;
 
     private final GitProfileUtils gitProfileUtils;
     private final GitAnalyticsUtils gitAnalyticsUtils;
 
     protected final GitArtifactHelperResolver gitArtifactHelperResolver;
+    private final FeatureFlagService featureFlagService;
 
     private static final String ORIGIN = "origin/";
     private static final String REMOTE_NAME_REPLACEMENT = "";
@@ -276,8 +278,18 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> reconstructArtifactJsonFromGitRepository(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
-        return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
-                artifactJsonTransformationDTO);
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                artifactJsonTransformationDTO.getWorkspaceId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
+                artifactJsonTransformationDTO.getRepoName());
+
+        return fsGitHandler
+                .resetToLastCommit(repoSuffix)
+                .then(commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+                        artifactJsonTransformationDTO));
     }
 
     @Override
@@ -293,16 +305,17 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     /**
      * List all the local branches present in the file system
+     *
      * @param artifactJsonTransformationDTO
      * @return
      */
     @Override
-    public Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
+    public Mono<List<GitRefDTO>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
         return listBranches(artifactJsonTransformationDTO, Boolean.FALSE);
     }
 
     @Override
-    public Mono<List<String>> listBranches(
+    public Mono<List<GitRefDTO>> listBranches(
             ArtifactJsonTransformationDTO jsonTransformationDTO, Boolean listRemoteBranches) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
@@ -316,24 +329,22 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .listBranches(repoSuffix)
                 .flatMapMany(Flux::fromIterable)
                 .filter(gitBranchDTO -> {
-                    boolean branchToBeListed =
-                            !gitBranchDTO.getBranchName().startsWith("origin") || TRUE.equals(listRemoteBranches);
+                    boolean branchToBeListed = TRUE.equals(listRemoteBranches)
+                            || !gitBranchDTO.getRefName().startsWith(ORIGIN);
 
-                    return StringUtils.hasText(gitBranchDTO.getBranchName()) && branchToBeListed;
+                    return StringUtils.hasText(gitBranchDTO.getRefName()) && branchToBeListed;
                 })
-                .map(GitBranchDTO::getBranchName)
                 .collectList();
     }
 
     @Override
-    public Mono<List<String>> listReferences(
+    public Mono<List<GitRefDTO>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
         if (RefType.branch.equals(artifactJsonTransformationDTO.getRefType())) {
             return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
-        // TODO: Add logic for other reference types (e.g., tags)
-        return Mono.just(List.of());
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
@@ -531,7 +542,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     GitAuth gitAuth = gitData.getGitAuth();
 
                     return fsGitHandler
-                            .pushApplication(
+                            .pushArtifact(
                                     baseRepoSuffix,
                                     gitData.getRemoteUrl(),
                                     gitAuth.getPublicKey(),
@@ -684,9 +695,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // At this point the assumption is that the repository has already checked out the destination branch
-        return fsGitHandler.mergeBranch(repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> fsGitHandler.mergeBranch(
+                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), keepWorkingDirChanges));
     }
 
     @Override
@@ -695,14 +709,16 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
         String repoName = jsonTransformationDTO.getRepoName();
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         // At this point the assumption is that the repository has already checked out the destination branch
-        return fsGitHandler.isMergeBranch(
-                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> fsGitHandler.isMergeBranch(
+                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), keepWorkingDirChanges));
     }
 
     @Override
@@ -717,10 +733,14 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
-        return fsGitHandler.rebaseBranch(repoSuffix, refName).flatMap(rebaseStatus -> {
-            return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO);
-        });
+        return keepWorkingDirChangesMono
+                .flatMap(keepWorkingDirChanges -> fsGitHandler.rebaseBranch(repoSuffix, refName, keepWorkingDirChanges))
+                .flatMap(rebaseStatus -> {
+                    return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO);
+                });
     }
 
     @Override
@@ -729,13 +749,16 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
         String repoName = jsonTransformationDTO.getRepoName();
         String refName = jsonTransformationDTO.getRefName();
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
-        return fsGitHandler.getStatus(repoPath, refName);
+        return keepWorkingDirChangesMono.flatMap(
+                keepWorkingDirChanges -> fsGitHandler.getStatus(repoPath, refName, keepWorkingDirChanges));
     }
 
     @Override
@@ -747,6 +770,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 
+        RefType incomingRefType = gitRefDTO.getRefType();
         String baseRefName = baseRefJsonTransformationDTO.getRefName();
 
         String remoteUrl = baseGitData.getRemoteUrl();
@@ -761,8 +785,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         // TODO: add the checkout to the current branch as well.
         return fsGitHandler.checkoutToBranch(repoSuffix, baseRefName).flatMap(isCheckedOut -> fsGitHandler
                 .createAndCheckoutReference(repoSuffix, gitRefDTO)
-                .flatMap(newRef -> fsGitHandler.pushApplication(
-                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName())));
+                .flatMap(newRef -> fsGitHandler.pushArtifact(
+                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName(), incomingRefType)));
     }
 
     @Override
@@ -834,32 +858,37 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getRepoName());
 
         String branchName = jsonTransformationDTO.getRefName();
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // pull remote branchName
-        try {
-            return fsGitHandler
-                    .pullArtifactWithoutCheckout(
-                            repoSuffix,
-                            baseMetadata.getRemoteUrl(),
-                            branchName,
-                            baseMetadata.getGitAuth().getPrivateKey(),
-                            baseMetadata.getGitAuth().getPublicKey())
-                    .onErrorResume(error -> {
-                        if (error.getMessage().contains("conflict")) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
-                        } else if (error.getMessage().contains("Nothing to fetch")) {
-                            MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                            mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
-                            mergeStatus.setMergeAble(true);
-                            return Mono.just(mergeStatus);
-                        }
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            try {
+                return fsGitHandler
+                        .pullArtifactWithoutCheckout(
+                                repoSuffix,
+                                baseMetadata.getRemoteUrl(),
+                                branchName,
+                                baseMetadata.getGitAuth().getPrivateKey(),
+                                baseMetadata.getGitAuth().getPublicKey(),
+                                keepWorkingDirChanges)
+                        .onErrorResume(error -> {
+                            if (error.getMessage().contains("conflict")) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
+                            } else if (error.getMessage().contains("Nothing to fetch")) {
+                                MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
+                                mergeStatus.setMergeAble(true);
+                                return Mono.just(mergeStatus);
+                            }
 
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.GIT_ACTION_FAILED, GitCommandConstants.PULL, error.getMessage()));
-                    });
-        } catch (IOException e) {
-            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-        }
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED, GitCommandConstants.PULL, error.getMessage()));
+                        });
+            } catch (IOException e) {
+                return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+            }
+        });
     }
 }

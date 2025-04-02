@@ -1,5 +1,5 @@
 import { Button, Text } from "@appsmith/ads";
-import { default as React, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
@@ -29,14 +29,19 @@ export const FunctionCallingConfigForm = ({
   fields,
   formName,
 }: FunctionCallingConfigFormProps) => {
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+
   const handleAddFunctionButtonClick = useCallback(() => {
+    const id = uuid();
+
     fields.push({
-      id: uuid(),
+      id,
       description: "",
       entityId: "",
       isApprovalRequired: false,
       entityType: "Query",
     });
+    setNewlyAddedId(id);
   }, [fields]);
 
   const handleRemoveToolButtonClick = useCallback(
@@ -59,6 +64,7 @@ export const FunctionCallingConfigForm = ({
         </div>
 
         <Button
+          UNSAFE_width="110px"
           kind="secondary"
           onClick={handleAddFunctionButtonClick}
           startIcon="plus"
@@ -72,14 +78,24 @@ export const FunctionCallingConfigForm = ({
       ) : (
         <ConfigItems>
           {fields.map((field, index) => {
+            const fieldValue = fields.get(index);
+            const isNewlyAdded = fieldValue.id === newlyAddedId;
+
+            // Reset the newly added ID after rendering to ensure focus only happens once
+            if (isNewlyAdded) {
+              setTimeout(() => setNewlyAddedId(null), 100);
+            }
+
             return (
-              <FunctionCallingConfigToolField
-                fieldPath={field}
-                formName={formName}
-                index={index}
-                key={field}
-                onRemove={handleRemoveToolButtonClick}
-              />
+              <div key={field}>
+                <FunctionCallingConfigToolField
+                  fieldPath={field}
+                  formName={formName}
+                  index={index}
+                  isLastAdded={isNewlyAdded}
+                  onRemove={handleRemoveToolButtonClick}
+                />
+              </div>
             );
           })}
         </ConfigItems>

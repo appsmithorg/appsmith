@@ -11,18 +11,29 @@ import type SimpleBar from "simplebar-react";
 import type { TableSizes } from "../Constants";
 import { Row } from "../TableBodyCoreComponents/Row";
 import { EmptyRows } from "../cellComponents/EmptyCell";
+import LoadMoreButton from "../LoadMoreButton";
 
 type ExtendedListChildComponentProps = ListChildComponentProps & {
   listRef: React.RefObject<VariableSizeList>;
   rowHeights: React.RefObject<{ [key: number]: number }>;
   rowNeedsMeasurement: React.RefObject<{ [key: number]: boolean }>;
+  loadMore?: () => void;
+  hasMoreData?: boolean;
 };
 
 // Create a memoized row component using areEqual from react-window
-const MemoizedRow = React.memo(
+export const MemoizedRow = React.memo(
   (rowProps: ExtendedListChildComponentProps) => {
-    const { data, index, listRef, rowHeights, rowNeedsMeasurement, style } =
-      rowProps;
+    const {
+      data,
+      hasMoreData,
+      index,
+      listRef,
+      loadMore,
+      rowHeights,
+      rowNeedsMeasurement,
+      style,
+    } = rowProps;
 
     if (index < data.length) {
       const row = data[index];
@@ -39,6 +50,8 @@ const MemoizedRow = React.memo(
           style={style}
         />
       );
+    } else if (index === data.length && hasMoreData) {
+      return <LoadMoreButton loadMore={loadMore} style={style} />;
     } else {
       return <EmptyRows rows={1} style={style} />;
     }
@@ -68,13 +81,19 @@ export interface BaseVirtualListProps {
   infiniteLoaderListRef?: React.Ref<VariableSizeList>;
   itemCount: number;
   pageSize: number;
+  loadMore?: () => void;
+  hasMoreData?: boolean;
 }
 
+const LOAD_MORE_BUTTON_ROW = 1;
+
 const BaseVirtualList = React.memo(function BaseVirtualList({
+  hasMoreData,
   height,
   infiniteLoaderListRef,
   innerElementType,
   itemCount,
+  loadMore,
   onItemsRendered,
   outerRef,
   rows,
@@ -83,6 +102,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   const listRef = useRef<VariableSizeList>(null);
   const rowHeights = useRef<{ [key: number]: number }>({});
   const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
+
   const combinedRef = (list: VariableSizeList | null) => {
     // Handle infiniteLoaderListRef
     if (infiniteLoaderListRef) {
@@ -120,12 +140,14 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
     return (props: ListChildComponentProps) => (
       <MemoizedRow
         {...props}
+        hasMoreData={hasMoreData}
         listRef={listRef}
+        loadMore={loadMore}
         rowHeights={rowHeights}
         rowNeedsMeasurement={rowNeedsMeasurement}
       />
     );
-  }, [listRef, rowHeights, rowNeedsMeasurement]);
+  }, [listRef, rowHeights, rowNeedsMeasurement, hasMoreData]);
 
   return (
     <VariableSizeList
@@ -137,7 +159,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
         2 * tableSizes.VERTICAL_PADDING
       }
       innerElementType={innerElementType}
-      itemCount={itemCount}
+      itemCount={hasMoreData ? itemCount + LOAD_MORE_BUTTON_ROW : itemCount}
       itemData={rows}
       itemSize={getItemSize}
       onItemsRendered={onItemsRendered}

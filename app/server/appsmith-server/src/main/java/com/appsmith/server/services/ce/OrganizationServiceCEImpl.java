@@ -14,8 +14,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
+import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -103,7 +103,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     }
                     Mono<Map<String, String>> envMono = Mono.empty();
                     // instance admin is setting the email verification to true but the SMTP settings are not configured
-                    if (organizationConfiguration.isEmailVerificationEnabled() == Boolean.TRUE) {
+                    if (Boolean.TRUE.equals(organizationConfiguration.getEmailVerificationEnabled())) {
                         envMono = envManager.getAllNonEmpty().flatMap(properties -> {
                             String mailHost = properties.get("APPSMITH_MAIL_HOST");
                             if (mailHost == null || mailHost == "") {
@@ -128,10 +128,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     Mono<Organization> updatedOrganizationMono = repository
                             .updateById(organizationId, organization, MANAGE_ORGANIZATION)
                             .cache();
+
                     // Firstly updating the Organization object in the database and then evicting the cache.
                     // returning the updatedOrganization, notice the updatedOrganizationMono is cached using .cache()
                     // hence it will not be evaluated again
                     return updatedOrganizationMono
+                            .then(instanceVariablesHelper.updateInstanceVariables(organizationConfiguration))
                             .then(Mono.defer(() -> evictOrganizationCache))
                             .then(Mono.defer(() -> allSideEffectsMono))
                             .then(updatedOrganizationMono);
@@ -154,20 +156,16 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
-        Mono<Organization> clientOrganizationMono = Mono.zip(
-                        configService.getInstanceId(), instanceVariablesHelper.getGoogleMapsKey())
-                .map(tuple -> {
-                    final String instanceId = tuple.getT1();
-                    final String googleMapsKey = tuple.getT2();
 
+        Mono<Organization> clientOrganizationMono = configService
+                .getInstanceId()
+                .flatMap(instanceId -> {
                     final Organization organization = new Organization();
                     organization.setInstanceId(instanceId);
                     organization.setAdminEmailDomainHash(adminEmailDomainHash);
 
                     final OrganizationConfiguration config = new OrganizationConfiguration();
                     organization.setOrganizationConfiguration(config);
-
-                    config.setGoogleMapsKey(googleMapsKey);
 
                     if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
                         config.addThirdPartyAuth("google");
@@ -177,9 +175,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                         config.addThirdPartyAuth("github");
                     }
 
-                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
-
-                    return organization;
+                    return configService
+                            .getInstanceVariables()
+                            .map(instanceVariables -> instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
+                                    instanceVariables, config))
+                            .map(organizationConfiguration -> {
+                                organization.setOrganizationConfiguration(organizationConfiguration);
+                                return organization;
+                            });
                 });
 
         return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {
@@ -335,29 +338,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         return updatedOrganizationMono
                 .then(Mono.defer(() -> evictCachedOrganization))
                 .then(updatedOrganizationMono);
-    }
-
-    /**
-     * This function checks if the organization needs to be restarted, and executes the restart after the feature flag
-     * migrations are completed.
-     *
-     * @return  Mono<Void>
-     */
-    @Override
-    public Mono<Void> restartOrganization() {
-        // TODO @CloudBilling: remove this method once we move the form login env to DB variable which is currently
-        //  required as a part of downgrade migration for SSO
-        return this.retrieveAll()
-                .filter(organization ->
-                        TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
-                .take(1)
-                .hasElements()
-                .flatMap(hasElement -> {
-                    if (hasElement) {
-                        return repository.disableRestartForAllOrganizations().then(envManager.restartWithoutAclCheck());
-                    }
-                    return Mono.empty();
-                });
     }
 
     private boolean isMigrationRequired(Organization organization) {

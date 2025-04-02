@@ -9,6 +9,7 @@ import {
   EXECUTE_A_QUERY,
   EXECUTE_JS_FUNCTION,
   GET_GEO_LOCATION,
+  LOGOUT_USER,
   NAVIGATE_TO,
   NO_ACTION,
   SHOW_MODAL,
@@ -166,5 +167,11 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     ],
     defaultParams: `"", "window", "*"`,
     icon: "chat-upload-line",
+  },
+  [AppsmithFunction.logoutUser]: {
+    label: createMessage(LOGOUT_USER),
+    fields: [FieldType.URL_FIELD],
+    defaultParams: `""`,
+    icon: "logout",
   },
 };

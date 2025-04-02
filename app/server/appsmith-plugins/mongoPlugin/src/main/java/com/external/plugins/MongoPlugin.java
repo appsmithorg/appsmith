@@ -51,6 +51,7 @@ import com.mongodb.connection.ConnectionPoolSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.codecs.BsonTypeClassMap;
@@ -70,6 +71,7 @@ import org.pf4j.PluginWrapper;
 import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -97,6 +99,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.MONGO_OUTPUT_MONO;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECUTE_COMMON;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -223,6 +227,11 @@ public class MongoPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
+        private final ObservationRegistry observationRegistry;
+
+        public MongoPluginExecutor(ObservationRegistry observationRegistry) {
+            this.observationRegistry = observationRegistry;
+        }
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -287,7 +296,10 @@ public class MongoPlugin extends BasePlugin {
 
             actionConfiguration.setFormData(formData);
 
-            return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
+            return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters)
+                    .tag("plugin", this.getClass().getName())
+                    .name(PLUGIN_EXECUTE_COMMON)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         /**
@@ -335,6 +347,8 @@ public class MongoPlugin extends BasePlugin {
 
             Instant requestedAt = Instant.now();
             return mongoOutputMono
+                    .name(MONGO_OUTPUT_MONO)
+                    .tap(Micrometer.observation(observationRegistry))
                     .onErrorMap(
                             MongoTimeoutException.class,
                             error -> new AppsmithPluginException(
