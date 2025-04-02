@@ -7,7 +7,6 @@ import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
-import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
