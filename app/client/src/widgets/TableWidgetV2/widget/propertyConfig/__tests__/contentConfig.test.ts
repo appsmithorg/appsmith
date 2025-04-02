@@ -14,6 +14,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
         (section) =>
           (section as PropertyPaneSectionConfig).sectionName === sectionName,
       ) as PropertyPaneSectionConfig & { dependencies: string[] };
+
       expect(section).toBeDefined();
 
       if (section) {
@@ -37,6 +38,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
       (section) =>
         (section as PropertyPaneSectionConfig).sectionName === "Pagination",
     ) as PropertyPaneSectionConfig;
+
     expect(paginationSection).toBeDefined();
 
     if (paginationSection && paginationSection.children) {
@@ -87,6 +89,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
       (section) =>
         (section as PropertyPaneSectionConfig).sectionName === "Pagination",
     ) as PropertyPaneSectionConfig;
+
     expect(paginationSection).toBeDefined();
 
     if (paginationSection && paginationSection.children) {
@@ -99,6 +102,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
         updateHook: unknown;
         dependencies: string[];
       };
+
       expect(infiniteScrollProperty).toBeDefined();
 
       if (infiniteScrollProperty) {
