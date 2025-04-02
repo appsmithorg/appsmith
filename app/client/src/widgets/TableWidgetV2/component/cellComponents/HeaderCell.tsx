@@ -160,6 +160,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     canFreezeColumn,
     editMode,
     handleColumnFreeze,
+    isInfiniteScrollEnabled,
     isResizingColumn,
     isSortable,
     multiRowSelection,
@@ -193,7 +194,8 @@ const HeaderCellComponent = (props: HeaderProps) => {
     sortTableColumn(columnIndex, sortOrder);
   };
 
-  const disableSort = editMode === false && isSortable === false;
+  const disableSort =
+    isInfiniteScrollEnabled || (editMode === false && isSortable === false);
 
   const isColumnEditable =
     props.column.columnProperties.isCellEditable &&
