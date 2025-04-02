@@ -725,11 +725,11 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get fg() {
     // Main application foreground color.
-    // Applies to static text and similar. In light mode it is extremely dark (and therefore desatured) shade of user-set seed color.
+    // Applies to static text and similar. In light mode it is dark shade of user-set seed color.
     // This ensures harmonious combination with main accents and neutrals.
     const color = this.seedColor.clone();
 
-    color.oklch.l = 0.12;
+    color.oklch.l = 0.37;
 
     // If seed color didn't have substantial amount of chroma make sure fg is achromatic.
     if (this.seedIsAchromatic) {
@@ -737,7 +737,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsAchromatic) {
-      color.oklch.c = 0.006;
+      color.oklch.c = 0.039;
     }
 
     return color;
@@ -749,14 +749,14 @@ export class LightModeTheme implements ColorModeTheme {
 
     // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
-      color.oklch.l = 0.35;
+      color.oklch.l = 0.5;
 
       if (this.seedIsAchromatic) {
         color.oklch.c = 0;
       }
 
       if (!this.seedIsAchromatic) {
-        color.oklch.c = 0.164;
+        color.oklch.c = 0.185;
       }
     }
 
@@ -767,7 +767,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l += 0.125;
+    color.oklch.c -= 0.09;
 
     return color;
   }
@@ -775,7 +775,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.35;
+    color.oklch.l += 0.22;
 
     return color;
   }

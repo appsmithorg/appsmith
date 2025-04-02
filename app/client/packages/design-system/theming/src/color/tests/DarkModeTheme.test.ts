@@ -610,13 +610,13 @@ describe("fg color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fg } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fg).toEqual("rgb(91.499% 91.499% 91.499%)");
+    expect(fg).toEqual("rgb(88.268% 88.268% 88.268%)");
   });
 
   it("should return correct color when chroma > 0.04", () => {
     const { fg } = new DarkModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fg).toEqual("rgb(94.05% 90.903% 88.505%)");
+    expect(fg).toEqual("rgb(100% 84.682% 71.568%)");
   });
 });
 
@@ -624,13 +624,13 @@ describe("fgAccent color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgAccent } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fgAccent).toEqual("rgb(76.823% 76.823% 76.823%)");
+    expect(fgAccent).toEqual("rgb(81.873% 81.873% 81.873%)");
   });
 
   it("should return correct color when chroma > 0.04", () => {
     const { fgAccent } = new DarkModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fgAccent).toEqual("rgb(100% 68.135% 38.832%)");
+    expect(fgAccent).toEqual("rgb(100% 74.36% 48.84%)");
   });
 });
 
@@ -638,19 +638,19 @@ describe("fgNeutral color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(78.709% 78.709% 78.709%)");
+    expect(fgNeutral).toEqual("rgb(88.268% 88.268% 88.268%)");
   });
 
   it("should return correct color when chroma > 0.04 and hue is between 120 and 300", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.1 150)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(76.736% 79.678% 77.172%)");
+    expect(fgNeutral).toEqual("rgb(88.268% 88.268% 88.268%)");
   });
 
   it("should return correct color when chroma > 0.04 and hue is not between 120 and 300", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.1 110)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(78.837% 79.085% 75.653%)");
+    expect(fgNeutral).toEqual("rgb(88.268% 88.268% 88.268%)");
   });
 });
 
@@ -660,7 +660,7 @@ describe("fgNeutralSubtle color", () => {
       "oklch(0.45 0.03 60)",
     ).getColors();
 
-    expect(fgNeutralSubtle).toEqual("rgb(42.772% 42.772% 42.772%)");
+    expect(fgNeutralSubtle).toEqual("rgb(51.374% 51.374% 51.374%)");
   });
 });
 
@@ -792,7 +792,7 @@ describe("bd color", () => {
   it("should return correct color", () => {
     const { bd } = new DarkModeTheme("oklch(0.45 0.5 60)").getColors();
 
-    expect(bd).toEqual("rgb(30.094% 27.562% 25.617%)");
+    expect(bd).toEqual("rgb(38.135% 24.611% 12.977%)");
   });
 });
 
