@@ -62,3 +62,6 @@ export const getHideWatermark = (state: AppState): boolean =>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const isFreePlan = (state: AppState) => true;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const isWithinAnOrganization = (state: AppState) => true;

@@ -54,6 +54,19 @@ export interface PropertyPaneSectionConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
   /**
+   * @param props - Current widget properties
+   * @param propertyPath - Path to the widget property
+   * @returns - True if the section should be disabled, false otherwise
+   */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
+  /**
+   * Help text to show when section is disabled.
+   * Appears as a tooltip when hovering over the disabled section.
+   */
+  disabledHelpText?: string;
+  /**
    * when true, the section will be open by default.
    * Note: Seems like this is not used anywhere.
    */
@@ -205,6 +218,20 @@ export interface PropertyPaneControlConfig {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
+  /**
+   * callback function to determine if the property should be disabled.
+
+   * @param props - Current widget properties
+   * @param propertyPath - Path to the widget property
+   * @returns - True if the property should be disabled, false otherwise
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shouldDisableSection?: (props: any, propertyPath: string) => boolean;
+  /**
+   * Help text to show when property is disabled.
+   * Appears as a tooltip when hovering over the disabled property.
+   */
+  disabledHelpText?: string;
   /**
    * If true, the property is hidden.
    * Note: hidden and invisible do the same thing but differently. hidden uses a callback to determine if the property should be hidden.

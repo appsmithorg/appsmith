@@ -20,6 +20,10 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if the git reset optimization is enabled
      */
     release_git_reset_optimization_enabled,
+    /**
+     * Feature flag to detect if the RTS git reset is enabled
+     */
+    ab_rts_git_reset_enabled,
 
     // Deprecated CE flags over here
     release_git_autocommit_feature_enabled,

@@ -45,6 +45,7 @@ import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { AppState } from "ee/reducers";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { getSourceFromTriggerMeta } from "ee/entities/AppsmithConsole/utils";
+import { globalFunctionLogoutUser } from "../userSagas";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -130,6 +131,9 @@ export function* executeActionTriggers(
       break;
     case "POST_MESSAGE":
       yield call(postMessageSaga, trigger);
+      break;
+    case "LOGOUT_USER_INIT":
+      yield call(globalFunctionLogoutUser, trigger);
       break;
     default:
       log.error("Trigger type unknown", trigger, source);

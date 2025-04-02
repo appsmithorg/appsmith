@@ -121,6 +121,22 @@ describe("Test Field Group Config", () => {
       expectedLabel: "Stop watching geolocation",
       expectedFields: [],
     },
+    {
+      index: 16,
+      input: AppsmithFunction.postWindowMessage,
+      expectedLabel: "Post message",
+      expectedFields: [
+        FieldType.MESSAGE_FIELD,
+        FieldType.SOURCE_FIELD,
+        FieldType.TARGET_ORIGIN_FIELD,
+      ],
+    },
+    {
+      index: 17,
+      input: AppsmithFunction.logoutUser,
+      expectedLabel: "Logout user",
+      expectedFields: [FieldType.URL_FIELD],
+    },
   ];
 
   test.each(

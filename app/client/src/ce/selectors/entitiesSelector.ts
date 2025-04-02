@@ -124,6 +124,10 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
     return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
       const plugin = groupedPlugins[d.pluginId];
 
+      if (!plugin) {
+        return PluginCategory.SAAS;
+      }
+
       if (
         plugin.type === PluginType.SAAS ||
         plugin.type === PluginType.REMOTE ||
