@@ -31,21 +31,21 @@ import org.springframework.stereotype.Component;
 public class ScheduledTaskImpl extends ScheduledTaskCEImpl implements ScheduledTask {
 
     public ScheduledTaskImpl(
-        ConfigService configService,
-        SegmentConfig segmentConfig,
-        CommonConfig commonConfig,
-        WorkspaceRepository workspaceRepository,
-        ApplicationRepository applicationRepository,
-        NewPageRepository newPageRepository,
-        NewActionRepository newActionRepository,
-        DatasourceRepository datasourceRepository,
-        UserRepository userRepository,
-        ProjectProperties projectProperties,
-        DeploymentProperties deploymentProperties,
-        NetworkUtils networkUtils,
-        PermissionGroupService permissionGroupService,
-        OrganizationService organizationService,
-        FeatureFlagService featureFlagService) {
+            ConfigService configService,
+            SegmentConfig segmentConfig,
+            CommonConfig commonConfig,
+            WorkspaceRepository workspaceRepository,
+            ApplicationRepository applicationRepository,
+            NewPageRepository newPageRepository,
+            NewActionRepository newActionRepository,
+            DatasourceRepository datasourceRepository,
+            UserRepository userRepository,
+            ProjectProperties projectProperties,
+            DeploymentProperties deploymentProperties,
+            NetworkUtils networkUtils,
+            PermissionGroupService permissionGroupService,
+            OrganizationService organizationService,
+            FeatureFlagService featureFlagService) {
         super(
                 configService,
                 segmentConfig,
