@@ -193,7 +193,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     sortTableColumn(columnIndex, sortOrder);
   };
 
-  const disableSort = editMode === false && isSortable === false;
+  const disableSort = editMode === false || isSortable === false;
 
   const isColumnEditable =
     props.column.columnProperties.isCellEditable &&
