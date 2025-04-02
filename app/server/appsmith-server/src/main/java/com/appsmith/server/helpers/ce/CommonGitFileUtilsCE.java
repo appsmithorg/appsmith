@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
@@ -36,6 +37,7 @@ import com.appsmith.server.helpers.ArtifactGitFileUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -99,13 +101,13 @@ public class CommonGitFileUtilsCE {
 
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
 
     private final JsonSchemaVersions jsonSchemaVersions;
     protected final ObjectMapper objectMapper;
+    private final FeatureFlagService featureFlagService;
 
     public CommonGitFileUtilsCE(
             ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
@@ -117,7 +119,8 @@ public class CommonGitFileUtilsCE {
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             JsonSchemaVersions jsonSchemaVersions,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            FeatureFlagService featureFlagService) {
         this.applicationGitFileUtils = applicationGitFileUtils;
         this.gitServiceConfig = gitServiceConfig;
         this.fileUtils = fileUtils;
@@ -128,6 +131,7 @@ public class CommonGitFileUtilsCE {
         this.actionCollectionService = actionCollectionService;
         this.jsonSchemaVersions = jsonSchemaVersions;
         this.objectMapper = objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS);
+        this.featureFlagService = featureFlagService;
     }
 
     protected ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
@@ -154,16 +158,19 @@ public class CommonGitFileUtilsCE {
 
         // this should come from the specific files
         ArtifactGitReference artifactGitReference = createArtifactReference(artifactExchangeJson);
+        Mono<Boolean> isRtsResetEnabledMono = featureFlagService.check(FeatureFlagEnum.ab_rts_git_reset_enabled);
 
         // Save application to git repo
-        try {
-            return fileUtils
-                    .saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName)
-                    .subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException | GitAPIException e) {
-            log.error("Error occurred while saving files to local git repo: ", e);
-            throw Exceptions.propagate(e);
-        }
+        return isRtsResetEnabledMono
+                .flatMap(isRtsEnabled -> {
+                    try {
+                        return fileUtils.saveApplicationToGitRepo(
+                                baseRepoSuffix, artifactGitReference, branchName, isRtsEnabled);
+                    } catch (IOException | GitAPIException e) {
+                        throw Exceptions.propagate(e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Path> saveArtifactToLocalRepoNew(
@@ -171,15 +178,19 @@ public class CommonGitFileUtilsCE {
 
         // this should come from the specific files
         GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // Save application to git repo
-        try {
-            return fileUtils
-                    .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
-                    .subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException | GitAPIException exception) {
-            return Mono.error(exception);
-        }
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            try {
+                return fileUtils
+                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName, keepWorkingDirChanges)
+                        .subscribeOn(Schedulers.boundedElastic());
+            } catch (IOException | GitAPIException exception) {
+                return Mono.error(exception);
+            }
+        });
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(

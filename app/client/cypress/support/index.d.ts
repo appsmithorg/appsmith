@@ -53,7 +53,7 @@ declare namespace Cypress {
 
     Signup(uname: string, pword: string);
 
-    LoginFromAPI(uname: string, pword: string);
+    LoginFromAPI(uname: string, pword: string, redirectUrl?: string);
 
     DeletepageFromSideBar();
 

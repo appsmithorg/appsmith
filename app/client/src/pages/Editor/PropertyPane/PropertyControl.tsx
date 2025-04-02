@@ -1,14 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
+import _, { get, isFunction, merge } from "lodash";
 import * as log from "loglevel";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton, Tooltip, Button } from "@appsmith/ads";
-import PropertyControlFactory from "utils/PropertyControlFactory";
-import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Button, ToggleButton, Tooltip } from "@appsmith/ads";
+import { importSvg } from "@appsmith/ads-old";
+import type { IPanelProps } from "@blueprintjs/core";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
@@ -16,54 +13,57 @@ import {
   deleteWidgetProperty,
   setWidgetDynamicProperty,
 } from "actions/controlActions";
-import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import type { IPanelProps } from "@blueprintjs/core";
-import PanelPropertiesEditor from "./PanelPropertiesEditor";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
-  getEvalValuePath,
-  isDynamicValue,
-  THEME_BINDING_REGEX,
-} from "utils/DynamicBindingUtils";
+  setFocusablePropertyPaneField,
+  setSelectedPropertyPanel,
+} from "actions/propertyPaneActions";
+import classNames from "classnames";
+import clsx from "clsx";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { ControlData } from "components/propertyControls/BaseControl";
+import { ControlWrapper } from "components/propertyControls/StyledControls";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import {
+  JS_TOGGLE_DISABLED_MESSAGE,
+  JS_TOGGLE_SWITCH_JS_MESSAGE,
+} from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import {
   getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
 } from "selectors/propertyPaneSelectors";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { getParentWidget } from "selectors/widgetSelectors";
+import styled from "styled-components";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { getExpectedValue } from "utils/validation/common";
-import type { ControlData } from "components/propertyControls/BaseControl";
-import type { AppState } from "ee/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
-  JS_TOGGLE_DISABLED_MESSAGE,
-  JS_TOGGLE_SWITCH_JS_MESSAGE,
-} from "ee/constants/messages";
+  getEvalValuePath,
+  isDynamicValue,
+  THEME_BINDING_REGEX,
+} from "utils/DynamicBindingUtils";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
-import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import {
-  setFocusablePropertyPaneField,
-  setSelectedPropertyPanel,
-} from "actions/propertyPaneActions";
-import WidgetFactory from "WidgetProvider/factory";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import clsx from "clsx";
-import styled from "styled-components";
-import { importSvg } from "@appsmith/ads-old";
-import classNames from "classnames";
-import type { PropertyUpdates } from "WidgetProvider/constants";
-import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import PropertyControlFactory from "utils/PropertyControlFactory";
+import { getExpectedValue } from "utils/validation/common";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
-import { getParentWidget } from "selectors/widgetSelectors";
+import PanelPropertiesEditor from "./PanelPropertiesEditor";
+import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -104,6 +104,10 @@ const PropertyControl = memo((props: Props) => {
   const parentWidget = useSelector((state) =>
     getParentWidget(state, widgetProperties.widgetId),
   );
+
+  const isControlDisabled =
+    props.shouldDisableSection &&
+    props.shouldDisableSection(widgetProperties, props.propertyName);
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -882,8 +886,9 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    const helpText =
-      config.controlType === "ACTION_SELECTOR"
+    const helpText = isControlDisabled
+      ? props.disabledHelpText || ""
+      : config.controlType === "ACTION_SELECTOR"
         ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
         : props.helpText;
 
@@ -916,7 +921,7 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-wrapper t--property-control-${className} group relative`}
+          className={`t--property-control-wrapper t--property-control-${className} group relative ${isControlDisabled ? "cursor-not-allowed opacity-50" : ""}`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}

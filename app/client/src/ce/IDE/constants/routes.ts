@@ -41,4 +41,5 @@ export const EntityPaths: string[] = [
 export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
   [IDE_TYPE.None]: [],
   [IDE_TYPE.App]: [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH],
+  [IDE_TYPE.UIPackage]: [],
 };

@@ -16,6 +16,7 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -52,7 +53,8 @@ public class GitFSServiceImpl extends GitFSServiceCECompatibleImpl implements Gi
             GitAutoCommitHelper gitAutoCommitHelper,
             GitProfileUtils gitProfileUtils,
             GitAnalyticsUtils gitAnalyticsUtils,
-            GitArtifactHelperResolver gitArtifactHelperResolver) {
+            GitArtifactHelperResolver gitArtifactHelperResolver,
+            FeatureFlagService featureFlagService) {
         super(
                 gitDeployKeysRepository,
                 gitPrivateRepoHelper,
@@ -75,6 +77,7 @@ public class GitFSServiceImpl extends GitFSServiceCECompatibleImpl implements Gi
                 gitAutoCommitHelper,
                 gitProfileUtils,
                 gitAnalyticsUtils,
-                gitArtifactHelperResolver);
+                gitArtifactHelperResolver,
+                featureFlagService);
     }
 }

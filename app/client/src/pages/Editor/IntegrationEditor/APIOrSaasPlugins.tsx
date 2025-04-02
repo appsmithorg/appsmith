@@ -79,7 +79,7 @@ interface CreateAPIOrSaasPluginsProps {
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
-  isGACEnabled?: boolean;
+  isIntegrationsEnabledForPaid?: boolean;
 }
 
 export const API_ACTION = {
@@ -234,7 +234,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
         />
       ))}
-      {!props.isGACEnabled && (
+      {!props.isIntegrationsEnabledForPaid && (
         <PremiumDatasources plugins={props.premiumPlugins} />
       )}
     </DatasourceContainer>
@@ -281,13 +281,16 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         </DatasourceSectionHeading>
         <APIOrSaasPlugins {...props} />
       </DatasourceSection>
-      {props.premiumPlugins.length > 0 && props.isGACEnabled ? (
+      {props.premiumPlugins.length > 0 && props.isIntegrationsEnabledForPaid ? (
         <DatasourceSection id="upcoming-saas-integrations">
           <DatasourceSectionHeading kind="heading-m">
             {createMessage(UPCOMING_SAAS_INTEGRATIONS)}
           </DatasourceSectionHeading>
           <DatasourceContainer data-testid="upcoming-datasource-card-container">
-            <PremiumDatasources isGACEnabled plugins={props.premiumPlugins} />
+            <PremiumDatasources
+              isIntegrationsEnabledForPaid
+              plugins={props.premiumPlugins}
+            />
           </DatasourceContainer>
         </DatasourceSection>
       ) : null}
@@ -342,10 +345,9 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
-  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
-  const isGACEnabled = selectFeatureFlagCheck(
+  const isIntegrationsEnabledForPaid = selectFeatureFlagCheck(
     state,
-    FEATURE_FLAG.license_gac_enabled,
+    FEATURE_FLAG.license_external_saas_plugins_enabled,
   );
 
   const pluginNames = allPlugins.map((plugin) =>
@@ -355,7 +357,10 @@ const mapStateToProps = (
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
-          getFilteredPremiumIntegrations(isExternalSaasEnabled, pluginNames),
+          getFilteredPremiumIntegrations(
+            isExternalSaasEnabled || isIntegrationsEnabledForPaid,
+            pluginNames,
+          ),
           searchedPlugin,
         ) as PremiumIntegration[])
       : [];
@@ -380,7 +385,7 @@ const mapStateToProps = (
     restAPIVisible,
     graphQLAPIVisible,
     isCreating: props.isCreating || getDatasourcesLoadingState(state),
-    isGACEnabled,
+    isIntegrationsEnabledForPaid,
   };
 };
 
