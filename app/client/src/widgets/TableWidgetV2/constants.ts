@@ -113,6 +113,8 @@ export interface TableWidgetProps
   customIsLoading: boolean;
   customIsLoadingValue: boolean;
   infiniteScrollEnabled: boolean;
+  cachedTableData: Record<number, Array<Record<string, unknown>>>;
+  endOfData: boolean;
 }
 
 export enum TableVariantTypes {

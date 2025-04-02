@@ -139,6 +139,7 @@ describe("TableWidget Actions Component", () => {
     showConnectDataOverlay: false,
     onConnectData: jest.fn(),
     isLoading: false,
+    endOfData: false,
   };
 
   const renderWithTableProvider = (props: Partial<TableProviderProps>) => {
