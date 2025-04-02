@@ -8,7 +8,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "@appsmith/ads";
-import { isValidLicense } from "ee/selectors/organizationSelectors";
+import {
+  isValidLicense,
+  isWithinAnOrganization,
+} from "ee/selectors/organizationSelectors";
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -22,6 +25,7 @@ export function SignupSuccess() {
   );
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
+  const isOnLoginPage = !useSelector(isWithinAnOrganization);
 
   useEffect(() => {
     user?.email && setUserSignedUpFlag(user?.email);
@@ -37,8 +41,16 @@ export function SignupSuccess() {
         validLicense,
         dispatch,
         isNonInvitedUser,
+        isOnLoginPage,
       ),
-    [],
+    [
+      dispatch,
+      isNonInvitedUser,
+      isOnLoginPage,
+      redirectUrl,
+      shouldEnableFirstTimeUserOnboarding,
+      validLicense,
+    ],
   );
 
   const onGetStarted = useCallback((proficiency?: string, useCase?: string) => {
