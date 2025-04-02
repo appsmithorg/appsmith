@@ -460,6 +460,7 @@ export const chainableFns: TActionBlock["actionType"][] = [
   AppsmithFunction.resetWidget,
   AppsmithFunction.showModal,
   AppsmithFunction.download,
+  AppsmithFunction.logoutUser,
 ];
 
 export function actionToCode(

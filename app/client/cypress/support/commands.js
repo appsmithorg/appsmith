@@ -171,7 +171,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   initLocalstorage();
 });
 
-Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+Cypress.Commands.add("LoginFromAPI", (uname, pword, redirectUrl) => {
   homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
@@ -181,7 +181,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
 
   cy.visit({
     method: "POST",
-    url: "api/v1/login",
+    url: `api/v1/login${redirectUrl ? "?redirectUrl=" + redirectUrl : ""}`,
     headers: {
       origin: baseURL,
       "X-Requested-By": "Appsmith",
@@ -209,13 +209,19 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     }
 
     cy.location().should((loc) => {
-      expect(loc.href).to.eq(loc.origin + "/applications");
+      if (redirectUrl) {
+        expect(loc.href).to.eq(loc.origin + redirectUrl);
+      } else {
+        expect(loc.href).to.eq(loc.origin + "/applications");
+      }
     });
 
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      assertHelper.AssertNetworkStatus("getAllWorkspaces");
+      if (!redirectUrl) {
+        assertHelper.AssertNetworkStatus("getAllWorkspaces");
+      }
       assertHelper.AssertNetworkStatus("getConsolidatedData");
     }
   });
