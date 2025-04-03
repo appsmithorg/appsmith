@@ -9,8 +9,8 @@ export interface UseInfiniteScrollProps {
 
 export const useInfiniteScroll = ({
   loadMore,
-  rows,
   pageSize,
+  rows,
 }: UseInfiniteScrollProps) => {
   useEffect(() => {
     // If cachedRows is just a single page, call loadMore to fetch the next page
