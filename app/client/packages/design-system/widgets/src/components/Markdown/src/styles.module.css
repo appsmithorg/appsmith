@@ -118,12 +118,12 @@
     border-left: var(--border-width-2) solid var(--color-bd-neutral);
   }
 
-  /* Images in markdown should be responsive and have a max height of 540px. Border radius is the same as button border radius */
+  /* Images in markdown should be responsive and have a max height of 300px. Border radius is the same as button border radius */
   img {
-    max-height: 540px;
+    max-height: 300px;
     border-radius: var(--border-radius-elevation-3);
     object-fit: cover;
-    margin-top: var(--inner-spacing-1);
+    margin-top: var(--inner-spacing-2);
   }
 
   [data-component="h1"]:first-child {
