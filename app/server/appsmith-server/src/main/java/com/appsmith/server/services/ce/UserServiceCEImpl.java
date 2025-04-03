@@ -445,6 +445,18 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return Mono.just(TRUE);
     }
 
+    /**
+     * Checks if a workspace should be created for a user during signup.
+     * This method can be overridden in EE to add checks for multi-org settings.
+     *
+     * @param user The user for whom to check workspace creation
+     * @return Mono<Boolean> true if workspace should be created, false otherwise
+     */
+    protected Mono<Boolean> shouldCreateWorkspaceForUser(User user) {
+        // In CE, always create workspace
+        return Mono.just(TRUE);
+    }
+
     @Override
     public Mono<UserSignupDTO> createUser(User user) {
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
@@ -491,29 +503,39 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
 
-                                return workspaceService
-                                        .createDefault(new Workspace(), savedUser)
-                                        .elapsed()
-                                        .map(pair -> {
-                                            log.debug(
-                                                    "UserServiceCEImpl::Time taken to create default workspace: {} ms",
-                                                    pair.getT1());
-                                            return pair.getT2();
-                                        })
-                                        .map(workspace -> {
-                                            log.debug(
-                                                    "Created blank default workspace for user '{}'.",
-                                                    savedUser.getEmail());
-                                            userSignupDTO.setDefaultWorkspaceId(workspace.getId());
-                                            return userSignupDTO;
-                                        })
-                                        .onErrorResume(e -> {
-                                            log.debug(
-                                                    "Error creating default workspace for user '{}'.",
-                                                    savedUser.getEmail(),
-                                                    e);
-                                            return Mono.just(userSignupDTO);
-                                        });
+                                // Check if we should create a workspace for this user
+                                return shouldCreateWorkspaceForUser(savedUser).flatMap(shouldCreateWorkspace -> {
+                                    if (Boolean.TRUE.equals(shouldCreateWorkspace)) {
+                                        // Create workspace as normal
+                                        return workspaceService
+                                                .createDefault(new Workspace(), savedUser)
+                                                .elapsed()
+                                                .map(pair -> {
+                                                    log.debug(
+                                                            "UserServiceCEImpl::Time taken to create default workspace: {} ms",
+                                                            pair.getT1());
+                                                    return pair.getT2();
+                                                })
+                                                .map(workspace -> {
+                                                    log.debug(
+                                                            "Created blank default workspace for user '{}'.",
+                                                            savedUser.getEmail());
+                                                    userSignupDTO.setDefaultWorkspaceId(workspace.getId());
+                                                    return userSignupDTO;
+                                                })
+                                                .onErrorResume(e -> {
+                                                    log.debug(
+                                                            "Error creating default workspace for user '{}'.",
+                                                            savedUser.getEmail(),
+                                                            e);
+                                                    return Mono.just(userSignupDTO);
+                                                });
+                                    } else {
+                                        // Skip workspace creation
+                                        log.debug("Skipping workspace creation for user: {}", savedUser.getEmail());
+                                        return Mono.just(userSignupDTO);
+                                    }
+                                });
                             })
                             .flatMap(userSignupDTO -> findByEmail(
                                             userSignupDTO.getUser().getEmail())
