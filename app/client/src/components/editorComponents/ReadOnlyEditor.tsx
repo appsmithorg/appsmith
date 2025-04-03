@@ -9,6 +9,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "./LazyCodeEditor";
+import clsx from "clsx";
 
 interface Props {
   input: {
@@ -19,6 +20,7 @@ interface Props {
   folding: boolean;
   showLineNumbers?: boolean;
   isRawView?: boolean;
+  className?: string;
 }
 
 function ReadOnlyEditor(props: Props) {
@@ -40,7 +42,7 @@ function ReadOnlyEditor(props: Props) {
     isReadOnly: true,
     isRawView: props.isRawView,
     border: CodeEditorBorder.NONE,
-    className: "as-mask",
+    className: clsx(props.className, "as-mask"),
   };
 
   return <LazyCodeEditor {...editorProps} />;

@@ -10,6 +10,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { WidgetEditorContainer } from "./WidgetEditorContainer";
 import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";
+import { useAgentsRedirect } from "ee/pages/WidgetsEditor/hooks/useAgentsRedirect";
 
 /**
  * WidgetsEditor
@@ -24,6 +25,8 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+
+  useAgentsRedirect();
 
   useEffect(() => {
     if (currentPageName !== undefined && currentPageId !== undefined) {

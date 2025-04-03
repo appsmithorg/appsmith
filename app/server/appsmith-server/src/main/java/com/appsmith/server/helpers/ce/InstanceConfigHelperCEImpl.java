@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION_ID;
+
 @RequiredArgsConstructor
 @Slf4j
 public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
@@ -240,7 +242,9 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
         //  startup
         return organizationService
                 .retrieveAll()
-                .flatMap(org -> featureFlagService.getOrganizationFeatures(org.getId()))
+                .flatMap(org -> featureFlagService
+                        .getOrganizationFeatures(org.getId())
+                        .contextWrite(ctx -> ctx.put(ORGANIZATION_ID, org.getId())))
                 .onErrorResume(error -> {
                     log.error("Error while updating cache for org feature flags", error);
                     return Mono.empty();

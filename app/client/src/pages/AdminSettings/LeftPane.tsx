@@ -202,17 +202,12 @@ export default function LeftPane() {
   const isSuperUser = user?.isSuperUser;
   const organizationPermissions = useSelector(getOrganizationPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isMultiOrgEnabled = useFeatureFlag(
-    FEATURE_FLAG.license_multi_org_enabled,
-  );
   const isAuditLogsEnabled = getHasAuditLogsReadPermission(
     isFeatureEnabled,
     organizationPermissions,
   );
 
-  const filteredGeneralCategories = getFilteredGeneralCategories(categories, {
-    license_multi_org_enabled: isMultiOrgEnabled,
-  });
+  const filteredGeneralCategories = getFilteredGeneralCategories(categories);
 
   const filteredAclCategories = getFilteredAclCategories(
     aclCategories,
