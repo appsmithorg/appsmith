@@ -75,6 +75,7 @@ export interface TableWidgetProps
   enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
+  userColumnOrder?: string[];
   frozenColumnIndices: Record<string, number>;
   canFreezeColumn?: boolean;
   columnNameMap?: { [key: string]: string };

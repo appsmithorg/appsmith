@@ -72,6 +72,24 @@ export default [
         ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
+        propertyName: "userColumnOrder",
+        helpText:
+          "Define the order of columns to display. Provide an array of column names.",
+        label: "Column order",
+        controlType: "INPUT_TEXT",
+        placeholderText: '["column1", "column2", "column3"]',
+        isBindProperty: true,
+        isTriggerProperty: false,
+        isJSConvertible: true,
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            default: [],
+            unique: true,
+          },
+        },
+      },
+      {
         propertyName: "primaryColumns",
         controlType: "PRIMARY_COLUMNS_V2",
         label: "Columns",
