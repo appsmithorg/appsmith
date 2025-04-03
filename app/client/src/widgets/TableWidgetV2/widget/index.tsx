@@ -933,23 +933,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       totalRecordsCount,
     } = this.props;
 
-    // // Reset widget state when infinite scroll is enabled
-    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
-      // Reset pagination
-      pushBatchMetaUpdates("pageNo", 1);
-      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
-
-      // Reset selection
-      this.pushResetSelectedRowIndexUpdates();
-
-      // Reset cached data for infinite scroll
-      pushBatchMetaUpdates("cachedTableData", {});
-      pushBatchMetaUpdates("endOfData", false);
-
-      // This ensures updates are committed immediately
-      commitBatchMetaUpdates();
-    }
-
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
       return;
@@ -1056,6 +1039,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
         }
       }
+    }
+
+    // Reset widget state when infinite scroll is initially enabled
+    // This should come after all updateInfiniteScrollProperties are done
+    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
+      this.resetTableForInfiniteScroll();
     }
 
     /*
@@ -3065,27 +3054,26 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   }
 
-  resetInfiniteScrollState = () => {
-    const {
-      commitBatchMetaUpdates,
-      pushBatchMetaUpdates,
-      infiniteScrollEnabled,
-    } = this.props;
+  resetTableForInfiniteScroll = () => {
+    const { infiniteScrollEnabled, pushBatchMetaUpdates } = this.props;
 
     if (infiniteScrollEnabled) {
-      // Reset pagination
-      pushBatchMetaUpdates("pageNo", 1);
-      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
-
-      // Reset selection
-      this.pushResetSelectedRowIndexUpdates();
-
-      // Reset cached data for infinite scroll
+      // reset the cachedRows
       pushBatchMetaUpdates("cachedTableData", {});
       pushBatchMetaUpdates("endOfData", false);
 
-      // This ensures updates are committed immediately
-      commitBatchMetaUpdates();
+      // reset the meta properties
+      const metaProperties = Object.keys(TableWidgetV2.getMetaPropertiesMap());
+      metaProperties.forEach((prop) => {
+        if (prop !== "pageNo") {
+          // Don't reset pageNo yet as we're about to set it
+          const defaultValue = TableWidgetV2.getMetaPropertiesMap()[prop];
+          this.props.updateWidgetMetaProperty(prop, defaultValue);
+        }
+      });
+
+      // reset and reload page
+      this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
     }
   };
 }
