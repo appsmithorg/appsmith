@@ -30,3 +30,5 @@ export function getReadableDateInFormat(
 ): string {
   return dayjs(date).format(formatString);
 }
+
+export { dayjs };
