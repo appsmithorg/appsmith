@@ -201,7 +201,7 @@ export default [
           updateSearchSortFilterOnInfiniteScrollChange,
         ]),
         dependencies: ["primaryColumns"],
-        // hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
+        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
