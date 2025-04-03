@@ -921,14 +921,34 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
+      commitBatchMetaUpdates,
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
+      infiniteScrollEnabled,
       pageNo,
       pageSize,
       primaryColumns = {},
+      pushBatchMetaUpdates,
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
+
+    // // Reset widget state when infinite scroll is enabled
+    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
+      // Reset pagination
+      pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+
+      // Reset selection
+      this.pushResetSelectedRowIndexUpdates();
+
+      // Reset cached data for infinite scroll
+      pushBatchMetaUpdates("cachedTableData", {});
+      pushBatchMetaUpdates("endOfData", false);
+
+      // This ensures updates are committed immediately
+      commitBatchMetaUpdates();
+    }
 
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
@@ -958,8 +978,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     //check if necessary we are batching now updates
     // Check if tableData is modifed
     const isTableDataModified = this.props.tableData !== prevProps.tableData;
-
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
@@ -3046,6 +3064,30 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  resetInfiniteScrollState = () => {
+    const {
+      commitBatchMetaUpdates,
+      pushBatchMetaUpdates,
+      infiniteScrollEnabled,
+    } = this.props;
+
+    if (infiniteScrollEnabled) {
+      // Reset pagination
+      pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+
+      // Reset selection
+      this.pushResetSelectedRowIndexUpdates();
+
+      // Reset cached data for infinite scroll
+      pushBatchMetaUpdates("cachedTableData", {});
+      pushBatchMetaUpdates("endOfData", false);
+
+      // This ensures updates are committed immediately
+      commitBatchMetaUpdates();
+    }
+  };
 }
 
 export default TableWidgetV2;
