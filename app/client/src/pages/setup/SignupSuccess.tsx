@@ -15,6 +15,7 @@ import {
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ export function SignupSuccess() {
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
   const isOnLoginPage = !useSelector(isWithinAnOrganization);
@@ -35,14 +37,14 @@ export function SignupSuccess() {
 
   const redirectUsingQueryParam = useCallback(
     () =>
-      redirectUserAfterSignup(
+      redirectUserAfterSignup({
         redirectUrl,
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
-        isNonInvitedUser,
+        isAiAgentFlowEnabled,
         isOnLoginPage,
-      ),
+      }),
     [
       dispatch,
       isNonInvitedUser,
@@ -79,7 +81,8 @@ export function SignupSuccess() {
   if (
     user?.isSuperUser ||
     ((user?.role || user?.proficiency) && user?.useCase) ||
-    shouldEnableFirstTimeUserOnboarding !== "true"
+    shouldEnableFirstTimeUserOnboarding !== "true" ||
+    isAiAgentFlowEnabled
   ) {
     redirectUsingQueryParam();
 

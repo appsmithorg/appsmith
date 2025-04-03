@@ -8,6 +8,7 @@ export const DELETE_SESSION_PARAM = "deleteSession";
 export const SESSION_TRANSFER_PHASE_PARAM = "sessionTransferPhase";
 export const CSRF_TOKEN_PARAM = "csrfToken";
 export const TRANSFER_PHASE_PARAM = "transferPhase";
+export const SOURCE_DOMAIN_PARAM = "sourceDomain";
 
 /**
  * Validates a session token from the URL and sets up the session.
@@ -48,6 +49,7 @@ export const validateSessionToken = async (): Promise<boolean> => {
     url.searchParams.delete(SESSION_TRANSFER_PHASE_PARAM);
     url.searchParams.delete(CSRF_TOKEN_PARAM);
     url.searchParams.delete(TRANSFER_PHASE_PARAM);
+    url.searchParams.delete(SOURCE_DOMAIN_PARAM);
 
     window.history.replaceState({}, "", url.toString());
 
