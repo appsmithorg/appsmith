@@ -922,6 +922,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
       commitBatchMetaUpdates,
+      componentHeight,
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
       infiniteScrollEnabled,
@@ -1044,6 +1045,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // Reset widget state when infinite scroll is initially enabled
     // This should come after all updateInfiniteScrollProperties are done
     if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
+      this.resetTableForInfiniteScroll();
+    }
+
+    // Reset widget state when height changes while infinite scroll is enabled
+    if (
+      infiniteScrollEnabled &&
+      prevProps.componentHeight !== componentHeight
+    ) {
       this.resetTableForInfiniteScroll();
     }
 
