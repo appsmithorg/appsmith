@@ -147,7 +147,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
         rowNeedsMeasurement={rowNeedsMeasurement}
       />
     );
-  }, [listRef, rowHeights, rowNeedsMeasurement]);
+  }, [listRef, rowHeights, rowNeedsMeasurement, hasMoreData]);
 
   return (
     <VariableSizeList

@@ -642,13 +642,13 @@ describe("fg color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fg } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fg).toEqual("rgb(2.2326% 2.2326% 2.2326%)");
+    expect(fg).toEqual("rgb(24.944% 24.944% 24.944%)");
   });
 
   it("should return correct color when chroma >  0.04", () => {
     const { fg } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fg).toEqual("rgb(2.8027% 2.0973% 1.6301%)");
+    expect(fg).toEqual("rgb(31.079% 23.115% 16.707%)");
   });
 });
 
@@ -670,19 +670,19 @@ describe("fgNeutral color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(12.685% 12.685% 12.685%)");
+    expect(fgNeutral).toEqual("rgb(30.171% 30.171% 30.171%)");
   });
 
   it("should return correct color when chroma >  0.04 and hue is between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 150)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(11.952% 13.038% 12.117%)");
+    expect(fgNeutral).toEqual("rgb(27.457% 31.431% 28.097%)");
   });
 
   it("should return correct color when chroma >  0.04 and hue is not between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 110)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(12.734% 12.82% 11.553%)");
+    expect(fgNeutral).toEqual("rgb(30.362% 30.64% 26.009%)");
   });
 });
 
@@ -692,7 +692,7 @@ describe("fgNeutralSubtle color", () => {
       "oklch(0.45 0.03 60)",
     ).getColors();
 
-    expect(fgNeutralSubtle).toEqual("rgb(49.631% 49.631% 49.631%)");
+    expect(fgNeutralSubtle).toEqual("rgb(43.337% 43.337% 43.337%)");
   });
 });
 
@@ -834,7 +834,7 @@ describe("bd color", () => {
   it("should return correct color", () => {
     const { bd } = new LightModeTheme("oklch(0.45 0.5 60)").getColors();
 
-    expect(bd).toEqual("rgb(75.553% 74.037% 72.885%)");
+    expect(bd).toEqual("rgb(82.064% 72.324% 64.769%)");
   });
 });
 

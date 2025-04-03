@@ -24,7 +24,6 @@ export interface SidebarProviderProps {
 export interface SidebarProps {
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
-  extraTitleButton?: ReactNode;
   onEnter?: () => void;
   onExit?: () => void;
   onEntered?: () => void;
@@ -36,5 +35,4 @@ export interface SidebarProps {
         state: SidebarState;
       }) => React.ReactNode);
   className?: string;
-  title?: string;
 }

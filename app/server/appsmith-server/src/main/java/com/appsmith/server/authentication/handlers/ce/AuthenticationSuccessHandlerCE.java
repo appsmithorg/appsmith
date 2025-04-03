@@ -8,22 +8,19 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.UserSignupHelper;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -60,15 +57,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final UserRepository userRepository;
-    private final WorkspaceRepository workspaceRepository;
-    private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
-    private final WorkspacePermission workspacePermission;
     private final RateLimitService rateLimitService;
     private final OrganizationService organizationService;
     private final UserService userService;
     private final WorkspaceServiceHelper workspaceServiceHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
+    private final UserSignupHelper userSignupHelper;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono =
@@ -194,7 +189,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
      * in the email.
      */
-    private Mono<Void> formEmailVerificationRedirectionHandler(
+    public Mono<Void> formEmailVerificationRedirectionHandler(
             WebFilterExchange webFilterExchange,
             String defaultWorkspaceId,
             Authentication authentication,
@@ -350,45 +345,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
         // need to create default application
-        return createWorkspaceIfNotExistsAndGetId(defaultWorkspaceId, authentication)
-                .flatMap(this::createFirstApplication);
-    }
-
-    protected Mono<String> createWorkspaceIfNotExistsAndGetId(
-            String defaultWorkspaceId, Authentication authentication) {
-        if (defaultWorkspaceId == null) {
-            return workspaceRepository
-                    .findAll(workspacePermission.getEditPermission())
-                    .take(1, true)
-                    .collectList()
-                    .flatMap(workspaces -> {
-                        // Since this is the first application creation, the first workspace would be the only
-                        // workspace user has access to, and would be user's default workspace. Hence, we use this
-                        // workspace to create the application.
-                        if (workspaces.size() == 1) {
-                            return Mono.just(workspaces.get(0));
-                        }
-
-                        // In case no workspaces are found for the user, create a new default workspace
-                        String email = ((User) authentication.getPrincipal()).getEmail();
-
-                        return organizationService
-                                .getCurrentUserOrganizationId()
-                                .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(email, orgId))
-                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user));
-                    })
-                    .map(Workspace::getId);
-        }
-
-        return Mono.just(defaultWorkspaceId);
-    }
-
-    protected Mono<Application> createFirstApplication(String workspaceId) {
-        // need to create default application
-        Application application = new Application();
-        application.setWorkspaceId(workspaceId);
-        application.setName("My first application");
-        return applicationPageService.createApplication(application);
+        return userSignupHelper
+                .createWorkspaceIfNotExistsAndGetId(defaultWorkspaceId, authentication)
+                .flatMap(userSignupHelper::createDefaultApplication);
     }
 
     /**
