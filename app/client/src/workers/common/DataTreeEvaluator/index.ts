@@ -648,9 +648,8 @@ export default class DataTreeEvaluator {
   } {
     this.setConfigTree(configTree);
 
-    const localUnEvalTree = Object.assign({}, unEvalTree);
     const updatedUnEvalTreeJSFunction = this.updateUnEvalTreeJSFunction(
-      localUnEvalTree,
+      unEvalTree,
       configTree,
     );
 
@@ -813,10 +812,12 @@ export default class DataTreeEvaluator {
       removedPaths?: Array<{ entityId: string; fullpath: string }>;
       translatedDiffs?: DataTreeDiff[];
       pathsToSkipFromEval?: string[];
+      isEvalTreeWithChanges?: boolean;
     },
   ) {
     const {
       dependenciesOfRemovedPaths = [],
+      isEvalTreeWithChanges,
       pathsToSkipFromEval = [],
       removedPaths = [],
       translatedDiffs = [],
@@ -855,7 +856,10 @@ export default class DataTreeEvaluator {
 
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(updatedUnEvalTree);
+    if (!isEvalTreeWithChanges) {
+      this.oldUnEvalTree = klona(updatedUnEvalTree);
+    }
+
     this.oldConfigTree = Object.assign({}, this.getConfigTree());
     const cloneEndTime = performance.now();
 
@@ -886,7 +890,7 @@ export default class DataTreeEvaluator {
     updatedValuePaths: string[][],
     pathsToSkipFromEval: string[] = [],
   ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
-    const updatedUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    const updatedUnEvalTree = this.oldUnEvalTree;
 
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
@@ -902,6 +906,7 @@ export default class DataTreeEvaluator {
     return {
       ...this.setupTree(updatedUnEvalTree, updatedValuePaths, {
         pathsToSkipFromEval,
+        isEvalTreeWithChanges: true,
       }),
       jsUpdates: {},
     };
