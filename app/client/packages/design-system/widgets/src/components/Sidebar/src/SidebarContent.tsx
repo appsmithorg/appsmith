@@ -1,12 +1,10 @@
 import clsx from "clsx";
-import React, { type ReactNode, type Ref } from "react";
+import React, { type Ref } from "react";
 
 import { Flex } from "../../Flex";
 import styles from "./styles.module.css";
 
 interface SidebarContentProps {
-  title?: string;
-  extraTitleButton?: ReactNode;
   className?: string;
   children: React.ReactNode;
 }
