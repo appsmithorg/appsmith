@@ -28,6 +28,7 @@ export const redirectUserAfterSignup = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch?: any,
   isEnabledForCreateNew?: boolean, // is Enabled for only non-invited users
+  isOnLoginPage?: boolean,
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
@@ -100,7 +101,9 @@ export const redirectUserAfterSignup = (
       error("Error handling the redirect url");
     }
   } else {
-    history.replace(APPLICATIONS_URL);
+    if (!isOnLoginPage) {
+      history.replace(APPLICATIONS_URL);
+    }
   }
 };
 

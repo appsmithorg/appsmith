@@ -668,7 +668,7 @@ public class GitExecutorTest {
     public void resetToLastCommit_WithOutStaged_CleanStateForRepo() throws IOException, GitAPIException {
         createFileInThePath("testFile");
         commitToRepo();
-        Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
+        Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master", false);
 
         StepVerifier.create(resetStatus)
                 .assertNext(status -> {

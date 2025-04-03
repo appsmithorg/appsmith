@@ -57,7 +57,6 @@ import {
   getJSActionOption,
   type OnUpdateSettingsProps,
 } from "./JSEditorToolbar";
-import { getHighlightedLines } from "ee/pages/Editor/JSEditor/utils/getHighlightedLines";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -288,8 +287,6 @@ function JSEditorForm({
     }
   };
 
-  const highlightedLines = getHighlightedLines(currentJSCollection);
-
   useEffect(() => {
     if (parseErrors.length || isEmpty(jsActions)) {
       setDisableRunFunctionality(true);
@@ -376,7 +373,6 @@ function JSEditorForm({
                   currentJSCollection={currentJSCollection}
                   customGutter={JSGutters}
                   executing={isExecutingCurrentJSAction}
-                  highlightedLines={highlightedLines}
                   onChange={handleEditorChange}
                   onUpdateSettings={onUpdateSettings}
                   onValueChange={(string) =>

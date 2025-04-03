@@ -415,8 +415,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.005) {
-      color.oklch.c = 0.005;
+    if (this.seedChroma > 0.025) {
+      color.oklch.c = 0.025;
     }
 
     if (this.seedIsAchromatic) {
@@ -725,7 +725,7 @@ export class DarkModeTheme implements ColorModeTheme {
     // This ensures harmonious combination with main accents and neutrals.
     const color = this.seedColor.clone();
 
-    color.oklch.l = 0.935;
+    color.oklch.l = 0.91;
 
     // If seed color didn't have substantial amount of chroma make sure fg is achromatic.
     if (this.seedIsAchromatic) {
@@ -733,7 +733,7 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsAchromatic) {
-      color.oklch.c = 0.012;
+      color.oklch.c = 0.065;
     }
 
     return color;
@@ -745,14 +745,14 @@ export class DarkModeTheme implements ColorModeTheme {
 
     // For light content on dark background APCA contrast is negative. −60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to low lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) >= -60) {
-      color.oklch.l = 0.82;
+      color.oklch.l = 0.86;
 
       if (this.seedIsAchromatic) {
         color.oklch.c = 0;
       }
 
       if (!this.seedIsAchromatic) {
-        color.oklch.c = 0.136;
+        color.oklch.c = 0.225;
       }
     }
 
@@ -763,7 +763,12 @@ export class DarkModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l -= 0.1;
+    color.oklch.l -= 0.05;
+    color.oklch.c -= 0.04;
+
+    if (color.oklch.c < 0) {
+      color.oklch.c = 0;
+    }
 
     return color;
   }
@@ -771,7 +776,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l -= 0.3;
+    color.oklch.l -= 0.2;
 
     return color;
   }

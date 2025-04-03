@@ -108,6 +108,7 @@ interface ReactTableComponentProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
+  endOfData: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -127,6 +128,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     disableDrag,
     editableCell,
     editMode,
+    endOfData,
     filters,
     handleColumnFreeze,
     handleReorderColumn,
@@ -243,6 +245,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
+      endOfData={endOfData}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}

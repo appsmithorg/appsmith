@@ -527,6 +527,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
 
 export interface WidgetCanvasProps {
   isWidgetSelected?: boolean;
+  isDeletable?: boolean;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
