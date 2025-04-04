@@ -47,8 +47,8 @@
   }
 
   /* h1 */
-  &[data-variant="heading"][data-weight="700"] {
-    letter-spacing: -0.05em;
+  &[data-variant="heading"][data-weight="600"] {
+    letter-spacing: -0.04em;
   }
 }
 

@@ -29,7 +29,7 @@ const createHeading = (
   return HeadingComponent;
 };
 
-export const h1 = createHeading("heading", 1, 700);
+export const h1 = createHeading("heading", 1, 600);
 export const h2 = createHeading("title", 2, 600);
 export const h3 = createHeading("subtitle", 3, 600);
 export const h4 = createHeading("body", 4, 600);
