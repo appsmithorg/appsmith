@@ -3068,8 +3068,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (infiniteScrollEnabled) {
       // reset the cachedRows
-      const isAlreadyOnFirstPage =
-        TableWidgetV2.getMetaPropertiesMap().pageNo === 1;
+      const isAlreadyOnFirstPage = this.props.pageNo === 1;
       const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
 
       pushBatchMetaUpdates("cachedTableData", data);
