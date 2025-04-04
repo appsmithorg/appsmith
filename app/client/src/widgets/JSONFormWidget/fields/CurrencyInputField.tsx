@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
 import type { BaseInputComponentProps } from "./BaseInputField";
@@ -15,6 +14,7 @@ import derived from "widgets/CurrencyInputWidget/widget/derived";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
+import { faro } from "instrumentation";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;
@@ -132,7 +132,17 @@ function CurrencyInputField({
         }
       } catch (e) {
         text = inputValue;
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Currency Input Field Transformation Failed"),
+            message: e instanceof Error ? e.message : String(e),
+            name: "CurrencyInputFieldTransformationFailed",
+          },
+          {
+            type: "error",
+            context: { response: JSON.stringify(e) },
+          },
+        );
       }
 
       const value = derived.value({ text });

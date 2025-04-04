@@ -8,7 +8,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
 import {
@@ -83,6 +82,7 @@ import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import { objectKeys } from "@appsmith/utils";
+import { faro } from "instrumentation";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -131,8 +131,13 @@ export function* openPropertyPaneSaga(replay: any) {
       1000,
     );
   } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
+    faro?.api.pushError(
+      {
+        name: "openPropertyPaneSaga",
+        message: e instanceof Error ? e.message : String(e),
+      },
+      { type: "error" },
+    );
   }
 }
 
@@ -163,8 +168,13 @@ export function* postUndoRedoSaga(replay: any) {
     yield put(selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds));
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
+    faro?.api.pushError(
+      {
+        name: "postUndoRedoSaga",
+        message: e instanceof Error ? e.message : String(e),
+      },
+      { type: "error" },
+    );
   }
 }
 
@@ -256,8 +266,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
     }
   } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
+    faro?.api.pushError(
+      {
+        name: "undoRedoSaga",
+        message: e instanceof Error ? e.message : String(e),
+      },
+      { type: "error" },
+    );
   }
 }
 

@@ -10,12 +10,12 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import * as Sentry from "@sentry/react";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button, Tag } from "@appsmith/ads";
+import { faro } from "instrumentation";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,10 +131,18 @@ class TabControl extends BaseControl<ControlProps, State> {
 
         return parsedData;
       } catch (error) {
-        Sentry.captureException({
-          message: "Tab Migration Failed",
-          oldData: this.props.propertyValue,
-        });
+        faro?.api.pushError(
+          {
+            ...new Error("Tab Migration Failed"),
+            name: "Tab Migration Failed",
+          },
+          {
+            type: "error",
+            context: {
+              oldData: this.props.propertyValue,
+            },
+          },
+        );
       }
     } else {
       return this.props.propertyValue;

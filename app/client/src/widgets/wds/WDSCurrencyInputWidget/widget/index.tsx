@@ -1,7 +1,5 @@
 import _ from "lodash";
 import React from "react";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import type { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -30,6 +28,7 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import { faro } from "instrumentation";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -188,8 +187,16 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       }
     } catch (e) {
       formattedValue = value;
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          ...new Error("Failed to limit decimal value"),
+          message: e instanceof Error ? e.message : String(e),
+          name: "WDSCurrencyInputWidget",
+        },
+        {
+          type: "error",
+        },
+      );
     }
 
     this.props.updateWidgetMetaProperty("text", String(formattedValue));
@@ -247,8 +254,16 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         });
       }
     } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          ...new Error("Failed to format currency"),
+          message: e instanceof Error ? e.message : String(e),
+          name: "WDSCurrencyInputWidget",
+        },
+        {
+          type: "error",
+        },
+      );
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 
@@ -310,8 +325,16 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
-        log.error(e);
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Failed to format currency"),
+            message: e instanceof Error ? e.message : String(e),
+            name: "WDSCurrencyInputWidget",
+          },
+          {
+            type: "error",
+          },
+        );
       }
     }
   }

@@ -19,8 +19,6 @@ import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
-import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
@@ -39,6 +37,7 @@ import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { faro } from "instrumentation";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -347,8 +346,16 @@ class PhoneInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("value", this.props.text);
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
-        log.error(e);
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Phone input widget component mount error"),
+            message: e instanceof Error ? e.message : String(e),
+            name: "PhoneInputWidget",
+          },
+          {
+            type: "error",
+          },
+        );
       }
     }
   }

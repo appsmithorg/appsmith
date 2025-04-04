@@ -11,9 +11,8 @@ import { jsPropertiesState } from "./JSObject/jsPropertiesState";
 import { get, isEmpty, toPath } from "lodash";
 import { APP_MODE } from "entities/App";
 import { isAction } from "ee/workers/Evaluation/evaluationUtils";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
+import { faro } from "instrumentation";
 
 interface ErrorMetaData {
   userScript: string;
@@ -223,8 +222,16 @@ export function convertAllDataTypesToString(e: any) {
     try {
       return JSON.stringify(e);
     } catch (error) {
-      log.debug(error);
-      Sentry.captureException(error);
+      faro?.api.pushError(
+        {
+          ...new Error("Error converting data type to string"),
+          message: e instanceof Error ? e.message : String(e),
+          name: "convertAllDataTypesToString",
+        },
+        {
+          type: "error",
+        },
+      );
     }
   }
 }

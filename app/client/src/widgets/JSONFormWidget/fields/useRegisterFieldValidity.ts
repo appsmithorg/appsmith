@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { set } from "lodash";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
@@ -8,6 +7,7 @@ import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import { faro } from "instrumentation";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -53,7 +53,17 @@ function useRegisterFieldValidity({
           }
         }
       } catch (e) {
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Error setting field validity"),
+            name: "ErrorSettingFieldValidity",
+            message: e instanceof Error ? e.message : String(e),
+          },
+          {
+            type: "error",
+            context: { fieldName, fieldType },
+          },
+        );
       }
     }, 0);
   }, [isValid, fieldName, fieldType, error, clearErrors, setError]);

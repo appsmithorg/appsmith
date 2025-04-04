@@ -16,7 +16,6 @@ import {
   createSnapshotSaga,
   deleteApplicationSnapshotSaga,
 } from "./SnapshotSagas";
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "ee/sagas/PageSagas";
 import { updateApplicationLayout } from "ee/actions/applicationActions";
@@ -27,6 +26,7 @@ import {
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
+import { faro } from "instrumentation";
 
 /**
  * This method is used to convert from auto-layout to fixed layout
@@ -214,7 +214,15 @@ function* logLayoutConversionErrorSaga() {
       (state: AppState) => state.ui.layoutConversion.conversionError,
     );
 
-    yield call(Sentry.captureException, error);
+    faro?.api.pushError(
+      {
+        ...new Error(error.message || "Unknown Error"),
+        name: "LayoutConversionError",
+      },
+      {
+        type: "error",
+      },
+    );
   } catch (e) {
     throw e;
   }

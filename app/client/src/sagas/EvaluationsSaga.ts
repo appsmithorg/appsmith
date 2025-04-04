@@ -30,7 +30,6 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { WidgetProps } from "widgets/BaseWidget";
-import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
   EVAL_AND_LINT_REDUX_ACTIONS,
@@ -123,6 +122,7 @@ import type {
   AffectedJSObjects,
   EvaluationReduxAction,
 } from "actions/EvaluationReduxActionTypes";
+import { faro } from "instrumentation";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -931,8 +931,13 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
       }),
     );
   } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
+    faro?.api.pushError(
+      {
+        name: "evaluateActionSelectorFieldSaga",
+        message: e instanceof Error ? e.message : String(e),
+      },
+      { type: "error", context: { action } },
+    );
   }
 }
 
@@ -1002,8 +1007,13 @@ export default function* evaluationSagaListeners() {
     try {
       yield call(evaluationChangeListenerSaga);
     } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          name: "evaluationChangeListenerSaga",
+          message: e instanceof Error ? e.message : String(e),
+        },
+        { type: "error" },
+      );
     }
   }
 }

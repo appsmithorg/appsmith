@@ -7,7 +7,6 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -170,6 +169,7 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import { faro } from "instrumentation";
 
 interface FilePickerInstumentationObject {
   numberOfFiles: number;
@@ -989,15 +989,19 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
 
   if (!collection) {
-    Sentry.captureException(
-      new Error(
-        "Collection present in layoutOnLoadActions but no collection exists ",
-      ),
+    faro?.api.pushError(
       {
-        extra: {
+        ...new Error(
+          "Collection present in layoutOnLoadActions but no collection exists",
+        ),
+        name: "CollectionNotFoundError",
+      },
+      {
+        type: "error",
+        context: {
           collectionId,
           actionId: pageAction.id,
-          pageId,
+          pageId: JSON.stringify(pageId),
         },
       },
     );

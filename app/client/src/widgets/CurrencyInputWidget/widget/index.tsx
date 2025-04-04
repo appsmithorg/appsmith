@@ -16,8 +16,6 @@ import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
-import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import {
   formatCurrencyNumber,
   limitDecimalValue,
@@ -44,6 +42,7 @@ import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { faro } from "instrumentation";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -498,8 +497,16 @@ class CurrencyInputWidget extends BaseInputWidget<
 
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
-        log.error(e);
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Error formatting default value"),
+            message: e instanceof Error ? e.message : String(e),
+            name: "CurrencyInputWidget",
+          },
+          {
+            type: "error",
+          },
+        );
       }
     }
   }
@@ -516,8 +523,16 @@ class CurrencyInputWidget extends BaseInputWidget<
       }
     } catch (e) {
       formattedValue = value;
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          ...new Error("Error formatting value"),
+          message: e instanceof Error ? e.message : String(e),
+          name: "CurrencyInputWidget",
+        },
+        {
+          type: "error",
+        },
+      );
     }
 
     // text is stored as what user has typed
@@ -574,8 +589,16 @@ class CurrencyInputWidget extends BaseInputWidget<
         });
       }
     } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          ...new Error("Error handling focus change"),
+          message: e instanceof Error ? e.message : String(e),
+          name: "CurrencyInputWidget",
+        },
+        {
+          type: "error",
+        },
+      );
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 

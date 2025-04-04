@@ -9,7 +9,6 @@ import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "entities/Plugin";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   checkIfSectionCanRender,
@@ -26,6 +25,7 @@ import { Spinner, Text } from "@appsmith/ads";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import { Section, Zone } from "../ActionForm";
+import { faro } from "instrumentation";
 
 interface Props {
   // TODO: Fix this the next time the file is edited
@@ -101,9 +101,14 @@ const FormRender = (props: Props) => {
       } else {
         return editorConfig.map(renderEachConfig(formName));
       }
-    } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
+    } catch (e: unknown) {
+      faro?.api.pushError(
+        {
+          name: "FormRender",
+          message: e instanceof Error ? e.message : String(e),
+        },
+        { type: "error", context: { formName, editorConfig } },
+      );
 
       return (
         <ErrorComponent

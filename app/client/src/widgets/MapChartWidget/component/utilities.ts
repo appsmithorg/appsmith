@@ -2,9 +2,8 @@ import * as echarts from "echarts";
 import countryDetails from "./countryDetails";
 import { MapTypes } from "../constants";
 import { geoAlbers, geoAzimuthalEqualArea, geoMercator } from "d3-geo";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import { faro } from "instrumentation";
 
 interface GeoSpecialAreas {
   [areaName: string]: {
@@ -74,8 +73,17 @@ export const loadMapGenerator = () => {
             abortController = null;
 
             if (error.code !== 20) {
-              log.error({ error });
-              Sentry.captureException(error);
+              faro?.api.pushError(
+                {
+                  ...new Error("Map Load Error"),
+                  name: "loadMapGenerator",
+                  message: error.message,
+                },
+                {
+                  type: "error",
+                  context: { response: JSON.stringify(error) },
+                },
+              );
             }
           },
         )
