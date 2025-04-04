@@ -3068,7 +3068,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (infiniteScrollEnabled) {
       // reset the cachedRows
-      pushBatchMetaUpdates("cachedTableData", {});
+      const isAlreadyOnFirstPage =
+        TableWidgetV2.getMetaPropertiesMap().pageNo === 1;
+      const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
+
+      pushBatchMetaUpdates("cachedTableData", data);
       pushBatchMetaUpdates("endOfData", false);
 
       // reset the meta properties
@@ -3084,7 +3088,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
 
       // reset and reload page
-      this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      if (!isAlreadyOnFirstPage) {
+        this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      }
     }
   };
 }
