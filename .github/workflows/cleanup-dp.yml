@@ -12,14 +12,14 @@ jobs:
       # Checkout the code
       - uses: actions/checkout@v2
 
-      - name: Install mongosh
+      - name: Install mongosh and postgres
         run: |
           sudo apt-get update
           sudo apt-get install -y wget gnupg
           wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
           echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
+          sudo apt-get install -y mongodb-mongosh postgresql-client
 
       - name: Install relevant packages
         run: |

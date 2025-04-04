@@ -30,7 +30,7 @@ echo "Getting the pods"
 kubectl get pods
 
 ### Get list of helm charts
-deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].namespace')"
+deployed_charts="$(helm ls -A --filter 'ee[0-9]+' --output json | jq -r '.[].namespace')"
 
 for i in $deployed_charts
   do 
@@ -46,7 +46,6 @@ for i in $deployed_charts
       kubectl delete ns $i || true
       kubectl patch pv $i-appsmith -p '{"metadata":{"finalizers":null}}' || true
       kubectl delete pv $i-appsmith --grace-period=0 --force || true
-#      ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$pr"'") | .AccessPointId')
-#      aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
+      PGPASSWORD=$DB_PASSWORD psql -h $DB_URL -U $DB_USERNAME -d postgres -c "DROP DATABASE IF EXISTS $i;"
     fi
   done
