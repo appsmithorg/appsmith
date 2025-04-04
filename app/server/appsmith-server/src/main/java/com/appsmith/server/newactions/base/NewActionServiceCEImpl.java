@@ -1529,6 +1529,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Mono<Void> postProcessNewlyAddedActions(List<ActionDTO> newlyAddedActions) {
+        return Mono.empty().then();
+    }
+
+    @Override
     public Mono<Void> postProcessDeletedActions(List<ActionDTO> actionDTOs) {
         return Mono.empty().then();
     }
