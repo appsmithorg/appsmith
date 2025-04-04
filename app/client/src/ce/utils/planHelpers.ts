@@ -26,3 +26,8 @@ export const isBranchProtectionLicenseEnabled = (
 ) => {
   return !!featureFlags?.license_git_branch_protection_enabled;
 };
+
+export const isMultiOrgFFEnabled = (featureFlags: FeatureFlags) => {
+  // add cloudHosting check later: Ankita
+  return featureFlags?.license_multi_org_enabled;
+};
