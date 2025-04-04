@@ -17,7 +17,7 @@ import { SegmentedControl, Tooltip, Icon } from "@appsmith/ads";
 import styles from "./styles.module.css";
 
 import {
-  THEME_SETTINGS_BORDER_RADIUS_OPTIONS_FOR_ANVIL,
+  THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
   THEME_SETTINGS_COLOR_MODE_OPTIONS,
@@ -33,7 +33,7 @@ const SubText = styled.p`
   color: var(--ads-v2-color-fg);
 `;
 
-const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS_FOR_ANVIL.map(
+const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
   (optionKey) => ({
     label: (
       <Tooltip content={optionKey.label} key={optionKey.label}>

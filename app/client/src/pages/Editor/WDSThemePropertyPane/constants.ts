@@ -41,12 +41,6 @@ export const THEME_SETTINGS_SIZING_OPTIONS = [
 
 export const THEME_SETTINGS_BORDER_RADIUS_OPTIONS = [
   { label: "Sharp", value: "0px" },
-  { label: "Rounded", value: "6px" },
-  { label: "Pill", value: "20px" },
-];
-
-export const THEME_SETTINGS_BORDER_RADIUS_OPTIONS_FOR_ANVIL = [
-  { label: "Sharp", value: "0px" },
   { label: "Rounded", value: "8px" },
   { label: "Pill", value: "20px" },
 ];
