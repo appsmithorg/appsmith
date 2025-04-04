@@ -13,7 +13,7 @@ const featureFlags = selectFeatureFlags(store.getState());
 
 export const config: AdminConfigType = {
   type: SettingCategories.BRANDING,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.ORGANIZATION,
   controlType: SettingTypes.PAGE,
   canSave: false,
   title: "Branding",

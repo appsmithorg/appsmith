@@ -13,6 +13,7 @@ describe(
     it("1. TC# 2439 Verify 'Page title' changes upon changing Instance name", () => {
       featureFlagIntercept({ license_branding_enabled: true });
       adminSettings.NavigateToAdminSettings();
+      agHelper.GetNClick(AdminsSettings.instanceSettingsTab);
       agHelper.WaitUntilEleAppear(adminSettings._instanceName);
       agHelper.ClearNType(adminSettings._instanceName, "Testing Instance name");
       agHelper.ClickOutside();
@@ -26,6 +27,7 @@ describe(
     it("2. TC# 2439 Verify 'Page title' does not change upon changing Instance name in free plan", () => {
       featureFlagIntercept({ license_branding_enabled: false });
       adminSettings.NavigateToAdminSettings();
+      agHelper.GetNClick(AdminsSettings.instanceSettingsTab);
       agHelper.ClearNType(
         adminSettings._instanceName,
         "Testing Instance name 2",

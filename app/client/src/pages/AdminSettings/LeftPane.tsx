@@ -16,9 +16,9 @@ import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
 import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import {
-  getFilteredAclCategories,
-  getFilteredGeneralCategories,
-  getFilteredOtherCategories,
+  getFilteredOrgCategories,
+  getFilteredUserManagementCategories,
+  getFilteredInstanceCategories,
 } from "ee/utils/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -192,9 +192,12 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const categories = getSettingsCategory(CategoryType.GENERAL);
-  const aclCategories = getSettingsCategory(CategoryType.ACL);
-  const othersCategories = getSettingsCategory(CategoryType.OTHER);
+  const profileCategories = getSettingsCategory(CategoryType.PROFILE);
+  const organizationCategories = getSettingsCategory(CategoryType.ORGANIZATION);
+  const userManagementCategories = getSettingsCategory(
+    CategoryType.USER_MANAGEMENT,
+  );
+  const instanceCategories = getSettingsCategory(CategoryType.INSTANCE);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { category, selected: subCategory } = useParams() as any;
@@ -207,49 +210,66 @@ export default function LeftPane() {
     organizationPermissions,
   );
 
-  const filteredGeneralCategories = getFilteredGeneralCategories(categories);
+  const filteredOrgCategories = getFilteredOrgCategories(
+    organizationCategories,
+    isAuditLogsEnabled,
+  );
 
-  const filteredAclCategories = getFilteredAclCategories(
-    aclCategories,
+  const filteredUserManagmentCategories = getFilteredUserManagementCategories(
+    userManagementCategories,
     isSuperUser,
   );
 
-  const filteredOthersCategories = getFilteredOtherCategories(
-    othersCategories,
+  const filteredInstanceCategories = getFilteredInstanceCategories(
+    instanceCategories,
     isSuperUser,
   );
 
   return (
     <Wrapper>
-      {isSuperUser && (
+      {isSuperUser && profileCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
-            Admin settings
+            Profile
           </StyledHeader>
           <Categories
-            categories={filteredGeneralCategories}
+            categories={profileCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />
         </HeaderContainer>
       )}
-      <HeaderContainer>
-        <StyledHeader kind="heading-s" renderAs="p">
-          Access control
-        </StyledHeader>
-        <Categories
-          categories={filteredAclCategories}
-          currentCategory={category}
-          currentSubCategory={subCategory}
-        />
-      </HeaderContainer>
-      {isAuditLogsEnabled && (
+      {isSuperUser && organizationCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
-            Others
+            Organisation
           </StyledHeader>
           <Categories
-            categories={filteredOthersCategories}
+            categories={filteredOrgCategories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </HeaderContainer>
+      )}
+      {userManagementCategories.length > 0 && (
+        <HeaderContainer>
+          <StyledHeader kind="heading-s" renderAs="p">
+            User management
+          </StyledHeader>
+          <Categories
+            categories={filteredUserManagmentCategories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </HeaderContainer>
+      )}
+      {instanceCategories.length > 0 && (
+        <HeaderContainer>
+          <StyledHeader kind="heading-s" renderAs="p">
+            Instance
+          </StyledHeader>
+          <Categories
+            categories={filteredInstanceCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />

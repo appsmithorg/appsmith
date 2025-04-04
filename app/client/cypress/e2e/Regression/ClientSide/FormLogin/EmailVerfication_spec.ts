@@ -54,7 +54,7 @@ describe("Email verification", { tags: ["@tag.Visual"] }, () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
-    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+    cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
     cy.wait("@getEnvVariables");
     cy.get(adminsSettings.authenticationTab).click();
     cy.get(adminsSettings.formloginButton).click();

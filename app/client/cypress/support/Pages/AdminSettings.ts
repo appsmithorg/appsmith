@@ -16,20 +16,22 @@ export class AdminSettings {
     user +
     "')]/parent::div/parent::span/parent::a/parent::td/following-sibling::td[1]";
   public _instanceName = '[name="instanceName"]';
+  public _googleMapsAPIField = '[name="googleMapsKey"]';
   public rolesTab = ".t--settings-category-roles";
   public auditLogsTab = ".t--settings-category-audit-logs";
   public routes = {
     APPLICATIONS: "/applications",
     SETTINGS: "/settings",
+    PROFILE: "/settings/profile",
     GENERAL: "/settings/general",
     EMAIL: "/settings/email",
-    DEVELOPER_SETTINGS: "/settings/developer-settings",
+    USER_SETTINGS: "/settings/user-settings",
+    INSTANCE_SETTINGS: "/settings/instance-settings",
+    CONFIGURATION: "/settings/configuration",
     AUTHENTICATION: "/settings/authentication",
     GOOGLEAUTH: "/settings/authentication/google-auth",
     GITHUBAUTH: "/settings/authentication/github-auth",
     FORMLOGIN: "/settings/authentication/form-login",
-    ADVANCED: "/settings/advanced",
-    VERSION: "/settings/version",
     BRANDING: "/settings/branding",
     ACCESS_CONTROL: "/settings/access-control",
     AUDIT_LOGS: "/settings/audit-logs",

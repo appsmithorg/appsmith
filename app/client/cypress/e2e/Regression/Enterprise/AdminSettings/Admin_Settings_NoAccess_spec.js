@@ -23,7 +23,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
-    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+    cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
   });
 
   it("2. should test that all business and enterprise general settings should have resp. tag and should be disabled", () => {
@@ -39,6 +39,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       });
       cy.get(adminsSettings.hideWatermarkInput).should("have.attr", "disabled");
 
+      cy.get(adminsSettings.userSettingsTab).click();
       cy.get(adminsSettings.showRolesAndGroupsWrapper).within(() => {
         cy.get(adminsSettings.businessTag)
           .should("exist")

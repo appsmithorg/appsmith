@@ -12,7 +12,7 @@ describe(
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.get(".admin-settings-menu-option").should("be.visible");
       cy.get(".admin-settings-menu-option").click();
-      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+      cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
       // click authentication tab
       cy.get(adminSettings.authenticationTab).click();
       cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
@@ -35,7 +35,7 @@ describe(
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.get(".admin-settings-menu-option").should("be.visible");
       cy.get(".admin-settings-menu-option").click();
-      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+      cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
       // click authentication tab
       cy.get(adminSettings.authenticationTab).click();
       cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
@@ -69,7 +69,7 @@ describe(
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.get(".admin-settings-menu-option").should("be.visible");
       cy.get(".admin-settings-menu-option").click();
-      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+      cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
       // click authentication tab
       cy.get(adminSettings.authenticationTab).click();
       cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);

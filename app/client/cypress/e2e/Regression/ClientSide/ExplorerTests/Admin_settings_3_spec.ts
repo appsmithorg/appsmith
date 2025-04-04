@@ -60,26 +60,6 @@ describe(
       });
     });
 
-    it("4. should test that read more on version opens up release notes", () => {
-      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.VERSION);
-      cy.get(adminsSettings.readMoreLink).within(() => {
-        cy.get("a").click();
-      });
-      cy.wait(2000);
-      cy.get(".ads-v2-modal__content").should("be.visible");
-      cy.get(".ads-v2-modal__content-header").should("be.visible");
-      cy.get(".ads-v2-modal__content-header").should(
-        "contain",
-        "Product updates",
-      );
-      cy.get(".ads-v2-button__content-icon-start").should("be.visible");
-      cy.get(".ads-v2-button__content-icon-start").click();
-      cy.wait(2000);
-      cy.get(".ads-v2-modal__content").should("not.exist");
-    });
-
     it("5. should test that settings page tab redirects not airgap", () => {
       agHelper.VisitNAssert(
         adminSettingsHelper.routes.APPLICATIONS,
@@ -87,18 +67,20 @@ describe(
       );
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.ADVANCED);
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.EMAIL);
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.DEVELOPER_SETTINGS);
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.VERSION);
+      agHelper.GetNClick(adminsSettings.generalTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+      agHelper.GetNClick(adminsSettings.emailTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.GetNClick(adminsSettings.instanceSettingsTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.INSTANCE_SETTINGS);
+      agHelper.GetNClick(adminsSettings.configurationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.CONFIGURATION);
+      agHelper.GetNClick(adminsSettings.userSettingsTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.USER_SETTINGS);
+      agHelper.GetNClick(adminsSettings.branding);
+      agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
     });
   },
 );
