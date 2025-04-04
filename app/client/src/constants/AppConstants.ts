@@ -131,7 +131,7 @@ export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
   accentColor: "#0080ff",
   colorMode: "LIGHT",
-  borderRadius: "6px",
+  borderRadius: "8px",
   density: 1,
   sizing: 1,
   appMaxWidth: APP_MAX_WIDTH.Large,
