@@ -231,6 +231,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       customIsLoadingValue: "",
       cachedTableData: {},
       endOfData: false,
+      userColumnOrder: [],
     };
   }
 
@@ -1350,6 +1351,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
+          userColumnOrder={this.props.userColumnOrder}
           variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}

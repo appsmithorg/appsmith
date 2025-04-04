@@ -109,6 +109,7 @@ interface ReactTableComponentProps {
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
   endOfData: boolean;
+  userColumnOrder?: string[];
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -167,11 +168,48 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     triggerRowSelection,
     unSelectAllRow,
     updatePageNo,
+    userColumnOrder,
     variant,
     widgetId,
     widgetName,
     width,
   } = props;
+
+  // Reorder columns based on userColumnOrder if provided
+  const orderedColumns = React.useMemo(() => {
+    if (!userColumnOrder || userColumnOrder.length === 0) {
+      return columns;
+    }
+
+    // Separate system columns (like edit actions) from regular columns
+    const systemColumns = columns.filter(
+      (col) => col.columnProperties?.columnType === ColumnTypes.EDIT_ACTIONS,
+    );
+    const regularColumns = columns.filter(
+      (col) => col.columnProperties?.columnType !== ColumnTypes.EDIT_ACTIONS,
+    );
+
+    const columnMap = new Map(regularColumns.map((col) => [col.alias, col]));
+    const orderedCols: ReactTableColumnProps[] = [];
+
+    // Add columns in user specified order
+    userColumnOrder.forEach((colName) => {
+      const col = columnMap.get(colName);
+
+      if (col) {
+        orderedCols.push(col);
+        columnMap.delete(colName);
+      }
+    });
+
+    // Add any remaining regular columns that weren't in userColumnOrder
+    // columnMap.forEach((col) => {
+    //   orderedCols.push(col);
+    // });
+
+    // Always append system columns at the end
+    return [...orderedCols, ...systemColumns];
+  }, [columns, userColumnOrder]);
 
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
@@ -179,7 +217,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         if (columnIndex === -1) {
           _sortTableColumn("", asc);
         } else {
-          const column = columns[columnIndex];
+          const column = orderedColumns[columnIndex];
           const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
 
           if (
@@ -191,7 +229,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         }
       }
     },
-    [_sortTableColumn, allowSorting, columns],
+    [_sortTableColumn, allowSorting, orderedColumns],
   );
 
   const selectTableRow = useCallback(
@@ -236,7 +274,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       boxShadow={props.boxShadow}
       canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
-      columns={columns}
+      columns={orderedColumns}
       compactMode={compactMode || CompactModeTypes.DEFAULT}
       data={tableData}
       delimiter={delimiter}
@@ -347,6 +385,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
     prev.canFreezeColumn === next.canFreezeColumn &&
     prev.showConnectDataOverlay === next.showConnectDataOverlay &&
-    prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled
+    prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled &&
+    equal(prev.userColumnOrder, next.userColumnOrder)
   );
 });
