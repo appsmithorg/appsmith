@@ -15,6 +15,22 @@
   &[data-color="neutral-subtle"] {
     color: var(--color-fg-neutral-subtle);
   }
+
+  &[data-variant="heading"][data-weight="700"] {
+    letter-spacing: 0.06em;
+  }
+
+  &:is([data-variant="title"], [data-variant="subtitle"])[data-weight="600"] {
+    letter-spacing: 0.04em;
+  }
+
+  &:is(
+      [data-variant="body"],
+      [data-variant="caption"],
+      [data-variant="footnote"]
+    )[data-weight="500"] {
+    letter-spacing: 0.02em;
+  }
 }
 
 .clampedText {
