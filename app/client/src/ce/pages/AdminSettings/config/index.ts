@@ -13,10 +13,10 @@ import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlo
 
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
+import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 
 const featureFlags = selectFeatureFlags(store.getState());
-
-const isMultiOrgEnabled = featureFlags?.license_multi_org_enabled;
+const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
 
 ConfigFactory.register(GeneralConfig);
 
