@@ -554,8 +554,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return Mono.just(action);
                 })
                 .collectList()
-                .flatMap(actions ->
-                        postProcessNewlyAddedActions(newlyAddedActions).thenReturn(actions))
+                .flatMap(actions -> newActionService
+                        .postProcessNewlyAddedActions(newlyAddedActions)
+                        .thenReturn(actions))
                 .flatMap(actions -> {
                     // Create collection and return with actions
                     final Mono<ActionCollection> actionCollectionMono = this.create(actionCollection)
@@ -589,10 +590,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                                 actionCollection1.getUnpublishedCollection(), actionDTOList, false));
                             });
                 });
-    }
-
-    protected Mono<Void> postProcessNewlyAddedActions(List<ActionDTO> newlyAddedActions) {
-        return Mono.empty().then();
     }
 
     private Mono<ActionCollection> validateActionCollection(ActionCollection actionCollection) {

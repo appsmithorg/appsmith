@@ -141,5 +141,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByCollectionIdAndViewMode(String collectionId, boolean viewMode, AclPermission aclPermission);
 
+    Mono<Void> postProcessNewlyAddedActions(List<ActionDTO> newlyAddedActions);
+
     Mono<Void> postProcessDeletedActions(List<ActionDTO> actionDTOs);
 }
