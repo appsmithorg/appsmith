@@ -98,8 +98,8 @@ export const ThemeSettings = ({
               size="100%"
               title="Border Radius"
             >
-              <option value="0px">Sharp</option>
               <option value="8px">Rounded</option>
+              <option value="0px">Sharp</option>
               <option value="20px">Pill</option>
             </StyledSelect>
           </Flex>
