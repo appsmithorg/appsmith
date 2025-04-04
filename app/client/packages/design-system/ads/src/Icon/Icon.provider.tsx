@@ -1193,6 +1193,10 @@ const Robot2LineIcon = importSvg(
   async () => import("../__assets__/icons/ads/robot-2-line.svg"),
 );
 
+const SparklingFilledIcon = importSvg(
+  async () => import("../__assets__/icons/ads/sparkling-filled.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1563,6 +1567,7 @@ const ICON_LOOKUP = {
   rocket: RocketIcon,
   robot: RobotIcon,
   "robot-2": Robot2LineIcon,
+  "sparkling-filled": SparklingFilledIcon,
   save: Save2LineIcon,
   search: SearchIcon,
   setting: SettingIcon,
