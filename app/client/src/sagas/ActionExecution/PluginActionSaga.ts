@@ -2,6 +2,7 @@ import {
   all,
   call,
   delay,
+  fork,
   put,
   select,
   take,
@@ -1630,6 +1631,35 @@ function* softRefreshActionsSaga() {
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
+function* executeReactiveQueries(
+  action: ReduxAction<{ queriesToRun: string[] }>,
+) {
+  const { queriesToRun } = action.payload;
+
+  if (queriesToRun.length === 0) {
+    return;
+  }
+
+  try {
+    for (const query of queriesToRun) {
+      const action: Action | undefined = yield select(getAction, query);
+
+      if (action) {
+        yield fork(
+          executePluginActionSaga,
+          action,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+        );
+      }
+    }
+  } catch (error) {
+    log.error("Error executing reactive queries", error);
+  }
+}
+
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1642,5 +1672,9 @@ export function* watchPluginActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
+      executeReactiveQueries,
+    ),
   ]);
 }
