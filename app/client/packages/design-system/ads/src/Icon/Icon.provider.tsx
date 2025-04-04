@@ -390,6 +390,9 @@ const QuestionLineIcon = importRemixIcon(
 const UserSharedLineIcon = importRemixIcon(
   async () => import("remixicon-react/UserSharedLineIcon"),
 );
+const UserStarLineIcon = importRemixIcon(
+  async () => import("remixicon-react/UserStarLineIcon"),
+);
 const UserReceived2LineIcon = importRemixIcon(
   async () => import("remixicon-react/UserReceived2LineIcon"),
 );
@@ -1492,6 +1495,7 @@ const ICON_LOOKUP = {
   "user-received-2-line": UserReceived2LineIcon,
   "user-settings-line": UserSettingsLineIcon,
   "user-shared-line": UserSharedLineIcon,
+  "user-star-line": UserStarLineIcon,
   "user-unfollow-line": UserUnfollowLineIcon,
   "vertical-align-bottom": VerticalBottom,
   "vertical-align-middle": VerticalMiddle,
