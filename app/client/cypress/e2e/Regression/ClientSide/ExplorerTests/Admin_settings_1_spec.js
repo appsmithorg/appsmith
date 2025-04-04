@@ -26,7 +26,7 @@ describe(
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.get(".admin-settings-menu-option").should("be.visible");
       cy.get(".admin-settings-menu-option").click();
-      cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
+      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
       cy.wait("@getEnvVariables");
     });
 
@@ -55,7 +55,7 @@ describe(
     it("4. should test that settings page is redirected to default tab", () => {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.visit(adminSettingsHelper.routes.SETTINGS, { timeout: 60000 });
-      cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
+      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
     });
 
     it(

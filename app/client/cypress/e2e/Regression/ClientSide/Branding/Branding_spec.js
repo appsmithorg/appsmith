@@ -59,7 +59,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(adminSettings._adminSettingsBtn).should("be.visible");
     cy.get(adminSettings._adminSettingsBtn).click();
-    cy.url().should("contain", adminSettings.routes.PROFILE);
+    cy.url().should("contain", adminSettings.routes.GENERAL);
     agHelper.AssertElementVisibility(locators.LeftPaneBrandingLink);
     agHelper.GetNClick(locators.LeftPaneBrandingLink);
   });
@@ -289,7 +289,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(adminSettings._adminSettingsBtn).should("be.visible");
     cy.get(adminSettings._adminSettingsBtn).click();
-    cy.url().should("contain", adminSettings.routes.PROFILE);
+    cy.url().should("contain", adminSettings.routes.GENERAL);
 
     cy.get(locators.LeftPaneBrandingLink).should("be.visible");
     cy.get(locators.LeftPaneBrandingLink).click();

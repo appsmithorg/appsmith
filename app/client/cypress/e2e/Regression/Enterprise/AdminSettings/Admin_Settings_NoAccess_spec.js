@@ -23,7 +23,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
-    cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
+    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
   });
 
   it("2. should test that all business and enterprise general settings should have resp. tag and should be disabled", () => {

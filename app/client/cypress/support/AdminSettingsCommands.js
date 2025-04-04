@@ -66,7 +66,7 @@ Cypress.Commands.add("fillGithubForm", () => {
 Cypress.Commands.add("openAuthentication", () => {
   cy.get(".admin-settings-menu-option").should("be.visible");
   cy.get(".admin-settings-menu-option").click();
-  cy.url().should("contain", adminSettingsHelper.routes.PROFILE);
+  cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
   // click authentication tab
   cy.get(adminSettings.authenticationTab).click();
   cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);

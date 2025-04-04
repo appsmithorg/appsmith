@@ -31,7 +31,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     assertHelper.AssertDocumentReady();
     agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
     agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
-    agHelper.AssertURL(adminSettingsHelper.routes.PROFILE);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
     cy.LogOut();
   });
@@ -50,7 +50,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings", { timeout: 60000 });
-    agHelper.AssertURL(adminSettingsHelper.routes.PROFILE);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
   });
 
@@ -216,7 +216,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     assertHelper.AssertDocumentReady();
     agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
     agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
-    agHelper.AssertURL(adminSettingsHelper.routes.PROFILE);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     agHelper.GetNClick(adminsSettings.instanceSettingsTab);
     cy.wait("@getEnvVariables");
     agHelper
