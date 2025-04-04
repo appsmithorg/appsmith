@@ -222,13 +222,7 @@ class FormControlRegistry {
       formControlTypes.RAG_DOCUMENTS_SELECTOR,
       {
         buildPropertyControl(controlProps): JSX.Element {
-          return (
-            <RagDocumentsSelector
-              actionId={controlProps.actionId}
-              datasourceId={controlProps.datasourceId}
-              workspaceId={controlProps.workspaceId}
-            />
-          );
+          return <RagDocumentsSelector {...controlProps} />;
         },
       },
     );
