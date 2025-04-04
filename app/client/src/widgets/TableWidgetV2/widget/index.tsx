@@ -3073,10 +3073,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       // reset the meta properties
       const metaProperties = Object.keys(TableWidgetV2.getMetaPropertiesMap());
+
       metaProperties.forEach((prop) => {
         if (prop !== "pageNo") {
           // Don't reset pageNo yet as we're about to set it
           const defaultValue = TableWidgetV2.getMetaPropertiesMap()[prop];
+
           this.props.updateWidgetMetaProperty(prop, defaultValue);
         }
       });
