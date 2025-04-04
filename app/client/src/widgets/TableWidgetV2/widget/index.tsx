@@ -921,11 +921,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
+      commitBatchMetaUpdates,
+      componentHeight,
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
+      infiniteScrollEnabled,
       pageNo,
       pageSize,
       primaryColumns = {},
+      pushBatchMetaUpdates,
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
@@ -958,8 +962,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     //check if necessary we are batching now updates
     // Check if tableData is modifed
     const isTableDataModified = this.props.tableData !== prevProps.tableData;
-
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
@@ -1038,6 +1040,20 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
         }
       }
+    }
+
+    // Reset widget state when infinite scroll is initially enabled
+    // This should come after all updateInfiniteScrollProperties are done
+    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
+      this.resetTableForInfiniteScroll();
+    }
+
+    // Reset widget state when height changes while infinite scroll is enabled
+    if (
+      infiniteScrollEnabled &&
+      prevProps.componentHeight !== componentHeight
+    ) {
+      this.resetTableForInfiniteScroll();
     }
 
     /*
@@ -3046,6 +3062,36 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  resetTableForInfiniteScroll = () => {
+    const { infiniteScrollEnabled, pushBatchMetaUpdates } = this.props;
+
+    if (infiniteScrollEnabled) {
+      // reset the cachedRows
+      const isAlreadyOnFirstPage = this.props.pageNo === 1;
+      const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
+
+      pushBatchMetaUpdates("cachedTableData", data);
+      pushBatchMetaUpdates("endOfData", false);
+
+      // reset the meta properties
+      const metaProperties = Object.keys(TableWidgetV2.getMetaPropertiesMap());
+
+      metaProperties.forEach((prop) => {
+        if (prop !== "pageNo") {
+          // Don't reset pageNo yet as we're about to set it
+          const defaultValue = TableWidgetV2.getMetaPropertiesMap()[prop];
+
+          this.props.updateWidgetMetaProperty(prop, defaultValue);
+        }
+      });
+
+      // reset and reload page
+      if (!isAlreadyOnFirstPage) {
+        this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      }
+    }
+  };
 }
 
 export default TableWidgetV2;

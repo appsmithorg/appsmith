@@ -1,4 +1,4 @@
-import React, { type Ref } from "react";
+import React, { useMemo, type Ref } from "react";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
 import { LoadingIndicator } from "../../LoadingIndicator";
@@ -28,13 +28,18 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       loadMore: nextPageClick,
     });
 
+    const itemCount = useMemo(
+      () => Math.max(rows.length, pageSize),
+      [rows.length, pageSize],
+    );
+
     return (
       <div className="simplebar-content-wrapper">
         <VariableInfiniteVirtualList
           hasMoreData={!endOfData}
           height={height}
           innerElementType={props.innerElementType}
-          itemCount={rows.length}
+          itemCount={itemCount}
           loadMore={nextPageClick}
           outerRef={ref}
           pageSize={pageSize}

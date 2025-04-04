@@ -1128,23 +1128,24 @@ const PropertyControl = memo((props: Props) => {
               </div>
             </div>
           )}
-          {PropertyControlFactory.createControl(
-            config,
-            {
-              onPropertyChange: onPropertyChange,
-              onBatchUpdateProperties: onBatchUpdateProperties,
-              openNextPanel: openPanel,
-              deleteProperties: onDeleteProperties,
-              onBatchUpdateWithAssociatedUpdates:
-                onBatchUpdateWithAssociatedWidgetUpdates,
-              theme: props.theme,
-            },
-            isDynamic,
-            customJSControl,
-            additionAutocomplete,
-            hideEvaluatedValue(),
-            props.isSearchResult,
-          )}
+          {!isControlDisabled &&
+            PropertyControlFactory.createControl(
+              config,
+              {
+                onPropertyChange: onPropertyChange,
+                onBatchUpdateProperties: onBatchUpdateProperties,
+                openNextPanel: openPanel,
+                deleteProperties: onDeleteProperties,
+                onBatchUpdateWithAssociatedUpdates:
+                  onBatchUpdateWithAssociatedWidgetUpdates,
+                theme: props.theme,
+              },
+              isDynamic,
+              customJSControl,
+              additionAutocomplete,
+              hideEvaluatedValue(),
+              props.isSearchResult,
+            )}
           <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>
       );
