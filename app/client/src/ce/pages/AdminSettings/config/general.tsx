@@ -12,9 +12,11 @@ import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+const isAirgappedInstance = isAirgapped();
 
 export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   id: "APPSMITH_DISABLE_TELEMETRY",
@@ -23,7 +25,7 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "Anonymous usage data",
   text: "Share anonymous usage data to help improve the product",
-  isVisible: () => !isMultiOrgEnabled,
+  isVisible: () => !isMultiOrgEnabled && !isAirgappedInstance,
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {

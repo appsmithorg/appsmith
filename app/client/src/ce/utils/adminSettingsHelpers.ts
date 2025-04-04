@@ -72,12 +72,12 @@ export const getFilteredOrgCategories = (
   return categories
     ?.map((category: Category) => {
       if (category.slug === "audit-logs" && !isAuditLogsEnabled) {
-        return false;
+        return null;
       }
 
       return category;
     })
-    .filter(Boolean);
+    .filter(Boolean) as Category[];
 };
 
 export const getFilteredUserManagementCategories = (
