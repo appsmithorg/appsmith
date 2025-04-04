@@ -68,6 +68,8 @@ export const getWrapperCategory = (
 export const getFilteredOrgCategories = (
   categories: Category[],
   isAuditLogsEnabled: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isSuperUser?: boolean,
 ) => {
   return categories
     ?.map((category: Category) => {

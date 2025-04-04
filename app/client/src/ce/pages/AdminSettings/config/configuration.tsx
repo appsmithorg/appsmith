@@ -14,6 +14,9 @@ import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export const APPSMITH_DB_URL: Setting = {
   id: "APPSMITH_DB_URL",
@@ -53,6 +56,7 @@ export const APPSMITH_POOL_SIZE_CONFIG: Setting = {
       return "Please enter valid pool size more than or equal to 5.";
     }
   },
+  isVisible: () => !isAirgappedInstance,
 };
 
 export const APPSMITH_IS_CROSS_SITE_EMBEDDING_ENABLED: Setting = {

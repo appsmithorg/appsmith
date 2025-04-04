@@ -213,6 +213,7 @@ export default function LeftPane() {
   const filteredOrgCategories = getFilteredOrgCategories(
     organizationCategories,
     isAuditLogsEnabled,
+    isSuperUser,
   );
 
   const filteredUserManagmentCategories = getFilteredUserManagementCategories(

@@ -1,3 +1,4 @@
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import type {
   AdminConfigType,
@@ -10,6 +11,8 @@ import {
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
 import { isEmail } from "utils/formhelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
@@ -48,6 +51,7 @@ export const APPSMITH_GOOGLE_MAPS_CONFIG: Setting = {
   label: "Google Maps API key",
   subText: "How to configure google maps?",
   subTextLink: GOOGLE_MAPS_SETUP_DOC,
+  isVisible: () => !isAirgappedInstance,
 };
 
 export const APPSMITH_CUSTOM_DOMAINS: Setting = {
