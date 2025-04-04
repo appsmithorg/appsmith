@@ -31,9 +31,15 @@ export const Code = (props: CodeProps) => {
         alignItems="center"
         justifyContent="space-between"
         padding="spacing-1"
+        paddingLeft="spacing-4"
       >
         <Text size="caption">{match[1]}</Text>
-        <Button icon="copy" onPress={handleCopy} size="small" variant="ghost">
+        <Button
+          icon={copied ? "check" : "copy"}
+          onPress={handleCopy}
+          size="small"
+          variant="ghost"
+        >
           {copied ? "Copied!" : "Copy"}
         </Button>
       </Flex>
