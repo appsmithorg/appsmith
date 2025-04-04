@@ -127,6 +127,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+          {{- if .Values.extraVolumeMounts }}
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+          {{- end }}
             - name: data
               mountPath: /appsmith-stacks
           {{- if .Values.customCAcert }}
@@ -164,9 +167,12 @@ spec:
         - name: {{ .Values.image.pullSecrets }}
       {{- end }}
       volumes:
+      {{- if .Values.extraVolumes }}
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
+      {{- end }}
       {{- if .Values.customCAcert }}
       - name: ca-cert
-        configMap: 
+        configMap:
           name: {{ $releaseName }}-trustedca
           items:
           {{- range $key, $value := .Values.customCAcert }}
