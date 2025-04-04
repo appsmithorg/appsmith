@@ -168,7 +168,7 @@ spec:
       {{- end }}
       volumes:
       {{- if .Values.extraVolumes }}
-        {{- toYaml .Values.extraVolumes | nindent 8 }}
+      {{- toYaml .Values.extraVolumes | nindent 6 }}
       {{- end }}
       {{- if .Values.customCAcert }}
       - name: ca-cert
