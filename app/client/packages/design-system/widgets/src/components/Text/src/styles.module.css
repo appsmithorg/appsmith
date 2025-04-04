@@ -16,20 +16,39 @@
     color: var(--color-fg-neutral-subtle);
   }
 
+  /* body */
+  &[data-variant="body"] {
+    letter-spacing: -0.02em;
+  }
+
+  /* h6 */
+  &[data-variant="caption"][data-weight="500"] {
+    letter-spacing: -0.01em;
+  }
+
+  /* h5 */
+  &[data-variant="body"][data-weight="500"] {
+    letter-spacing: -0.02em;
+  }
+
+  /* h4 */
+  &[data-variant="body"][data-weight="600"] {
+    letter-spacing: -0.02em;
+  }
+
+  /* h3 */
+  &[data-variant="subtitle"][data-weight="600"] {
+    letter-spacing: -0.025em;
+  }
+
+  /* h2 */
+  &[data-variant="title"][data-weight="600"] {
+    letter-spacing: -0.03em;
+  }
+
+  /* h1 */
   &[data-variant="heading"][data-weight="700"] {
-    letter-spacing: 0.06em;
-  }
-
-  &:is([data-variant="title"], [data-variant="subtitle"])[data-weight="600"] {
-    letter-spacing: 0.04em;
-  }
-
-  &:is(
-      [data-variant="body"],
-      [data-variant="caption"],
-      [data-variant="footnote"]
-    )[data-weight="500"] {
-    letter-spacing: 0.02em;
+    letter-spacing: -0.05em;
   }
 }
 

@@ -14,7 +14,6 @@ const createHeading = (
 ) => {
   const HeadingComponent = ({ children, ref }: HeadingProps) => (
     <Text
-      color="neutral"
       data-component={`h${level}`}
       fontWeight={fontWeight}
       ref={ref as Ref<HTMLDivElement>}
@@ -33,6 +32,6 @@ const createHeading = (
 export const h1 = createHeading("heading", 1, 700);
 export const h2 = createHeading("title", 2, 600);
 export const h3 = createHeading("subtitle", 3, 600);
-export const h4 = createHeading("body", 4, 500);
+export const h4 = createHeading("body", 4, 600);
 export const h5 = createHeading("body", 5, 500);
 export const h6 = createHeading("caption", 6, 500);
