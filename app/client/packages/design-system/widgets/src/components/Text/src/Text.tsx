@@ -39,6 +39,8 @@ const _Text = (props: TextProps, ref: Ref<HTMLDivElement>) => {
     <div
       className={clsx(className, styles.text, getTypographyClassName(size))}
       data-color={color ? color : undefined}
+      data-variant={size}
+      data-weight={getFontWeight(fontWeight, isBold)}
       ref={ref}
       style={{
         fontWeight: getFontWeight(fontWeight, isBold),
