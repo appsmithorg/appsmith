@@ -188,7 +188,7 @@ export const Profile = () => {
   };
 
   const onClear = () => {
-    setName(user?.name);
+    setName(user?.name || "");
     setAuthorNameInState(gitConfig?.authorName);
     setAuthorEmailInState(gitConfig?.authorEmail);
     setAreFormValuesUpdated(false);
