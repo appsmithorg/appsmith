@@ -149,7 +149,7 @@ export const Profile = () => {
       dispatch(logoutUser());
     } catch (error) {
       toast.show((error as { _error: string })._error, {
-        kind: "success",
+        kind: "error",
       });
     }
   };
