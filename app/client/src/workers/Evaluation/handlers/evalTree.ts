@@ -348,7 +348,7 @@ export async function evalTree(
           }
 
           for (const path of completeEvalOrder) {
-            const value = get(dataTree, path);
+            const value = get(dataTreeEvaluator.getEvalTree(), path);
 
             set(prevState, path, klona(value));
           }
