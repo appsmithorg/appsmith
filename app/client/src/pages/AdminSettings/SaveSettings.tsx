@@ -12,8 +12,8 @@ import styled from "styled-components";
 const SettingsButtonWrapper = styled.div`
   position: fixed;
   bottom: 0;
-  left: 0;
-  width: 100%;
+  right: 0;
+  width: ${(props) => `calc(100% - ${props.theme.sidebarWidth})`};
   height: ${(props) => props.theme.settings.footerHeight}px;
   padding: ${(props) => props.theme.spaces[11]}px 20px 24px
     ${(props) =>

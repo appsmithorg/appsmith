@@ -19,7 +19,7 @@ import {
 export const config: AdminConfigType = {
   icon: "mail-line",
   type: SettingCategories.EMAIL,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.ORGANIZATION,
   controlType: SettingTypes.GROUP,
   title: "Email",
   canSave: true,

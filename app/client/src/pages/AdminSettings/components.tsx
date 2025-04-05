@@ -19,7 +19,9 @@ export const SettingsHeader = styled(Text)`
   margin-bottom: 0px;
 `;
 
-export const SettingsSubHeader = styled(Text)``;
+export const SettingsSubHeader = styled(Text)`
+  color: var(--ads-v2-color-fg);
+`;
 
 export const SettingsFormWrapper = styled.div`
   max-width: 40rem;

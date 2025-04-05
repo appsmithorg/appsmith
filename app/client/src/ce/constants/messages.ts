@@ -1502,7 +1502,7 @@ export const SAML_AUTH_DESC = () =>
   "Enable your organization to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
   "Enable your organization to sign in with your preferred OIDC compliant provider.";
-export const SAVE_BUTTON = () => "Save";
+export const SAVE_BUTTON = () => "Save Changes";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
@@ -1692,6 +1692,8 @@ export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
   `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
+  `.ICO, .PNG, or .JPG only • Max 32X32`;
+export const PROFILE_DISPLAY_PICTURE_REQUIREMENT = () =>
   `.ICO, .PNG, or .JPG only • Max 32X32`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
   `Used on buttons, links, and other interactive elements.`;

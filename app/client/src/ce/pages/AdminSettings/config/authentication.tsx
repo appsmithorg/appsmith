@@ -44,7 +44,7 @@ const { mailEnabled } = getAppsmithConfigs();
 
 export const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "Form login",
   subText: createMessage(FORM_LOGIN_DESC),
@@ -205,7 +205,7 @@ export const SingleOrgGoogleAuthSettings: Setting[] = [
 
 export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
   subText: createMessage(GOOGLE_AUTH_DESC),
@@ -215,7 +215,7 @@ export const GoogleAuth: AdminConfigType = {
 
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
@@ -336,9 +336,9 @@ function AuthMain() {
 }
 
 export const config: AdminConfigType = {
-  icon: "lock-password-line",
+  icon: "shield-user-line",
   type: SettingCategories.AUTHENTICATION,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,

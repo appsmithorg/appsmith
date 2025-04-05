@@ -352,7 +352,7 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 
     if (isValidResponse) {
       yield put(fetchGlobalGitConfigInit());
-      toast.show(createMessage(GIT_USER_UPDATED_SUCCESSFULLY), {
+      toast.show("Successfully saved", {
         kind: "success",
       });
     }

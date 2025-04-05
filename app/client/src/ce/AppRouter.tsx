@@ -17,7 +17,6 @@ import {
   CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
-  PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
   SIGN_UP_URL,
@@ -44,7 +43,6 @@ import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
-import UserProfile from "pages/UserProfile";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
@@ -88,7 +86,6 @@ export function Routes() {
         path={APPLICATIONS_URL}
       />
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
-      <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect

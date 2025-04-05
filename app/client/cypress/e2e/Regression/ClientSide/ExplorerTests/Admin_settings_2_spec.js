@@ -11,7 +11,7 @@ describe(
   { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. should test that configure link redirects to google maps setup doc", () => {
-      cy.visit(adminSettingsHelper.routes.DEVELOPER_SETTINGS, {
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
         timeout: 60000,
       });
       cy.get(adminsSettings.readMoreLink).within(() => {
@@ -35,17 +35,6 @@ describe(
         cy.get(adminsSettings.githubButton).should("not.exist");
         cy.get(adminsSettings.formloginButton).click();
         cy.url().should("contain", adminSettingsHelper.routes.FORMLOGIN);
-      },
-    );
-
-    it(
-      "airgap",
-      "5. should test that read more on version is hidden for airgap",
-      () => {
-        cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
-        cy.get(adminsSettings.versionTab).click();
-        cy.url().should("contain", adminSettingsHelper.routes.VERSION);
-        cy.get(adminsSettings.readMoreLink).should("not.exist");
       },
     );
 

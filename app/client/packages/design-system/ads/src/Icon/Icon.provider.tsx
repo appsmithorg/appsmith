@@ -390,6 +390,9 @@ const QuestionLineIcon = importRemixIcon(
 const UserSharedLineIcon = importRemixIcon(
   async () => import("remixicon-react/UserSharedLineIcon"),
 );
+const UserStarLineIcon = importRemixIcon(
+  async () => import("remixicon-react/UserStarLineIcon"),
+);
 const UserReceived2LineIcon = importRemixIcon(
   async () => import("remixicon-react/UserReceived2LineIcon"),
 );
@@ -458,6 +461,9 @@ const ArrowUpSLineIcon = importRemixIcon(
 );
 const AccountBoxLineIcon = importRemixIcon(
   async () => import("remixicon-react/AccountBoxLineIcon"),
+);
+const AccountCircleLineIcon = importRemixIcon(
+  async () => import("remixicon-react/AccountCircleLineIcon"),
 );
 const AddLineIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),
@@ -580,6 +586,12 @@ const AppsLineIcon = importRemixIcon(
 
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),
+);
+const ShieldUserLineIcon = importRemixIcon(
+  async () => import("remixicon-react/ShieldUserLineIcon"),
+);
+const EqualizerLineIcon = importRemixIcon(
+  async () => import("remixicon-react/EqualizerLineIcon"),
 );
 const PriceTagIcon = importRemixIcon(
   async () => import("remixicon-react/PriceTag3LineIcon"),
@@ -1211,6 +1223,7 @@ function PlayIconPNGWrapper() {
 
 const ICON_LOOKUP = {
   "account-box-line": AccountBoxLineIcon,
+  "account-circle-line": AccountCircleLineIcon,
   "add-box-line": AddBoxLineIcon,
   "add-circle-control": AddCircleIcon,
   "add-line": AddLineIcon,
@@ -1319,6 +1332,7 @@ const ICON_LOOKUP = {
   "edit-white": EditWhiteIcon,
   "editor-v3": EditorV3Icon,
   "enter-line": CornerDownLeftLineIcon,
+  "equalizer-line": EqualizerLineIcon,
   "expand-less": ExpandLess,
   "expand-more": ExpandMore,
   "external-link-line": ExternalLinkIcon,
@@ -1481,6 +1495,7 @@ const ICON_LOOKUP = {
   "user-received-2-line": UserReceived2LineIcon,
   "user-settings-line": UserSettingsLineIcon,
   "user-shared-line": UserSharedLineIcon,
+  "user-star-line": UserStarLineIcon,
   "user-unfollow-line": UserUnfollowLineIcon,
   "vertical-align-bottom": VerticalBottom,
   "vertical-align-middle": VerticalMiddle,
@@ -1573,6 +1588,7 @@ const ICON_LOOKUP = {
   setting: SettingIcon,
   share: ShareForwardIcon,
   shield: Shield,
+  "shield-user-line": ShieldUserLineIcon,
   shine: ShineIcon,
   slash: SlashIcon,
   snippet: Snippet,

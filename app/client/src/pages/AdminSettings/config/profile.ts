@@ -4,15 +4,14 @@ import {
   SettingCategories,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
-import { AuditLogsUpgradePage } from "../../Upgrade/AuditLogsUpgradePage";
+import { Profile } from "../Profile";
 
 export const config: AdminConfigType = {
-  icon: "file-list-2-line",
-  type: SettingCategories.AUDIT_LOGS,
-  categoryType: CategoryType.ORGANIZATION,
+  icon: "account-circle-line",
+  type: SettingCategories.PROFILE,
+  categoryType: CategoryType.PROFILE,
   controlType: SettingTypes.PAGE,
-  component: AuditLogsUpgradePage,
-  title: "Audit logs",
+  component: Profile,
+  title: "Account",
   canSave: false,
-  isFeatureEnabled: false,
 } as AdminConfigType;

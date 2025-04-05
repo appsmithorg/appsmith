@@ -9,7 +9,7 @@ import { AccessControlUpgradePage } from "../../Upgrade/AccessControlUpgradePage
 export const config: AdminConfigType = {
   icon: "user-3-line",
   type: SettingCategories.ACCESS_CONTROL,
-  categoryType: CategoryType.ACL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.PAGE,
   component: AccessControlUpgradePage,
   title: "Access Control",
