@@ -44,7 +44,7 @@ describe(
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
-      agHelper.GetNClick(AdminsSettings.emailTab);
+      agHelper.GetNClick(AdminsSettings.instanceSettingsTab);
 
       cy.get(AdminsSettings.addEmailGhostInput)
         .click({ force: true })

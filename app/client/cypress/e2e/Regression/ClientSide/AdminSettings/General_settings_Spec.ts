@@ -32,7 +32,7 @@ describe(
         adminSettings._instanceName,
         "Testing Instance name 2",
       );
-      agHelper.ClickButton("Save");
+      agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       agHelper.ValidateToastMessage("Successfully saved");
       cy.title().should("eq", "Appsmith");
     });
