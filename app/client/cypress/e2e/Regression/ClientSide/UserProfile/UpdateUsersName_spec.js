@@ -13,12 +13,14 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
       username = uid;
       cy.get("[data-testid=t--display-name]").clear();
       cy.get("[data-testid=t--display-name]").click().type(username);
+      _.agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       // Waiting as the input onchange has a debounce
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
-      cy.get(".t--admin-settings-back-button").click();
+      _.agHelper.GetNClick(homePage.homeIcon, 0, true);
       cy.reload();
       cy.get(homePage.profileMenu).click();
+      cy.get(".t--edit-profile").click({ force: true });
       cy.get(".t--user-name").contains(username);
     });
   });
@@ -41,7 +43,7 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
         expect(text).to.equal(Cypress.env("USERNAME"));
       });
 
-    cy.get(".ads-v2-button__content").last().contains("Reset password").click();
+    cy.get(".t--user-reset-password").last().contains("Reset password").click();
     cy.wait("@resetPwd").should(
       "have.nested.property",
       "response.body.responseMeta.status",

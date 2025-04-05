@@ -76,6 +76,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
 
   it("1. Limit embedding then Allow embedding everywhere then Disable everywhere", function () {
     cy.get(".admin-settings-menu-option").click();
+    _.agHelper.GetNClick(adminSettings.configurationTab);
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(1).click();
       cy.get(".bp3-input-ghost").type(window.location.origin).blur();
@@ -92,6 +93,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     // it("2. Allow embedding everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
+    _.agHelper.GetNClick(adminSettings.configurationTab);
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(0).click();
     });
@@ -106,6 +108,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     // it("3. Disable everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
+    _.agHelper.GetNClick(adminSettings.configurationTab);
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").last().click();
     });

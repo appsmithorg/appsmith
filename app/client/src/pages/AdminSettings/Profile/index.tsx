@@ -251,6 +251,7 @@ export const Profile = () => {
               />
               {isFormLoginEnabled && (
                 <ResetPasswordButton
+                  className="t--user-reset-password"
                   kind="tertiary"
                   onClick={forgotPassword}
                   renderAs="a"

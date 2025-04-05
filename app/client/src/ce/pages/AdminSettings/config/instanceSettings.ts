@@ -16,7 +16,7 @@ const isAirgappedInstance = isAirgapped();
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
-  category: SettingCategories.GENERAL,
+  category: SettingCategories.INSTANCE_SETTINGS,
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Instance name",
