@@ -35,6 +35,9 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
+import { get, set } from "lodash";
+import { klona } from "klona";
+import { create } from "mutative";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,7 +72,7 @@ export async function evalTree(
   let staleMetaIds: string[] = [];
   let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
-
+  let isUpdateTree = false;
   const {
     actionDataPayloadConsolidated,
     affectedJSObjects,
@@ -244,9 +247,10 @@ export async function evalTree(
           ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      isUpdateTree = true;
+      // dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
+      //   evalProps: dataTreeEvaluator.evalProps,
+      // });
 
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
@@ -321,6 +325,41 @@ export async function evalTree(
           ...evalOrder,
         ]);
 
+        // Update previous state with deep copies of paths in completeEvalOrder
+        if (isUpdateTree && dataTreeEvaluator) {
+          const prevState =
+            dataTreeEvaluator.getPrevState() ||
+            ({} as Record<string, Record<string, unknown>>);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const updatedPrevState = create(prevState, (draft: any) => {
+            const evalProps = dataTreeEvaluator?.getEvalProps() || {};
+
+            if (evalProps) {
+              for (const [entityName, entityEvalProps] of Object.entries(
+                evalProps,
+              ) as [string, { __evaluation__?: { errors: unknown } }][]) {
+                if (!entityEvalProps.__evaluation__) continue;
+
+                if (entityName in draft) {
+                  set(
+                    draft[entityName as keyof typeof draft],
+                    "__evaluation__",
+                    klona({ errors: entityEvalProps.__evaluation__.errors }),
+                  );
+                }
+              }
+            }
+
+            for (const path of completeEvalOrder) {
+              const value = get(dataTreeEvaluator?.getEvalTree(), path);
+
+              set(draft, path, klona(value));
+            }
+          });
+
+          dataTree = updatedPrevState;
+        }
+
         updates = generateOptimisedUpdatesAndSetPrevState(
           dataTree,
           dataTreeEvaluator,
@@ -331,6 +370,8 @@ export async function evalTree(
       return updates;
     },
   );
+
+  isUpdateTree = false;
 
   const evalTreeResponse = {
     updates,
