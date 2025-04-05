@@ -27,11 +27,11 @@ const PremiumTag = styled(Tag)`
 
 export default function PremiumDatasources(props: {
   plugins: PremiumIntegration[];
-  isGACEnabled?: boolean;
+  isIntegrationsEnabledForPaid?: boolean;
 }) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
   const handleOnClick = (name: string) => {
-    handlePremiumDatasourceClick(name, props.isGACEnabled);
+    handlePremiumDatasourceClick(name, props.isIntegrationsEnabledForPaid);
     setSelectedIntegration(name);
   };
 
@@ -53,7 +53,7 @@ export default function PremiumDatasources(props: {
           key={integration.name}
           name={integration.name}
           rightSibling={
-            !props.isGACEnabled && (
+            !props.isIntegrationsEnabledForPaid && (
               <PremiumTag isClosable={false} kind={"premium"}>
                 {createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG)}
               </PremiumTag>

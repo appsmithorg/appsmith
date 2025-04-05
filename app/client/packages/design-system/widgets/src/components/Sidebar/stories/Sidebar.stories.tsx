@@ -17,9 +17,7 @@ const meta: Meta<typeof Sidebar> = {
       },
     },
   },
-  args: {
-    title: "Sidebar",
-  },
+  args: {},
   render: (args) => (
     <SidebarProvider
       defaultState="collapsed"

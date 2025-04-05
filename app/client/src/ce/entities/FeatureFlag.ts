@@ -49,13 +49,15 @@ export const FEATURE_FLAG = {
     "config_mask_session_recordings_enabled",
   config_user_session_recordings_enabled:
     "config_user_session_recordings_enabled",
-  release_ads_entity_item_enabled: "release_ads_entity_item_enabled",
   release_external_saas_plugins_enabled:
     "release_external_saas_plugins_enabled",
   release_table_infinitescroll_enabled: "release_table_infinitescroll_enabled",
   license_multi_org_enabled: "license_multi_org_enabled",
   release_table_custom_sort_function_enabled:
     "release_table_custom_sort_function_enabled",
+  release_git_package_enabled: "release_git_package_enabled",
+  license_external_saas_plugins_enabled:
+    "license_external_saas_plugins_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -98,11 +100,12 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   kill_session_recordings_enabled: false,
   config_user_session_recordings_enabled: true,
   config_mask_session_recordings_enabled: true,
-  release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
   release_table_infinitescroll_enabled: false,
   license_multi_org_enabled: false,
   release_table_custom_sort_function_enabled: false,
+  release_git_package_enabled: false,
+  license_external_saas_plugins_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

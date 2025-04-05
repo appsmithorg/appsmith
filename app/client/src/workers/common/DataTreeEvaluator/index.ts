@@ -245,6 +245,9 @@ export default class DataTreeEvaluator {
     return this.oldUnEvalTree;
   }
 
+  setOldUnevalTree(oldUnEvalTree: UnEvalTree) {
+    this.oldUnEvalTree = oldUnEvalTree;
+  }
   /**
    * Method to create all data required for linting and
    * evaluation of the first tree
@@ -589,6 +592,7 @@ export default class DataTreeEvaluator {
       undefined,
       webworkerTelemetry,
       () =>
+        // this.oldUnEvalTree is not mutated as getDataTreeContext declares this paremeter as Readonly<UnEvalTree>
         parseJSActions(this, unEvalTree, this.oldUnEvalTree, jsTranslatedDiffs),
     );
 
@@ -608,12 +612,14 @@ export default class DataTreeEvaluator {
       configTree,
     );
 
+    // this variable is not mutated and is used to drive a diff operation, So this.oldUnEvalTree is not affected by mutations.
     const oldUnEvalTreeWithStringifiedJSFunctions = Object.assign(
       {},
       this.oldUnEvalTree,
       stringifiedOldUnEvalTreeJSCollections,
     );
 
+    // this variable is not mutated, it is driving the allKeys generation and the value
     const unEvalTreeWithStringifiedJSFunctions = Object.assign(
       {},
       updatedUnEvalTree,
@@ -648,9 +654,8 @@ export default class DataTreeEvaluator {
   } {
     this.setConfigTree(configTree);
 
-    const localUnEvalTree = Object.assign({}, unEvalTree);
     const updatedUnEvalTreeJSFunction = this.updateUnEvalTreeJSFunction(
-      localUnEvalTree,
+      unEvalTree,
       configTree,
     );
 
@@ -774,7 +779,7 @@ export default class DataTreeEvaluator {
     };
   }
 
-  getEvaluationOrder({
+  getEvaluationOrderAndSetEvalTreeWithNewUnevalTreeValues({
     pathsToSkipFromEval,
     subTreeSortOrder,
     unEvalTree,
@@ -791,20 +796,22 @@ export default class DataTreeEvaluator {
 
       if (!isDynamicLeaf(unEvalTree, fullPath, this.getConfigTree())) continue;
 
-      const unEvalPropValue = get(unEvalTree, fullPath);
       const evalPropValue = get(this.evalTree, fullPath);
 
       evaluationOrder.push(fullPath);
 
       if (isFunction(evalPropValue)) continue;
 
+      const unEvalPropValue = get(unEvalTree, fullPath);
+
       // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
-      set(this.evalTree, fullPath, unEvalPropValue);
+      set(this.evalTree, fullPath, klona(unEvalPropValue));
     }
 
     return { evaluationOrder };
   }
 
+  // setupTree should treat updatedUnEvalTree as immutable
   setupTree(
     updatedUnEvalTree: UnEvalTree,
     updatedValuePaths: string[][],
@@ -833,11 +840,12 @@ export default class DataTreeEvaluator {
     );
     const calculateSortOrderEndTime = performance.now();
 
-    const { evaluationOrder } = this.getEvaluationOrder({
-      unEvalTree: updatedUnEvalTree,
-      pathsToSkipFromEval,
-      subTreeSortOrder,
-    });
+    const { evaluationOrder } =
+      this.getEvaluationOrderAndSetEvalTreeWithNewUnevalTreeValues({
+        unEvalTree: updatedUnEvalTree,
+        pathsToSkipFromEval,
+        subTreeSortOrder,
+      });
 
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
@@ -853,9 +861,10 @@ export default class DataTreeEvaluator {
 
     const cloneStartTime = performance.now();
 
-    // TODO: For some reason we are passing some reference which are getting mutated.
-    // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(updatedUnEvalTree);
+    // We earlier had an issue where the oldUnEvalTree was getting mutated, it happened because of some properties of updatedUnevalTree were getting tied to it
+    // To avoid this, we clone specific properties of updatedUnEvalTree and assign it to evalTree so now they are independent of each other.
+
+    this.setOldUnevalTree(updatedUnEvalTree);
     this.oldConfigTree = Object.assign({}, this.getConfigTree());
     const cloneEndTime = performance.now();
 
@@ -886,7 +895,7 @@ export default class DataTreeEvaluator {
     updatedValuePaths: string[][],
     pathsToSkipFromEval: string[] = [],
   ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
-    const updatedUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    const updatedUnEvalTree = this.oldUnEvalTree;
 
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {

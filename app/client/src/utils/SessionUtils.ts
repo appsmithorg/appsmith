@@ -1,7 +1,14 @@
 import Api from "api/Api";
 import type { ApiResponse } from "api/types";
 
+// Constants for session-related URL parameters
 export const SESSION_TOKEN_PARAM = "sessionToken";
+export const ORIGINAL_SESSION_ID_PARAM = "originalSessionId";
+export const DELETE_SESSION_PARAM = "deleteSession";
+export const SESSION_TRANSFER_PHASE_PARAM = "sessionTransferPhase";
+export const CSRF_TOKEN_PARAM = "csrfToken";
+export const TRANSFER_PHASE_PARAM = "transferPhase";
+export const SOURCE_DOMAIN_PARAM = "sourceDomain";
 
 /**
  * Validates a session token from the URL and sets up the session.
@@ -12,15 +19,20 @@ export const SESSION_TOKEN_PARAM = "sessionToken";
 export const validateSessionToken = async (): Promise<boolean> => {
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get("sessionToken");
+    const sessionToken = urlParams.get(SESSION_TOKEN_PARAM);
 
     if (!sessionToken) {
       return false;
     }
 
+    // Create a copy of URL parameters to forward to the validation endpoint
+    const validationParams = new URLSearchParams(window.location.search);
+
+    const validationUrl = `v1/session/validate?${validationParams.toString()}`;
+
     // Get the response from the API
     const response = (await Api.get(
-      `v1/session/validate?sessionToken=${sessionToken}`,
+      validationUrl,
     )) as unknown as ApiResponse<boolean>;
 
     // Check if the request was successful
@@ -28,10 +40,17 @@ export const validateSessionToken = async (): Promise<boolean> => {
       return false;
     }
 
-    // Remove the session token from the URL
+    // Remove the session token and related parameters from the URL
     const url = new URL(window.location.href);
 
-    url.searchParams.delete("sessionToken");
+    url.searchParams.delete(SESSION_TOKEN_PARAM);
+    url.searchParams.delete(ORIGINAL_SESSION_ID_PARAM);
+    url.searchParams.delete(DELETE_SESSION_PARAM);
+    url.searchParams.delete(SESSION_TRANSFER_PHASE_PARAM);
+    url.searchParams.delete(CSRF_TOKEN_PARAM);
+    url.searchParams.delete(TRANSFER_PHASE_PARAM);
+    url.searchParams.delete(SOURCE_DOMAIN_PARAM);
+
     window.history.replaceState({}, "", url.toString());
 
     // The data field contains the boolean result directly

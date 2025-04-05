@@ -349,7 +349,11 @@ export function Table(props: TableProps) {
         {isHeaderVisible && <TableHeader />}
         <div className={getTableWrapClassName} ref={tableWrapperRef}>
           <div {...getTableProps()} className="table column-freeze">
-            {shouldUseVirtual ? <VirtualTable /> : <StaticTable />}
+            {shouldUseVirtual ? (
+              <VirtualTable ref={scrollBarRef} />
+            ) : (
+              <StaticTable />
+            )}
           </div>
         </div>
       </TableWrapper>

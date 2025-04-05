@@ -160,6 +160,9 @@ public class ActionCollectionServiceImplTest {
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
+
+        Mockito.when(newActionService.postProcessNewlyAddedActions(Mockito.any()))
+                .thenReturn(Mono.empty().then());
     }
 
     @Test
@@ -546,6 +549,10 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(actionCollectionRepository.archive(Mockito.any())).thenReturn(Mono.empty());
 
+        Mockito.when(newActionService.generateActionByViewMode(any(NewAction.class), Mockito.anyBoolean()))
+                .thenAnswer(x -> x.getArgument(0, NewAction.class).getUnpublishedAction());
+        Mockito.when(newActionService.postProcessDeletedActions(Mockito.any())).thenReturn(Mono.empty());
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
 
@@ -588,6 +595,10 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(newActionService.archiveById(Mockito.any())).thenReturn(Mono.just(new NewAction()));
 
         Mockito.when(actionCollectionRepository.archive(Mockito.any())).thenReturn(Mono.empty());
+
+        Mockito.when(newActionService.generateActionByViewMode(any(NewAction.class), Mockito.anyBoolean()))
+                .thenAnswer(x -> x.getArgument(0, NewAction.class).getUnpublishedAction());
+        Mockito.when(newActionService.postProcessDeletedActions(Mockito.any())).thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");

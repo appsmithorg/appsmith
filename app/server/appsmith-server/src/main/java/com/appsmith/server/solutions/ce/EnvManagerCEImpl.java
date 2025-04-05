@@ -47,7 +47,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.context.Context;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -381,7 +380,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(user -> validateChanges(user, envChanges).thenReturn(user))
                 .flatMap(user -> applyChangesToEnvFileWithoutAclCheck(envChanges)
                         // Add the organization id to the context to be able to extract the feature flags
-                        .contextWrite(Context.of(ORGANIZATION_ID, user.getOrganizationId()))
+                        .contextWrite(ctx -> ctx.put(ORGANIZATION_ID, user.getOrganizationId()))
                         // For configuration variables, save the variables to the config collection instead of .env file
                         // We ideally want to migrate all variables from .env file to the config collection for better
                         // scalability

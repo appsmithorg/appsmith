@@ -8,10 +8,14 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "@appsmith/ads";
-import { isValidLicense } from "ee/selectors/organizationSelectors";
+import {
+  isValidLicense,
+  isWithinAnOrganization,
+} from "ee/selectors/organizationSelectors";
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -20,8 +24,10 @@ export function SignupSuccess() {
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
+  const isOnLoginPage = !useSelector(isWithinAnOrganization);
 
   useEffect(() => {
     user?.email && setUserSignedUpFlag(user?.email);
@@ -31,14 +37,22 @@ export function SignupSuccess() {
 
   const redirectUsingQueryParam = useCallback(
     () =>
-      redirectUserAfterSignup(
+      redirectUserAfterSignup({
         redirectUrl,
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
-        isNonInvitedUser,
-      ),
-    [],
+        isAiAgentFlowEnabled,
+        isOnLoginPage,
+      }),
+    [
+      dispatch,
+      isNonInvitedUser,
+      isOnLoginPage,
+      redirectUrl,
+      shouldEnableFirstTimeUserOnboarding,
+      validLicense,
+    ],
   );
 
   const onGetStarted = useCallback((proficiency?: string, useCase?: string) => {
@@ -67,7 +81,8 @@ export function SignupSuccess() {
   if (
     user?.isSuperUser ||
     ((user?.role || user?.proficiency) && user?.useCase) ||
-    shouldEnableFirstTimeUserOnboarding !== "true"
+    shouldEnableFirstTimeUserOnboarding !== "true" ||
+    isAiAgentFlowEnabled
   ) {
     redirectUsingQueryParam();
 
