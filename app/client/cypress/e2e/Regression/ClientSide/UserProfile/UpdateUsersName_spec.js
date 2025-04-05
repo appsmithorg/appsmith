@@ -22,7 +22,9 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
       cy.reload();
       cy.get(homePage.profileMenu).click();
       cy.get(".t--edit-profile").click({ force: true });
-      cy.get("[data-testid=t--display-name]").contains(username);
+      cy.get("[data-testid=t--display-name]")
+        .invoke("attr", "value")
+        .should("contain", username);
     });
   });
 
