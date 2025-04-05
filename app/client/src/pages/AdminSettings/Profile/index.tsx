@@ -84,7 +84,7 @@ export const Profile = () => {
   const isFetching = useSelector(getIsFetchingGlobalGitConfig);
   const globalGitConfig = useSelector(getGlobalGitConfig);
   const { globalProfile, updateGlobalProfile } = useGlobalProfile();
-  const [name, setName] = useState(user?.name);
+  const [name, setName] = useState(user?.name || "");
   const [isSaving, setIsSaving] = useState(false);
   const [areFormValuesUpdated, setAreFormValuesUpdated] = useState(false);
   const isGitModEnabled = useGitModEnabled();
@@ -155,13 +155,21 @@ export const Profile = () => {
   };
 
   const saveName = () => {
-    name &&
-      nameValidator(name).isValid &&
-      dispatch(
-        updateUserDetails({
-          name,
-        }),
-      );
+    const validation = nameValidator(name);
+
+    if (!validation.isValid) {
+      toast.show(validation.message, { kind: "error" });
+      setIsSaving(false);
+      setName(user?.name || "");
+
+      return;
+    }
+
+    dispatch(
+      updateUserDetails({
+        name,
+      }),
+    );
   };
 
   const onSave = () => {
