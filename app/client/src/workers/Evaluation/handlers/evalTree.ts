@@ -37,6 +37,7 @@ import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
 import { get, set } from "lodash";
 import { klona } from "klona";
+import { create } from "mutative";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -329,31 +330,34 @@ export async function evalTree(
           const prevState =
             dataTreeEvaluator.getPrevState() ||
             ({} as Record<string, Record<string, unknown>>);
-          const evalProps = dataTreeEvaluator.getEvalProps() || {};
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const updatedPrevState = create(prevState, (draft: any) => {
+            const evalProps = dataTreeEvaluator?.getEvalProps() || {};
 
-          if (evalProps) {
-            for (const [entityName, entityEvalProps] of Object.entries(
-              evalProps,
-            ) as [string, { __evaluation__?: { errors: unknown } }][]) {
-              if (!entityEvalProps.__evaluation__) continue;
+            if (evalProps) {
+              for (const [entityName, entityEvalProps] of Object.entries(
+                evalProps,
+              ) as [string, { __evaluation__?: { errors: unknown } }][]) {
+                if (!entityEvalProps.__evaluation__) continue;
 
-              if (entityName in prevState) {
-                set(
-                  prevState[entityName as keyof typeof prevState],
-                  "__evaluation__",
-                  klona({ errors: entityEvalProps.__evaluation__.errors }),
-                );
+                if (entityName in draft) {
+                  set(
+                    draft[entityName as keyof typeof draft],
+                    "__evaluation__",
+                    klona({ errors: entityEvalProps.__evaluation__.errors }),
+                  );
+                }
               }
             }
-          }
 
-          for (const path of completeEvalOrder) {
-            const value = get(dataTreeEvaluator.getEvalTree(), path);
+            for (const path of completeEvalOrder) {
+              const value = get(dataTreeEvaluator?.getEvalTree(), path);
 
-            set(prevState, path, klona(value));
-          }
+              set(draft, path, klona(value));
+            }
+          });
 
-          dataTree = prevState;
+          dataTree = updatedPrevState;
         }
 
         updates = generateOptimisedUpdatesAndSetPrevState(
