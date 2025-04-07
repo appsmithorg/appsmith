@@ -107,7 +107,7 @@ export const getFilteredUserManagementCategories = (
 
       return null;
     })
-    .filter(Boolean);
+    .filter(Boolean) as Category[];
 };
 
 export const getFilteredInstanceCategories = (
@@ -123,5 +123,5 @@ export const getFilteredInstanceCategories = (
 
       return null;
     })
-    .filter(Boolean);
+    .filter(Boolean) as Category[];
 };
