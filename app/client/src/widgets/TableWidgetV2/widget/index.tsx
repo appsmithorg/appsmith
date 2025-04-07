@@ -3064,24 +3064,37 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   resetTableForInfiniteScroll = () => {
-    const { infiniteScrollEnabled, pushBatchMetaUpdates } = this.props;
+    const {
+      infiniteScrollEnabled,
+      pushBatchMetaUpdates,
+      updateWidgetMetaProperty,
+    } = this.props;
 
     if (infiniteScrollEnabled) {
       // reset the cachedRows
       pushBatchMetaUpdates("cachedTableData", {});
       pushBatchMetaUpdates("endOfData", false);
 
-      // reset the meta properties
-      const metaProperties = Object.keys(TableWidgetV2.getMetaPropertiesMap());
-
-      metaProperties.forEach((prop) => {
-        if (prop !== "pageNo") {
-          // Don't reset pageNo yet as we're about to set it
-          const defaultValue = TableWidgetV2.getMetaPropertiesMap()[prop];
-
-          this.props.updateWidgetMetaProperty(prop, defaultValue);
-        }
+      // Explicitly reset specific meta properties
+      updateWidgetMetaProperty("selectedRowIndex", undefined);
+      updateWidgetMetaProperty("selectedRowIndices", undefined);
+      updateWidgetMetaProperty("searchText", undefined);
+      updateWidgetMetaProperty("triggeredRowIndex", undefined);
+      updateWidgetMetaProperty("filters", []);
+      updateWidgetMetaProperty("sortOrder", {
+        column: "",
+        order: null,
       });
+      updateWidgetMetaProperty("transientTableData", {});
+      updateWidgetMetaProperty("updatedRowIndex", -1);
+      updateWidgetMetaProperty("editableCell", defaultEditableCell);
+      updateWidgetMetaProperty("columnEditableCellValue", {});
+      updateWidgetMetaProperty("selectColumnFilterText", {});
+      updateWidgetMetaProperty("isAddRowInProgress", false);
+      updateWidgetMetaProperty("newRowContent", undefined);
+      updateWidgetMetaProperty("newRow", undefined);
+      updateWidgetMetaProperty("previousPageVisited", false);
+      updateWidgetMetaProperty("nextPageVisited", false);
 
       // reset and reload page
       this.updatePageNumber(1, EventType.ON_NEXT_PAGE);

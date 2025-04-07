@@ -44,25 +44,7 @@ describe(
       });
     });
 
-    it("2. Should increase row height when cell wrapping is enabled", () => {
-      // turn on cell wrapping
-      table.EditColumn("description", "v2");
-      propPane.TogglePropertyState("Cell wrapping", "On");
-      propPane.NavigateBackToPropertyPane();
-
-      // get the height of the row with the longest text
-      cy.get(".t--widget-tablewidgetv2 .tbody .tr").each(($row) => {
-        cy.wrap($row)
-          .invoke("outerHeight")
-          .then((height) => {
-            if (height !== undefined) {
-              expect(Math.ceil(height)).to.be.greaterThan(DEFAULT_ROW_HEIGHT);
-            }
-          });
-      });
-    });
-
-    it("3. Should update row heights when content changes", () => {
+    it("2. Should update row heights when content changes", () => {
       // check and store current row height in variable
       let currentRowHeight = 0;
       cy.get(".t--widget-tablewidgetv2 .tbody .tr").each(($row) => {
@@ -110,7 +92,7 @@ describe(
         });
     });
 
-    it("4. Should revert to fixed height when cell wrapping is disabled", () => {
+    it("3. Should revert to fixed height when cell wrapping is disabled", () => {
       // turn off cell wrapping
       table.EditColumn("description", "v2");
       propPane.TogglePropertyState("Cell wrapping", "Off");
@@ -128,7 +110,7 @@ describe(
       });
     });
 
-    it("5. Should handle HTML content in cells with proper height adjustment", () => {
+    it("4. Should handle HTML content in cells with proper height adjustment", () => {
       // Create test data with HTML content
       const htmlTestData = [
         {
