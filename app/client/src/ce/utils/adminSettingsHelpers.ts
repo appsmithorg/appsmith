@@ -24,6 +24,7 @@ export const saveAllowed = (
     const checkFormLogin = isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
+        settings["isGoogleOAuthEnabled"] !== false &&
         socialLoginList.includes("google"),
       checkGithubAuth =
         settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
