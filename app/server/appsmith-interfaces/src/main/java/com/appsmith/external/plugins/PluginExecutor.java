@@ -254,17 +254,23 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    // TODO: Following methods of executeParameterizedWithFlags, executeParameterizedWithMetricsAndFlags,
-    // triggerWithFlags are added to support feature flags in the plugin modules. Current implementation of
-    // featureFlagService is only available in server module and not available in any of the plugin modules due to
-    // dependencies on SessionUserService, OrganizationService etc. Hence, these methods are added to support feature
-    // flags in the plugin modules.
-    // Ideal solution would be to move featureFlagService and its dependencies to the shared interface module
-    // But this is a bigger change and will be done in future. Current change of passing flags was done to resolve
-    // release blocker
-    // https://github.com/appsmithorg/appsmith/issues/37714
-    // Once thorogh testing of shared drive support is done, we can remove this tech debt of passing feature flags like
-    // this.
+    /**
+     * TODO: Following methods of executeParameterizedWithFlags, executeParameterizedWithMetricsAndFlags,
+     * triggerWithFlags are added
+     * to support feature flags in the plugin modules. Current implementation of featureFlagService is only available in
+     * server module
+     * and not available in any of the plugin modules due to dependencies on SessionUserService, OrganizationService etc.
+     * Hence, these methods are added to support feature flags in the plugin modules.
+     * Ideal solution would be to move featureFlagService and its dependencies to the shared interface module
+     * But this is a bigger change and will be done in future. Current change of passing flags was done to resolve release blocker
+     * https://github.com/appsmithorg/appsmith/issues/37714
+     * Once thorogh testing of shared drive support is done, we can remove this tech debt of passing feature flags like this.
+     */
+
+    /**
+     * If you are overriding this method in plugins, make sure to handle variable substitution and final execution
+     * in the plugin code itself. Variable substitution is handled by {@link #prepareConfigurationsForExecution}
+     */
     default Mono<ActionExecutionResult> executeParameterizedWithFlags(
             C connection,
             ExecuteActionDTO executeActionDTO,
@@ -274,6 +280,23 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
     }
 
+    /**
+     * Appsmith Server calls this function for execution of the action.
+     * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
+     * <p>
+     * Plugins requiring their custom implementation of variable substitution should override this function and then are
+     * responsible both for variable substitution and final execution.
+     *
+     * @param connection              : This is the connection that is established to the data source. This connection is according
+     *                                to the parameters in Datasource Configuration
+     * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+     *                                which would be used for substitution
+     * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+     * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+     * @param observationRegistry     : This is used for adding performance metrics to plugin modules
+     * @param featureFlagMap          : This is used for adding feature flagging capabilities to plugin modules.
+     * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
+     */
     default Mono<ActionExecutionResult> executeParameterizedWithMetricsAndFlags(
             C connection,
             ExecuteActionDTO executeActionDTO,
