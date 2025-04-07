@@ -220,7 +220,7 @@ const FormRender = (props: Props) => {
         const layout =
           section.controlType === "SINGLE_COLUMN_ZONE"
             ? "single_column"
-            : "single_column";
+            : "double_column";
 
         return (
           <Zone
