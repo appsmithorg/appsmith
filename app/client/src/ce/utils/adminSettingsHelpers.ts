@@ -95,7 +95,7 @@ export const getFilteredOrgCategories = (
 export const getFilteredUserManagementCategories = (
   categories: Category[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  organizationPermissions: string[],
+  showAdminSettings: boolean,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSuperUser?: boolean,
 ) => {

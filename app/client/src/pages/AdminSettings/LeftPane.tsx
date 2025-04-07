@@ -23,6 +23,7 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -209,6 +210,7 @@ export default function LeftPane() {
     isFeatureEnabled,
     organizationPermissions,
   );
+  const showAdminSettings = getShowAdminSettings(isFeatureEnabled, user);
 
   const filteredOrgCategories = getFilteredOrgCategories(
     organizationCategories,
@@ -218,7 +220,7 @@ export default function LeftPane() {
 
   const filteredUserManagmentCategories = getFilteredUserManagementCategories(
     userManagementCategories,
-    organizationPermissions,
+    showAdminSettings,
     isSuperUser,
   );
 
