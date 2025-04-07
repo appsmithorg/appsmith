@@ -265,7 +265,9 @@ export function SignUp(props: SignUpFormProps) {
         <title>{htmlPageTitle}</title>
       </Helmet>
 
-      {showError && <Callout kind="error">{getSafeErrorMessage(errorMessage)}</Callout>}
+      {showError && (
+        <Callout kind="error">{getSafeErrorMessage(errorMessage)}</Callout>
+      )}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
