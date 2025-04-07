@@ -15,16 +15,6 @@ export interface UseInfiniteScrollReturn {
   onItemsRendered: (props: ListOnItemsRenderedProps) => void;
 }
 
-/**
-  *  Infinite Scroll Hook
-  *
-  * This hook can be somewhat complex to understand, and grasping its functionality hinges on the four ref variables, along with the two methods: `onItemsRendered` and `debouncedLoadMore`.
-
-  * Let’s start with `debouncedLoadMore`.
-
-
- 
- */
 export const useInfiniteScroll = ({
   endOfData,
   isLoading,
