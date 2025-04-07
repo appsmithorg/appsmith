@@ -124,6 +124,15 @@ function* syncApiParamsSaga(
         `${currentPath}${paramsString}`,
       ),
     );
+    
+    // Also update the action property to ensure the path is updated in the action
+    yield put(
+      setActionProperty({
+        actionId: actionId,
+        propertyName: "actionConfiguration.path",
+        value: `${currentPath}${paramsString}`,
+      }),
+    );
   }
 }
 
