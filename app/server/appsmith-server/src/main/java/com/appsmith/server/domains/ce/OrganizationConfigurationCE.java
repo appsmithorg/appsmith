@@ -81,7 +81,7 @@ public class OrganizationConfigurationCE implements Serializable {
 
         googleMapsKey = ObjectUtils.defaultIfNull(organizationConfiguration.getGoogleMapsKey(), googleMapsKey);
         isFormLoginEnabled =
-                ObjectUtils.defaultIfNull(organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
+                getComputedValue(true, organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         isSignupDisabled = ObjectUtils.defaultIfNull(organizationConfiguration.getIsSignupDisabled(), isSignupDisabled);
         instanceName = ObjectUtils.defaultIfNull(organizationConfiguration.getInstanceName(), instanceName);
         emailVerificationEnabled = ObjectUtils.defaultIfNull(
@@ -91,6 +91,14 @@ public class OrganizationConfigurationCE implements Serializable {
         migrationStatus = organizationConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
+    }
+
+    protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {
+        // The default value for isGoogleOAuthEnabled is true if it is not set in the organization configuration
+        if (currentValue == null && updatedValue == null) {
+            return defaultValue;
+        }
+        return ObjectUtils.defaultIfNull(updatedValue, currentValue);
     }
 
     public static class Fields {
