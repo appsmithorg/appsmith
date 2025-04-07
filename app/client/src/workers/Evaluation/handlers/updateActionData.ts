@@ -6,6 +6,8 @@ import DataStore from "../dataStore";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { UpdateActionProps } from "./types";
+import { create } from "mutative";
+import { klona } from "klona";
 
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
@@ -62,5 +64,22 @@ export function updateActionsToEvalTree(
     const path = `${entityName}.${dataPath}`;
 
     DataStore.setActionData(path, data);
+
+    // Update setSemiUpdatedPrevTree with mutative
+    if (
+      dataTreeEvaluator &&
+      dataTreeEvaluator.getSemiUpdatedPrevTree() &&
+      dataTreeEvaluator.shouldRunOptimisation
+    ) {
+      const prevState = dataTreeEvaluator.getSemiUpdatedPrevTree();
+
+      if (prevState) {
+        const updatedPrevState = create(prevState, (draft) => {
+          set(draft, `${entityName}.[${dataPath}]`, klona(data));
+        });
+
+        dataTreeEvaluator.setSemiUpdatedPrevTree(updatedPrevState);
+      }
+    }
   }
 }

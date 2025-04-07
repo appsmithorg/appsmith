@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty } from "lodash";
+import { isEmpty, set, get } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -35,6 +35,8 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
+import { create } from "mutative";
+import { klona } from "klona";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -192,6 +194,10 @@ export async function evalTree(
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
+      dataTreeEvaluator.shouldRunOptimisation = true;
+      dataTreeEvaluator.setSemiUpdatedPrevTree(
+        dataTreeEvaluator.getPrevState(),
+      );
       const tree = dataTreeEvaluator.getEvalTree();
 
       // during update cycles update actions to the dataTree directly
@@ -244,10 +250,40 @@ export async function evalTree(
           ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = create(
+        dataTreeEvaluator.getSemiUpdatedPrevTree() || {},
+        (draft: DataTree) => {
+          for (const fullPropertyPath of evalOrder) {
+            set(
+              draft,
+              fullPropertyPath,
+              klona(
+                dataTreeEvaluator?.evalTree
+                  ? get(dataTreeEvaluator.evalTree, fullPropertyPath)
+                  : undefined,
+              ),
+            );
+          }
 
+          const evalProps = dataTreeEvaluator?.evalProps;
+
+          if (!evalProps) return;
+
+          for (const [entityName, entityEvalProps] of Object.entries(
+            evalProps,
+          )) {
+            if (!entityEvalProps.__evaluation__) continue;
+
+            set(
+              draft[entityName as keyof DataTree],
+              "__evaluation__",
+              klona({ errors: entityEvalProps.__evaluation__.errors }),
+            );
+          }
+        },
+      );
+
+      dataTreeEvaluator.shouldRunOptimisation = false;
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );

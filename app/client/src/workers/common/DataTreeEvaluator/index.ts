@@ -156,6 +156,7 @@ import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
+import { create } from "mutative";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -194,6 +195,8 @@ export default class DataTreeEvaluator {
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
   prevState = {};
+  semiUpdatedPrevState: DataTree | null = null;
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPrevState(state: any) {
@@ -216,7 +219,15 @@ export default class DataTreeEvaluator {
   getEvalTree() {
     return this.evalTree;
   }
+  shouldRunOptimisation = false;
 
+  getSemiUpdatedPrevTree() {
+    return this.semiUpdatedPrevState;
+  }
+
+  setSemiUpdatedPrevTree(dataTree: DataTree | null) {
+    this.semiUpdatedPrevState = dataTree;
+  }
   getEvalProps() {
     return this.evalProps;
   }
@@ -791,21 +802,52 @@ export default class DataTreeEvaluator {
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
     const evaluationOrder: string[] = [];
 
-    for (const fullPath of subTreeSortOrder) {
-      if (pathsToSkipFromEval.includes(fullPath)) continue;
+    const semiUpdatedPrevTree = this.getSemiUpdatedPrevTree();
 
-      if (!isDynamicLeaf(unEvalTree, fullPath, this.getConfigTree())) continue;
+    if (this.shouldRunOptimisation) {
+      const updatedSemiUpdatedPrevTree = create(
+        semiUpdatedPrevTree,
+        (draft: DataTree) => {
+          for (const fullPath of subTreeSortOrder) {
+            if (pathsToSkipFromEval.includes(fullPath)) continue;
 
-      const evalPropValue = get(this.evalTree, fullPath);
+            if (!isDynamicLeaf(unEvalTree, fullPath, this.getConfigTree()))
+              continue;
 
-      evaluationOrder.push(fullPath);
+            const evalPropValue = get(this.evalTree, fullPath);
 
-      if (isFunction(evalPropValue)) continue;
+            evaluationOrder.push(fullPath);
 
-      const unEvalPropValue = get(unEvalTree, fullPath);
+            if (isFunction(evalPropValue)) continue;
 
-      // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
-      set(this.evalTree, fullPath, klona(unEvalPropValue));
+            const unEvalPropValue = get(unEvalTree, fullPath);
+
+            // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
+            set(this.evalTree, fullPath, klona(unEvalPropValue));
+            set(draft, fullPath, klona(unEvalPropValue));
+          }
+        },
+      );
+
+      this.setSemiUpdatedPrevTree(updatedSemiUpdatedPrevTree);
+    } else {
+      for (const fullPath of subTreeSortOrder) {
+        if (pathsToSkipFromEval.includes(fullPath)) continue;
+
+        if (!isDynamicLeaf(unEvalTree, fullPath, this.getConfigTree()))
+          continue;
+
+        const evalPropValue = get(this.evalTree, fullPath);
+
+        evaluationOrder.push(fullPath);
+
+        if (isFunction(evalPropValue)) continue;
+
+        const unEvalPropValue = get(unEvalTree, fullPath);
+
+        // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
+        set(this.evalTree, fullPath, klona(unEvalPropValue));
+      }
     }
 
     return { evaluationOrder };
@@ -831,6 +873,27 @@ export default class DataTreeEvaluator {
 
     updateEvalTreeWithJSCollectionState(this.evalTree);
 
+    if (this.shouldRunOptimisation) {
+      const jsCollections = JSObjectCollection.getVariableState();
+      const jsCollectionEntries = Object.entries(jsCollections);
+
+      const updatedSemiUpdatedPrevTree = create(
+        this.getSemiUpdatedPrevTree(),
+        (draft: DataTree) => {
+          for (const [jsObjectName, variableState] of jsCollectionEntries) {
+            if (!draft[jsObjectName]) continue;
+
+            draft[jsObjectName] = Object.assign(
+              draft[jsObjectName],
+              klona(variableState),
+            );
+          }
+        },
+      );
+
+      this.setSemiUpdatedPrevTree(updatedSemiUpdatedPrevTree);
+    }
+
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder = this.calculateSubTreeSortOrder(
       updatedValuePaths,
@@ -853,6 +916,19 @@ export default class DataTreeEvaluator {
       updatedDependencies: this.dependencies,
       evaluationOrder: evaluationOrder,
     });
+
+    if (this.shouldRunOptimisation) {
+      const updatedSemiUpdatedPrevTree1 = create(
+        this.getSemiUpdatedPrevTree(),
+        (draft: DataTree) => {
+          removedPaths.forEach((removedPath) => {
+            unset(draft, removedPath.fullpath);
+          });
+        },
+      );
+
+      this.setSemiUpdatedPrevTree(updatedSemiUpdatedPrevTree1);
+    }
 
     // Remove any deleted paths from the eval tree
     removedPaths.forEach((removedPath) => {
@@ -1796,11 +1872,34 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     differences: Diff<any, any>[];
   }) {
+    if (differences.length === 0) return;
+
+    // Apply changes to this.evalTree
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
 
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
+    }
+
+    if (this.shouldRunOptimisation) {
+      // Update the semi-updated previous state with the same differences
+      const semiUpdatedPrevState = this.getSemiUpdatedPrevTree();
+
+      if (semiUpdatedPrevState) {
+        const updatedSemiPrevState = create(
+          semiUpdatedPrevState,
+          (draft: DataTree) => {
+            for (const d of differences) {
+              if (!Array.isArray(d.path) || d.path.length === 0) continue;
+
+              applyChange(draft, undefined, klona(d));
+            }
+          },
+        );
+
+        this.setSemiUpdatedPrevTree(updatedSemiPrevState);
+      }
     }
   }
 
