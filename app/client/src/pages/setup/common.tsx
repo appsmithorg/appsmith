@@ -151,13 +151,13 @@ export const UserWelcomeScreenTextBanner = styled.div<{
   isSuperUser?: boolean;
 }>`
   width: 60%;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   ${(props) =>
     props.isSuperUser
       ? "padding: calc(2*var(--ads-spaces-17)) 0 0;"
-      : "justify-content: center;"}
+      : "justify-content: center; padding-block: var(--ads-spaces-12);"}
   margin-left: 8rem;
 `;
 

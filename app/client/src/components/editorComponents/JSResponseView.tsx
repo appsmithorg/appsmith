@@ -42,8 +42,6 @@ import { StateInspector } from "./Debugger/StateInspector";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
-import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
-import { Visualization } from "PluginActionEditor/components/PluginActionResponse/components/Visualization";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -214,7 +212,6 @@ function JSResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
   const location = useLocation();
-  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const ideType = getIDETypeByUrl(location.pathname);
 
@@ -226,20 +223,6 @@ function JSResponseView(props: Props) {
         panelComponent: JSResponseTab,
       },
     ];
-
-    if (isAnvilEnabled) {
-      responseTabs.push({
-        key: DEBUGGER_TAB_KEYS.VISUALIZATION_TAB,
-        title: "AI Response Visualizer",
-        panelComponent: currentFunction && (
-          <Visualization
-            entityId={currentFunction.id}
-            response={response.value}
-            visualizationElements={currentFunction.visualization?.result}
-          />
-        ),
-      });
-    }
 
     const jsTabs: BottomTab[] = [
       ...responseTabs,
