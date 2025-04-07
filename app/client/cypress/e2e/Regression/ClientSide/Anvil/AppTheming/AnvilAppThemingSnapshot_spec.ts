@@ -60,7 +60,7 @@ describe(
     });
 
     it("5. Corners", () => {
-      ["0px", "6px", "20px"].forEach((corner) => {
+      ["0px", "8px", "20px"].forEach((corner) => {
         anvilSnapshot.setCorners(corner);
 
         anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingCorner${corner}`);
