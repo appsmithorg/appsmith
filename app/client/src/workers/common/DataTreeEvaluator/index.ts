@@ -805,8 +805,8 @@ export default class DataTreeEvaluator {
     const semiUpdatedPrevTree = this.getSemiUpdatedPrevTree();
 
     if (this.shouldRunOptimisation) {
-      const updatedSemiUpdatedPrevTree = create(
-        semiUpdatedPrevTree,
+      const updatedSemiUpdatedPrevTree = create<DataTree>(
+        semiUpdatedPrevTree || {},
         (draft: DataTree) => {
           for (const fullPath of subTreeSortOrder) {
             if (pathsToSkipFromEval.includes(fullPath)) continue;
@@ -877,8 +877,8 @@ export default class DataTreeEvaluator {
       const jsCollections = JSObjectCollection.getVariableState();
       const jsCollectionEntries = Object.entries(jsCollections);
 
-      const updatedSemiUpdatedPrevTree = create(
-        this.getSemiUpdatedPrevTree(),
+      const updatedSemiUpdatedPrevTree = create<DataTree>(
+        this.getSemiUpdatedPrevTree() || {},
         (draft: DataTree) => {
           for (const [jsObjectName, variableState] of jsCollectionEntries) {
             if (!draft[jsObjectName]) continue;
@@ -918,8 +918,8 @@ export default class DataTreeEvaluator {
     });
 
     if (this.shouldRunOptimisation) {
-      const updatedSemiUpdatedPrevTree1 = create(
-        this.getSemiUpdatedPrevTree(),
+      const updatedSemiUpdatedPrevTree1 = create<DataTree>(
+        this.getSemiUpdatedPrevTree() || {},
         (draft: DataTree) => {
           removedPaths.forEach((removedPath) => {
             unset(draft, removedPath.fullpath);
@@ -1887,8 +1887,8 @@ export default class DataTreeEvaluator {
       const semiUpdatedPrevState = this.getSemiUpdatedPrevTree();
 
       if (semiUpdatedPrevState) {
-        const updatedSemiPrevState = create(
-          semiUpdatedPrevState,
+        const updatedSemiPrevState = create<DataTree>(
+          semiUpdatedPrevState || {},
           (draft: DataTree) => {
             for (const d of differences) {
               if (!Array.isArray(d.path) || d.path.length === 0) continue;
