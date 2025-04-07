@@ -94,7 +94,6 @@ public class OrganizationConfigurationCE implements Serializable {
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {
-        // The default value for isGoogleOAuthEnabled is true if it is not set in the organization configuration
         if (currentValue == null && updatedValue == null) {
             return defaultValue;
         }
