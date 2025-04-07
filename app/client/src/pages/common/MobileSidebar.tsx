@@ -115,7 +115,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: getAdminSettingsPath(
                   isFeatureEnabled,
-                  user?.isSuperUser,
+                  user?.isSuperUser || false,
                   organizationPermissions,
                 ),
               });
