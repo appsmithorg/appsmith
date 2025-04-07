@@ -228,7 +228,7 @@ export default function LeftPane() {
 
   return (
     <Wrapper>
-      {isSuperUser && profileCategories.length > 0 && (
+      {profileCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Profile
@@ -240,7 +240,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {isSuperUser && organizationCategories.length > 0 && (
+      {organizationCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Organisation

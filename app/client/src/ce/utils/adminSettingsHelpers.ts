@@ -77,7 +77,14 @@ export const getFilteredOrgCategories = (
         return null;
       }
 
-      return category;
+      if (
+        (!isSuperUser && ["audit-logs"].includes(category.slug)) ||
+        isSuperUser
+      ) {
+        return category;
+      }
+
+      return null;
     })
     .filter(Boolean) as Category[];
 };
