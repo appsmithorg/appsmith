@@ -220,15 +220,14 @@ const FormRender = (props: Props) => {
         const layout =
           section.controlType === "SINGLE_COLUMN_ZONE"
             ? "single_column"
-            : "double_column";
+            : "single_column";
 
         return (
-          <Zone layout={layout} style={{ ...(section.zoneCustomStyle || {}) }}>
-            {section.title && (
-              <Text isBold kind="heading-s" renderAs="p">
-                {section.title}
-              </Text>
-            )}
+          <Zone
+            layout={layout}
+            style={{ ...(section.zoneCustomStyle || {}) }}
+            title={section.title}
+          >
             {children}
           </Zone>
         );
