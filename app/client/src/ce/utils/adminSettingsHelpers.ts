@@ -65,15 +65,24 @@ export const getWrapperCategory = (
   return categories[subCategory || category];
 };
 
-export const getFilteredGeneralCategories = (categories: Category[]) => {
+export const getFilteredOrgCategories = (
+  categories: Category[],
+  isAuditLogsEnabled: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isSuperUser?: boolean,
+) => {
   return categories
     ?.map((category: Category) => {
+      if (category.slug === "audit-logs" && !isAuditLogsEnabled) {
+        return null;
+      }
+
       return category;
     })
-    .filter(Boolean);
+    .filter(Boolean) as Category[];
 };
 
-export const getFilteredAclCategories = (
+export const getFilteredUserManagementCategories = (
   categories: Category[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSuperUser?: boolean,
@@ -85,7 +94,7 @@ export const getFilteredAclCategories = (
     .filter(Boolean);
 };
 
-export const getFilteredOtherCategories = (
+export const getFilteredInstanceCategories = (
   categories: Category[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSuperUser?: boolean,

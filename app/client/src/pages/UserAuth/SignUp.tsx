@@ -28,7 +28,6 @@ import {
   VISIT_OUR_DOCS,
   ALREADY_USING_APPSMITH,
   SIGN_IN_TO_AN_EXISTING_ORGANISATION,
-  AI_AGENT_AUTH_SUBTITLE,
   LOGIN_PAGE_TITLE,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
@@ -254,9 +253,6 @@ export function SignUp(props: SignUpFormProps) {
   return (
     <Container
       footer={footerSection}
-      subtitle={
-        isAiAgentFlowEnabled ? createMessage(AI_AGENT_AUTH_SUBTITLE) : ""
-      }
       title={createMessage(
         isAiAgentFlowEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
       )}

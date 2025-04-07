@@ -18,7 +18,7 @@ import {
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { PROFILE } from "constants/routes";
+import { ADMIN_SETTINGS_CATEGORY_PROFILE_PATH } from "constants/routes";
 import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
 import type { NavigationSetting } from "constants/AppConstants";
 
@@ -106,7 +106,7 @@ export default function ProfileDropdown(props: TagProps) {
             className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
             onClick={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: PROFILE,
+                path: ADMIN_SETTINGS_CATEGORY_PROFILE_PATH,
               });
             }}
             startIcon="pencil-line"

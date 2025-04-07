@@ -40,6 +40,7 @@ const renderComponent = (
         componentProps.meta.error
       }
       isDisabled={componentProps.disabled}
+      postfix={componentProps.postfix}
       renderAs={componentProps.type === "textarea" ? "textarea" : "input"}
       size="md"
       value={value}

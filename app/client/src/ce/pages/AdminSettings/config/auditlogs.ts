@@ -9,7 +9,7 @@ import { AuditLogsUpgradePage } from "../../Upgrade/AuditLogsUpgradePage";
 export const config: AdminConfigType = {
   icon: "file-list-2-line",
   type: SettingCategories.AUDIT_LOGS,
-  categoryType: CategoryType.OTHER,
+  categoryType: CategoryType.ORGANIZATION,
   controlType: SettingTypes.PAGE,
   component: AuditLogsUpgradePage,
   title: "Audit logs",

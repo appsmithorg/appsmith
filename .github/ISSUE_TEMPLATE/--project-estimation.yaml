@@ -1,0 +1,191 @@
+name: 📊 Project Estimation
+description: A comprehensive checklist for estimating project scope and requirements
+title: "[Estimation]: "
+labels: [Project Planning, Needs Review]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to create this project estimation! Please fill out all relevant sections to ensure comprehensive planning.
+- type: textarea
+  attributes:
+    label: Project Overview
+    description: Brief description of the project and its goals
+    placeholder: |
+      Provide a high-level overview of the project, its objectives, and expected outcomes.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Dependencies
+    description: List all internal and external dependencies
+    placeholder: |
+      ## Internal Dependencies
+      - Teams/systems your work depends on
+      - Cross-functional needs
+      
+      ## External Dependencies
+      - Third-party services
+      - License approvals needed
+      
+      ## Documentation Dependencies
+      - Required documentation with owners and timelines
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Scope & Requirements
+    description: Document clear requirements and acceptance criteria
+    placeholder: |
+      ## Requirements
+      - List key requirements
+      - Acceptance criteria
+      
+      ## Known Assumptions
+      - List assumptions
+      - Impact of assumptions
+      
+      ## Stakeholder Alignment
+      - Key stakeholders
+      - Priority alignment
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Technical Considerations
+    description: Document technical architecture and considerations
+    placeholder: |
+      ## Architecture
+      - Design approach
+      - Tech stack details
+      
+      ## Technical Requirements
+      - Scalability needs
+      - Security considerations
+      - Performance requirements
+      
+      ## Testing Strategy
+      - Unit testing approach
+      - Integration testing
+      - E2E testing
+      - Test automation coverage
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: CI/CD Pipeline
+    description: Document CI/CD requirements and considerations
+    placeholder: |
+      ## Pipeline Requirements
+      - Build process
+      - Deployment strategy
+      - Rollback procedures
+      
+      ## Monitoring
+      - Required metrics
+      - Alerting setup
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Reviews & Approvals
+    description: Document required reviews and approvals
+    placeholder: |
+      ## Required Reviews
+      - Code review process
+      - Design review requirements
+      - Security review needs
+      - Compliance requirements
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Testing Requirements
+    description: Document testing requirements and approach
+    placeholder: |
+      ## Testing Scope
+      - Test data requirements
+      - Environment needs
+      - Test case management
+      - Performance testing requirements
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Release & Deployment
+    description: Document release and deployment strategy
+    placeholder: |
+      ## Release Strategy
+      - Phased rollout plan
+      - Deployment steps
+      - Monitoring plan
+      - Rollback procedures
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Documentation Requirements
+    description: Document required documentation
+    placeholder: |
+      ## Required Documentation
+      - Technical documentation
+      - User documentation
+      - Knowledge transfer needs
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Resource Allocation
+    description: Document resource requirements
+    placeholder: |
+      ## Team Resources
+      - Required team members
+      - Skill requirements
+      - Training needs
+      
+      ## External Resources
+      - Contractor needs
+      - Tooling requirements
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Risk Management
+    description: Document risks and mitigation strategies
+    placeholder: |
+      ## Identified Risks
+      - Technical risks
+      - Timeline risks
+      - External dependencies
+      
+      ## Mitigation Strategies
+      - Risk mitigation plans
+      - Contingency buffers
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Project Management
+    description: Document project management approach
+    placeholder: |
+      ## Work Breakdown
+      - Task breakdown
+      - Effort estimation
+      - Timeline estimates
+      
+      ## Tracking
+      - Progress tracking method
+      - Buffer allocation
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Post-Release
+    description: Document post-release requirements
+    placeholder: |
+      ## Post-Release Activities
+      - Monitoring requirements
+      - Feedback collection
+      - Retrospective planning
+  validations:
+    required: true 

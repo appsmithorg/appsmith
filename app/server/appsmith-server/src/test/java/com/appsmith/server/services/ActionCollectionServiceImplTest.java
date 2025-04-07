@@ -160,6 +160,9 @@ public class ActionCollectionServiceImplTest {
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
+
+        Mockito.when(newActionService.postProcessNewlyAddedActions(Mockito.any()))
+                .thenReturn(Mono.empty().then());
     }
 
     @Test

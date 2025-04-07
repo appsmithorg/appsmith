@@ -27,7 +27,7 @@
 }
 
 .mainSidebar:not([data-is-mobile], [data-state="full-width"]) {
-  --sidebar-width: min(50cqw, 1024px);
+  --sidebar-width: min(40cqw, 1024px);
 }
 
 /**
