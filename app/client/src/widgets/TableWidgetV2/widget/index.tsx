@@ -3072,7 +3072,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (infiniteScrollEnabled) {
       // reset the cachedRows
-      pushBatchMetaUpdates("cachedTableData", {});
+      const isAlreadyOnFirstPage = this.props.pageNo === 1;
+      const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
+
+      pushBatchMetaUpdates("cachedTableData", data);
       pushBatchMetaUpdates("endOfData", false);
 
       // Explicitly reset specific meta properties
@@ -3097,7 +3100,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       updateWidgetMetaProperty("nextPageVisited", false);
 
       // reset and reload page
-      this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      if (!isAlreadyOnFirstPage) {
+        this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      }
     }
   };
 }
