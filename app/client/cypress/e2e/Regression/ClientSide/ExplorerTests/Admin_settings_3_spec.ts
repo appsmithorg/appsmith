@@ -60,6 +60,26 @@ describe(
       });
     });
 
+    it("4. should test that read more on version opens up release notes", () => {
+      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", adminSettingsHelper.routes.VERSION);
+      cy.get(adminsSettings.readMoreLink).within(() => {
+        cy.get("a").click();
+      });
+      cy.wait(2000);
+      cy.get(".ads-v2-modal__content").should("be.visible");
+      cy.get(".ads-v2-modal__content-header").should("be.visible");
+      cy.get(".ads-v2-modal__content-header").should(
+        "contain",
+        "Product updates",
+      );
+      cy.get(".ads-v2-button__content-icon-start").should("be.visible");
+      cy.get(".ads-v2-button__content-icon-start").click();
+      cy.wait(2000);
+      cy.get(".ads-v2-modal__content").should("not.exist");
+    });
+
     it("5. should test that settings page tab redirects not airgap", () => {
       agHelper.VisitNAssert(
         adminSettingsHelper.routes.APPLICATIONS,
@@ -77,6 +97,8 @@ describe(
       agHelper.AssertURL(adminSettingsHelper.routes.INSTANCE_SETTINGS);
       agHelper.GetNClick(adminsSettings.configurationTab);
       agHelper.AssertURL(adminSettingsHelper.routes.CONFIGURATION);
+      agHelper.GetNClick(adminsSettings.versionTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
       agHelper.GetNClick(adminsSettings.userSettingsTab);
       agHelper.AssertURL(adminSettingsHelper.routes.USER_SETTINGS);
       agHelper.GetNClick(adminsSettings.branding);

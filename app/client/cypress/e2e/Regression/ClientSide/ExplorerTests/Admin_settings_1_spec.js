@@ -76,6 +76,8 @@ describe(
         agHelper.AssertElementAbsence(adminSettingsHelper._googleMapsAPIField);
         agHelper.GetNClick(adminsSettings.configurationTab);
         agHelper.AssertURL(adminSettingsHelper.routes.CONFIGURATION);
+        agHelper.GetNClick(adminsSettings.versionTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
         agHelper.GetNClick(adminsSettings.userSettingsTab);
         agHelper.AssertURL(adminSettingsHelper.routes.USER_SETTINGS);
         agHelper.GetNClick(adminsSettings.branding);

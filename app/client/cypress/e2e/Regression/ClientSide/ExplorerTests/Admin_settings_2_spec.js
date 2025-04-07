@@ -38,6 +38,17 @@ describe(
       },
     );
 
+    it(
+      "airgap",
+      "5. should test that read more on version is hidden for airgap",
+      () => {
+        cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+        cy.get(adminsSettings.versionTab).click();
+        cy.url().should("contain", adminSettingsHelper.routes.VERSION);
+        cy.get(adminsSettings.readMoreLink).should("not.exist");
+      },
+    );
+
     it("6. should test that settings page is not accessible to normal users", () => {
       cy.LogOut(false);
       cy.wait(2000);
