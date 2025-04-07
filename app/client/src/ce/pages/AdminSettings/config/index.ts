@@ -11,11 +11,23 @@ import { config as ProvisioningConfig } from "ee/pages/AdminSettings/config/prov
 import { config as UserListing } from "ee/pages/AdminSettings/config//userlisting";
 import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlogs";
 
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import store from "store";
+import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
+
+const featureFlags = selectFeatureFlags(store.getState());
+const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+
 ConfigFactory.register(GeneralConfig);
-ConfigFactory.register(EmailConfig);
-ConfigFactory.register(DeveloperSettings);
+
+if (!isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
+
+if (!isMultiOrgEnabled) ConfigFactory.register(DeveloperSettings);
+
 ConfigFactory.register(Authentication);
-ConfigFactory.register(AdvancedConfig);
+
+if (!isMultiOrgEnabled) ConfigFactory.register(AdvancedConfig);
+
 ConfigFactory.register(VersionConfig);
 ConfigFactory.register(BrandingConfig);
 ConfigFactory.register(ProvisioningConfig);

@@ -103,6 +103,7 @@ export type Setting = ControlType & {
   isFeatureEnabled?: boolean;
   tooltip?: string;
   isEnterprise?: boolean;
+  postfix?: string;
 };
 
 export interface Category {

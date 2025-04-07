@@ -22,6 +22,7 @@
     vertical-align: top;
     border-bottom: var(--border-width-1) solid var(--color-bd);
     border-right: var(--border-width-1) solid var(--color-bd);
+    letter-spacing: -0.02em;
   }
 
   :is(td, th):last-child {
@@ -81,6 +82,7 @@
     margin-left: 1em;
     position: relative;
     list-style-type: auto;
+    letter-spacing: -0.02em;
   }
 
   a {
@@ -116,5 +118,27 @@
     padding-right: var(--inner-spacing-3);
     margin-left: 0;
     border-left: var(--border-width-2) solid var(--color-bd-neutral);
+    letter-spacing: -0.02em;
+  }
+
+  /* Images in markdown should be responsive and have a max height of 300px. Border radius is the same as button border radius */
+  img {
+    max-height: 300px;
+    border-radius: var(--border-radius-elevation-3);
+    object-fit: cover;
+    margin-top: var(--inner-spacing-2);
+  }
+
+  [data-component="h1"]:first-child {
+    margin-block: var(--inner-spacing-4);
+  }
+
+  p {
+    margin-block: var(--inner-spacing-1);
+  }
+
+  :is(ul, ol) li:has(input[type="checkbox"]) {
+    list-style-type: none;
+    margin-left: 0;
   }
 }

@@ -47,6 +47,7 @@ parts.push(`
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
+    protocols h1 h2 h3
     trusted_proxies static 0.0.0.0/0
     metrics
   }

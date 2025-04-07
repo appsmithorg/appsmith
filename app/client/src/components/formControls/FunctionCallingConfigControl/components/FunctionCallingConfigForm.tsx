@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { v4 as uuid } from "uuid";
 import type { FunctionCallingConfigFormToolField } from "../types";
 import { FunctionCallingConfigToolField } from "./FunctionCallingConfigToolField";
-import { FunctionCallingEmpty } from "./FunctionCallingEmpty";
 
 export interface FunctionCallingConfigFormProps {
   formName: string;
@@ -16,13 +15,13 @@ const Header = styled.div`
   display: flex;
   gap: var(--ads-v2-spaces-4);
   justify-content: space-between;
-  margin-bottom: var(--ads-v2-spaces-4);
 `;
 
 const ConfigItems = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
+  margin-top: var(--ads-v2-spaces-4);
 `;
 
 export const FunctionCallingConfigForm = ({
@@ -54,14 +53,9 @@ export const FunctionCallingConfigForm = ({
   return (
     <>
       <Header>
-        <div>
-          <Text isBold kind="heading-s" renderAs="p">
-            Function Calls
-          </Text>
-          <Text renderAs="p">
-            Add functions for the model to execute dynamically.
-          </Text>
-        </div>
+        <Text isBold kind="heading-s" renderAs="p">
+          Function Calls
+        </Text>
 
         <Button
           UNSAFE_width="110px"
@@ -73,9 +67,7 @@ export const FunctionCallingConfigForm = ({
         </Button>
       </Header>
 
-      {fields.length === 0 ? (
-        <FunctionCallingEmpty />
-      ) : (
+      {fields.length > 0 && (
         <ConfigItems>
           {fields.map((field, index) => {
             const fieldValue = fields.get(index);

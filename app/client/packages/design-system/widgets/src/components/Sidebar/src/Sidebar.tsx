@@ -14,12 +14,10 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
     children,
     className,
     collapsible = "offcanvas",
-    extraTitleButton,
     onEnter: onEnterProp,
     onEntered: onEnteredProp,
     onExit: onExitProp,
     onExited: onExitedProp,
-    title,
     variant = "sidebar",
     ...rest
   } = props;
@@ -48,7 +46,7 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
   };
 
   const content = (
-    <SidebarContent extraTitleButton={extraTitleButton} title={title}>
+    <SidebarContent>
       {typeof children === "function"
         ? children({ isAnimating, state })
         : children}
