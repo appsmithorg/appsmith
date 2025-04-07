@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty, set, get } from "lodash";
+import { isEmpty, set, get, unset } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -37,6 +37,7 @@ import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
 import { create } from "mutative";
 import { klona } from "klona";
+import { klona as klonaJSON } from "klona/json";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -254,15 +255,15 @@ export async function evalTree(
         dataTreeEvaluator.getSemiUpdatedPrevTree() || {},
         (draft: DataTree) => {
           for (const fullPropertyPath of evalOrder) {
-            set(
-              draft,
-              fullPropertyPath,
-              klona(
-                dataTreeEvaluator?.evalTree
-                  ? get(dataTreeEvaluator.evalTree, fullPropertyPath)
-                  : undefined,
-              ),
+            const value = klonaJSON(
+              get(dataTreeEvaluator?.evalTree, fullPropertyPath),
             );
+
+            if (value === undefined) {
+              unset(draft, fullPropertyPath);
+            } else {
+              set(draft, fullPropertyPath, value);
+            }
           }
 
           const evalProps = dataTreeEvaluator?.evalProps;

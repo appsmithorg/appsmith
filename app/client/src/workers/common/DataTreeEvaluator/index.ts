@@ -885,7 +885,7 @@ export default class DataTreeEvaluator {
 
             draft[jsObjectName] = Object.assign(
               draft[jsObjectName],
-              klona(variableState),
+              klonaJSON(variableState),
             );
           }
         },
