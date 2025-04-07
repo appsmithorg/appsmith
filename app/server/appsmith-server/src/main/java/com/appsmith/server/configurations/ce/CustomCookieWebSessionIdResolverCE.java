@@ -33,6 +33,6 @@ public class CustomCookieWebSessionIdResolverCE extends CookieWebSessionIdResolv
 
     protected void addCookieInitializers(ServerWebExchange exchange) {
         // Add the appropriate SameSite attribute based on the exchange attribute
-        addCookieInitializer((builder) -> builder.sameSite(LAX).secure(true));
+        addCookieInitializer((builder) -> builder.sameSite(LAX));
     }
 }

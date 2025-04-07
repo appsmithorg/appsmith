@@ -34,7 +34,7 @@ export const config: AdminConfigType = {
     {
       id: "APPSMITH_MAIL_WARNING",
       category: SettingCategories.EMAIL,
-      controlType: SettingTypes.LINK,
+      controlType: SettingTypes.CALLOUT,
       calloutType: "warning",
       label: createMessage(ADMIN_SETTINGS_EMAIL_WARNING),
     },

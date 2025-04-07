@@ -52,7 +52,7 @@ public class UserSignupHelperCE {
         workspace.setName(user.getName() != null ? user.getName() + "'s workspace" : "Default workspace");
 
         return workspaceService
-                .create(workspace, user, Boolean.FALSE)
+                .createDefault(workspace, user)
                 .flatMap(createdWorkspace ->
                         createDefaultApplication(createdWorkspace.getId()).then())
                 .doOnError(error -> log.error("Error creating workspace or application: {}", error.getMessage()))
