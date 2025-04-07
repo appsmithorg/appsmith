@@ -54,7 +54,7 @@ export const FunctionCallingConfigForm = ({
     <>
       <Header>
         <Text isBold kind="heading-s" renderAs="p">
-          Function Calls
+          Function calls
         </Text>
 
         <Button
