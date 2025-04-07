@@ -83,7 +83,7 @@ export const ErrorBox = styled.div<{ message?: boolean }>`
 
 export const StyledInviteFieldGroup = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
 `;
