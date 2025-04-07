@@ -16,32 +16,40 @@ import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlo
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { showAdminSettings } from "ee/utils/adminSettingsHelpers";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+const user = getCurrentUser(store.getState());
+const isSuperUser = showAdminSettings(user);
 
 // Profile categories
 ConfigFactory.register(ProfileConfig);
 
 // Organisation categories
-ConfigFactory.register(GeneralConfig);
+if (isSuperUser) ConfigFactory.register(GeneralConfig);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
 
-ConfigFactory.register(BrandingConfig);
-ConfigFactory.register(AuditLogsConfig);
+if (isSuperUser) ConfigFactory.register(BrandingConfig);
+
+if (isSuperUser) ConfigFactory.register(AuditLogsConfig);
 
 // User management categories
-ConfigFactory.register(UserSettings);
-ConfigFactory.register(Authentication);
-ConfigFactory.register(ProvisioningConfig);
-ConfigFactory.register(UserListing);
+if (isSuperUser) ConfigFactory.register(UserSettings);
+
+if (isSuperUser) ConfigFactory.register(Authentication);
+
+if (isSuperUser) ConfigFactory.register(ProvisioningConfig);
+
+if (isSuperUser) ConfigFactory.register(UserListing);
 
 // Instance categories
-if (!isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(Configuration);
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(Configuration);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
 
 export default ConfigFactory;

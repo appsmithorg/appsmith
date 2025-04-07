@@ -83,14 +83,7 @@ export const getFilteredOrgCategories = (
 ) => {
   return categories
     ?.map((category: Category) => {
-      if (category.slug === "audit-logs" && !isAuditLogsEnabled) {
-        return null;
-      }
-
-      if (
-        (!isSuperUser && ["audit-logs"].includes(category.slug)) ||
-        isSuperUser
-      ) {
+      if (isSuperUser) {
         return category;
       }
 
@@ -108,7 +101,11 @@ export const getFilteredUserManagementCategories = (
 ) => {
   return categories
     ?.map((category: Category) => {
-      return category;
+      if (isSuperUser) {
+        return category;
+      }
+
+      return null;
     })
     .filter(Boolean);
 };
@@ -120,7 +117,11 @@ export const getFilteredInstanceCategories = (
 ) => {
   return categories
     ?.map((category: Category) => {
-      return category;
+      if (isSuperUser) {
+        return category;
+      }
+
+      return null;
     })
     .filter(Boolean);
 };

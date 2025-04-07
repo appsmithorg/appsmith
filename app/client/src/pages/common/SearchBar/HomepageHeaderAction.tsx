@@ -86,7 +86,7 @@ const HomepageHeaderAction = ({
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: getAdminSettingsPath(
                   isFeatureEnabled,
-                  user?.isSuperUser,
+                  user?.isSuperUser || false,
                   organizationPermissions,
                 ),
               });
