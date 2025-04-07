@@ -18,12 +18,8 @@ import type {
   FunctionCallingEntityType,
   FunctionCallingEntityTypeOption,
 } from "../types";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectEntityOptions } from "./selectors";
-import history from "utils/history";
-import { queryAddURL } from "ee/RouteBuilder";
-import { createNewJSCollection } from "actions/jsPaneActions";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 interface FunctionCallingMenuFieldProps {
   children?: React.ReactNode;
@@ -85,9 +81,6 @@ const getSelectedValueInfo = (
 const FunctionCallingMenuFieldRender = (props: FieldRenderProps) => {
   const { autoFocus, children, disabled, input, onValueChange } = props;
   const options = useSelector(selectEntityOptions);
-
-  const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId);
 
   // Get existing entity IDs from the agentFunctions, excluding the currently selected value
   const existingEntityIds = useMemo(() => {
@@ -166,32 +159,6 @@ const FunctionCallingMenuFieldRender = (props: FieldRenderProps) => {
         </Button>
       </MenuTrigger>
       <MenuContent align="start" loop width="235px">
-        {/* Create new options */}
-        <MenuGroup>
-          <MenuItem onSelect={() => history.push(queryAddURL({}))}>
-            <Flex alignItems="center" gap="spaces-2">
-              <Icon name="plus" size="md" />
-              New Query
-            </Flex>
-          </MenuItem>
-          <MenuItem
-            onSelect={() =>
-              dispatch(
-                createNewJSCollection(
-                  pageId,
-                  "AI_QUERY_FUNCTION_CALLING_CONFIG",
-                  "onToolCall",
-                ),
-              )
-            }
-          >
-            <Flex alignItems="center" gap="spaces-2">
-              <Icon name="plus" size="md" />
-              New JS Object
-            </Flex>
-          </MenuItem>
-        </MenuGroup>
-
         {/* Query options group */}
         {filteredQueryItems.length > 0 && (
           <MenuGroup>

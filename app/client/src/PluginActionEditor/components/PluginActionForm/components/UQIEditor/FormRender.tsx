@@ -223,7 +223,11 @@ const FormRender = (props: Props) => {
             : "double_column";
 
         return (
-          <Zone layout={layout} style={{ ...(section.zoneCustomStyle || {}) }}>
+          <Zone
+            layout={layout}
+            style={{ ...(section.zoneCustomStyle || {}) }}
+            title={section.title}
+          >
             {children}
           </Zone>
         );
