@@ -49,7 +49,6 @@ import {
 } from "actions/gitSyncActions";
 import { Classes } from "@blueprintjs/core";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-import { gitFetchGlobalProfile } from "git/store";
 import useGlobalProfile from "git/hooks/useGlobalProfile";
 
 const nameValidator = (
@@ -83,33 +82,37 @@ export const Profile = () => {
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const isFetching = useSelector(getIsFetchingGlobalGitConfig);
   const globalGitConfig = useSelector(getGlobalGitConfig);
-  const { globalProfile, updateGlobalProfile } = useGlobalProfile();
+  const { fetchGlobalProfile, globalProfile, updateGlobalProfile } =
+    useGlobalProfile();
   const [name, setName] = useState(user?.name || "");
   const [isSaving, setIsSaving] = useState(false);
   const [areFormValuesUpdated, setAreFormValuesUpdated] = useState(false);
   const isGitModEnabled = useGitModEnabled();
   const gitConfig = useMemo(
     () => (isGitModEnabled ? globalProfile : globalGitConfig),
-    [isGitModEnabled],
+    [isGitModEnabled, globalProfile, globalGitConfig],
   );
   const [authorName, setAuthorNameInState] = useState(gitConfig?.authorName);
   const [authorEmail, setAuthorEmailInState] = useState(gitConfig?.authorEmail);
 
+  useEffect(() => {
+    setIsSaving(false);
+    setAreFormValuesUpdated(false);
+    setName(user?.name || "");
+    setAuthorNameInState(gitConfig?.authorName);
+    setAuthorEmailInState(gitConfig?.authorEmail);
+  }, [gitConfig?.authorName, gitConfig?.authorEmail, user?.name]);
+
   useEffect(
     function fetchGlobalGitConfigOnInitEffect() {
       if (isGitModEnabled) {
-        dispatch(gitFetchGlobalProfile());
+        fetchGlobalProfile();
       } else {
         dispatch(fetchGlobalGitConfigInit());
       }
     },
     [dispatch, isGitModEnabled],
   );
-
-  useEffect(() => {
-    setIsSaving(false);
-    setAreFormValuesUpdated(false);
-  }, [gitConfig, user?.name]);
 
   useEffect(() => {
     if (
