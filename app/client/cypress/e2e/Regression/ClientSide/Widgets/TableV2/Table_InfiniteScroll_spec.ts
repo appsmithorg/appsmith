@@ -12,6 +12,10 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import { OneClickBinding } from "../../OneClickBinding/spec_utility";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -31,6 +35,7 @@ describe(
         dsName = $dsName;
       });
       // Create a new page and add a table widget
+      AppSidebar.navigate(AppSidebarButton.Editor);
       entityExplorer.DragNDropWidget("tablewidgetv2", 350, 500);
       entityExplorer.DragNDropWidget("textwidget", 100, 100);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
