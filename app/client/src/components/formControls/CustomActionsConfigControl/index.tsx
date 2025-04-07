@@ -47,85 +47,90 @@ const TabbedWrapper = styled(Tabs)`
 const useSyncParamsToPath = (formName: string, configProperty: string) => {
   const dispatch = useDispatch();
   const formValues = useSelector((state) => getFormData(state, formName));
-  
-  useEffect(function syncParamsEffect() {
-    if (!formValues || !formValues.values) return;
-    
-    const values = formValues.values;
-    const actionId = values.id;
-    
-    if (!actionId) return;
-    
-    // Path to sync
-    const path = values.actionConfiguration?.path || "";
-    // Query parameters to sync
-    const queryParameters = values.actionConfiguration?.queryParameters || [];
-    
-    // Check if we need to extract parameters from the path
-    if (path) {
-      const parsedParams = parseUrlForQueryParams(path);
-      
-      // If we found params in the path, but they're not in the params tab, update them
-      if (parsedParams.length > 0 && parsedParams.some(p => p.key) && 
-          (!queryParameters.length || !queryParameters.some((p: Property) => p.key))) {
-        dispatch(
-          autofill(
-            formName,
-            "actionConfiguration.queryParameters",
-            parsedParams,
-          ),
-        );
-        dispatch(
-          setActionProperty({
-            actionId: actionId,
-            propertyName: "actionConfiguration.queryParameters",
-            value: parsedParams,
-          }),
-        );
-      }
-    }
-    
-    // If we have query params but they're not in the path, update the path
-    if (queryParameters.length && queryParameters.some((p: Property) => p.key)) {
-      const matchGroups = path.match(queryParamsRegEx) || [];
-      const currentPath = matchGroups[1] || "";
-      // Only build params string if we have any valid params
-      const validParams = queryParameters.filter((p: Property) => p.key);
-      
-      if (validParams.length > 0) {
-        const paramsString = validParams
-          .map(
-            (p: Property, i: number) => `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
-          )
-          .join("");
-          
-        // Don't update if already in sync (prevent loops)
-        const newPath = `${currentPath}${paramsString}`;
-        if (path !== newPath) {
+
+  useEffect(
+    function syncParamsEffect() {
+      if (!formValues || !formValues.values) return;
+
+      const values = formValues.values;
+      const actionId = values.id;
+
+      if (!actionId) return;
+
+      // Path to sync
+      const path = values.actionConfiguration?.path || "";
+      // Query parameters to sync
+      const queryParameters = values.actionConfiguration?.queryParameters || [];
+
+      // Check if we need to extract parameters from the path
+      if (path) {
+        const parsedParams = parseUrlForQueryParams(path);
+
+        // If we found params in the path, but they're not in the params tab, update them
+        if (
+          parsedParams.length > 0 &&
+          parsedParams.some((p) => p.key) &&
+          (!queryParameters.length ||
+            !queryParameters.some((p: Property) => p.key))
+        ) {
           dispatch(
             autofill(
               formName,
-              "actionConfiguration.path",
-              newPath,
+              "actionConfiguration.queryParameters",
+              parsedParams,
             ),
           );
           dispatch(
             setActionProperty({
               actionId: actionId,
-              propertyName: "actionConfiguration.path",
-              value: newPath,
+              propertyName: "actionConfiguration.queryParameters",
+              value: parsedParams,
             }),
           );
         }
       }
-    }
-  }, [formValues, dispatch, formName, configProperty]);
+
+      // If we have query params but they're not in the path, update the path
+      if (
+        queryParameters.length &&
+        queryParameters.some((p: Property) => p.key)
+      ) {
+        const matchGroups = path.match(queryParamsRegEx) || [];
+        const currentPath = matchGroups[1] || "";
+        // Only build params string if we have any valid params
+        const validParams = queryParameters.filter((p: Property) => p.key);
+
+        if (validParams.length > 0) {
+          const paramsString = validParams
+            .map(
+              (p: Property, i: number) =>
+                `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
+            )
+            .join("");
+
+          // Don't update if already in sync (prevent loops)
+          const newPath = `${currentPath}${paramsString}`;
+          if (path !== newPath) {
+            dispatch(autofill(formName, "actionConfiguration.path", newPath));
+            dispatch(
+              setActionProperty({
+                actionId: actionId,
+                propertyName: "actionConfiguration.path",
+                value: newPath,
+              }),
+            );
+          }
+        }
+      }
+    },
+    [formValues, dispatch, formName, configProperty],
+  );
 };
 
 const TabbedControls = (props: ControlProps) => {
   // Use the hook to sync params with path
   useSyncParamsToPath(props.formName, props.configProperty);
-  
+
   return (
     <TabbedWrapper defaultValue={CUSTOM_ACTION_TABS.HEADERS}>
       <TabsList>
