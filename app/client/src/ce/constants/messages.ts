@@ -160,7 +160,7 @@ export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
-  `The page you’re looking for either does not exist, or cannot be found`;
+  `The page you're looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
 export const INVALID_NAME_ERROR = () => `Invalid name`;
 export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
@@ -206,7 +206,7 @@ export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 export const BUSINESS_EDITION_TEXT = () => "business plan";
 export const PARTNER_PROGRAM_CALLOUT = (
   email: string,
-) => `${email} is outside your organisation. If you’re building this app
+) => `${email} is outside your organisation. If you're building this app
 for someone else, you should check out our partner program.`;
 export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
@@ -387,7 +387,7 @@ export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
-  `Seems like you don’t have any Datasources to create a query`;
+  `Seems like you don't have any Datasources to create a query`;
 export const ACTION_EDITOR_REFRESH = () => "Refresh";
 export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
 export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
@@ -399,7 +399,7 @@ export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most Popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample Datasources";
 export const SAMPLE_DATASOURCE_SUBHEADING = () =>
-  "Use sample datasources if you don’t have a datasource for testing";
+  "Use sample datasources if you don't have a datasource for testing";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
 export const NOT_FOUND = () => "Not found";
 export const CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API = () =>
@@ -594,7 +594,7 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
-export const EMPTY_RESPONSE_RUN = () => "Click ‘Run’ to get a response";
+export const EMPTY_RESPONSE_RUN = () => "Click 'Run' to get a response";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
   "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
@@ -974,7 +974,7 @@ export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
-  `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
+  `Hey there, thanks for getting in touch! We understand that you'd like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
@@ -997,7 +997,7 @@ export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
 export const GIT_REVOKE_ACCESS = (name: string) => `Revoke access to ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
-  `Type “${name}” in the input box to revoke access.`;
+  `Type "${name}" in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
 export const OPEN_REPO = () => "Open repository";
 export const CONNECTING_REPO = () => "Connecting to Git repository";
@@ -1250,7 +1250,7 @@ export enum ONBOARDING_CHECKLIST_ACTIONS {
 }
 
 export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
-  "Amazing work! You’ve explored the basics of Appsmith";
+  "Amazing work! You've explored the basics of Appsmith";
 export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
   "You can carry on here, or explore the homepage to see how your projects are stored.";
 export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
@@ -1258,13 +1258,13 @@ export const ONBOARDING_SKIPPED_FIRST_TIME_USER = () =>
   "Skipped onboarding tour";
 export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
 export const ONBOARDING_CHECKLIST_BODY = () =>
-  "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
+  "Let's get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const SIGNPOSTING_POPUP_SUBTITLE = () =>
-  "Here’s what you need to do to build your first app:";
+  "Here's what you need to do to build your first app:";
 export const SIGNPOSTING_SUCCESS_POPUP = {
-  title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
+  title: () => "🎉 Awesome! You've explored the basics of Appsmith",
   subtitle: () =>
     "You can carry on building the app from here on. If you are still not sure, checkout our documentation or try guided tour.",
 };
@@ -1330,7 +1330,7 @@ export const ONBOARDING_TELEMETRY_POPUP = () =>
 
 //Introduction modal
 export const HOW_APPSMITH_WORKS = () =>
-  "Here’s a quick overview of how Appsmith works. ";
+  "Here's a quick overview of how Appsmith works. ";
 export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
   "Connect to your database or APIs";
 export const DRAG_AND_DROP = () =>
@@ -1343,7 +1343,7 @@ export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
   "Instantly publish & share your apps with users. Choose from pre-defined access control roles.";
 export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
-  "Let’s start building your first application";
+  "Let's start building your first application";
 export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
@@ -1370,7 +1370,7 @@ export const ONBOARDING_STATUS_GET_STARTED = () => "Get started";
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
   "Start by adding your first datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
-  "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
+  "Adding a datasource makes creating applications more powerful. Don't worry if you don't have any data on hand, we have a sample dataset that you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "Add a datasource";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
@@ -1551,7 +1551,7 @@ export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
 export const PREVENT_ACCIDENTAL_DAMAGE = () =>
   "Prevent accidental damage to data";
 export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
-  `Assign edit and delete permissions to an entire group, then modify granularly so non-native users of your data don’t drop a table or bulk-delete streaming data records before you can say, “Retrieve”.`;
+  `Assign edit and delete permissions to an entire group, then modify granularly so non-native users of your data don't drop a table or bulk-delete streaming data records before you can say, "Retrieve".`;
 export const RESTRICT_PUBLIC_EXPOSURE = () =>
   "Restrict public exposure of sensitive data";
 export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
@@ -1584,7 +1584,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "What is your general development proficiency?";
-export const WELCOME_FORM_FULL_NAME = () => "What’s your full name?";
+export const WELCOME_FORM_FULL_NAME = () => "What's your full name?";
 
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
@@ -1624,7 +1624,7 @@ export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
 export const EXPLORER_BETA_ENTITY = () => "BETA";
 export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
 export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
-  `We’ve set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
+  `We've set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1714,24 +1714,24 @@ export const STEP_ONE_SUCCESS_TEXT = () =>
   "Excellent! You successfully queried the database and you can see the response of the query below. ";
 export const STEP_ONE_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_TWO_TITLE = () =>
-  "Let’s display this response in a table. Select the table widget we’ve added for you.";
+  "Let's display this response in a table. Select the table widget we've added for you.";
 export const STEP_THREE_TITLE = () =>
   "Display the response of the query in a table.";
 export const STEP_THREE_SUCCESS_TEXT = () =>
   "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.";
 export const STEP_THREE_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_FOUR_TITLE = () =>
-  "Let’s build a form to update a customer record ";
+  "Let's build a form to update a customer record ";
 export const STEP_FOUR_HINT_BUTTON_TEXT = () => "Proceed";
 export const STEP_FOUR_SUCCESS_TEXT = () =>
-  "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.";
+  "Awesome! You connected the input widget to table's selected row. The input will always show the data from the selected row.";
 export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_FIVE_TITLE = () =>
   "Connect all input fields in the Customer Update Form with the table";
 export const STEP_FIVE_HINT_TEXT = () =>
   `Now let's connect rest of widgets in the container to the table's selected row`;
 export const STEP_FIVE_SUCCESS_TEXT = () =>
-  "Great work! All inputs are now connected to the table’s selected row";
+  "Great work! All inputs are now connected to the table's selected row";
 export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_SIX_TITLE = () =>
   "Add an update button to trigger an update query";
@@ -1743,7 +1743,7 @@ export const STEP_SEVEN_TITLE = () =>
 export const STEP_EIGHT_TITLE = () =>
   "After successfully triggering the update query, fetch the updated customer data. ";
 export const STEP_EIGHT_SUCCESS_TEXT = () =>
-  "Exceptional work! You’ve now built a way to see customer data and update it.";
+  "Exceptional work! You've now built a way to see customer data and update it.";
 export const STEP_NINE_TITLE = () => "Final step - test & deploy your app";
 export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
@@ -1754,7 +1754,7 @@ export const END_TUTORIAL = () => "End tutorial";
 export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
-  "In this tutorial we’ll build a tool to display customer information";
+  "In this tutorial we'll build a tool to display customer information";
 export const DESCRIPTION = () =>
   "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
 export const BUTTON_TEXT = () => "Start building";
@@ -1765,7 +1765,7 @@ export const RATING_DESCRIPTION = () =>
   "You can now invite others to this application.";
 export const RATING_TEXT = () => "Rate your experience";
 // -- End Message --
-export const END_TITLE = () => "What’s next? Start building your own apps.";
+export const END_TITLE = () => "What's next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
@@ -1811,7 +1811,7 @@ export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const FORK_THIS_TEMPLATE_BUILDING_BLOCK = () => "Use building block";
 export const COULDNT_FIND_TEMPLATE = () =>
-  "Couldn’t find what you are looking for?";
+  "Couldn't find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "Submit suggestions for templates you'd like to see or upvote requests raised by others and our team will work on it.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
@@ -1840,7 +1840,7 @@ export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
 export const TEMPLATES_BACK_BUTTON = () => "Back";
 export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
-  "Skip this step, I’ll do it later";
+  "Skip this step, I'll do it later";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1865,7 +1865,7 @@ export const CLEAN_URL_UPDATE = {
     () =>
       "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
     (url: string) =>
-      `The current app’s URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
+      `The current app's URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
   ],
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
@@ -2059,7 +2059,7 @@ export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto-layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
-  "Appsmith will convert your application’s UI to fixed layout, the default mode.";
+  "Appsmith will convert your application's UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "Use snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a snapshot";
@@ -2322,7 +2322,7 @@ export const FAILED_RECORDS_MESSAGE_TEXT = () =>
   "Please check the datasource configuration and retry.";
 export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
 export const CANT_SHOW_SCHEMA = () =>
-  "We can’t show the schema for this datasource";
+  "We can't show the schema for this datasource";
 export const COLUMNS_TITLE = () => "Columns";
 export const COLUMNS_SEARCH_PLACEHOLDER = (tableName: string) =>
   `Search columns in ${tableName}`;
@@ -2488,7 +2488,7 @@ export const CUSTOM_WIDGET_FEATURE = {
       ],
       label: () => "Events",
       emptyMessage: () =>
-        "You haven’t created any events. Return to the app editor to add events to this custom widget.",
+        "You haven't created any events. Return to the app editor to add events to this custom widget.",
     },
     help: {
       message: () =>
@@ -2512,7 +2512,7 @@ export const CUSTOM_WIDGET_FEATURE = {
 };
 
 export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
-  "We couldn’t find any UI elements called";
+  "We couldn't find any UI elements called";
 
 export const UI_ELEMENT_PANEL_SEARCH_TEXT = () => "Search UI elements";
 
@@ -2585,7 +2585,7 @@ export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
 };
 
 export const REQUEST_NEW_INTEGRATIONS = {
-  UNABLE_TO_FIND: () => "Can’t find what you are looking for?",
+  UNABLE_TO_FIND: () => "Can't find what you are looking for?",
   REQUEST_NEW_BUTTON: () => "Request a new integration",
   REQUEST_BUTTON: () => "Request integration",
   CANCEL_BUTTON: () => "Cancel",
@@ -2605,7 +2605,7 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "We’ll use this email solely to follow up on your request.",
+      "We'll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
@@ -2614,7 +2614,7 @@ export const REQUEST_NEW_INTEGRATIONS = {
 
 export const PREMIUM_DATASOURCES = {
   RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
-    `Ready to connect with ${integrationName}? This feature is part of our premium plans. Schedule a call with our team to explore the right plan for your needs. We’re excited to help you get started!`,
+    `Ready to connect with ${integrationName}? This feature is part of our premium plans. Schedule a call with our team to explore the right plan for your needs. We're excited to help you get started!`,
   NON_RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
     `Ready to connect with ${integrationName}? This feature is part of our premium plans. We'll help you find a plan that fits your needs. Simply share your email, and we'll be in touch soon.`,
   LEARN_MORE: () => "Learn more about Premium",
@@ -2625,7 +2625,7 @@ export const PREMIUM_DATASOURCES = {
   FORM_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "We’ll use this email solely to follow up on your request.",
+      "We'll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
@@ -2633,7 +2633,7 @@ export const PREMIUM_DATASOURCES = {
   SOON_TAG: () => "Soon",
   COMING_SOON_SUFFIX: () => "is coming soon",
   COMING_SOON_DESCRIPTION: () =>
-    "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
+    "This integration is currently in development. Submit your email below to be notified as soon as it's available.",
   NOTIFY_ME: () => "Notify me",
 };
 
@@ -2654,3 +2654,17 @@ export const ADD_CUSTOM_ACTION = () => "Add custom action";
 export const CONFIG_PROPERTY_COMMAND = () => "command";
 
 export const CUSTOM_ACTION_LABEL = () => "Custom Action";
+
+export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () => "Too many login attempts. Please try again after some time.";
+export const AUTH_INVALID_CREDENTIALS = () => "Invalid credentials provided. Did you input the credentials correctly?";
+export const AUTH_UNAUTHORIZED = () => "Unauthorized access";
+export const AUTH_NOT_LOGGED_IN = () => "You are not logged in. Please sign in with the registered email ID or sign up";
+export const AUTH_RESET_PASSWORD_REQUEST_INVALID = () => "Cannot find an outstanding reset password request for this email. Please initiate a request via \"forgot password\" button to reset your password";
+export const AUTH_LOGIN_METHOD_NOT_SUPPORTED = () => "Login with this method is not supported.";
+export const AUTH_ACCOUNT_LOCKED = () => "Account temporarily locked due to multiple failed attempts. Please try again later.";
+export const AUTH_SESSION_INVALID = () => "User session is invalid. Please log out and log in again.";
+
+// Signup & Email verification
+export const EMAIL_VERIFICATION_NOT_ENABLED = () => "Email Verification not enabled";
+export const GOOGLE_RECAPTCHA_FAILED = () => "Google reCAPTCHA verification failed";
+export const PASSWORD_INSUFFICIENT_STRENGTH = () => "Insufficient password strength";
