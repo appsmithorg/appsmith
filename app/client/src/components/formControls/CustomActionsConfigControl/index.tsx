@@ -110,6 +110,7 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
 
           // Don't update if already in sync (prevent loops)
           const newPath = `${currentPath}${paramsString}`;
+
           if (path !== newPath) {
             dispatch(autofill(formName, "actionConfiguration.path", newPath));
             dispatch(
