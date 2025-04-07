@@ -3,13 +3,10 @@ import { useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { Redirect, useParams } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getAdminSettingsPath,
-  getShowAdminSettings,
-} from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
+import { APPLICATIONS_URL } from "constants/routes";
 
 export default function WithSuperUserHOC(
   Component: React.ComponentType<RouteComponentProps>,
@@ -20,25 +17,15 @@ export default function WithSuperUserHOC(
     const params = useParams() as any;
     const { category } = params;
     const user = useSelector(getCurrentUser);
-    const organizationPermissions = useSelector(getOrganizationPermissions);
     const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
     if (!user) return null;
 
     if (
-      getShowAdminSettings(isFeatureEnabled, user) &&
-      !user?.isSuperUser &&
-      ["profile"].indexOf(category) === -1
+      ["profile"].indexOf(category) === -1 &&
+      !getShowAdminSettings(isFeatureEnabled, user)
     ) {
-      return (
-        <Redirect
-          to={getAdminSettingsPath(
-            isFeatureEnabled,
-            user?.isSuperUser || false,
-            organizationPermissions,
-          )}
-        />
-      );
+      return <Redirect to={APPLICATIONS_URL} />;
     }
 
     return <Component {...props} />;
