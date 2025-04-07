@@ -10,4 +10,6 @@ export interface BadgeProps {
   className?: string;
   /** Size of the badge */
   size?: BadgeSize;
+  /** Adds an pulse animation to the badge */
+  isAnimated?: boolean;
 }
