@@ -224,6 +224,11 @@ const FormRender = (props: Props) => {
 
         return (
           <Zone layout={layout} style={{ ...(section.zoneCustomStyle || {}) }}>
+            {section.title && (
+              <Text isBold kind="heading-s" renderAs="p">
+                {section.title}
+              </Text>
+            )}
             {children}
           </Zone>
         );
