@@ -1,6 +1,9 @@
 /// <reference types="cypress-tags" />
 import adminsSettings from "../../../../locators/AdminsSettings";
-import { adminSettings as adminSettingsHelper } from "../../../../support/Objects/ObjectsCore";
+import {
+  adminSettings as adminSettingsHelper,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Admin settings page",
@@ -29,10 +32,10 @@ describe(
 
     it("2. should test that page header is visible", () => {
       cy.get(adminsSettings.appsmithHeader).should("be.visible");
-      cy.visit(adminSettingsHelper.routes.DEVELOPER_SETTINGS, {
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
         timeout: 60000,
       });
-      cy.url().should("contain", "/developer-settings");
+      cy.url().should("contain", "/instance-settings");
       cy.wait(2000); //page to load properly
       cy.get(adminsSettings.appsmithHeader).should("be.visible");
       cy.visit(adminSettingsHelper.routes.GOOGLEAUTH, { timeout: 60000 });
@@ -62,22 +65,30 @@ describe(
         cy.visit(adminSettingsHelper.routes.APPLICATIONS, { timeout: 60000 });
         cy.wait(3000);
         cy.get(".admin-settings-menu-option").click();
-        cy.get(adminsSettings.generalTab).click();
-        cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
-        cy.get(adminsSettings.advancedTab).click();
-        cy.url().should("contain", adminSettingsHelper.routes.ADVANCED);
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
-        cy.get(adminsSettings.emailTab).click();
-        cy.get(adminsSettings.developerSettingsTab).should("not.exist");
-        cy.url().should("contain", adminSettingsHelper.routes.EMAIL);
-        cy.get(adminsSettings.versionTab).click();
-        cy.url().should("contain", adminSettingsHelper.routes.VERSION);
+        agHelper.GetNClick(adminsSettings.generalTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+        agHelper.GetNClick(adminsSettings.emailTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+        agHelper.GetNClick(adminsSettings.authenticationTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+        agHelper.GetNClick(adminsSettings.instanceSettingsTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.INSTANCE_SETTINGS);
+        agHelper.AssertElementAbsence(adminSettingsHelper._googleMapsAPIField);
+        agHelper.GetNClick(adminsSettings.configurationTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.CONFIGURATION);
+        agHelper.GetNClick(adminsSettings.versionTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
+        agHelper.GetNClick(adminsSettings.userSettingsTab);
+        agHelper.AssertURL(adminSettingsHelper.routes.USER_SETTINGS);
+        agHelper.GetNClick(adminsSettings.branding);
+        agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
       },
     );
 
     it("6. should test save and clear buttons disabled state", () => {
-      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
+        timeout: 60000,
+      });
       const assertVisibilityAndDisabledState = () => {
         cy.get(adminsSettings.saveButton).should("be.visible");
         cy.get(adminsSettings.saveButton).should("be.disabled");
@@ -96,7 +107,9 @@ describe(
     });
 
     it("7. should test saving a setting value", () => {
-      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
+        timeout: 60000,
+      });
       cy.get(adminsSettings.restartNotice).should("not.exist");
       cy.get(adminsSettings.instanceName).should("be.visible");
       let instanceName;
@@ -115,7 +128,9 @@ describe(
     });
 
     it("8. should test saving settings value from different tabs", () => {
-      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
+        timeout: 60000,
+      });
       cy.get(adminsSettings.restartNotice).should("not.exist");
       cy.get(adminsSettings.instanceName).should("be.visible");
       let instanceName;
@@ -153,8 +168,10 @@ describe(
       cy.wait(3000);
     });
 
-    it("9. should test that instance name and admin emails exist on general tab", () => {
-      cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
+    it("9. should test that instance name and admin emails exist on instance settings tab", () => {
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
+        timeout: 60000,
+      });
       cy.get(adminsSettings.instanceName).should("be.visible");
       cy.get(adminsSettings.adminEmails).should("be.visible");
     });

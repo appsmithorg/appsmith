@@ -11,7 +11,7 @@ describe(
   { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. should test that configure link redirects to google maps setup doc", () => {
-      cy.visit(adminSettingsHelper.routes.DEVELOPER_SETTINGS, {
+      cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
         timeout: 60000,
       });
       cy.get(adminsSettings.readMoreLink).within(() => {

@@ -41,10 +41,7 @@ export const Wrapper = styled.section<{ isFixed?: boolean }>`
 `;
 
 export const PageBody = styled.div<{ isSavable?: boolean }>`
-  height: calc(
-    100vh - ${(props) => props.theme.homePage.header}px -
-      ${(props) => (props.isSavable ? "84px" : "0px")}
-  );
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
