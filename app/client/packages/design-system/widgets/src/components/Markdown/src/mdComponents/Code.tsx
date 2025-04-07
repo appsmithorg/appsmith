@@ -47,6 +47,8 @@ export const Code = (props: CodeProps) => {
         PreTag="div"
         customStyle={{
           backgroundColor: "var(--color-bg-neutral-subtle)",
+          paddingBlock: "var(--inner-spacing-2)",
+          paddingInlineStart: "var(--inner-spacing-3)",
         }}
         language={match[1]}
         style={theme.colorMode === "dark" ? darkTheme : lightTheme}
