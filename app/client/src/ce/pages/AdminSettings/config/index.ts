@@ -17,12 +17,13 @@ import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { showAdminSettings } from "ee/utils/adminSettingsHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
 const user = getCurrentUser(store.getState());
-const isSuperUser = showAdminSettings(user);
+const isFeatureEnabled = featureFlags.license_gac_enabled;
+const isSuperUser = getShowAdminSettings(isFeatureEnabled, user);
 
 // Profile categories
 ConfigFactory.register(ProfileConfig);
