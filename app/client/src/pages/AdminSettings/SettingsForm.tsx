@@ -395,7 +395,8 @@ export default withRouter(
     _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
       const doNotUpdate =
-        setting.controlType === SettingTypes.CHECKBOX &&
+        (setting.controlType === SettingTypes.CHECKBOX ||
+          setting.controlType === SettingTypes.TOGGLE) &&
         !settingsConfig[name] &&
         !fieldValue;
 

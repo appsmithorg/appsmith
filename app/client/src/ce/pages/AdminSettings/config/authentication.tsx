@@ -121,7 +121,9 @@ export const FormAuth: AdminConfigType = {
           return false;
         }
 
-        return settings.emailVerificationEnabled && mailEnabled;
+        return (
+          settings.emailVerificationEnabled && mailEnabled && !isMultiOrgEnabled
+        );
       },
     },
     {
@@ -137,7 +139,11 @@ export const FormAuth: AdminConfigType = {
           return false;
         }
 
-        if (!mailEnabled && settings.emailVerificationEnabled) {
+        if (
+          !mailEnabled &&
+          settings.emailVerificationEnabled &&
+          !isMultiOrgEnabled
+        ) {
           return true;
         }
 
