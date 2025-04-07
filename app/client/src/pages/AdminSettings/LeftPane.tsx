@@ -218,6 +218,7 @@ export default function LeftPane() {
 
   const filteredUserManagmentCategories = getFilteredUserManagementCategories(
     userManagementCategories,
+    organizationPermissions,
     isSuperUser,
   );
 
