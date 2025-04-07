@@ -240,7 +240,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {organizationCategories.length > 0 && (
+      {filteredOrgCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Organisation
@@ -252,7 +252,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {userManagementCategories.length > 0 && (
+      {filteredUserManagmentCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             User management
@@ -264,7 +264,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {instanceCategories.length > 0 && (
+      {filteredInstanceCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Instance
