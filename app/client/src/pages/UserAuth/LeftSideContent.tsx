@@ -59,7 +59,6 @@ const Wrapper = styled.div`
   .client-logo-container .client-logo-section {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 24px;
     gap: var(--ads-spaces-3);
     flex-wrap: wrap;
   }
@@ -105,7 +104,10 @@ function LeftSideContent() {
         <div className="client-heading">
           Used by more than 10,000 organisations across the globe
         </div>
-        <div className="client-logo-section">
+        <div
+          className="client-logo-section"
+          style={{ marginBottom: isAiAgentFlowEnabled ? "0px" : "24px" }}
+        >
           <img
             alt="GSK logo"
             src={`${getAssetUrl(`${ASSETS_CDN_URL}/gsk-logo-grey.svg`)}`}
