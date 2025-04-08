@@ -17,6 +17,7 @@ import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
+import OneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -43,6 +44,8 @@ describe(
       entityExplorer.DragNDropWidget("textwidget", 100, 100);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       oneClickBinding.ChooseAndAssertForm(dsName, dsName, "public.astronauts");
+      agHelper.GetNClick(OneClickBindingLocator.connectData);
+      agHelper.AssertClassExists(locators._jsToggle("tabledata"), "is-active");
     });
 
     it("1. should enable infinite scroll and verify records are loaded and loaded more records works", () => {
