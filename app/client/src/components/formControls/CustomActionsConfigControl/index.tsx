@@ -56,6 +56,7 @@ const areParamsEquivalent = (
   const paramsMap1 = params1.reduce(
     (map, param) => {
       if (param.key) map[param.key] = param.value;
+
       return map;
     },
     {} as Record<string, unknown>,
@@ -64,6 +65,7 @@ const areParamsEquivalent = (
   const paramsMap2 = params2.reduce(
     (map, param) => {
       if (param.key) map[param.key] = param.value;
+
       return map;
     },
     {} as Record<string, unknown>,
