@@ -118,10 +118,11 @@ export default [
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
           return (
-            !props.showInlineEditingOptionDropdown &&
-            !Object.values(props.primaryColumns).find(
-              (column) => column.isEditable,
-            )
+            props.infiniteScrollEnabled ||
+            (!props.showInlineEditingOptionDropdown &&
+              !Object.values(props.primaryColumns).find(
+                (column) => column.isEditable,
+              ))
           );
         },
         dependencies: [
