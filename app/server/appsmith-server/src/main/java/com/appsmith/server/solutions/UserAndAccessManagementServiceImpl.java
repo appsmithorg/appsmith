@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
@@ -28,8 +29,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             PermissionGroupPermission permissionGroupPermission,
             EmailService emailService,
             CommonConfig commonConfig,
+            UserOrganizationHelper userOrganizationHelper,
             CaptchaService captchaService) {
-
         super(
                 sessionUserService,
                 permissionGroupService,
@@ -40,6 +41,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 permissionGroupPermission,
                 emailService,
                 commonConfig,
+                userOrganizationHelper,
                 captchaService);
     }
 }

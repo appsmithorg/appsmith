@@ -44,7 +44,9 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
     @Override
     public Mono<User> refreshCurrentUser(ServerWebExchange exchange) {
         return Mono.zip(
-                        getCurrentUser().map(User::getEmail).flatMap(userRepository::findByEmail),
+                        getCurrentUser()
+                                .flatMap(sessionUser -> userRepository.findByEmailAndOrganizationId(
+                                        sessionUser.getEmail(), sessionUser.getOrganizationId())),
                         ReactiveSecurityContextHolder.getContext(),
                         exchange.getSession())
                 .flatMap(tuple -> {

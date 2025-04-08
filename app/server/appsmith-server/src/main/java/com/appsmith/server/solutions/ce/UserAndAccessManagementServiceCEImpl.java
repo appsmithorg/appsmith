@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -47,7 +48,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserService userService;
     private final PermissionGroupPermission permissionGroupPermission;
     private final EmailService emailService;
-    private final CommonConfig commonConfig;
+    private final UserOrganizationHelper userOrganizationHelper;
 
     private final CaptchaService captchaService;
 
@@ -61,6 +62,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             PermissionGroupPermission permissionGroupPermission,
             EmailService emailService,
             CommonConfig commonConfig,
+            UserOrganizationHelper userOrganizationHelper,
             CaptchaService captchaService) {
 
         this.sessionUserService = sessionUserService;
@@ -71,7 +73,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userService = userService;
         this.emailService = emailService;
         this.permissionGroupPermission = permissionGroupPermission;
-        this.commonConfig = commonConfig;
+        this.userOrganizationHelper = userOrganizationHelper;
         this.captchaService = captchaService;
     }
 
@@ -160,8 +162,10 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     eventData.put(FieldName.WORKSPACE, workspace);
                     List<PermissionGroup> defaultPermissionGroups = tuple.getT3();
 
-                    Mono<User> getUserFromDbAndCheckIfUserExists = userRepository
-                            .findByEmail(username)
+                    Mono<User> getUserFromDbAndCheckIfUserExists = userOrganizationHelper
+                            .getCurrentUserOrganizationId()
+                            .flatMap(organizationId ->
+                                    userRepository.findByEmailAndOrganizationId(username, organizationId))
                             .flatMap(user -> throwErrorIfUserAlreadyExistsInWorkspace(user, defaultPermissionGroups)
                                     .thenReturn(user));
 
