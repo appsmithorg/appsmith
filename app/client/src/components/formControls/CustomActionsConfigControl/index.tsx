@@ -66,13 +66,8 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
       if (path) {
         const parsedParams = parseUrlForQueryParams(path);
 
-        // If we found params in the path, but they're not in the params tab, update them
-        if (
-          parsedParams.length > 0 &&
-          parsedParams.some((p) => p.key) &&
-          (!queryParameters.length ||
-            !queryParameters.some((p: Property) => p.key))
-        ) {
+        // Always update params if we found query parameters in the path
+        if (parsedParams.length > 0 && parsedParams.some((p) => p.key)) {
           dispatch(
             autofill(formName, `${configProperty}.params`, parsedParams),
           );
