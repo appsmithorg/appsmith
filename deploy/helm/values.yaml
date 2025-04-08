@@ -444,3 +444,18 @@ applicationConfig:
   APPSMITH_KEYCLOAK_DB_USERNAME: ""
   APPSMITH_KEYCLOAK_DB_PASSWORD: ""
   APPSMITH_KEYCLOAK_DB_URL: ""
+
+# -- Additional environment variables to add to the appsmith container
+extraEnv: []
+# - name: DEMO_GREETING
+#   value: "Hello from the environment"
+# - name: SECRET_USERNAME
+#   valueFrom:
+#     secretKeyRef:
+#       name: backend-user
+#       key: backend-username
+
+# -- Additional secrets or configmaps to reference in envFrom in the appsmith container
+extraEnvFrom: []
+# - secretRef:
+#     name: test-secret
