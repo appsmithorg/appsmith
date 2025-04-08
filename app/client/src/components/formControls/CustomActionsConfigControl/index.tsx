@@ -57,10 +57,9 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
 
       if (!actionId) return;
 
-      // Path to sync
-      const path = values.actionConfiguration?.path || "";
-      // Query parameters to sync
-      const queryParameters = values.actionConfiguration?.queryParameters || [];
+      // Correctly access nested properties using the configProperty
+      const path = values[configProperty]?.path || "";
+      const queryParameters = values[configProperty]?.params || [];
 
       // Check if we need to extract parameters from the path
       if (path) {
@@ -76,14 +75,14 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
           dispatch(
             autofill(
               formName,
-              "actionConfiguration.queryParameters",
+              `${configProperty}.params`,
               parsedParams,
             ),
           );
           dispatch(
             setActionProperty({
               actionId: actionId,
-              propertyName: "actionConfiguration.queryParameters",
+              propertyName: `${configProperty}.params`,
               value: parsedParams,
             }),
           );
@@ -112,11 +111,11 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
           const newPath = `${currentPath}${paramsString}`;
 
           if (path !== newPath) {
-            dispatch(autofill(formName, "actionConfiguration.path", newPath));
+            dispatch(autofill(formName, `${configProperty}.path`, newPath));
             dispatch(
               setActionProperty({
                 actionId: actionId,
-                propertyName: "actionConfiguration.path",
+                propertyName: `${configProperty}.path`,
                 value: newPath,
               }),
             );
