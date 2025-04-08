@@ -73,6 +73,7 @@ export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasource
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
+export const ADMIN_SETTINGS_CATEGORY_PROFILE_PATH = "/settings/profile";
 export const ADMIN_SETTINGS_CATEGORY_ACL_PATH = "/settings/groups";
 export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
