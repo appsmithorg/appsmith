@@ -14,4 +14,10 @@ public class WorkspaceServiceHelperCEImpl implements WorkspaceServiceHelperCE {
     public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
         return Mono.just(TRUE);
     }
+
+    @Override
+    public Mono<String> generateDefaultWorkspaceName(String firstName) {
+        // Default implementation returns "x's apps"
+        return Mono.just(firstName + "'s apps");
+    }
 }

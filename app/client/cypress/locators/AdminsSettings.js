@@ -11,6 +11,7 @@ export default {
   githubButton: ".t--settings-sub-category-github-auth",
   formloginButton: ".t--settings-sub-category-form-login",
   readMoreLink: ".t--read-more-link",
+  subTextLink: ".t--sub-text-link",
   versionTab: ".t--settings-category-version",
   backButton: ".t--admin-settings-back-button",
   saveButton: ".t--admin-settings-save-button",
