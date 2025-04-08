@@ -68,8 +68,6 @@ export const APPSMITH_IS_CROSS_SITE_EMBEDDING_ENABLED: Setting = {
   text: "Enable embedding of private Appsmith apps on external domains beyond the current domain",
   tooltip:
     "Users will need to log out and log in again to be able to use embeds across domains",
-  isFeatureEnabled: false,
-  isDisabled: () => true,
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
