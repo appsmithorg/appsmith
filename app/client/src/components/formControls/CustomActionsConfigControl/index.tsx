@@ -13,6 +13,7 @@ import { parseUrlForQueryParams, queryParamsRegEx } from "utils/ApiPaneUtils";
 import { autofill } from "redux-form";
 import { setActionProperty } from "actions/pluginActionActions";
 import type { Property } from "api/ActionAPI";
+import get from "lodash/get";
 
 enum CUSTOM_ACTION_TABS {
   HEADERS = "HEADERS",
@@ -57,9 +58,9 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
 
       if (!actionId) return;
 
-      // Correctly access nested properties using the configProperty
-      const path = values[configProperty]?.path || "";
-      const queryParameters = values[configProperty]?.params || [];
+      // Correctly access nested properties using lodash's get
+      const path = get(values, `${configProperty}.path`, "");
+      const queryParameters = get(values, `${configProperty}.params`, []);
 
       // Check if we need to extract parameters from the path
       if (path) {
@@ -73,11 +74,7 @@ const useSyncParamsToPath = (formName: string, configProperty: string) => {
             !queryParameters.some((p: Property) => p.key))
         ) {
           dispatch(
-            autofill(
-              formName,
-              `${configProperty}.params`,
-              parsedParams,
-            ),
+            autofill(formName, `${configProperty}.params`, parsedParams),
           );
           dispatch(
             setActionProperty({
