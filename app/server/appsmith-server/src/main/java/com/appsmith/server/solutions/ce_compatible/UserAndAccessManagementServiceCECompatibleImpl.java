@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAccessManagementServiceCEImpl
         implements UserAndAccessManagementServiceCECompatible {
+
     public UserAndAccessManagementServiceCECompatibleImpl(
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
@@ -26,6 +28,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
             PermissionGroupPermission permissionGroupPermission,
             EmailService emailService,
             CommonConfig commonConfig,
+            UserOrganizationHelper userOrganizationHelper,
             CaptchaService captchaService) {
         super(
                 sessionUserService,
@@ -37,6 +40,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
                 permissionGroupPermission,
                 emailService,
                 commonConfig,
+                userOrganizationHelper,
                 captchaService);
     }
 }

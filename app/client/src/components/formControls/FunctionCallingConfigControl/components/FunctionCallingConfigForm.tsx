@@ -11,6 +11,7 @@ import {
   MenuSubTrigger,
   MenuTrigger,
   Text,
+  Tooltip,
 } from "@appsmith/ads";
 import React, { useCallback, useMemo, useState } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
@@ -106,14 +107,25 @@ export const FunctionCallingConfigForm = ({
   return (
     <>
       <Header>
-        <Text isBold kind="heading-s" renderAs="p">
-          Function Calls
-        </Text>
+        <Tooltip
+          align={{
+            points: ["cr", "cl"],
+            offset: [0, 2],
+          }}
+          content="Function calling allows the agent to intelligently fetch data, perform actions, and generate accurate, real-time responses."
+        >
+          <Flex alignItems="center" flexDirection="row" gap="spaces-2">
+            <Text isBold kind="heading-s" renderAs="p">
+              Functions
+            </Text>
+            <Icon name="info" size="md" />
+          </Flex>
+        </Tooltip>
 
         <Menu>
           <MenuTrigger>
             <Button UNSAFE_width="110px" kind="secondary" startIcon="plus">
-              Add Function
+              Add function
             </Button>
           </MenuTrigger>
           <MenuContent align="end" loop width="235px">
@@ -122,7 +134,7 @@ export const FunctionCallingConfigForm = ({
               <MenuItem onSelect={() => history.push(queryAddURL({}))}>
                 <Flex alignItems="center" gap="spaces-2">
                   <Icon name="plus" size="md" />
-                  New Query
+                  New query
                 </Flex>
               </MenuItem>
               <MenuItem
@@ -138,7 +150,7 @@ export const FunctionCallingConfigForm = ({
               >
                 <Flex alignItems="center" gap="spaces-2">
                   <Icon name="plus" size="md" />
-                  New JS Object
+                  New JS object
                 </Flex>
               </MenuItem>
             </MenuGroup>
