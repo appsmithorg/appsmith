@@ -352,6 +352,7 @@ persistence:
     ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
     ##
     dataSource: {}
+
 # tags:
 #   install-ingress-nginx: true
 storageClass:
@@ -382,6 +383,17 @@ storageClass:
   ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
   ##
   parameters: {}
+
+# -- Additional volumes to add to the appsmith pods
+extraVolumes: []
+#  - name: nothing
+#    emptyDir: {}
+
+# -- Additional volume mounts into the appSmith container
+extraVolumeMounts: []
+#  - mountPath: /var/nothing
+#    name: nothing
+#    readOnly: true
 
 podDisruptionBudgets:
   enabled: true
