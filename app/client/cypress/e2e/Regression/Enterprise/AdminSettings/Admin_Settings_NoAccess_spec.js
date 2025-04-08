@@ -39,6 +39,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       });
       cy.get(adminsSettings.hideWatermarkInput).should("have.attr", "disabled");
 
+      cy.get(adminsSettings.userSettingsTab).click();
       cy.get(adminsSettings.showRolesAndGroupsWrapper).within(() => {
         cy.get(adminsSettings.businessTag)
           .should("exist")

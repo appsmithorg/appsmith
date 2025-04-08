@@ -19,7 +19,7 @@ export const getShowAdminSettings = (
 };
 export const getAdminSettingsPath = (
   isEnabled: boolean,
-  isSuperUser: boolean | undefined,
+  isSuperUser: boolean,
   organizationPermissions: string[] = [],
 ) => {
   if (isEnabled) {

@@ -14,6 +14,7 @@ import { ADMIN_SETTINGS_PATH } from "constants/routes";
 import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
 import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { useIsCloudBillingEnabled } from "hooks";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -54,10 +55,11 @@ export function ShareModal() {
     isPublicApp,
     selectedMethod,
   );
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
 
   return (
     <div className="flex flex-col gap-6">
-      {embedSnippet.isSuperUser && (
+      {embedSnippet.isSuperUser && !isCloudBillingEnabled && (
         <div className="flex justify-between">
           <div className="flex gap-1" data-testid="frame-ancestors-setting">
             <Icon
@@ -138,6 +140,7 @@ export function AppSettings() {
     isPublicApp,
     selectedMethod,
   );
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
 
   return (
     <EmbedWrapper className="px-4">
@@ -146,7 +149,7 @@ export function AppSettings() {
       </Text>
 
       <div className="flex flex-col gap-6">
-        {embedSnippet.isSuperUser && (
+        {embedSnippet.isSuperUser && !isCloudBillingEnabled && (
           <div className="flex justify-between">
             <div className="flex gap-1" data-testid="frame-ancestors-setting">
               <Icon

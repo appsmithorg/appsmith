@@ -9,7 +9,7 @@ import { ProvisioningUpgradePage } from "../../Upgrade/ProvisioningUpgradePage";
 export const config: AdminConfigType = {
   icon: "user-follow-line",
   type: SettingCategories.PROVISIONING,
-  categoryType: CategoryType.ACL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.PAGE,
   component: ProvisioningUpgradePage,
   title: "Provisioning",

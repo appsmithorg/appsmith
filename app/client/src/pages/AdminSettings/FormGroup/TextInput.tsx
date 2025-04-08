@@ -19,6 +19,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
         name={setting.name || setting.id || ""}
         parse={setting.parse}
         placeholder={createMessage(() => setting.placeholder || "")}
+        postfix={setting.postfix}
         type={setting.controlSubType}
       />
     </FormGroup>
