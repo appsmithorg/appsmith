@@ -255,35 +255,35 @@ export function* evalErrorHandler(
           });
         }
 
+        log.error(error);
+
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
         toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
           kind: "error",
         });
+        log.error(error);
+        Sentry.captureException(error);
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
+        log.error(error);
         Sentry.captureException(error);
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
-        log.debug(error);
+        Sentry.captureException(error);
+        log.error(error);
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        /*
-         * https://github.com/appsmithorg/appsmith/issues/2654
-         * This code is being commented out to prevent these errors from going to Sentry
-         * till we come up with a more definitive solution to prevent this error
-         * Proposed solution - adding lint errors to editor to prevent these from happening
-         * */
-
-        // Sentry.captureException(new Error(error.message), {
-        //   extra: {
-        //     request: error.context,
-        //   },
-        // });
+        log.debug(error);
+        Sentry.captureException(new Error(error.message), {
+          extra: {
+            request: error.context,
+          },
+        });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
@@ -293,6 +293,8 @@ export function* evalErrorHandler(
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
+        log.error(error);
+        Sentry.captureException(error);
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
@@ -302,7 +304,8 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        log.debug(error);
+        log.error(error);
+        Sentry.captureException(error);
       }
     }
   });
