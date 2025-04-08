@@ -39,7 +39,6 @@ import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
-import { toggleAISupportModal } from "ee/actions/aiAgentActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -202,17 +201,10 @@ function HelpButton() {
       docItem.link = DOCS_AI_BASE_URL;
     }
 
-    const chatItem = HELP_MENU_ITEMS.find(
-      (item) => item.id === "ai-support-trigger",
+    HELP_MENU_ITEMS.splice(
+      HELP_MENU_ITEMS.findIndex((item) => item.label === "Report a bug"),
+      1,
     );
-
-    if (!chatItem) {
-      HELP_MENU_ITEMS.push({
-        icon: "chat-help",
-        label: "Chat with us",
-        id: "ai-support-trigger",
-      });
-    }
   }
 
   useEffect(() => {
@@ -300,10 +292,6 @@ function HelpButton() {
                           setShowIntercomConsent(true);
                         }
                       }
-                    }
-
-                    if (item.id === "ai-support-trigger") {
-                      dispatch(toggleAISupportModal());
                     }
                   }}
                   startIcon={item.icon}
