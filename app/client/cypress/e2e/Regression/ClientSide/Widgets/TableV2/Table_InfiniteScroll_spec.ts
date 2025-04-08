@@ -7,6 +7,7 @@ import {
   deployMode,
   dataSources,
   locators,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -37,6 +38,7 @@ describe(
       // Create a new page and add a table widget
       AppSidebar.navigate(AppSidebarButton.Editor);
       entityExplorer.DragNDropWidget("tablewidgetv2", 350, 500);
+      assertHelper.AssertNetworkStatus("updateLayout");
       agHelper.GetNClick(locators._createNew);
       entityExplorer.DragNDropWidget("textwidget", 100, 100);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
