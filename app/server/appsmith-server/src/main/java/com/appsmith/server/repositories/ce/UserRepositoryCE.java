@@ -11,6 +11,7 @@ import java.util.Set;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 
+    @Deprecated
     Mono<User> findByEmail(String email);
 
     Mono<User> findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(String email, String organizationId);

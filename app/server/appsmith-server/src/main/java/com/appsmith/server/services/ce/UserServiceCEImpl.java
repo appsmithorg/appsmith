@@ -324,6 +324,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)))
                 .cache();
 
+        Mono<String> orgIdMono = organizationMono.map(Organization::getId);
+
         return organizationMono
                 .flatMap(organization -> passwordResetTokenRepository.findByEmailAndOrganizationId(
                         emailTokenDTO.getEmail(), organization.getId()))
@@ -337,69 +339,69 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return emailTokenDTO.getEmail();
                     }
                 })
-                .flatMap(emailAddress -> repository
-                        .findByEmail(emailAddress)
-                        .switchIfEmpty(Mono.error(
-                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
-                        .zipWith(organizationMono)
-                        .flatMap(tuple -> {
-                            User userFromDb = tuple.getT1();
-                            OrganizationConfiguration organizationConfiguration =
-                                    tuple.getT2().getOrganizationConfiguration();
-                            boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
-                                    && Boolean.TRUE.equals(
-                                            organizationConfiguration.getIsStrongPasswordPolicyEnabled());
+                .zipWith(orgIdMono)
+                .flatMap(tuple -> {
+                    String emailAddress = tuple.getT1();
+                    String orgId = tuple.getT2();
+                    return repository
+                            .findByEmailAndOrganizationId(emailAddress, orgId)
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)));
+                })
+                .zipWith(organizationMono)
+                .flatMap(tuple -> {
+                    User userFromDb = tuple.getT1();
+                    OrganizationConfiguration organizationConfiguration =
+                            tuple.getT2().getOrganizationConfiguration();
+                    boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
+                            && Boolean.TRUE.equals(organizationConfiguration.getIsStrongPasswordPolicyEnabled());
 
-                            if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
-                                return isStrongPasswordPolicyEnabled
-                                        ? Mono.error(new AppsmithException(
-                                                AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
-                                                LOGIN_PASSWORD_MIN_LENGTH,
-                                                LOGIN_PASSWORD_MAX_LENGTH))
-                                        : Mono.error(new AppsmithException(
-                                                AppsmithError.INVALID_PASSWORD_LENGTH,
-                                                LOGIN_PASSWORD_MIN_LENGTH,
-                                                LOGIN_PASSWORD_MAX_LENGTH));
-                            }
+                    if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
+                        return isStrongPasswordPolicyEnabled
+                                ? Mono.error(new AppsmithException(
+                                        AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
+                                        LOGIN_PASSWORD_MIN_LENGTH,
+                                        LOGIN_PASSWORD_MAX_LENGTH))
+                                : Mono.error(new AppsmithException(
+                                        AppsmithError.INVALID_PASSWORD_LENGTH,
+                                        LOGIN_PASSWORD_MIN_LENGTH,
+                                        LOGIN_PASSWORD_MAX_LENGTH));
+                    }
 
-                            // User has verified via the forgot password token verfication route. Allow the user to set
-                            // new password.
-                            userFromDb.setPasswordResetInitiated(false);
-                            userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+                    // User has verified via the forgot password token verfication route. Allow the user to set
+                    // new password.
+                    userFromDb.setPasswordResetInitiated(false);
+                    userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
 
-                            // If the user has been invited but has not signed up yet, and is following the route of
-                            // reset
-                            // password flow to set up their password, enable the user's account as well
-                            userFromDb.setIsEnabled(true);
+                    // If the user has been invited but has not signed up yet, and is following the route of
+                    // reset
+                    // password flow to set up their password, enable the user's account as well
+                    userFromDb.setIsEnabled(true);
 
-                            return organizationService
-                                    .getCurrentUserOrganizationId()
-                                    .flatMap(
-                                            organizationId -> passwordResetTokenRepository.findByEmailAndOrganizationId(
-                                                    userFromDb.getEmail(), organizationId))
-                                    .switchIfEmpty(Mono.error(new AppsmithException(
-                                            AppsmithError.NO_RESOURCE_FOUND,
-                                            FieldName.TOKEN,
-                                            emailTokenDTO.getToken())))
-                                    .flatMap(passwordResetTokenRepository::delete)
-                                    .then(repository.save(userFromDb))
-                                    .doOnSuccess(result -> {
-                                        // In a separate thread, we delete all other sessions of this user.
-                                        sessionUserService
-                                                .logoutAllSessions(userFromDb.getEmail())
-                                                .subscribeOn(Schedulers.boundedElastic())
-                                                .subscribe();
+                    return organizationService
+                            .getCurrentUserOrganizationId()
+                            .flatMap(organizationId -> passwordResetTokenRepository.findByEmailAndOrganizationId(
+                                    userFromDb.getEmail(), organizationId))
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND, FieldName.TOKEN, emailTokenDTO.getToken())))
+                            .flatMap(passwordResetTokenRepository::delete)
+                            .then(repository.save(userFromDb))
+                            .doOnSuccess(result -> {
+                                // In a separate thread, we delete all other sessions of this user.
+                                sessionUserService
+                                        .logoutAllSessions(userFromDb.getEmail())
+                                        .subscribeOn(Schedulers.boundedElastic())
+                                        .subscribe();
 
-                                        // we reset the counter for user's login attempts once password is reset
-                                        rateLimitService
-                                                .resetCounter(
-                                                        RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API,
-                                                        userFromDb.getEmail())
-                                                .subscribeOn(Schedulers.boundedElastic())
-                                                .subscribe();
-                                    })
-                                    .thenReturn(true);
-                        }));
+                                // we reset the counter for user's login attempts once password is reset
+                                rateLimitService
+                                        .resetCounter(
+                                                RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail())
+                                        .subscribeOn(Schedulers.boundedElastic())
+                                        .subscribe();
+                            })
+                            .thenReturn(true);
+                });
     }
 
     @Override
