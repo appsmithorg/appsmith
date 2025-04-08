@@ -18,6 +18,7 @@ export interface OrganizationReduxState<T> {
   isLoading: boolean;
   instanceId: string;
   tenantId: string;
+  isWithinAnOrganization: boolean;
 }
 
 export const defaultBrandingConfig = {
@@ -39,6 +40,7 @@ export const initialState: OrganizationReduxState<any> = {
   isLoading: true,
   instanceId: "",
   tenantId: "",
+  isWithinAnOrganization: false,
 };
 
 export const handlers = {
@@ -73,6 +75,7 @@ export const handlers = {
     isLoading: false,
     instanceId: action.payload.instanceId,
     tenantId: action.payload.tenantId,
+    isWithinAnOrganization: action.payload.isWithinAnOrganization,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR]: (
     // TODO: Fix this the next time the file is edited
