@@ -51,7 +51,7 @@
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
+              "validationRegex": "^((?![/]).)*$",
               "placeholderText": "myapp.abcde.postgres.net"
             },
             {
@@ -72,7 +72,7 @@
               "configProperty": "datasourceConfiguration.sshProxy.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
+              "validationRegex": "^((?![/]).)*$",
               "placeholderText": "myapp.abcde.sshHost.net"
             },
             {

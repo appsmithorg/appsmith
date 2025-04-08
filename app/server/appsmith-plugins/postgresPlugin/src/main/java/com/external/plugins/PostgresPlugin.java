@@ -710,8 +710,7 @@ public class PostgresPlugin extends BasePlugin {
                 for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
                         invalids.add(PostgresErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
-                    } else if (endpoint.getHost().contains("/")
-                            || endpoint.getHost().contains(":")) {
+                    } else if (!isValidHostname(endpoint.getHost())) {
                         invalids.add(
                                 String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                     }
@@ -757,7 +756,7 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
                 } else {
                     String sshHost = datasourceConfiguration.getSshProxy().getHost();
-                    if (sshHost.contains("/") || sshHost.contains(":")) {
+                    if (sshHost.contains("/")) {
                         invalids.add(DS_INVALID_SSH_HOSTNAME_ERROR_MSG);
                     }
                 }
@@ -1168,6 +1167,24 @@ public class PostgresPlugin extends BasePlugin {
                     throw new IllegalArgumentException(
                             "Unable to map the computed data type to primitive Postgresql type");
             }
+        }
+
+        private static boolean isValidHostname(String hostname) {
+            if (hostname == null) {
+                return false;
+            }
+
+            // Check for forward slashes
+            if (hostname.contains("/")) {
+                return false;
+            }
+
+            // Check for jdbc: prefix which is not allowed
+            if (hostname.startsWith("jdbc:")) {
+                return false;
+            }
+
+            return true;
         }
     }
 

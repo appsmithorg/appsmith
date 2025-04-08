@@ -11,6 +11,7 @@ import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.PostgresErrorMessages;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,7 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_USERNAME_ERROR_MSG;
 import static com.appsmith.external.models.Connection.Mode.READ_WRITE;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -97,9 +99,8 @@ public class PostgresDatasourceValidationTest {
     @Test
     public void testErrorMessageOnBadSSHHost() {
         DatasourceConfiguration sshDatasourceConfiguration = getDatasourceConfigurationWithSSHConnectionMethod();
-        sshDatasourceConfiguration.getSshProxy().setHost("hostname:port");
+        sshDatasourceConfiguration.getSshProxy().setHost("hostname/with/invalid/chars");
         Set<String> validationErrors = pluginExecutor.validateDatasource(sshDatasourceConfiguration);
-        assertTrue(validationErrors.size() > 0);
         assertTrue(validationErrors.contains(DS_INVALID_SSH_HOSTNAME_ERROR_MSG), validationErrors::toString);
     }
 
@@ -176,6 +177,47 @@ public class PostgresDatasourceValidationTest {
         String hostname = "jdbc:postgresql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
+        assertTrue(output.contains(
+                "Host value cannot contain `/` characters or start with `jdbc:`. Found `" + hostname + "`" + "."));
+    }
+
+    @Test
+    public void testValidateIPv6Address() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        // Test a valid IPv6 address
+        String ipv6Address = "2001:db8::1";
+        dsConfig.getEndpoints().get(0).setHost(ipv6Address);
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty(), "IPv6 address validation failed: " + output);
+
+        // Test IPv6 address with brackets
+        String ipv6AddressWithBrackets = "[2001:db8::1]";
+        dsConfig.getEndpoints().get(0).setHost(ipv6AddressWithBrackets);
+        output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.isEmpty(), "IPv6 address with brackets validation failed: " + output);
+    }
+
+    @Test
+    public void testInvalidHostWithSlash() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        // Test invalid hostname with slash
+        String invalidHost = "2001:db8::1/64";
+        dsConfig.getEndpoints().get(0).setHost(invalidHost);
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.contains(String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, invalidHost)),
+                "Validation should reject hostname with slash: " + output);
+    }
+
+    @Test
+    public void testValidateIPv6AddressInSSH() {
+        DatasourceConfiguration sshDatasourceConfiguration = getDatasourceConfigurationWithSSHConnectionMethod();
+        // Test a valid IPv6 address in SSH host
+        String ipv6Address = "2001:db8::1";
+        sshDatasourceConfiguration.getSshProxy().setHost(ipv6Address);
+        Set<String> validationErrors = pluginExecutor.validateDatasource(sshDatasourceConfiguration);
+        assertFalse(
+                validationErrors.contains(DS_INVALID_SSH_HOSTNAME_ERROR_MSG),
+                "IPv6 address in SSH host validation failed: " + validationErrors);
     }
 }

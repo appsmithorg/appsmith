@@ -55,10 +55,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static org.bson.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
@@ -601,10 +601,9 @@ public class PostgresPluginTest {
 
     @Test
     public void itShouldValidateDatasourceWithInvalidHostname() {
-
         String hostname = "jdbc://localhost";
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
+        dsConfig.getEndpoints().get(0).setHost(hostname);
 
         assertEquals(
                 Set.of(String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, hostname)),
