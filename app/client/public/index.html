@@ -1,249 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
-  <title>Appsmith</title>
-  <style>
-    #loader {
-      position: fixed;
-      left: 0;
-      top: 0;
-      height: 4px;
-      background: #d7d7d7;
-      transition: all ease-in 0.3s;
-    }
-  </style>
-  <script>
-    // '' (empty strings), 'false' are falsy
-    // could return either boolean or string based on value
-    const parseConfig = (config) => {
-      if (
-        (config.startsWith("{") && config.startsWith("}")) ||
-        config.indexOf("__") === 0 ||
-        config.indexOf("$") === 0 ||
-        config.indexOf("%") === 0
-      )
-        return "";
-
-      const result = config.trim();
-      if (result.toLowerCase() === "false" || result === "") {
-        return false;
-      } else if (result.toLowerCase() === "true") {
-        return true;
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1"
+    />
+    <title>Appsmith</title>
+    <style>
+      #loader {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 4px;
+        background: #d7d7d7;
+        transition: all ease-in 0.3s;
       }
+    </style>
+      <script>
+        // '' (empty strings), 'false' are falsy
+        // could return either boolean or string based on value
+        const parseConfig = (config) => {
+          if (
+            (config.startsWith("{") && config.startsWith("}")) ||
+            config.indexOf("__") === 0 ||
+            config.indexOf("$") === 0 ||
+            config.indexOf("%") === 0
+          )
+            return "";
 
-      return result;
-    };
-    const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-    const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
-    const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
-  </script>
-  <script>
-    window.__APPSMITH_CHUNKS_TO_PRELOAD =
+          const result = config.trim();
+          if (result.toLowerCase() === "false" || result === "") {
+            return false;
+          } else if (result.toLowerCase() === "true") {
+            return true;
+          }
+
+          return result;
+        };
+        const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
+        const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
+        const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
+      </script>
+    <script>
+        window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
-    (function () {
-      // This code emits URLs to be preloaded as soon as the main bundle loads.
-      // If you code-split away some files and need to preload them as well, here’s how to do that:
-      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
-      //  2) Add the name into the `chunksToPreload` array below
-      let chunksToPreload = {
-        'edit-mode': [...getChunkUrls("AppIDE"), ...getChunkUrls("global-search")],
-        'view-mode': getChunkUrls("AppViewer")
-      };
+        (function () {
+          // This code emits URLs to be preloaded as soon as the main bundle loads.
+          // If you code-split away some files and need to preload them as well, here’s how to do that:
+          //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
+          //  2) Add the name into the `chunksToPreload` array below
+          let chunksToPreload = {
+            'edit-mode': [...getChunkUrls("AppIDE"), ...getChunkUrls("global-search")],
+            'view-mode': getChunkUrls("AppViewer")
+          };
 
-      return JSON.stringify(chunksToPreload);
+          return JSON.stringify(chunksToPreload);
 
-      function getChunkUrls(chunkName) {
-        return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
-      }
-    })()
-      %>
-  </script>
+          function getChunkUrls(chunkName) {
+            return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
+          }
+        })()
+          %>
+    </script>
 
-  <!-- Start of Reo Javascript -->
-  <script type="text/javascript">
+    <!-- Start of Reo Javascript -->
+    <script type="text/javascript">
       if (CLOUD_HOSTING && REO_CLIENT_ID) {
-      !function () { var e, t, n; e = REO_CLIENT_ID, t = function () { Reo.init({ clientID: REO_CLIENT_ID }) }, (n = document.createElement("script")).src = "https://static.reo.dev/" + e + "/reo.js", n.async = !0, n.onload = t, document.head.appendChild(n) }();
-    }
-  </script>
-  <!-- End of Reo Javascript -->
-</head>
+        !function(){var e,t,n;e=REO_CLIENT_ID,t=function(){Reo.init({clientID:REO_CLIENT_ID})},(n=document.createElement("script")).src="https://static.reo.dev/"+e+"/reo.js",n.async=!0,n.onload=t,document.head.appendChild(n)}();
+      }
+    </script>
+    <!-- End of Reo Javascript -->
+  </head>
 
-<body class="appsmith-light-theme">
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="loader" style="width: 30vw"></div>
-  <!--
+  <body class="appsmith-light-theme">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="loader" style="width: 30vw"></div>
+    <!--
     To keep zIndex for tooltips higher than app comments, todo remove when migrating to Tooltip2
     Currently the className does not apply to the portal root, so we're unable to work with z-indexes based on that
   -->
-  <div id="header-root"></div>
-  <div id="root"></div>
-  <div id="date-picker-control" style="position: relative; z-index: 1000"></div>
-  <script type="text/javascript">
-    // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
-    const getIsLocalStorageSupported = () => {
-      try {
-        window.localStorage.setItem("test", "testA");
-        window.localStorage.removeItem("test");
-        return true;
-      } catch (e) {
-        return false;
-      }
-    };
-    const isLocalStorageSupported = getIsLocalStorageSupported();
-
-    const handleLocalStorageNotSupportedError = () => {
-      console.error("Localstorage storage is not supported on your device.");
-    };
-
-    const localStorageUtil = {
-      getItem: (key) => {
-        if (!isLocalStorageSupported) {
-          handleLocalStorageNotSupportedError();
-          return;
+    <div id="header-root"></div>
+    <div id="root"></div>
+    <div
+      id="date-picker-control"
+      style="position: relative; z-index: 1000"
+    ></div>
+    <script type="text/javascript">
+      // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
+      const getIsLocalStorageSupported = () => {
+        try {
+          window.localStorage.setItem("test", "testA");
+          window.localStorage.removeItem("test");
+          return true;
+        } catch (e) {
+          return false;
         }
-        return window.localStorage.getItem(key);
-      },
-      removeItem: (key) => {
-        if (!isLocalStorageSupported) {
-          handleLocalStorageNotSupportedError();
-          return;
-        }
-        return window.localStorage.removeItem(key);
-      },
-      setItem: (key, value) => {
-        if (!isLocalStorageSupported) {
-          handleLocalStorageNotSupportedError();
-          return;
-        }
-        return window.localStorage.setItem(key, value);
-      },
-    };
-    window.addEventListener("DOMContentLoaded", (event) => {
-      document.getElementById("loader").style.width = "50vw";
-    });
+      };
+      const isLocalStorageSupported = getIsLocalStorageSupported();
 
-    const registerPageServiceWorker = () => {
-      if (
-        "serviceWorker" in navigator &&
-        // Disable the service worker in Cypress tests. We primarily do this to make
-        // the Performance/LinkRelPreload_Spec.js test work (as it collects URLs all network requests,
-        // and service worker requests fail it.) But, anecdotally, disabling the service worker
-        // also seems to make the tests a bit faster, as the network load is lower.
-        !window.Cypress
-      ) {
-        window.addEventListener("load", function () {
-          navigator.serviceWorker
-            .register("/pageService.js")
-            .catch((error) => {
-              console.error("Service Worker Registration failed: " + error);
-            });
-        });
-      }
-    };
-    registerPageServiceWorker();
-  </script>
-  <script type="text/javascript">
-    const LOG_LEVELS = ["debug", "error"];
-    const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(
-      parseConfig('{{env "APPSMITH_CLIENT_LOG_LEVEL"}}'),
-    );
+      const handleLocalStorageNotSupportedError = () => {
+        console.error("Localstorage storage is not supported on your device.");
+      };
 
-    const INTERCOM_APP_ID =
-      parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
-      parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
-    const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
-
-    // Initialize the Intercom library
-    if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
-      (function () {
-        var w = window;
-        var ic = w.Intercom;
-        if (typeof ic === "function") {
-          ic("reattach_activator");
-          ic("update", w.intercomSettings);
-        } else {
-          var d = document;
-          var i = function () {
-            i.c(arguments);
-          };
-          i.q = [];
-          i.c = function (args) {
-            i.q.push(args);
-          };
-          w.Intercom = i;
-          var l = function () {
-            var s = d.createElement("script");
-            s.type = "text/javascript";
-            s.async = true;
-            s.src = "https://widget.intercom.io/widget/" + INTERCOM_APP_ID;
-            var x = d.getElementsByTagName("script")[0];
-            x.parentNode.insertBefore(s, x);
-          };
-          if (document.readyState === "complete") {
-            l();
-          } else if (w.attachEvent) {
-            w.attachEvent("onload", l);
-          } else {
-            w.addEventListener("load", l, false);
+      const localStorageUtil = {
+        getItem: (key) => {
+          if (!isLocalStorageSupported) {
+            handleLocalStorageNotSupportedError();
+            return;
           }
+          return window.localStorage.getItem(key);
+        },
+        removeItem: (key) => {
+          if (!isLocalStorageSupported) {
+            handleLocalStorageNotSupportedError();
+            return;
+          }
+          return window.localStorage.removeItem(key);
+        },
+        setItem: (key, value) => {
+          if (!isLocalStorageSupported) {
+            handleLocalStorageNotSupportedError();
+            return;
+          }
+          return window.localStorage.setItem(key, value);
+        },
+      };
+      window.addEventListener("DOMContentLoaded", (event) => {
+        document.getElementById("loader").style.width = "50vw";
+      });
+
+      const registerPageServiceWorker = () => {
+        if (
+          "serviceWorker" in navigator &&
+          // Disable the service worker in Cypress tests. We primarily do this to make
+          // the Performance/LinkRelPreload_Spec.js test work (as it collects URLs all network requests,
+          // and service worker requests fail it.) But, anecdotally, disabling the service worker
+          // also seems to make the tests a bit faster, as the network load is lower.
+          !window.Cypress
+        ) {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker
+              .register("/pageService.js")
+              .catch((error) => {
+                console.error("Service Worker Registration failed: " + error);
+              });
+          });
         }
-      })();
-    }
+      };
+      registerPageServiceWorker();
+    </script>
+    <script type="text/javascript">
+      const LOG_LEVELS = ["debug", "error"];
+      const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(
+        parseConfig('{{env "APPSMITH_CLIENT_LOG_LEVEL"}}'),
+      );
 
-    window.SENTRY_CONFIG = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
-    window.APPSMITH_FEATURE_CONFIGS = {
-      sentry: {
-        dsn: parseConfig('{{env "APPSMITH_SENTRY_DSN"}}'),
-        release: parseConfig('{{env "APPSMITH_SENTRY_RELEASE"}}'),
-        environment: parseConfig('{{env "APPSMITH_SENTRY_ENVIRONMENT"}}'),
-      },
-      smartLook: {
-        id: parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}'),
-      },
-      segment: {
-        apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
-        ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
-      },
-      observability: {
-        deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}'),
-        serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}'),
-        tracingUrl: parseConfig('{{env "APPSMITH_FRONTEND_TRACING_URL"}}'),
-      },
-      fusioncharts: {
-        licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
-      },
-      mixpanel: {
-        enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
-        apiKey: parseConfig('{{env "APPSMITH_MIXPANEL_KEY"}}'),
-      },
-      logLevel:
-        CONFIG_LOG_LEVEL_INDEX > -1
-          ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
-          : LOG_LEVELS[1],
-      cloudHosting: CLOUD_HOSTING,
-      appVersion: {
-        id: parseConfig('{{env "APPSMITH_VERSION_ID"}}') || "UNKNOWN",
-        sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
-        releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
-      },
-      intercomAppID: INTERCOM_APP_ID,
-      mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
-      googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
-      hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
-      disableIframeWidgetSandbox: parseConfig(
-        '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
-      ),
-      customerPortalUrl:
-        parseConfig('{{env "APPSMITH_CUSTOMER_PORTAL_URL"}}') ||
-        "https://customer.appsmith.com",
-      pricingUrl:
-        parseConfig('{{env "APPSMITH_PRICING_URL"}}') ||
-        "https://www.appsmith.com/pricing",
-    };
-  </script>
-</body>
+      const INTERCOM_APP_ID =
+        parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
+        parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
+      const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
 
+      // Initialize the Intercom library
+      if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
+        (function () {
+          var w = window;
+          var ic = w.Intercom;
+          if (typeof ic === "function") {
+            ic("reattach_activator");
+            ic("update", w.intercomSettings);
+          } else {
+            var d = document;
+            var i = function () {
+              i.c(arguments);
+            };
+            i.q = [];
+            i.c = function (args) {
+              i.q.push(args);
+            };
+            w.Intercom = i;
+            var l = function () {
+              var s = d.createElement("script");
+              s.type = "text/javascript";
+              s.async = true;
+              s.src = "https://widget.intercom.io/widget/" + INTERCOM_APP_ID;
+              var x = d.getElementsByTagName("script")[0];
+              x.parentNode.insertBefore(s, x);
+            };
+            if (document.readyState === "complete") {
+              l();
+            } else if (w.attachEvent) {
+              w.attachEvent("onload", l);
+            } else {
+              w.addEventListener("load", l, false);
+            }
+          }
+        })();
+      }
+
+      window.SENTRY_CONFIG = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
+      window.APPSMITH_FEATURE_CONFIGS = {
+        sentry: {
+          dsn: parseConfig('{{env "APPSMITH_SENTRY_DSN"}}'),
+          release: parseConfig('{{env "APPSMITH_SENTRY_RELEASE"}}'),
+          environment: parseConfig('{{env "APPSMITH_SENTRY_ENVIRONMENT"}}'),
+        },
+        smartLook: {
+          id: parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}'),
+        },
+        segment: {
+          apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+          ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
+        },
+        observability: {
+          deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}'),
+          serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}'),
+          tracingUrl: parseConfig('{{env "APPSMITH_FRONTEND_TRACING_URL"}}'),
+        },
+        fusioncharts: {
+          licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
+        },
+        mixpanel: {
+          enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+          apiKey: parseConfig('{{env "APPSMITH_MIXPANEL_KEY"}}'),
+        },
+        logLevel:
+          CONFIG_LOG_LEVEL_INDEX > -1
+            ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
+            : LOG_LEVELS[1],
+        cloudHosting: CLOUD_HOSTING,
+        appVersion: {
+          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}') || "UNKNOWN",
+          sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
+          releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
+        },
+        intercomAppID: INTERCOM_APP_ID,
+        mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
+        googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
+        hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
+        disableIframeWidgetSandbox: parseConfig(
+          '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
+        ),
+        customerPortalUrl:
+          parseConfig('{{env "APPSMITH_CUSTOMER_PORTAL_URL"}}') ||
+          "https://customer.appsmith.com",
+        pricingUrl:
+          parseConfig('{{env "APPSMITH_PRICING_URL"}}') ||
+          "https://www.appsmith.com/pricing",
+      };
+    </script>
+  </body>
 </html>
