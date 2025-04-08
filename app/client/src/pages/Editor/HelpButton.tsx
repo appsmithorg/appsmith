@@ -37,6 +37,8 @@ import { showSignpostingModal } from "actions/onboardingActions";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -187,6 +189,18 @@ function HelpButton() {
         onVisibleChange: setShowTooltip,
       }
     : {};
+
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+
+  if (isAiAgentFlowEnabled) {
+    const docItem = HELP_MENU_ITEMS.find(
+      (item) => item.label === "Documentation",
+    );
+
+    if (docItem) {
+      docItem.link = DOCS_AI_BASE_URL;
+    }
+  }
 
   useEffect(() => {
     bootIntercom(user);
