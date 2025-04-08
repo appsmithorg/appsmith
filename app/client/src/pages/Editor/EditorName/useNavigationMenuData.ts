@@ -24,6 +24,8 @@ import { toast } from "@appsmith/ads";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { toggleAISupportModal } from "ee/actions/aiAgentActions";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -107,6 +109,8 @@ export const useNavigationMenuData = ({
     }
   }, [applicationId, dispatch, history]);
 
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+
   return useMemo(
     () =>
       [
@@ -174,6 +178,15 @@ export const useNavigationMenuData = ({
               type: MenuTypes.MENU,
               isVisible: intercomAppID && window.Intercom,
             },
+            {
+              startIcon: "chat-help",
+              text: "Chat with us",
+              onClick: () => {
+                dispatch(toggleAISupportModal());
+              },
+              type: MenuTypes.MENU,
+              isVisible: isAiAgentFlowEnabled,
+            },
           ],
         },
       ].filter(Boolean) as MenuItemData[],
@@ -185,8 +198,10 @@ export const useNavigationMenuData = ({
       hasExportPermission,
       hasDeletePermission,
       deleteApplication,
+      isAiAgentFlowEnabled,
       setForkApplicationModalOpen,
       isIntercomConsentGiven,
+      dispatch,
     ],
   );
 };
