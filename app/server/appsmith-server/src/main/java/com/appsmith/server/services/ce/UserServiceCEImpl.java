@@ -698,7 +698,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     .flatMap(user -> updateWithoutPermission(user.getId(), updates)
                             .then(
                                     exchange == null
-                                            ? repository.findByEmail(user.getEmail())
+                                            ? findByEmail(user.getEmail())
                                             : sessionUserService.refreshCurrentUser(exchange)))
                     .cache();
             monos.add(updatedUserMono.then());
