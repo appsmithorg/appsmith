@@ -4,7 +4,7 @@ import homePage from "../../../../locators/HomePage";
 describe("Form Login test functionality", function () {
   it(
     "1. Go to admin settings and disable Form Signup",
-    { tags: ["@tag.Settings"] },
+    { tags: ["@tag.Authentication", "@tag.Settings"] },
     function () {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
