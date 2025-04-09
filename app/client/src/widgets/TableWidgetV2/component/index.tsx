@@ -120,7 +120,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     borderColor,
     borderWidth,
     canFreezeColumn,
-    columns,
     columnWidthMap,
     compactMode,
     delimiter,
@@ -172,6 +171,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     widgetName,
     width,
   } = props;
+
+  let columns = props.columns;
+
+  const regularColumns = columns.filter(
+    (col) => col.columnProperties?.columnType !== ColumnTypes.EDIT_ACTIONS,
+  );
+
+  columns = [...regularColumns];
 
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
