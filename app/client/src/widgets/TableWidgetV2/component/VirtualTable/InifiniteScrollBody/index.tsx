@@ -22,10 +22,12 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       tableSizes,
     } = useAppsmithTable();
 
-    useInfiniteScroll({
+    const { onItemsRendered } = useInfiniteScroll({
       rows,
       pageSize,
       loadMore: nextPageClick,
+      isLoading,
+      endOfData,
     });
 
     const itemCount = useMemo(
@@ -41,6 +43,7 @@ const InfiniteScrollBodyComponent = React.forwardRef(
           innerElementType={props.innerElementType}
           itemCount={itemCount}
           loadMore={nextPageClick}
+          onItemsRendered={onItemsRendered}
           outerRef={ref}
           pageSize={pageSize}
           rows={rows}
