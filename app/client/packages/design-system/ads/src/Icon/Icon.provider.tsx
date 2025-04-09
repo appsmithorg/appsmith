@@ -1209,6 +1209,10 @@ const SparklingFilledIcon = importSvg(
   async () => import("../__assets__/icons/ads/sparkling-filled.svg"),
 );
 
+const AIChatIcon = importSvg(
+  async () => import("../__assets__/icons/ads/ai-chat.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1229,6 +1233,7 @@ const ICON_LOOKUP = {
   "add-line": AddLineIcon,
   "add-more": AddMoreIcon,
   "add-more-fill": AddMoreFillIcon,
+  "ai-chat": AIChatIcon,
   "arrow-go-forward": ArrowGoForwardLineIcon,
   "alert-fill": AlertFillIcon,
   "alert-line": AlertLineIcon,

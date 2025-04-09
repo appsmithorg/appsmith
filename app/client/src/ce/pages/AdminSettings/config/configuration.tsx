@@ -59,19 +59,6 @@ export const APPSMITH_POOL_SIZE_CONFIG: Setting = {
   isVisible: () => !isAirgappedInstance,
 };
 
-export const APPSMITH_IS_CROSS_SITE_EMBEDDING_ENABLED: Setting = {
-  id: "isCrossSiteEmbeddingEnabled",
-  name: "isCrossSiteEmbeddingEnabled",
-  category: SettingCategories.CONFIGURATION,
-  controlType: SettingTypes.CHECKBOX,
-  label: "Private embeds",
-  text: "Enable embedding of private Appsmith apps on external domains beyond the current domain",
-  tooltip:
-    "Users will need to log out and log in again to be able to use embeds across domains",
-  isFeatureEnabled: false,
-  isDisabled: () => true,
-};
-
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
@@ -150,7 +137,6 @@ export const config: AdminConfigType = {
     APPSMITH_DB_URL,
     APPSMITH_REDIS_URL,
     APPSMITH_POOL_SIZE_CONFIG,
-    APPSMITH_IS_CROSS_SITE_EMBEDDING_ENABLED,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 };

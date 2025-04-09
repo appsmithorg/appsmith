@@ -8,20 +8,18 @@ const {
 
 describe(
   "Admin settings page",
-  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane", "@tag.Settings"] },
   function () {
     it("1. should test that configure link redirects to google maps setup doc", () => {
       cy.visit(adminSettingsHelper.routes.INSTANCE_SETTINGS, {
         timeout: 60000,
       });
-      cy.get(adminsSettings.readMoreLink).within(() => {
-        cy.get("a")
-          .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;
-        cy.url().should("contain", GOOGLE_MAPS_SETUP_DOC);
-      });
+      cy.get(adminsSettings.subTextLink)
+        .should("have.attr", "target", "_blank")
+        .invoke("removeAttr", "target")
+        .click()
+        .wait(3000); //for page to load fully;
+      cy.url().should("contain", GOOGLE_MAPS_SETUP_DOC);
     });
 
     it(

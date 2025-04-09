@@ -48,7 +48,7 @@ function renderComponent(props: AiChatSystemInstructionsControlProps) {
         marginBottom="spaces-2"
       >
         <Text isBold kind="heading-s" renderAs="p">
-          System Instructions
+          System instructions
         </Text>
 
         <GeneratePromptButton

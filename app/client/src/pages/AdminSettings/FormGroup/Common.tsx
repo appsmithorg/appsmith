@@ -95,7 +95,12 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       {children}
       {setting.subText &&
         (setting.subTextLink ? (
-          <StyledLink kind="secondary" target="_blank" to={setting.subTextLink}>
+          <StyledLink
+            className="t--sub-text-link"
+            kind="secondary"
+            target="_blank"
+            to={setting.subTextLink}
+          >
             {createMessage(() => setting.subText || "")}
           </StyledLink>
         ) : (

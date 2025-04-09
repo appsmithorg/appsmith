@@ -23,6 +23,7 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -209,6 +210,7 @@ export default function LeftPane() {
     isFeatureEnabled,
     organizationPermissions,
   );
+  const showAdminSettings = getShowAdminSettings(isFeatureEnabled, user);
 
   const filteredOrgCategories = getFilteredOrgCategories(
     organizationCategories,
@@ -218,6 +220,7 @@ export default function LeftPane() {
 
   const filteredUserManagmentCategories = getFilteredUserManagementCategories(
     userManagementCategories,
+    showAdminSettings,
     isSuperUser,
   );
 
@@ -228,7 +231,7 @@ export default function LeftPane() {
 
   return (
     <Wrapper>
-      {isSuperUser && profileCategories.length > 0 && (
+      {profileCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Profile
@@ -240,7 +243,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {isSuperUser && organizationCategories.length > 0 && (
+      {filteredOrgCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Organisation
@@ -252,7 +255,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {userManagementCategories.length > 0 && (
+      {filteredUserManagmentCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             User management
@@ -264,7 +267,7 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {instanceCategories.length > 0 && (
+      {filteredInstanceCategories.length > 0 && (
         <HeaderContainer>
           <StyledHeader kind="heading-s" renderAs="p">
             Instance
