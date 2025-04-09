@@ -74,7 +74,7 @@ interface HelpItem {
   icon: string;
 }
 
-const HELP_MENU_ITEMS: HelpItem[] = [
+let HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: "book-line",
     label: "Documentation",
@@ -201,9 +201,8 @@ function HelpButton() {
       docItem.link = DOCS_AI_BASE_URL;
     }
 
-    HELP_MENU_ITEMS.splice(
-      HELP_MENU_ITEMS.findIndex((item) => item.label === "Report a bug"),
-      1,
+    HELP_MENU_ITEMS = HELP_MENU_ITEMS.filter(
+      (item) => item.label !== "Report a bug",
     );
   }
 
