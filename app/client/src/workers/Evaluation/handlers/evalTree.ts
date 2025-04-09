@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty } from "lodash";
+import { isEmpty, set } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -32,6 +32,7 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
+import { create } from "mutative";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,6 +92,7 @@ export async function evalTree(
   canvasWidgetsMeta = widgetsMeta;
   metaWidgetsCache = metaWidgets;
   let isNewTree = false;
+  let isUpdateCycle = false;
 
   try {
     (webworkerTelemetry.__spanAttributes as Attributes)["firstEvaluation"] =
@@ -189,6 +191,8 @@ export async function evalTree(
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
+      isUpdateCycle = true;
+
       const tree = dataTreeEvaluator.getEvalTree();
 
       // during update cycles update actions to the dataTree directly
@@ -241,8 +245,16 @@ export async function evalTree(
           ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
+      const evalProps = dataTreeEvaluator.evalProps;
+
+      dataTree = create(dataTreeEvaluator.evalTree, (draft) => {
+        for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
+          if (!entityEvalProps.__evaluation__) continue;
+
+          set(draft[entityName], "__evaluation__", {
+            errors: entityEvalProps.__evaluation__.errors,
+          });
+        }
       });
 
       evalMetaUpdates = JSON.parse(
@@ -322,12 +334,16 @@ export async function evalTree(
           dataTree,
           dataTreeEvaluator,
           completeEvalOrder,
+          undefined,
+          isUpdateCycle,
         );
       }
 
       return updates;
     },
   );
+
+  isUpdateCycle = false;
 
   const evalTreeResponse = {
     updates,

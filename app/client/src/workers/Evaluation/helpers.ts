@@ -1,12 +1,13 @@
 import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
 import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
+import { applyChange, diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { create } from "mutative";
 
 export const fn_keys: string = "__fn_keys__";
 
@@ -399,6 +400,7 @@ export const generateSerialisedUpdates = (
   mergeAdditionalUpdates?: any,
 ): {
   serialisedUpdates: string;
+  updates: Diff<DataTree, DataTree>[];
   error?: { type: string; message: string };
 } => {
   const updates = generateOptimisedUpdates(
@@ -417,10 +419,11 @@ export const generateSerialisedUpdates = (
   try {
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.
-    return { serialisedUpdates: serialiseToBigInt(removedLhs) };
+    return { serialisedUpdates: serialiseToBigInt(removedLhs), updates };
   } catch (error) {
     return {
       serialisedUpdates: "[]",
+      updates: [],
       error: {
         type: EvalErrorTypes.SERIALIZATION_ERROR,
         message: (error as Error).message,
@@ -438,8 +441,9 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mergeAdditionalUpdates?: any,
+  isUpdateCycle?: boolean,
 ) => {
-  const { error, serialisedUpdates } = generateSerialisedUpdates(
+  const { error, serialisedUpdates, updates } = generateSerialisedUpdates(
     dataTreeEvaluator?.getPrevState() || {},
     dataTree,
     constrainedDiffPaths,
@@ -450,7 +454,17 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.errors.push(error);
   }
 
-  dataTreeEvaluator?.setPrevState(dataTree);
+  if (isUpdateCycle) {
+    const updatedState = create(dataTreeEvaluator?.getPrevState(), (draft) => {
+      updates.forEach((update: Diff<DataTree, DataTree>) => {
+        applyChange(draft, undefined, update);
+      });
+    });
+
+    dataTreeEvaluator?.setPrevState(updatedState);
+  } else {
+    dataTreeEvaluator?.setPrevState(dataTree);
+  }
 
   return serialisedUpdates;
 };
