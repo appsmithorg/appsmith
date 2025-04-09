@@ -143,14 +143,14 @@ export const FunctionCallingConfigForm = ({
                     createNewJSCollection(
                       pageId,
                       "AI_QUERY_FUNCTION_CALLING_CONFIG",
-                      "onToolCall",
+                      "onFunctionCall",
                     ),
                   )
                 }
               >
                 <Flex alignItems="center" gap="spaces-2">
                   <Icon name="plus" size="md" />
-                  New JS object
+                  New JS function
                 </Flex>
               </MenuItem>
             </MenuGroup>
