@@ -14,11 +14,7 @@ import {
   updateSearchSortFilterOnInfiniteScrollChange,
 } from "../propertyUtils";
 import _ from "lodash";
-import {
-  InlineEditingSaveOptions,
-  type ColumnTypes,
-  type TableWidgetProps,
-} from "../../constants";
+import type { ColumnTypes, TableWidgetProps } from "../../constants";
 import { StickyType } from "../../component/Constants";
 
 describe("PropertyUtils - ", () => {
@@ -1159,7 +1155,6 @@ describe("Infinite Scroll Update Hooks - ", () => {
   it("updateCellEditabilityOnInfiniteScrollChange - should disable cell editability when infinite scroll is enabled", () => {
     // Setup mock primary columns
     const props = {
-      inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
       primaryColumns: {
         column1: {
           id: "column1",
@@ -1177,64 +1172,56 @@ describe("Infinite Scroll Update Hooks - ", () => {
     } as unknown as TableWidgetProps;
 
     // When infinite scroll is enabled
-    const enabledResult = updateCellEditabilityOnInfiniteScrollChange(
-      props,
-      "infiniteScrollEnabled",
-      true,
-    );
-
-    expect(enabledResult).toBeTruthy();
-    // Don't assert exact length, just check we have all expected properties
-    expect(enabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column1.isCellEditable",
-      propertyValue: false,
-    });
-    expect(enabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column1.isEditable",
-      propertyValue: false,
-    });
-    expect(enabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column2.isCellEditable",
-      propertyValue: false,
-    });
-    expect(enabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column2.isEditable",
-      propertyValue: false,
-    });
-    expect(enabledResult).toContainEqual({
-      propertyPath: "inlineEditingSaveOption",
-      propertyValue: InlineEditingSaveOptions.CUSTOM,
-    });
+    expect(
+      updateCellEditabilityOnInfiniteScrollChange(
+        props,
+        "infiniteScrollEnabled",
+        true,
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.column1.isCellEditable",
+        propertyValue: false,
+      },
+      {
+        propertyPath: "primaryColumns.column1.isEditable",
+        propertyValue: false,
+      },
+      {
+        propertyPath: "primaryColumns.column2.isCellEditable",
+        propertyValue: false,
+      },
+      {
+        propertyPath: "primaryColumns.column2.isEditable",
+        propertyValue: false,
+      },
+    ]);
 
     // When infinite scroll is disabled
-    const disabledResult = updateCellEditabilityOnInfiniteScrollChange(
-      props,
-      "infiniteScrollEnabled",
-      false,
-    );
-
-    expect(disabledResult).toBeTruthy();
-    // Don't assert exact length, just check we have all expected properties
-    expect(disabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column1.isCellEditable",
-      propertyValue: true,
-    });
-    expect(disabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column1.isEditable",
-      propertyValue: true,
-    });
-    expect(disabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column2.isCellEditable",
-      propertyValue: true,
-    });
-    expect(disabledResult).toContainEqual({
-      propertyPath: "primaryColumns.column2.isEditable",
-      propertyValue: true,
-    });
-    expect(disabledResult).toContainEqual({
-      propertyPath: "inlineEditingSaveOption",
-      propertyValue: InlineEditingSaveOptions.ROW_LEVEL,
-    });
+    expect(
+      updateCellEditabilityOnInfiniteScrollChange(
+        props,
+        "infiniteScrollEnabled",
+        false,
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.column1.isCellEditable",
+        propertyValue: true,
+      },
+      {
+        propertyPath: "primaryColumns.column1.isEditable",
+        propertyValue: true,
+      },
+      {
+        propertyPath: "primaryColumns.column2.isCellEditable",
+        propertyValue: true,
+      },
+      {
+        propertyPath: "primaryColumns.column2.isEditable",
+        propertyValue: true,
+      },
+    ]);
 
     // Test with no primary columns
     const propsWithoutColumns = {} as TableWidgetProps;

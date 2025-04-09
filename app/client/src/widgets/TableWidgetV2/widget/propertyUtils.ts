@@ -1537,11 +1537,6 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
         propertyPath: `primaryColumns.${columnName}.isEditable`,
         propertyValue: false,
       });
-
-      updates.push({
-        propertyPath: `inlineEditingSaveOption`,
-        propertyValue: InlineEditingSaveOptions.CUSTOM,
-      });
     });
   } else if (propertyValue === false) {
     Object.entries(props.primaryColumns).forEach(([, column]) => {
@@ -1555,11 +1550,6 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
       updates.push({
         propertyPath: `primaryColumns.${columnName}.isEditable`,
         propertyValue: true,
-      });
-
-      updates.push({
-        propertyPath: `inlineEditingSaveOption`,
-        propertyValue: InlineEditingSaveOptions.ROW_LEVEL,
       });
     });
   }
