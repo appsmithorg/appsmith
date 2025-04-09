@@ -15,6 +15,8 @@ import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
 import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useIsCloudBillingEnabled } from "hooks";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { ChromeExtensionBanner } from "ee/pages/Applications/ChromeExtensionBanner";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -56,6 +58,7 @@ export function ShareModal() {
     selectedMethod,
   );
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   return (
     <div className="flex flex-col gap-6">
@@ -112,6 +115,8 @@ export function ShareModal() {
       <EmbedCodeSnippet isAppSettings={false} snippet={snippetUrl} />
 
       <PrivateEmbedRampModal />
+
+      {isAiAgentFlowEnabled && <ChromeExtensionBanner />}
 
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
