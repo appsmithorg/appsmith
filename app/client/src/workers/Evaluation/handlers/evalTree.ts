@@ -33,6 +33,7 @@ import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsR
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
 import { create } from "mutative";
+import { klona } from "klona/json";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -251,9 +252,13 @@ export async function evalTree(
         for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
           if (!entityEvalProps.__evaluation__) continue;
 
-          set(draft[entityName], "__evaluation__", {
-            errors: entityEvalProps.__evaluation__.errors,
-          });
+          set(
+            draft[entityName],
+            "__evaluation__",
+            klona({
+              errors: entityEvalProps.__evaluation__.errors,
+            }),
+          );
         }
       });
 

@@ -8,6 +8,7 @@ import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { create } from "mutative";
+import { klona } from "klona/json";
 
 export const fn_keys: string = "__fn_keys__";
 
@@ -457,7 +458,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   if (isUpdateCycle) {
     const updatedState = create(dataTreeEvaluator?.getPrevState(), (draft) => {
       updates.forEach((update: Diff<DataTree, DataTree>) => {
-        applyChange(draft, undefined, update);
+        applyChange(draft, undefined, klona(update));
       });
     });
 
