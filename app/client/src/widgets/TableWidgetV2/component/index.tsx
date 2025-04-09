@@ -174,11 +174,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   let columns = props.columns;
 
-  const regularColumns = columns.filter(
-    (col) => col.columnProperties?.columnType !== ColumnTypes.EDIT_ACTIONS,
-  );
+  if (isInfiniteScrollEnabled) {
+    const regularColumns = columns.filter(
+      (col) => col.columnProperties?.columnType !== ColumnTypes.EDIT_ACTIONS,
+    );
 
-  columns = [...regularColumns];
+    columns = [...regularColumns];
+  }
 
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
