@@ -2110,10 +2110,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.EDIT_ACTIONS:
-        if (this.props.infiniteScrollEnabled) {
-          return null;
-        }
-
         return (
           <EditActionCell
             allowCellWrapping={cellProperties.allowCellWrapping}
