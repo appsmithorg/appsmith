@@ -52,6 +52,10 @@ import {
   type DatasourceLinkControlProps,
 } from "components/formControls/DatasourceLinkControl";
 import { CustomActionsControl } from "components/formControls/CustomActionsConfigControl";
+import {
+  AiChatSystemInstructionsControl,
+  type AiChatSystemInstructionsControlProps,
+} from "components/formControls/AIChatSystemInstructionsControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -222,13 +226,7 @@ class FormControlRegistry {
       formControlTypes.RAG_DOCUMENTS_SELECTOR,
       {
         buildPropertyControl(controlProps): JSX.Element {
-          return (
-            <RagDocumentsSelector
-              actionId={controlProps.actionId}
-              datasourceId={controlProps.datasourceId}
-              workspaceId={controlProps.workspaceId}
-            />
-          );
+          return <RagDocumentsSelector {...controlProps} />;
         },
       },
     );
@@ -237,6 +235,16 @@ class FormControlRegistry {
         return <HybridSearchControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.AI_CHAT_SYSTEM_INSTRUCTIONS,
+      {
+        buildPropertyControl(
+          controlProps: AiChatSystemInstructionsControlProps,
+        ): JSX.Element {
+          return <AiChatSystemInstructionsControl {...controlProps} />;
+        },
+      },
+    );
     FormControlFactory.registerControlBuilder(
       formControlTypes.FUNCTION_CALLING_CONFIG_FORM,
       {
