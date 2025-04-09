@@ -97,6 +97,12 @@
     overflow: auto;
   }
 
+  [data-component="code"] [class*="wds-"]::before,
+  [data-component="code"] [class*="wds-"]::after {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+
   code:not([class*="language-"]) {
     padding-inline: var(--inner-spacing-1);
     background: var(--color-bg-neutral-subtle);
