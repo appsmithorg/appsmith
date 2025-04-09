@@ -1,0 +1,717 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Bug Fix Verifier
+
+```yaml
+name: Bug Fix Verifier
+description: Guides developers through proper bug fixing steps and verifies fix quality
+author: Cursor AI
+version: 1.0.0
+tags:
+  - bug
+  - fixes
+  - verification
+  - testing
+activation:
+  always: true
+  event:
+    - pull_request
+    - command
+    - file_change
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - pull_request.labeled:bug
+  - pull_request.labeled:fix
+  - command: "verify_bug_fix"
+```
+
+## Rule Definition
+
+This rule guides developers through the proper steps to fix bugs and verifies that the fix meets quality standards.
+
+## Bug Fix Verification Logic
+
+```javascript
+// Main function to verify bug fixes
+function verifyBugFix(files, tests, issue) {
+  const results = {
+    reproduction: checkReproduction(issue),
+    testCoverage: checkTestCoverage(files, tests),
+    implementation: checkImplementation(files, issue),
+    regressionTesting: checkRegressionTesting(tests),
+    performance: checkPerformanceImplications(files),
+    score: 0,
+    issues: [],
+    recommendations: []
+  };
+  
+  // Calculate overall score
+  results.score = calculateScore(results);
+  
+  // Generate issues and recommendations
+  results.issues = identifyIssues(results);
+  results.recommendations = generateRecommendations(results.issues);
+  
+  return {
+    ...results,
+    summary: generateSummary(results)
+  };
+}
+
+// Check if the bug is properly reproduced in tests
+function checkReproduction(issue) {
+  const results = {
+    hasReproductionSteps: false,
+    hasReproductionTest: false,
+    clearStepsToReproduce: false,
+    missingElements: []
+  };
+  
+  if (!issue) {
+    results.missingElements.push('issue reference');
+    return results;
+  }
+  
+  // Check if there are clear steps to reproduce
+  results.hasReproductionSteps = 
+    issue.description && 
+    (issue.description.includes('Steps to reproduce') || 
+     issue.description.includes('Reproduction steps'));
+  
+  if (!results.hasReproductionSteps) {
+    results.missingElements.push('clear reproduction steps');
+  }
+  
+  // Check if reproduction steps are clear
+  if (results.hasReproductionSteps) {
+    const stepsSection = extractReproductionSteps(issue.description);
+    results.clearStepsToReproduce = stepsSection && stepsSection.split('\n').length >= 3;
+  }
+  
+  if (!results.clearStepsToReproduce) {
+    results.missingElements.push('detailed reproduction steps');
+  }
+  
+  // Check if there's a test that reproduces the bug
+  results.hasReproductionTest = issue.tests && issue.tests.some(test => 
+    test.includes('test') && test.includes('reproduce')
+  );
+  
+  if (!results.hasReproductionTest) {
+    results.missingElements.push('test that reproduces the bug');
+  }
+  
+  return results;
+}
+
+// Check test coverage of the bug fix
+function checkTestCoverage(files, tests) {
+  const results = {
+    hasTestsForFix: false,
+    testsVerifyFix: false,
+    hasRegressionTests: false,
+    hasUnitTests: false,
+    hasE2ETests: false,
+    testQuality: 0,
+    missingTests: []
+  };
+  
+  if (!tests || tests.length === 0) {
+    results.missingTests.push('any tests for this fix');
+    return results;
+  }
+  
+  // Check if there are tests for the fix
+  results.hasTestsForFix = true;
+  
+  // Check if tests verify the fix
+  results.testsVerifyFix = tests.some(test => 
+    (test.includes('assert') || test.includes('expect')) && 
+    !test.includes('.skip') && 
+    !test.includes('.todo')
+  );
+  
+  if (!results.testsVerifyFix) {
+    results.missingTests.push('tests that verify the fix works');
+  }
+  
+  // Check for regression tests
+  results.hasRegressionTests = tests.some(test => 
+    test.includes('regression') || 
+    test.includes('should not') || 
+    test.includes('should still')
+  );
+  
+  if (!results.hasRegressionTests) {
+    results.missingTests.push('regression tests');
+  }
+  
+  // Check for unit tests
+  results.hasUnitTests = tests.some(test => 
+    test.includes('.test.') || 
+    test.includes('Test.java') ||
+    test.includes('__tests__')
+  );
+  
+  if (!results.hasUnitTests) {
+    results.missingTests.push('unit tests to verify the specific fix');
+  }
+  
+  // Check for end-to-end tests for user-facing changes
+  const isUserFacingChange = files.some(file => 
+    file.path.includes('/components/') || 
+    file.path.includes('/pages/') ||
+    file.path.includes('/ui/') ||
+    file.path.includes('/views/')
+  );
+  
+  if (isUserFacingChange) {
+    results.hasE2ETests = tests.some(test => 
+      test.includes('/e2e/') || 
+      test.includes('/cypress/')
+    );
+    
+    if (!results.hasE2ETests) {
+      results.missingTests.push('end-to-end tests for this user-facing change');
+    }
+  }
+  
+  // Evaluate test quality (improved)
+  let qualityScore = 0;
+  if (results.hasTestsForFix) qualityScore += 20;
+  if (results.testsVerifyFix) qualityScore += 25;
+  if (results.hasRegressionTests) qualityScore += 20;
+  if (results.hasUnitTests) qualityScore += 20;
+  if (results.hasE2ETests || !isUserFacingChange) qualityScore += 15;
+  
+  results.testQuality = qualityScore;
+  
+  return results;
+}
+
+// Check the quality of the implementation
+function checkImplementation(files, issue) {
+  const results = {
+    addressesRootCause: false,
+    isMinimalChange: false,
+    hasNoHardcodedValues: true,
+    followsGoodPractices: true,
+    concerns: []
+  };
+  
+  if (!files || files.length === 0) {
+    results.concerns.push('no implementation files found');
+    return results;
+  }
+  
+  // Check if the implementation addresses the root cause
+  if (issue && issue.title) {
+    const keywords = extractKeywords(issue.title);
+    const filesContent = files.map(file => file.content).join(' ');
+    
+    results.addressesRootCause = keywords.some(keyword => 
+      filesContent.includes(keyword)
+    );
+  }
+  
+  if (!results.addressesRootCause) {
+    results.concerns.push('may not address the root cause');
+  }
+  
+  // Check if changes are minimal
+  const totalChangedLines = files.reduce((sum, file) => {
+    return sum + countChangedLines(file);
+  }, 0);
+  
+  results.isMinimalChange = totalChangedLines < 50;
+  
+  if (!results.isMinimalChange) {
+    results.concerns.push('changes are not minimal');
+  }
+  
+  // Check for hardcoded values
+  const hardcodedPattern = /'[a-zA-Z0-9]{10,}'/;
+  results.hasNoHardcodedValues = !files.some(file => 
+    hardcodedPattern.test(file.content)
+  );
+  
+  if (!results.hasNoHardcodedValues) {
+    results.concerns.push('contains hardcoded values');
+  }
+  
+  // Check for unsafe property access in Redux/React applications
+  const unsafePropertyAccess = files.some(file => {
+    // Check if this is a Redux/React file
+    const isReduxReactFile = file.path.includes('.jsx') || 
+                             file.path.includes('.tsx') ||
+                             file.content.includes('import { useSelector }') ||
+                             file.content.includes('import { connect }');
+                             
+    if (!isReduxReactFile) return false;
+    
+    // Check for potentially unsafe deep property access
+    const hasNestedProps = file.content.includes('?.');
+    const hasObjectChaining = /\w+\.\w+\.\w+/.test(file.content);
+    const usesLodashGet = file.content.includes('import get from') || 
+                          file.content.includes('lodash/get');
+                         
+    // If file has nested properties but doesn't use lodash get or optional chaining
+    return (hasObjectChaining && !hasNestedProps && !usesLodashGet);
+  });
+  
+  if (unsafePropertyAccess) {
+    results.followsGoodPractices = false;
+    results.concerns.push('contains unsafe nested property access, consider using lodash/get or optional chaining');
+  }
+  
+  // Check for good practices
+  const badPractices = [
+    { pattern: /\/\/ TODO:/, message: 'contains TODO comments' },
+    { pattern: /console\.log\(/, message: 'contains debug logging' },
+    { pattern: /Thread\.sleep\(/, message: 'contains blocking calls' },
+    { pattern: /alert\(/, message: 'contains alert() calls' }
+  ];
+  
+  badPractices.forEach(practice => {
+    if (files.some(file => practice.pattern.test(file.content))) {
+      results.followsGoodPractices = false;
+      results.concerns.push(practice.message);
+    }
+  });
+  
+  return results;
+}
+
+// Check regression testing
+function checkRegressionTesting(tests) {
+  const results = {
+    hasRegressionTests: false,
+    coversRelatedFunctionality: false,
+    hasEdgeCaseTests: false,
+    missingTestAreas: []
+  };
+  
+  if (!tests || tests.length === 0) {
+    results.missingTestAreas.push('regression tests');
+    results.missingTestAreas.push('related functionality tests');
+    results.missingTestAreas.push('edge case tests');
+    return results;
+  }
+  
+  // Check for regression tests
+  results.hasRegressionTests = tests.some(test => 
+    test.includes('regression') || 
+    test.includes('should not') || 
+    test.includes('should still')
+  );
+  
+  if (!results.hasRegressionTests) {
+    results.missingTestAreas.push('regression tests');
+  }
+  
+  // Check if tests cover related functionality
+  results.coversRelatedFunctionality = tests.some(test => 
+    test.includes('related') || 
+    test.includes('integration') || 
+    test.includes('with') || 
+    test.includes('when used')
+  );
+  
+  if (!results.coversRelatedFunctionality) {
+    results.missingTestAreas.push('tests for related functionality');
+  }
+  
+  // Check for edge case tests
+  results.hasEdgeCaseTests = tests.some(test => 
+    test.includes('edge case') || 
+    test.includes('boundary') || 
+    test.includes('limit') || 
+    test.includes('extreme')
+  );
+  
+  if (!results.hasEdgeCaseTests) {
+    results.missingTestAreas.push('edge case tests');
+  }
+  
+  return results;
+}
+
+// Check performance implications of the fix
+function checkPerformanceImplications(files) {
+  const results = {
+    noRegressions: true,
+    analyzedPerformance: false,
+    potentialIssues: []
+  };
+  
+  if (!files || files.length === 0) {
+    return results;
+  }
+  
+  // Check for performance regressions
+  const regressionPatterns = [
+    { pattern: /for\s*\([^)]*\)\s*\{[^}]*for\s*\([^)]*\)/, message: 'nested loops may cause performance issues' },
+    { pattern: /Thread\.sleep\(|setTimeout\(/, message: 'blocking calls may affect performance' },
+    { pattern: /new [A-Z][a-zA-Z0-9]*\(.*\)/g, message: 'excessive object creation may affect memory usage' }
+  ];
+  
+  regressionPatterns.forEach(pattern => {
+    if (files.some(file => pattern.pattern.test(file.content))) {
+      results.noRegressions = false;
+      results.potentialIssues.push(pattern.message);
+    }
+  });
+  
+  // Check if performance was analyzed
+  results.analyzedPerformance = files.some(file => 
+    file.content.includes('performance') || 
+    file.content.includes('benchmark') || 
+    file.content.includes('optimize')
+  );
+  
+  return results;
+}
+
+// Calculate overall score for the bug fix
+function calculateScore(results) {
+  let score = 100;
+  
+  // Deduct for missing reproduction elements
+  score -= results.reproduction.missingElements.length * 10;
+  
+  // Deduct for missing tests
+  score -= results.testCoverage.missingTests.length * 15;
+  
+  // Deduct for implementation concerns
+  score -= results.implementation.concerns.length * 10;
+  
+  // Deduct for missing regression test areas
+  score -= results.regressionTesting.missingTestAreas.length * 5;
+  
+  // Deduct for performance issues
+  score -= results.performance.potentialIssues.length * 8;
+  
+  return Math.max(0, Math.round(score));
+}
+
+// Identify issues from all verification checks
+function identifyIssues(results) {
+  const issues = [];
+  
+  // Add reproduction issues
+  results.reproduction.missingElements.forEach(element => {
+    issues.push({
+      type: 'reproduction',
+      severity: 'high',
+      message: `Missing ${element}`
+    });
+  });
+  
+  // Add test coverage issues
+  results.testCoverage.missingTests.forEach(test => {
+    issues.push({
+      type: 'testing',
+      severity: 'high',
+      message: `Missing ${test}`
+    });
+  });
+  
+  // Add implementation issues
+  results.implementation.concerns.forEach(concern => {
+    issues.push({
+      type: 'implementation',
+      severity: 'medium',
+      message: `Implementation ${concern}`
+    });
+  });
+  
+  // Add regression testing issues
+  results.regressionTesting.missingTestAreas.forEach(area => {
+    issues.push({
+      type: 'regression',
+      severity: 'medium',
+      message: `Missing ${area}`
+    });
+  });
+  
+  // Add performance issues
+  results.performance.potentialIssues.forEach(issue => {
+    issues.push({
+      type: 'performance',
+      severity: 'medium',
+      message: `Performance concern: ${issue}`
+    });
+  });
+  
+  return issues;
+}
+
+// Generate recommendations based on identified issues
+function generateRecommendations(issues) {
+  const recommendations = [];
+  
+  // Group issues by type
+  const issuesByType = {};
+  issues.forEach(issue => {
+    if (!issuesByType[issue.type]) {
+      issuesByType[issue.type] = [];
+    }
+    issuesByType[issue.type].push(issue);
+  });
+  
+  // Generate recommendations for requirements issues
+  if (issuesByType.requirements) {
+    recommendations.push({
+      type: 'requirements',
+      title: 'Complete the implementation of requirements',
+      steps: [
+        'Review the missing requirements and ensure they are implemented',
+        'Verify that the implementation matches the acceptance criteria',
+        'Update the code to address all missing requirements'
+      ]
+    });
+  }
+  
+  // Generate recommendations for testing issues
+  if (issuesByType.testing) {
+    recommendations.push({
+      type: 'testing',
+      title: 'Improve test coverage',
+      steps: [
+        'Add unit tests for untested files',
+        'Create integration tests where appropriate',
+        'Ensure all edge cases are covered in tests'
+      ]
+    });
+  }
+  
+  // Generate recommendations for code quality issues
+  if (issuesByType.code_quality) {
+    recommendations.push({
+      type: 'code_quality',
+      title: 'Address code quality issues',
+      steps: [
+        'Remove debugging code (console.log, TODO comments)',
+        'Fix formatting and indentation issues',
+        'Follow project coding standards and best practices',
+        'Use proper data access methods like lodash/get for deeply nested objects',
+        'Consider data nullability and use optional chaining or default values'
+      ]
+    });
+  }
+  
+  // Generate recommendations for documentation issues
+  if (issuesByType.documentation) {
+    recommendations.push({
+      type: 'documentation',
+      title: 'Improve documentation',
+      steps: [
+        'Add JSDoc or JavaDoc comments to public APIs and classes',
+        'Document complex components and their usage',
+        'Ensure all services have proper documentation'
+      ]
+    });
+  }
+  
+  return recommendations;
+}
+
+// Generate a summary of the verification results
+function generateSummary(results) {
+  const score = results.score;
+  let status = '';
+  
+  if (score >= 90) {
+    status = 'EXCELLENT';
+  } else if (score >= 70) {
+    status = 'GOOD';
+  } else if (score >= 50) {
+    status = 'NEEDS IMPROVEMENT';
+  } else {
+    status = 'POOR';
+  }
+  
+  return {
+    score,
+    status,
+    issues: results.issues.length,
+    critical: results.issues.filter(issue => issue.severity === 'high').length,
+    recommendations: results.recommendations.length,
+    message: generateSummaryMessage(score, status, results)
+  };
+}
+
+// Generate a summary message based on results
+function generateSummaryMessage(score, status, results) {
+  if (status === 'EXCELLENT') {
+    return 'The bug fix meets or exceeds all quality standards. Good job!';
+  } else if (status === 'GOOD') {
+    return `The bug fix is good overall but has ${results.issues.length} issues to address.`;
+  } else if (status === 'NEEDS IMPROVEMENT') {
+    const critical = results.issues.filter(issue => issue.severity === 'high').length;
+    return `The bug fix needs significant improvement with ${critical} critical issues.`;
+  } else {
+    return 'The bug fix is incomplete and does not meet minimum quality standards.';
+  }
+}
+
+// Helper function to extract reproduction steps from issue description
+function extractReproductionSteps(description) {
+  if (!description) return null;
+  
+  const stepSectionMarkers = [
+    'Steps to reproduce',
+    'Reproduction steps',
+    'To reproduce',
+    'How to reproduce'
+  ];
+  
+  for (const marker of stepSectionMarkers) {
+    const markerIndex = description.indexOf(marker);
+    if (markerIndex >= 0) {
+      const startIndex = markerIndex + marker.length;
+      let endIndex = description.indexOf('\n\n', startIndex);
+      if (endIndex < 0) endIndex = description.length;
+      
+      return description.substring(startIndex, endIndex).trim();
+    }
+  }
+  
+  return null;
+}
+
+// Helper function to extract keywords from issue title
+function extractKeywords(title) {
+  if (!title) return [];
+  
+  // Remove common words
+  const commonWords = ['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'is'];
+  let words = title.split(/\s+/)
+    .map(word => word.toLowerCase().replace(/[^\w]/g, ''))
+    .filter(word => word.length > 2 && !commonWords.includes(word));
+  
+  return [...new Set(words)]; // Remove duplicates
+}
+
+// Helper function to count changed lines in a file
+function countChangedLines(file) {
+  if (!file.diff) return file.content.split('\n').length;
+  
+  let changedLines = 0;
+  const diffLines = file.diff.split('\n');
+  
+  for (const line of diffLines) {
+    if (line.startsWith('+') || line.startsWith('-')) {
+      changedLines++;
+    }
+  }
+  
+  return changedLines;
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('pull_request.created', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const issue = context.getLinkedIssue(event.pullRequest);
+    return verifyBugFix(files, tests, issue);
+  });
+  
+  context.on('pull_request.updated', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const issue = context.getLinkedIssue(event.pullRequest);
+    return verifyBugFix(files, tests, issue);
+  });
+  
+  context.on('pull_request.labeled:bug', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const issue = context.getLinkedIssue(event.pullRequest);
+    return verifyBugFix(files, tests, issue);
+  });
+  
+  context.on('pull_request.labeled:fix', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const issue = context.getLinkedIssue(event.pullRequest);
+    return verifyBugFix(files, tests, issue);
+  });
+  
+  context.registerCommand('verify_bug_fix', (args) => {
+    const prId = args.pullRequest;
+    if (!prId) {
+      return {
+        status: "error",
+        message: "No pull request specified"
+      };
+    }
+    
+    const files = context.getPullRequestFiles(prId);
+    const tests = context.getPullRequestTests(prId);
+    const issue = context.getLinkedIssue({id: prId});
+    return verifyBugFix(files, tests, issue);
+  });
+}
+
+// Export functions
+module.exports = {
+  activate,
+  verifyBugFix,
+  checkReproduction,
+  checkTestCoverage,
+  checkImplementation,
+  checkRegressionTesting,
+  checkPerformanceImplications
+};
+```
+
+## When It Runs
+
+This rule can be triggered:
+- When a bug fix pull request is created
+- When a pull request is updated
+- When a pull request is labeled with 'bug' or 'fix'
+- When a developer runs the `verify_bug_fix` command in Cursor
+- Before committing changes meant to fix a bug
+
+## Usage Example
+
+1. Create a pull request for a bug fix
+2. Run `verify_bug_fix --pullRequest=123` in Cursor
+3. Review the verification results
+4. Address any identified issues
+5. Re-run verification to confirm all issues are resolved
+
+## Bug Fix Best Practices
+
+### Reproduction Checklist
+
+- [ ] Document clear steps to reproduce the bug
+- [ ] Create a test that reproduces the bug before fixing
+- [ ] Ensure the reproduction is reliable and consistent
+
+### Fix Implementation Checklist
+
+- [ ] Address the root cause, not just symptoms
+- [ ] Make changes as minimal and focused as possible
+- [ ] Avoid introducing new bugs or regressions
+- [ ] Follow project coding standards and patterns
+
+### Testing Checklist
+
+- [ ] Verify the fix resolves the issue
+- [ ] Test related functionality that might be affected
+- [ ] Consider edge cases and boundary conditions
+- [ ] Ensure all tests pass after the fix

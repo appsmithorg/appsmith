@@ -1,0 +1,154 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Semantic PR Validator
+
+```yaml
+name: Semantic PR Validator
+description: Validates that PR titles follow the Conventional Commits specification
+author: Cursor AI
+version: 1.0.0
+tags:
+  - git
+  - pull-request
+  - semantic
+  - conventional-commits
+activation:
+  always: true
+  event:
+    - pull_request
+    - pull_request_title_edit
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.edited
+  - command: "validate_pr_title"
+```
+
+## Rule Definition
+
+This rule ensures that pull request titles follow the [Conventional Commits](mdc:https:/www.conventionalcommits.org) specification.
+
+## Validation Logic
+
+```javascript
+// Function to validate PR titles against Conventional Commits spec
+function validatePRTitle(title) {
+  // Regular expression for conventional commits format
+  const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-_]+\))?(!)?: [a-z0-9].+$/i;
+  
+  if (!conventionalCommitRegex.test(title)) {
+    return {
+      valid: false,
+      errors: [
+        "PR title doesn't follow the Conventional Commits format: type(scope): description",
+        "Example valid titles:",
+        "- feat(widget): add new table component",
+        "- fix: resolve login issue",
+        "- docs(readme): update installation instructions"
+      ]
+    };
+  }
+  
+  // Extract parts
+  const match = title.match(/^([a-z]+)(?:\(([a-z0-9-_]+)\))?(!)?:/i);
+  const type = match[1].toLowerCase();
+  
+  // Validate type
+  const validTypes = ["feat", "fix", "docs", "style", "refactor", 
+                      "perf", "test", "build", "ci", "chore", "revert"];
+  
+  if (!validTypes.includes(type)) {
+    return {
+      valid: false,
+      errors: [
+        `Invalid type "${type}". Valid types are: ${validTypes.join(', ')}`
+      ]
+    };
+  }
+  
+  return { valid: true };
+}
+
+// Triggered when a PR is created or the title is changed
+function onPRTitleChange(prTitle) {
+  const validation = validatePRTitle(prTitle);
+  
+  if (!validation.valid) {
+    return {
+      status: "failure",
+      message: "PR title doesn't follow Conventional Commits format",
+      details: validation.errors.join('\n'),
+      suggestions: [
+        {
+          label: "Fix PR title format",
+          description: "Update title to follow type(scope): description format"
+        }
+      ]
+    };
+  }
+  
+  return {
+    status: "success",
+    message: "PR title follows Conventional Commits format"
+  };
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('pull_request.created', (event) => {
+    const prTitle = event.pull_request.title;
+    return onPRTitleChange(prTitle);
+  });
+  
+  context.on('pull_request.edited', (event) => {
+    const prTitle = event.pull_request.title;
+    return onPRTitleChange(prTitle);
+  });
+  
+  context.registerCommand('validate_pr_title', (args) => {
+    const prTitle = args.title || context.currentPR?.title;
+    if (!prTitle) {
+      return {
+        status: "error",
+        message: "No PR title provided"
+      };
+    }
+    return onPRTitleChange(prTitle);
+  });
+}
+
+// Export the functions
+module.exports = {
+  activate,
+  onPRTitleChange,
+  validatePRTitle
+};
+```
+
+## When It Runs
+
+This rule automatically runs in the following scenarios:
+- When a new pull request is created
+- When a pull request title is edited
+- When a developer asks for validation via Cursor command: `validate_pr_title`
+
+## Usage Example
+
+To validate a PR title before submitting:
+
+1. Create a branch and make your changes
+2. Prepare to create a PR
+3. Use the command: `validate_pr_title` in Cursor
+4. Cursor will check your title and suggest corrections if needed
+
+## Examples of Valid PR Titles
+
+- `feat(widgets): add new table widget capabilities`
+- `fix(auth): resolve login redirect issue`
+- `docs: update README with setup instructions`
+- `refactor(api): simplify error handling logic`
+- `chore: update dependencies to latest versions` 

@@ -1,0 +1,310 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Pre-Commit Quality Checks
+
+```yaml
+name: Pre-Commit Quality Checks
+description: Runs quality checks similar to GitHub Actions locally before commits
+author: Cursor AI
+version: 1.0.0
+tags:
+  - quality
+  - pre-commit
+  - testing
+  - linting
+activation:
+  always: true
+  events:
+    - pre_commit
+    - command
+triggers:
+  - pre_commit
+  - command: "run_quality_checks"
+```
+
+## Rule Definition
+
+This rule runs the same quality checks locally that would normally run in CI, preventing commits that would fail in the GitHub workflow quality-checks.yml.
+
+## Implementation
+
+```javascript
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Determines which checks to run based on changed files
+ * @param {string[]} changedFiles - List of changed files
+ * @returns {Object} Object indicating which checks to run
+ */
+function determineChecksToRun(changedFiles) {
+  const checks = {
+    serverChecks: false,
+    clientChecks: false,
+  };
+
+  // Check if server files have changed
+  checks.serverChecks = changedFiles.some(file => 
+    file.startsWith('app/server/')
+  );
+
+  // Check if client files have changed
+  checks.clientChecks = changedFiles.some(file => 
+    file.startsWith('app/client/')
+  );
+
+  return checks;
+}
+
+/**
+ * Gets a list of changed files in the current git staging area
+ * @returns {string[]} List of changed files
+ */
+function getChangedFiles() {
+  try {
+    const output = execSync('git diff --cached --name-only', { encoding: 'utf8' });
+    return output.split('\n').filter(Boolean);
+  } catch (error) {
+    console.error('Error getting changed files:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Runs client-side quality checks
+ * @returns {Object} Results of the checks
+ */
+function runClientChecks() {
+  const results = {
+    success: true,
+    errors: [],
+    output: []
+  };
+
+  try {
+    // Run client lint
+    console.log('Running client lint checks...');
+    try {
+      const lintOutput = execSync('cd app/client && npm run lint', { encoding: 'utf8' });
+      results.output.push('✅ Client lint passed');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Client lint failed');
+      results.output.push(`❌ Client lint failed: ${error.message}`);
+    }
+
+    // Run client unit tests
+    console.log('Running client unit tests...');
+    try {
+      const testOutput = execSync('cd app/client && npm run test', { encoding: 'utf8' });
+      results.output.push('✅ Client unit tests passed');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Client unit tests failed');
+      results.output.push(`❌ Client unit tests failed: ${error.message}`);
+    }
+
+    // Check for cyclic dependencies
+    console.log('Checking for cyclic dependencies...');
+    try {
+      const cyclicCheckOutput = execSync('cd app/client && npm run check-circular-deps', { encoding: 'utf8' });
+      results.output.push('✅ No cyclic dependencies found');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Cyclic dependencies check failed');
+      results.output.push(`❌ Cyclic dependencies found: ${error.message}`);
+    }
+
+    // Run prettier check
+    console.log('Running prettier check...');
+    try {
+      const prettierOutput = execSync('cd app/client && npm run prettier', { encoding: 'utf8' });
+      results.output.push('✅ Prettier check passed');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Prettier check failed');
+      results.output.push(`❌ Prettier check failed: ${error.message}`);
+    }
+  } catch (error) {
+    results.success = false;
+    results.errors.push(`General error in client checks: ${error.message}`);
+  }
+
+  return results;
+}
+
+/**
+ * Runs server-side quality checks
+ * @returns {Object} Results of the checks
+ */
+function runServerChecks() {
+  const results = {
+    success: true,
+    errors: [],
+    output: []
+  };
+
+  try {
+    // Run server unit tests
+    console.log('Running server unit tests...');
+    try {
+      const testOutput = execSync('cd app/server && ./gradlew test', { encoding: 'utf8' });
+      results.output.push('✅ Server unit tests passed');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Server unit tests failed');
+      results.output.push(`❌ Server unit tests failed: ${error.message}`);
+    }
+
+    // Run server spotless check
+    console.log('Running server spotless check...');
+    try {
+      const spotlessOutput = execSync('cd app/server && ./gradlew spotlessCheck', { encoding: 'utf8' });
+      results.output.push('✅ Server spotless check passed');
+    } catch (error) {
+      results.success = false;
+      results.errors.push('Server spotless check failed');
+      results.output.push(`❌ Server spotless check failed: ${error.message}`);
+    }
+  } catch (error) {
+    results.success = false;
+    results.errors.push(`General error in server checks: ${error.message}`);
+  }
+
+  return results;
+}
+
+/**
+ * Runs all quality checks
+ * @param {Object} context - The execution context
+ * @returns {Object} Results of the checks
+ */
+function runQualityChecks(context) {
+  console.log('Running pre-commit quality checks...');
+  
+  const changedFiles = getChangedFiles();
+  if (!changedFiles.length) {
+    return {
+      status: 'success',
+      message: 'No files to check'
+    };
+  }
+
+  const checksToRun = determineChecksToRun(changedFiles);
+  const results = {
+    success: true,
+    output: ['Starting quality checks for staged files...'],
+    clientChecks: null,
+    serverChecks: null
+  };
+
+  // Run client checks if client files have changed
+  if (checksToRun.clientChecks) {
+    results.output.push('\n=== Client Checks ===');
+    results.clientChecks = runClientChecks();
+    results.output = results.output.concat(results.clientChecks.output);
+    results.success = results.success && results.clientChecks.success;
+  }
+
+  // Run server checks if server files have changed
+  if (checksToRun.serverChecks) {
+    results.output.push('\n=== Server Checks ===');
+    results.serverChecks = runServerChecks();
+    results.output = results.output.concat(results.serverChecks.output);
+    results.success = results.success && results.serverChecks.success;
+  }
+
+  // If no checks were run, note that
+  if (!checksToRun.clientChecks && !checksToRun.serverChecks) {
+    results.output.push('No client or server files were changed, skipping checks');
+  }
+
+  if (results.success) {
+    return {
+      status: 'success',
+      message: 'All quality checks passed',
+      details: results.output.join('\n')
+    };
+  } else {
+    return {
+      status: 'failure',
+      message: 'Quality checks failed',
+      details: results.output.join('\n')
+    };
+  }
+}
+
+/**
+ * Register command and hooks
+ * @param {Object} context - The cursor context
+ */
+function activate(context) {
+  // Register pre-commit hook
+  context.on('pre_commit', (event) => {
+    return runQualityChecks(context);
+  });
+  
+  // Register command for manual validation
+  context.registerCommand('run_quality_checks', () => {
+    return runQualityChecks(context);
+  });
+}
+
+module.exports = {
+  activate,
+  runQualityChecks
+};
+```
+
+## Usage
+
+This rule runs automatically on pre-commit events. You can also manually trigger it with the command `run_quality_checks`.
+
+### What It Checks
+
+1. **For Client-side Changes:**
+   - Runs linting checks
+   - Runs unit tests
+   - Checks for cyclic dependencies
+   - Runs prettier formatting validation
+
+2. **For Server-side Changes:**
+   - Runs unit tests
+   - Runs spotless formatting checks
+
+### Behavior
+
+- Only runs checks relevant to the files being committed (client and/or server)
+- Prevents commits if any checks fail
+- Provides detailed output about which checks passed or failed
+
+### Requirements
+
+- Node.js and npm for client-side checks
+- Java and Gradle for server-side checks
+- Git for determining changed files
+
+### Customization
+
+You can customize which checks are run by modifying the `runClientChecks` and `runServerChecks` functions.
+
+### Example Output
+
+```
+Running pre-commit quality checks...
+Starting quality checks for staged files...
+
+=== Client Checks ===
+✅ Client lint passed
+✅ Client unit tests passed
+✅ No cyclic dependencies found
+✅ Prettier check passed
+
+=== Server Checks ===
+✅ Server unit tests passed
+✅ Server spotless check passed
+```

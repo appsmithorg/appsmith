@@ -1,0 +1,136 @@
+{
+  "learning": {
+    "enabled": true,
+    "incremental": true,
+    "sources": [
+      {
+        "type": "code_changes",
+        "patterns": ["**/*.java", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+        "strategy": "diff_based"
+      },
+      {
+        "type": "test_additions",
+        "patterns": ["**/*.test.ts", "**/*.test.tsx", "**/*Test.java", "**/*Tests.java", "cypress/integration/**/*.spec.ts"],
+        "strategy": "full_context"
+      },
+      {
+        "type": "workflow_modifications",
+        "patterns": [".github/workflows/*.yml"],
+        "strategy": "full_context"
+      },
+      {
+        "type": "documentation_updates",
+        "patterns": ["**/*.md", "docs/**/*"],
+        "strategy": "full_context"
+      },
+      {
+        "type": "build_changes",
+        "patterns": ["**/package.json", "**/pom.xml", "**/build.gradle", "Dockerfile", "docker-compose.yml"],
+        "strategy": "full_context"
+      }
+    ],
+    "indexing": {
+      "frequency": "on_change",
+      "depth": "full",
+      "include_dependencies": true
+    },
+    "retention": {
+      "max_items_per_category": 1000,
+      "max_total_items": 10000,
+      "prioritization": "recency_and_relevance"
+    }
+  },
+  "pattern_detection": {
+    "enabled": true,
+    "categories": [
+      {
+        "name": "coding_patterns",
+        "description": "Common implementation patterns in the codebase",
+        "examples_to_track": 50
+      },
+      {
+        "name": "test_patterns",
+        "description": "Patterns for writing tests in this codebase",
+        "examples_to_track": 50
+      },
+      {
+        "name": "architectural_patterns",
+        "description": "Patterns related to the system's architecture",
+        "examples_to_track": 30
+      },
+      {
+        "name": "performance_optimizations",
+        "description": "Patterns for performance improvements",
+        "examples_to_track": 30
+      },
+      {
+        "name": "bug_fixes",
+        "description": "Common patterns in bug fixes",
+        "examples_to_track": 50
+      }
+    ]
+  },
+  "knowledge_graph": {
+    "enabled": true,
+    "entity_types": [
+      "component", "service", "repository", "controller", "utility", 
+      "model", "workflow", "test", "configuration"
+    ],
+    "relationship_types": [
+      "imports", "extends", "implements", "calls", "uses", "tests",
+      "defines", "configures"
+    ],
+    "max_depth": 3,
+    "update_frequency": "on_change"
+  },
+  "context_building": {
+    "strategies": {
+      "new_file": [
+        "analyze_related_files",
+        "study_similar_patterns",
+        "check_test_coverage"
+      ],
+      "bug_fix": [
+        "understand_root_cause",
+        "analyze_test_gaps",
+        "check_similar_issues"
+      ],
+      "feature_addition": [
+        "understand_requirements",
+        "analyze_affected_components",
+        "plan_test_strategy"
+      ],
+      "refactoring": [
+        "understand_current_implementation",
+        "identify_improvement_opportunities",
+        "ensure_test_coverage"
+      ]
+    }
+  },
+  "verification_strategies": {
+    "bug_fix": [
+      "run_targeted_tests",
+      "verify_fix_addresses_root_cause",
+      "check_regression_tests"
+    ],
+    "feature_addition": [
+      "verify_meets_requirements",
+      "run_new_tests",
+      "check_for_performance_impact"
+    ],
+    "refactoring": [
+      "verify_identical_behavior",
+      "check_test_coverage",
+      "verify_performance_impact"
+    ]
+  },
+  "feedback_loop": {
+    "sources": [
+      "code_review_comments",
+      "test_results",
+      "build_status",
+      "performance_metrics"
+    ],
+    "integration": "continuous"
+  }
+} 

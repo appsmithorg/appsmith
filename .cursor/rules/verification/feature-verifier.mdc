@@ -1,0 +1,628 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Feature Implementation Verifier
+
+```yaml
+name: Feature Implementation Verifier
+description: Verifies that new features are properly implemented and tested
+author: Cursor AI
+version: 1.0.0
+tags:
+  - feature
+  - implementation
+  - verification
+  - acceptance-criteria
+activation:
+  always: true
+  event:
+    - pull_request
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - pull_request.labeled:feature
+  - command: "verify_feature"
+```
+
+## Rule Definition
+
+This rule ensures that new feature implementations meet all requirements, follow best practices, and include appropriate tests.
+
+## Verification Logic
+
+```javascript
+// Main function to verify feature implementation
+function verifyFeatureImplementation(files, tests, requirements) {
+  const results = {
+    requirementsCoverage: checkRequirementsCoverage(files, requirements),
+    testCoverage: checkTestCoverage(files, tests),
+    codeQuality: checkCodeQuality(files),
+    documentation: checkDocumentation(files, requirements),
+    performance: checkPerformance(files),
+    score: 0,
+    issues: [],
+    recommendations: []
+  };
+  
+  // Calculate overall score
+  results.score = calculateScore(results);
+  
+  // Generate issues and recommendations
+  results.issues = identifyIssues(results);
+  results.recommendations = generateRecommendations(results.issues);
+  
+  return {
+    ...results,
+    summary: generateSummary(results)
+  };
+}
+
+// Check if all requirements are implemented
+function checkRequirementsCoverage(files, requirements) {
+  const results = {
+    implementedRequirements: [],
+    missingRequirements: [],
+    implementationRate: 0
+  };
+  
+  if (!requirements || requirements.length === 0) {
+    results.missingRequirements.push('requirements definition');
+    return results;
+  }
+  
+  // For each requirement, check if it's implemented
+  for (const req of requirements) {
+    const isImplemented = files.some(file => fileImplementsRequirement(file, req));
+    
+    if (isImplemented) {
+      results.implementedRequirements.push(req);
+    } else {
+      results.missingRequirements.push(req);
+    }
+  }
+  
+  results.implementationRate = requirements.length > 0 
+    ? (results.implementedRequirements.length / requirements.length) * 100 
+    : 0;
+  
+  return results;
+}
+
+// Helper to check if a file implements a specific requirement
+function fileImplementsRequirement(file, requirement) {
+  // This would contain complex analysis logic to match code to requirements
+  // For now, we'll use a simple text matching approach
+  return file.content.includes(requirement.id) || 
+         file.content.toLowerCase().includes(requirement.description.toLowerCase());
+}
+
+// Check if tests cover all the new functionality
+function checkTestCoverage(files, tests) {
+  const results = {
+    testedFiles: [],
+    untestedFiles: [],
+    coverage: 0
+  };
+  
+  if (!tests || tests.length === 0) {
+    files.forEach(file => {
+      if (shouldHaveTests(file)) {
+        results.untestedFiles.push(file.path);
+      }
+    });
+    
+    return results;
+  }
+  
+  // Check each file to see if it has test coverage
+  for (const file of files) {
+    const hasTests = tests.some(test => testCoversFile(test, file));
+    
+    if (hasTests || !shouldHaveTests(file)) {
+      results.testedFiles.push(file.path);
+    } else {
+      results.untestedFiles.push(file.path);
+    }
+  }
+  
+  const filesToTest = files.filter(file => shouldHaveTests(file)).length;
+  results.coverage = filesToTest > 0 
+    ? (results.testedFiles.length / filesToTest) * 100 
+    : 100;
+  
+  return results;
+}
+
+// Helper to determine if a test covers a specific file
+function testCoversFile(test, file) {
+  // This would contain complex analysis to determine test coverage
+  // For now, we'll use a simple path matching approach
+  const filePath = file.path.replace(/\.(js|ts|jsx|tsx|java)$/, '');
+  const testPath = test.path;
+  
+  return testPath.includes(filePath) || 
+         test.content.includes(file.path) || 
+         test.content.includes(filePath);
+}
+
+// Helper to determine if a file should have tests
+function shouldHaveTests(file) {
+  // Skip certain files that don't need tests
+  const skipPaths = [
+    'app/client/public/',
+    'app/client/src/assets/',
+    'app/client/src/styles/',
+    'app/client/src/constants/',
+    'app/client/src/types/'
+  ];
+  
+  if (skipPaths.some(path => file.path.includes(path))) {
+    return false;
+  }
+  
+  // Skip certain file types
+  const skipExtensions = ['.md', '.json', '.yml', '.yaml', '.svg', '.png', '.jpg'];
+  if (skipExtensions.some(ext => file.path.endsWith(ext))) {
+    return false;
+  }
+  
+  return true;
+}
+
+// Check the code quality of the implementation
+function checkCodeQuality(files) {
+  const results = {
+    qualityIssues: [],
+    issueCount: 0,
+    qualityScore: 100
+  };
+  
+  // Check each file for quality issues
+  for (const file of files) {
+    const fileIssues = analyzeCodeQuality(file);
+    
+    if (fileIssues.length > 0) {
+      results.qualityIssues.push({
+        file: file.path,
+        issues: fileIssues
+      });
+      
+      results.issueCount += fileIssues.length;
+      results.qualityScore -= Math.min(fileIssues.length * 5, 20); // Max 20 points deduction per file
+    }
+  }
+  
+  results.qualityScore = Math.max(0, results.qualityScore);
+  
+  return results;
+}
+
+// Helper to analyze code quality in a file
+function analyzeCodeQuality(file) {
+  const issues = [];
+  const content = file.content;
+  
+  // Check for common code quality issues
+  if (file.path.includes('.js') || file.path.includes('.ts')) {
+    // Check for console.log statements
+    if (content.includes('console.log')) {
+      issues.push({
+        type: 'debugging',
+        line: findLineForPattern(content, 'console.log'),
+        description: 'Remove console.log statements before committing'
+      });
+    }
+    
+    // Check for TODO comments
+    if (content.includes('TODO')) {
+      issues.push({
+        type: 'incomplete',
+        line: findLineForPattern(content, 'TODO'),
+        description: 'Resolve TODO comments before committing'
+      });
+    }
+    
+    // Check for commented out code
+    if (content.match(/\/\/\s*[a-zA-Z0-9]+/)) {
+      issues.push({
+        type: 'cleanliness',
+        line: findLineForPattern(content, '//'),
+        description: 'Remove commented out code before committing'
+      });
+    }
+  }
+  
+  // Check for proper indentation and formatting
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.length > 120) {
+      issues.push({
+        type: 'formatting',
+        line: i + 1,
+        description: 'Line exceeds 120 characters'
+      });
+    }
+    
+    // Check for inconsistent indentation
+    if (i > 0 && line.match(/^\s+/) && lines[i-1].match(/^\s+/)) {
+      const currentIndent = line.match(/^\s+/)[0].length;
+      const prevIndent = lines[i-1].match(/^\s+/)[0].length;
+      
+      if (Math.abs(currentIndent - prevIndent) % 2 !== 0 && Math.abs(currentIndent - prevIndent) !== 0) {
+        issues.push({
+          type: 'formatting',
+          line: i + 1,
+          description: 'Inconsistent indentation'
+        });
+      }
+    }
+  }
+  
+  return issues;
+}
+
+// Helper to find the line number for a pattern
+function findLineForPattern(content, pattern) {
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(pattern)) {
+      return i + 1;
+    }
+  }
+  return 1;
+}
+
+// Check for appropriate documentation
+function checkDocumentation(files, requirements) {
+  const results = {
+    documentedFiles: [],
+    undocumentedFiles: [],
+    documentationScore: 100
+  };
+  
+  // Check each file for documentation
+  for (const file of files) {
+    if (shouldHaveDocumentation(file)) {
+      if (hasAdequateDocumentation(file)) {
+        results.documentedFiles.push(file.path);
+      } else {
+        results.undocumentedFiles.push(file.path);
+        results.documentationScore -= 10; // 10 points deduction per undocumented file
+      }
+    }
+  }
+  
+  results.documentationScore = Math.max(0, results.documentationScore);
+  
+  return results;
+}
+
+// Helper to determine if a file should have documentation
+function shouldHaveDocumentation(file) {
+  // Public APIs, complex components, and services should have documentation
+  return file.path.includes('/api/') || 
+         file.path.includes('/services/') || 
+         file.path.includes('/components/') ||
+         file.path.endsWith('.java');
+}
+
+// Helper to check if a file has adequate documentation
+function hasAdequateDocumentation(file) {
+  const content = file.content;
+  
+  // Check for JSDoc, JavaDoc, or other documentation patterns
+  if (file.path.includes('.js') || file.path.includes('.ts')) {
+    return content.includes('/**') && content.includes('*/');
+  }
+  
+  if (file.path.includes('.java')) {
+    return content.includes('/**') && content.includes('*/') && content.includes('@param');
+  }
+  
+  // For other files, check for comment blocks
+  return content.includes('/*') && content.includes('*/');
+}
+
+// Check for performance implications
+function checkPerformance(files) {
+  // This would have comprehensive performance analysis
+  // For now, return an empty array for performance issues
+  return {
+    performanceIssues: [],
+    issueCount: 0
+  };
+}
+
+// Calculate overall score based on all checks
+function calculateScore(results) {
+  let score = 100;
+  
+  // Deduct for missing requirements
+  if (results.requirementsCoverage.implementationRate < 100) {
+    score -= (100 - results.requirementsCoverage.implementationRate) * 0.3;
+  }
+  
+  // Deduct for missing tests
+  if (results.testCoverage.coverage < 80) {
+    score -= (80 - results.testCoverage.coverage) * 0.3;
+  }
+  
+  // Deduct for code quality issues
+  score -= (100 - results.codeQuality.qualityScore) * 0.2;
+  
+  // Deduct for documentation issues
+  score -= (100 - results.documentation.documentationScore) * 0.2;
+  
+  return Math.max(0, Math.round(score));
+}
+
+// Identify issues from all verification checks
+function identifyIssues(results) {
+  const issues = [];
+  
+  // Add missing requirements as issues
+  results.requirementsCoverage.missingRequirements.forEach(req => {
+    issues.push({
+      type: 'requirements',
+      severity: 'high',
+      message: `Missing implementation for requirement: ${req.id || req}`
+    });
+  });
+  
+  // Add test coverage issues
+  if (results.testCoverage.untestedFiles.length > 0) {
+    issues.push({
+      type: 'testing',
+      severity: 'high',
+      message: `Missing tests for ${results.testCoverage.untestedFiles.length} files`
+    });
+    
+    results.testCoverage.untestedFiles.forEach(file => {
+      issues.push({
+        type: 'testing',
+        severity: 'medium',
+        message: `No tests for file: ${file}`
+      });
+    });
+  }
+  
+  // Add code quality issues
+  results.codeQuality.qualityIssues.forEach(fileIssue => {
+    fileIssue.issues.forEach(issue => {
+      issues.push({
+        type: 'code_quality',
+        severity: 'medium',
+        message: `${issue.description} in ${fileIssue.file} at line ${issue.line}`
+      });
+    });
+  });
+  
+  // Add documentation issues
+  results.documentation.undocumentedFiles.forEach(file => {
+    issues.push({
+      type: 'documentation',
+      severity: 'medium',
+      message: `Missing or inadequate documentation in ${file}`
+    });
+  });
+  
+  return issues;
+}
+
+// Generate recommendations based on identified issues
+function generateRecommendations(issues) {
+  const recommendations = [];
+  
+  // Group issues by type
+  const issuesByType = {};
+  issues.forEach(issue => {
+    if (!issuesByType[issue.type]) {
+      issuesByType[issue.type] = [];
+    }
+    issuesByType[issue.type].push(issue);
+  });
+  
+  // Generate recommendations for requirements issues
+  if (issuesByType.requirements) {
+    recommendations.push({
+      type: 'requirements',
+      title: 'Complete the implementation of requirements',
+      steps: [
+        'Review the missing requirements and ensure they are implemented',
+        'Verify that the implementation matches the acceptance criteria',
+        'Update the code to address all missing requirements'
+      ]
+    });
+  }
+  
+  // Generate recommendations for testing issues
+  if (issuesByType.testing) {
+    recommendations.push({
+      type: 'testing',
+      title: 'Improve test coverage',
+      steps: [
+        'Add unit tests for untested files',
+        'Create integration tests where appropriate',
+        'Ensure all edge cases are covered in tests'
+      ]
+    });
+  }
+  
+  // Generate recommendations for code quality issues
+  if (issuesByType.code_quality) {
+    recommendations.push({
+      type: 'code_quality',
+      title: 'Address code quality issues',
+      steps: [
+        'Remove debugging code (console.log, TODO comments)',
+        'Fix formatting and indentation issues',
+        'Follow project coding standards and best practices'
+      ]
+    });
+  }
+  
+  // Generate recommendations for documentation issues
+  if (issuesByType.documentation) {
+    recommendations.push({
+      type: 'documentation',
+      title: 'Improve documentation',
+      steps: [
+        'Add JSDoc or JavaDoc comments to public APIs and classes',
+        'Document complex components and their usage',
+        'Ensure all services have proper documentation'
+      ]
+    });
+  }
+  
+  return recommendations;
+}
+
+// Generate a summary of the verification results
+function generateSummary(results) {
+  const score = results.score;
+  let status = '';
+  
+  if (score >= 90) {
+    status = 'EXCELLENT';
+  } else if (score >= 70) {
+    status = 'GOOD';
+  } else if (score >= 50) {
+    status = 'NEEDS IMPROVEMENT';
+  } else {
+    status = 'INCOMPLETE';
+  }
+  
+  return {
+    score,
+    status,
+    issues: results.issues.length,
+    critical: results.issues.filter(issue => issue.severity === 'high').length,
+    recommendations: results.recommendations.length,
+    message: generateSummaryMessage(score, status, results)
+  };
+}
+
+// Generate a summary message based on results
+function generateSummaryMessage(score, status, results) {
+  if (status === 'EXCELLENT') {
+    return 'Feature implementation meets or exceeds all requirements and standards. Good job!';
+  } else if (status === 'GOOD') {
+    return `Feature implementation is good overall but has ${results.issues.length} issues to address.`;
+  } else if (status === 'NEEDS IMPROVEMENT') {
+    const critical = results.issues.filter(issue => issue.severity === 'high').length;
+    return `Feature implementation needs significant improvement with ${critical} critical issues.`;
+  } else {
+    return 'Feature implementation is incomplete and does not meet minimum requirements.';
+  }
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('pull_request.created', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const requirements = context.getFeatureRequirements(event.pullRequest);
+    return verifyFeatureImplementation(files, tests, requirements);
+  });
+  
+  context.on('pull_request.updated', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const requirements = context.getFeatureRequirements(event.pullRequest);
+    return verifyFeatureImplementation(files, tests, requirements);
+  });
+  
+  context.on('pull_request.labeled:feature', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const tests = context.getPullRequestTests(event.pullRequest.id);
+    const requirements = context.getFeatureRequirements(event.pullRequest);
+    return verifyFeatureImplementation(files, tests, requirements);
+  });
+  
+  context.registerCommand('verify_feature', (args) => {
+    const prId = args.pullRequest;
+    if (!prId) {
+      return {
+        status: "error",
+        message: "No pull request specified"
+      };
+    }
+    
+    const files = context.getPullRequestFiles(prId);
+    const tests = context.getPullRequestTests(prId);
+    const requirements = context.getFeatureRequirements({ id: prId });
+    return verifyFeatureImplementation(files, tests, requirements);
+  });
+}
+
+// Export functions
+module.exports = {
+  activate,
+  verifyFeatureImplementation,
+  checkRequirementsCoverage,
+  checkTestCoverage,
+  checkCodeQuality,
+  checkDocumentation,
+  checkPerformance
+};
+```
+
+## When It Runs
+
+This rule can be triggered:
+- When a new feature pull request is created
+- When a pull request is updated
+- When a pull request is labeled with 'feature'
+- When a developer runs the `verify_feature` command in Cursor
+- Before merging a feature implementation
+
+## Usage Example
+
+1. Create a pull request for a new feature
+2. Run `verify_feature --pullRequest=123` in Cursor
+3. Review the verification results
+4. Address any identified issues
+5. Re-run verification to confirm all issues are resolved
+
+## Feature Implementation Checklist
+
+### Requirements
+- [ ] Understand the feature requirements and acceptance criteria
+- [ ] Design a solution that meets all requirements
+- [ ] Create a plan for implementing the feature
+- [ ] Consider edge cases and potential issues
+
+### Implementation
+- [ ] Follow the project's coding standards and architecture
+- [ ] Write clean, efficient, and maintainable code
+- [ ] Handle errors and edge cases gracefully
+- [ ] Ensure the feature integrates well with existing functionality
+
+### Testing
+- [ ] Write unit tests for all components
+- [ ] Create integration tests for complex interactions
+- [ ] Test across different environments if applicable
+- [ ] Verify that the feature meets all acceptance criteria
+
+### Review
+- [ ] Self-review the code before submission
+- [ ] Address feedback from automated checks
+- [ ] Ensure documentation is complete and accurate
+- [ ] Verify test coverage is adequate
+
+## Example: Verifying Acceptance Criteria
+
+For a file upload feature, the verifier would check for:
+
+- UI components for selecting files
+- Upload progress indicators
+- Success and error states
+- Backend API for handling file uploads
+- File validation and error handling
+- Tests for valid and invalid uploads
+- Performance considerations for large files
