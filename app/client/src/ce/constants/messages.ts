@@ -1999,6 +1999,7 @@ export const IN_APP_EMBED_SETTING = {
   chromeExtensionBannerTitle: () => "Get the Chrome extension",
   chromeExtensionBannerDescription: () =>
     "Bring powerful AI assistance to the tools you and your teams use.",
+  chromeExtensionBannerButton: () => "Get the extension",
 };
 
 export const APP_NAVIGATION_SETTING = {
