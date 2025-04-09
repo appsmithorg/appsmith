@@ -52,6 +52,16 @@ function validatePRTitle(title) {
     };
   }
   
+  // Check for empty scope in parentheses
+  if (title.includes('()')) {
+    return {
+      valid: false,
+      errors: [
+        "Empty scope provided. Either include a scope value or remove the parentheses."
+      ]
+    };
+  }
+  
   // Extract parts
   const match = title.match(/^([a-z]+)(?:\(([a-z0-9-_]+)\))?(!)?:/i);
   const type = match[1].toLowerCase();
