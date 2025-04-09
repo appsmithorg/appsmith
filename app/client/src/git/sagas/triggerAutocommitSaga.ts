@@ -1,4 +1,3 @@
-import { triggerAutocommitSuccessAction } from "actions/gitSyncActions";
 import { AutocommitStatusState } from "git/constants/enums";
 import fetchAutocommitProgressRequest from "git/requests/fetchAutocommitProgressRequest";
 import type {
@@ -151,6 +150,6 @@ export default function* triggerAutocommitSaga(
     yield take(gitArtifactActions.pollAutocommitProgressStop.type);
     yield cancel(pollTask);
   } else {
-    yield put(triggerAutocommitSuccessAction());
+    yield put(gitArtifactActions.triggerAutocommitSuccess({ artifactDef }));
   }
 }
