@@ -5,7 +5,7 @@ import { adminSettings as adminSettingsHelper } from "../../../../support/Object
 
 describe(
   "SSO with Google test functionality",
-  { tags: ["@tag.excludeForAirgap"] },
+  { tags: ["@tag.Authentication", "@tag.excludeForAirgap"] },
   function () {
     it("1. Go to admin settings and enable Google with not all mandatory fields filled", function () {
       cy.LogOut();

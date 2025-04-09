@@ -1,14 +1,17 @@
 export default {
   Tabs: ".t--settings-category-list",
+  profileTab: ".t--settings-category-profile",
   generalTab: ".t--settings-category-general",
-  advancedTab: ".t--settings-category-advanced",
   authenticationTab: ".t--settings-category-authentication",
   emailTab: ".t--settings-category-email",
-  developerSettingsTab: ".t--settings-category-developer-settings",
+  userSettingsTab: ".t--settings-category-user-settings",
+  instanceSettingsTab: ".t--settings-category-instance-settings",
+  configurationTab: ".t--settings-category-configuration",
   googleButton: ".t--settings-sub-category-google-auth",
   githubButton: ".t--settings-sub-category-github-auth",
   formloginButton: ".t--settings-sub-category-form-login",
   readMoreLink: ".t--read-more-link",
+  subTextLink: ".t--sub-text-link",
   versionTab: ".t--settings-category-version",
   backButton: ".t--admin-settings-back-button",
   saveButton: ".t--admin-settings-save-button",
@@ -77,5 +80,6 @@ export default {
   smtpAppsmithMailUserNameInput: "[name='APPSMITH_MAIL_USERNAME']",
   smtpAppsmithMailPasswordInput: "[name='APPSMITH_MAIL_PASSWORD']",
   smtpAppsmithMailTestButton: "[data-testid='admin-settings-button']",
-  addEmailGhostInput: "[data-testid='admin-settings-tag-input'] .bp3-input-ghost",
+  addEmailGhostInput:
+    "[data-testid='admin-settings-tag-input'] .bp3-input-ghost",
 };

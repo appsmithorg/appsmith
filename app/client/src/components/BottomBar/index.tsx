@@ -18,6 +18,7 @@ import PackageUpgradeStatus from "ee/components/BottomBar/PackageUpgradeStatus";
 import OldGitQuickActions from "pages/Editor/gitSync/QuickGitActions";
 import { GitQuickActions } from "git";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
+import { AIAgentSupportTrigger } from "ee/components/BottomBar/AIAgentSupportTrigger";
 
 function GitActions() {
   const isGitModEnabled = useGitModEnabled();
@@ -65,6 +66,7 @@ export default function BottomBar() {
               startIcon="upgrade"
             />
           </ManualUpgrades>
+          <AIAgentSupportTrigger />
           <DebuggerTrigger />
           <HelpButton />
         </Wrapper>

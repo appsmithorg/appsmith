@@ -1,10 +1,12 @@
 import { ConfigFactory } from "pages/AdminSettings/config/ConfigFactory";
 
+import { config as ProfileConfig } from "pages/AdminSettings/config/profile";
 import { config as GeneralConfig } from "ee/pages/AdminSettings/config/general";
 import { config as EmailConfig } from "pages/AdminSettings/config/email";
-import { config as DeveloperSettings } from "ee/pages/AdminSettings/config/DeveloperSettings";
+import { config as InstanceSettings } from "ee/pages/AdminSettings/config/instanceSettings";
+import { config as Configuration } from "ee/pages/AdminSettings/config/configuration";
 import { config as VersionConfig } from "pages/AdminSettings/config/version";
-import { config as AdvancedConfig } from "pages/AdminSettings/config/advanced";
+import { config as UserSettings } from "ee/pages/AdminSettings/config/userSettings";
 import { config as Authentication } from "ee/pages/AdminSettings/config/authentication";
 import { config as BrandingConfig } from "ee/pages/AdminSettings/config/branding";
 import { config as ProvisioningConfig } from "ee/pages/AdminSettings/config/provisioning";
@@ -14,24 +16,41 @@ import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlo
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+const user = getCurrentUser(store.getState());
+const isFeatureEnabled = featureFlags.license_gac_enabled;
+const isSuperUser = getShowAdminSettings(isFeatureEnabled, user);
 
-ConfigFactory.register(GeneralConfig);
+// Profile categories
+ConfigFactory.register(ProfileConfig);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
+// Organisation categories
+if (isSuperUser) ConfigFactory.register(GeneralConfig);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(DeveloperSettings);
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
 
-ConfigFactory.register(Authentication);
+if (isSuperUser) ConfigFactory.register(BrandingConfig);
 
-if (!isMultiOrgEnabled) ConfigFactory.register(AdvancedConfig);
+if (isSuperUser) ConfigFactory.register(AuditLogsConfig);
 
-ConfigFactory.register(VersionConfig);
-ConfigFactory.register(BrandingConfig);
-ConfigFactory.register(ProvisioningConfig);
-ConfigFactory.register(UserListing);
-ConfigFactory.register(AuditLogsConfig);
+// User management categories
+if (isSuperUser) ConfigFactory.register(UserSettings);
+
+if (isSuperUser) ConfigFactory.register(Authentication);
+
+if (isSuperUser) ConfigFactory.register(ProvisioningConfig);
+
+if (isSuperUser) ConfigFactory.register(UserListing);
+
+// Instance categories
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
+
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(Configuration);
+
+if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
 
 export default ConfigFactory;

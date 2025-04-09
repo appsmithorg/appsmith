@@ -1502,7 +1502,7 @@ export const SAML_AUTH_DESC = () =>
   "Enable your organization to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
   "Enable your organization to sign in with your preferred OIDC compliant provider.";
-export const SAVE_BUTTON = () => "Save";
+export const SAVE_BUTTON = () => "Save Changes";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
@@ -1511,8 +1511,11 @@ export const ENTERPRISE_TAG = () => "Enterprise";
 
 // Upgrade pages begin
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
-export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the business plan`;
+export const EXCLUSIVE_TO_BUSINESS = (
+  featureName: string,
+  planName: "business" | "enterprise" = "business",
+) =>
+  `The ${featureName} feature is exclusive to workspaces on the ${planName} plan`;
 export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
 // Upgrade pages end
 
@@ -1557,7 +1560,7 @@ export const RESTRICT_PUBLIC_EXPOSURE = () =>
 export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
   "Proactively disallow groups of non-admin or non-super-admin users from publicly sharing your app or exporting app data out of your environment, domain, and security perimeters.";
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
-  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business plan.";
+  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our business plan.";
 // Access control upgrade page end
 
 // Provisioning upgrade page begin
@@ -1692,6 +1695,8 @@ export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
   `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
+  `.ICO, .PNG, or .JPG only • Max 32X32`;
+export const PROFILE_DISPLAY_PICTURE_REQUIREMENT = () =>
   `.ICO, .PNG, or .JPG only • Max 32X32`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
   `Used on buttons, links, and other interactive elements.`;
@@ -1994,6 +1999,10 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
     "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
+  chromeExtensionBannerTitle: () => "Get the Chrome extension",
+  chromeExtensionBannerDescription: () =>
+    "Bring powerful AI assistance to the tools you and your teams use.",
+  chromeExtensionBannerButton: () => "Get the extension",
 };
 
 export const APP_NAVIGATION_SETTING = {

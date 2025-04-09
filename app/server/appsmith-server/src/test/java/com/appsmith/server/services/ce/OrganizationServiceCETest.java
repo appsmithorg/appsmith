@@ -173,6 +173,49 @@ class OrganizationServiceCETest {
     }
 
     @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_updateFormLoginEnabled_success() {
+
+        // Ensure that default value for form login is enabled
+        Mono<Organization> organizationMono = organizationService.getOrganizationConfiguration();
+        StepVerifier.create(organizationMono)
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getIsFormLoginEnabled())
+                            .isTrue();
+                })
+                .verifyComplete();
+
+        // Ensure that the form login is disabled after the update
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setIsFormLoginEnabled(FALSE);
+        Mono<OrganizationConfiguration> resultMono = organizationService
+                .updateOrganizationConfiguration(changes)
+                .then(organizationService.getOrganizationConfiguration())
+                .map(Organization::getOrganizationConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getIsFormLoginEnabled())
+                            .isFalse();
+                })
+                .verifyComplete();
+
+        // Ensure that the form login is enabled after the update
+        changes.setIsFormLoginEnabled(TRUE);
+        resultMono = organizationService
+                .updateOrganizationConfiguration(changes)
+                .then(organizationService.getOrganizationConfiguration())
+                .map(Organization::getOrganizationConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getIsFormLoginEnabled())
+                            .isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @WithUserDetails("anonymousUser")
     void getOrganizationConfig_Valid_AnonymousUser() {
         StepVerifier.create(organizationService.getOrganizationConfiguration())
