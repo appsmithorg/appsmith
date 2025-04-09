@@ -195,7 +195,13 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("AUTH_TOKEN");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Basic validation - check if token is a valid JWT format
+    if (token.split('.').length === 3) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      // Handle invalid token - could log user out or refresh token
+      store.dispatch(refreshToken());
+    }
   }
   return config;
 });

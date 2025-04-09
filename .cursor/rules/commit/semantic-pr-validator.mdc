@@ -64,6 +64,16 @@ function validatePRTitle(title) {
   
   // Extract parts
   const match = title.match(/^([a-z]+)(?:\(([a-z0-9-_]+)\))?(!)?:/i);
+  
+  if (!match || !match[1]) {
+    return {
+      valid: false,
+      errors: [
+        "Failed to parse PR title format. Please follow the pattern: type(scope): description"
+      ]
+    };
+  }
+  
   const type = match[1].toLowerCase();
   
   // Validate type

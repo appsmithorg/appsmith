@@ -33,7 +33,7 @@ This index provides an overview of all the rules available for Cursor AI in the 
 | `verify_feature` | Verifies feature implementation quality | Feature Verifier |
 | `generate_tests` | Generates tests for code changes | Test Generator |
 | `optimize_performance` | Analyzes code for performance issues | Performance Optimizer |
-| `update_docs` | Updates documentation based on code changes | Auto Update Docs |
+| `update_docs` | Updates documentation based on code changes | [Auto Update Docs](../hooks/scripts/auto-update-docs.mdc) |
 
 ## Triggering Rules
 
