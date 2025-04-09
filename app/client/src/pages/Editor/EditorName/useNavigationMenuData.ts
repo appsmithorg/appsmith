@@ -24,7 +24,6 @@ import { toast } from "@appsmith/ads";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { toggleAISupportModal } from "ee/actions/aiAgentActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
@@ -164,7 +163,7 @@ export const useNavigationMenuData = ({
                   "https://github.com/appsmithorg/appsmith/issues/new/choose",
                 ),
               type: MenuTypes.MENU,
-              isVisible: true,
+              isVisible: !isAiAgentFlowEnabled,
               startIcon: "bug-line",
             },
             {
@@ -177,15 +176,6 @@ export const useNavigationMenuData = ({
               },
               type: MenuTypes.MENU,
               isVisible: intercomAppID && window.Intercom,
-            },
-            {
-              startIcon: "chat-help",
-              text: "Chat with us",
-              onClick: () => {
-                dispatch(toggleAISupportModal());
-              },
-              type: MenuTypes.MENU,
-              isVisible: isAiAgentFlowEnabled,
             },
           ],
         },

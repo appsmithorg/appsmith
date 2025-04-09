@@ -19,6 +19,8 @@ import {
 } from "ee/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import { useSelector } from "react-redux";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export function AuditLogsUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
@@ -27,6 +29,7 @@ export function AuditLogsUpgradePage() {
     featureName: RampFeature.AuditLogs,
     sectionName: RampSection.AdminSettings,
   });
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   const header: Header = {
     heading: createMessage(INTRODUCING, "audit logs"),
@@ -77,7 +80,12 @@ export function AuditLogsUpgradePage() {
     onClick: () => {
       onUpgrade();
     },
-    message: createMessage(EXCLUSIVE_TO_BUSINESS, ["audit logs"]),
+    message: createMessage(
+      EXCLUSIVE_TO_BUSINESS,
+      ["audit logs"],
+      isAiAgentFlowEnabled ? "enterprise" : "business",
+    ),
+    isEnterprise: isAiAgentFlowEnabled ? true : false,
   };
   const props = { header, carousel, footer };
 
