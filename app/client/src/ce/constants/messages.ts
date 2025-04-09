@@ -1996,6 +1996,9 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
     "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
+  chromeExtensionBannerTitle: () => "Get the Chrome extension",
+  chromeExtensionBannerDescription: () =>
+    "Bring powerful AI assistance to the tools you and your teams use.",
 };
 
 export const APP_NAVIGATION_SETTING = {
