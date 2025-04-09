@@ -53,7 +53,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import * as Sentry from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
-import { getSafeErrorMessage } from "ce/constants/approvedErrorMessages";
+import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
