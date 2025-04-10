@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
 import { getSelectedWidgets } from "selectors/ui";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
@@ -104,4 +103,4 @@ export const PropertyPaneSidebar = memo(() => {
 
 PropertyPaneSidebar.displayName = "PropertyPaneSidebar";
 
-export default Sentry.withProfiler(PropertyPaneSidebar);
+export default PropertyPaneSidebar;

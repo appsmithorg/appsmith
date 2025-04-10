@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import React, { useRef } from "react";
 import {
   Button,
@@ -108,4 +107,4 @@ function ConversionButton() {
 
 ConversionButton.displayName = "ConversionButton";
 
-export default Sentry.withProfiler(ConversionButton);
+export default ConversionButton;

@@ -15,7 +15,6 @@ import {
   concatWithArray,
 } from "./helpers";
 import WidgetFactory from "../WidgetProvider/factory";
-import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
 
 describe("flattenObject test", () => {
@@ -278,7 +277,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
             label: "Default selected value",
-            // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -340,7 +338,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
-            // defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -449,7 +446,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
             label: "Default selected value",
-            // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -511,7 +507,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
-            // defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -541,10 +536,10 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
 
-    const sentrySpy = jest.spyOn(Sentry, "captureException");
+    const errorSpy = jest.spyOn(console, "error");
 
     captureInvalidDynamicBindingPath(baseDSL);
-    expect(sentrySpy).toHaveBeenCalledWith(
+    expect(errorSpy).toHaveBeenCalledWith(
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,
       ),
