@@ -1,23 +1,21 @@
+import OneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
+  assertHelper,
+  dataSources,
+  deployMode,
   entityExplorer,
+  locators,
   propPane,
   table,
-  deployMode,
-  dataSources,
-  locators,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import { OneClickBinding } from "../../OneClickBinding/spec_utility";
-import {
-  AppSidebar,
-  AppSidebarButton,
-} from "../../../../../support/Pages/EditorNavigation";
-import OneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -48,12 +46,12 @@ describe(
       agHelper.AssertClassExists(locators._jsToggle("tabledata"), "is-active");
     });
 
-    it("1. should enable infinite scroll and verify records are loaded and loaded more records works", () => {
+    it("1. should enable infinite scroll and verify records are loaded automatically when scrolling", () => {
       // Enable infinite scroll in the property pane
       propPane.TogglePropertyState("Infinite scroll", "On");
 
-      // Verify that server-side pagination is automatically enabled
-      propPane.TogglePropertyState("Server side pagination", "On");
+      // Wait for network call to complete
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
 
       // Verify initial rows are visible
       table.ReadTableRowColumnData(0, 1, "v2").then(($cellData) => {
@@ -64,9 +62,38 @@ describe(
         expect($cellData).to.not.be.empty;
       });
 
-      table.infiniteScrollLoadMoreRecords();
+      // Store the current number of rows
+      let initialRowCount = 0;
+      cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($rows) => {
+        initialRowCount = $rows.length;
 
-      // Verify that the next page is loaded
+        // Scroll vertically to trigger infinite scroll
+        cy.get(".t--widget-tablewidgetv2 .virtual-list").scrollTo(0, 1000, {
+          duration: 500,
+        });
+
+        // Wait for network call to complete after scrolling
+        assertHelper.AssertNetworkStatus("@postExecute", 200);
+
+        // Use waitUntil to wait for the condition that more rows are loaded
+        cy.waitUntil(
+          () =>
+            cy
+              .get(".t--widget-tablewidgetv2 .tbody .tr")
+              .then(($newRows) => $newRows.length > initialRowCount),
+          {
+            errorMsg: "New rows were not loaded after scrolling",
+            timeout: 10000,
+            interval: 500,
+          },
+        );
+
+        // Verify more rows were loaded
+        cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($newRows) => {
+          const newRowCount = $newRows.length;
+          expect(newRowCount).to.be.greaterThan(initialRowCount);
+        });
+      });
     });
 
     it("2. should test row selection with infinite scroll", () => {
@@ -144,8 +171,22 @@ describe(
         expect($cellData).to.not.be.empty;
       });
 
-      table.infiniteScrollLoadMoreRecords();
-      // Verify that the next page is loaded
+      // Store the current number of rows
+      let initialRowCount = 0;
+      cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($rows) => {
+        initialRowCount = $rows.length;
+
+        // Scroll to the bottom of the table to trigger automatic loading of more records
+        cy.get(".t--widget-tablewidgetv2 .virtual-list").scrollTo("bottom");
+
+        // Wait for network call to complete
+        assertHelper.AssertNetworkStatus("@postExecute", 200);
+
+        // Verify more rows were loaded
+        cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($newRows) => {
+          expect($newRows.length).to.be.greaterThan(initialRowCount);
+        });
+      });
 
       cy.get(".t--widget-tablewidgetv2 .virtual-list").scrollTo("topLeft");
 
