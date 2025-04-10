@@ -21,7 +21,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { toast } from "@appsmith/ads";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
@@ -151,7 +151,10 @@ export const useNavigationMenuData = ({
           children: [
             {
               text: "Documentation",
-              onClick: () => openExternalLink(DOCS_BASE_URL),
+              onClick: () =>
+                openExternalLink(
+                  isAiAgentFlowEnabled ? DOCS_AI_BASE_URL : DOCS_BASE_URL,
+                ),
               type: MenuTypes.MENU,
               isVisible: true,
               startIcon: "book-line",
