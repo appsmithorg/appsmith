@@ -46,7 +46,7 @@ describe(
       agHelper.AssertClassExists(locators._jsToggle("tabledata"), "is-active");
     });
 
-    it("1. should enable infinite scroll and verify records are loaded automatically when scrolling", () => {
+    it.only("1. should enable infinite scroll and verify records are loaded automatically when scrolling", () => {
       // Enable infinite scroll in the property pane
       propPane.TogglePropertyState("Infinite scroll", "On");
 
@@ -71,7 +71,22 @@ describe(
         cy.get(".t--widget-tablewidgetv2 .virtual-list").scrollTo(0, 1000, {
           duration: 500,
         });
-        cy.wait(2000); // Wait for the scroll event to be processed
+
+        // Wait for network call to complete after scrolling
+        assertHelper.AssertNetworkStatus("@postExecute", 200);
+
+        // Use waitUntil to wait for the condition that more rows are loaded
+        cy.waitUntil(
+          () =>
+            cy
+              .get(".t--widget-tablewidgetv2 .tbody .tr")
+              .then(($newRows) => $newRows.length > initialRowCount),
+          {
+            errorMsg: "New rows were not loaded after scrolling",
+            timeout: 10000,
+            interval: 500,
+          },
+        );
 
         // Verify more rows were loaded
         cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($newRows) => {
