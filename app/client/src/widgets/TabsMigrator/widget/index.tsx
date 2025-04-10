@@ -10,9 +10,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import * as Sentry from "@sentry/react";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import captureException from "instrumentation/sendFaroErrors";
 
 function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
@@ -20,7 +20,8 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       currentDSL.type = "TABS_MIGRATOR_WIDGET";
       currentDSL.version = 1;
     } catch (error) {
-      Sentry.captureException({
+      captureException(error, {
+        errorName: "TabsMigrator",
         message: "Tabs Migration Failed",
         oldData: currentDSL.tabs,
       });
@@ -116,7 +117,8 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       currentDSL.version = 2;
       delete currentDSL.tabs;
     } catch (error) {
-      Sentry.captureException({
+      captureException(error, {
+        errorName: "TabsMigrator",
         message: "Tabs Migration Failed",
         oldData: currentDSL.tabs,
       });

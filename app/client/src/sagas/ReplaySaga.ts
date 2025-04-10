@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import log from "loglevel";
 
 import {
@@ -132,7 +132,7 @@ export function* openPropertyPaneSaga(replay: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e, { errorName: "OpenPropertyPaneError" });
   }
 }
 
@@ -164,7 +164,7 @@ export function* postUndoRedoSaga(replay: any) {
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e, { errorName: "PostUndoRedoError" });
   }
 }
 
@@ -257,7 +257,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     }
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e, { errorName: "UndoRedoSagaError" });
   }
 }
 

@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
 import type { BaseInputComponentProps } from "./BaseInputField";
@@ -15,6 +14,7 @@ import derived from "widgets/CurrencyInputWidget/widget/derived";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
+import captureException from "instrumentation/sendFaroErrors";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;
@@ -132,7 +132,7 @@ function CurrencyInputField({
         }
       } catch (e) {
         text = inputValue;
-        Sentry.captureException(e);
+        captureException(e, { errorName: "JSONFormWidget_CurrencyInputField" });
       }
 
       const value = derived.value({ text });

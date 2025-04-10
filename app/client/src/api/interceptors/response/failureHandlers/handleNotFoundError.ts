@@ -3,10 +3,10 @@ import {
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "ee/constants/ApiConstants";
-import * as Sentry from "@sentry/react";
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "api/types";
 import { is404orAuthPath } from "api/helpers";
+import captureException from "instrumentation/sendFaroErrors";
 
 export async function handleNotFoundError(error: AxiosError<ApiResponse>) {
   if (is404orAuthPath()) return null;
@@ -20,7 +20,7 @@ export async function handleNotFoundError(error: AxiosError<ApiResponse>) {
     (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error?.code) ||
       SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData?.error?.code))
   ) {
-    Sentry.captureException(error);
+    captureException(error, { errorName: "NotFoundError" });
 
     return Promise.reject({
       ...error,

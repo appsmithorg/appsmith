@@ -1,4 +1,4 @@
-import { captureException } from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import type { ApiResponse } from "api/types";
 import log from "loglevel";
 
@@ -22,7 +22,7 @@ export default function handleApiErrors(error?: Error, response?: ApiResponse) {
     }
   } else {
     log.error(error);
-    captureException(error);
+    captureException(error, { errorName: "GitApiError" });
   }
 
   return apiError;

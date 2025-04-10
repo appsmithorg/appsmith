@@ -16,7 +16,7 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
 
 const actionExecutionRequestActions = [
@@ -101,7 +101,7 @@ export default function* actionExecutionChangeListeners() {
       yield call(actionExecutionChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e, { errorName: "WidgetLoadingError" });
     }
   }
 }

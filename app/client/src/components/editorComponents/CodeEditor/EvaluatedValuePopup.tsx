@@ -14,7 +14,6 @@ import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import copy from "copy-to-clipboard";
 
-import * as Sentry from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
@@ -29,6 +28,7 @@ import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
+import captureException from "instrumentation/sendFaroErrors";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -290,8 +290,8 @@ export function PreparedStatementViewer(props: {
   const { parameters, value } = props.evaluatedValue;
 
   if (!value) {
-    Sentry.captureException("Prepared statement got no value", {
-      level: "debug",
+    captureException(new Error("Prepared statement got no value"), {
+      errorName: "PreparedStatementError",
       extra: { props },
     });
 

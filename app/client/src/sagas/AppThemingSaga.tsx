@@ -44,7 +44,7 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { find } from "lodash";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
@@ -126,8 +126,8 @@ export function* fetchAppSelectedTheme(
         payload: response.data,
       });
     } else {
-      Sentry.captureException("Unable to fetch the selected theme", {
-        level: "fatal",
+      captureException(new Error("Unable to fetch the selected theme"), {
+        errorName: "ThemeFetchError",
         extra: {
           pageIdentities,
           applicationId,
