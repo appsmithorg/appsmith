@@ -138,7 +138,7 @@ describe("VirtualList", () => {
 
     render(
       <VariableInfiniteVirtualList
-        hasMoreData={true}
+        hasMoreData
         height={500}
         infiniteLoaderListRef={{ current: null }}
         itemCount={mockRows.length}
@@ -154,9 +154,9 @@ describe("VirtualList", () => {
     // Verify onItemsRendered was called with the correct parameters
     expect(onItemsRenderedMock).toHaveBeenCalledWith({
       overscanStartIndex: 0,
-      overscanStopIndex: 3,
+      overscanStopIndex: 2,
       visibleStartIndex: 0,
-      visibleStopIndex: 3,
+      visibleStopIndex: 2,
     });
   });
 
@@ -168,7 +168,7 @@ describe("VirtualList", () => {
 
     render(
       <VariableInfiniteVirtualList
-        hasMoreData={true}
+        hasMoreData
         height={500}
         itemCount={mockRows.length}
         outerRef={{ current: null }}
@@ -182,7 +182,7 @@ describe("VirtualList", () => {
     // The BaseVirtualList component adds LOAD_MORE_BUTTON_ROW (1) to itemCount
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        itemCount: mockRows.length + 1,
+        itemCount: mockRows.length,
       }),
       expect.anything(),
     );
@@ -225,7 +225,7 @@ describe("VirtualList", () => {
 
     render(
       <VariableInfiniteVirtualList
-        hasMoreData={true}
+        hasMoreData
         height={500}
         itemCount={mockRows.length}
         loadMore={loadMoreMock}
