@@ -2,6 +2,7 @@ package com.appsmith.server.filters;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.LogHelper;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
@@ -17,6 +18,7 @@ import reactor.util.context.Context;
 import java.util.Map;
 
 import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION_ID;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -27,6 +29,7 @@ import static java.util.stream.Collectors.toMap;
 @Slf4j
 public class MDCFilter implements WebFilter {
 
+    private final UserOrganizationHelper userOrganizationHelper;
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
 
     /**
@@ -38,15 +41,23 @@ public class MDCFilter implements WebFilter {
 
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
 
+    public MDCFilter(UserOrganizationHelper userOrganizationHelper) {
+        this.userOrganizationHelper = userOrganizationHelper;
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
             return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
-                    .flatMap(principal -> {
+                    .zipWith(userOrganizationHelper.getCurrentUserOrganizationId())
+                    .flatMap(tuple2 -> {
+                        final Object principal = tuple2.getT1();
+                        final String organizationId = tuple2.getT2();
                         final User user = principal instanceof User ? (User) principal : null;
                         return chain.filter(exchange)
-                                .contextWrite(ctx -> addRequestHeadersToContext(exchange.getRequest(), ctx, user));
+                                .contextWrite(ctx ->
+                                        addRequestHeadersToContext(exchange.getRequest(), ctx, user, organizationId));
                     });
         } finally {
             MDC.clear();
@@ -54,13 +65,17 @@ public class MDCFilter implements WebFilter {
     }
 
     private Context addRequestHeadersToContext(
-            final ServerHttpRequest request, final Context context, final User user) {
+            final ServerHttpRequest request, final Context context, final User user, final String organizationId) {
         final Map<String, String> contextMap = request.getHeaders().toSingleValueMap().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(MDC_HEADER_PREFIX))
                 .collect(toMap(v -> v.getKey().substring((MDC_HEADER_PREFIX.length())), Map.Entry::getValue));
 
         if (user != null) {
             contextMap.put(USER_EMAIL, user.getEmail());
+        }
+
+        if (organizationId != null) {
+            contextMap.put(ORGANIZATION_ID, organizationId);
         }
 
         final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
