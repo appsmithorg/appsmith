@@ -217,11 +217,14 @@ export function EmbedSnippetTab({
 
   if (!isPublicApp) {
     return (
-      <PrivateEmbeddingContent
-        changeTab={changeTab}
-        isAppSettings={isAppSettings}
-        userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
-      />
+      <div className="flex flex-col gap-6">
+        <PrivateEmbeddingContent
+          changeTab={changeTab}
+          isAppSettings={isAppSettings}
+          userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
+        />
+        <ChromeExtensionBanner />
+      </div>
     );
   }
 
