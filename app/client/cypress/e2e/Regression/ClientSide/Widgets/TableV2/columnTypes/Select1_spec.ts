@@ -277,13 +277,10 @@ describe(
         _.propPane.TogglePropertyState("Allow adding a row", "On");
 
         _.propPane.OpenTableColumnSettings("step");
+        _.propPane.AssertPropertySwitchState(
+          "Use top row values in new rows",
+          "enabled",);
 
-        cy.get(".t--property-control-sameoptionsinnewrow input").should(
-          "have.attr",
-          "checked",
-        );
-
-        // Check if newrowoption is invisible when sameoptionsinnewrow is true
         cy.get(".t--property-control-newrowoptions").should("not.exist");
 
         cy.updateCodeInput(
