@@ -9,7 +9,7 @@ import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton, {
   type SessionRecordingConfig,
 } from "utils/Analytics/mixpanel";
-import SentryUtil from "utils/Analytics/sentry";
+import FaroUtil from "utils/Analytics/sentry";
 import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
 
@@ -31,7 +31,7 @@ async function initialize(
   user: User,
   sessionRecordingConfig: SessionRecordingConfig,
 ) {
-  SentryUtil.init();
+  // SentryUtil.init();
   await SmartlookUtil.init();
 
   segmentAnalytics = SegmentSingleton.getInstance();
@@ -94,7 +94,7 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
     await segmentAnalytics.identify(trackedUser.userId, userProperties);
   }
 
-  SentryUtil.identifyUser(trackedUser.userId, userData);
+  FaroUtil.identifyUser(trackedUser.userId, userData);
 
   if (trackedUser.email) {
     SmartlookUtil.identify(trackedUser.userId, trackedUser.email);

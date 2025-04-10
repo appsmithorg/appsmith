@@ -296,7 +296,10 @@ export function* evalErrorHandler(
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
         log.error(error);
-        captureException(error, { errorName: "ParseJSError" });
+        captureException(error, {
+          errorName: "ParseJSError",
+          entity: error.context,
+        });
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
