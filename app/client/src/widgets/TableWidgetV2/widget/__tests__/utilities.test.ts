@@ -2712,7 +2712,7 @@ describe("getSelectOptions", () => {
     ]);
   });
 
-  it("Should return select options while adding a new row and when 'Same options in new row' option is turned on", () => {
+  it("Should return select options while adding a new row and when 'Use top row values in new rows' option is turned on", () => {
     const columnProperties = {
       allowSameOptionsInNewRow: true,
       selectOptions: [
