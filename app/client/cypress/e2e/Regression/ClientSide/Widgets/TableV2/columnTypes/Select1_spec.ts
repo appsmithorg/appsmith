@@ -279,7 +279,8 @@ describe(
         _.propPane.OpenTableColumnSettings("step");
         _.propPane.AssertPropertySwitchState(
           "Use top row values in new rows",
-          "enabled",);
+          "enabled",
+        );
 
         cy.get(".t--property-control-newrowoptions").should("not.exist");
 
