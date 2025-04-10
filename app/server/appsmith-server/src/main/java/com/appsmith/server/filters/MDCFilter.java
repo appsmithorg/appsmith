@@ -4,11 +4,11 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.LogHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -50,7 +50,9 @@ public class MDCFilter implements WebFilter {
         try {
             return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
-                    .zipWith(userOrganizationHelper.getCurrentUserOrganizationId())
+                    .zipWith(userOrganizationHelper
+                            .getCurrentUserOrganizationId()
+                            .defaultIfEmpty(""))
                     .flatMap(tuple2 -> {
                         final Object principal = tuple2.getT1();
                         final String organizationId = tuple2.getT2();
@@ -74,7 +76,7 @@ public class MDCFilter implements WebFilter {
             contextMap.put(USER_EMAIL, user.getEmail());
         }
 
-        if (organizationId != null) {
+        if (StringUtils.hasLength(organizationId)) {
             contextMap.put(ORGANIZATION_ID, organizationId);
         }
 
