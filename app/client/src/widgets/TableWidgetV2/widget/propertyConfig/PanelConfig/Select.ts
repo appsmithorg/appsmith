@@ -72,7 +72,7 @@ export default {
       defaultValue: true,
       helpText:
         "Toggle to display same choices for new row and editing existing row in column",
-      label: "Same options in new row",
+      label: "Use top row values in new rows",
       controlType: "SWITCH",
       isBindProperty: true,
       isJSConvertible: true,
