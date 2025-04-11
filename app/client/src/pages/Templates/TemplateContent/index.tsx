@@ -117,6 +117,9 @@ interface TemplateContentProps {
   filterWithAllowPageImport?: boolean;
 }
 
+const AGENT_TEMPLATES_USE_CASE = "Agent";
+const AGENT_TEMPLATES_TITLE = "AI Agent";
+
 export function TemplateContent(props: TemplateContentProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
@@ -127,10 +130,20 @@ export function TemplateContent(props: TemplateContentProps) {
     .filter((template) =>
       filterWithAllowPageImport ? !!template.allowPageImport : true,
     )
+    // For agents, we only show the templates that have the use case "Agent".
+    // The "Agent" use case acts as a filter for use to just show the templates
+    // that are relevant to agents.
+    .filter((template) => {
+      if (isAiAgentFlowEnabled) {
+        return template.useCases.includes(AGENT_TEMPLATES_USE_CASE);
+      }
+
+      return true;
+    })
     // We are using AI Agent template for creating ai agent app,
     // so we are not showing it in the templates list.
     // TODO: Once we have a new entity for ai agent, we need to remove this filter.
-    .filter((template) => template.title !== "AI Agent");
+    .filter((template) => template.title !== AGENT_TEMPLATES_TITLE);
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;
