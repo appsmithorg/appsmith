@@ -554,6 +554,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,
       ),
+      { errorName: "InvalidDynamicPathBinding" },
     );
   });
 });
