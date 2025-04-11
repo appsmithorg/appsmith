@@ -25,6 +25,7 @@ import {
   Wrapper,
 } from "./StyledComponents";
 import FixedHeightTemplate from "../Template/FixedHeightTemplate";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 interface TemplateListProps {
   isForkingEnabled: boolean;
@@ -124,6 +125,7 @@ export function TemplateContent(props: TemplateContentProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
   const templates = useSelector(getSearchedTemplateList)
