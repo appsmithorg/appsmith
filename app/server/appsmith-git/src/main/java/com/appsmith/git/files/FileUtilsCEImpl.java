@@ -885,7 +885,12 @@ public class FileUtilsCEImpl implements FileInterface {
     protected Tuple2<GitResourceIdentity, Object> getGitResourceIdentity(Path baseRepoPath, String filePath) {
         Path path = baseRepoPath.resolve(filePath);
         GitResourceIdentity identity;
-        Object contents = fileOperations.readFile(path);
+        Object contents = null;
+
+        if (filePath.endsWith(JSON_EXTENSION)) {
+            contents = fileOperations.readFile(path);
+        }
+
         if (!filePath.contains("/")) {
             identity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, filePath, filePath);
         } else if (filePath.matches(DATASOURCE_DIRECTORY + "/.*")) {
