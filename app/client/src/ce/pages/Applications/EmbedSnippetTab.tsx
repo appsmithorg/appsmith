@@ -15,7 +15,6 @@ import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
 import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useIsCloudBillingEnabled } from "hooks";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import { ChromeExtensionBanner } from "ee/pages/Applications/ChromeExtensionBanner";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
@@ -58,7 +57,6 @@ export function ShareModal() {
     selectedMethod,
   );
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   return (
     <div className="flex flex-col gap-6">
@@ -116,7 +114,7 @@ export function ShareModal() {
 
       <PrivateEmbedRampModal />
 
-      {isAiAgentFlowEnabled && <ChromeExtensionBanner />}
+      <ChromeExtensionBanner />
 
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
@@ -219,11 +217,14 @@ export function EmbedSnippetTab({
 
   if (!isPublicApp) {
     return (
-      <PrivateEmbeddingContent
-        changeTab={changeTab}
-        isAppSettings={isAppSettings}
-        userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
-      />
+      <div className="flex flex-col gap-6">
+        <PrivateEmbeddingContent
+          changeTab={changeTab}
+          isAppSettings={isAppSettings}
+          userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
+        />
+        <ChromeExtensionBanner />
+      </div>
     );
   }
 
