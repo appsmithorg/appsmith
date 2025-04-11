@@ -2,6 +2,8 @@ name: Docker Base Image
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * MON"
   push:
     branches:
       - release

@@ -719,7 +719,6 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<GitResourceMap> constructGitResourceMapFromGitRepo(Path repositorySuffix, String refName) {
-        // TODO: check that we need to checkout to the ref
         Path repositoryPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
         return Mono.fromCallable(() -> fetchGitResourceMap(repositoryPath)).subscribeOn(scheduler);
     }

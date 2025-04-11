@@ -1480,7 +1480,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
         return repository.findByPageIds(unpublishedPages, optionalPermission).doOnNext(newAction -> {
             this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getUnpublishedAction());
-            this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getPublishedAction());
+            if (newAction.getPublishedAction() != null) {
+                this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getPublishedAction());
+            }
         });
     }
 

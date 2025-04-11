@@ -863,23 +863,6 @@ export class Table {
     return `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   }
 
-  public infiniteScrollLoadMoreRecords() {
-    // Scroll to the bottom of the virtual list to ensure the load more button is visible
-    cy.get(".t--widget-tablewidgetv2 .virtual-list")
-      .scrollTo("bottomLeft")
-      .then(() => {
-        // Wait for the load more button to be visible after scrolling
-        this.agHelper
-          .ScrollIntoView(this._loadMoreButton)
-          .should("be.visible")
-          .then(() => {
-            // Click the load more button once it's visible
-            this.agHelper.GetNClick(this._loadMoreButton, 0, true);
-          });
-      });
-    this.assertHelper.AssertNetworkStatus("@postExecute", 200);
-  }
-
   public FreezeColumn(direction: "left" | "right" | "" = "") {
     this.agHelper.GetNClick(this._freezeColumn(direction), 0, true);
   }

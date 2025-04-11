@@ -1,0 +1,358 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Performance Optimizer
+
+```yaml
+name: Performance Optimizer
+description: Analyzes code for performance issues and suggests improvements
+author: Cursor AI
+version: 1.0.0
+tags:
+  - performance
+  - optimization
+  - analysis
+activation:
+  always: true
+  event:
+    - file_change
+    - pull_request
+    - command
+triggers:
+  - file.modified
+  - pull_request.created
+  - pull_request.updated
+  - command: "optimize_performance"
+```
+
+## Rule Definition
+
+This rule analyzes code changes for potential performance issues and suggests optimizations.
+
+## Performance Analysis Logic
+
+```javascript
+// Main function to analyze code for performance issues
+function analyzePerformance(files, codebase) {
+  const issues = [];
+  const suggestions = [];
+  let score = 100; // Start with perfect score
+  
+  // Process each file
+  for (const file of files) {
+    const fileIssues = findPerformanceIssues(file, codebase);
+    if (fileIssues.length > 0) {
+      issues.push(...fileIssues);
+      
+      // Reduce score based on severity of issues
+      score -= fileIssues.reduce((total, issue) => total + issue.severity, 0);
+      
+      // Generate optimization suggestions
+      const fileSuggestions = generateOptimizationSuggestions(file, fileIssues, codebase);
+      suggestions.push(...fileSuggestions);
+    }
+  }
+  
+  // Ensure score doesn't go below 0
+  score = Math.max(0, score);
+  
+  return {
+    score,
+    issues,
+    suggestions,
+    summary: generatePerformanceSummary(score, issues, suggestions)
+  };
+}
+
+// Find performance issues in a file
+function findPerformanceIssues(file, codebase) {
+  const issues = [];
+  
+  // Check file based on its type
+  if (file.path.includes('.ts') || file.path.includes('.js')) {
+    issues.push(...findJavaScriptPerformanceIssues(file));
+  } else if (file.path.includes('.java')) {
+    issues.push(...findJavaPerformanceIssues(file));
+  } else if (file.path.includes('.css')) {
+    issues.push(...findCssPerformanceIssues(file));
+  }
+  
+  return issues;
+}
+
+// Find performance issues in JavaScript/TypeScript files
+function findJavaScriptPerformanceIssues(file) {
+  const issues = [];
+  const content = file.content;
+  
+  // Check for common JavaScript performance issues
+  
+  // 1. Nested loops with high complexity (O(n²) or worse)
+  if (/for\s*\([^)]*\)\s*\{[^}]*for\s*\([^)]*\)/g.test(content)) {
+    issues.push({
+      type: 'nested_loops',
+      lineNumber: findLineNumber(content, /for\s*\([^)]*\)\s*\{[^}]*for\s*\([^)]*\)/g),
+      description: 'Nested loops detected, which may cause O(n²) time complexity',
+      severity: 8,
+      suggestion: 'Consider refactoring to reduce time complexity, possibly using maps/sets'
+    });
+  }
+  
+  // 2. Large array operations without memoization
+  if (/\.map\(.*\.filter\(|\.filter\(.*\.map\(/g.test(content)) {
+    issues.push({
+      type: 'chained_array_operations',
+      lineNumber: findLineNumber(content, /\.map\(.*\.filter\(|\.filter\(.*\.map\(/g),
+      description: 'Chained array operations may cause performance issues with large datasets',
+      severity: 5,
+      suggestion: 'Consider combining operations or using a different data structure'
+    });
+  }
+  
+  // 3. Frequent DOM manipulations
+  if (/document\.getElement(s?)By|querySelector(All)?/g.test(content) && 
+      content.match(/document\.getElement(s?)By|querySelector(All)?/g).length > 5) {
+    issues.push({
+      type: 'frequent_dom_manipulation',
+      lineNumber: findLineNumber(content, /document\.getElement(s?)By|querySelector(All)?/g),
+      description: 'Frequent DOM manipulations can cause layout thrashing',
+      severity: 7,
+      suggestion: 'Batch DOM manipulations or use DocumentFragment'
+    });
+  }
+  
+  // 4. Memory leaks in event listeners
+  if (/addEventListener\(/g.test(content) && 
+      !/removeEventListener\(/g.test(content)) {
+    issues.push({
+      type: 'potential_memory_leak',
+      lineNumber: findLineNumber(content, /addEventListener\(/g),
+      description: 'Event listener without corresponding removal may cause memory leaks',
+      severity: 6,
+      suggestion: 'Add corresponding removeEventListener calls where appropriate'
+    });
+  }
+  
+  // Add more JavaScript-specific performance checks here
+  
+  return issues;
+}
+
+// Find performance issues in Java files
+function findJavaPerformanceIssues(file) {
+  const issues = [];
+  const content = file.content;
+  
+  // Check for common Java performance issues
+  
+  // 1. Inefficient string concatenation
+  if (/String.*\+= |String.*= .*\+ /g.test(content)) {
+    issues.push({
+      type: 'inefficient_string_concat',
+      lineNumber: findLineNumber(content, /String.*\+= |String.*= .*\+ /g),
+      description: 'Inefficient string concatenation in loops',
+      severity: 4,
+      suggestion: 'Use StringBuilder instead of string concatenation'
+    });
+  }
+  
+  // 2. Unclosed resources
+  if (/new FileInputStream|new Connection/g.test(content) &&
+      !/try\s*\([^)]*\)/g.test(content)) {
+    issues.push({
+      type: 'unclosed_resources',
+      lineNumber: findLineNumber(content, /new FileInputStream|new Connection/g),
+      description: 'Resources may not be properly closed',
+      severity: 7,
+      suggestion: 'Use try-with-resources to ensure proper resource closure'
+    });
+  }
+  
+  // Add more Java-specific performance checks here
+  
+  return issues;
+}
+
+// Find performance issues in CSS files
+function findCssPerformanceIssues(file) {
+  const issues = [];
+  const content = file.content;
+  
+  // Check for common CSS performance issues
+  
+  // 1. Overqualified selectors
+  if (/div\.[a-zA-Z0-9_-]+|ul\.[a-zA-Z0-9_-]+/g.test(content)) {
+    issues.push({
+      type: 'overqualified_selectors',
+      lineNumber: findLineNumber(content, /div\.[a-zA-Z0-9_-]+|ul\.[a-zA-Z0-9_-]+/g),
+      description: 'Overqualified selectors may impact rendering performance',
+      severity: 3,
+      suggestion: 'Use more efficient selectors, avoiding element type with class'
+    });
+  }
+  
+  // 2. Universal selectors
+  if (/\*\s*\{/g.test(content)) {
+    issues.push({
+      type: 'universal_selector',
+      lineNumber: findLineNumber(content, /\*\s*\{/g),
+      description: 'Universal selectors can be very slow, especially in large documents',
+      severity: 5,
+      suggestion: 'Replace universal selectors with more specific ones'
+    });
+  }
+  
+  // Add more CSS-specific performance checks here
+  
+  return issues;
+}
+
+// Find line number for a regex match
+function findLineNumber(content, regex) {
+  const match = content.match(regex);
+  if (!match) return 0;
+  
+  const index = content.indexOf(match[0]);
+  return content.substring(0, index).split('\n').length;
+}
+
+// Generate optimization suggestions based on issues found
+function generateOptimizationSuggestions(file, issues, codebase) {
+  const suggestions = [];
+  
+  for (const issue of issues) {
+    const suggestion = {
+      file: file.path,
+      issue: issue.type,
+      description: issue.suggestion,
+      lineNumber: issue.lineNumber,
+      code: issue.suggestion // This would be actual code in a real implementation
+    };
+    
+    suggestions.push(suggestion);
+  }
+  
+  return suggestions;
+}
+
+// Generate a summary of the performance analysis
+function generatePerformanceSummary(score, issues, suggestions) {
+  const criticalIssues = issues.filter(issue => issue.severity >= 7).length;
+  const majorIssues = issues.filter(issue => issue.severity >= 4 && issue.severity < 7).length;
+  const minorIssues = issues.filter(issue => issue.severity < 4).length;
+  
+  return {
+    score,
+    issues: {
+      total: issues.length,
+      critical: criticalIssues,
+      major: majorIssues,
+      minor: minorIssues
+    },
+    suggestions: suggestions.length,
+    recommendation: getPerformanceRecommendation(score)
+  };
+}
+
+// Get a recommendation based on the performance score
+function getPerformanceRecommendation(score) {
+  if (score >= 90) {
+    return "Code looks good performance-wise. Only minor optimizations possible.";
+  } else if (score >= 70) {
+    return "Some performance issues found. Consider addressing them before deploying.";
+  } else if (score >= 50) {
+    return "Significant performance issues detected. Optimizations strongly recommended.";
+  } else {
+    return "Critical performance issues found. The code may perform poorly in production.";
+  }
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('file.modified', (event) => {
+    const file = context.getFileContent(event.file.path);
+    const codebase = context.getCodebase();
+    return analyzePerformance([file], codebase);
+  });
+  
+  context.on('pull_request.created', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const codebase = context.getCodebase();
+    return analyzePerformance(files, codebase);
+  });
+  
+  context.on('pull_request.updated', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const codebase = context.getCodebase();
+    return analyzePerformance(files, codebase);
+  });
+  
+  context.registerCommand('optimize_performance', (args) => {
+    const filePath = args.file || context.getCurrentFilePath();
+    if (!filePath) {
+      return {
+        status: "error",
+        message: "No file specified"
+      };
+    }
+    
+    const file = context.getFileContent(filePath);
+    const codebase = context.getCodebase();
+    return analyzePerformance([file], codebase);
+  });
+}
+
+// Export functions
+module.exports = {
+  activate,
+  analyzePerformance,
+  findPerformanceIssues,
+  generateOptimizationSuggestions,
+  generatePerformanceSummary
+};
+```
+
+## When It Runs
+
+This rule can be triggered:
+- When code changes might impact performance
+- When a pull request is created or updated
+- When a developer runs the `optimize_performance` command in Cursor
+- Before deploying to production environments
+
+## Usage Example
+
+1. Make code changes to a file
+2. Run `optimize_performance` in Cursor
+3. Review the performance analysis
+4. Implement the suggested optimizations
+5. Re-run the analysis to confirm improvements
+
+## Performance Optimization Best Practices
+
+### JavaScript/TypeScript
+
+- Avoid nested loops when possible
+- Use appropriate data structures (Map, Set) for lookups
+- Minimize DOM manipulations
+- Use event delegation instead of multiple event listeners
+- Memoize expensive function calls
+- Use requestAnimationFrame for animations
+
+### Java
+
+- Use StringBuilder for string concatenation
+- Use try-with-resources for proper resource management
+- Avoid excessive object creation
+- Choose appropriate collections (ArrayList, HashMap) based on use-case
+- Use primitive types where possible instead of wrapper classes
+
+### CSS
+
+- Avoid universal selectors and deeply nested selectors
+- Minimize the use of expensive properties (box-shadow, border-radius, etc.)
+- Prefer class selectors over tag selectors
+- Use CSS containment where appropriate
