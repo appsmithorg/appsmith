@@ -16,6 +16,7 @@ import {
 } from "./helpers";
 import WidgetFactory from "../WidgetProvider/factory";
 import { Colors } from "constants/Colors";
+import * as FaroErrors from "instrumentation/sendFaroErrors";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -536,7 +537,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
 
-    const errorSpy = jest.spyOn(console, "error");
+    const errorSpy = jest.spyOn(FaroErrors, "captureException");
 
     captureInvalidDynamicBindingPath(baseDSL);
     expect(errorSpy).toHaveBeenCalledWith(
