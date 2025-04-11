@@ -80,6 +80,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2537,9 +2538,15 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     .fetchRemoteRepository(gitConnectDTO, gitAuth, baseArtifact, baseGitMetadata.getRepoName())
                     .flatMap(defaultBranch -> gitHandlingService.listReferences(jsonTransformationDTO, true))
                     .flatMap(refDTOs -> {
-                        List<String> branchesToCheckout = new ArrayList<>();
-                        List<GitRefDTO> gitRefDTOs = new ArrayList<>();
+                        ArtifactType artifactType = baseArtifact.getArtifactType();
+                        String workspaceId = baseArtifact.getWorkspaceId();
+                        String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
+                        String repoName = baseGitMetadata.getRepoName();
 
+                        ArtifactJsonTransformationDTO branchCheckoutDTO =
+                                new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
+
+                        Set<String> branchesToCheckout = new HashSet<>();
                         for (GitRefDTO gitRefDTO : refDTOs) {
                             if (!gitRefDTO.getRefName().startsWith(ORIGIN)) {
                                 continue;
@@ -2547,44 +2554,46 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                             // remove `origin/` prefix from the remote branch name
                             String branchName = gitRefDTO.getRefName().replace(ORIGIN, REMOTE_NAME_REPLACEMENT);
+                            branchesToCheckout.add(branchName);
 
-                            // The baseArtifact is cloned already, hence no need to check out it again
-                            if (!branchName.equals(baseGitMetadata.getBranchName())) {
-                                branchesToCheckout.add(branchName);
-                            }
+                            // TODO: base artifact wouldn't be cloned if from remote the default branch is changed,
+                            //  hence we need to check it out again if that is present in local.
+                            //  For this use case we are assuming that whatever default branch name is present
+                            //  in base metadata is default branch
                         }
 
-                        ArtifactJsonTransformationDTO branchCheckoutDTO = new ArtifactJsonTransformationDTO();
-                        branchCheckoutDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-                        branchCheckoutDTO.setArtifactType(baseArtifact.getArtifactType());
-                        branchCheckoutDTO.setRepoName(baseGitMetadata.getRepoName());
-                        branchCheckoutDTO.setRefType(jsonTransformationDTO.getRefType());
+                        // checkout the branch locally
+                        List<GitRefDTO> gitRefDTOs = new ArrayList<>();
+                        return gitArtifactHelper
+                                .getAllArtifactByBaseId(baseGitMetadata.getDefaultArtifactId(), artifactReadPermission)
+                                .flatMap(artifact -> {
+                                    GitArtifactMetadata branchMetadata = artifact.getGitArtifactMetadata();
+                                    if (branchMetadata == null
+                                            || RefType.tag.equals(branchMetadata.getRefType())
+                                            || !StringUtils.hasText(branchMetadata.getRefName())
+                                            || !branchesToCheckout.contains(branchMetadata.getRefName())) {
+                                        return Mono.just("");
+                                    }
 
-                        return Flux.fromIterable(branchesToCheckout)
-                                .flatMap(branchName -> gitArtifactHelper
-                                        .getArtifactByBaseIdAndBranchName(
-                                                baseGitMetadata.getDefaultArtifactId(),
-                                                branchName,
-                                                artifactReadPermission)
-                                        // checkout the branch locally
-                                        .flatMap(artifact -> {
-                                            // Add the locally checked out branch to the branchList
-                                            GitRefDTO gitRefDTO = new GitRefDTO();
-                                            gitRefDTO.setRefName(branchName);
+                                    // Add the locally checked out branch to the branchList
+                                    String branchName = branchMetadata.getRefName();
+                                    GitRefDTO gitRefDTO = new GitRefDTO();
+                                    gitRefDTO.setRefName(branchName);
 
-                                            // set the default branch flag if there's a match.
-                                            // This can happen when user has changed the default branch other
-                                            // than remote
-                                            gitRefDTO.setDefault(baseGitMetadata
-                                                    .getDefaultBranchName()
-                                                    .equals(branchName));
+                                    // set the default branch flag if there's a match.
+                                    // This can happen when user has changed the default branch other
+                                    // than remote
+                                    gitRefDTO.setDefault(baseGitMetadata
+                                            .getDefaultBranchName()
+                                            .equals(branchName));
 
-                                            gitRefDTOs.add(gitRefDTO);
-                                            branchCheckoutDTO.setRefName(branchName);
-                                            return gitHandlingService.checkoutRemoteReference(branchCheckoutDTO);
-                                        })
-                                        // Return empty mono when the branched defaultArtifact is not in db
-                                        .onErrorResume(throwable -> Mono.empty()))
+                                    gitRefDTOs.add(gitRefDTO);
+                                    branchCheckoutDTO.setRefName(branchName);
+                                    branchCheckoutDTO.setRefType(RefType.branch);
+                                    return gitHandlingService.checkoutRemoteReference(branchCheckoutDTO);
+                                })
+                                // Return empty mono when the branched defaultArtifact is not in db
+                                .onErrorResume(throwable -> Mono.empty())
                                 .then(Mono.just(gitRefDTOs));
                     });
         });
