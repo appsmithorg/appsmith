@@ -18,6 +18,8 @@ import WidgetFactory from "../WidgetProvider/factory";
 import { Colors } from "constants/Colors";
 import * as FaroErrors from "instrumentation/sendFaroErrors";
 
+jest.mock("instrumentation/sendFaroErrors");
+
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
     const testObject = {
@@ -202,6 +204,10 @@ describe("#getLocale", () => {
 });
 
 describe("#captureInvalidDynamicBindingPath", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("DSL should not be altered", () => {
     const baseDSL = {
       widgetName: "RadioGroup1",
@@ -537,10 +543,14 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
 
-    const errorSpy = jest.spyOn(FaroErrors, "captureException");
+    const mockCaptureException = jest.fn();
+
+    (FaroErrors.captureException as jest.Mock).mockImplementation(
+      mockCaptureException,
+    );
 
     captureInvalidDynamicBindingPath(baseDSL);
-    expect(errorSpy).toHaveBeenCalledWith(
+    expect(mockCaptureException).toHaveBeenCalledWith(
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,
       ),
