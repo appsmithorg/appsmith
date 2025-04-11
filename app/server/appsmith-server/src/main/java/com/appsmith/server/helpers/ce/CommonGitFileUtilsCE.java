@@ -519,7 +519,7 @@ public class CommonGitFileUtilsCE {
 
                     if (PluginType.REMOTE.equals(newAction.getPluginType())) {
                         try {
-                            Object file = objectMapper.readValue((String) data, Object.class);
+                            Object file = objectMapper.readValue(data.toString(), Object.class);
                             Map<String, Object> formData = objectMapper.convertValue(file, new TypeReference<>() {});
                             actionConfiguration.setFormData(formData);
 
