@@ -1,0 +1,225 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ---
+name: Auto Update Documentation
+description: Automatically updates Cursor documentation based on code changes
+author: Cursor AI
+version: 1.0.0
+tags:
+  - appsmith
+  - documentation
+  - maintenance
+  - automation
+activation:
+  always: true
+  events:
+    - pull_request
+    - push
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - push.after
+  - command.update_docs
+---
+
+# Auto Update Documentation Rule
+
+This rule ensures that the Cursor documentation files are kept up-to-date as the codebase evolves. It analyzes code changes and automatically updates the relevant documentation files.
+
+## Functionality
+
+- Monitors changes to key parts of the codebase
+- Updates the codebase map when structure changes
+- Updates technical details when implementation changes
+- Notifies developers when documentation needs manual review
+
+## Implementation
+
+```javascript
+const fs = require('fs');
+const path = require('path');
+
+// File paths
+const codebaseMapPath = '.cursor/appsmith-codebase-map.md';
+const technicalDetailsPath = '.cursor/appsmith-technical-details.md';
+const cursorIndexPath = '.cursor/index.mdc';
+
+/**
+ * Get modified files from a pull request or push
+ * @param {Object} event - The trigger event
+ * @returns {Array<string>} List of modified file paths
+ */
+function getModifiedFiles(event) {
+  // For actual implementation, use the appropriate API to get modified files
+  // This is a simplified version
+  if (event.type === 'pull_request') {
+    return cursor.git.getChangedFiles(event.pullRequest.base, event.pullRequest.head);
+  } else if (event.type === 'push') {
+    return cursor.git.getChangedFiles(event.push.before, event.push.after);
+  }
+  return [];
+}
+
+/**
+ * Checks if any structural files have been modified
+ * @param {Array<string>} files - List of modified files
+ * @returns {boolean} True if structural files were modified
+ */
+function hasStructuralChanges(files) {
+  const structuralPatterns = [
+    /^app\/[^\/]+\//,       // Top-level app directories
+    /package\.json$/,       // Package definitions
+    /pom\.xml$/,            // Maven project files
+    /^app\/client\/src\/reducers\//,  // Redux structure
+    /^app\/server\/appsmith-server\/src\/main\/java\/com\/appsmith\/server\//,  // Main server structure
+    /^\.cursor\/rules\/.*\.mdc$/,     // Cursor rule files
+    /^\.cursor\/.*\.mdc$/,            // Top-level Cursor rule files
+  ];
+  
+  return files.some(file => 
+    structuralPatterns.some(pattern => pattern.test(file))
+  );
+}
+
+/**
+ * Checks if any implementation files have been modified
+ * @param {Array<string>} files - List of modified files
+ * @returns {boolean} True if implementation files were modified
+ */
+function hasImplementationChanges(files) {
+  const implementationPatterns = [
+    /\.java$/,              // Java files
+    /\.ts(x)?$/,            // TypeScript files
+    /\.js(x)?$/,            // JavaScript files
+    /^app\/client\/src\/sagas\//, // Redux sagas
+    /^app\/server\/appsmith-server\/src\/main\/java\/com\/appsmith\/server\/services/,  // Server services
+    /^\.cursor\/rules\/.*\.mdc$/,     // Cursor rule files
+    /^\.cursor\/.*\.mdc$/,            // Top-level Cursor rule files
+  ];
+  
+  return files.some(file => 
+    implementationPatterns.some(pattern => pattern.test(file))
+  );
+}
+
+/**
+ * Checks if any rule files have been modified
+ * @param {Array<string>} files - List of modified files
+ * @returns {boolean} True if rule files were modified
+ */
+function hasRuleChanges(files) {
+  const rulePatterns = [
+    /^\.cursor\/rules\/.*\.mdc$/,  // Rules in the rules directory
+    /^\.cursor\/.*\.mdc$/         // Top-level rules
+  ];
+  
+  return files.some(file => 
+    rulePatterns.some(pattern => pattern.test(file))
+  );
+}
+
+/**
+ * Updates a documentation file with a notice
+ * @param {string} filePath - Path to the documentation file
+ * @param {string} message - Message to add to the file
+ */
+function updateDocumentationFile(filePath, message) {
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+    const timestamp = new Date().toISOString();
+    const updateNote = `\n\n> **Update Notice (${timestamp})**: ${message}`;
+    
+    // Add the update notice near the top, after any headers
+    const headerEndIndex = content.indexOf('\n\n');
+    if (headerEndIndex !== -1) {
+      content = content.substring(0, headerEndIndex + 2) + updateNote + content.substring(headerEndIndex + 2);
+      fs.writeFileSync(filePath, content);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`Failed to update ${filePath}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Main function to handle documentation updates
+ * @param {Object} event - The trigger event
+ */
+function handleDocumentationUpdates(event) {
+  const modifiedFiles = getModifiedFiles(event);
+  let updates = 0;
+  
+  if (hasStructuralChanges(modifiedFiles)) {
+    const updated = updateDocumentationFile(
+      codebaseMapPath,
+      'Structural changes detected in the codebase. This document may need to be updated to reflect the new structure.'
+    );
+    if (updated) updates++;
+  }
+  
+  if (hasImplementationChanges(modifiedFiles)) {
+    const updated = updateDocumentationFile(
+      technicalDetailsPath,
+      'Implementation changes detected in the codebase. This document may need to be updated to reflect the new implementation details.'
+    );
+    if (updated) updates++;
+  }
+  
+  if (hasRuleChanges(modifiedFiles)) {
+    const updated = updateDocumentationFile(
+      cursorIndexPath,
+      'Cursor rule changes detected. This document may need to be updated to reflect the new rules or rule updates.'
+    );
+    if (updated) updates++;
+  }
+  
+  return {
+    success: true,
+    data: {
+      filesUpdated: updates,
+      message: updates > 0 ? 'Documentation update notices added.' : 'No documentation updates needed.'
+    }
+  };
+}
+
+// Register the event handlers
+function activate() {
+  cursor.on('pull_request.created', handleDocumentationUpdates);
+  cursor.on('pull_request.updated', handleDocumentationUpdates);
+  cursor.on('push.after', handleDocumentationUpdates);
+  
+  cursor.registerCommand('update_docs', () => {
+    return handleDocumentationUpdates({ type: 'command' });
+  });
+}
+
+module.exports = {
+  activate,
+  handleDocumentationUpdates
+};
+```
+
+## Usage
+
+This rule runs automatically on pull request creation/updates and after pushes. You can also manually trigger it with the command `update_docs`.
+
+When it detects significant changes to the codebase structure or implementation, it will add update notices to the top of the relevant documentation files, indicating that they may need to be reviewed and updated.
+
+## Configuration
+
+No specific configuration is required. The rule automatically monitors key file patterns that indicate structural or implementation changes.
+
+## Example
+
+After a significant refactoring of the frontend directory structure:
