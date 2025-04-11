@@ -1301,13 +1301,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdElevation1() {
     const color = this.bdNeutral.clone();
 
-    if (this.seedIsVeryLight) {
-      color.oklch.l = 0.13;
-    }
-
-    if (!this.seedIsVeryLight) {
-      color.oklch.l -= 0.75;
-    }
+    color.oklch.l -= 0.39;
 
     return color;
   }
@@ -1315,7 +1309,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdElevation2() {
     const color = this.bdElevation1.clone();
 
-    color.oklch.l += 0.015;
+    color.oklch.l += 0.07;
 
     return color;
   }
@@ -1323,7 +1317,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdElevation3() {
     const color = this.bdElevation2.clone();
 
-    color.oklch.l += 0.035;
+    color.oklch.l += 0.05;
 
     return color;
   }
