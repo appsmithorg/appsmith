@@ -164,8 +164,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 "Action collections imported. artifactId {}, result: {}",
                 importableArtifact.getId(),
                 importActionCollectionResultDTO.getGist());
-        return newActionService
-                .updateActionsWithImportedCollectionIds(importActionCollectionResultDTO, importActionResultDTO)
+        Mono<Void> updatedActionReferencesMono = this.updateActionIdReferencesInActions(importActionResultDTO);
+        return updatedActionReferencesMono
+                .then(Mono.defer(() -> newActionService.updateActionsWithImportedCollectionIds(
+                        importActionCollectionResultDTO, importActionResultDTO)))
                 .flatMap(actionAndCollectionMapsDTO -> {
                     log.info("Updated actions with imported collection ids. artifactId {}", importableArtifact.getId());
                     // Updating the existing importableArtifact for git-sync
@@ -208,6 +210,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     log.error("Error while updating collection id to actions", error);
                     return Mono.error(error);
                 });
+    }
+
+    protected Mono<Void> updateActionIdReferencesInActions(ImportActionResultDTO importActionResultDTO) {
+        return Mono.empty().then();
     }
 
     /**

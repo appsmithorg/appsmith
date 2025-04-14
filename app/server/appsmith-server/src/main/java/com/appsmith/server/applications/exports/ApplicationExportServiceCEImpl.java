@@ -208,4 +208,21 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
             return combinedActionExportablesMono.flux();
         });
     }
+
+    @Override
+    public Flux<Void> updateArtifactComponentDependentExportables(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            Mono<? extends Artifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+        return exportableArtifactMono.flatMapMany(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+
+            Mono<Void> newActionExportablesMono = newActionExportableService.updateExportableEntities(
+                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+            return newActionExportablesMono.flux();
+        });
+    }
 }
