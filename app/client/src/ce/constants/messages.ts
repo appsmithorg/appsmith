@@ -2663,3 +2663,27 @@ export const ADD_CUSTOM_ACTION = () => "Add custom action";
 export const CONFIG_PROPERTY_COMMAND = () => "command";
 
 export const CUSTOM_ACTION_LABEL = () => "Custom Action";
+
+export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
+  "Too many login attempts. Please try again after some time.";
+export const AUTH_INVALID_CREDENTIALS = () =>
+  "Invalid credentials provided. Did you input the credentials correctly?";
+export const AUTH_UNAUTHORIZED = () => "Unauthorized access";
+export const AUTH_NOT_LOGGED_IN = () =>
+  "You are not logged in. Please sign in with the registered email ID or sign up";
+export const AUTH_RESET_PASSWORD_REQUEST_INVALID = () =>
+  'Cannot find an outstanding reset password request for this email. Please initiate a request via "forgot password" button to reset your password';
+export const AUTH_LOGIN_METHOD_NOT_SUPPORTED = () =>
+  "Login with this method is not supported.";
+export const AUTH_ACCOUNT_LOCKED = () =>
+  "Account temporarily locked due to multiple failed attempts. Please try again later.";
+export const AUTH_SESSION_INVALID = () =>
+  "User session is invalid. Please log out and log in again.";
+
+// Signup & Email verification
+export const EMAIL_VERIFICATION_NOT_ENABLED = () =>
+  "Email Verification not enabled";
+export const GOOGLE_RECAPTCHA_FAILED = () =>
+  "Google reCAPTCHA verification failed";
+export const PASSWORD_INSUFFICIENT_STRENGTH = () =>
+  "Insufficient password strength";

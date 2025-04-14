@@ -1,4 +1,4 @@
-import React, { type Ref } from "react";
+import React, { useMemo, type Ref } from "react";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
 import { LoadingIndicator } from "../../LoadingIndicator";
@@ -22,11 +22,18 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       tableSizes,
     } = useAppsmithTable();
 
-    useInfiniteScroll({
+    const { onItemsRendered } = useInfiniteScroll({
       rows,
       pageSize,
       loadMore: nextPageClick,
+      isLoading,
+      endOfData,
     });
+
+    const itemCount = useMemo(
+      () => Math.max(rows.length, pageSize),
+      [rows.length, pageSize],
+    );
 
     return (
       <div className="simplebar-content-wrapper">
@@ -34,8 +41,9 @@ const InfiniteScrollBodyComponent = React.forwardRef(
           hasMoreData={!endOfData}
           height={height}
           innerElementType={props.innerElementType}
-          itemCount={rows.length}
+          itemCount={itemCount}
           loadMore={nextPageClick}
+          onItemsRendered={onItemsRendered}
           outerRef={ref}
           pageSize={pageSize}
           rows={rows}

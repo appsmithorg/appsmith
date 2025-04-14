@@ -288,7 +288,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         return fsGitHandler
                 .resetToLastCommit(repoSuffix)
-                .then(commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+                .flatMap(resetFlag -> commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
                         artifactJsonTransformationDTO));
     }
 

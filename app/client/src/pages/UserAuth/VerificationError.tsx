@@ -14,6 +14,7 @@ import { useResendEmailVerification } from "./helpers";
 import type { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 const Body = styled.div`
   display: flex;
@@ -77,7 +78,7 @@ const VerificationError = (
       <Container testId="verification-error" title="">
         <Body>
           <Callout kind="error">
-            <Text kind={"body-m"}>{message}</Text>
+            <Text kind={"body-m"}>{getSafeErrorMessage(message || "")}</Text>
           </Callout>
         </Body>
         <Body>

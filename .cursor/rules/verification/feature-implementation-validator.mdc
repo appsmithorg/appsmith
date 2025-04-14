@@ -1,0 +1,744 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Feature Implementation Validator
+
+```yaml
+name: Feature Implementation Validator
+description: Validates that new features are completely and correctly implemented
+author: Cursor AI
+version: 1.0.0
+tags:
+  - feature
+  - implementation
+  - quality
+  - validation
+activation:
+  always: true
+  event:
+    - pull_request
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - pull_request.labeled:feature
+  - command: "validate_feature"
+```
+
+## Rule Definition
+
+This rule ensures that new feature implementations meet quality standards, including proper testing, documentation, and adherence to best practices.
+
+## Feature Validation Logic
+
+```javascript
+// Main function to validate feature implementation
+function validateFeature(files, codebase, pullRequest) {
+  const results = {
+    completeness: checkCompleteness(files, codebase),
+    tests: checkTestCoverage(files, codebase),
+    documentation: checkDocumentation(files, codebase),
+    bestPractices: checkBestPractices(files, codebase),
+    accessibility: checkAccessibility(files, codebase),
+    score: 0,
+    issues: [],
+    recommendations: []
+  };
+  
+  // Calculate overall score
+  results.score = calculateScore(results);
+  
+  // Generate issues and recommendations
+  results.issues = identifyIssues(results);
+  results.recommendations = generateRecommendations(results.issues);
+  
+  return {
+    ...results,
+    summary: generateSummary(results)
+  };
+}
+
+// Check if the feature implementation is complete
+function checkCompleteness(files, codebase) {
+  const results = {
+    hasImplementation: false,
+    hasTests: false,
+    hasDocumentation: false,
+    missingComponents: []
+  };
+  
+  // Check for implementation files
+  const implementationFiles = files.filter(file => {
+    return !file.path.includes('.test.') && 
+           !file.path.includes('.spec.') && 
+           !file.path.includes('docs/') && 
+           !file.path.endsWith('.md');
+  });
+  
+  results.hasImplementation = implementationFiles.length > 0;
+  
+  // Check for test files
+  const testFiles = files.filter(file => {
+    return file.path.includes('.test.') || file.path.includes('.spec.');
+  });
+  
+  results.hasTests = testFiles.length > 0;
+  
+  // Check for documentation
+  const docFiles = files.filter(file => {
+    return file.path.includes('docs/') || file.path.endsWith('.md');
+  });
+  
+  results.hasDocumentation = docFiles.length > 0;
+  
+  // Identify missing components
+  if (!results.hasImplementation) {
+    results.missingComponents.push('implementation');
+  }
+  
+  if (!results.hasTests) {
+    results.missingComponents.push('tests');
+  }
+  
+  if (!results.hasDocumentation) {
+    results.missingComponents.push('documentation');
+  }
+  
+  // Check for missing components based on feature type
+  const featureType = identifyFeatureType(files);
+  if (featureType === 'ui' && !hasUiComponents(files)) {
+    results.missingComponents.push('UI components');
+  }
+  
+  if (featureType === 'api' && !hasApiEndpoints(files)) {
+    results.missingComponents.push('API endpoints');
+  }
+  
+  return results;
+}
+
+// Check test coverage of the feature
+function checkTestCoverage(files, codebase) {
+  const results = {
+    hasFunctionalTests: false,
+    hasUnitTests: false,
+    hasIntegrationTests: false,
+    coverage: 0,
+    untested: []
+  };
+  
+  // Get all non-test implementation files
+  const implFiles = files.filter(file => {
+    return !file.path.includes('.test.') && 
+           !file.path.includes('.spec.') && 
+           !file.path.endsWith('.md');
+  });
+  
+  // Check for different test types
+  const testFiles = files.filter(file => {
+    return file.path.includes('.test.') || file.path.includes('.spec.');
+  });
+  
+  results.hasFunctionalTests = testFiles.some(file => 
+    file.content.includes('test(') && 
+    (file.content.includes('render(') || file.content.includes('fireEvent'))
+  );
+  
+  results.hasUnitTests = testFiles.some(file => 
+    file.content.includes('test(') && 
+    !file.content.includes('render(')
+  );
+  
+  results.hasIntegrationTests = testFiles.some(file => 
+    file.content.includes('describe(') && 
+    file.content.includes('integration')
+  );
+  
+  // Calculate rough coverage
+  let testedFunctions = 0;
+  let totalFunctions = 0;
+  
+  implFiles.forEach(file => {
+    const functions = extractFunctions(file.content);
+    totalFunctions += functions.length;
+    
+    functions.forEach(func => {
+      // Check if function is tested in any test file
+      const isTested = testFiles.some(testFile => 
+        testFile.content.includes(func.name)
+      );
+      
+      if (isTested) {
+        testedFunctions++;
+      } else {
+        results.untested.push(func.name);
+      }
+    });
+  });
+  
+  results.coverage = totalFunctions ? (testedFunctions / totalFunctions) * 100 : 0;
+  
+  return results;
+}
+
+// Check if documentation is complete
+function checkDocumentation(files, codebase) {
+  const results = {
+    hasUserDocs: false,
+    hasDeveloperDocs: false,
+    hasApiDocs: false,
+    missingDocs: []
+  };
+  
+  // Check for documentation files
+  const docFiles = files.filter(file => {
+    return file.path.includes('docs/') || file.path.endsWith('.md');
+  });
+  
+  // Check for user documentation
+  results.hasUserDocs = docFiles.some(file => 
+    file.content.includes('user') || 
+    file.content.includes('guide') || 
+    file.path.includes('user')
+  );
+  
+  // Check for developer documentation
+  results.hasDeveloperDocs = docFiles.some(file => 
+    file.content.includes('developer') || 
+    file.content.includes('implementation') || 
+    file.path.includes('dev')
+  );
+  
+  // Check for API documentation
+  results.hasApiDocs = docFiles.some(file => 
+    file.content.includes('API') || 
+    file.content.includes('endpoint') || 
+    file.path.includes('api')
+  );
+  
+  // Identify missing documentation
+  if (!results.hasUserDocs) {
+    results.missingDocs.push('user documentation');
+  }
+  
+  if (!results.hasDeveloperDocs) {
+    results.missingDocs.push('developer documentation');
+  }
+  
+  const hasApiCode = files.some(file => 
+    file.path.includes('api') || 
+    file.content.includes('axios') || 
+    file.content.includes('fetch')
+  );
+  
+  if (hasApiCode && !results.hasApiDocs) {
+    results.missingDocs.push('API documentation');
+  }
+  
+  return results;
+}
+
+// Check adherence to best practices
+function checkBestPractices(files, codebase) {
+  const results = {
+    followsNamingConventions: true,
+    followsArchitecture: true,
+    hasCleanCode: true,
+    violations: []
+  };
+  
+  // Check for naming convention violations
+  files.forEach(file => {
+    if (file.path.includes('.tsx') || file.path.includes('.jsx')) {
+      // React component should use PascalCase
+      const filename = file.path.split('/').pop().split('.')[0];
+      if (!/^[A-Z][a-zA-Z0-9]*$/.test(filename)) {
+        results.followsNamingConventions = false;
+        results.violations.push(`React component "${filename}" should use PascalCase`);
+      }
+    }
+    
+    if (file.path.includes('.java')) {
+      // Java classes should use PascalCase
+      const filename = file.path.split('/').pop().split('.')[0];
+      if (!/^[A-Z][a-zA-Z0-9]*$/.test(filename)) {
+        results.followsNamingConventions = false;
+        results.violations.push(`Java class "${filename}" should use PascalCase`);
+      }
+    }
+  });
+  
+  // Check for architectural violations
+  files.forEach(file => {
+    if (file.path.includes('app/client/components') && file.content.includes('fetch(')) {
+      results.followsArchitecture = false;
+      results.violations.push('Components should not make API calls directly, use services instead');
+    }
+    
+    if (file.path.includes('app/server/controllers') && file.content.includes('Repository')) {
+      results.followsArchitecture = false;
+      results.violations.push('Controllers should not access repositories directly, use services instead');
+    }
+  });
+  
+  // Check for clean code issues
+  files.forEach(file => {
+    // Check for long functions (more than 50 lines)
+    const functions = extractFunctions(file.content);
+    functions.forEach(func => {
+      if (func.lines > 50) {
+        results.hasCleanCode = false;
+        results.violations.push(`Function "${func.name}" is too long (${func.lines} lines)`);
+      }
+    });
+    
+    // Check for high complexity (nested conditionals)
+    if (/if\s*\([^)]*\)\s*\{[^{}]*if\s*\([^)]*\)/g.test(file.content)) {
+      results.hasCleanCode = false;
+      results.violations.push('Nested conditionals detected, consider refactoring');
+    }
+    
+    // Check for commented-out code
+    if (/\/\/\s*[a-zA-Z0-9]+.*\(.*\).*\{/g.test(file.content)) {
+      results.hasCleanCode = false;
+      results.violations.push('Commented-out code detected, remove or refactor');
+    }
+  });
+  
+  return results;
+}
+
+// Check accessibility (for UI features)
+function checkAccessibility(files, codebase) {
+  const results = {
+    hasA11yAttributes: false,
+    hasKeyboardNavigation: false,
+    hasSemanticsHtml: false,
+    issues: []
+  };
+  
+  // Only check UI files
+  const uiFiles = files.filter(file => {
+    return (file.path.includes('.tsx') || file.path.includes('.jsx')) && 
+           file.path.includes('component');
+  });
+  
+  if (uiFiles.length === 0) {
+    // Not a UI feature, mark as not applicable
+    return {
+      notApplicable: true
+    };
+  }
+  
+  // Check for accessibility attributes
+  results.hasA11yAttributes = uiFiles.some(file => 
+    file.content.includes('aria-') || 
+    file.content.includes('role=')
+  );
+  
+  if (!results.hasA11yAttributes) {
+    results.issues.push('No ARIA attributes found in UI components');
+  }
+  
+  // Check for keyboard navigation
+  results.hasKeyboardNavigation = uiFiles.some(file => 
+    file.content.includes('onKeyDown') || 
+    file.content.includes('onKeyPress')
+  );
+  
+  if (!results.hasKeyboardNavigation) {
+    results.issues.push('No keyboard navigation handlers found');
+  }
+  
+  // Check for semantic HTML
+  results.hasSemanticsHtml = uiFiles.some(file => 
+    file.content.includes('<nav') || 
+    file.content.includes('<main') || 
+    file.content.includes('<section') || 
+    file.content.includes('<article') || 
+    file.content.includes('<aside') || 
+    file.content.includes('<header') || 
+    file.content.includes('<footer')
+  );
+  
+  if (!results.hasSemanticsHtml) {
+    results.issues.push('No semantic HTML elements found');
+  }
+  
+  return results;
+}
+
+// Calculate overall score based on all checks
+function calculateScore(results) {
+  let score = 100;
+  
+  // Deduct for missing components
+  score -= results.completeness.missingComponents.length * 15;
+  
+  // Deduct for low test coverage
+  if (results.tests.coverage < 80) {
+    score -= (80 - results.tests.coverage) / 4;
+  }
+  
+  // Deduct for missing documentation
+  score -= results.documentation.missingDocs.length * 10;
+  
+  // Deduct for best practice violations
+  score -= results.bestPractices.violations.length * 5;
+  
+  // Deduct for accessibility issues (if applicable)
+  if (!results.accessibility.notApplicable) {
+    score -= results.accessibility.issues.length * 10;
+  }
+  
+  return Math.max(0, Math.round(score));
+}
+
+// Identify issues from all validation checks
+function identifyIssues(results) {
+  const issues = [];
+  
+  // Add missing components as issues
+  results.completeness.missingComponents.forEach(component => {
+    issues.push({
+      type: 'completeness',
+      severity: 'high',
+      message: `Missing ${component}`
+    });
+  });
+  
+  // Add test coverage issues
+  if (results.tests.coverage < 80) {
+    issues.push({
+      type: 'testing',
+      severity: 'high',
+      message: `Low test coverage (${Math.round(results.tests.coverage)}%)`
+    });
+  }
+  
+  results.tests.untested.forEach(func => {
+    issues.push({
+      type: 'testing',
+      severity: 'medium',
+      message: `Function "${func}" lacks tests`
+    });
+  });
+  
+  // Add documentation issues
+  results.documentation.missingDocs.forEach(doc => {
+    issues.push({
+      type: 'documentation',
+      severity: 'medium',
+      message: `Missing ${doc}`
+    });
+  });
+  
+  // Add best practice violations
+  results.bestPractices.violations.forEach(violation => {
+    issues.push({
+      type: 'best_practice',
+      severity: 'medium',
+      message: violation
+    });
+  });
+  
+  // Add accessibility issues
+  if (!results.accessibility.notApplicable) {
+    results.accessibility.issues.forEach(issue => {
+      issues.push({
+        type: 'accessibility',
+        severity: 'high',
+        message: issue
+      });
+    });
+  }
+  
+  return issues;
+}
+
+// Generate recommendations based on identified issues
+function generateRecommendations(issues) {
+  const recommendations = [];
+  
+  // Group issues by type
+  const issuesByType = {};
+  issues.forEach(issue => {
+    if (!issuesByType[issue.type]) {
+      issuesByType[issue.type] = [];
+    }
+    issuesByType[issue.type].push(issue);
+  });
+  
+  // Generate recommendations for completeness issues
+  if (issuesByType.completeness) {
+    recommendations.push({
+      type: 'completeness',
+      title: 'Complete the feature implementation',
+      steps: issuesByType.completeness.map(issue => issue.message.replace('Missing ', 'Add '))
+    });
+  }
+  
+  // Generate recommendations for testing issues
+  if (issuesByType.testing) {
+    recommendations.push({
+      type: 'testing',
+      title: 'Improve test coverage',
+      steps: [
+        'Write more unit tests for untested functions',
+        'Add integration tests for component interactions',
+        'Ensure all edge cases are covered'
+      ]
+    });
+  }
+  
+  // Generate recommendations for documentation issues
+  if (issuesByType.documentation) {
+    recommendations.push({
+      type: 'documentation',
+      title: 'Complete the documentation',
+      steps: issuesByType.documentation.map(issue => issue.message.replace('Missing ', 'Add '))
+    });
+  }
+  
+  // Generate recommendations for best practice issues
+  if (issuesByType.best_practice) {
+    recommendations.push({
+      type: 'best_practice',
+      title: 'Follow best practices',
+      steps: issuesByType.best_practice.map(issue => issue.message)
+    });
+  }
+  
+  // Generate recommendations for accessibility issues
+  if (issuesByType.accessibility) {
+    recommendations.push({
+      type: 'accessibility',
+      title: 'Improve accessibility',
+      steps: [
+        'Add appropriate ARIA attributes to UI components',
+        'Implement keyboard navigation for all interactive elements',
+        'Use semantic HTML elements to improve screen reader experience'
+      ]
+    });
+  }
+  
+  return recommendations;
+}
+
+// Generate a summary of the validation results
+function generateSummary(results) {
+  const score = results.score;
+  let status = '';
+  
+  if (score >= 90) {
+    status = 'EXCELLENT';
+  } else if (score >= 70) {
+    status = 'GOOD';
+  } else if (score >= 50) {
+    status = 'NEEDS IMPROVEMENT';
+  } else {
+    status = 'INCOMPLETE';
+  }
+  
+  return {
+    score,
+    status,
+    issues: results.issues.length,
+    critical: results.issues.filter(issue => issue.severity === 'high').length,
+    recommendations: results.recommendations.length,
+    message: generateSummaryMessage(score, status, results)
+  };
+}
+
+// Generate a summary message based on results
+function generateSummaryMessage(score, status, results) {
+  if (status === 'EXCELLENT') {
+    return 'Feature implementation meets or exceeds all quality standards. Good job!';
+  } else if (status === 'GOOD') {
+    return `Feature implementation is good overall but has ${results.issues.length} issues to address.`;
+  } else if (status === 'NEEDS IMPROVEMENT') {
+    const critical = results.issues.filter(issue => issue.severity === 'high').length;
+    return `Feature implementation needs significant improvement with ${critical} critical issues.`;
+  } else {
+    return 'Feature implementation is incomplete and does not meet minimum quality standards.';
+  }
+}
+
+// Helper function to extract functions from code
+function extractFunctions(content) {
+  const functions = [];
+  
+  // JavaScript/TypeScript functions
+  const jsMatches = content.match(/function\s+([a-zA-Z0-9_]+)\s*\([^)]*\)\s*\{/g) || [];
+  jsMatches.forEach(match => {
+    const name = match.match(/function\s+([a-zA-Z0-9_]+)/)[1];
+    const startIndex = content.indexOf(match);
+    const endIndex = findClosingBrace(content, startIndex + match.indexOf('{'));
+    const functionBody = content.substring(startIndex, endIndex + 1);
+    const lines = functionBody.split('\n').length;
+    
+    functions.push({ name, lines });
+  });
+  
+  // Java methods
+  const javaMatches = content.match(/public|private|protected\s+[a-zA-Z0-9_<>]+\s+([a-zA-Z0-9_]+)\s*\([^)]*\)\s*\{/g) || [];
+  javaMatches.forEach(match => {
+    const nameParts = match.match(/\s+([a-zA-Z0-9_]+)\s*\(/);
+    if (nameParts && nameParts[1]) {
+      const name = nameParts[1];
+      const startIndex = content.indexOf(match);
+      const endIndex = findClosingBrace(content, startIndex + match.indexOf('{'));
+      const functionBody = content.substring(startIndex, endIndex + 1);
+      const lines = functionBody.split('\n').length;
+      
+      functions.push({ name, lines });
+    }
+  });
+  
+  return functions;
+}
+
+// Helper function to find closing brace
+function findClosingBrace(content, openBraceIndex) {
+  let braceCount = 1;
+  for (let i = openBraceIndex + 1; i < content.length; i++) {
+    if (content[i] === '{') {
+      braceCount++;
+    } else if (content[i] === '}') {
+      braceCount--;
+      if (braceCount === 0) {
+        return i;
+      }
+    }
+  }
+  return content.length - 1;
+}
+
+// Helper function to identify feature type
+function identifyFeatureType(files) {
+  const uiFiles = files.filter(file => {
+    return (file.path.includes('.tsx') || file.path.includes('.jsx')) && 
+           (file.path.includes('component') || file.path.includes('page'));
+  });
+  
+  const apiFiles = files.filter(file => {
+    return (file.path.includes('controller') || file.path.includes('service')) && 
+           (file.path.includes('.java') || file.path.includes('.ts'));
+  });
+  
+  if (uiFiles.length > apiFiles.length) {
+    return 'ui';
+  } else if (apiFiles.length > 0) {
+    return 'api';
+  } else {
+    return 'other';
+  }
+}
+
+// Helper function to check for UI components
+function hasUiComponents(files) {
+  return files.some(file => {
+    return (file.path.includes('.tsx') || file.path.includes('.jsx')) && 
+           file.path.includes('component');
+  });
+}
+
+// Helper function to check for API endpoints
+function hasApiEndpoints(files) {
+  return files.some(file => {
+    return (file.path.includes('controller') || file.path.includes('route')) && 
+           (file.path.includes('.java') || file.path.includes('.ts'));
+  });
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('pull_request.created', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const codebase = context.getCodebase();
+    return validateFeature(files, codebase, event.pullRequest);
+  });
+  
+  context.on('pull_request.updated', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const codebase = context.getCodebase();
+    return validateFeature(files, codebase, event.pullRequest);
+  });
+  
+  context.on('pull_request.labeled:feature', (event) => {
+    const files = context.getPullRequestFiles(event.pullRequest.id);
+    const codebase = context.getCodebase();
+    return validateFeature(files, codebase, event.pullRequest);
+  });
+  
+  context.registerCommand('validate_feature', (args) => {
+    const prId = args.pullRequest;
+    if (!prId) {
+      return {
+        status: "error",
+        message: "No pull request specified"
+      };
+    }
+    
+    const files = context.getPullRequestFiles(prId);
+    const codebase = context.getCodebase();
+    const pullRequest = context.getPullRequest(prId);
+    return validateFeature(files, codebase, pullRequest);
+  });
+}
+
+// Export functions
+module.exports = {
+  activate,
+  validateFeature,
+  checkCompleteness,
+  checkTestCoverage,
+  checkDocumentation,
+  checkBestPractices,
+  checkAccessibility
+};
+```
+
+## When It Runs
+
+This rule can be triggered:
+- When a new feature pull request is created
+- When a pull request is updated
+- When a pull request is labeled with 'feature'
+- When a developer runs the `validate_feature` command in Cursor
+- Before merging feature implementation
+
+## Usage Example
+
+1. Create a pull request for a new feature
+2. Run `validate_feature --pullRequest=123` in Cursor
+3. Review the validation results
+4. Address any identified issues
+5. Re-run validation to confirm all issues are resolved
+
+## Feature Implementation Best Practices
+
+### Completeness Checklist
+
+- [ ] Implementation code
+- [ ] Comprehensive tests
+- [ ] User documentation
+- [ ] Developer documentation
+- [ ] API documentation (if applicable)
+
+### Testing Requirements
+
+- Unit tests for all functions/methods
+- Integration tests for component interactions
+- Functional tests for UI components
+- Edge case coverage
+- Minimum 80% test coverage
+
+### Documentation Guidelines
+
+- **User Documentation**: Explain how to use the feature
+- **Developer Documentation**: Explain how the feature is implemented
+- **API Documentation**: Document endpoints, parameters, and responses

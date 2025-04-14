@@ -11,7 +11,6 @@ import type SimpleBar from "simplebar-react";
 import type { TableSizes } from "../Constants";
 import { Row } from "../TableBodyCoreComponents/Row";
 import { EmptyRows } from "../cellComponents/EmptyCell";
-import LoadMoreButton from "../LoadMoreButton";
 
 type ExtendedListChildComponentProps = ListChildComponentProps & {
   listRef: React.RefObject<VariableSizeList>;
@@ -24,16 +23,8 @@ type ExtendedListChildComponentProps = ListChildComponentProps & {
 // Create a memoized row component using areEqual from react-window
 export const MemoizedRow = React.memo(
   (rowProps: ExtendedListChildComponentProps) => {
-    const {
-      data,
-      hasMoreData,
-      index,
-      listRef,
-      loadMore,
-      rowHeights,
-      rowNeedsMeasurement,
-      style,
-    } = rowProps;
+    const { data, index, listRef, rowHeights, rowNeedsMeasurement, style } =
+      rowProps;
 
     if (index < data.length) {
       const row = data[index];
@@ -50,8 +41,6 @@ export const MemoizedRow = React.memo(
           style={style}
         />
       );
-    } else if (index === data.length && hasMoreData) {
-      return <LoadMoreButton loadMore={loadMore} style={style} />;
     } else {
       return <EmptyRows rows={1} style={style} />;
     }
@@ -84,8 +73,6 @@ export interface BaseVirtualListProps {
   loadMore?: () => void;
   hasMoreData?: boolean;
 }
-
-const LOAD_MORE_BUTTON_ROW = 1;
 
 const BaseVirtualList = React.memo(function BaseVirtualList({
   hasMoreData,
@@ -159,7 +146,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
         2 * tableSizes.VERTICAL_PADDING
       }
       innerElementType={innerElementType}
-      itemCount={hasMoreData ? itemCount + LOAD_MORE_BUTTON_ROW : itemCount}
+      itemCount={itemCount}
       itemData={rows}
       itemSize={getItemSize}
       onItemsRendered={onItemsRendered}

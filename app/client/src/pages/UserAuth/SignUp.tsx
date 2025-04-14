@@ -65,6 +65,7 @@ import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 declare global {
   interface Window {
@@ -260,7 +261,9 @@ export function SignUp(props: SignUpFormProps) {
         <title>{htmlPageTitle}</title>
       </Helmet>
 
-      {showError && <Callout kind="error">{errorMessage}</Callout>}
+      {showError && (
+        <Callout kind="error">{getSafeErrorMessage(errorMessage)}</Callout>
+      )}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}

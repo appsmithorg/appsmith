@@ -4,5 +4,5 @@ export const SIDEBAR_CONSTANTS = {
     ICON: "var(--sizing-14)",
   },
   KEYBOARD_SHORTCUT: "b",
-  MOBILE_BREAKPOINT: 768,
+  MOBILE_BREAKPOINT: 720,
 } as const;

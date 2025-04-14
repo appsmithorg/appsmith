@@ -50,6 +50,7 @@ import {
 import { Classes } from "@blueprintjs/core";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import useGlobalProfile from "git/hooks/useGlobalProfile";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const nameValidator = (
   value: string,
@@ -94,6 +95,7 @@ export const Profile = () => {
   );
   const [authorName, setAuthorNameInState] = useState(gitConfig?.authorName);
   const [authorEmail, setAuthorEmailInState] = useState(gitConfig?.authorEmail);
+  const isAIAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   useEffect(() => {
     setIsSaving(false);
@@ -275,45 +277,49 @@ export const Profile = () => {
             </Flex>
           </FieldWrapper>
         </Flex>
-        <SubCategory kind="heading-s" renderAs="p">
-          Git author
-        </SubCategory>
-        <Flex flexDirection="column" gap="spaces-5">
-          <FieldWrapper>
-            {isFetching && <Loader className={Classes.SKELETON} />}
-            {!isFetching && (
-              <Input
-                data-testid="t--git-author-name"
-                isRequired
-                label={createMessage(AUTHOR_NAME)}
-                labelPosition="top"
-                onChange={setAuthorNameInState}
-                placeholder={createMessage(AUTHOR_NAME)}
-                renderAs="input"
-                size="md"
-                type="text"
-                value={authorName}
-              />
-            )}
-          </FieldWrapper>
-          <FieldWrapper>
-            {isFetching && <Loader className={Classes.SKELETON} />}
-            {!isFetching && (
-              <Input
-                data-testid="t--git-author-email"
-                isRequired
-                label={createMessage(AUTHOR_EMAIL)}
-                labelPosition="top"
-                onChange={setAuthorEmailInState}
-                placeholder={createMessage(AUTHOR_EMAIL)}
-                renderAs="input"
-                size="md"
-                type="text"
-                value={authorEmail}
-              />
-            )}
-          </FieldWrapper>
-        </Flex>
+        {!isAIAgentFlowEnabled && (
+          <SubCategory kind="heading-s" renderAs="p">
+            Git author
+          </SubCategory>
+        )}
+        {!isAIAgentFlowEnabled && (
+          <Flex flexDirection="column" gap="spaces-5">
+            <FieldWrapper>
+              {isFetching && <Loader className={Classes.SKELETON} />}
+              {!isFetching && (
+                <Input
+                  data-testid="t--git-author-name"
+                  isRequired
+                  label={createMessage(AUTHOR_NAME)}
+                  labelPosition="top"
+                  onChange={setAuthorNameInState}
+                  placeholder={createMessage(AUTHOR_NAME)}
+                  renderAs="input"
+                  size="md"
+                  type="text"
+                  value={authorName}
+                />
+              )}
+            </FieldWrapper>
+            <FieldWrapper>
+              {isFetching && <Loader className={Classes.SKELETON} />}
+              {!isFetching && (
+                <Input
+                  data-testid="t--git-author-email"
+                  isRequired
+                  label={createMessage(AUTHOR_EMAIL)}
+                  labelPosition="top"
+                  onChange={setAuthorEmailInState}
+                  placeholder={createMessage(AUTHOR_EMAIL)}
+                  renderAs="input"
+                  size="md"
+                  type="text"
+                  value={authorEmail}
+                />
+              )}
+            </FieldWrapper>
+          </Flex>
+        )}
         <SettingsButtonWrapper>
           <Button
             className="t--admin-settings-save-button"

@@ -249,11 +249,10 @@ public class GitApplicationControllerCE {
     public Mono<ResponseDTO<List<GitRefDTO>>> getReferences(
             @PathVariable String branchedApplicationId,
             @RequestParam(required = false, defaultValue = "branch") RefType refType,
-            @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
+            @RequestParam(required = false, defaultValue = "false") Boolean pruneRefs) {
         log.debug("Going to get branch list for application {}", branchedApplicationId);
         return centralGitService
-                .listBranchForArtifact(
-                        branchedApplicationId, ARTIFACT_TYPE, BooleanUtils.isTrue(pruneBranches), GIT_TYPE)
+                .listBranchForArtifact(branchedApplicationId, ARTIFACT_TYPE, BooleanUtils.isTrue(pruneRefs), GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 

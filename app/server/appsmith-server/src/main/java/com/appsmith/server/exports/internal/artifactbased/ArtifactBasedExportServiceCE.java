@@ -45,4 +45,10 @@ public interface ArtifactBasedExportServiceCE<T extends Artifact, U extends Arti
             MappedExportableResourcesDTO mappedResourcesDTO,
             Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
+
+    Flux<Void> updateArtifactComponentDependentExportables(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            Mono<? extends Artifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson);
 }

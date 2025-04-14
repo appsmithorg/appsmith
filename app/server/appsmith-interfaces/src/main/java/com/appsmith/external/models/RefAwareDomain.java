@@ -55,6 +55,8 @@ public abstract class RefAwareDomain extends GitSyncedDomain {
     public void sanitiseToExportDBObject() {
         this.setBaseId(null);
         this.setBranchName(null);
+        this.setRefType(null);
+        this.setRefName(null);
         super.sanitiseToExportDBObject();
     }
 

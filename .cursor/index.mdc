@@ -1,0 +1,97 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Appsmith Cursor Rules
+
+```yaml
+name: Appsmith Cursor Rules
+description: A comprehensive set of rules for Cursor AI to enhance development for Appsmith
+author: Cursor AI
+version: 1.0.0
+tags:
+  - appsmith
+  - development
+  - quality
+  - verification
+activation:
+  always: true
+  event:
+    - pull_request
+    - file_change
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - file.created
+  - file.modified
+  - command: "cursor_help"
+```
+
+## Overview
+
+This is the main entry point for Cursor AI rules for the Appsmith codebase. These rules help enforce consistent coding standards, verify bug fixes and features, generate appropriate tests, and optimize performance.
+
+## Directory Structure
+
+```
+.cursor/
+├── settings.json                  # Main configuration file
+├── docs/                          # Documentation
+│   ├── guides/                    # In-depth guides
+│   ├── references/                # Quick references
+│   └── practices/                 # Best practices
+├── rules/                         # Rule definitions
+│   ├── commit/                    # Commit-related rules
+│   ├── quality/                   # Code quality rules
+│   ├── testing/                   # Testing rules
+│   └── verification/              # Verification rules
+└── hooks/                         # Git hooks and scripts
+```
+
+## Available Rules
+
+### 1. Commit Rules
+
+- [Semantic PR Validator](rules/commit/semantic-pr-validator.mdc): Ensures pull request titles follow the Conventional Commits specification.
+- [Semantic PR Guidelines](rules/commit/semantic-pr.md): Guidelines for writing semantic commit messages.
+
+### 2. Quality Rules
+
+- [Performance Optimizer](rules/quality/performance-optimizer.mdc): Identifies performance bottlenecks in code and suggests optimizations.
+- [Pre-commit Quality Checks](rules/quality/pre-commit-checks.mdc): Quality checks that run before commits.
+
+### 3. Testing Rules
+
+- [Test Generator](rules/testing/test-generator.mdc): Analyzes code changes and generates appropriate test cases.
+
+### 4. Verification Rules
+
+- [Bug Fix Verifier](rules/verification/bug-fix-verifier.mdc): Guides developers through proper bug fixing steps.
+- [Feature Verifier](rules/verification/feature-verifier.mdc): Verifies that new features are properly implemented and tested.
+- [Feature Implementation Validator](rules/verification/feature-implementation-validator.mdc): Validates feature implementations.
+- [Workflow Validator](rules/verification/workflow-validator.mdc): Validates development workflows.
+
+## Documentation
+
+- [Guides](docs/guides/): In-depth guides on specific topics
+- [References](docs/references/): Quick reference documents
+- [Practices](docs/practices/): Best practices for development
+
+## Command Examples
+
+- `validate_pr_title` - Check if a PR title follows conventional commits format
+- `verify_bug_fix --pullRequest=123` - Verify a bug fix implementation
+- `generate_tests --file=src/utils/helpers.js` - Generate tests for a specific file
+- `optimize_performance --file=src/components/Table.tsx` - Analyze and optimize performance 
+- `validate_feature --pullRequest=123` - Validate a feature implementation
+- `cursor_help` - Display available commands and provide guidance
+
+## Configuration
+
+The behavior of these rules can be customized in the `.cursor/settings.json` file.
+
+## Activation
+
+To activate all rules, run `cursor_help` in the command palette. This will display available commands and provide guidance on using the rules for your specific task.

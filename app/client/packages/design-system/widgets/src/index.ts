@@ -36,6 +36,7 @@ export * from "./components/Calendar";
 export * from "./components/Datepicker";
 export * from "./components/TimeField";
 export * from "./components/MultiSelect";
+export * from "./components/CodeBlock";
 
 export * from "./utils";
 export * from "./hooks";

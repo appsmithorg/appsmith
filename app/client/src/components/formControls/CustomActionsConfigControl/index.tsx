@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import type { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
 import { Grid, Tabs, TabPanel, TabsList, Tab, Flex } from "@appsmith/ads";
@@ -7,6 +7,14 @@ import { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 import { API_EDITOR_TAB_TITLES } from "ee/constants/messages";
 import { createMessage } from "ee/constants/messages";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { getFormData } from "selectors/formSelectors";
+import { parseUrlForQueryParams, queryParamsRegEx } from "utils/ApiPaneUtils";
+import { autofill } from "redux-form";
+import { setActionProperty } from "actions/pluginActionActions";
+import type { Property } from "api/ActionAPI";
+import get from "lodash/get";
+import isEqual from "lodash/isEqual";
 
 enum CUSTOM_ACTION_TABS {
   HEADERS = "HEADERS",
@@ -37,7 +45,186 @@ const TabbedWrapper = styled(Tabs)`
   }
 `;
 
+// Helper function to check if two arrays of params are functionally equivalent
+const areParamsEquivalent = (
+  params1: Property[],
+  params2: Property[],
+): boolean => {
+  if (params1.length !== params2.length) return false;
+
+  // Create a map of key-value pairs for easier comparison
+  const paramsMap1 = params1.reduce(
+    (map, param) => {
+      if (param.key) map[param.key] = param.value;
+
+      return map;
+    },
+    {} as Record<string, unknown>,
+  );
+
+  const paramsMap2 = params2.reduce(
+    (map, param) => {
+      if (param.key) map[param.key] = param.value;
+
+      return map;
+    },
+    {} as Record<string, unknown>,
+  );
+
+  return isEqual(paramsMap1, paramsMap2);
+};
+
+// Hook to sync query parameters with URL path in both directions
+const useSyncParamsToPath = (formName: string, configProperty: string) => {
+  const dispatch = useDispatch();
+  const formValues = useSelector((state) => getFormData(state, formName));
+  // Refs to track the last values to prevent infinite loops
+  const lastPathRef = useRef("");
+  const lastParamsRef = useRef<Property[]>([]);
+
+  // Extract the sync logic into a separate function so we can call it imperatively
+  const syncParamsEffect = useCallback(() => {
+    if (!formValues || !formValues.values) return;
+
+    const values = formValues.values;
+    const actionId = values.id;
+
+    if (!actionId) return;
+
+    // Correctly access nested properties using lodash's get
+    const path = get(values, `${configProperty}.path`, "");
+    const queryParameters = get(values, `${configProperty}.params`, []);
+
+    // Early return if nothing has changed
+    if (
+      path === lastPathRef.current &&
+      isEqual(queryParameters, lastParamsRef.current)
+    ) {
+      return;
+    }
+
+    // Check if params have changed but path hasn't - indicating params tab update
+    const paramsChanged = !isEqual(queryParameters, lastParamsRef.current);
+    const pathChanged = path !== lastPathRef.current;
+
+    // Only one sync direction per effect execution to prevent loops
+
+    // Path changed - update params from path if needed
+    if (pathChanged) {
+      // Update refs to reflect current path value before parsing
+      lastPathRef.current = path;
+
+      // Check if we need to extract parameters from the path
+      const parsedParams = parseUrlForQueryParams(path);
+
+      // We want to update params in two cases:
+      // 1. URL has params and they differ from current params
+      // 2. URL has no params but we have params in the form (need to clear them)
+      const urlHasParams = path.includes("?");
+      const shouldClearParams =
+        !urlHasParams && queryParameters.some((p: Property) => p.key);
+      const shouldUpdateParams =
+        (parsedParams.length > 0 &&
+          !areParamsEquivalent(parsedParams, queryParameters)) ||
+        shouldClearParams;
+
+      if (shouldUpdateParams) {
+        // If URL has no params but we have params in the form, clear them
+        const updatedParams = shouldClearParams ? [] : parsedParams;
+
+        // Immediately update both the form and the action model
+        dispatch(autofill(formName, `${configProperty}.params`, updatedParams));
+
+        dispatch(
+          setActionProperty({
+            actionId: actionId,
+            propertyName: `${configProperty}.params`,
+            value: updatedParams,
+          }),
+        );
+
+        // Update ref to reflect the change we just made
+        lastParamsRef.current = updatedParams;
+      } else {
+        // Just update the ref without changing anything
+        lastParamsRef.current = [...queryParameters];
+      }
+
+      return; // Exit to prevent double updates
+    }
+
+    // Params changed - update path from params if needed
+    if (paramsChanged) {
+      // Update refs to reflect current params before rebuilding path
+      lastParamsRef.current = [...queryParameters];
+
+      // Extract base path without query parameters
+      const matchGroups = path.match(queryParamsRegEx) || [];
+      const currentPath = matchGroups[1] || "";
+
+      // Only build params string if we have any valid params
+      const validParams = queryParameters.filter((p: Property) => p.key);
+
+      // If we have valid params, build a new path with those params
+      if (validParams.length > 0) {
+        const paramsString = validParams
+          .map(
+            (p: Property, i: number) =>
+              `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
+          )
+          .join("");
+
+        // Create new path
+        const newPath = `${currentPath}${paramsString}`;
+
+        // Only update if path is actually different
+        if (path !== newPath) {
+          dispatch(autofill(formName, `${configProperty}.path`, newPath));
+          dispatch(
+            setActionProperty({
+              actionId: actionId,
+              propertyName: `${configProperty}.path`,
+              value: newPath,
+            }),
+          );
+
+          // Update ref to reflect the change we just made
+          lastPathRef.current = newPath;
+        }
+      } else {
+        // If no valid params, remove query part from path if it exists
+        if (path.includes("?")) {
+          const newPath = currentPath;
+
+          dispatch(autofill(formName, `${configProperty}.path`, newPath));
+          dispatch(
+            setActionProperty({
+              actionId: actionId,
+              propertyName: `${configProperty}.path`,
+              value: newPath,
+            }),
+          );
+
+          // Update ref to reflect the change we just made
+          lastPathRef.current = newPath;
+        } else {
+          // Just update the ref without changing anything
+          lastPathRef.current = path;
+        }
+      }
+    }
+  }, [formValues, dispatch, formName, configProperty]);
+
+  // Run effect on formValues change
+  useEffect(() => {
+    syncParamsEffect();
+  }, [syncParamsEffect, formValues]);
+};
+
 const TabbedControls = (props: ControlProps) => {
+  // Use the hook to sync params with path
+  useSyncParamsToPath(props.formName, props.configProperty);
+
   return (
     <TabbedWrapper defaultValue={CUSTOM_ACTION_TABS.HEADERS}>
       <TabsList>
