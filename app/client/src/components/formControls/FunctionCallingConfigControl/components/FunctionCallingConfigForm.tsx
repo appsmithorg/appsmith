@@ -42,6 +42,13 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
+const AnnotatedLabel = styled(Text)`
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--ads-v2-color-border-emphasis);
+  text-underline-offset: var(--ads-v2-spaces-1);
+`;
+
 const ConfigItems = styled.div`
   display: flex;
   flex-direction: column;
@@ -115,9 +122,9 @@ export const FunctionCallingConfigForm = ({
           content="Function calling allows the agent to intelligently fetch data, perform actions, and generate accurate, real-time responses."
         >
           <Flex alignItems="center" flexDirection="row" gap="spaces-2">
-            <Text isBold kind="heading-s" renderAs="p">
+            <AnnotatedLabel isBold kind="heading-s" renderAs="p">
               Functions
-            </Text>
+            </AnnotatedLabel>
             <Icon name="info" size="md" />
           </Flex>
         </Tooltip>
