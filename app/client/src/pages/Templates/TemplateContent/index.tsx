@@ -84,7 +84,7 @@ function TemplateList(props: TemplateListProps) {
         </>
       )}
       {showHorizontalLine && <HorizontalLine />}
-      {showBuildingBlocksSection && (
+      {showBuildingBlocksSection && buildingBlocks.length > 0 && (
         <>
           <SubheadingText kind="heading-m">
             {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.buildingBlocksTitle)}
