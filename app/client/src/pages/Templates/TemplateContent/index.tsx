@@ -83,7 +83,7 @@ function TemplateList(props: TemplateListProps) {
           </TemplateGrid>
         </>
       )}
-      {showHorizontalLine && <HorizontalLine />}
+      {showHorizontalLine && buildingBlocks.length > 0 && <HorizontalLine />}
       {showBuildingBlocksSection && buildingBlocks.length > 0 && (
         <>
           <SubheadingText kind="heading-m">
