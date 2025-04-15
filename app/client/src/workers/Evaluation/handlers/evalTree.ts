@@ -92,7 +92,6 @@ export async function evalTree(
   canvasWidgetsMeta = widgetsMeta;
   metaWidgetsCache = metaWidgets;
   let isNewTree = false;
-  let isUpdateCycle = false;
 
   try {
     (webworkerTelemetry.__spanAttributes as Attributes)["firstEvaluation"] =
@@ -188,9 +187,8 @@ export async function evalTree(
       dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
       staleMetaIds = dataTreeResponse.staleMetaIds;
+      isNewTree = true;
     } else {
-      isUpdateCycle = true;
-
       const tree = dataTreeEvaluator.getEvalTree();
 
       // during update cycles update actions to the dataTree directly
@@ -249,6 +247,7 @@ export async function evalTree(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
       staleMetaIds = updateResponse.staleMetaIds;
+      isNewTree = false;
     }
 
     dependencies = dataTreeEvaluator.inverseDependencies;
@@ -325,15 +324,13 @@ export async function evalTree(
           dataTreeEvaluator,
           completeEvalOrder,
           undefined,
-          isUpdateCycle,
+          true,
         );
       }
 
       return updates;
     },
   );
-
-  isUpdateCycle = false;
 
   const evalTreeResponse = {
     updates,
