@@ -16,6 +16,7 @@ import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useIsCloudBillingEnabled } from "hooks";
 import { ChromeExtensionBanner } from "ee/pages/Applications/ChromeExtensionBanner";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -57,6 +58,7 @@ export function ShareModal() {
     selectedMethod,
   );
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,18 +92,20 @@ export function ShareModal() {
         </div>
       )}
 
-      <Switch
-        data-testid={"show-navigation-bar-toggle"}
-        defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
-        onChange={() =>
-          embedSnippet.onChange({
-            showNavigationBar:
-              !embedSnippet.currentEmbedSetting.showNavigationBar,
-          })
-        }
-      >
-        {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-      </Switch>
+      {Boolean(isAiAgentFlowEnabled) === false && (
+        <Switch
+          data-testid={"show-navigation-bar-toggle"}
+          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
+          onChange={() =>
+            embedSnippet.onChange({
+              showNavigationBar:
+                !embedSnippet.currentEmbedSetting.showNavigationBar,
+            })
+          }
+        >
+          {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
+        </Switch>
+      )}
 
       {!isPublicApp && (
         <PrivateEmbedSettings
