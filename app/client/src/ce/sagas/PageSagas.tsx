@@ -153,6 +153,11 @@ import {
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
 
+export interface HandleWidgetNameUpdatePayload {
+  newName: string;
+  widgetName: string;
+}
+
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
@@ -952,6 +957,85 @@ export function* clonePageSaga(
   }
 }
 
+export class WidgetNameUpdateExtension {
+  // Singleton instance
+  private static instance = new WidgetNameUpdateExtension();
+
+  // The extension function storage
+  private extensionFunction:
+    | ((params: HandleWidgetNameUpdatePayload) => Generator)
+    | null = null;
+
+  // Private constructor
+  private constructor() {}
+
+  // Get the instance
+  static getInstance() {
+    return this.instance;
+  }
+
+  // Set the extension function
+  setExtension(fn: (params: HandleWidgetNameUpdatePayload) => Generator) {
+    this.extensionFunction = fn;
+  }
+
+  // Get the extension function
+  getExtension() {
+    return this.extensionFunction;
+  }
+}
+
+export function* handleWidgetNameUpdateDefault(
+  params: HandleWidgetNameUpdatePayload,
+) {
+  const { newName, widgetName } = params;
+
+  const layoutId: string | undefined = yield select(getCurrentLayoutId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
+
+  const request: UpdateWidgetNameRequest = {
+    newName: newName,
+    oldName: widgetName,
+    pageId,
+    // @ts-expect-error: layoutId can be undefined
+    layoutId,
+  };
+  const response: UpdateWidgetNameResponse = yield call(
+    PageApi.updateWidgetName,
+    request,
+  );
+
+  const isValidResponse: boolean = yield validateResponse(response);
+
+  if (isValidResponse) {
+    // @ts-expect-error: pageId can be undefined
+    yield updateCanvasWithDSL(response.data, pageId, layoutId);
+    yield put(updateWidgetNameSuccess());
+    // Add this to the page DSLs for entity explorer
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      payload: {
+        pageId: pageId,
+        dsl: response.data.dsl,
+        layoutId,
+      },
+    });
+    checkAndLogErrorsIfCyclicDependency(
+      (response.data as PageLayout).layoutOnLoadActionErrors,
+    );
+  }
+}
+
+export function* handleWidgetNameUpdate(params: HandleWidgetNameUpdatePayload) {
+  const extension = WidgetNameUpdateExtension.getInstance().getExtension();
+
+  if (extension) {
+    yield call(extension, params);
+  } else {
+    yield call(handleWidgetNameUpdateDefault, params);
+  }
+}
+
 /**
  * this saga do two things
  *
@@ -965,8 +1049,6 @@ export function* updateWidgetNameSaga(
 ) {
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
-    const layoutId: string | undefined = yield select(getCurrentLayoutId);
-    const pageId: string | undefined = yield select(getCurrentPageId);
     const getUsedNames: Record<string, true> = yield select(
       getUsedActionNames,
       "",
@@ -1056,37 +1138,10 @@ export function* updateWidgetNameSaga(
       // check if name is not conflicting with any
       // existing entity/api/queries/reserved words
       if (isNameValid(action.payload.newName, getUsedNames)) {
-        const request: UpdateWidgetNameRequest = {
+        yield call(handleWidgetNameUpdate, {
           newName: action.payload.newName,
-          oldName: widgetName,
-          // @ts-expect-error: pageId can be undefined
-          pageId,
-          // @ts-expect-error: layoutId can be undefined
-          layoutId,
-        };
-        const response: UpdateWidgetNameResponse = yield call(
-          PageApi.updateWidgetName,
-          request,
-        );
-        const isValidResponse: boolean = yield validateResponse(response);
-
-        if (isValidResponse) {
-          // @ts-expect-error: pageId can be undefined
-          yield updateCanvasWithDSL(response.data, pageId, layoutId);
-          yield put(updateWidgetNameSuccess());
-          // Add this to the page DSLs for entity explorer
-          yield put({
-            type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-            payload: {
-              pageId: pageId,
-              dsl: response.data.dsl,
-              layoutId,
-            },
-          });
-          checkAndLogErrorsIfCyclicDependency(
-            (response.data as PageLayout).layoutOnLoadActionErrors,
-          );
-        }
+          widgetName,
+        });
       } else {
         yield put({
           type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,

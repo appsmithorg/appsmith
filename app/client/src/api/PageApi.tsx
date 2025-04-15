@@ -9,6 +9,7 @@ import type {
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export interface FetchPageRequest {
   pageId: string;
@@ -135,10 +136,12 @@ export interface ClonePageRequest {
 }
 
 export interface UpdateWidgetNameRequest {
-  pageId: string;
+  pageId?: string;
   layoutId: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface GenerateTemplatePageRequest {
