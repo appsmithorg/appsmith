@@ -19,6 +19,7 @@ import { errorModifier } from "../errorModifier";
 import {
   generateOptimisedUpdatesAndSetPrevState,
   uniqueOrderUpdatePaths,
+  updateEvalProps,
 } from "../helpers";
 import DataStore from "../dataStore";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
@@ -91,6 +92,7 @@ export async function evalTree(
   canvasWidgetsMeta = widgetsMeta;
   metaWidgetsCache = metaWidgets;
   let isNewTree = false;
+  let isUpdateCycle = false;
 
   try {
     (webworkerTelemetry.__spanAttributes as Attributes)["firstEvaluation"] =
@@ -131,9 +133,8 @@ export async function evalTree(
         ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
+
       staleMetaIds = dataTreeResponse.staleMetaIds;
       isNewTree = true;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
@@ -184,11 +185,12 @@ export async function evalTree(
           (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
+
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
+      isUpdateCycle = true;
+
       const tree = dataTreeEvaluator.getEvalTree();
 
       // during update cycles update actions to the dataTree directly
@@ -241,9 +243,7 @@ export async function evalTree(
           ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
@@ -303,7 +303,9 @@ export async function evalTree(
         try {
           //for new tree send the whole thing, don't diff at all
           updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
-          dataTreeEvaluator?.setPrevState(dataTree);
+          const parsedUpdates = JSON.parse(updates);
+
+          dataTreeEvaluator?.setPrevState(parsedUpdates[0].rhs);
         } catch (e) {
           updates = "[]";
         }
@@ -322,12 +324,16 @@ export async function evalTree(
           dataTree,
           dataTreeEvaluator,
           completeEvalOrder,
+          undefined,
+          isUpdateCycle,
         );
       }
 
       return updates;
     },
   );
+
+  isUpdateCycle = false;
 
   const evalTreeResponse = {
     updates,
