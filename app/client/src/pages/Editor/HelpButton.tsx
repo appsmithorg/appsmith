@@ -38,6 +38,7 @@ import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -73,7 +74,7 @@ interface HelpItem {
   icon: string;
 }
 
-const HELP_MENU_ITEMS: HelpItem[] = [
+let HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: "book-line",
     label: "Documentation",
@@ -197,8 +198,12 @@ function HelpButton() {
     );
 
     if (docItem) {
-      docItem.link = "https://docs.appsmithai.com/";
+      docItem.link = DOCS_AI_BASE_URL;
     }
+
+    HELP_MENU_ITEMS = HELP_MENU_ITEMS.filter(
+      (item) => item.label !== "Report a bug",
+    );
   }
 
   useEffect(() => {

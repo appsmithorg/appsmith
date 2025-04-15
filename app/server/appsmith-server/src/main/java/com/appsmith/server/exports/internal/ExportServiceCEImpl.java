@@ -226,11 +226,16 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 artifactBasedExportService.generateArtifactComponentDependentExportables(
                         exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson);
 
+        Flux<Void> artifactComponentInterDependentExportedEntities =
+                artifactBasedExportService.updateArtifactComponentDependentExportables(
+                        exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson);
+
         // The idea with both these methods is that any amount of overriding should take care of whether they want to
         // zip the additional exportables along with these or sequence them, or combine them using any other logic
         return Flux.merge(artifactAgnosticExportedEntities)
                 .thenMany(Flux.merge(artifactSpecificExportedEntities))
                 .thenMany(Flux.merge(artifactComponentDependentExportedEntities))
+                .thenMany(Flux.defer(() -> artifactComponentInterDependentExportedEntities))
                 .then();
     }
 

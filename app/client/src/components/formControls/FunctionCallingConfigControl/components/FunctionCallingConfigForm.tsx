@@ -11,6 +11,7 @@ import {
   MenuSubTrigger,
   MenuTrigger,
   Text,
+  Tooltip,
 } from "@appsmith/ads";
 import React, { useCallback, useMemo, useState } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
@@ -39,6 +40,13 @@ const Header = styled.div`
   display: flex;
   gap: var(--ads-v2-spaces-4);
   justify-content: space-between;
+`;
+
+const AnnotatedLabel = styled(Text)`
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--ads-v2-color-border-emphasis);
+  text-underline-offset: var(--ads-v2-spaces-1);
 `;
 
 const ConfigItems = styled.div`
@@ -106,14 +114,25 @@ export const FunctionCallingConfigForm = ({
   return (
     <>
       <Header>
-        <Text isBold kind="heading-s" renderAs="p">
-          Function Calls
-        </Text>
+        <Tooltip
+          align={{
+            points: ["cr", "cl"],
+            offset: [0, 2],
+          }}
+          content="Function calling allows the agent to intelligently fetch data, perform actions, and generate accurate, real-time responses."
+        >
+          <Flex alignItems="center" flexDirection="row" gap="spaces-2">
+            <AnnotatedLabel isBold kind="heading-s" renderAs="p">
+              Functions
+            </AnnotatedLabel>
+            <Icon name="info" size="md" />
+          </Flex>
+        </Tooltip>
 
         <Menu>
           <MenuTrigger>
             <Button UNSAFE_width="110px" kind="secondary" startIcon="plus">
-              Add Function
+              Add function
             </Button>
           </MenuTrigger>
           <MenuContent align="end" loop width="235px">
@@ -122,7 +141,7 @@ export const FunctionCallingConfigForm = ({
               <MenuItem onSelect={() => history.push(queryAddURL({}))}>
                 <Flex alignItems="center" gap="spaces-2">
                   <Icon name="plus" size="md" />
-                  New Query
+                  New query
                 </Flex>
               </MenuItem>
               <MenuItem
@@ -131,14 +150,14 @@ export const FunctionCallingConfigForm = ({
                     createNewJSCollection(
                       pageId,
                       "AI_QUERY_FUNCTION_CALLING_CONFIG",
-                      "onToolCall",
+                      "onFunctionCall",
                     ),
                   )
                 }
               >
                 <Flex alignItems="center" gap="spaces-2">
                   <Icon name="plus" size="md" />
-                  New JS Object
+                  New JS function
                 </Flex>
               </MenuItem>
             </MenuGroup>

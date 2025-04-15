@@ -1,0 +1,144 @@
+{
+  "codebase": {
+    "structure": {
+      "frontend": "app/client",
+      "backend": "app/server",
+      "infrastructure": "deploy",
+      "workflows": ".github/workflows",
+      "scripts": "scripts"
+    },
+    "standards": {
+      "frontend": {
+        "testPatterns": ["*.test.ts", "*.test.tsx", "cypress/integration/**/*.spec.ts"],
+        "codeStyle": "airbnb",
+        "linters": ["eslint", "prettier"]
+      },
+      "backend": {
+        "testPatterns": ["**/*Test.java", "**/*Tests.java"],
+        "codeStyle": "google",
+        "linters": ["spotless"]
+      }
+    }
+  },
+  "development": {
+    "workflow": {
+      "bugFix": [
+        "Understand the bug report and reproduce locally",
+        "Identify root cause through code exploration",
+        "Write failing test(s) that demonstrate the bug",
+        "Implement fix that makes tests pass",
+        "Ensure all existing tests pass",
+        "Verify fix addresses original issue",
+        "Run pre-commit checks",
+        "Confirm GitHub workflows would pass"
+      ],
+      "feature": [
+        "Understand requirements and acceptance criteria",
+        "Design implementation approach",
+        "Create test cases (unit, integration, e2e as appropriate)",
+        "Implement feature",
+        "Verify feature meets acceptance criteria",
+        "Ensure performance and efficiency",
+        "Ensure code follows project standards",
+        "Run pre-commit checks",
+        "Confirm GitHub workflows would pass"
+      ]
+    },
+    "qualityChecks": {
+      "frontend": [
+        "Run unit tests: yarn run test:unit",
+        "Run type checking: yarn run check-types",
+        "Run linting: yarn run lint",
+        "Run cypress tests: npx cypress run",
+        "Check for cyclic dependencies: CI workflow"
+      ],
+      "backend": [
+        "Run unit tests",
+        "Run integration tests",
+        "Run spotless check",
+        "Verify no resource leaks"
+      ],
+      "general": [
+        "Verify no sensitive data is included",
+        "Ensure proper error handling",
+        "Check performance impact",
+        "Ensure backwards compatibility"
+      ]
+    },
+    "gitWorkflow": {
+      "branchNaming": {
+        "bugFix": "fix/fix-name",
+        "feature": "feature/feature-name"
+      },
+      "commitConventions": "Descriptive commit messages with issue reference",
+      "semanticPR": {
+        "enabled": true,
+        "titleFormat": "type(scope): description",
+        "validTypes": [
+          "feat", "fix", "docs", "style", "refactor", 
+          "perf", "test", "build", "ci", "chore", "revert"
+        ],
+        "scopeRequired": false,
+        "titleValidation": true,
+        "commitsValidation": false
+      }
+    }
+  },
+  "incrementalLearning": {
+    "enabled": true,
+    "patterns": [
+      "**/*.java",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.md",
+      "**/*.json"
+    ],
+    "storage": {
+      "codePatterns": true,
+      "testPatterns": true,
+      "buildPatterns": true,
+      "workflowPatterns": true
+    }
+  },
+  "testing": {
+    "frontend": {
+      "unit": {
+        "framework": "jest",
+        "command": "yarn run test:unit"
+      },
+      "integration": {
+        "framework": "cypress",
+        "command": "npx cypress run --spec <spec path> --browser chrome"
+      }
+    },
+    "backend": {
+      "unit": {
+        "framework": "junit",
+        "patterns": ["**/*Test.java"]
+      },
+      "integration": {
+        "framework": "junit",
+        "patterns": ["**/*IntegrationTest.java"]
+      }
+    }
+  },
+  "preCommit": {
+    "hooks": [
+      "Type checking",
+      "Linting",
+      "Unit tests",
+      "No sensitive data"
+    ]
+  },
+  "cicd": {
+    "workflows": [
+      "client-build.yml",
+      "server-build.yml",
+      "ci-test-limited.yml",
+      "client-unit-tests.yml", 
+      "server-integration-tests.yml"
+    ]
+  }
+} 

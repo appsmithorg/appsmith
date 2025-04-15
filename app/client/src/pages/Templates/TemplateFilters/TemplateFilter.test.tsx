@@ -12,6 +12,7 @@ import {
   unitTestMockTemplate,
   unitTestMockTemplateAllFilters,
 } from "../test_config";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 
 const mockStore = configureStore([]);
 
@@ -35,6 +36,13 @@ describe("<TemplateFilters />", () => {
           allFilters: unitTestMockTemplateAllFilters,
           templateSearchQuery: "",
           templates: [unitTestMockTemplate],
+        },
+        users: {
+          featureFlag: {
+            data: DEFAULT_FEATURE_FLAG_VALUE,
+            overriddenFlags: {},
+            isFetching: false,
+          },
         },
       },
     });

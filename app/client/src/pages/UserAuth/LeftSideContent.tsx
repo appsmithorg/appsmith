@@ -75,8 +75,7 @@ const QUOTE_FOR_AGENTS = {
   quote: `Our goal was to have an omni-channel AI system that could help our usersin every step of the journey. Appsmith serves as a command center for us to control the behavior of the agent. This is a competitive advantage. We're able to serve our customers much faster than our competitors`,
   author: "Shawn Lim",
   authorTitle: "VP, Platform & AI, Funding Societies",
-  authorImage:
-    "https://fundingsocieties.com/static/f3cfceda58aff31bf73d28ef401521f385d923907ae229b107489f831c9dd892.svg",
+  authorImage: "https://assets.appsmith.com/fundingsocieties-logo.svg",
 };
 
 function LeftSideContent() {

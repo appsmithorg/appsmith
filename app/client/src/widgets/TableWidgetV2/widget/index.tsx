@@ -921,11 +921,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
+      commitBatchMetaUpdates,
+      componentHeight,
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
+      infiniteScrollEnabled,
       pageNo,
       pageSize,
       primaryColumns = {},
+      pushBatchMetaUpdates,
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
@@ -958,8 +962,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     //check if necessary we are batching now updates
     // Check if tableData is modifed
     const isTableDataModified = this.props.tableData !== prevProps.tableData;
-
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
@@ -1038,6 +1040,20 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
         }
       }
+    }
+
+    // Reset widget state when infinite scroll is initially enabled
+    // This should come after all updateInfiniteScrollProperties are done
+    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
+      this.resetTableForInfiniteScroll();
+    }
+
+    // Reset widget state when height changes while infinite scroll is enabled
+    if (
+      infiniteScrollEnabled &&
+      prevProps.componentHeight !== componentHeight
+    ) {
+      this.resetTableForInfiniteScroll();
     }
 
     /*
@@ -3046,6 +3062,49 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  resetTableForInfiniteScroll = () => {
+    const {
+      infiniteScrollEnabled,
+      pushBatchMetaUpdates,
+      updateWidgetMetaProperty,
+    } = this.props;
+
+    if (infiniteScrollEnabled) {
+      // reset the cachedRows
+      const isAlreadyOnFirstPage = this.props.pageNo === 1;
+      const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
+
+      pushBatchMetaUpdates("cachedTableData", data);
+      pushBatchMetaUpdates("endOfData", false);
+
+      // Explicitly reset specific meta properties
+      updateWidgetMetaProperty("selectedRowIndex", undefined);
+      updateWidgetMetaProperty("selectedRowIndices", undefined);
+      updateWidgetMetaProperty("searchText", undefined);
+      updateWidgetMetaProperty("triggeredRowIndex", undefined);
+      updateWidgetMetaProperty("filters", []);
+      updateWidgetMetaProperty("sortOrder", {
+        column: "",
+        order: null,
+      });
+      updateWidgetMetaProperty("transientTableData", {});
+      updateWidgetMetaProperty("updatedRowIndex", -1);
+      updateWidgetMetaProperty("editableCell", defaultEditableCell);
+      updateWidgetMetaProperty("columnEditableCellValue", {});
+      updateWidgetMetaProperty("selectColumnFilterText", {});
+      updateWidgetMetaProperty("isAddRowInProgress", false);
+      updateWidgetMetaProperty("newRowContent", undefined);
+      updateWidgetMetaProperty("newRow", undefined);
+      updateWidgetMetaProperty("previousPageVisited", false);
+      updateWidgetMetaProperty("nextPageVisited", false);
+
+      // reset and reload page
+      if (!isAlreadyOnFirstPage) {
+        this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
+      }
+    }
+  };
 }
 
 export default TableWidgetV2;

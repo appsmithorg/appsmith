@@ -20,9 +20,8 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
-import derivedPropertyFns from "./derived";
-import { parseDerivedProperties } from "widgets/WidgetUtils";
 import isArray from "lodash/isArray";
+import derivedProperties from "./parseDerivedProperties";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -67,13 +66,11 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
-    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
-
     return {
-      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
-      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
-      selectedOptionValue: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValue}})()}}`,
-      selectedOptionLabel: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabel}})()}}`,
+      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
+      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
