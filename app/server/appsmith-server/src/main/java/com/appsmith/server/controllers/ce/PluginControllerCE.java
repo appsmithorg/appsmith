@@ -3,12 +3,14 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.configurations.ce.CloudServicesConfigCE;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.plugins.solutions.PluginTriggerSolution;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping(Url.PLUGIN_URL)
 @RequiredArgsConstructor
@@ -37,6 +40,8 @@ public class PluginControllerCE {
     protected final PluginService service;
 
     private final PluginTriggerSolution pluginTriggerSolution;
+
+    private final CloudServicesConfigCE cloudServicesConfig;
 
     @JsonView(Views.Public.class)
     @GetMapping
@@ -95,5 +100,27 @@ public class PluginControllerCE {
                         requestType,
                         serverWebExchange.getRequest().getHeaders())
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK, triggerResultDTO));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/upcoming-integrations")
+    public Mono<ResponseDTO<Map>> getUpcomingIntegrations() {
+        log.debug("Fetching upcoming integrations from external API");
+
+        String apiUrl = cloudServicesConfig.getBaseUrl() + "/api/v1/external-saas/upcoming-integrations";
+
+        return WebClientUtils.create()
+                .get()
+                .uri(apiUrl)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> new ResponseDTO<>(HttpStatus.OK, response))
+                .onErrorResume(error -> {
+                    log.warn("Error retrieving upcoming integrations from external service: {}", error.getMessage());
+                    return Mono.just(new ResponseDTO<>(
+                            HttpStatus.OK.value(),
+                            Map.of("integrations", List.of()),
+                            "Unable to fetch upcoming integrations at this time"));
+                });
     }
 }
