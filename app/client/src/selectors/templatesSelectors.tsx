@@ -28,7 +28,10 @@ const fuzzySearchOptions = {
 const AGENT_TEMPLATES_USE_CASE = "Agent";
 const AGENT_TEMPLATES_TITLE = "AI Agent";
 
-export const getTemplatesSelector = createSelector(
+export const getTemplatesSelector = (state: AppState) =>
+  state.ui.templates.templates;
+
+export const getTemplatesByFlagSelector = createSelector(
   (state: AppState) => state.ui.templates.templates,
   getIsAiAgentFlowEnabled,
   (templates, isAiAgentFlowEnabled) => {
@@ -124,7 +127,7 @@ export const getBuildingBlockExplorerCards = createSelector(
 );
 
 export const getFilteredTemplateList = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   getTemplateFilterSelector,
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
@@ -188,7 +191,7 @@ export const getSearchedTemplateList = createSelector(
 
 // Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   getDefaultPlugins,
   (templates, plugins) => {
     const datasourceFilters: Filter[] = [];
@@ -224,7 +227,7 @@ export const allTemplatesFiltersSelector = (state: AppState) =>
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   allTemplatesFiltersSelector,
   (templates, allTemplateFilters) => {
     const FUNCTIONS_FILTER = "functions";
