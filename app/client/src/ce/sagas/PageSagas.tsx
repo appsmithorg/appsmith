@@ -985,6 +985,19 @@ export class WidgetNameUpdateExtension {
   }
 }
 
+export function* updateWidgetNameAPISaga(
+  requestParams: UpdateWidgetNameRequest,
+) {
+  const response: UpdateWidgetNameResponse = yield call(
+    PageApi.updateWidgetName,
+    requestParams,
+  );
+
+  const isValidResponse: boolean = yield validateResponse(response);
+
+  return { response, isValidResponse };
+}
+
 export function* handleWidgetNameUpdateDefault(
   params: HandleWidgetNameUpdatePayload,
 ) {
@@ -1000,12 +1013,10 @@ export function* handleWidgetNameUpdateDefault(
     // @ts-expect-error: layoutId can be undefined
     layoutId,
   };
-  const response: UpdateWidgetNameResponse = yield call(
-    PageApi.updateWidgetName,
+  const { isValidResponse, response } = yield call(
+    updateWidgetNameAPISaga,
     request,
   );
-
-  const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
     // @ts-expect-error: pageId can be undefined
