@@ -311,7 +311,7 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.UPDATE_DATA_TREE_ERROR: {
         // Log to Sentry with additional context
-        Sentry.captureMessage(error.message);
+        captureException(error, { errorName: "UpdateDataTreeError" });
         // Log locally with error details
         log.error(`Evaluation Error: ${error.message}`, {
           type: error.type,
