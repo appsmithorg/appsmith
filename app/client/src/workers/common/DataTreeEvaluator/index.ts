@@ -1952,4 +1952,49 @@ export default class DataTreeEvaluator {
   clearLogs() {
     this.logs = [];
   }
+
+  generateOptimisedUpdatesAndSetPrevState(
+    dataTree: DataTree,
+    configTree: ConfigTree,
+    evalMetaUpdates: EvalMetaUpdates,
+    staleMetaIds: string[],
+    isUpdateCycle: boolean,
+  ): {
+    dataTree: DataTree;
+    configTree: ConfigTree;
+    evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
+  } {
+    // If this is an update cycle, apply updates directly to the previous state
+    if (isUpdateCycle) {
+      const prevState = this.getPrevState();
+
+      // Apply updates directly to the previous state using a mutative approach
+      for (const update of evalMetaUpdates) {
+        const { metaPropertyPath, value, widgetId } = update;
+
+        if (widgetId && metaPropertyPath) {
+          const fullPath = `${widgetId}.${metaPropertyPath.join(".")}`;
+
+          set(prevState, fullPath, value);
+        }
+      }
+
+      // Update the dataTree with the modified previous state
+      Object.assign(dataTree, prevState);
+
+      // Set the modified state as the new previous state
+      this.setPrevState(dataTree);
+    } else {
+      // For first tree, just set the state normally
+      this.setPrevState(dataTree);
+    }
+
+    return {
+      dataTree,
+      configTree,
+      evalMetaUpdates,
+      staleMetaIds,
+    };
+  }
 }
