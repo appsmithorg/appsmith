@@ -683,7 +683,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     .uri(apiUrl)
                     .retrieve()
                     .bodyToMono(Map.class)
-                    .map(response -> {
+                    .flatMap(response -> {
                         // Extract the integrations list from the response
                         if (response.containsKey("data")) {
                             List<Map<String, String>> integrations = new ArrayList<>();
@@ -693,14 +693,29 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                     integrations.add((Map<String, String>) item);
                                 }
                             }
-                            return integrations;
+                            return Mono.just(integrations);
+                        } else if (response.containsKey("responseMeta")) {
+                            Map<String, Object> responseMeta = (Map<String, Object>) response.get("responseMeta");
+                            if (responseMeta.containsKey("error")) {
+                                Map<String, Object> error = (Map<String, Object>) responseMeta.get("error");
+                                if (error.containsKey("message")) {
+                                    String errorMessage = (String) error.get("message");
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INSTANCE_REGISTRATION_FAILURE, errorMessage));
+                                }
+                            }
+                            return Mono.error(new RuntimeException("Unknown error in response metadata"));
                         }
-                        return List.<Map<String, String>>of();
+                        return Mono.just(List.<Map<String, String>>of());
                     })
                     .onErrorResume(error -> {
+                        if (error instanceof AppsmithException) {
+                            return Mono.error(error);
+                        }
                         log.warn(
                                 "Error retrieving upcoming integrations from external service: {}", error.getMessage());
-                        return Mono.just(List.<Map<String, String>>of());
+                        return Mono.error(
+                                new RuntimeException("Error retrieving upcoming integrations: " + error.getMessage()));
                     });
         });
     }

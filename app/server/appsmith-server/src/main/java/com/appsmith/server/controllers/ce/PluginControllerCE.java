@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.plugins.solutions.PluginTriggerSolution;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -108,6 +109,10 @@ public class PluginControllerCE {
         return service.getUpcomingIntegrations()
                 .map(integrations -> new ResponseDTO<>(HttpStatus.OK, integrations))
                 .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        log.warn("Cloud service error: {}", error.getMessage());
+                        return Mono.just(new ResponseDTO<>(HttpStatus.OK.value(), List.of(), error.getMessage()));
+                    }
                     log.warn("Error retrieving upcoming integrations from external service: {}", error.getMessage());
                     return Mono.just(new ResponseDTO<>(
                             HttpStatus.OK.value(), List.of(), "Unable to fetch upcoming integrations at this time"));
