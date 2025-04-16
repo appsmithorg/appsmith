@@ -69,14 +69,14 @@ class PluginsApi extends Api {
   static async fetchUpcomingIntegrations(): Promise<
     AxiosPromise<ApiResponse<UpcomingIntegration[]>>
   > {
-    return Api.get("/upcoming-integrations");
+    return Api.get(PluginsApi.url + "/upcoming-integrations");
   }
 
   static async fetchPremiumIntegrations(
     defaultIntegrations: PremiumIntegration[] = [],
   ): Promise<PremiumIntegration[]> {
     try {
-      const response = await Api.get("/upcoming-integrations");
+      const response = await Api.get(PluginsApi.url + "/upcoming-integrations");
 
       if (response.data.responseMeta.success && response.data.data.length > 0) {
         // Map API response to PremiumIntegration format
