@@ -63,9 +63,9 @@ function TableOrSpreadsheetDropdown() {
             return (
               <Option
                 data-testid="t--one-click-binding-table-selector--table"
+                disabled={option.disabled}
                 key={option.id}
                 value={option.value}
-                disabled={option.disabled}
               >
                 <DropdownOption
                   label={option.label}
