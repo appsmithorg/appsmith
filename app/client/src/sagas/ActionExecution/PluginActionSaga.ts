@@ -7,7 +7,6 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -170,6 +169,7 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import captureException from "instrumentation/sendFaroErrors";
 
 interface FilePickerInstumentationObject {
   numberOfFiles: number;
@@ -989,11 +989,12 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
 
   if (!collection) {
-    Sentry.captureException(
+    captureException(
       new Error(
         "Collection present in layoutOnLoadActions but no collection exists ",
       ),
       {
+        errorName: "MissingJSCollection",
         extra: {
           collectionId,
           actionId: pageAction.id,

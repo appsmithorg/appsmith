@@ -15,8 +15,10 @@ import {
   concatWithArray,
 } from "./helpers";
 import WidgetFactory from "../WidgetProvider/factory";
-import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
+import * as FaroErrors from "instrumentation/sendFaroErrors";
+
+jest.mock("instrumentation/sendFaroErrors");
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -202,6 +204,10 @@ describe("#getLocale", () => {
 });
 
 describe("#captureInvalidDynamicBindingPath", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("DSL should not be altered", () => {
     const baseDSL = {
       widgetName: "RadioGroup1",
@@ -278,7 +284,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
             label: "Default selected value",
-            // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -340,7 +345,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
-            // defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -449,7 +453,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
             label: "Default selected value",
-            // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -511,7 +514,6 @@ describe("#captureInvalidDynamicBindingPath", () => {
             label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
-            // defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -541,13 +543,18 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
 
-    const sentrySpy = jest.spyOn(Sentry, "captureException");
+    const mockCaptureException = jest.fn();
+
+    (FaroErrors.captureException as jest.Mock).mockImplementation(
+      mockCaptureException,
+    );
 
     captureInvalidDynamicBindingPath(baseDSL);
-    expect(sentrySpy).toHaveBeenCalledWith(
+    expect(mockCaptureException).toHaveBeenCalledWith(
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,
       ),
+      { errorName: "InvalidDynamicPathBinding" },
     );
   });
 });

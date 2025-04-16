@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { set } from "lodash";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
@@ -8,6 +7,7 @@ import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import captureException from "instrumentation/sendFaroErrors";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -53,7 +53,9 @@ function useRegisterFieldValidity({
           }
         }
       } catch (e) {
-        Sentry.captureException(e);
+        captureException(e, {
+          errorName: "JSONFormWidget_useRegisterFieldValidity",
+        });
       }
     }, 0);
   }, [isValid, fieldName, fieldType, error, clearErrors, setError]);

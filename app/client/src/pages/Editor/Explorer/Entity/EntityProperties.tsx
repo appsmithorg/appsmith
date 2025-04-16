@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 
 import { useDispatch, useSelector } from "react-redux";
-import * as Sentry from "@sentry/react";
 import type { AppState } from "ee/reducers";
 import classNames from "classnames";
 import styled from "styled-components";
@@ -177,4 +176,4 @@ export function EntityProperties() {
   );
 }
 
-export default Sentry.withProfiler(EntityProperties);
+export default EntityProperties;

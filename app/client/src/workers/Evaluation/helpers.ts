@@ -1,14 +1,16 @@
 import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
 import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
+import { applyChange, diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-
+import { create } from "mutative";
 export const fn_keys: string = "__fn_keys__";
+import { klona } from "klona/json";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 
 export const uniqueOrderUpdatePaths = (updatePaths: string[]) =>
   Array.from(new Set(updatePaths)).sort((a, b) => b.length - a.length);
@@ -180,30 +182,89 @@ const isLargeCollection = (val: any) => {
   return size > LARGE_COLLECTION_SIZE;
 };
 
-const getReducedDataTree = (
-  dataTree: DataTree,
+export const getReducedDataTrees = (
+  oldDataTree: DataTree,
+  newDataTree: DataTree,
   constrainedDiffPaths: string[],
-): DataTree => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withErrors = Object.keys(dataTree).reduce((acc: any, key: string) => {
-    const widgetValue = dataTree[key] as WidgetEntity;
+): { oldData: DataTree; newData: DataTree } => {
+  // Create base trees with error information
+  const oldWithErrors = Object.keys(oldDataTree).reduce(
+    (acc: Record<string, unknown>, key: string) => {
+      const widgetValue = oldDataTree[key] as WidgetEntity;
 
-    acc[key] = {
-      __evaluation__: {
-        errors: widgetValue.__evaluation__?.errors,
-      },
-    };
+      acc[key] = {
+        __evaluation__: {
+          errors: widgetValue.__evaluation__?.errors,
+        },
+      };
 
-    return acc;
-  }, {});
+      return acc;
+    },
+    {},
+  );
 
-  return constrainedDiffPaths.reduce((acc: DataTree, key: string) => {
-    set(acc, key, get(dataTree, key));
+  const newWithErrors = Object.keys(newDataTree).reduce(
+    (acc: Record<string, unknown>, key: string) => {
+      const widgetValue = newDataTree[key] as WidgetEntity;
 
-    return acc;
-  }, withErrors);
+      acc[key] = {
+        __evaluation__: {
+          errors: widgetValue.__evaluation__?.errors,
+        },
+      };
+
+      return acc;
+    },
+    {},
+  );
+
+  // Process each path
+  constrainedDiffPaths.forEach((path: string) => {
+    if (path.length === 0) return;
+
+    const pathParts = path.split(".");
+
+    while (pathParts.length > 0) {
+      if (pathParts.length === 1) {
+        const newValue = get(newDataTree, pathParts);
+        const oldValue = get(oldDataTree, pathParts);
+
+        if (newValue === undefined && oldValue === undefined) {
+          break;
+        }
+
+        if (newValue !== undefined && oldValue !== undefined) {
+          set(newWithErrors, pathParts, newValue);
+          set(oldWithErrors, pathParts, oldValue);
+          break;
+        }
+
+        newValue !== undefined
+          ? set(newWithErrors, pathParts, newValue)
+          : set(oldWithErrors, pathParts, oldValue);
+        break;
+      }
+
+      const newValue = get(newDataTree, pathParts);
+      const oldValue = get(oldDataTree, pathParts);
+
+      // found a defined ancestor
+      if (newValue !== undefined && oldValue !== undefined) {
+        set(newWithErrors, pathParts, newValue);
+        set(oldWithErrors, pathParts, oldValue);
+        break;
+      }
+
+      pathParts.pop();
+    }
+  });
+
+  return {
+    oldData: oldWithErrors as DataTree,
+    newData: newWithErrors as DataTree,
+  };
 };
+
 const generateDiffUpdates = (
   oldDataTree: DataTree,
   dataTree: DataTree,
@@ -212,9 +273,13 @@ const generateDiffUpdates = (
   const attachDirectly: Diff<DataTree, DataTree>[] = [];
   const attachLater: Diff<DataTree, DataTree>[] = [];
 
-  // we are reducing the data tree to only the paths that are being diffed
-  const oldData = getReducedDataTree(oldDataTree, constrainedDiffPaths);
-  const newData = getReducedDataTree(dataTree, constrainedDiffPaths);
+  // Get reduced data trees for both old and new states
+  const { newData, oldData } = getReducedDataTrees(
+    oldDataTree,
+    dataTree,
+    constrainedDiffPaths,
+  );
+
   const updates =
     diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
@@ -399,6 +464,7 @@ export const generateSerialisedUpdates = (
   mergeAdditionalUpdates?: any,
 ): {
   serialisedUpdates: string;
+  updates: Diff<DataTree, DataTree>[];
   error?: { type: string; message: string };
 } => {
   const updates = generateOptimisedUpdates(
@@ -417,10 +483,11 @@ export const generateSerialisedUpdates = (
   try {
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.
-    return { serialisedUpdates: serialiseToBigInt(removedLhs) };
+    return { serialisedUpdates: serialiseToBigInt(removedLhs), updates };
   } catch (error) {
     return {
       serialisedUpdates: "[]",
+      updates: [],
       error: {
         type: EvalErrorTypes.SERIALIZATION_ERROR,
         message: (error as Error).message,
@@ -429,28 +496,85 @@ export const generateSerialisedUpdates = (
   }
 };
 
-export const generateOptimisedUpdatesAndSetPrevState = (
+export function generateOptimisedUpdatesAndSetPrevState(
   dataTree: DataTree,
-  // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dataTreeEvaluator: any,
-  constrainedDiffPaths: string[],
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mergeAdditionalUpdates?: any,
-) => {
+  affectedNodePaths: string[],
+  additionalUpdates?: Diff<DataTree, DataTree>[],
+  isUpdateCycle?: boolean,
+): string {
   const { error, serialisedUpdates } = generateSerialisedUpdates(
     dataTreeEvaluator?.getPrevState() || {},
     dataTree,
-    constrainedDiffPaths,
-    mergeAdditionalUpdates,
+    affectedNodePaths,
+    additionalUpdates,
   );
 
   if (error && dataTreeEvaluator?.errors) {
     dataTreeEvaluator.errors.push(error);
   }
 
-  dataTreeEvaluator?.setPrevState(dataTree);
+  updatePrevState(
+    isUpdateCycle,
+    dataTreeEvaluator,
+    serialisedUpdates,
+    dataTree,
+  );
 
   return serialisedUpdates;
-};
+}
+
+export function updatePrevState(
+  isUpdateCycle: boolean | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dataTreeEvaluator: any,
+  serialisedUpdates: string,
+  dataTree: DataTree,
+): void {
+  const updates = JSON.parse(serialisedUpdates);
+
+  if (isUpdateCycle) {
+    const updatedState = create(dataTreeEvaluator?.getPrevState(), (draft) => {
+      updates.forEach((update: Diff<DataTree, DataTree>) => {
+        try {
+          applyChange(draft, undefined, update);
+        } catch (e) {
+          const error = e as Error;
+
+          // Push error to dataTreeEvaluator.errors with just the error message
+          if (dataTreeEvaluator?.errors) {
+            dataTreeEvaluator.errors.push({
+              type: EvalErrorTypes.UPDATE_DATA_TREE_ERROR,
+              message: error.message,
+            });
+          }
+        }
+      });
+    });
+
+    dataTreeEvaluator?.setPrevState(updatedState);
+  } else {
+    dataTreeEvaluator?.setPrevState(dataTree);
+  }
+}
+
+export function updateEvalProps(dataTreeEvaluator: DataTreeEvaluator) {
+  if (!dataTreeEvaluator) return null;
+
+  const evalProps = dataTreeEvaluator.evalProps;
+
+  return create(dataTreeEvaluator.evalTree, (draft) => {
+    for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
+      if (!entityEvalProps.__evaluation__) continue;
+
+      set(
+        draft[entityName],
+        "__evaluation__",
+        klona({
+          errors: entityEvalProps.__evaluation__.errors,
+        }),
+      );
+    }
+  });
+}

@@ -10,7 +10,7 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
@@ -131,10 +131,13 @@ class TabControl extends BaseControl<ControlProps, State> {
 
         return parsedData;
       } catch (error) {
-        Sentry.captureException({
-          message: "Tab Migration Failed",
-          oldData: this.props.propertyValue,
-        });
+        captureException(
+          {
+            message: "Tab Migration Failed",
+            oldData: this.props.propertyValue,
+          },
+          { errorName: "TabMigrationError" },
+        );
       }
     } else {
       return this.props.propertyValue;

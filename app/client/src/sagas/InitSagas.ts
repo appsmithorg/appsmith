@@ -20,7 +20,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "ee/actions/applicationActions";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
@@ -93,6 +92,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import { validateSessionToken } from "utils/SessionUtils";
+import captureException from "instrumentation/sendFaroErrors";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -278,10 +278,12 @@ export function* getInitResponses({
       ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
       shouldInitialiseUserDetails,
     );
-    Sentry.captureMessage(
-      `consolidated api failure for ${JSON.stringify(
-        params,
-      )} errored message response ${e}`,
+    captureException(
+      new Error(`consolidated api failure for ${JSON.stringify(params)}`),
+      {
+        errorName: "ConsolidatedApiError",
+        extra: { error: e },
+      },
     );
     throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
@@ -372,7 +374,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
 
     if (e instanceof AppEngineApiError) return;
 
-    Sentry.captureException(e);
+    captureException(e, { errorName: "AppEngineError" });
     yield put(safeCrashAppRequest());
   } finally {
     endSpan(rootSpan);
@@ -469,7 +471,7 @@ function* eagerPageInitSaga() {
   } catch (error) {
     // Log error but don't block the rest of the initialization
     log.error("Error validating session token:", error);
-    Sentry.captureException(error);
+    captureException(error, { errorName: "SessionValidationError" });
   }
 
   const url = window.location.pathname;

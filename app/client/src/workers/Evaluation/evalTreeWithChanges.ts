@@ -1,6 +1,5 @@
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
-import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
 import type {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
@@ -13,9 +12,12 @@ import {
   generateOptimisedUpdatesAndSetPrevState,
   getNewDataTreeUpdates,
   uniqueOrderUpdatePaths,
+  updateEvalProps,
 } from "./helpers";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import type { Diff } from "deep-diff";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",
@@ -104,6 +106,8 @@ export const evaluateAndGenerateResponse = (
       {},
       dataTreeEvaluator,
       [],
+      undefined,
+      false,
     );
 
     defaultResponse.updates = updates;
@@ -126,12 +130,7 @@ export const evaluateAndGenerateResponse = (
     unEvalUpdates,
   );
 
-  const dataTree = makeEntityConfigsAsObjProperties(
-    dataTreeEvaluator.evalTree,
-    {
-      evalProps: dataTreeEvaluator.evalProps,
-    },
-  );
+  const dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
   /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
   defaultResponse.evalMetaUpdates = JSON.parse(
@@ -145,7 +144,8 @@ export const evaluateAndGenerateResponse = (
   const additionalUpdates = getNewDataTreeUpdates(
     additionalPathsAddedAsUpdates,
     dataTree,
-  );
+  ) as Diff<DataTree, DataTree>[];
+
   // the affected paths is a combination of the eval order and the uneval updates
   // we use this collection to limit the diff between the old and new data tree
   const affectedNodePaths = getAffectedNodesInTheDataTree(
@@ -153,12 +153,15 @@ export const evaluateAndGenerateResponse = (
     evalOrder,
   );
 
-  defaultResponse.updates = generateOptimisedUpdatesAndSetPrevState(
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
     affectedNodePaths,
     additionalUpdates,
+    true,
   );
+
+  defaultResponse.updates = updates;
   dataTreeEvaluator.undefinedEvalValuesMap =
     dataTreeEvaluator.undefinedEvalValuesMap || {};
 

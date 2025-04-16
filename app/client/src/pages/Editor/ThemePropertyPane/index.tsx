@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import * as Sentry from "@sentry/react";
 import { last } from "lodash";
 
 import ThemeEditor from "./ThemeEditor";
@@ -47,4 +46,4 @@ export function ThemePropertyPane() {
 
 ThemePropertyPane.displayName = "ThemePropertyPane";
 
-export default Sentry.withProfiler(ThemePropertyPane);
+export default ThemePropertyPane;

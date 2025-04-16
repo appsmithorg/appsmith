@@ -1,5 +1,5 @@
 import type { AppState } from "ee/reducers";
-import * as Sentry from "@sentry/react";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -548,6 +548,6 @@ const mapStateToProps = (
   };
 };
 
-const EvaluatedValuePopupWrapper = Sentry.withProfiler(
-  connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),
+const EvaluatedValuePopupWrapper = connect(mapStateToProps)(
+  EvaluatedValuePopupWrapperClass,
 );

@@ -1,7 +1,6 @@
 import { last } from "lodash";
 import classNames from "classnames";
 import styled from "styled-components";
-import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -246,4 +245,4 @@ export function ThemeCard(props: ThemeCard) {
 
 ThemeCard.displayName = "ThemeCard";
 
-export default Sentry.withProfiler(ThemeCard);
+export default ThemeCard;

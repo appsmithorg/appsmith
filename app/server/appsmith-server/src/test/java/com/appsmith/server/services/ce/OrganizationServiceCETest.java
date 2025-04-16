@@ -310,6 +310,7 @@ class OrganizationServiceCETest {
 
         Organization organization = new Organization();
         organization.setId(UUID.randomUUID().toString());
+        organization.setSlug(UUID.randomUUID().toString());
         OrganizationConfiguration config = new OrganizationConfiguration();
         config.setFeaturesWithPendingMigration(new HashMap<>());
         organization.setOrganizationConfiguration(config);
@@ -333,6 +334,7 @@ class OrganizationServiceCETest {
 
         Organization organization = new Organization();
         organization.setId(UUID.randomUUID().toString());
+        organization.setSlug(UUID.randomUUID().toString());
         OrganizationConfiguration config = new OrganizationConfiguration();
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
         config.setFeaturesWithPendingMigration(featureMigrationTypeMap);
@@ -361,6 +363,7 @@ class OrganizationServiceCETest {
 
         Organization organization = new Organization();
         organization.setId(UUID.randomUUID().toString());
+        organization.setSlug(UUID.randomUUID().toString());
         OrganizationConfiguration config = new OrganizationConfiguration();
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
         config.setFeaturesWithPendingMigration(featureMigrationTypeMap);

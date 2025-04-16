@@ -15,6 +15,7 @@ import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
 import { createSelector } from "reselect";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
@@ -24,8 +25,36 @@ const fuzzySearchOptions = {
   distance: 100,
 };
 
+const AGENT_TEMPLATES_USE_CASE = "Agent";
+const AGENT_TEMPLATES_TITLE = "AI Agent";
+
 export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
+
+export const getTemplatesByFlagSelector = createSelector(
+  (state: AppState) => state.ui.templates.templates,
+  getIsAiAgentFlowEnabled,
+  (templates, isAiAgentFlowEnabled) => {
+    // For agents, we only show the templates that have the use case "Agent".
+    // The "Agent" use case acts as a filter for use to just show the templates
+    // that are relevant to agents.
+    return (
+      templates
+        .filter((template) => {
+          if (isAiAgentFlowEnabled) {
+            return template.useCases.includes(AGENT_TEMPLATES_USE_CASE);
+          }
+
+          return true;
+        })
+        // We are using AI Agent template for creating ai agent app,
+        // so we are not showing it in the templates list.
+        // TODO: Once we have a new entity for ai agent, we need to remove this filter.
+        .filter((template) => template.title !== AGENT_TEMPLATES_TITLE)
+    );
+  },
+);
+
 export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
@@ -98,7 +127,7 @@ export const getBuildingBlockExplorerCards = createSelector(
 );
 
 export const getFilteredTemplateList = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   getTemplateFilterSelector,
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
@@ -162,7 +191,7 @@ export const getSearchedTemplateList = createSelector(
 
 // Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   getDefaultPlugins,
   (templates, plugins) => {
     const datasourceFilters: Filter[] = [];
@@ -198,7 +227,7 @@ export const allTemplatesFiltersSelector = (state: AppState) =>
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
-  getTemplatesSelector,
+  getTemplatesByFlagSelector,
   allTemplatesFiltersSelector,
   (templates, allTemplateFilters) => {
     const FUNCTIONS_FILTER = "functions";

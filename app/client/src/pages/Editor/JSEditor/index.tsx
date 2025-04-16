@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
-import * as Sentry from "@sentry/react";
 import { getJSCollectionDataByBaseId } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
@@ -12,6 +11,7 @@ import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSEditorToolbar";
 import { saveJSObjectName } from "actions/jsActionActions";
+
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
@@ -67,4 +67,4 @@ function JSEditor() {
   return <EntityNotFoundPane />;
 }
 
-export default Sentry.withProfiler(JSEditor);
+export default JSEditor;
