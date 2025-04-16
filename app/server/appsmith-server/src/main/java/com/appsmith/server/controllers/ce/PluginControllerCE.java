@@ -104,7 +104,7 @@ public class PluginControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/upcoming-integrations")
-    public Mono<ResponseDTO<Map>> getUpcomingIntegrations() {
+    public Mono<ResponseDTO<List<Map<String, String>>>> getUpcomingIntegrations() {
         log.debug("Fetching upcoming integrations from external API");
 
         String apiUrl = cloudServicesConfig.getBaseUrl() + "/api/v1/external-saas/upcoming-integrations";
@@ -114,13 +114,16 @@ public class PluginControllerCE {
                 .uri(apiUrl)
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response -> new ResponseDTO<>(HttpStatus.OK, response))
+                .map(response -> {
+                    // Extract the integrations list from the response
+                    List<Map<String, String>> integrations =
+                            response.containsKey("data") ? (List<Map<String, String>>) response.get("data") : List.of();
+                    return new ResponseDTO<>(HttpStatus.OK, integrations);
+                })
                 .onErrorResume(error -> {
                     log.warn("Error retrieving upcoming integrations from external service: {}", error.getMessage());
                     return Mono.just(new ResponseDTO<>(
-                            HttpStatus.OK.value(),
-                            Map.of("integrations", List.of()),
-                            "Unable to fetch upcoming integrations at this time"));
+                            HttpStatus.OK.value(), List.of(), "Unable to fetch upcoming integrations at this time"));
                 });
     }
 }
