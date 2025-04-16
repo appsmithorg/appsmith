@@ -2,7 +2,16 @@ import type { PremiumIntegration, UpcomingIntegration } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
 import Api from "api/Api";
 
-jest.mock("api/Api");
+// Mock the Api module with a class that can be extended
+jest.mock("api/Api", () => {
+  return {
+    // Export a class that can be extended
+    __esModule: true,
+    default: class MockApi {
+      static get: jest.Mock = jest.fn();
+    },
+  };
+});
 
 describe("PluginsApi", () => {
   beforeEach(() => {
