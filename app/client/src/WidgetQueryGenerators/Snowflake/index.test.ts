@@ -386,6 +386,7 @@ OFFSET
     };
 
     const connectionMode = Snowflake.getConnectionMode(datasourceConfiguration);
+
     expect(connectionMode).toEqual(DatasourceConnectionMode.READ_ONLY);
   });
 
@@ -396,6 +397,7 @@ OFFSET
     };
 
     const connectionMode = Snowflake.getConnectionMode(datasourceConfiguration);
+
     expect(connectionMode).toEqual(DatasourceConnectionMode.READ_WRITE);
   });
 });
