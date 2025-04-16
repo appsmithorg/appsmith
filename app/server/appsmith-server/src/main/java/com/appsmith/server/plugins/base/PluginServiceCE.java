@@ -53,4 +53,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId);
 
     Flux<Plugin> getPluginsByType(PluginType pluginType);
+
+    Mono<List<Map<String, String>>> getUpcomingIntegrations();
 }
