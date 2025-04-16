@@ -41,8 +41,8 @@ describe("PluginsApi", () => {
 
       (Api.get as jest.Mock).mockResolvedValue(mockResponse);
 
-      // Call the function
-      const result = await PluginsApi.fetchPremiumIntegrations([]);
+      // Call the function with no default provided
+      const result = await PluginsApi.fetchPremiumIntegrations();
 
       // Verify API was called correctly
       expect(Api.get).toHaveBeenCalledWith("/upcoming-integrations");
@@ -60,11 +60,25 @@ describe("PluginsApi", () => {
       ] as PremiumIntegration[]);
     });
 
-    it("should return default integrations when API fails", async () => {
+    it("should return empty array when API fails and no default is provided", async () => {
       // Setup mock API to throw error
       (Api.get as jest.Mock).mockRejectedValue(new Error("API error"));
 
-      // Default integrations to return on failure
+      // Call the function with no default
+      const result = await PluginsApi.fetchPremiumIntegrations();
+
+      // Verify API was called
+      expect(Api.get).toHaveBeenCalledWith("/upcoming-integrations");
+
+      // Verify empty array is returned
+      expect(result).toEqual([]);
+    });
+
+    it("should return custom defaults when API fails and defaults are provided", async () => {
+      // Setup mock API to throw error
+      (Api.get as jest.Mock).mockRejectedValue(new Error("API error"));
+
+      // Custom default integrations
       const defaultIntegrations: PremiumIntegration[] = [
         {
           name: "Default Integration",
@@ -72,18 +86,18 @@ describe("PluginsApi", () => {
         },
       ];
 
-      // Call the function
+      // Call the function with defaults
       const result =
         await PluginsApi.fetchPremiumIntegrations(defaultIntegrations);
 
       // Verify API was called
       expect(Api.get).toHaveBeenCalledWith("/upcoming-integrations");
 
-      // Verify default integrations are returned
+      // Verify custom defaults are returned
       expect(result).toEqual(defaultIntegrations);
     });
 
-    it("should return default integrations when API returns empty data", async () => {
+    it("should return empty array when API returns empty data and no default is provided", async () => {
       // Setup mock API response with empty data
       const mockEmptyResponse = {
         data: {
@@ -96,23 +110,14 @@ describe("PluginsApi", () => {
 
       (Api.get as jest.Mock).mockResolvedValue(mockEmptyResponse);
 
-      // Default integrations to return on empty response
-      const defaultIntegrations: PremiumIntegration[] = [
-        {
-          name: "Default Integration",
-          icon: "default-icon-location",
-        },
-      ];
+      // Call the function with no default
+      const result = await PluginsApi.fetchPremiumIntegrations();
 
-      // Call the function
-      const result =
-        await PluginsApi.fetchPremiumIntegrations(defaultIntegrations);
-
-      // Verify default integrations are returned
-      expect(result).toEqual(defaultIntegrations);
+      // Verify empty array is returned
+      expect(result).toEqual([]);
     });
 
-    it("should return default integrations when API returns unsuccessful response", async () => {
+    it("should return empty array when API returns unsuccessful response and no default is provided", async () => {
       // Setup mock unsuccessful API response
       const mockUnsuccessfulResponse = {
         data: {
@@ -125,20 +130,11 @@ describe("PluginsApi", () => {
 
       (Api.get as jest.Mock).mockResolvedValue(mockUnsuccessfulResponse);
 
-      // Default integrations to return on unsuccessful response
-      const defaultIntegrations: PremiumIntegration[] = [
-        {
-          name: "Default Integration",
-          icon: "default-icon-location",
-        },
-      ];
+      // Call the function with no default
+      const result = await PluginsApi.fetchPremiumIntegrations();
 
-      // Call the function
-      const result =
-        await PluginsApi.fetchPremiumIntegrations(defaultIntegrations);
-
-      // Verify default integrations are returned
-      expect(result).toEqual(defaultIntegrations);
+      // Verify empty array is returned
+      expect(result).toEqual([]);
     });
   });
 });
