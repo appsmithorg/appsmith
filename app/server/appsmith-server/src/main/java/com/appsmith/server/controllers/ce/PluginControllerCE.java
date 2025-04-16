@@ -10,7 +10,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.plugins.solutions.PluginTriggerSolution;
-import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,20 +105,8 @@ public class PluginControllerCE {
     @GetMapping("/upcoming-integrations")
     public Mono<ResponseDTO<List<Map<String, String>>>> getUpcomingIntegrations() {
         log.debug("Fetching upcoming integrations from external API");
-
-        String apiUrl = cloudServicesConfig.getBaseUrl() + "/api/v1/config/external-saas/upcoming-integrations";
-
-        return WebClientUtils.create()
-                .get()
-                .uri(apiUrl)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(response -> {
-                    // Extract the integrations list from the response
-                    List<Map<String, String>> integrations =
-                            response.containsKey("data") ? (List<Map<String, String>>) response.get("data") : List.of();
-                    return new ResponseDTO<>(HttpStatus.OK, integrations);
-                })
+        return service.getUpcomingIntegrations()
+                .map(integrations -> new ResponseDTO<>(HttpStatus.OK, integrations))
                 .onErrorResume(error -> {
                     log.warn("Error retrieving upcoming integrations from external service: {}", error.getMessage());
                     return Mono.just(new ResponseDTO<>(
