@@ -19,6 +19,7 @@ import { errorModifier } from "../errorModifier";
 import {
   generateOptimisedUpdatesAndSetPrevState,
   uniqueOrderUpdatePaths,
+  updateEvalProps,
 } from "../helpers";
 import DataStore from "../dataStore";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
@@ -131,9 +132,8 @@ export async function evalTree(
         ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
+
       staleMetaIds = dataTreeResponse.staleMetaIds;
       isNewTree = true;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
@@ -184,10 +184,10 @@ export async function evalTree(
           (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
+
       staleMetaIds = dataTreeResponse.staleMetaIds;
+      isNewTree = true;
     } else {
       const tree = dataTreeEvaluator.getEvalTree();
 
@@ -241,14 +241,13 @@ export async function evalTree(
           ),
       );
 
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
-        evalProps: dataTreeEvaluator.evalProps,
-      });
+      dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
       staleMetaIds = updateResponse.staleMetaIds;
+      isNewTree = false;
     }
 
     dependencies = dataTreeEvaluator.inverseDependencies;
@@ -303,7 +302,9 @@ export async function evalTree(
         try {
           //for new tree send the whole thing, don't diff at all
           updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
-          dataTreeEvaluator?.setPrevState(dataTree);
+          const parsedUpdates = JSON.parse(updates);
+
+          dataTreeEvaluator?.setPrevState(parsedUpdates[0].rhs);
         } catch (e) {
           updates = "[]";
         }
@@ -322,6 +323,8 @@ export async function evalTree(
           dataTree,
           dataTreeEvaluator,
           completeEvalOrder,
+          undefined,
+          true,
         );
       }
 
