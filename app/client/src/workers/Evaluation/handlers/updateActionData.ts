@@ -6,6 +6,8 @@ import DataStore from "../dataStore";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { UpdateActionProps } from "./types";
+import { create } from "mutative";
+import { klona as klonaJSON } from "klona/json";
 
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
@@ -45,22 +47,57 @@ export function updateActionsToEvalTree(
 ) {
   if (!actionsToUpdate) return;
 
-  for (const actionToUpdate of actionsToUpdate) {
-    const { dataPath, dataPathRef, entityName } = actionToUpdate;
-    let { data } = actionToUpdate;
+  if (!dataTreeEvaluator?.shouldRunOptimisation) {
+    for (const actionToUpdate of actionsToUpdate) {
+      const { dataPath, dataPathRef, entityName } = actionToUpdate;
+      let { data } = actionToUpdate;
 
-    if (dataPathRef) {
-      data = DataStore.getActionData(dataPathRef);
-      DataStore.deleteActionData(dataPathRef);
+      if (dataPathRef) {
+        data = DataStore.getActionData(dataPathRef);
+        DataStore.deleteActionData(dataPathRef);
+      }
+
+      // update the evaltree
+      set(evalTree, `${entityName}.[${dataPath}]`, data);
+      // Update context
+      set(self, `${entityName}.[${dataPath}]`, data);
+      // Update the datastore
+      const path = `${entityName}.${dataPath}`;
+
+      DataStore.setActionData(path, data);
     }
+  } else {
+    const updatedPrevState = create(
+      dataTreeEvaluator.getSemiUpdatedPrevTree(),
+      (draft) => {
+        for (const actionToUpdate of actionsToUpdate) {
+          const { dataPath, dataPathRef, entityName } = actionToUpdate;
+          let { data } = actionToUpdate;
 
-    // update the evaltree
-    set(evalTree, `${entityName}.[${dataPath}]`, data);
-    // Update context
-    set(self, `${entityName}.[${dataPath}]`, data);
-    // Update the datastore
-    const path = `${entityName}.${dataPath}`;
+          if (dataPathRef) {
+            data = DataStore.getActionData(dataPathRef);
+            DataStore.deleteActionData(dataPathRef);
+          }
 
-    DataStore.setActionData(path, data);
+          // update the evaltree
+          set(evalTree, `${entityName}.[${dataPath}]`, data);
+
+          if (draft) {
+            set(draft, `${entityName}.[${dataPath}]`, klonaJSON(data));
+          }
+
+          // Update context
+          set(self, `${entityName}.[${dataPath}]`, data);
+          // Update the datastore
+          const path = `${entityName}.${dataPath}`;
+
+          DataStore.setActionData(path, data);
+        }
+      },
+    );
+
+    dataTreeEvaluator.setSemiUpdatedPrevTree(updatedPrevState);
+
+    // Update setSemiUpdatedPrevTree with mutative
   }
 }
