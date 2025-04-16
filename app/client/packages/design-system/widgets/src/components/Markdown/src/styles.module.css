@@ -79,9 +79,14 @@
 
   li {
     margin-bottom: var(--inner-spacing-2);
+    margin-left: 0.5em;
     position: relative;
     list-style-type: auto;
     letter-spacing: -0.02em;
+  }
+
+  > :is(ul, ol) > li {
+    margin-left: 1em;
   }
 
   a {
