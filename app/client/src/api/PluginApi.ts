@@ -25,6 +25,11 @@ export interface UpcomingIntegration {
   iconLocation: string;
 }
 
+export interface PremiumIntegration {
+  name: string;
+  icon: string;
+}
+
 class PluginsApi extends Api {
   static url = "v1/plugins";
   static defaultDynamicTriggerURL(datasourceId: string): string {
@@ -65,6 +70,27 @@ class PluginsApi extends Api {
     AxiosPromise<ApiResponse<UpcomingIntegration[]>>
   > {
     return Api.get("/upcoming-integrations");
+  }
+
+  static async fetchPremiumIntegrations(
+    defaultIntegrations: PremiumIntegration[] = [],
+  ): Promise<PremiumIntegration[]> {
+    try {
+      const response = await Api.get("/upcoming-integrations");
+
+      if (response.data.responseMeta.success && response.data.data.length > 0) {
+        // Map API response to PremiumIntegration format
+        return response.data.data.map((integration: UpcomingIntegration) => ({
+          name: integration.name,
+          icon: integration.iconLocation,
+        }));
+      }
+
+      return defaultIntegrations;
+    } catch (error) {
+      // Silently handle error and return default integrations
+      return defaultIntegrations;
+    }
   }
 
   static async uploadFiles(
