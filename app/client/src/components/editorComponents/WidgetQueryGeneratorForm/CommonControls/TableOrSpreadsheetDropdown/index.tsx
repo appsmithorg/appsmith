@@ -12,7 +12,7 @@ import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { ColumnSelectorModal } from "../ColumnSelectorModal";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
-import { createMessage } from "ce/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { NO_PRIMARY_KEYS_MESSAGE, PRIMARY_KEYS_MESSAGE } from "../../constants";
 
 function TableOrSpreadsheetDropdown() {
