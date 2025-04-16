@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/react";
-
 import React from "react";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import styled from "styled-components";
@@ -47,4 +45,4 @@ export function CanvasPropertyPane() {
 
 CanvasPropertyPane.displayName = "CanvasPropertyPane";
 
-export default Sentry.withProfiler(CanvasPropertyPane);
+export default CanvasPropertyPane;

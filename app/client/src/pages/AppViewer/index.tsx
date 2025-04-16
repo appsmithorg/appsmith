@@ -15,7 +15,6 @@ import {
 } from "selectors/appViewSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
@@ -259,4 +258,4 @@ function AppViewer(props: Props) {
   return <ThemeProvider theme={lightTheme}>{renderChildren()}</ThemeProvider>;
 }
 
-export default withRouter(Sentry.withProfiler(AppViewer));
+export default withRouter(AppViewer);

@@ -20,7 +20,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
-import * as Sentry from "@sentry/react";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import type { Theme } from "constants/DefaultTheme";
@@ -222,6 +221,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(Editor)),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));

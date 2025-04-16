@@ -3,7 +3,7 @@ import countryDetails from "./countryDetails";
 import { MapTypes } from "../constants";
 import { geoAlbers, geoAzimuthalEqualArea, geoMercator } from "d3-geo";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import { retryPromise } from "utils/AppsmithUtils";
 
 interface GeoSpecialAreas {
@@ -75,7 +75,9 @@ export const loadMapGenerator = () => {
 
             if (error.code !== 20) {
               log.error({ error });
-              Sentry.captureException(error);
+              captureException(error, {
+                errorName: "MapChartWidget_utilities",
+              });
             }
           },
         )
