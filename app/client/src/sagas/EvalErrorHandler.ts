@@ -30,6 +30,7 @@ import type { AppState } from "ee/reducers";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
+import * as Sentry from "@sentry/react";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
