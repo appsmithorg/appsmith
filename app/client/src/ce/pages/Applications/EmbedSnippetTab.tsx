@@ -221,10 +221,10 @@ export function EmbedSnippetTab({
   isAppSettings?: boolean;
 }) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
-
   const isPublicApp = currentApplicationDetails?.isPublic || false;
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
-  if (!isPublicApp) {
+  if (!isPublicApp && !isAiAgentFlowEnabled) {
     return (
       <div className="flex flex-col gap-6">
         <PrivateEmbeddingContent
