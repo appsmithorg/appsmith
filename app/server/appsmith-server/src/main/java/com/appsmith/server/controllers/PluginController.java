@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.configurations.ce.CloudServicesConfigCE;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.PluginControllerCE;
 import com.appsmith.server.plugins.base.PluginService;
@@ -15,7 +15,7 @@ public class PluginController extends PluginControllerCE {
     public PluginController(
             PluginService service,
             PluginTriggerSolution pluginTriggerSolution,
-            CloudServicesConfigCE cloudServicesConfig) {
+            CloudServicesConfig cloudServicesConfig) {
         super(service, pluginTriggerSolution, cloudServicesConfig);
     }
 }

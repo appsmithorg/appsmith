@@ -3,7 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.configurations.ce.CloudServicesConfigCE;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Plugin;
@@ -41,7 +41,7 @@ public class PluginControllerCE {
 
     private final PluginTriggerSolution pluginTriggerSolution;
 
-    private final CloudServicesConfigCE cloudServicesConfig;
+    private final CloudServicesConfig cloudServicesConfig;
 
     @JsonView(Views.Public.class)
     @GetMapping
@@ -107,7 +107,7 @@ public class PluginControllerCE {
     public Mono<ResponseDTO<List<Map<String, String>>>> getUpcomingIntegrations() {
         log.debug("Fetching upcoming integrations from external API");
 
-        String apiUrl = cloudServicesConfig.getBaseUrl() + "/api/v1/external-saas/upcoming-integrations";
+        String apiUrl = cloudServicesConfig.getBaseUrl() + "/api/v1/config/external-saas/upcoming-integrations";
 
         return WebClientUtils.create()
                 .get()
