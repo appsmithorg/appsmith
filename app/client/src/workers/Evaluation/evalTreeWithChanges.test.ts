@@ -7,7 +7,7 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { create } from "mutative";
 import { klona } from "klona/json";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import type { UpdateDataTreeMessageData } from "sagas/types";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import * as evalTreeWithChanges from "./evalTreeWithChanges";
 import { APP_MODE } from "entities/App";

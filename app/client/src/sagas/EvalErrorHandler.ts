@@ -30,6 +30,7 @@ import type { AppState } from "ee/reducers";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
+import { reconstructErrorFromEvalError } from "./helper";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -217,6 +218,8 @@ export function* evalErrorHandler(
   }
 
   errors.forEach((error) => {
+    const reconstructedError = reconstructErrorFromEvalError(error);
+
     switch (error.type) {
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
         if (error.context) {
@@ -232,7 +235,7 @@ export function* evalErrorHandler(
 
           if (error.context.logToSentry) {
             // Send the generic error message to sentry for better grouping
-            captureException(new Error(error.message), {
+            captureException(reconstructedError, {
               errorName: "CyclicalDependencyError",
               tags: {
                 node,
@@ -265,22 +268,26 @@ export function* evalErrorHandler(
           kind: "error",
         });
         log.error(error);
-        captureException(error, { errorName: "EvalTreeError" });
+        captureException(reconstructedError, { errorName: "EvalTreeError" });
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
         log.error(error);
-        captureException(error, { errorName: "BadUnevalTreeError" });
+        captureException(reconstructedError, {
+          errorName: "BadUnevalTreeError",
+        });
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
-        captureException(error, { errorName: "EvalPropertyError" });
+        captureException(reconstructedError, {
+          errorName: "EvalPropertyError",
+        });
         log.error(error);
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
         log.debug(error);
-        captureException(new Error(error.message), {
+        captureException(reconstructedError, {
           errorName: "CloneError",
           extra: {
             request: error.context,
@@ -296,14 +303,14 @@ export function* evalErrorHandler(
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
         log.error(error);
-        captureException(error, {
+        captureException(reconstructedError, {
           errorName: "ParseJSError",
           entity: error.context,
         });
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-        captureException(new Error(error.message), {
+        captureException(reconstructedError, {
           errorName: "ExtractDependencyError",
           extra: error.context,
         });
@@ -311,7 +318,9 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.UPDATE_DATA_TREE_ERROR: {
         // Log to Sentry with additional context
-        captureException(error, { errorName: "UpdateDataTreeError" });
+        captureException(reconstructedError, {
+          errorName: "UpdateDataTreeError",
+        });
         // Log locally with error details
         log.error(`Evaluation Error: ${error.message}`, {
           type: error.type,
@@ -325,7 +334,7 @@ export function* evalErrorHandler(
       }
       default: {
         log.error(error);
-        captureException(error, { errorName: "UnknownEvalError" });
+        captureException(reconstructedError, { errorName: "UnknownEvalError" });
       }
     }
   });

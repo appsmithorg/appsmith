@@ -4,7 +4,11 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { DefaultPlugin, Plugin } from "entities/Plugin";
+import type {
+  DefaultPlugin,
+  Plugin,
+  UpcomingIntegration,
+} from "entities/Plugin";
 import type {
   PluginFormPayloadWithId,
   PluginFormsPayload,
@@ -30,6 +34,10 @@ export interface PluginDataState {
   datasourceFormButtonConfigs: FormDatasourceButtonConfigs;
   fetchingSinglePluginForm: Record<string, boolean>;
   fetchingDefaultPlugins: boolean;
+  upcomingPlugins: {
+    list: UpcomingIntegration[];
+    loading: boolean;
+  };
 }
 
 const initialState: PluginDataState = {
@@ -43,6 +51,10 @@ const initialState: PluginDataState = {
   dependencies: {},
   fetchingSinglePluginForm: {},
   fetchingDefaultPlugins: false,
+  upcomingPlugins: {
+    list: [],
+    loading: false,
+  },
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -140,6 +152,33 @@ const pluginsReducer = createReducer(initialState, {
       ...state,
       fetchingDefaultPlugins: false,
       defaultPluginList: action.payload,
+    };
+  },
+  [ReduxActionTypes.GET_UPCOMING_PLUGINS_REQUEST]: (state: PluginDataState) => {
+    return {
+      ...state,
+      upcomingPlugins: { ...state.upcomingPlugins, loading: true },
+    };
+  },
+  [ReduxActionTypes.GET_UPCOMING_PLUGINS_SUCCESS]: (
+    state: PluginDataState,
+    action: ReduxAction<UpcomingIntegration[]>,
+  ) => {
+    return {
+      ...state,
+      upcomingPlugins: {
+        ...state.upcomingPlugins,
+        loading: false,
+        list: action.payload,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.GET_UPCOMING_PLUGINS_ERROR]: (
+    state: PluginDataState,
+  ) => {
+    return {
+      ...state,
+      upcomingPlugins: { ...state.upcomingPlugins, loading: false },
     };
   },
 });

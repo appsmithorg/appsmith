@@ -1215,6 +1215,7 @@ export default class DataTreeEvaluator {
               context: {
                 propertyPath: fullPropertyPath,
               },
+              stack: (error as Error).stack,
             });
             evalPropertyValue = undefined;
           }
@@ -1418,6 +1419,7 @@ export default class DataTreeEvaluator {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
+        stack: (error as Error).stack,
       });
     } finally {
       // Restore the dataStore since it was a part of contextTree and prone to mutation.
