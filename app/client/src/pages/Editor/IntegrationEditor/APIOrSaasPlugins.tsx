@@ -74,7 +74,7 @@ interface CreateAPIOrSaasPluginsProps {
     apiType: string,
   ) => void;
   isPremiumDatasourcesViewEnabled?: boolean;
-  premiumPlugins: UpcomingIntegration[];
+  upcomingIntegrations: UpcomingIntegration[];
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
@@ -234,7 +234,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         />
       ))}
       {!props.isIntegrationsEnabledForPaid && (
-        <PremiumDatasources plugins={props.premiumPlugins} />
+        <PremiumDatasources plugins={props.upcomingIntegrations} />
       )}
     </DatasourceContainer>
   );
@@ -262,7 +262,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
   if (isAirgappedInstance && props.showSaasAPIs) return null;
 
   if (
-    props.premiumPlugins.length === 0 &&
+    props.upcomingIntegrations.length === 0 &&
     props.plugins.length === 0 &&
     !props.restAPIVisible &&
     !props.graphQLAPIVisible
@@ -280,7 +280,8 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         </DatasourceSectionHeading>
         <APIOrSaasPlugins {...props} />
       </DatasourceSection>
-      {props.premiumPlugins.length > 0 && props.isIntegrationsEnabledForPaid ? (
+      {props.upcomingIntegrations.length > 0 &&
+      props.isIntegrationsEnabledForPaid ? (
         <DatasourceSection id="upcoming-saas-integrations">
           <DatasourceSectionHeading kind="heading-m">
             {createMessage(UPCOMING_SAAS_INTEGRATIONS)}
@@ -288,7 +289,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           <DatasourceContainer data-testid="upcoming-datasource-card-container">
             <PremiumDatasources
               isIntegrationsEnabledForPaid
-              plugins={props.premiumPlugins}
+              plugins={props.upcomingIntegrations}
             />
           </DatasourceContainer>
         </DatasourceSection>
@@ -355,7 +356,7 @@ const mapStateToProps = (
     plugin.name.toLocaleLowerCase(),
   );
 
-  const premiumPlugins =
+  const upcomingIntegrations =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
           getFilteredUpcomingIntegrations(
@@ -382,7 +383,7 @@ const mapStateToProps = (
 
   return {
     plugins,
-    premiumPlugins,
+    upcomingIntegrations,
     authApiPlugin,
     restAPIVisible,
     graphQLAPIVisible,

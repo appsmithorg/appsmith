@@ -162,7 +162,7 @@ const pluginsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.GET_UPCOMING_PLUGINS_SUCCESS]: (
     state: PluginDataState,
-    action: ReduxAction<Plugin[]>,
+    action: ReduxAction<UpcomingIntegration[]>,
   ) => {
     return {
       ...state,
