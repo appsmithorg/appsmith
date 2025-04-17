@@ -109,6 +109,7 @@ export const extractInfoFromBindings = (
           context: {
             script: binding,
           },
+          stack: (error as Error).stack,
         };
 
         return {
