@@ -84,3 +84,7 @@ export const fetchPluginFormConfig = ({
 export const fetchDefaultPlugins = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
 });
+
+export const fetchUpcomingPlugins = (): ReduxActionWithoutPayload => ({
+  type: ReduxActionTypes.GET_UPCOMING_PLUGINS_REQUEST,
+});

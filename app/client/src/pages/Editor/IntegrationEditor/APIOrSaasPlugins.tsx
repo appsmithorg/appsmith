@@ -11,11 +11,13 @@ import {
   type Plugin,
   PluginPackageName,
   PluginType,
+  type UpcomingIntegration,
 } from "entities/Plugin";
 import { getQueryParams } from "utils/URLUtils";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugins,
+  getUpcomingPlugins,
 } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
@@ -43,10 +45,7 @@ import {
 import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import {
-  getFilteredPremiumIntegrations,
-  type PremiumIntegration,
-} from "./PremiumDatasources/Constants";
+import { getFilteredUpcomingIntegrations } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
@@ -75,7 +74,7 @@ interface CreateAPIOrSaasPluginsProps {
     apiType: string,
   ) => void;
   isPremiumDatasourcesViewEnabled?: boolean;
-  premiumPlugins: PremiumIntegration[];
+  upcomingIntegrations: UpcomingIntegration[];
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
@@ -235,7 +234,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         />
       ))}
       {!props.isIntegrationsEnabledForPaid && (
-        <PremiumDatasources plugins={props.premiumPlugins} />
+        <PremiumDatasources plugins={props.upcomingIntegrations} />
       )}
     </DatasourceContainer>
   );
@@ -263,7 +262,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
   if (isAirgappedInstance && props.showSaasAPIs) return null;
 
   if (
-    props.premiumPlugins.length === 0 &&
+    props.upcomingIntegrations.length === 0 &&
     props.plugins.length === 0 &&
     !props.restAPIVisible &&
     !props.graphQLAPIVisible
@@ -281,7 +280,8 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         </DatasourceSectionHeading>
         <APIOrSaasPlugins {...props} />
       </DatasourceSection>
-      {props.premiumPlugins.length > 0 && props.isIntegrationsEnabledForPaid ? (
+      {props.upcomingIntegrations.length > 0 &&
+      props.isIntegrationsEnabledForPaid ? (
         <DatasourceSection id="upcoming-saas-integrations">
           <DatasourceSectionHeading kind="heading-m">
             {createMessage(UPCOMING_SAAS_INTEGRATIONS)}
@@ -289,7 +289,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           <DatasourceContainer data-testid="upcoming-datasource-card-container">
             <PremiumDatasources
               isIntegrationsEnabledForPaid
-              plugins={props.premiumPlugins}
+              plugins={props.upcomingIntegrations}
             />
           </DatasourceContainer>
         </DatasourceSection>
@@ -309,6 +309,8 @@ const mapStateToProps = (
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
   ).toLocaleLowerCase();
+
+  const upcomingPlugins = getUpcomingPlugins(state);
 
   const allPlugins = getPlugins(state);
 
@@ -354,15 +356,16 @@ const mapStateToProps = (
     plugin.name.toLocaleLowerCase(),
   );
 
-  const premiumPlugins =
+  const upcomingIntegrations =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
-          getFilteredPremiumIntegrations(
+          getFilteredUpcomingIntegrations(
             isExternalSaasEnabled || isIntegrationsEnabledForPaid,
             pluginNames,
+            upcomingPlugins,
           ),
           searchedPlugin,
-        ) as PremiumIntegration[])
+        ) as UpcomingIntegration[])
       : [];
 
   const restAPIVisible =
@@ -380,7 +383,7 @@ const mapStateToProps = (
 
   return {
     plugins,
-    premiumPlugins,
+    upcomingIntegrations,
     authApiPlugin,
     restAPIVisible,
     graphQLAPIVisible,
