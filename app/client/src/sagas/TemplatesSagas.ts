@@ -48,6 +48,7 @@ import { failFastApiCalls } from "./InitSagas";
 import { getAllPageIdentities } from "./selectors";
 
 const isAirgappedInstance = isAirgapped();
+const AI_DATASOURCE_NAME = "AI Datasource";
 
 function* getAllTemplatesSaga() {
   try {
@@ -96,12 +97,20 @@ function* importTemplateToWorkspaceSaga(
         payload: response.data.application,
       });
 
-      if (response.data.isPartialImport) {
+      // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+      // so we can avoid showing the AI Datasource in reconnect datasource modal
+      const filteredUnConfiguredDatasourceList = (
+        response.data.unConfiguredDatasourceList || []
+      ).filter((datasource) => datasource.name !== AI_DATASOURCE_NAME);
+
+      if (
+        response.data.isPartialImport &&
+        filteredUnConfiguredDatasourceList.length > 0
+      ) {
         yield put(
           showReconnectDatasourceModal({
             application: response.data.application,
-            unConfiguredDatasourceList:
-              response.data.unConfiguredDatasourceList,
+            unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
             workspaceId: action.payload.workspaceId,
           }),
         );
