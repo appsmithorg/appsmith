@@ -10,10 +10,12 @@ import type {
   EvaluationError,
 } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 import {
   generateOptimisedUpdates,
   generateSerialisedUpdates,
+  getReducedDataTrees,
 } from "../helpers";
 
 export const smallDataSet = [
@@ -406,16 +408,15 @@ describe("generateOptimisedUpdates", () => {
         const parsedUpdates =
           parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
 
-        expect(parsedUpdates).toEqual([
-          {
-            kind: "D",
-            path: ["Table1", "__evaluation__", "errors", "transientTableData"],
-          },
-          {
-            kind: "D",
-            path: ["Table1", "pageSize"],
-          },
-        ]);
+        expect(parsedUpdates).toHaveLength(2);
+        expect(parsedUpdates).toContainEqual({
+          kind: "D",
+          path: ["Table1", "__evaluation__", "errors", "transientTableData"],
+        });
+        expect(parsedUpdates).toContainEqual({
+          kind: "D",
+          path: ["Table1", "pageSize"],
+        });
 
         const parseAndApplyUpdatesToOldState = create(oldState, (draft) => {
           // TODO: Fix this the next time the file is edited
@@ -669,6 +670,444 @@ describe("generateOptimisedUpdates", () => {
 
         expect(updatedMainThreadState).toEqual(expectedMainThreadState);
       });
+    });
+  });
+
+  describe("type change tests", () => {
+    it("should handle type changes correctly (array to object)", () => {
+      // this testcase is verify an actual bug that was happening
+      // Create the old data tree with an array
+      const oldDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: [],
+          },
+        },
+      } as unknown as DataTree;
+
+      // Create the new data tree with an object
+      const newDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: {
+              isDisabled: false,
+              isRequired: false,
+              isVisible: true,
+              isValid: true,
+            },
+          },
+        },
+      } as unknown as DataTree;
+
+      const constrainedDiffPaths = [
+        "JSONForm1.fieldState.name.isDisabled",
+        "JSONForm1.fieldState.name.isRequired",
+        "JSONForm1.fieldState.name.isVisible",
+        "JSONForm1.fieldState.name.isValid",
+      ];
+
+      // Generate the updates
+      const updates = generateOptimisedUpdates(
+        oldDataTree,
+        newDataTree,
+        constrainedDiffPaths,
+      );
+
+      // Verify that the updates contain the expected type change
+      expect(updates).toHaveLength(1);
+      expect(updates[0]).toEqual({
+        kind: "E",
+        path: ["JSONForm1", "fieldState", "name"],
+        lhs: [],
+        rhs: {
+          isDisabled: false,
+          isRequired: false,
+          isVisible: true,
+          isValid: true,
+        },
+      });
+    });
+
+    it("should handle type changes correctly (object to array)", () => {
+      // Create the old data tree with an object
+      const oldDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: {
+              isDisabled: false,
+              isRequired: false,
+              isVisible: true,
+              isValid: true,
+            },
+          },
+        },
+      } as unknown as DataTree;
+
+      // Create the new data tree with an array
+      const newDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: [],
+          },
+        },
+      } as unknown as DataTree;
+
+      // creating deep paths to which pulls undefined values, so that the reduced dataTree is able to pick the closest defined ancestor and generate a diff based on that
+      const constrainedDiffPaths = [
+        "JSONForm1.fieldState.name.isDisabled",
+        "JSONForm1.fieldState.name.isRequired",
+        "JSONForm1.fieldState.name.isVisible",
+        "JSONForm1.fieldState.name.isValid",
+      ];
+      // Generate the updates
+      const updates = generateOptimisedUpdates(
+        oldDataTree,
+        newDataTree,
+        constrainedDiffPaths,
+      );
+
+      // Verify that the updates contain the expected type change
+      expect(updates).toHaveLength(1);
+      expect(updates[0]).toEqual({
+        kind: "E",
+        path: ["JSONForm1", "fieldState", "name"],
+        lhs: {
+          isDisabled: false,
+          isRequired: false,
+          isVisible: true,
+          isValid: true,
+        },
+        rhs: [],
+      });
+    });
+
+    it("should handle type changes correctly (empty object to object with properties)", () => {
+      // Create the old data tree with an empty object
+      const oldDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: {},
+          },
+        },
+      } as unknown as DataTree;
+
+      // Create the new data tree with an object with properties
+      const newDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: {
+              isDisabled: false,
+              isRequired: false,
+              isVisible: true,
+              isValid: true,
+            },
+          },
+        },
+      } as unknown as DataTree;
+
+      const constrainedDiffPaths = ["JSONForm1.fieldState.name"];
+
+      // Generate the updates
+      const updates = generateOptimisedUpdates(
+        oldDataTree,
+        newDataTree,
+        constrainedDiffPaths,
+      );
+
+      // Verify that the updates contain the expected type change
+      expect(updates).toHaveLength(4); // One update for each property
+      expect(updates).toContainEqual({
+        kind: "N",
+        path: ["JSONForm1", "fieldState", "name", "isDisabled"],
+        rhs: false,
+      });
+      expect(updates).toContainEqual({
+        kind: "N",
+        path: ["JSONForm1", "fieldState", "name", "isRequired"],
+        rhs: false,
+      });
+      expect(updates).toContainEqual({
+        kind: "N",
+        path: ["JSONForm1", "fieldState", "name", "isVisible"],
+        rhs: true,
+      });
+      expect(updates).toContainEqual({
+        kind: "N",
+        path: ["JSONForm1", "fieldState", "name", "isValid"],
+        rhs: true,
+      });
+    });
+
+    it("should handle type changes correctly with complex constrainedDiffPaths", () => {
+      // Create the old data tree with an array
+      const oldDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: [],
+          },
+          schema: {
+            __root_schema__: {
+              children: {
+                name: {
+                  defaultValue: "John",
+                  borderRadius: "4px",
+                  accentColor: "blue",
+                },
+              },
+            },
+          },
+        },
+      } as unknown as DataTree;
+
+      // Create the new data tree with an object
+      const newDataTree = {
+        JSONForm1: {
+          fieldState: {
+            name: {
+              isDisabled: false,
+              isRequired: false,
+              isVisible: true,
+              isValid: true,
+            },
+          },
+          schema: {
+            __root_schema__: {
+              children: {
+                name: {
+                  defaultValue: "John",
+                  borderRadius: "4px",
+                  accentColor: "blue",
+                },
+              },
+            },
+          },
+        },
+      } as unknown as DataTree;
+
+      const constrainedDiffPaths = [
+        "JSONForm1.fieldState.name",
+        "JSONForm1.schema.__root_schema__.children.name.borderRadius",
+        "JSONForm1.schema.__root_schema__.children.name.defaultValue",
+        "JSONForm1.schema.__root_schema__.children.name.accentColor",
+      ];
+
+      // Generate the updates
+      const updates = generateOptimisedUpdates(
+        oldDataTree,
+        newDataTree,
+        constrainedDiffPaths,
+      );
+
+      // Find the update for JSONForm1.fieldState.name
+      const nameUpdate = updates.find(
+        (update) =>
+          update.path &&
+          update.path.length === 3 &&
+          update.path[0] === "JSONForm1" &&
+          update.path[1] === "fieldState" &&
+          update.path[2] === "name",
+      );
+
+      // Verify that the update for JSONForm1.fieldState.name is correct
+      expect(nameUpdate).toEqual({
+        kind: "E",
+        path: ["JSONForm1", "fieldState", "name"],
+        lhs: [],
+        rhs: {
+          isDisabled: false,
+          isRequired: false,
+          isVisible: true,
+          isValid: true,
+        },
+      });
+    });
+  });
+
+  test("should generate updates for root level changes when constrainedDiffPaths is a deep path and a new entity is added", () => {
+    // Create a new state with a new entity added at the root level
+    const newState = create(oldState, (draft) => {
+      // Add a new entity at the root level with a large collection
+      (draft as unknown as Record<string, unknown>).NewEntity = {
+        ENTITY_TYPE: "WIDGET",
+        tableData: largeDataSet, // Using the large dataset defined at the top of the file
+        type: "TABLE_WIDGET_V2",
+        __evaluation__: {
+          errors: {},
+        },
+      };
+    });
+
+    // Constrained diff paths is a deep path in an existing entity
+    const updates = generateOptimisedUpdates(oldState, newState, [
+      "NewEntity.Table1.tableData",
+    ]);
+
+    // Should generate an update for the entire new entity since it contains a large collection
+    expect(updates).toEqual([
+      {
+        kind: "N",
+        path: ["NewEntity"],
+        rhs: newState.NewEntity,
+      },
+    ]);
+  });
+});
+
+describe("getReducedDataTrees", () => {
+  it("should handle type changes and only include relevant root properties as per the constrainedDiffPaths, __evaluation__ are always included", () => {
+    const oldDataTree = {
+      JSONForm1: {
+        fieldState: {
+          name: [],
+        },
+        __evaluation__: {
+          errors: {
+            name: [],
+          },
+        },
+      },
+      UnrelatedEntity: {
+        value: "test",
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    } as unknown as DataTree;
+
+    const newDataTree = {
+      JSONForm1: {
+        fieldState: {
+          name: {
+            isDisabled: false,
+            isRequired: false,
+          },
+          text: {
+            isDisabled: false,
+            isRequired: false,
+          },
+        },
+        __evaluation__: {
+          errors: {
+            name: [],
+          },
+        },
+      },
+      UnrelatedEntity: {
+        value: "changed",
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    } as unknown as DataTree;
+
+    const constrainedDiffPaths = ["JSONForm1.fieldState.name.isDisabled"];
+
+    const { newData, oldData } = getReducedDataTrees(
+      oldDataTree,
+      newDataTree,
+      constrainedDiffPaths,
+    );
+
+    // Assert the entire oldData and newData objects
+    expect(oldData).toEqual({
+      JSONForm1: {
+        __evaluation__: {
+          errors: {
+            name: [],
+          },
+        },
+        fieldState: {
+          name: [],
+        },
+      },
+      // Any __evaluations__ properties are always included in the dataTree even if they are not part of the constrained diff paths
+      UnrelatedEntity: {
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    });
+
+    expect(newData).toEqual({
+      JSONForm1: {
+        __evaluation__: {
+          errors: {
+            name: [],
+          },
+        },
+        fieldState: {
+          name: {
+            isDisabled: false,
+            isRequired: false,
+          },
+          // text property is not included in the constrainedDiffPaths hernce it is not included here
+        },
+      },
+      // Any __evaluations__ properties are always included in the dataTree even if they are not part of the constrained diff paths
+      UnrelatedEntity: {
+        // value property is not included in the constrainedDiffPaths hence it is not included here
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    });
+  });
+
+  it("should handle undefined values in paths correctly", () => {
+    const oldDataTree = {
+      JSONForm1: {
+        fieldState: {
+          name: {
+            value: "test",
+          },
+        },
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    } as unknown as DataTree;
+
+    const newDataTree = {
+      JSONForm1: {
+        fieldState: {
+          name: undefined,
+        },
+        __evaluation__: {
+          errors: {},
+        },
+      },
+    } as unknown as DataTree;
+
+    const constrainedDiffPaths = ["JSONForm1.fieldState.name.value"];
+
+    const { newData, oldData } = getReducedDataTrees(
+      oldDataTree,
+      newDataTree,
+      constrainedDiffPaths,
+    );
+
+    expect(oldData).toEqual({
+      JSONForm1: {
+        __evaluation__: {
+          errors: {},
+        },
+        fieldState: {
+          name: {
+            value: "test",
+          },
+        },
+      },
+    });
+
+    expect(newData).toEqual({
+      JSONForm1: {
+        __evaluation__: {
+          errors: {},
+        },
+        fieldState: {
+          name: undefined,
+        },
+      },
     });
   });
 });

@@ -1,0 +1,136 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Appsmith Cursor Rules
+
+```yaml
+name: Appsmith Cursor Rules
+description: A comprehensive set of rules for Cursor AI to enhance development for Appsmith
+author: Cursor AI
+version: 1.0.0
+tags:
+  - appsmith
+  - development
+  - quality
+  - verification
+activation:
+  always: true
+  event:
+    - pull_request
+    - file_change
+    - command
+triggers:
+  - pull_request.created
+  - pull_request.updated
+  - file.created
+  - file.modified
+  - command: "cursor_help"
+```
+
+## Overview
+
+This is the main entry point for Cursor AI rules for the Appsmith codebase. These rules help enforce consistent coding standards, verify bug fixes and features, generate appropriate tests, and optimize performance.
+
+## Available Rules
+
+### 1. [Semantic PR Validator](mdc:semantic_pr_validator.mdc)
+
+Ensures pull request titles follow the Conventional Commits specification.
+
+```javascript
+// Example usage
+const semanticPR = require('./semantic_pr_validator');
+const validation = semanticPR.onPRTitleChange('feat(widgets): add new table component');
+console.log(validation.status); // 'success'
+```
+
+### 2. [Bug Fix Verifier](mdc:bug_fix_verifier.mdc)
+
+Guides developers through the proper steps to fix bugs and verifies that fixes meet quality standards.
+
+```javascript
+// Example usage
+const bugFixVerifier = require('./bug_fix_verifier');
+const verification = bugFixVerifier.verifyBugFix(changedFiles, testFiles, issueDetails);
+console.log(verification.score); // The verification score
+```
+
+### 3. [Test Generator](mdc:test_generator.mdc)
+
+Analyzes code changes and generates appropriate test cases to ensure proper test coverage.
+
+```javascript
+// Example usage
+const testGenerator = require('./test_generator');
+const testPlan = testGenerator.generateTests(changedFiles, codebase);
+console.log(testPlan.summary); // 'Generated X test plans'
+```
+
+### 4. [Performance Optimizer](mdc:performance_optimizer.mdc)
+
+Identifies performance bottlenecks in code and suggests optimizations to improve efficiency.
+
+```javascript
+// Example usage
+const performanceOptimizer = require('./performance_optimizer');
+const analysis = performanceOptimizer.analyzePerformance(changedFiles, codebase);
+console.log(analysis.score); // The performance score
+```
+
+### 5. [Feature Implementation Validator](mdc:feature_implementation_validator.mdc)
+
+Ensures new feature implementations meet all requirements, follow best practices, and include appropriate tests.
+
+```javascript
+// Example usage
+const featureValidator = require('./feature_implementation_validator');
+const validation = featureValidator.validateFeature(
+  implementationFiles, 
+  codebase,
+  pullRequest
+);
+console.log(validation.score); // The feature implementation score
+```
+
+## Integration
+
+These rules are automatically integrated into Cursor AI when working with the Appsmith codebase. They will be triggered based on context and can also be manually invoked through commands.
+
+## Command Examples
+
+- `validate_pr_title` - Check if a PR title follows conventional commits format
+- `verify_bug_fix --pullRequest=123` - Verify a bug fix implementation
+- `generate_tests --file=src/utils/helpers.js` - Generate tests for a specific file
+- `optimize_performance --file=src/components/Table.tsx` - Analyze and optimize performance 
+- `validate_feature --pullRequest=123` - Validate a feature implementation
+
+## Configuration
+
+The behavior of these rules can be customized in the `.cursor/settings.json` file. For example:
+
+```json
+{
+  "development": {
+    "gitWorkflow": {
+      "semanticPR": {
+        "enabled": true,
+        "titleFormat": "type(scope): description",
+        "validTypes": [
+          "feat", "fix", "docs", "style", "refactor", 
+          "perf", "test", "build", "ci", "chore", "revert"
+        ]
+      }
+    }
+  }
+}
+```
+
+## Documentation
+
+For more detailed information about each rule and how to use it effectively, please refer to the individual rule files linked above.
+
+## Activation
+
+To activate all rules, run `cursor_help` in the command palette. This will display available commands and provide guidance on using the rules for your specific task.

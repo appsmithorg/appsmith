@@ -16,7 +16,6 @@ import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
   formatCurrencyNumber,
@@ -44,6 +43,7 @@ import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import captureException from "instrumentation/sendFaroErrors";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -499,7 +499,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        Sentry.captureException(e);
+        captureException(e, { errorName: "CurrencyInputWidget" });
       }
     }
   }
@@ -517,7 +517,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     } catch (e) {
       formattedValue = value;
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e, { errorName: "CurrencyInputWidget" });
     }
 
     // text is stored as what user has typed
@@ -575,7 +575,7 @@ class CurrencyInputWidget extends BaseInputWidget<
       }
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e, { errorName: "CurrencyInputWidget" });
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 

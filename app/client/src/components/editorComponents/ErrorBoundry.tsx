@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import * as Sentry from "@sentry/react";
 import * as log from "loglevel";
+import captureException from "instrumentation/sendFaroErrors";
 
 import type { ReactNode, CSSProperties } from "react";
 
@@ -39,7 +39,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   componentDidCatch(error: any, errorInfo: any) {
     log.error({ error, errorInfo });
-    Sentry.captureException(error);
+    captureException(error, { errorName: "ErrorBoundary" });
   }
 
   render() {

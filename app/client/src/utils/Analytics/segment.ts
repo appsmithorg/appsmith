@@ -3,6 +3,7 @@ import {
   type EventProperties,
   type MiddlewareFunction,
   type UserTraits,
+  AnalyticsBrowser,
 } from "@segment/analytics-next";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
@@ -73,7 +74,6 @@ class SegmentSingleton {
     }
 
     try {
-      const { AnalyticsBrowser } = await import("@segment/analytics-next");
       const [analytics] = await AnalyticsBrowser.load(
         { writeKey },
         {

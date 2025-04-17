@@ -1,10 +1,10 @@
 import store from "store";
 import type { AxiosError } from "axios";
-import * as Sentry from "@sentry/react";
 import { is404orAuthPath } from "api/helpers";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { API_STATUS_CODES, ERROR_CODES } from "ee/constants/ApiConstants";
+import captureException from "instrumentation/sendFaroErrors";
 
 export const handleUnauthorizedError = async (error: AxiosError) => {
   if (is404orAuthPath()) return null;
@@ -20,7 +20,7 @@ export const handleUnauthorizedError = async (error: AxiosError) => {
       }),
     );
 
-    Sentry.captureException(error);
+    captureException(error, { errorName: "UnauthorizedError" });
 
     return Promise.reject({
       ...error,

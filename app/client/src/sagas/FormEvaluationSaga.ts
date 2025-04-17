@@ -11,7 +11,7 @@ import {
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import type {
@@ -372,7 +372,7 @@ export default function* formEvaluationChangeListener() {
       yield call(formEvaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e, { errorName: "FormEvaluationError" });
     }
   }
 }

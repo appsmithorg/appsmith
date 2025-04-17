@@ -35,6 +35,7 @@ export const Code = (props: CodeProps) => {
       >
         <Text size="caption">{match[1]}</Text>
         <Button
+          color="neutral"
           icon={copied ? "check" : "copy"}
           onPress={handleCopy}
           size="small"

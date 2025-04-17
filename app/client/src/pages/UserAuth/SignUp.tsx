@@ -60,11 +60,12 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
-import * as Sentry from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import captureException from "instrumentation/sendFaroErrors";
+import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 declare global {
   interface Window {
@@ -144,11 +145,8 @@ export function SignUp(props: SignUpFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
-    Sentry.captureException("Sign up failed", {
-      level: "error",
-      extra: {
-        error: new Error(errorMessage),
-      },
+    captureException(new Error(errorMessage), {
+      errorName: "SignUp",
     });
   }
 
@@ -260,7 +258,9 @@ export function SignUp(props: SignUpFormProps) {
         <title>{htmlPageTitle}</title>
       </Helmet>
 
-      {showError && <Callout kind="error">{errorMessage}</Callout>}
+      {showError && (
+        <Callout kind="error">{getSafeErrorMessage(errorMessage)}</Callout>
+      )}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}

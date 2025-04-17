@@ -37,6 +37,70 @@
           "usage": "cypress/e2e/..."
         }
       }
+    },
+    "reactHooks": {
+      "bestPractices": {
+        "required": true,
+        "rules": {
+          "safePropertyAccess": {
+            "required": true,
+            "description": "Use lodash/get or optional chaining for nested property access",
+            "examples": ".cursor/docs/react_hooks_circular_dependency_lessons.md#1.-Safe-nested-property-access-using-lodash/get"
+          },
+          "preventCircularDependencies": {
+            "required": true,
+            "description": "Use useRef to track previous values and implement directional updates",
+            "examples": ".cursor/docs/react_hooks_circular_dependency_lessons.md#2.-Tracking-previous-values-with-useRef"
+          },
+          "earlyReturns": {
+            "required": true,
+            "description": "Implement early returns when values haven't changed to prevent unnecessary updates",
+            "examples": ".cursor/docs/react_hooks_circular_dependency_lessons.md#3.-Directional-updates"
+          },
+          "deepComparisons": {
+            "required": true,
+            "description": "Use deep equality checks for comparing objects and arrays",
+            "examples": ".cursor/docs/react_hooks_circular_dependency_lessons.md#4.-Deep-comparisons-for-complex-objects"
+          }
+        },
+        "analyzer": ".cursor/rules/react_hook_best_practices.mdc"
+      }
+    },
+    "testingRequirements": {
+      "bugFixes": {
+        "required": true,
+        "tests": {
+          "unit": {
+            "required": true,
+            "description": "Unit tests must verify the specific fix and ensure no regressions"
+          },
+          "e2e": {
+            "required": "for user-facing changes",
+            "description": "End-to-end tests must verify the fix works in the application context"
+          }
+        },
+        "examples": {
+          "unit": ".cursor/rules/test_generator.mdc#Bug-Fix-Test-Example-(Unit-Test)",
+          "e2e": ".cursor/rules/test_generator.mdc#Bug-Fix-Test-Example-(E2E-Test)" 
+        }
+      },
+      "features": {
+        "required": true,
+        "tests": {
+          "unit": {
+            "required": true,
+            "description": "Unit tests must cover core functionality and edge cases"
+          },
+          "integration": {
+            "required": "for complex features",
+            "description": "Integration tests must verify interactions between components"
+          },
+          "e2e": {
+            "required": "for user-facing features",
+            "description": "End-to-end tests must verify the feature works in the application context"
+          }
+        }
+      }
     }
   }
 }

@@ -21,10 +21,9 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { toast } from "@appsmith/ads";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { toggleAISupportModal } from "ee/actions/aiAgentActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
@@ -152,7 +151,10 @@ export const useNavigationMenuData = ({
           children: [
             {
               text: "Documentation",
-              onClick: () => openExternalLink(DOCS_BASE_URL),
+              onClick: () =>
+                openExternalLink(
+                  isAiAgentFlowEnabled ? DOCS_AI_BASE_URL : DOCS_BASE_URL,
+                ),
               type: MenuTypes.MENU,
               isVisible: true,
               startIcon: "book-line",
@@ -164,7 +166,7 @@ export const useNavigationMenuData = ({
                   "https://github.com/appsmithorg/appsmith/issues/new/choose",
                 ),
               type: MenuTypes.MENU,
-              isVisible: true,
+              isVisible: !isAiAgentFlowEnabled,
               startIcon: "bug-line",
             },
             {
@@ -177,15 +179,6 @@ export const useNavigationMenuData = ({
               },
               type: MenuTypes.MENU,
               isVisible: intercomAppID && window.Intercom,
-            },
-            {
-              startIcon: "chat-help",
-              text: "Chat with us",
-              onClick: () => {
-                dispatch(toggleAISupportModal());
-              },
-              type: MenuTypes.MENU,
-              isVisible: isAiAgentFlowEnabled,
             },
           ],
         },

@@ -78,7 +78,6 @@ import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
-import * as Sentry from "@sentry/react";
 import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
@@ -1919,6 +1918,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetActiveField: () => dispatch(resetActiveEditorField()),
 });
 
-export default Sentry.withProfiler(
-  connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(CodeEditor);

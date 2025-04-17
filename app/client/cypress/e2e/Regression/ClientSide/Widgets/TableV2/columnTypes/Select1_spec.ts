@@ -277,13 +277,11 @@ describe(
         _.propPane.TogglePropertyState("Allow adding a row", "On");
 
         _.propPane.OpenTableColumnSettings("step");
-
-        cy.get(".t--property-control-sameoptionsinnewrow input").should(
-          "have.attr",
-          "checked",
+        _.propPane.AssertPropertySwitchState(
+          "Use top row values in new rows",
+          "enabled",
         );
 
-        // Check if newrowoption is invisible when sameoptionsinnewrow is true
         cy.get(".t--property-control-newrowoptions").should("not.exist");
 
         cy.updateCodeInput(
@@ -344,8 +342,8 @@ describe(
 
     it("11. should check that 'new row select options' is working", () => {
       const checkNewRowOptions = () => {
-        // New row select options should be visible when "Same options in new row" is turned off
-        _.propPane.TogglePropertyState("Same options in new row", "Off");
+        // New row select options should be visible when "Use top row values in new rows" is turned off
+        _.propPane.TogglePropertyState("Use top row values in new rows", "Off");
         cy.get(".t--property-control-newrowoptions").should("exist");
 
         // New row select options should appear in table

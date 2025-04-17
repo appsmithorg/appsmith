@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
@@ -130,4 +129,4 @@ export function SnapShotBannerCTA() {
 
 SnapShotBannerCTA.displayName = "SnapShotBannerCTA";
 
-export default Sentry.withProfiler(SnapShotBannerCTA);
+export default SnapShotBannerCTA;

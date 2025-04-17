@@ -213,7 +213,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: googleRecaptchaSiteKey.value,
     },
     mixpanel: {
-      enabled: segment.enabled,
+      enabled: segment.enabled && mixpanel.enabled,
       apiKey: mixpanel.value,
     },
     cloudHosting:
