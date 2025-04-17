@@ -307,6 +307,12 @@ export async function evalTree(
           dataTreeEvaluator?.setPrevState(parsedUpdates[0].rhs);
         } catch (e) {
           updates = "[]";
+
+          errors.push({
+            type: EvalErrorTypes.EVAL_TREE_ERROR,
+            message: (e as Error).message,
+            stack: (e as Error).stack,
+          });
         }
         isNewTree = false;
       } else {

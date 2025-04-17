@@ -6,7 +6,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes, type EvalError } from "utils/DynamicBindingUtils";
 import { create } from "mutative";
 export const fn_keys: string = "__fn_keys__";
 import { klona } from "klona/json";
@@ -465,7 +465,7 @@ export const generateSerialisedUpdates = (
 ): {
   serialisedUpdates: string;
   updates: Diff<DataTree, DataTree>[];
-  error?: { type: string; message: string };
+  error?: EvalError;
 } => {
   const updates = generateOptimisedUpdates(
     prevState,
@@ -491,6 +491,7 @@ export const generateSerialisedUpdates = (
       error: {
         type: EvalErrorTypes.SERIALIZATION_ERROR,
         message: (error as Error).message,
+        stack: (error as Error).stack,
       },
     };
   }
@@ -547,6 +548,7 @@ export function updatePrevState(
             dataTreeEvaluator.errors.push({
               type: EvalErrorTypes.UPDATE_DATA_TREE_ERROR,
               message: error.message,
+              stack: error.stack,
             });
           }
         }

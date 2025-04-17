@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { error as errorLogger } from "loglevel";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function captureException(exception: any, hint?: any): string {
@@ -11,8 +12,7 @@ export function captureException(exception: any, hint?: any): string {
       { type: "error", context: context },
     );
   } catch (error) {
-    // eslint-disable-next-line
-    console.error(error);
+    errorLogger(error);
   }
 
   return eventId;
