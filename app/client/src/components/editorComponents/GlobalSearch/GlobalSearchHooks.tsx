@@ -8,6 +8,7 @@ import {
   getActions,
   getAllPageWidgets,
   getJSCollections,
+  getPluginByPackageName,
   getPlugins,
   getRecentDatasourceIds,
 } from "ee/selectors/entitiesSelector";
@@ -24,7 +25,12 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { type Plugin, PluginType, UIComponentTypes } from "entities/Plugin";
+import {
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+  UIComponentTypes,
+} from "entities/Plugin";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -41,6 +47,7 @@ import {
   checkIfJSObjectCreationAllowed,
   useWorkflowOptions,
 } from "ee/utils/workflowHelpers";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
@@ -72,21 +79,35 @@ export const useFilteredFileOperations = ({
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const AiPlugin = useSelector((state: AppState) =>
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+  );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
-    isFeatureEnabled,
+    isGACEnabled,
     userWorkspacePermissions,
   );
 
   // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter(
-    (ds) =>
-      getHasCreateDatasourceActionPermission(
-        isFeatureEnabled,
-        ds.userPermissions ?? [],
-      ) && canCreateActions,
-  );
+  const allDatasources = [...appWideDS, ...otherDS]
+    .filter(
+      (ds) =>
+        getHasCreateDatasourceActionPermission(
+          isGACEnabled,
+          ds.userPermissions ?? [],
+        ) && canCreateActions,
+    )
+    .filter((ds) => {
+      // We don't want to show the AI datasource in the
+      // lists if the AI agent flow is enabled
+      if (isAiAgentFlowEnabled && AiPlugin) {
+        return AiPlugin.id !== ds.pluginId;
+      }
+
+      return true;
+    });
 
   return useFilteredAndSortedFileOperations({
     allDatasources,
