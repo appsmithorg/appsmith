@@ -81,7 +81,7 @@ public class OrganizationConfigurationCE implements Serializable {
 
         googleMapsKey = ObjectUtils.defaultIfNull(organizationConfiguration.getGoogleMapsKey(), googleMapsKey);
         isFormLoginEnabled =
-                getComputedValue(true, organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
+                ObjectUtils.defaultIfNull(organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         isSignupDisabled = ObjectUtils.defaultIfNull(organizationConfiguration.getIsSignupDisabled(), isSignupDisabled);
         instanceName = ObjectUtils.defaultIfNull(organizationConfiguration.getInstanceName(), instanceName);
         emailVerificationEnabled = ObjectUtils.defaultIfNull(
