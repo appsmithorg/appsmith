@@ -11,11 +11,13 @@ import {
   type Plugin,
   PluginPackageName,
   PluginType,
+  type UpcomingIntegration,
 } from "entities/Plugin";
 import { getQueryParams } from "utils/URLUtils";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugins,
+  getUpcomingPlugins,
 } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
@@ -43,10 +45,7 @@ import {
 import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import {
-  getFilteredPremiumIntegrations,
-  type PremiumIntegration,
-} from "./PremiumDatasources/Constants";
+import { getFilteredUpcomingIntegrations } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
@@ -75,7 +74,7 @@ interface CreateAPIOrSaasPluginsProps {
     apiType: string,
   ) => void;
   isPremiumDatasourcesViewEnabled?: boolean;
-  premiumPlugins: PremiumIntegration[];
+  premiumPlugins: UpcomingIntegration[];
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
@@ -310,6 +309,8 @@ const mapStateToProps = (
     pluginSearchSelector(state, "search") || ""
   ).toLocaleLowerCase();
 
+  const upcomingPlugins = getUpcomingPlugins(state);
+
   const allPlugins = getPlugins(state);
 
   let plugins = allPlugins.filter((p) =>
@@ -357,12 +358,13 @@ const mapStateToProps = (
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
-          getFilteredPremiumIntegrations(
+          getFilteredUpcomingIntegrations(
             isExternalSaasEnabled || isIntegrationsEnabledForPaid,
             pluginNames,
+            upcomingPlugins,
           ),
           searchedPlugin,
-        ) as PremiumIntegration[])
+        ) as UpcomingIntegration[])
       : [];
 
   const restAPIVisible =

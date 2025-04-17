@@ -1,42 +1,24 @@
-import PluginsApi from "api/PluginApi";
-import type { PremiumIntegration } from "api/PluginApi";
-import log from "loglevel";
-
-// Re-export the PremiumIntegration type
-export type { PremiumIntegration };
-
-// Store the fetched integrations
-const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [];
-
-// Initialize by fetching integrations
-PluginsApi.fetchPremiumIntegrations([])
-  .then((integrations) => {
-    // Clear the array and push new items
-    PREMIUM_INTEGRATIONS.length = 0;
-    PREMIUM_INTEGRATIONS.push(...integrations);
-  })
-  .catch((error) => {
-    log.error("Failed to fetch premium integrations:", error);
-  });
+import type { UpcomingIntegration } from "entities/Plugin";
 
 /**
- * Filters premium integrations based on available plugins.
+ * Filters upcoming integrations based on available plugins.
  * Returns cached integrations synchronously.
  *
  * @param isExternalSaasEnabled Whether external SaaS integrations are enabled
  * @param pluginNames List of installed plugin names (lowercase)
- * @returns Filtered list of premium integrations
+ * @returns Filtered list of upcoming integrations
  */
-export const getFilteredPremiumIntegrations = (
+export const getFilteredUpcomingIntegrations = (
   isExternalSaasEnabled: boolean,
   pluginNames: string[],
-): PremiumIntegration[] => {
+  upcomingPlugins: UpcomingIntegration[],
+): UpcomingIntegration[] => {
   return isExternalSaasEnabled
-    ? PREMIUM_INTEGRATIONS.filter(
+    ? upcomingPlugins.filter(
         (integration) =>
           !pluginNames.includes(integration.name.toLocaleLowerCase()),
       )
-    : PREMIUM_INTEGRATIONS;
+    : upcomingPlugins;
 };
 
 export const PREMIUM_INTEGRATION_CONTACT_FORM =

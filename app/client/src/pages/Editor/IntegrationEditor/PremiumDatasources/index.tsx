@@ -5,9 +5,9 @@ import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { handlePremiumDatasourceClick } from "./Helpers";
 import DatasourceItem from "../DatasourceItem";
-import type { PremiumIntegration } from "./Constants";
 import { createMessage } from "ee/constants/messages";
 import { PREMIUM_DATASOURCES } from "ee/constants/messages";
+import type { UpcomingIntegration } from "entities/Plugin";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
@@ -26,7 +26,7 @@ const PremiumTag = styled(Tag)`
 `;
 
 export default function PremiumDatasources(props: {
-  plugins: PremiumIntegration[];
+  plugins: UpcomingIntegration[];
   isIntegrationsEnabledForPaid?: boolean;
 }) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
@@ -49,7 +49,7 @@ export default function PremiumDatasources(props: {
           handleOnClick={() => {
             handleOnClick(integration.name);
           }}
-          icon={getAssetUrl(integration.icon)}
+          icon={getAssetUrl(integration.iconLocation)}
           key={integration.name}
           name={integration.name}
           rightSibling={

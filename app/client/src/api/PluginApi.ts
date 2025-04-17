@@ -3,7 +3,11 @@ import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import type { DefaultPlugin, Plugin } from "entities/Plugin";
+import type {
+  DefaultPlugin,
+  Plugin,
+  UpcomingIntegration,
+} from "entities/Plugin";
 import { objectKeys } from "@appsmith/utils";
 
 export interface PluginFormPayload {
@@ -18,16 +22,6 @@ export interface PluginFormPayload {
   setting: any[];
   dependencies: DependencyMap;
   formButton: string[];
-}
-
-export interface UpcomingIntegration {
-  name: string;
-  iconLocation: string;
-}
-
-export interface PremiumIntegration {
-  name: string;
-  icon: string;
 }
 
 class PluginsApi extends Api {
@@ -70,27 +64,6 @@ class PluginsApi extends Api {
     AxiosPromise<ApiResponse<UpcomingIntegration[]>>
   > {
     return Api.get(PluginsApi.url + "/upcoming-integrations");
-  }
-
-  static async fetchPremiumIntegrations(
-    defaultIntegrations: PremiumIntegration[] = [],
-  ): Promise<PremiumIntegration[]> {
-    try {
-      const response = await Api.get(PluginsApi.url + "/upcoming-integrations");
-
-      if (response.data.responseMeta.success && response.data.data.length > 0) {
-        // Map API response to PremiumIntegration format
-        return response.data.data.map((integration: UpcomingIntegration) => ({
-          name: integration.name,
-          icon: integration.iconLocation,
-        }));
-      }
-
-      return defaultIntegrations;
-    } catch (error) {
-      // Silently handle error and return default integrations
-      return defaultIntegrations;
-    }
   }
 
   static async uploadFiles(

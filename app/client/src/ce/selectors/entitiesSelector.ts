@@ -1799,3 +1799,8 @@ export const getJSCollectionActionSchemaDirtyState = createSelector(
     return action.isDirtyMap?.SCHEMA_GENERATION;
   },
 );
+
+export const getUpcomingPlugins = createSelector(
+  (state: AppState) => state.entities.plugins.upcomingPlugins,
+  (upcomingPlugins) => upcomingPlugins.list,
+);
