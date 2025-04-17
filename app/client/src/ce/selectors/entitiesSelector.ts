@@ -1689,8 +1689,8 @@ export const getQuerySegmentItems = createSelector(
           : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
       } else {
         group =
-          action.config.datasource?.name ??
-          datasourceIdToNameMap[action.config.datasource?.id];
+          datasourceIdToNameMap[action.config.datasource?.id] ??
+          action.config.datasource?.name;
       }
 
       return {
