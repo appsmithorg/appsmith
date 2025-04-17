@@ -47,6 +47,7 @@ jest.mock("reselect", () => ({
     if (typeof resultFunc === "function") {
       return resultFunc();
     }
+
     return jest.fn();
   }),
 }));
@@ -127,7 +128,7 @@ jest.mock("react", () => {
       updateConfig: jest.fn(),
       widgetId: "test-widget-id",
     }),
-    useCallback: (fn: any) => fn,
+    useCallback: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
     // useMemo will be mocked in each test
     useMemo: jest.fn(),
   };
@@ -158,6 +159,7 @@ describe("useTableOrSpreadsheet", () => {
     }));
 
     const { result } = renderHook(() => useTableOrSpreadsheet());
+
     expect(result.current).toBeTruthy();
   });
 
