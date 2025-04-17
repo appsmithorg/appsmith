@@ -18,6 +18,10 @@ const UQIEditorForm = () => {
 
   const { data, evaluationState } = useFormData();
 
+  if (!data) {
+    return null;
+  }
+
   return (
     <Flex
       alignItems="center"
