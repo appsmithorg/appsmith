@@ -318,6 +318,11 @@ export function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.CACHE_ERROR: {
+        log.error(error);
+        captureException(error, { errorName: "CacheError" });
+        break;
+      }
       default: {
         log.error(error);
         captureException(error, { errorName: "UnknownEvalError" });

@@ -524,27 +524,18 @@ describe("AppComputationCache", () => {
 
       const computeFn = jest.fn(() => computationResult);
 
-      const cacheComputationResultSpy = jest.spyOn(
-        appComputationCache,
-        "cacheComputationResult",
-      );
+      try {
+        await appComputationCache.fetchOrCompute({
+          cacheName,
+          cacheProps,
+          computeFn,
+        });
+        fail("Expected error to be thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain("Cache access error");
+      }
 
-      const result = await appComputationCache.fetchOrCompute({
-        cacheName,
-        cacheProps,
-        computeFn,
-      });
-
-      expect(getItemMock).toHaveBeenCalled();
-      expect(computeFn).toHaveBeenCalled();
-      expect(cacheComputationResultSpy).toHaveBeenCalledWith({
-        cacheName,
-        cacheProps,
-        computationResult,
-      });
-      expect(result).toBe(computationResult);
-
-      cacheComputationResultSpy.mockRestore();
       loglevel.setLevel(defaultLogLevel);
     });
 

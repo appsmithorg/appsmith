@@ -93,15 +93,15 @@ export class AppComputationCache {
     cacheName: EComputationCacheName;
     computationResult: T;
   }) {
-    const shouldCache = this.isComputationCached(cacheName, cacheProps);
-
-    if (!shouldCache) {
-      return;
-    }
-
-    const cacheKey = this.generateCacheKey({ cacheProps, cacheName });
-
     try {
+      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+
+      if (!shouldCache) {
+        return;
+      }
+
+      const cacheKey = this.generateCacheKey({ cacheProps, cacheName });
+
       await this.store.setItem<ICachedData<T>>(cacheKey, {
         value: computationResult,
         dslVersion: cacheProps.dslVersion,
@@ -109,7 +109,7 @@ export class AppComputationCache {
 
       await this.trackCacheUsage(cacheKey);
     } catch (error) {
-      loglevel.debug("Error caching computation result:", error);
+      loglevel.error(error);
     }
   }
 
@@ -124,18 +124,18 @@ export class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }): Promise<T | null> {
-    const shouldCache = this.isComputationCached(cacheName, cacheProps);
-
-    if (!shouldCache) {
-      return null;
-    }
-
-    const cacheKey = this.generateCacheKey({
-      cacheProps,
-      cacheName,
-    });
-
     try {
+      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+
+      if (!shouldCache) {
+        return null;
+      }
+
+      const cacheKey = this.generateCacheKey({
+        cacheProps,
+        cacheName,
+      });
+
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
 
       if (!this.isCacheValid(cached, cacheProps)) {
@@ -152,9 +152,8 @@ export class AppComputationCache {
 
       return cached.value;
     } catch (error) {
-      loglevel.error("Error getting cache result:", error);
-
-      return null;
+      loglevel.error(error);
+      throw error;
     }
   }
 
@@ -213,13 +212,13 @@ export class AppComputationCache {
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
-    const shouldCache = this.isComputationCached(cacheName, cacheProps);
-
-    if (!shouldCache) {
-      return computeFn();
-    }
-
     try {
+      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+
+      if (!shouldCache) {
+        return computeFn();
+      }
+
       const cachedResult = await this.getCachedComputationResult<T>({
         cacheProps,
         cacheName,
@@ -239,10 +238,8 @@ export class AppComputationCache {
 
       return computationResult;
     } catch (error) {
-      loglevel.error("Error getting cache result:", error);
-      const fallbackResult = await computeFn();
-
-      return fallbackResult;
+      loglevel.error(error);
+      throw error;
     }
   }
 
