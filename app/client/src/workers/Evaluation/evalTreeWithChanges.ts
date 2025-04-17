@@ -7,7 +7,7 @@ import type {
 } from "./types";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import type { UpdateDataTreeMessageData } from "sagas/types";
 import {
   generateOptimisedUpdatesAndSetPrevState,
   getNewDataTreeUpdates,

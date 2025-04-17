@@ -427,6 +427,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
   kind?: Partial<PropertyEvaluationErrorKind>;
+  stack?: string;
 }
 
 export interface LintError extends DataTreeError {
