@@ -2,11 +2,16 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
-import { EComputationCacheName, type ICacheProps } from "./types";
+import {
+  EComputationCacheName,
+  type IValidatedCacheProps,
+  type ICacheProps,
+} from "./types";
 import debounce from "lodash/debounce";
 
 interface ICachedData<T> {
   value: T;
+  dslVersion?: number;
 }
 
 interface ICacheLog {
@@ -61,16 +66,13 @@ export class AppComputationCache {
    * Check if the computation result should be cached based on the app mode configuration
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
    */
-  isComputationCached({
-    cacheName,
-    cacheProps,
-  }: {
-    cacheName: EComputationCacheName;
-    cacheProps: ICacheProps;
-  }) {
-    const { appMode, timestamp } = cacheProps;
+  isComputationCached(
+    cacheName: EComputationCacheName,
+    cacheProps: ICacheProps,
+  ): cacheProps is IValidatedCacheProps {
+    const { appMode, dslVersion, timestamp } = cacheProps;
 
-    if (!appMode || !timestamp) {
+    if (!appMode || !timestamp || isNull(dslVersion)) {
       return false;
     }
 
@@ -91,10 +93,7 @@ export class AppComputationCache {
     cacheName: EComputationCacheName;
     computationResult: T;
   }) {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
+    const shouldCache = this.isComputationCached(cacheName, cacheProps);
 
     if (!shouldCache) {
       return;
@@ -105,6 +104,7 @@ export class AppComputationCache {
     try {
       await this.store.setItem<ICachedData<T>>(cacheKey, {
         value: computationResult,
+        dslVersion: cacheProps.dslVersion,
       });
 
       await this.trackCacheUsage(cacheKey);
@@ -124,10 +124,7 @@ export class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }): Promise<T | null> {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
+    const shouldCache = this.isComputationCached(cacheName, cacheProps);
 
     if (!shouldCache) {
       return null;
@@ -141,7 +138,7 @@ export class AppComputationCache {
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
 
-      if (isNull(cached)) {
+      if (!this.isCacheValid(cached, cacheProps)) {
         // Cache miss
         // Delete invalid cache entries when thread is idle
         setTimeout(async () => {
@@ -161,6 +158,21 @@ export class AppComputationCache {
     }
   }
 
+  isCacheValid<T>(
+    cachedValue: ICachedData<T> | null,
+    cacheProps: IValidatedCacheProps,
+  ): cachedValue is ICachedData<T> {
+    if (isNull(cachedValue)) {
+      return false;
+    }
+
+    if (!cachedValue.dslVersion) {
+      return false;
+    }
+
+    return cachedValue.dslVersion === cacheProps.dslVersion;
+  }
+
   /**
    * Generates a cache key from the index parts
    * @returns - The generated cache key
@@ -169,7 +181,7 @@ export class AppComputationCache {
     cacheName,
     cacheProps,
   }: {
-    cacheProps: ICacheProps;
+    cacheProps: IValidatedCacheProps;
     cacheName: EComputationCacheName;
   }) {
     const { appId, appMode, instanceId, pageId, timestamp } = cacheProps;
@@ -201,10 +213,7 @@ export class AppComputationCache {
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
+    const shouldCache = this.isComputationCached(cacheName, cacheProps);
 
     if (!shouldCache) {
       return computeFn();
@@ -270,6 +279,10 @@ export class AppComputationCache {
       const invalidCacheKeys = cacheKeys.filter((key) => {
         const keyParts = key.split(AppComputationCache.CACHE_KEY_DELIMITER);
         const cacheKeyTimestamp = parseInt(keyParts[4], 10);
+
+        if (!cacheProps.timestamp) {
+          return false;
+        }
 
         return (
           keyParts[0] === cacheProps.instanceId &&

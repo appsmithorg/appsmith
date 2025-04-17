@@ -1,4 +1,8 @@
-import { EComputationCacheName, type ICacheProps } from "./types";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+  type IValidatedCacheProps,
+} from "./types";
 import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import loglevel from "loglevel";
@@ -71,12 +75,13 @@ describe("AppComputationCache", () => {
 
   describe("generateCacheKey", () => {
     test("should generate the correct cache key", () => {
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -102,14 +107,15 @@ describe("AppComputationCache", () => {
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached({
+      const result = appComputationCache.isComputationCached(
         cacheName,
         cacheProps,
-      });
+      );
 
       expect(result).toBe(false);
     });
@@ -121,14 +127,15 @@ describe("AppComputationCache", () => {
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached({
+      const result = appComputationCache.isComputationCached(
         cacheName,
         cacheProps,
-      });
+      );
 
       expect(result).toBe(true);
     });
@@ -139,14 +146,15 @@ describe("AppComputationCache", () => {
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached({
+      const result = appComputationCache.isComputationCached(
         cacheName,
         cacheProps,
-      });
+      );
 
       expect(result).toBe(false);
     });
@@ -158,14 +166,35 @@ describe("AppComputationCache", () => {
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached({
+      const result = appComputationCache.isComputationCached(
         cacheName,
         cacheProps,
-      });
+      );
+
+      expect(result).toBe(false);
+    });
+
+    test("should return false if dslVersion is undefined", () => {
+      const cacheProps: ICacheProps = {
+        appMode: APP_MODE.PUBLISHED,
+        timestamp: new Date("11 September 2024").toISOString(),
+        appId: "appId",
+        instanceId: "instanceId",
+        pageId: "pageId",
+        dslVersion: null,
+      };
+
+      const cacheName = EComputationCacheName.ALL_KEYS;
+
+      const result = appComputationCache.isComputationCached(
+        cacheName,
+        cacheProps,
+      );
 
       expect(result).toBe(false);
     });
@@ -173,12 +202,13 @@ describe("AppComputationCache", () => {
 
   describe("getCachedComputationResult", () => {
     test("should call getItemMock and return null if cache miss", async () => {
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -205,12 +235,13 @@ describe("AppComputationCache", () => {
     });
 
     test("should call deleteInvalidCacheEntries on cache miss after 10 seconds", async () => {
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -240,13 +271,14 @@ describe("AppComputationCache", () => {
       expect(keysMock).toHaveBeenCalledTimes(1);
     });
 
-    test("should call getItemMock and return cached value if cache hit", async () => {
-      const cacheProps: ICacheProps = {
+    test("should call deleteInvalidCacheEntries on dsl version mismatch after 10 seconds", async () => {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 2,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -256,7 +288,43 @@ describe("AppComputationCache", () => {
         cacheProps,
       });
 
-      getItemMock.mockResolvedValue({ value: "cachedValue" });
+      getItemMock.mockResolvedValue({ value: "cachedValue", dslVersion: 1 });
+
+      const result = await appComputationCache.getCachedComputationResult({
+        cacheName,
+        cacheProps,
+      });
+
+      expect(getItemMock).toHaveBeenCalledWith(cacheKey);
+      expect(result).toBe(null);
+
+      jest.advanceTimersByTime(2500);
+      expect(keysMock).toHaveBeenCalledTimes(0);
+
+      jest.advanceTimersByTime(2500);
+      jest.runAllTimers();
+
+      expect(keysMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("should call getItemMock and return cached value if cache hit", async () => {
+      const cacheProps: IValidatedCacheProps = {
+        appMode: APP_MODE.PUBLISHED,
+        timestamp: new Date("11 September 2024").toISOString(),
+        appId: "appId",
+        instanceId: "instanceId",
+        pageId: "pageId",
+        dslVersion: 1,
+      };
+
+      const cacheName = EComputationCacheName.ALL_KEYS;
+
+      const cacheKey = appComputationCache.generateCacheKey({
+        cacheName,
+        cacheProps,
+      });
+
+      getItemMock.mockResolvedValue({ value: "cachedValue", dslVersion: 1 });
 
       const result = await appComputationCache.getCachedComputationResult({
         cacheName,
@@ -270,12 +338,13 @@ describe("AppComputationCache", () => {
 
   describe("cacheComputationResult", () => {
     test("should store computation result and call trackCacheUsage when shouldCache is true", async () => {
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -300,6 +369,7 @@ describe("AppComputationCache", () => {
 
       expect(setItemMock).toHaveBeenCalledWith(cacheKey, {
         value: computationResult,
+        dslVersion: 1,
       });
       expect(trackCacheUsageSpy).toHaveBeenCalledWith(cacheKey);
 
@@ -313,6 +383,30 @@ describe("AppComputationCache", () => {
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
+      };
+
+      const cacheName = EComputationCacheName.ALL_KEYS;
+
+      const computationResult = "computedValue";
+
+      await appComputationCache.cacheComputationResult({
+        cacheName,
+        cacheProps,
+        computationResult,
+      });
+
+      expect(setItemMock).not.toHaveBeenCalled();
+    });
+
+    test("should not store computation result when dsl version is invalid", async () => {
+      const cacheProps: ICacheProps = {
+        appMode: APP_MODE.PUBLISHED,
+        timestamp: new Date("11 September 2024").toISOString(),
+        appId: "appId",
+        instanceId: "instanceId",
+        pageId: "pageId",
+        dslVersion: null,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -331,12 +425,13 @@ describe("AppComputationCache", () => {
 
   describe("fetchOrCompute", () => {
     test("should return cached result if available", async () => {
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -346,7 +441,7 @@ describe("AppComputationCache", () => {
         cacheProps,
       });
 
-      getItemMock.mockResolvedValue({ value: "cachedValue" });
+      getItemMock.mockResolvedValue({ value: "cachedValue", dslVersion: 1 });
 
       const computeFn = jest.fn(() => "computedValue");
 
@@ -364,12 +459,13 @@ describe("AppComputationCache", () => {
     test("should compute, cache, and return result if not in cache", async () => {
       getItemMock.mockResolvedValue(null);
 
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -413,12 +509,13 @@ describe("AppComputationCache", () => {
 
       loglevel.setLevel("SILENT");
 
-      const cacheProps: ICacheProps = {
+      const cacheProps: IValidatedCacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: 1,
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -450,16 +547,40 @@ describe("AppComputationCache", () => {
       cacheComputationResultSpy.mockRestore();
       loglevel.setLevel(defaultLogLevel);
     });
-  });
 
-  describe("deleteInvalidCacheEntries", () => {
-    test("should delete old cache entries", async () => {
+    test("should not cache result when dsl version is invalid", async () => {
       const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
+        dslVersion: null,
+      };
+
+      const cacheName = EComputationCacheName.ALL_KEYS;
+
+      const computationResult = "computedValue";
+
+      await appComputationCache.cacheComputationResult({
+        cacheName,
+        cacheProps,
+        computationResult,
+      });
+
+      expect(setItemMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteInvalidCacheEntries", () => {
+    test("should delete old cache entries", async () => {
+      const cacheProps: IValidatedCacheProps = {
+        appMode: APP_MODE.PUBLISHED,
+        timestamp: new Date("11 September 2024").toISOString(),
+        appId: "appId",
+        instanceId: "instanceId",
+        pageId: "pageId",
+        dslVersion: 1,
       };
 
       const currentTimestamp = new Date(cacheProps.timestamp).getTime();
