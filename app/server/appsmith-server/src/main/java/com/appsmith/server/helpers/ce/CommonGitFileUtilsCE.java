@@ -39,6 +39,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -517,8 +518,15 @@ public class CommonGitFileUtilsCE {
                     }
 
                     if (PluginType.REMOTE.equals(newAction.getPluginType())) {
-                        Map<String, Object> formData = objectMapper.convertValue(data, new TypeReference<>() {});
-                        actionConfiguration.setFormData(formData);
+                        try {
+                            Object file = objectMapper.readValue(data.toString(), Object.class);
+                            Map<String, Object> formData = objectMapper.convertValue(file, new TypeReference<>() {});
+                            actionConfiguration.setFormData(formData);
+
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+
                     } else if (data != null) {
                         String body = String.valueOf(data);
                         actionConfiguration.setBody(body);

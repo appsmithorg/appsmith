@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import Container from "./Container";
 import type { RouteComponentProps } from "react-router-dom";
 import { Spinner } from "@appsmith/ads";
-import * as Sentry from "@sentry/react";
 import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
+import captureException from "instrumentation/sendFaroErrors";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -20,10 +20,13 @@ const VerifyUser = (
 
   const token = queryParams.get("token");
   const email = queryParams.get("email");
+  const organizationId = queryParams.get("organizationId");
 
   useEffect(() => {
     if (!token || !email) {
-      Sentry.captureMessage("User email verification link is damaged");
+      captureException(new Error("User email verification link is damaged"), {
+        errorName: "VerificationLinkDamaged",
+      });
     }
 
     const formElement: HTMLFormElement = document.getElementById(
@@ -50,16 +53,25 @@ const VerifyUser = (
     <Container title={"Verifying"}>
       <form action={submitUrl} id="verification-form" method="POST">
         <CsrfTokenInput />
-        {Array.from(queryParams.entries()).map((param) => {
-          return (
-            <input
-              key={param[0]}
-              name={param[0]}
-              type="hidden"
-              value={param[1]}
-            />
-          );
-        })}
+        <input name="email" type="hidden" value={email} />
+        <input name="token" type="hidden" value={token} />
+        {organizationId && (
+          <input name="organizationId" type="hidden" value={organizationId} />
+        )}
+        {queryParams.get("redirectUrl") && (
+          <input
+            name="redirectUrl"
+            type="hidden"
+            value={queryParams.get("redirectUrl") || ""}
+          />
+        )}
+        {queryParams.get("enableFirstTimeUserExperience") && (
+          <input
+            name="enableFirstTimeUserExperience"
+            type="hidden"
+            value={queryParams.get("enableFirstTimeUserExperience") || "false"}
+          />
+        )}
       </form>
       <Spinner size="lg" />
     </Container>

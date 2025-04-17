@@ -1,0 +1,295 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Test Generator
+
+```yaml
+name: Test Generator
+description: Automatically generates appropriate tests for code changes
+author: Cursor AI
+version: 1.0.0
+tags:
+  - testing
+  - automation
+  - quality
+activation:
+  always: true
+  event:
+    - file_change
+    - command
+triggers:
+  - file.created
+  - file.modified
+  - command: "generate_tests"
+```
+
+## Rule Definition
+
+This rule analyzes code changes and generates appropriate test cases to ensure proper test coverage.
+
+## Test Generation Logic
+
+```javascript
+// Main function to generate tests for code changes
+function generateTests(files, codebase) {
+  const testPlans = [];
+  
+  // Process each changed file
+  for (const file of files) {
+    if (shouldGenerateTestsFor(file)) {
+      const testPlan = createTestPlan(file, codebase);
+      testPlans.push(testPlan);
+    }
+  }
+  
+  return {
+    testPlans,
+    summary: `Generated ${testPlans.length} test plans`
+  };
+}
+
+// Determine if we should generate tests for a file
+function shouldGenerateTestsFor(file) {
+  // Skip test files, configuration files, etc.
+  if (file.path.includes('.test.') || file.path.includes('.spec.')) {
+    return false;
+  }
+  
+  // Skip certain file types
+  const skipExtensions = ['.md', '.json', '.yml', '.yaml', '.svg', '.png', '.jpg'];
+  if (skipExtensions.some(ext => file.path.endsWith(ext))) {
+    return false;
+  }
+  
+  return true;
+}
+
+// Create a test plan for the file
+function createTestPlan(file, codebase) {
+  const testType = determineTestType(file);
+  const testCases = analyzeFileForTestCases(file, codebase);
+  
+  return {
+    sourceFile: file.path,
+    testType,
+    testFile: generateTestFilePath(file, testType),
+    testCases,
+    testFramework: selectTestFramework(file)
+  };
+}
+
+// Determine the appropriate type of test
+function determineTestType(file) {
+  if (file.path.includes('app/client')) {
+    if (file.path.includes('/components/')) {
+      return 'component';
+    } else if (file.path.includes('/utils/')) {
+      return 'unit';
+    } else if (file.path.includes('/api/')) {
+      return 'integration';
+    }
+    return 'unit';
+  } else if (file.path.includes('app/server')) {
+    if (file.path.includes('/controllers/')) {
+      return 'controller';
+    } else if (file.path.includes('/services/')) {
+      return 'service';
+    } else if (file.path.includes('/repositories/')) {
+      return 'repository';
+    }
+    return 'unit';
+  }
+  
+  return 'unit'; // Default
+}
+
+// Analyze file to determine test cases needed
+function analyzeFileForTestCases(file, codebase) {
+  // This would contain complex analysis of the file
+  // to determine appropriate test cases
+  const testCases = [];
+  
+  // Example test cases for different file types
+  if (file.path.includes('.tsx') || file.path.includes('.jsx')) {
+    testCases.push(
+      { type: 'render', description: 'should render correctly' },
+      { type: 'props', description: 'should handle props correctly' },
+      { type: 'interaction', description: 'should handle user interactions' }
+    );
+  } else if (file.path.includes('.java')) {
+    testCases.push(
+      { type: 'normal', description: 'should execute successfully with valid input' },
+      { type: 'exception', description: 'should handle exceptions with invalid input' }
+    );
+  }
+  
+  return testCases;
+}
+
+// Generate path for the test file
+function generateTestFilePath(file, testType) {
+  if (file.path.includes('app/client')) {
+    const basePath = file.path.replace(/\.(ts|tsx|js|jsx)$/, '');
+    return `${basePath}.test.${file.path.split('.').pop()}`;
+  } else if (file.path.includes('app/server')) {
+    return file.path.replace(/\.java$/, 'Test.java');
+  }
+  
+  return file.path + '.test';
+}
+
+// Select appropriate test framework
+function selectTestFramework(file) {
+  if (file.path.includes('app/client')) {
+    if (file.path.includes('/cypress/')) {
+      return 'cypress';
+    }
+    return 'jest';
+  } else if (file.path.includes('app/server')) {
+    return 'junit';
+  }
+  
+  return 'jest'; // Default
+}
+
+// Generate actual test code based on the test plan
+function generateTestCode(testPlan) {
+  // This would create the actual test code based on the framework and test cases
+  // This is a placeholder that would contain complex logic to generate tests
+  return "// Generated test code would go here";
+}
+
+// Run on activation
+function activate(context) {
+  // Register event handlers
+  context.on('file.created', (event) => {
+    const file = context.getFileContent(event.file.path);
+    const codebase = context.getCodebase();
+    return generateTests([file], codebase);
+  });
+  
+  context.on('file.modified', (event) => {
+    const file = context.getFileContent(event.file.path);
+    const codebase = context.getCodebase();
+    return generateTests([file], codebase);
+  });
+  
+  context.registerCommand('generate_tests', (args) => {
+    const filePath = args.file || context.getCurrentFilePath();
+    if (!filePath) {
+      return {
+        status: "error",
+        message: "No file specified"
+      };
+    }
+    
+    const file = context.getFileContent(filePath);
+    const codebase = context.getCodebase();
+    return generateTests([file], codebase);
+  });
+}
+
+// Export functions
+module.exports = {
+  activate,
+  generateTests,
+  generateTestCode,
+  shouldGenerateTestsFor,
+  createTestPlan
+};
+```
+
+## When It Runs
+
+This rule can be triggered:
+- When code changes are made and tests need to be created
+- When a new file is created
+- When an existing file is modified
+- When a developer runs the `generate_tests` command in Cursor
+- When submitting a PR with code changes that lack tests
+
+## Usage Example
+
+1. Make code changes to a file
+2. Run `generate_tests` in Cursor
+3. Review the generated test plan
+4. Accept or modify the suggested tests
+5. Run the tests to verify your changes
+
+## Test Generation Best Practices
+
+### Frontend Tests
+
+For React components, tests should typically verify:
+
+- Component renders without crashing
+- Props are correctly handled
+- User interactions work as expected
+- Edge cases are handled properly
+
+Example Jest test for a React component:
+
+```jsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import Button from './Button';
+
+describe('Button component', () => {
+  it('renders correctly', () => {
+    render(<Button label="Click me" />);
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  it('calls onClick handler when clicked', () => {
+    const handleClick = jest.fn();
+    render(<Button label="Click me" onClick={handleClick} />);
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Backend Tests
+
+For Java services, tests should typically verify:
+
+- Methods return expected results for valid inputs
+- Proper exception handling for invalid inputs
+- Business logic is correctly implemented
+- Edge cases are handled properly
+
+Example JUnit test for a Java service:
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class UserServiceTest {
+    
+    @Autowired
+    private UserService userService;
+    
+    @Test
+    public void testCreateUser_ValidInput_ReturnsCreatedUser() {
+        User user = new User("test@example.com", "password");
+        User result = userService.createUser(user).block();
+        
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        assertEquals("test@example.com", result.getEmail());
+    }
+    
+    @Test
+    public void testCreateUser_DuplicateEmail_ThrowsException() {
+        User user = new User("existing@example.com", "password");
+        
+        // First creation should succeed
+        userService.createUser(user).block();
+        
+        // Second attempt with same email should fail
+        StepVerifier.create(userService.createUser(user))
+                .expectError(DuplicateUserException.class)
+                .verify();
+    }
+} 

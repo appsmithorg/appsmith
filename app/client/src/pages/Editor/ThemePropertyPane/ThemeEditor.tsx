@@ -3,7 +3,7 @@ import { get, startCase } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
 
-import ThemeCard from "./ThemeCard";
+import { ThemeCard } from "./ThemeCard";
 import {
   AppThemingMode,
   getAppThemingStack,

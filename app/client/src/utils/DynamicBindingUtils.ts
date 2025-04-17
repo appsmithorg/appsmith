@@ -160,6 +160,7 @@ export enum EvalErrorTypes {
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
   SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
+  UPDATE_DATA_TREE_ERROR = "UPDATE_DATA_TREE_ERROR",
 }
 
 export interface EvalError {
@@ -168,6 +169,7 @@ export interface EvalError {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
+  stack?: string;
 }
 
 export interface DynamicPath {

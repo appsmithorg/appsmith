@@ -281,9 +281,9 @@ const TitleTag = styled(Tag)`
   max-width: fit-content;
 `;
 
-const BetaTag = (
+const PreviewTag = (
   <TitleTag isClosable={false} onClose={() => {}}>
-    Beta
+    Preview
   </TitleTag>
 );
 
@@ -935,7 +935,7 @@ export function ApplicationsSection(props: any) {
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
                   title={createMessage(AI_AGENTS_APPLICATIONS)}
-                  titleTag={BetaTag}
+                  titleTag={PreviewTag}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
                 />

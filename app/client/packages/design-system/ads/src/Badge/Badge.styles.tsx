@@ -30,9 +30,35 @@ const Size = {
 export const StyledBadge = styled.div<{
   kind?: BadgeKind;
   size?: BadgeSize;
+  isAnimated?: boolean;
 }>`
   background-color: var(--badge-color-bg);
   border-radius: 50%;
   ${({ kind }) => kind && Kind[kind]}
   ${({ size }) => size && Size[size]}
+  ${({ isAnimated }) =>
+    isAnimated &&
+    `
+    position: relative;
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+      background-color: inherit;
+      opacity: 0.5;
+    }
+
+    @keyframes pulse {
+      75%, to {
+        opacity: 0;
+        transform: scale(3);
+      }
+    }
+  `}
 `;

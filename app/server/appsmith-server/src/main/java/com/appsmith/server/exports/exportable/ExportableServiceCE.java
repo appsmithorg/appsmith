@@ -34,6 +34,14 @@ public interface ExportableServiceCE<T extends BaseDomain> {
         return Mono.empty();
     }
 
+    default Mono<Void> updateExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            Mono<? extends Artifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+        return Mono.empty().then();
+    }
+
     default void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,

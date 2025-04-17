@@ -15,7 +15,6 @@ import {
 } from "selectors/appViewSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
@@ -60,7 +59,7 @@ const AppViewerBody = styled.section<{
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  height: calc(100dvh - ${({ headerHeight }) => headerHeight}px);
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
   contain: ${({ $contain }) => $contain};
 `;
@@ -259,4 +258,4 @@ function AppViewer(props: Props) {
   return <ThemeProvider theme={lightTheme}>{renderChildren()}</ThemeProvider>;
 }
 
-export default withRouter(Sentry.withProfiler(AppViewer));
+export default withRouter(AppViewer);

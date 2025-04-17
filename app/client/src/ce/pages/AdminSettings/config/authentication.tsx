@@ -34,15 +34,17 @@ import {
 import { isSAMLEnabled, isOIDCEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
-const featureFlags = selectFeatureFlags(store.getState());
-
+import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 import { getAppsmithConfigs } from "ee/configs";
 import type { Setting } from "./types";
+
+const featureFlags = selectFeatureFlags(store.getState());
+const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
 const { mailEnabled } = getAppsmithConfigs();
 
 export const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "Form login",
   subText: createMessage(FORM_LOGIN_DESC),
@@ -69,6 +71,9 @@ export const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "email verification",
+      isVisible: () => {
+        return !isMultiOrgEnabled;
+      },
       isDisabled: (settings) => {
         // Disabled when mail is not enabled, unless setting already enabled then enabled
         if (!settings) {
@@ -85,7 +90,7 @@ export const FormAuth: AdminConfigType = {
     {
       id: "APPSMITH_FORM_DISABLED_BANNER",
       category: SettingCategories.FORM_AUTH,
-      controlType: SettingTypes.LINK,
+      controlType: SettingTypes.CALLOUT,
       label:
         "To enable email verification for form login, you must enable SMTP server from email settings",
       url: EMAIL_SETUP_DOC,
@@ -100,7 +105,7 @@ export const FormAuth: AdminConfigType = {
           return false;
         }
 
-        return !mailEnabled;
+        return !mailEnabled && !isMultiOrgEnabled;
       },
     },
     {
@@ -116,13 +121,15 @@ export const FormAuth: AdminConfigType = {
           return false;
         }
 
-        return settings.emailVerificationEnabled && mailEnabled;
+        return (
+          settings.emailVerificationEnabled && mailEnabled && !isMultiOrgEnabled
+        );
       },
     },
     {
       id: "APPSMITH_FORM_ERROR_BANNER",
       category: SettingCategories.FORM_AUTH,
-      controlType: SettingTypes.LINK,
+      controlType: SettingTypes.CALLOUT,
       label:
         "Valid SMTP settings not found. Signup with email verification will not work without SMTP configuration",
       calloutType: "error",
@@ -132,7 +139,11 @@ export const FormAuth: AdminConfigType = {
           return false;
         }
 
-        if (!mailEnabled && settings.emailVerificationEnabled) {
+        if (
+          !mailEnabled &&
+          settings.emailVerificationEnabled &&
+          !isMultiOrgEnabled
+        ) {
           return true;
         }
 
@@ -200,7 +211,7 @@ export const SingleOrgGoogleAuthSettings: Setting[] = [
 
 export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
   subText: createMessage(GOOGLE_AUTH_DESC),
@@ -210,7 +221,7 @@ export const GoogleAuth: AdminConfigType = {
 
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.GROUP,
   title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
@@ -331,9 +342,9 @@ function AuthMain() {
 }
 
 export const config: AdminConfigType = {
-  icon: "lock-password-line",
+  icon: "shield-user-line",
   type: SettingCategories.AUTHENTICATION,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.USER_MANAGEMENT,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,

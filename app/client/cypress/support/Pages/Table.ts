@@ -208,6 +208,9 @@ export class Table {
   _cellWrapOn = "//div[@class='tableWrap']";
   _multirowselect = ".t--table-multiselect";
   _selectedrow = ".selected-row";
+  _loadMoreButton = "[aria-label='Load more records']";
+  _freezeColumn = (direction: "left" | "right" | "" = "") =>
+    `.t--property-control-columnfreeze span[data-value='${direction}']`;
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -858,5 +861,9 @@ export class Table {
 
   public GetTableDataSelector(rowNum: number, colNum: number): string {
     return `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  }
+
+  public FreezeColumn(direction: "left" | "right" | "" = "") {
+    this.agHelper.GetNClick(this._freezeColumn(direction), 0, true);
   }
 }

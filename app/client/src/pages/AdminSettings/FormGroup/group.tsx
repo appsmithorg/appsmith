@@ -90,6 +90,10 @@ const GroupBody = styled.div`
   label {
     user-select: none;
   }
+
+  .ads-v2-input-postfix {
+    font-weight: 500;
+  }
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);

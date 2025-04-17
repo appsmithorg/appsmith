@@ -1,7 +1,7 @@
 import { createMessage } from "ee/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import { Icon, Tooltip, Text } from "@appsmith/ads";
+import { Icon, Tooltip, Text, Link } from "@appsmith/ads";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
 import EnterpriseTag from "components/EnterpriseTag";
 import BusinessTag from "components/BusinessTag";
@@ -50,6 +50,13 @@ export const StyledAsterisk = styled(Text)`
   font-weight: 500;
 `;
 
+export const StyledLink = styled(Link)`
+  .ads-v2-link__text {
+    font-weight: 600;
+  }
+  margin-top: 8px;
+`;
+
 export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup
@@ -86,14 +93,24 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
           (setting.isEnterprise === true ? <EnterpriseTag /> : <BusinessTag />)}
       </StyledLabel>
       {children}
-      {setting.subText && (
-        <StyledSubtext
-          data-testid="admin-settings-form-group-subtext"
-          renderAs="p"
-        >
-          {createMessage(() => setting.subText || "")}
-        </StyledSubtext>
-      )}
+      {setting.subText &&
+        (setting.subTextLink ? (
+          <StyledLink
+            className="t--sub-text-link"
+            kind="secondary"
+            target="_blank"
+            to={setting.subTextLink}
+          >
+            {createMessage(() => setting.subText || "")}
+          </StyledLink>
+        ) : (
+          <StyledSubtext
+            data-testid="admin-settings-form-group-subtext"
+            renderAs="p"
+          >
+            {createMessage(() => setting.subText || "")}
+          </StyledSubtext>
+        ))}
     </StyledFormGroup>
   );
 }

@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import React, {
   memo,
@@ -173,4 +172,4 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
 
 EntityExplorerSidebar.displayName = "EntityExplorerSidebar";
 
-export default Sentry.withProfiler(EntityExplorerSidebar);
+export default EntityExplorerSidebar;

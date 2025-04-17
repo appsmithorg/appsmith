@@ -9,7 +9,7 @@ import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "entities/Plugin";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   checkIfSectionCanRender,
@@ -103,7 +103,7 @@ const FormRender = (props: Props) => {
       }
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e, { errorName: "FormRenderError" });
 
       return (
         <ErrorComponent
@@ -223,7 +223,11 @@ const FormRender = (props: Props) => {
             : "double_column";
 
         return (
-          <Zone layout={layout} style={{ ...(section.zoneCustomStyle || {}) }}>
+          <Zone
+            layout={layout}
+            style={{ ...(section.zoneCustomStyle || {}) }}
+            title={section.title}
+          >
             {children}
           </Zone>
         );

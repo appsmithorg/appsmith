@@ -31,9 +31,16 @@ export const Code = (props: CodeProps) => {
         alignItems="center"
         justifyContent="space-between"
         padding="spacing-1"
+        paddingLeft="spacing-4"
       >
         <Text size="caption">{match[1]}</Text>
-        <Button icon="copy" onPress={handleCopy} size="small" variant="ghost">
+        <Button
+          color="neutral"
+          icon={copied ? "check" : "copy"}
+          onPress={handleCopy}
+          size="small"
+          variant="ghost"
+        >
           {copied ? "Copied!" : "Copy"}
         </Button>
       </Flex>
@@ -41,6 +48,8 @@ export const Code = (props: CodeProps) => {
         PreTag="div"
         customStyle={{
           backgroundColor: "var(--color-bg-neutral-subtle)",
+          paddingBlock: "var(--inner-spacing-2)",
+          paddingInlineStart: "var(--inner-spacing-3)",
         }}
         language={match[1]}
         style={theme.colorMode === "dark" ? darkTheme : lightTheme}

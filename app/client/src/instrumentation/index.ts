@@ -23,6 +23,12 @@ import {
 import log from "loglevel";
 import { isTracingEnabled } from "instrumentation/utils";
 
+declare global {
+  interface Window {
+    faro: Faro | null;
+  }
+}
+
 const { appVersion, observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
   observability;
@@ -36,29 +42,41 @@ if (isTracingEnabled()) {
       ? InternalLoggerLevel.ERROR
       : InternalLoggerLevel.OFF;
 
-  faro = initializeFaro({
-    url: tracingUrl,
-    app: {
-      name: serviceName,
-      version: appVersion.sha,
-      environment: deploymentName,
-    },
-    instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
-    ignoreUrls,
-    consoleInstrumentation: {
-      consoleErrorAsLog: true,
-    },
-    trackResources: true,
-    trackWebVitalsAttribution: true,
-    internalLoggerLevel,
-    sessionTracking: {
-      generateSessionId: () => {
-        // Disabling session tracing will not send any instrumentation data to the grafana backend
-        // Instead, hardcoding the session id to a constant value to indirecly disable session tracing
-        return "SESSION_ID";
-      },
-    },
-  });
+  try {
+    if (!window.faro) {
+      faro = initializeFaro({
+        url: tracingUrl,
+        app: {
+          name: serviceName,
+          version: appVersion.sha,
+          environment: deploymentName,
+        },
+        instrumentations: [
+          new ReactIntegration(),
+          ...getWebInstrumentations({}),
+        ],
+        ignoreUrls,
+        consoleInstrumentation: {
+          consoleErrorAsLog: false,
+        },
+        trackResources: true,
+        trackWebVitalsAttribution: true,
+        internalLoggerLevel,
+        sessionTracking: {
+          generateSessionId: () => {
+            // Disabling session tracing will not send any instrumentation data to the grafana backend
+            // Instead, hardcoding the session id to a constant value to indirecly disable session tracing
+            return "SESSION_ID";
+          },
+        },
+      });
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
+
+  faro = window.faro;
 
   const tracerProvider = new WebTracerProvider({
     resource: new Resource({
@@ -68,18 +86,20 @@ if (isTracingEnabled()) {
     }),
   });
 
-  tracerProvider.addSpanProcessor(
-    new FaroSessionSpanProcessor(
-      new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
-      faro.metas,
-    ),
-  );
+  if (faro) {
+    tracerProvider.addSpanProcessor(
+      new FaroSessionSpanProcessor(
+        new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
+        faro.metas,
+      ),
+    );
 
-  tracerProvider.register({
-    contextManager: new ZoneContextManager(),
-  });
+    tracerProvider.register({
+      contextManager: new ZoneContextManager(),
+    });
 
-  faro.api.initOTEL(trace, context);
+    faro.api.initOTEL(trace, context);
+  }
 }
 
 export const getTraceAndContext = () => {
@@ -91,3 +111,5 @@ export const getTraceAndContext = () => {
   // return default OTEL context and trace if faro is not initialized
   return faro.api.getOTEL() || { trace, context };
 };
+
+export { faro };

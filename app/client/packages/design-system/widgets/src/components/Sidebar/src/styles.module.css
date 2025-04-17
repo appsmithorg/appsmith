@@ -27,7 +27,7 @@
 }
 
 .mainSidebar:not([data-is-mobile], [data-state="full-width"]) {
-  --sidebar-width: min(50cqw, 1024px);
+  --sidebar-width: min(40cqw, 1024px);
 }
 
 /**
@@ -40,7 +40,6 @@
   height: 100%;
   width: var(--sidebar-width);
   background-color: transparent;
-  transition: width 300ms ease-in-out;
 }
 
 .mainSidebar[data-side="right"] .fakeSidebar {

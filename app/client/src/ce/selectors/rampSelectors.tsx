@@ -11,6 +11,9 @@ import {
 } from "utils/ProductRamps/RampsControlList";
 import type { EnvTypes } from "utils/ProductRamps/RampTypes";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
+import { selectFeatureFlags } from "./featureFlagsSelectors";
+import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
+import { WORKSPACE_SETTINGS_LICENSE_PAGE_URL } from "constants/routes";
 
 const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 
@@ -26,21 +29,31 @@ export const getRampLink = ({
   feature: string;
   isBusinessFeature?: boolean;
 }) =>
-  createSelector(organizationState, (organization) => {
-    const instanceId = organization?.instanceId;
-    const source = cloudHosting ? "cloud" : "CE";
-    const RAMP_LINK_TO = isBusinessFeature
-      ? CUSTOMER_PORTAL_URL_WITH_PARAMS(
-          customerPortalUrl,
-          source,
-          instanceId,
-          feature,
-          section,
-        )
-      : PRICING_PAGE_URL(pricingUrl, source, instanceId, feature, section);
+  createSelector(
+    organizationState,
+    selectFeatureFlags,
+    (organization, featureFlags) => {
+      const instanceId = organization?.instanceId;
+      const source = cloudHosting ? "cloud" : "CE";
+      const isCloudBillingEnabled = isMultiOrgFFEnabled(featureFlags);
 
-    return RAMP_LINK_TO;
-  });
+      if (isCloudBillingEnabled) {
+        return WORKSPACE_SETTINGS_LICENSE_PAGE_URL;
+      }
+
+      const RAMP_LINK_TO = isBusinessFeature
+        ? CUSTOMER_PORTAL_URL_WITH_PARAMS(
+            customerPortalUrl,
+            source,
+            instanceId,
+            feature,
+            section,
+          )
+        : PRICING_PAGE_URL(pricingUrl, source, instanceId, feature, section);
+
+      return RAMP_LINK_TO;
+    },
+  );
 
 export const showProductRamps = (
   rampName: string,

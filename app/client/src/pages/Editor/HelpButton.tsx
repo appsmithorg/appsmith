@@ -37,6 +37,8 @@ import { showSignpostingModal } from "actions/onboardingActions";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -72,7 +74,7 @@ interface HelpItem {
   icon: string;
 }
 
-const HELP_MENU_ITEMS: HelpItem[] = [
+let HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: "book-line",
     label: "Documentation",
@@ -187,6 +189,22 @@ function HelpButton() {
         onVisibleChange: setShowTooltip,
       }
     : {};
+
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+
+  if (isAiAgentFlowEnabled) {
+    const docItem = HELP_MENU_ITEMS.find(
+      (item) => item.label === "Documentation",
+    );
+
+    if (docItem) {
+      docItem.link = DOCS_AI_BASE_URL;
+    }
+
+    HELP_MENU_ITEMS = HELP_MENU_ITEMS.filter(
+      (item) => item.label !== "Report a bug",
+    );
+  }
 
   useEffect(() => {
     bootIntercom(user);

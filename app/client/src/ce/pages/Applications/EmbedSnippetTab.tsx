@@ -14,6 +14,9 @@ import { ADMIN_SETTINGS_PATH } from "constants/routes";
 import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
 import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { useIsCloudBillingEnabled } from "hooks";
+import { ChromeExtensionBanner } from "ee/pages/Applications/ChromeExtensionBanner";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -49,15 +52,17 @@ export function ShareModal() {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp,
+    isPublicApp || isAiAgentFlowEnabled,
     selectedMethod,
   );
 
   return (
     <div className="flex flex-col gap-6">
-      {embedSnippet.isSuperUser && (
+      {embedSnippet.isSuperUser && !isCloudBillingEnabled && (
         <div className="flex justify-between">
           <div className="flex gap-1" data-testid="frame-ancestors-setting">
             <Icon
@@ -87,20 +92,22 @@ export function ShareModal() {
         </div>
       )}
 
-      <Switch
-        data-testid={"show-navigation-bar-toggle"}
-        defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
-        onChange={() =>
-          embedSnippet.onChange({
-            showNavigationBar:
-              !embedSnippet.currentEmbedSetting.showNavigationBar,
-          })
-        }
-      >
-        {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-      </Switch>
+      {Boolean(isAiAgentFlowEnabled) === false && (
+        <Switch
+          data-testid={"show-navigation-bar-toggle"}
+          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
+          onChange={() =>
+            embedSnippet.onChange({
+              showNavigationBar:
+                !embedSnippet.currentEmbedSetting.showNavigationBar,
+            })
+          }
+        >
+          {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
+        </Switch>
+      )}
 
-      {!isPublicApp && (
+      {!isPublicApp && !isAiAgentFlowEnabled && (
         <PrivateEmbedSettings
           selectedMethod={selectedMethod}
           setSelectedMethod={setSelectedMethod}
@@ -110,6 +117,8 @@ export function ShareModal() {
       <EmbedCodeSnippet isAppSettings={false} snippet={snippetUrl} />
 
       <PrivateEmbedRampModal />
+
+      <ChromeExtensionBanner />
 
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
@@ -133,11 +142,13 @@ export function AppSettings() {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp,
+    isPublicApp || isAiAgentFlowEnabled,
     selectedMethod,
   );
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
 
   return (
     <EmbedWrapper className="px-4">
@@ -146,7 +157,7 @@ export function AppSettings() {
       </Text>
 
       <div className="flex flex-col gap-6">
-        {embedSnippet.isSuperUser && (
+        {embedSnippet.isSuperUser && !isCloudBillingEnabled && (
           <div className="flex justify-between">
             <div className="flex gap-1" data-testid="frame-ancestors-setting">
               <Icon
@@ -172,20 +183,24 @@ export function AppSettings() {
           </div>
         )}
 
-        <Switch
-          data-testid={"show-navigation-bar-toggle"}
-          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
-          onChange={() =>
-            embedSnippet.onChange({
-              showNavigationBar:
-                !embedSnippet.currentEmbedSetting.showNavigationBar,
-            })
-          }
-        >
-          {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-        </Switch>
+        {Boolean(isAiAgentFlowEnabled) === false && (
+          <Switch
+            data-testid={"show-navigation-bar-toggle"}
+            defaultSelected={
+              embedSnippet.currentEmbedSetting?.showNavigationBar
+            }
+            onChange={() =>
+              embedSnippet.onChange({
+                showNavigationBar:
+                  !embedSnippet.currentEmbedSetting.showNavigationBar,
+              })
+            }
+          >
+            {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
+          </Switch>
+        )}
 
-        {!isPublicApp && (
+        {!isPublicApp && !isAiAgentFlowEnabled && (
           <PrivateEmbedSettings
             selectedMethod={selectedMethod}
             setSelectedMethod={setSelectedMethod}
@@ -206,16 +221,19 @@ export function EmbedSnippetTab({
   isAppSettings?: boolean;
 }) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
-
   const isPublicApp = currentApplicationDetails?.isPublic || false;
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
-  if (!isPublicApp) {
+  if (!isPublicApp && !isAiAgentFlowEnabled) {
     return (
-      <PrivateEmbeddingContent
-        changeTab={changeTab}
-        isAppSettings={isAppSettings}
-        userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
-      />
+      <div className="flex flex-col gap-6">
+        <PrivateEmbeddingContent
+          changeTab={changeTab}
+          isAppSettings={isAppSettings}
+          userAppPermissions={currentApplicationDetails?.userPermissions ?? []}
+        />
+        <ChromeExtensionBanner />
+      </div>
     );
   }
 

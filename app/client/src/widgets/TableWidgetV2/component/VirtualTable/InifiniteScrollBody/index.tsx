@@ -4,6 +4,7 @@ import type SimpleBar from "simplebar-react";
 import { LoadingIndicator } from "../../LoadingIndicator";
 import { VariableInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
+import { useInfiniteScroll } from "./useInfiniteScroll";
 
 interface InfiniteScrollBodyProps {
   innerElementType: ReactElementType;
@@ -19,14 +20,20 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       pageSize,
       subPage: rows,
       tableSizes,
-      totalRecordsCount,
     } = useAppsmithTable();
 
-    const itemCount = useMemo(() => {
-      return totalRecordsCount && totalRecordsCount > 0
-        ? totalRecordsCount
-        : rows.length;
-    }, [totalRecordsCount, rows]);
+    const { onItemsRendered } = useInfiniteScroll({
+      rows,
+      pageSize,
+      loadMore: nextPageClick,
+      isLoading,
+      endOfData,
+    });
+
+    const itemCount = useMemo(
+      () => Math.max(rows.length, pageSize),
+      [rows.length, pageSize],
+    );
 
     return (
       <div className="simplebar-content-wrapper">
@@ -36,6 +43,7 @@ const InfiniteScrollBodyComponent = React.forwardRef(
           innerElementType={props.innerElementType}
           itemCount={itemCount}
           loadMore={nextPageClick}
+          onItemsRendered={onItemsRendered}
           outerRef={ref}
           pageSize={pageSize}
           rows={rows}

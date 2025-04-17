@@ -86,6 +86,7 @@ export type Setting = ControlType & {
   ) => void;
   sortOrder?: number;
   subText?: string;
+  subTextLink?: string;
   toggleText?: (value: boolean) => string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,6 +104,7 @@ export type Setting = ControlType & {
   isFeatureEnabled?: boolean;
   tooltip?: string;
   isEnterprise?: boolean;
+  postfix?: string;
 };
 
 export interface Category {
@@ -121,8 +123,6 @@ export interface Category {
 export const SettingCategories = {
   GENERAL: "general",
   EMAIL: "email",
-  VERSION: "version",
-  ADVANCED: "advanced",
   AUTHENTICATION: "authentication",
   FORM_AUTH: "form-login",
   GOOGLE_AUTH: "google-auth",
@@ -133,13 +133,18 @@ export const SettingCategories = {
   BRANDING: "branding",
   SAML_AUTH: "saml-auth",
   OIDC_AUTH: "oidc-auth",
-  DEVELOPER_SETTINGS: "developer-settings",
+  INSTANCE_SETTINGS: "instance-settings",
+  CONFIGURATION: "configuration",
+  VERSION: "version",
+  USER_SETTINGS: "user-settings",
+  PROFILE: "profile",
 };
 
 export enum CategoryType {
-  GENERAL = "general",
-  ACL = "acl",
-  OTHER = "other",
+  PROFILE = "profile",
+  ORGANIZATION = "organization",
+  USER_MANAGEMENT = "user-management",
+  INSTANCE = "instance",
 }
 
 export interface AdminConfigType {

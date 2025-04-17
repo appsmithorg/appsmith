@@ -19,7 +19,7 @@ import {
 export const config: AdminConfigType = {
   icon: "mail-line",
   type: SettingCategories.EMAIL,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.ORGANIZATION,
   controlType: SettingTypes.GROUP,
   title: "Email",
   canSave: true,
@@ -34,7 +34,7 @@ export const config: AdminConfigType = {
     {
       id: "APPSMITH_MAIL_WARNING",
       category: SettingCategories.EMAIL,
-      controlType: SettingTypes.LINK,
+      controlType: SettingTypes.CALLOUT,
       calloutType: "warning",
       label: createMessage(ADMIN_SETTINGS_EMAIL_WARNING),
     },

@@ -17,7 +17,7 @@ import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
-import * as Sentry from "@sentry/react";
+import captureException from "instrumentation/sendFaroErrors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
@@ -232,7 +232,8 @@ export function* evalErrorHandler(
 
           if (error.context.logToSentry) {
             // Send the generic error message to sentry for better grouping
-            Sentry.captureException(new Error(error.message), {
+            captureException(new Error(error.message), {
+              errorName: "CyclicalDependencyError",
               tags: {
                 node,
                 entityType,
@@ -255,35 +256,36 @@ export function* evalErrorHandler(
           });
         }
 
+        log.error(error);
+
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
         toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
           kind: "error",
         });
+        log.error(error);
+        captureException(error, { errorName: "EvalTreeError" });
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
-        Sentry.captureException(error);
+        log.error(error);
+        captureException(error, { errorName: "BadUnevalTreeError" });
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
-        log.debug(error);
+        captureException(error, { errorName: "EvalPropertyError" });
+        log.error(error);
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        /*
-         * https://github.com/appsmithorg/appsmith/issues/2654
-         * This code is being commented out to prevent these errors from going to Sentry
-         * till we come up with a more definitive solution to prevent this error
-         * Proposed solution - adding lint errors to editor to prevent these from happening
-         * */
-
-        // Sentry.captureException(new Error(error.message), {
-        //   extra: {
-        //     request: error.context,
-        //   },
-        // });
+        log.debug(error);
+        captureException(new Error(error.message), {
+          errorName: "CloneError",
+          extra: {
+            request: error.context,
+          },
+        });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
@@ -293,16 +295,32 @@ export function* evalErrorHandler(
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
+        log.error(error);
+        captureException(error, {
+          errorName: "ParseJSError",
+          entity: error.context,
+        });
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-        Sentry.captureException(new Error(error.message), {
+        captureException(new Error(error.message), {
+          errorName: "ExtractDependencyError",
           extra: error.context,
         });
         break;
       }
+      case EvalErrorTypes.UPDATE_DATA_TREE_ERROR: {
+        // Log to Sentry with additional context
+        captureException(error, { errorName: "UpdateDataTreeError" });
+        // Log locally with error details
+        log.error(`Evaluation Error: ${error.message}`, {
+          type: error.type,
+        });
+        break;
+      }
       default: {
-        log.debug(error);
+        log.error(error);
+        captureException(error, { errorName: "UnknownEvalError" });
       }
     }
   });

@@ -1,0 +1,253 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Workflow Configuration Validator
+
+```yaml
+name: Workflow Configuration Validator
+description: Validates GitHub workflow files before commits and pushes
+author: Cursor AI
+version: 1.0.0
+tags:
+  - ci
+  - workflows
+  - quality-checks
+  - validation
+activation:
+  always: true
+  events:
+    - pre_commit
+    - pre_push
+    - command
+triggers:
+  - pre_commit
+  - pre_push
+  - command: "validate_workflows"
+```
+
+## Rule Definition
+
+This rule ensures that GitHub workflow configuration files (especially `.github/workflows/quality-checks.yml`) are valid before allowing commits or pushes.
+
+## Validation Logic
+
+```javascript
+const yaml = require('js-yaml');
+const fs = require('fs');
+const { execSync } = require('child_process');
+
+/**
+ * Main function to validate GitHub workflow files
+ * @param {Object} context - The execution context
+ * @returns {Object} Validation results
+ */
+function validateWorkflows(context) {
+  const results = {
+    isValid: true,
+    errors: [],
+    warnings: []
+  };
+  
+  // Primary focus: quality-checks.yml
+  const qualityChecksPath = '.github/workflows/quality-checks.yml';
+  
+  try {
+    // Check if file exists
+    if (!fs.existsSync(qualityChecksPath)) {
+      results.errors.push(`${qualityChecksPath} file does not exist`);
+      results.isValid = false;
+      return results;
+    }
+    
+    // Check if file is valid YAML
+    try {
+      const fileContents = fs.readFileSync(qualityChecksPath, 'utf8');
+      const parsedYaml = yaml.load(fileContents);
+      
+      // Check for required fields in workflow
+      if (!parsedYaml.name) {
+        results.warnings.push(`${qualityChecksPath} is missing a name field`);
+      }
+      
+      if (!parsedYaml.jobs || Object.keys(parsedYaml.jobs).length === 0) {
+        results.errors.push(`${qualityChecksPath} doesn't contain any jobs`);
+        results.isValid = false;
+      }
+      
+      // Check for common GitHub Actions workflow validation
+      if (context.hasCommand('gh')) {
+        try {
+          // Use GitHub CLI to validate workflow if available
+          execSync(`gh workflow view ${qualityChecksPath} --json`, { stdio: 'pipe' });
+        } catch (error) {
+          results.errors.push(`GitHub CLI validation failed: ${error.message}`);
+          results.isValid = false;
+        }
+      } else {
+        // Basic structural validation if GitHub CLI is not available
+        const requiredKeys = ['on', 'jobs'];
+        for (const key of requiredKeys) {
+          if (!parsedYaml[key]) {
+            results.errors.push(`${qualityChecksPath} is missing required key: ${key}`);
+            results.isValid = false;
+          }
+        }
+      }
+      
+      // Check for other workflows
+      const workflowsDir = '.github/workflows';
+      if (fs.existsSync(workflowsDir)) {
+        const workflowFiles = fs.readdirSync(workflowsDir)
+          .filter(file => file.endsWith('.yml') || file.endsWith('.yaml'));
+        
+        // Validate all workflow files
+        for (const file of workflowFiles) {
+          if (file === 'quality-checks.yml') continue; // Already checked
+          
+          const filePath = `${workflowsDir}/${file}`;
+          try {
+            const contents = fs.readFileSync(filePath, 'utf8');
+            yaml.load(contents); // Just check if it's valid YAML
+          } catch (e) {
+            results.errors.push(`${filePath} contains invalid YAML: ${e.message}`);
+            results.isValid = false;
+          }
+        }
+      }
+    } catch (e) {
+      results.errors.push(`Failed to parse ${qualityChecksPath}: ${e.message}`);
+      results.isValid = false;
+    }
+  } catch (error) {
+    results.errors.push(`General error validating workflows: ${error.message}`);
+    results.isValid = false;
+  }
+  
+  return results;
+}
+
+/**
+ * Check if workflow files have been modified in the current changes
+ * @param {Object} context - The execution context
+ * @returns {boolean} Whether workflow files have been modified
+ */
+function haveWorkflowsChanged(context) {
+  try {
+    const gitStatus = execSync('git diff --name-only --cached', { encoding: 'utf8' });
+    const changedFiles = gitStatus.split('\n').filter(Boolean);
+    
+    return changedFiles.some(file => 
+      file.startsWith('.github/workflows/') && 
+      (file.endsWith('.yml') || file.endsWith('.yaml'))
+    );
+  } catch (error) {
+    // If we can't determine if workflows changed, assume they did to be safe
+    return true;
+  }
+}
+
+/**
+ * Run the validation when triggered
+ * @param {Object} context - The execution context
+ * @returns {Object} The action result
+ */
+function onTrigger(context, event) {
+  // For pre-commit and pre-push, only validate if workflow files have changed
+  if ((event === 'pre_commit' || event === 'pre_push') && !haveWorkflowsChanged(context)) {
+    return {
+      status: 'success',
+      message: 'No workflow files changed, skipping validation'
+    };
+  }
+  
+  const results = validateWorkflows(context);
+  
+  if (!results.isValid) {
+    return {
+      status: 'failure',
+      message: 'Workflow validation failed',
+      details: results.errors.join('\n'),
+      warnings: results.warnings.join('\n')
+    };
+  }
+  
+  return {
+    status: 'success',
+    message: 'All workflow files are valid',
+    warnings: results.warnings.length ? results.warnings.join('\n') : undefined
+  };
+}
+
+/**
+ * Register command and hooks
+ * @param {Object} context - The cursor context
+ */
+function activate(context) {
+  // Register pre-commit hook
+  context.on('pre_commit', (event) => {
+    return onTrigger(context, 'pre_commit');
+  });
+  
+  // Register pre-push hook
+  context.on('pre_push', (event) => {
+    return onTrigger(context, 'pre_push');
+  });
+  
+  // Register command for manual validation
+  context.registerCommand('validate_workflows', () => {
+    return onTrigger(context, 'command');
+  });
+}
+
+module.exports = {
+  activate,
+  validateWorkflows
+};
+```
+
+## Usage
+
+This rule runs automatically on pre-commit and pre-push events. You can also manually trigger it with the command `validate_workflows`.
+
+### Pre-Commit Hook
+
+When committing changes, this rule will:
+1. Check if any workflow files were modified
+2. If so, validate that `.github/workflows/quality-checks.yml` is properly formatted
+3. Block the commit if validation fails
+
+### Examples
+
+**Valid Workflow:**
+```yaml
+name: Quality Checks
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run linters
+        run: |
+          npm ci
+          npm run lint
+```
+
+**Invalid Workflow (Will Fail Validation):**
+```yaml
+on:
+  push:
+jobs:
+  lint:
+    # Missing "runs-on" field
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run linters
+        run: npm run lint
+```
