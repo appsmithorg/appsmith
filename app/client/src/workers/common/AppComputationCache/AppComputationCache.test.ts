@@ -683,4 +683,50 @@ describe("AppComputationCache", () => {
       expect(appComputationCache.isDSLVersionValid(-1)).toBe(false);
     });
   });
+
+  describe("isCacheValid", () => {
+    const cacheProps: IValidatedCacheProps = {
+      appMode: APP_MODE.PUBLISHED,
+      timestamp: new Date().toISOString(),
+      appId: "appId",
+      instanceId: "instanceId",
+      pageId: "pageId",
+      dslVersion: 1,
+    };
+
+    test("should return true for valid cache", () => {
+      const cachedValue = {
+        value: "cachedValue",
+        dslVersion: 1,
+      };
+
+      expect(appComputationCache.isCacheValid(cachedValue, cacheProps)).toBe(
+        true,
+      );
+    });
+
+    test("should return false null cache", () => {
+      expect(appComputationCache.isCacheValid(null, cacheProps)).toBe(false);
+    });
+
+    test("should return false if dsl version is not present", () => {
+      expect(
+        appComputationCache.isCacheValid(
+          {
+            value: "cachedValue",
+          },
+          cacheProps,
+        ),
+      ).toBe(false);
+    });
+
+    test("should return false if dsl version mismatch", () => {
+      expect(
+        appComputationCache.isCacheValid(
+          { value: "cachedValue", dslVersion: 2 },
+          cacheProps,
+        ),
+      ).toBe(false);
+    });
+  });
 });
