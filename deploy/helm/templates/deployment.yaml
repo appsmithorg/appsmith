@@ -144,6 +144,9 @@ spec:
               value: kubernetes.KUBE_PING
             - name: APPSMITH_HEADLESS_SVC
               value: {{ include "appsmith.fullname" . }}-headless
+            {{- if .Values.extraEnv }}
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
@@ -159,6 +162,9 @@ spec:
             - secretRef:
                 name: "{{ include "appsmith.fullname" . }}-external-secret"
             {{- end }}
+            {{- if .Values.extraEnvFrom }}
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+            {{- end }}
       {{- if .Values.image.pullSecrets}}
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets }}
@@ -166,7 +172,7 @@ spec:
       volumes:
       {{- if .Values.customCAcert }}
       - name: ca-cert
-        configMap: 
+        configMap:
           name: {{ $releaseName }}-trustedca
           items:
           {{- range $key, $value := .Values.customCAcert }}
