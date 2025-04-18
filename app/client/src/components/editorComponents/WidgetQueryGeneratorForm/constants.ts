@@ -39,3 +39,8 @@ export const PluginFormInputFieldMap: Record<
 };
 
 export const DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW = 4;
+
+export const PRIMARY_KEYS_MESSAGE = () =>
+  "Tables without primary keys are disabled as they are required for reliable data operations.";
+
+export const NO_PRIMARY_KEYS_MESSAGE = () => "No primary keys";

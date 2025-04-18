@@ -1,7 +1,5 @@
-import React from "react";
 import { fetchGheetSheets } from "actions/datasourceActions";
-import { useCallback, useContext, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "ee/reducers";
 import {
   getDatasource,
   getDatasourceLoading,
@@ -9,21 +7,25 @@ import {
   getIsFetchingDatasourceStructure,
   getPluginPackageFromDatasourceId,
 } from "ee/selectors/entitiesSelector";
-import { WidgetQueryGeneratorFormContext } from "../..";
-import { Bold, Label } from "../../styles";
-import { PluginFormInputFieldMap } from "../../constants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { DatasourceStructure, DatasourceTable } from "entities/Datasource";
+import React, { useCallback, useContext, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
 import {
   getGsheetSpreadsheets,
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
-import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import type { AppState } from "ee/reducers";
-import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
-import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getWidget } from "sagas/selectors";
-import type { DatasourceStructure } from "entities/Datasource";
+import {
+  isGoogleSheetPluginDS,
+  isMongoDBPluginDS,
+} from "utils/editorContextUtils";
+import { WidgetQueryGeneratorFormContext } from "../..";
+import { PluginFormInputFieldMap } from "../../constants";
+import { Bold, Label } from "../../styles";
+import type { DropdownOptionType } from "../../types";
+import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
@@ -63,6 +65,10 @@ export function useTableOrSpreadsheet() {
       ).TABLE
     : "table";
 
+  const tableHasPrimaryKeys = (table: DatasourceTable) => {
+    return table.keys && table.keys.length > 0;
+  };
+
   const options = useMemo(() => {
     if (
       isGoogleSheetPluginDS(selectedDatasourcePluginPackageName) &&
@@ -72,19 +78,35 @@ export function useTableOrSpreadsheet() {
         id: value,
         label: label,
         value: label,
+        disabled: false,
         data: {
           tableName: value,
         },
       }));
-    } else if (datasourceStructure) {
-      return (datasourceStructure.tables || []).map(({ name }) => ({
-        id: name,
-        label: name,
-        value: name,
+    } else if (isMongoDBPluginDS(selectedDatasourcePluginPackageName)) {
+      return (datasourceStructure.tables || []).map((table) => ({
+        id: table.name,
+        label: table.name,
+        value: table.name,
         data: {
-          tableName: name,
+          tableName: table.name,
         },
+        disabled: false,
       }));
+    } else if (datasourceStructure) {
+      return (datasourceStructure.tables || []).map((table) => {
+        const hasPrimaryKeys = tableHasPrimaryKeys(table);
+
+        return {
+          id: table.name,
+          label: table.name,
+          value: table.name,
+          data: {
+            tableName: table.name,
+          },
+          disabled: !hasPrimaryKeys,
+        };
+      });
     } else {
       return [];
     }

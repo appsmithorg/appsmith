@@ -1,11 +1,19 @@
 import React, { memo, useContext } from "react";
-import { ErrorMessage, Label, LabelWrapper, SelectWrapper } from "../../styles";
+import {
+  ErrorMessage,
+  Label,
+  LabelWrapper,
+  PrimaryKeysMessage,
+  SelectWrapper,
+} from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { Select, Option, Tooltip } from "@appsmith/ads";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { ColumnSelectorModal } from "../ColumnSelectorModal";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import { createMessage } from "ee/constants/messages";
+import { NO_PRIMARY_KEYS_MESSAGE, PRIMARY_KEYS_MESSAGE } from "../../constants";
 
 function TableOrSpreadsheetDropdown() {
   const {
@@ -55,10 +63,18 @@ function TableOrSpreadsheetDropdown() {
             return (
               <Option
                 data-testid="t--one-click-binding-table-selector--table"
+                disabled={option.disabled}
                 key={option.id}
                 value={option.value}
               >
-                <DropdownOption label={option.label} />
+                <DropdownOption
+                  label={option.label}
+                  subText={
+                    option.disabled
+                      ? createMessage(NO_PRIMARY_KEYS_MESSAGE)
+                      : undefined
+                  }
+                />
               </Option>
             );
           })}
@@ -66,6 +82,10 @@ function TableOrSpreadsheetDropdown() {
         <ErrorMessage data-testid="t--one-click-binding-table-selector--error">
           {error}
         </ErrorMessage>
+
+        <PrimaryKeysMessage>
+          {createMessage(PRIMARY_KEYS_MESSAGE)}
+        </PrimaryKeysMessage>
       </SelectWrapper>
     );
   } else {

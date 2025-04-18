@@ -66,6 +66,13 @@ export const ErrorMessage = styled.div`
   margin-top: 5px;
 `;
 
+export const PrimaryKeysMessage = styled.div`
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-subtle);
+  margin-top: 5px;
+`;
+
 export const Placeholder = styled.div`
   color: var(--ads-v2-color-fg-subtle);
 `;
