@@ -330,6 +330,31 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return datasourceInDb;
                 })
                 .flatMap(datasourceInDb -> validateAndSaveDatasourceToRepository(datasourceInDb, false))
+                .flatMap(savedDatasource -> {
+                    // Find all actions that use this datasource and update them
+                    // Use the new repository method to find unpublished actions using this datasource
+                    return newActionRepository
+                            .findUnpublishedActionsByDatasourceId(savedDatasource.getId())
+                            .map(action -> {
+                                // Update properties in the existing datasource object
+                                // We can be certain that unpublishedAction and its datasource exist based on our query
+                                action.getUnpublishedAction().getDatasource().setName(savedDatasource.getName());
+                                action.getUnpublishedAction()
+                                        .getDatasource()
+                                        .setPluginId(savedDatasource.getPluginId());
+                                return action;
+                            })
+                            .collectList()
+                            .flatMap(actions -> {
+                                if (actions.isEmpty()) {
+                                    return Mono.just(savedDatasource);
+                                }
+                                log.debug(
+                                        "Updating datasource properties (name, pluginId) in {} unpublished actions after datasource update",
+                                        actions.size());
+                                return newActionRepository.saveAll(actions).then(Mono.just(savedDatasource));
+                            });
+                })
                 .map(savedDatasource -> {
                     // not required by client side in order to avoid updating it to a null storage,
                     // one alternative is that we find and send datasourceStorages along, but that is an expensive call

@@ -276,6 +276,17 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<NewAction> findUnpublishedActionsByDatasourceId(String datasourceId) {
+        BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
+                        NewAction.Fields.unpublishedAction + ".datasource._id", new ObjectId(datasourceId))
+                // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+                // would exist. To handle this, only fetch non-deleted actions
+                .isNull(NewAction.Fields.unpublishedAction_deletedAt);
+
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
     public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
                 .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))
