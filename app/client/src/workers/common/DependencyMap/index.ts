@@ -118,11 +118,19 @@ export async function createDependencyMap(
     DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
     if (shouldCache) {
-      await appComputationCache.cacheComputationResult({
-        cacheProps,
-        cacheName: EComputationCacheName.DEPENDENCY_MAP,
-        computationResult: dependencyMap.dependencies,
-      });
+      try {
+        await appComputationCache.cacheComputationResult({
+          cacheProps,
+          cacheName: EComputationCacheName.DEPENDENCY_MAP,
+          computationResult: dependencyMap.dependencies,
+        });
+      } catch (error) {
+        dataTreeEvalRef.errors.push({
+          type: EvalErrorTypes.CACHE_ERROR,
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+        });
+      }
     }
   }
 

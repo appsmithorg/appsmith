@@ -8,6 +8,7 @@ import {
   type ICacheProps,
 } from "./types";
 import debounce from "lodash/debounce";
+import { isFinite, isNumber, isString } from "lodash";
 
 interface ICachedData<T> {
   value: T;
@@ -57,6 +58,25 @@ export class AppComputationCache {
     return AppComputationCache.instance;
   }
 
+  isAppModeValid(appMode: unknown) {
+    return appMode === APP_MODE.PUBLISHED || appMode === APP_MODE.EDIT;
+  }
+
+  isTimestampValid(timestamp: unknown) {
+    const isoStringRegex =
+      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+
+    if (isString(timestamp) && !!timestamp.trim()) {
+      return isoStringRegex.test(timestamp);
+    }
+
+    return false;
+  }
+
+  isDSLVersionValid(dslVersion: unknown) {
+    return isNumber(dslVersion) && isFinite(dslVersion) && dslVersion > 0;
+  }
+
   debouncedDeleteInvalidCacheEntries = debounce(
     this.deleteInvalidCacheEntries,
     5000,
@@ -66,13 +86,17 @@ export class AppComputationCache {
    * Check if the computation result should be cached based on the app mode configuration
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
    */
-  isComputationCached(
+  shouldComputationBeCached(
     cacheName: EComputationCacheName,
     cacheProps: ICacheProps,
   ): cacheProps is IValidatedCacheProps {
     const { appMode, dslVersion, timestamp } = cacheProps;
 
-    if (!appMode || !timestamp || isNull(dslVersion)) {
+    if (
+      !this.isAppModeValid(appMode) ||
+      !this.isTimestampValid(timestamp) ||
+      !this.isDSLVersionValid(dslVersion)
+    ) {
       return false;
     }
 
@@ -83,6 +107,7 @@ export class AppComputationCache {
    * Checks if the value should be cached based on the app mode configuration and
    * caches the computation result if it should be cached. It also tracks the cache usage
    * @returns - A promise that resolves when the computation result is cached
+   * @throws - Logs an error if the computation result cannot be cached and throws the error
    */
   async cacheComputationResult<T>({
     cacheName,
@@ -94,9 +119,9 @@ export class AppComputationCache {
     computationResult: T;
   }) {
     try {
-      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
 
-      if (!shouldCache) {
+      if (!isCacheable) {
         return;
       }
 
@@ -110,12 +135,14 @@ export class AppComputationCache {
       await this.trackCacheUsage(cacheKey);
     } catch (error) {
       loglevel.error(error);
+      throw error;
     }
   }
 
   /**
    * Gets the cached computation result if it exists and is valid
    * @returns - A promise that resolves with the cached computation result or null if it does not exist
+   * @throws - Logs an error if the computation result cannot be fetched and throws the error
    */
   async getCachedComputationResult<T>({
     cacheName,
@@ -125,9 +152,9 @@ export class AppComputationCache {
     cacheName: EComputationCacheName;
   }): Promise<T | null> {
     try {
-      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
 
-      if (!shouldCache) {
+      if (!isCacheable) {
         return null;
       }
 
@@ -157,6 +184,10 @@ export class AppComputationCache {
     }
   }
 
+  /**
+   * Checks if the cached value is valid
+   * @returns - A boolean indicating whether the cached value is valid
+   */
   isCacheValid<T>(
     cachedValue: ICachedData<T> | null,
     cacheProps: IValidatedCacheProps,
@@ -213,9 +244,9 @@ export class AppComputationCache {
     cacheName: EComputationCacheName;
   }) {
     try {
-      const shouldCache = this.isComputationCached(cacheName, cacheProps);
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
 
-      if (!shouldCache) {
+      if (!isCacheable) {
         return computeFn();
       }
 
@@ -265,6 +296,7 @@ export class AppComputationCache {
   /**
    * Delete invalid cache entries
    * @returns - A promise that resolves when the invalid cache entries are deleted
+   * @throws - Logs an error if the invalid cache entries cannot be deleted
    */
 
   async deleteInvalidCacheEntries(cacheProps: ICacheProps) {
@@ -305,6 +337,9 @@ export class AppComputationCache {
     }
   }
 
+  /**
+   * Resets the singleton instance
+   */
   static resetInstance() {
     AppComputationCache.instance = null;
   }

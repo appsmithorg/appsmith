@@ -112,7 +112,7 @@ describe("AppComputationCache", () => {
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached(
+      const result = appComputationCache.shouldComputationBeCached(
         cacheName,
         cacheProps,
       );
@@ -132,7 +132,7 @@ describe("AppComputationCache", () => {
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached(
+      const result = appComputationCache.shouldComputationBeCached(
         cacheName,
         cacheProps,
       );
@@ -151,7 +151,7 @@ describe("AppComputationCache", () => {
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached(
+      const result = appComputationCache.shouldComputationBeCached(
         cacheName,
         cacheProps,
       );
@@ -171,7 +171,7 @@ describe("AppComputationCache", () => {
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached(
+      const result = appComputationCache.shouldComputationBeCached(
         cacheName,
         cacheProps,
       );
@@ -191,7 +191,7 @@ describe("AppComputationCache", () => {
 
       const cacheName = EComputationCacheName.ALL_KEYS;
 
-      const result = appComputationCache.isComputationCached(
+      const result = appComputationCache.shouldComputationBeCached(
         cacheName,
         cacheProps,
       );
@@ -626,6 +626,61 @@ describe("AppComputationCache", () => {
         lastAccessedAt: expect.any(Number),
         createdAt: existingCacheLog.createdAt,
       });
+    });
+  });
+
+  describe("isAppModeValid", () => {
+    test("should return true for valid app modes", () => {
+      expect(appComputationCache.isAppModeValid(APP_MODE.PUBLISHED)).toBe(true);
+      expect(appComputationCache.isAppModeValid(APP_MODE.EDIT)).toBe(true);
+    });
+
+    test("should return false for invalid app modes", () => {
+      expect(appComputationCache.isAppModeValid(undefined)).toBe(false);
+      expect(appComputationCache.isAppModeValid(null)).toBe(false);
+      expect(appComputationCache.isAppModeValid("invalid")).toBe(false);
+    });
+  });
+
+  describe("isTimestampValid", () => {
+    test("should return true for valid timestamps", () => {
+      const validTimestamp = new Date().toISOString();
+
+      expect(appComputationCache.isTimestampValid(validTimestamp)).toBe(true);
+    });
+
+    test("should return false for invalid timestamps", () => {
+      expect(appComputationCache.isTimestampValid(undefined)).toBe(false);
+      expect(appComputationCache.isTimestampValid(null)).toBe(false);
+      expect(appComputationCache.isTimestampValid("invalid")).toBe(false);
+      expect(appComputationCache.isTimestampValid("2024-01-01")).toBe(false);
+      expect(appComputationCache.isTimestampValid("2024-01-01T00")).toBe(false);
+      expect(appComputationCache.isTimestampValid("2024-01-01T00:00")).toBe(
+        false,
+      );
+      expect(appComputationCache.isTimestampValid("2024-01-01T00:00:00")).toBe(
+        false,
+      );
+      expect(
+        appComputationCache.isTimestampValid("2024-01-01T00:00:00.000"),
+      ).toBe(false);
+    });
+  });
+
+  describe("isDSLVersionValid", () => {
+    test("should return true for valid dsl versions", () => {
+      expect(appComputationCache.isDSLVersionValid(1)).toBe(true);
+      expect(appComputationCache.isDSLVersionValid(90)).toBe(true);
+    });
+
+    test("should return false for invalid dsl versions", () => {
+      expect(appComputationCache.isDSLVersionValid(0)).toBe(false);
+      expect(appComputationCache.isDSLVersionValid(null)).toBe(false);
+      expect(appComputationCache.isDSLVersionValid("invalid")).toBe(false);
+      expect(appComputationCache.isDSLVersionValid(undefined)).toBe(false);
+      expect(appComputationCache.isDSLVersionValid(NaN)).toBe(false);
+      expect(appComputationCache.isDSLVersionValid(Infinity)).toBe(false);
+      expect(appComputationCache.isDSLVersionValid(-1)).toBe(false);
     });
   });
 });
