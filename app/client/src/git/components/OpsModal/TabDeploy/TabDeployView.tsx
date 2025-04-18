@@ -67,7 +67,6 @@ const CommitLabelBranchText = styled(Text)`
   whitespace: nowrap;
 `;
 
-const FIRST_COMMIT = "First Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
 interface TabDeployViewProps {
@@ -83,9 +82,7 @@ interface TabDeployViewProps {
   isFetchStatusLoading: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
-  lastDeployedAt: string | null;
   pull: () => void;
-  remoteUrl: string | null;
   statusBehindCount: number;
   statusIsClean: boolean;
 }
@@ -103,18 +100,14 @@ function TabDeployView({
   isFetchStatusLoading = false,
   isPullFailing = false,
   isPullLoading = false,
-  lastDeployedAt = null,
   pull = noop,
-  remoteUrl = null,
   statusBehindCount = 0,
   statusIsClean = false,
 }: TabDeployViewProps) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const hasChangesToCommit = !statusIsClean;
   const commitInputRef = useRef<HTMLInputElement>(null);
-  const [commitMessage, setCommitMessage] = useState(
-    remoteUrl && lastDeployedAt ? "" : FIRST_COMMIT,
-  );
+  const [commitMessage, setCommitMessage] = useState("");
   const [shouldDiscard, setShouldDiscard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(isDiscardLoading);
   const [showDiscardWarning, setShowDiscardWarning] = useState(false);
