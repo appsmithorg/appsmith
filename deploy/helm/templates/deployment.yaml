@@ -18,9 +18,11 @@ spec:
   {{- else }}
   strategy:
     type: {{ .Values.strategyType | default "RollingUpdate" }}
+  {{- if eq .Values.strategyType "RollingUpdate" }}
     rollingUpdate:
       maxSurge: {{ dig "maxSurge" 1 $updateStrategy }}
       maxUnavailable: {{ dig "maxUnavailable" "0" $updateStrategy }}
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
@@ -166,7 +168,7 @@ spec:
       volumes:
       {{- if .Values.customCAcert }}
       - name: ca-cert
-        configMap: 
+        configMap:
           name: {{ $releaseName }}-trustedca
           items:
           {{- range $key, $value := .Values.customCAcert }}
