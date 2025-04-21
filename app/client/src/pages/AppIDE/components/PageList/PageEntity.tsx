@@ -155,7 +155,7 @@ export const PageEntity = ({
     <EntityItem
       className={`page fullWidth ${isCurrentPage && "activePage"}`}
       id={page.pageId}
-      isDisabled={page.isHidden}
+      isHidden={page.isHidden}
       isSelected={isCurrentPage}
       key={page.pageId}
       nameEditorConfig={nameEditorConfig}

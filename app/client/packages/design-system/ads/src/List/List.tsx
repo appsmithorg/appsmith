@@ -124,6 +124,7 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemClassName, props.className, "t--ide-list-item")}
       data-disabled={props.isDisabled || false}
+      data-hidden={props.isHidden || false}
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}

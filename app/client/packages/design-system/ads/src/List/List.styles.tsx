@@ -145,6 +145,16 @@ export const StyledListItem = styled.div<{
     background-color: var(--ads-v2-colors-content-surface-default-bg);
   }
 
+  &[data-hidden="true"] {
+    .t--entity-name {
+      color: var(--ads-v2-color-fg-subtle);
+    }
+
+    .ads-v2-icon {
+      color: var(--ads-v2-color-fg-subtle);
+    }
+  }
+
   &:hover {
     background-color: var(--ads-v2-colors-content-surface-hover-bg);
   }
