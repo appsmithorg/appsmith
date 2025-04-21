@@ -3,9 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Set;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
@@ -13,7 +12,7 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<Boolean> isUsersEmpty();
 
-    Set<String> getSystemGeneratedUserEmails();
+    Flux<String> getSystemGeneratedUserEmails();
 
     Mono<Integer> updateById(String id, UpdateDefinition updateObj);
 }

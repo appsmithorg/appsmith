@@ -5,14 +5,13 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.projections.EmailOnly;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
@@ -32,19 +31,20 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      */
     @Override
     public Mono<Boolean> isUsersEmpty() {
-        return queryBuilder()
-                .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
+        return getSystemGeneratedUserEmails().collectList().flatMap(systemGeneratedUserEmails -> queryBuilder()
+                .criteria(Bridge.notIn(User.Fields.email, systemGeneratedUserEmails))
                 .limit(1)
                 .all(IdOnly.class)
                 .count()
-                .map(count -> count == 0);
+                .map(count -> count == 0));
     }
 
     @Override
-    public Set<String> getSystemGeneratedUserEmails() {
-        Set<String> systemGeneratedEmails = new HashSet<>();
-        systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
-        return systemGeneratedEmails;
+    public Flux<String> getSystemGeneratedUserEmails() {
+        return queryBuilder()
+                .criteria(Bridge.equal(User.Fields.isSystemGenerated, true))
+                .all(EmailOnly.class)
+                .map(EmailOnly::email);
     }
 
     @Override
