@@ -72,18 +72,7 @@ import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
-import static com.appsmith.server.constants.ce.UrlCE.ACTION_COLLECTION_URL;
-import static com.appsmith.server.constants.ce.UrlCE.ACTION_URL;
-import static com.appsmith.server.constants.ce.UrlCE.APPLICATION_URL;
-import static com.appsmith.server.constants.ce.UrlCE.ASSET_URL;
 import static com.appsmith.server.constants.ce.UrlCE.CONSOLIDATED_API_URL;
-import static com.appsmith.server.constants.ce.UrlCE.CUSTOM_JS_LIB_URL;
-import static com.appsmith.server.constants.ce.UrlCE.ORGANIZATION_URL;
-import static com.appsmith.server.constants.ce.UrlCE.PAGE_URL;
-import static com.appsmith.server.constants.ce.UrlCE.PRODUCT_ALERT;
-import static com.appsmith.server.constants.ce.UrlCE.THEME_URL;
-import static com.appsmith.server.constants.ce.UrlCE.USAGE_PULSE_URL;
-import static com.appsmith.server.constants.ce.UrlCE.USER_URL;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
