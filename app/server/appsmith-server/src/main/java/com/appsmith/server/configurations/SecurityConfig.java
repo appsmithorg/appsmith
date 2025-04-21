@@ -121,13 +121,13 @@ public class SecurityConfig {
     @Autowired
     private CsrfConfig csrfConfig;
 
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
     private static final String INTERNAL = "INTERNAL";
-
-    @Autowired
-    private MeterRegistry meterRegistry;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the
