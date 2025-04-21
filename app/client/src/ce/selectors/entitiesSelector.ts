@@ -1804,3 +1804,7 @@ export const getUpcomingPlugins = createSelector(
   (state: AppState) => state.entities.plugins.upcomingPlugins,
   (upcomingPlugins) => upcomingPlugins.list,
 );
+
+export const getCurrentPageDSLVersion = (state: AppState) => {
+  return state.entities.canvasWidgets[0]?.version || null;
+};
