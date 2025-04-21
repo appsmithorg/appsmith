@@ -28,8 +28,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { type Plugin, PluginType } from "entities/Plugin";
-import ImageAlt from "assets/images/placeholder-image.svg";
+import { type PluginType } from "entities/Plugin";
 import { Icon } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
 
@@ -437,14 +436,4 @@ export function getModuleIcon(
       <Icon name="module" />
     </EntityIcon>
   );
-}
-
-export function getPluginImagesFromPlugins(plugins: Plugin[]) {
-  const pluginImages: Record<string, string> = {};
-
-  plugins.forEach((plugin) => {
-    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
-  });
-
-  return pluginImages;
 }
