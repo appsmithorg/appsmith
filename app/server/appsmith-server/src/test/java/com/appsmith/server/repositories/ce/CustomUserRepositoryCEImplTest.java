@@ -91,4 +91,20 @@ public class CustomUserRepositoryCEImplTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void isUsersEmpty_WhenNonSystemUsersExist_ReturnsFalse() {
+        // Create a non-system-generated user
+        User nonSystemUser = new User();
+        nonSystemUser.setEmail("non-system@test.com");
+        User savedNonSystemUser = userRepository.save(nonSystemUser).block();
+        savedUsers.add(savedNonSystemUser);
+
+        // Test the method
+        StepVerifier.create(userRepository.isUsersEmpty())
+                .assertNext(isEmpty -> {
+                    assertThat(isEmpty).isFalse();
+                })
+                .verifyComplete();
+    }
 }
