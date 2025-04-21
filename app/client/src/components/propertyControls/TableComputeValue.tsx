@@ -177,6 +177,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
         openParenCount++;
       } else if (propertyValue[i] === ")") {
         openParenCount--;
+
         if (openParenCount === 0) {
           computationEnd = i;
           break;
