@@ -4,6 +4,7 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
   const tableName = "Table1";
   const inputVariations = [
     "currentRow.price",
+    `JSObject1.somefunction(currentRow["id"] || 0)`,
     `
     [
       {

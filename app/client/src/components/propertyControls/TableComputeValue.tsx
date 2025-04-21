@@ -167,11 +167,24 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
     // Find the actual computation expression between the map parentheses
     const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-    const computationEnd = propertyValue.indexOf("))", computationStart);
+
+    // Handle nested parentheses to find the correct closing parenthesis
+    let openParenCount = 1; // Start with 1 for the opening parenthesis in "=> ("
+    let computationEnd = computationStart;
+
+    for (let i = computationStart; i < propertyValue.length; i++) {
+      if (propertyValue[i] === "(") {
+        openParenCount++;
+      } else if (propertyValue[i] === ")") {
+        openParenCount--;
+        if (openParenCount === 0) {
+          computationEnd = i;
+          break;
+        }
+      }
+    }
 
     // Extract the computation expression between the map parentheses
-    // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
-    // The actual removal of "currentRow." prefix happens later in JSToString()
     const computationExpression = propertyValue.substring(
       computationStart,
       computationEnd,
