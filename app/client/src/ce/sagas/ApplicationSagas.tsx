@@ -124,6 +124,8 @@ import { findDefaultPage } from "pages/utils";
 
 export let windowReference: Window | null = null;
 
+const AI_DATASOURCE_NAME = "AI Datasource";
+
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
@@ -747,12 +749,22 @@ export function* forkApplicationSaga(
         yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
       }
 
-      if (response.data.isPartialImport) {
+      // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+      // so we can avoid showing the AI Datasource in reconnect datasource modal
+      const filteredUnConfiguredDatasourceList = (
+        response?.data?.unConfiguredDatasourceList || []
+      ).filter(
+        (datasource) => datasource.name !== AI_DATASOURCE_NAME,
+      ) as Datasource[];
+
+      if (
+        response.data.isPartialImport &&
+        filteredUnConfiguredDatasourceList.length > 0
+      ) {
         yield put(
           showReconnectDatasourceModal({
             application: response.data?.application,
-            unConfiguredDatasourceList:
-              response?.data.unConfiguredDatasourceList,
+            unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
             workspaceId: action.payload.workspaceId,
           }),
         );
@@ -796,7 +808,11 @@ export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<{
+      unConfiguredDatasourceList: Datasource[];
+      application: ApplicationResponsePayload;
+      isPartialImport: boolean;
+    }> = yield call(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
@@ -813,28 +829,29 @@ export function* importApplicationSaga(
 
       if (currentWorkspaceId || currentWorkspace.length > 0) {
         const {
-          // @ts-expect-error: response is of type unknown
           application: { pages },
-          // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
 
-        // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
-        if (isPartialImport) {
+        // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+        // so we can avoid showing the AI Datasource in reconnect datasource modal
+        const filteredUnConfiguredDatasourceList = (
+          response?.data?.unConfiguredDatasourceList || []
+        ).filter(
+          (datasource) => datasource.name !== AI_DATASOURCE_NAME,
+        ) as Datasource[];
+
+        if (isPartialImport && filteredUnConfiguredDatasourceList.length > 0) {
           yield put(
             showReconnectDatasourceModal({
-              // @ts-expect-error: response is of type unknown
               application: response.data?.application,
-              unConfiguredDatasourceList:
-                // @ts-expect-error: response is of type unknown
-                response?.data.unConfiguredDatasourceList,
+              unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
               workspaceId: action.payload.workspaceId,
             }),
           );
         } else {
-          // @ts-expect-error: pages is of type any
           // TODO: Update route params here
           const { application } = response.data;
           const defaultPage = findDefaultPage(pages);
@@ -844,6 +861,7 @@ export function* importApplicationSaga(
 
           if (isApplicationUrl) {
             const appId = application.id;
+            // @ts-expect-error: defaultPageId does not exist in the application response object
             const pageId = application.defaultPageId;
 
             yield put({

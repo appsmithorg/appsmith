@@ -26,7 +26,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.AppsmithAiConstants.AI_SERVER_HOST;
+import static com.external.plugins.constants.AppsmithAiConstants.AI_PROXY_BASE_PATH;
 import static com.external.plugins.constants.AppsmithAiConstants.ASSOCIATE_PATH;
 import static com.external.plugins.constants.AppsmithAiConstants.DATA;
 import static com.external.plugins.constants.AppsmithAiConstants.EXCHANGE_STRATEGIES;
@@ -48,20 +48,20 @@ public class RequestUtils {
         return (String) formData.get(key);
     }
 
-    public static URI getQueryUri() {
-        return URI.create(AI_SERVER_HOST + QUERY_PATH);
+    public static URI getQueryUri(String aiChatAssistantUri) {
+        return URI.create(aiChatAssistantUri + AI_PROXY_BASE_PATH + QUERY_PATH);
     }
 
-    public static URI getAssociateUri() {
-        return URI.create(AI_SERVER_HOST + ASSOCIATE_PATH);
+    public static URI getAssociateUri(String aiChatAssistantUri) {
+        return URI.create(aiChatAssistantUri + AI_PROXY_BASE_PATH + ASSOCIATE_PATH);
     }
 
-    public static URI getFileUploadUri() {
-        return URI.create(AI_SERVER_HOST + FILE_PATH);
+    public static URI getFileUploadUri(String aiChatAssistantUri) {
+        return URI.create(aiChatAssistantUri + AI_PROXY_BASE_PATH + FILE_PATH);
     }
 
-    public static URI getFileStatusUri() {
-        return URI.create(AI_SERVER_HOST + FILES_STATUS_PATH);
+    public static URI getFileStatusUri(String aiChatAssistantUri) {
+        return URI.create(aiChatAssistantUri + AI_PROXY_BASE_PATH + FILES_STATUS_PATH);
     }
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(

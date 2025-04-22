@@ -28,3 +28,10 @@ export function* waitForPackageInitialization(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   action: ReduxAction<unknown>,
 ) {}
+
+export function* handleUIModuleWidgetReplay(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  toasts: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  widgets: CanvasWidgetsReduxState,
+) {}

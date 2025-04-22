@@ -806,10 +806,10 @@ export class LightModeTheme implements ColorModeTheme {
     // Negative foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is red.
     const color = this.bgNegative.clone();
 
-    // Red hue interval bgNegativein OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
-    color.oklch.l += 0.1;
+    // Red hue interval in OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
+    color.oklch.l += 0.05;
     color.oklch.c += 0.1;
-    color.oklch.h -= 10;
+    color.oklch.h += 5;
 
     if (
       this.seedIsRed &&
@@ -818,7 +818,7 @@ export class LightModeTheme implements ColorModeTheme {
       this.fgAccent.oklch.h < 27
     ) {
       color.oklch.c += 0.05;
-      color.oklch.h -= 10;
+      color.oklch.h -= 20;
     }
 
     return color;

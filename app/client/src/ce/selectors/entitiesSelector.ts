@@ -1689,8 +1689,8 @@ export const getQuerySegmentItems = createSelector(
           : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
       } else {
         group =
-          action.config.datasource?.name ??
-          datasourceIdToNameMap[action.config.datasource?.id];
+          datasourceIdToNameMap[action.config.datasource?.id] ??
+          action.config.datasource?.name;
       }
 
       return {
@@ -1799,3 +1799,12 @@ export const getJSCollectionActionSchemaDirtyState = createSelector(
     return action.isDirtyMap?.SCHEMA_GENERATION;
   },
 );
+
+export const getUpcomingPlugins = createSelector(
+  (state: AppState) => state.entities.plugins.upcomingPlugins,
+  (upcomingPlugins) => upcomingPlugins.list,
+);
+
+export const getCurrentPageDSLVersion = (state: AppState) => {
+  return state.entities.canvasWidgets[0]?.version || null;
+};

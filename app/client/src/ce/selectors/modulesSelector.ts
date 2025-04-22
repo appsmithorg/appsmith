@@ -10,4 +10,6 @@ export const getAllModules = (
 
 export const getCurrentModuleId = (state: AppState) => "";
 
+export const getCurrentBaseModuleId = (state: AppState) => "";
+
 export const showUIModulesList = (state: AppState) => false;
