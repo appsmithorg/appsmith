@@ -598,15 +598,25 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
   return plugins.filter((plugin) => plugin?.allowUserDatasources ?? true);
 });
 
-export const getPluginImages = createSelector(getPlugins, (plugins) => {
-  const pluginImages: Record<string, string> = {};
+export const getPluginImages = createSelector(
+  getPlugins,
+  getDatasources,
+  (plugins, datasources) => {
+    const pluginImages: Record<string, string> = {};
 
-  plugins.forEach((plugin) => {
-    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
-  });
+    plugins.forEach((plugin) => {
+      pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
+    });
 
-  return pluginImages;
-});
+    datasources.forEach((datasource) => {
+      if (!pluginImages[datasource.pluginId]) {
+        pluginImages[datasource.pluginId] = ImageAlt;
+      }
+    });
+
+    return pluginImages;
+  },
+);
 
 export const getPluginNames = createSelector(getPlugins, (plugins) => {
   const pluginNames: Record<string, string> = {};
