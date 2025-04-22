@@ -33,7 +33,7 @@
         <javadoc.disabled>true</javadoc.disabled>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <mockito.version>4.4.0</mockito.version>
+        <mockito.version>4.11.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
         <okhttp3.version>4.10.0</okhttp3.version>
         <org.pf4j.version>3.10.0</org.pf4j.version>
