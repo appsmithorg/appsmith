@@ -7,4 +7,8 @@ public interface SharedConfigCE {
     int getMaxResponseSize();
 
     String getRemoteExecutionUrl();
+
+    default String getAIProxyBasePathUrl() {
+        return "";
+    }
 }
