@@ -1,6 +1,5 @@
 import { difference } from "lodash";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
-import { sort } from "fast-sort";
 
 export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
@@ -161,6 +160,26 @@ export default class DependencyMap {
   };
 
   /**
+   * Sorts nodes by their depth in descending order (deeper paths first)
+   * @param nodes Record of nodes to sort
+   * @returns Array of node keys sorted by depth
+   */
+  private sortNodesByDepth = (nodes: Record<string, true>): string[] => {
+    // Pre-compute depths for all nodes
+    const nodeKeys = Object.keys(nodes);
+    const nodeDepths = nodeKeys.map((node) => ({
+      node,
+      depth: node.split(".").length,
+    }));
+
+    // Sort by pre-computed depths in descending order
+    nodeDepths.sort((a, b) => b.depth - a.depth);
+
+    // Return just the node keys in sorted order
+    return nodeDepths.map((item) => item.node);
+  };
+
+  /**
    * Adds new nodes to the graph. Should be called when a new node is added to the graph.
    * Iterates over the nodes and checks in the invalid dependency map, to see if it was used earlier.
    * If it was used earlier, it is added to the valid dependencies and removed from the invalid dependencies.
@@ -170,7 +189,7 @@ export default class DependencyMap {
   addNodes = (nodes: Record<string, true>, strict = true) => {
     const nodesToAdd = strict
       ? Object.keys(nodes)
-      : sort(Object.keys(nodes)).desc((node) => node.split(".").length);
+      : this.sortNodesByDepth(nodes);
 
     let didUpdateGraph = false;
 
