@@ -8,6 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviorEnum;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactType;
@@ -1351,5 +1352,91 @@ class LayoutActionServiceTest {
         children.add(firstWidget);
         parentDsl.put("children", children);
         return parentDsl;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testSetRunBehavior_WhenRunBehaviorChanged_ValuesUpdatedCorrectly() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Create a new action
+        ActionDTO action = new ActionDTO();
+        action.setName("testRunBehaviorAction");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        // Create the action and validate default values
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        assertNotNull(createdAction);
+        assertEquals(RunBehaviorEnum.MANUAL, createdAction.getRunBehavior());
+        assertEquals(Boolean.FALSE, createdAction.getExecuteOnLoad());
+
+        // Test setting runBehavior to ON_PAGE_LOAD
+        ActionDTO updatedAction = layoutActionService
+                .setRunBehavior(createdAction.getId(), RunBehaviorEnum.ON_PAGE_LOAD)
+                .block();
+        assertNotNull(updatedAction);
+        assertEquals(RunBehaviorEnum.ON_PAGE_LOAD, updatedAction.getRunBehavior());
+        assertEquals(Boolean.TRUE, updatedAction.getExecuteOnLoad());
+        assertEquals(Boolean.TRUE, updatedAction.getUserSetOnLoad());
+
+        // Test setting runBehavior back to MANUAL
+        updatedAction = layoutActionService
+                .setRunBehavior(createdAction.getId(), RunBehaviorEnum.MANUAL)
+                .block();
+        assertNotNull(updatedAction);
+        assertEquals(RunBehaviorEnum.MANUAL, updatedAction.getRunBehavior());
+        assertEquals(Boolean.FALSE, updatedAction.getExecuteOnLoad());
+        assertEquals(Boolean.TRUE, updatedAction.getUserSetOnLoad());
+
+        // Ensure the changes were persisted by getting the action again
+        NewAction savedAction = actionRepository.findById(createdAction.getId()).block();
+        assertNotNull(savedAction);
+        assertEquals(RunBehaviorEnum.MANUAL, savedAction.getUnpublishedAction().getRunBehavior());
+        assertEquals(Boolean.FALSE, savedAction.getUnpublishedAction().getExecuteOnLoad());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testSetExecuteOnLoad_AlsoUpdatesRunBehavior() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Create a new action
+        ActionDTO action = new ActionDTO();
+        action.setName("testExecuteLoadRunBehaviorAction");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        // Create the action and validate default values
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        assertNotNull(createdAction);
+        assertEquals(RunBehaviorEnum.MANUAL, createdAction.getRunBehavior());
+        assertEquals(Boolean.FALSE, createdAction.getExecuteOnLoad());
+
+        // Test setting executeOnLoad to TRUE
+        ActionDTO updatedAction = layoutActionService
+                .setExecuteOnLoad(createdAction.getId(), Boolean.TRUE)
+                .block();
+        assertNotNull(updatedAction);
+        assertEquals(RunBehaviorEnum.ON_PAGE_LOAD, updatedAction.getRunBehavior());
+        assertEquals(Boolean.TRUE, updatedAction.getExecuteOnLoad());
+
+        // Test setting executeOnLoad to FALSE
+        updatedAction = layoutActionService
+                .setExecuteOnLoad(createdAction.getId(), Boolean.FALSE)
+                .block();
+        assertNotNull(updatedAction);
+        assertEquals(RunBehaviorEnum.MANUAL, updatedAction.getRunBehavior());
+        assertEquals(Boolean.FALSE, updatedAction.getExecuteOnLoad());
     }
 }
