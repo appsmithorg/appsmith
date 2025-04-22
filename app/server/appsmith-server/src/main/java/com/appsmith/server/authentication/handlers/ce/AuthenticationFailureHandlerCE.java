@@ -19,11 +19,13 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
     private final AuthenticationFailureRetryHandler authenticationFailureRetryHandler;
     private final MeterRegistry meterRegistry;
 
+    private static final String SOURCE_FORM = "form";
+
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         String source = exception instanceof OAuth2AuthenticationException
                 ? ((OAuth2AuthenticationException) exception).getError().getErrorCode()
-                : "form";
+                : SOURCE_FORM;
 
         String errorMessage = exception.getMessage();
 

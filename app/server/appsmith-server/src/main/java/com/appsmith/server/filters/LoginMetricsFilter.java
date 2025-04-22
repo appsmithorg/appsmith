@@ -22,26 +22,28 @@ public class LoginMetricsFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        Timer.Sample sample = Timer.start(meterRegistry);
-        return chain.filter(exchange)
-                .doOnSuccess(aVoid -> {
-                    sample.stop(Timer.builder(LOGIN_ATTEMPT).register(meterRegistry));
-                })
-                .doOnError(throwable -> {
-                    sample.stop(Timer.builder(LOGIN_ATTEMPT)
-                            .tag("message", throwable.getMessage())
-                            .register(meterRegistry));
+        return Mono.defer(() -> {
+            Timer.Sample sample = Timer.start(meterRegistry);
+            return chain.filter(exchange)
+                    .doOnSuccess(aVoid -> {
+                        sample.stop(Timer.builder(LOGIN_ATTEMPT).register(meterRegistry));
+                    })
+                    .doOnError(throwable -> {
+                        sample.stop(Timer.builder(LOGIN_ATTEMPT)
+                                .tag("message", throwable.getMessage())
+                                .register(meterRegistry));
 
-                    meterRegistry
-                            .counter(
-                                    LOGIN_FAILURE,
-                                    "source",
-                                    "form_login",
-                                    "errorCode",
-                                    "AuthenticationFailed",
-                                    "message",
-                                    throwable.getMessage())
-                            .increment();
-                });
+                        meterRegistry
+                                .counter(
+                                        LOGIN_FAILURE,
+                                        "source",
+                                        "form_login",
+                                        "errorCode",
+                                        "AuthenticationFailed",
+                                        "message",
+                                        throwable.getMessage())
+                                .increment();
+                    });
+        });
     }
 }

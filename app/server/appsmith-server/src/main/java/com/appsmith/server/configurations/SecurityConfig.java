@@ -2,9 +2,9 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
+import com.appsmith.server.authentication.handlers.AuthenticationFailureHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
-import com.appsmith.server.authentication.handlers.ce.AuthenticationFailureHandlerCE;
 import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -92,7 +92,7 @@ public class SecurityConfig {
     private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    private AuthenticationFailureHandlerCE authenticationFailureHandler;
+    private AuthenticationFailureHandler authenticationFailureHandler;
 
     @Autowired
     private ServerAuthenticationEntryPoint authenticationEntryPoint;
@@ -241,9 +241,7 @@ public class SecurityConfig {
                         new ConditionalFilter(new LoginMetricsFilter(meterRegistry), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .addFilterBefore(
-                        new ConditionalFilter(
-                                new LoginRateLimitFilter(rateLimitService, meterRegistry, authenticationFailureHandler),
-                                Url.LOGIN_URL),
+                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService, meterRegistry), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
