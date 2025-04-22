@@ -474,6 +474,7 @@ function renderDropdown(
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={isMultiSelect}
+      listHeight={240}
       maxTagCount={props.maxTagCount}
       notFoundContent={
         <NoSearchCommandFound

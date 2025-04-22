@@ -2583,7 +2583,7 @@ export const PREPARED_STATEMENT_WARNING = {
 
 export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
-  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
+  ON_LOAD_TITLE: () => "Choose functions run behavior",
 };
 
 export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
