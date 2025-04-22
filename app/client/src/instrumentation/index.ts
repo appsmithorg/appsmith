@@ -15,6 +15,7 @@ import {
   getWebInstrumentations,
   type Faro,
   InternalLoggerLevel,
+  LogLevel,
 } from "@grafana/faro-react";
 import {
   FaroTraceExporter,
@@ -57,7 +58,12 @@ if (isTracingEnabled()) {
         ],
         ignoreUrls,
         consoleInstrumentation: {
-          consoleErrorAsLog: false,
+          disabledLevels: [
+            LogLevel.DEBUG,
+            LogLevel.TRACE,
+            LogLevel.INFO,
+            LogLevel.LOG,
+          ],
         },
         trackResources: true,
         trackWebVitalsAttribution: true,
