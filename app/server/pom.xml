@@ -36,7 +36,7 @@
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
         <okhttp3.version>4.10.0</okhttp3.version>
-        <org.pf4j.version>3.10.0</org.pf4j.version>
+        <org.pf4j.version>3.13.0</org.pf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.groupId>com.appsmith</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
