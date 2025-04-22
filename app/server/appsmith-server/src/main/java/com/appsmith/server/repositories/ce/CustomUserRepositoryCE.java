@@ -12,7 +12,7 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<Boolean> isUsersEmpty();
 
-    Flux<String> getSystemGeneratedUserEmails();
+    Flux<String> getSystemGeneratedUserEmails(String organizationId);
 
     Mono<Integer> updateById(String id, UpdateDefinition updateObj);
 }

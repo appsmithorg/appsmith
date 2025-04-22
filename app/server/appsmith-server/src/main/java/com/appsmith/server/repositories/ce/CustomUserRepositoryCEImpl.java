@@ -44,9 +44,10 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Flux<String> getSystemGeneratedUserEmails() {
+    public Flux<String> getSystemGeneratedUserEmails(String organizationId) {
         return queryBuilder()
-                .criteria(Bridge.equal(User.Fields.isSystemGenerated, true))
+                .criteria(Bridge.equal(User.Fields.isSystemGenerated, true)
+                        .equal(User.Fields.organizationId, organizationId))
                 .all(EmailOnly.class)
                 .map(EmailOnly::email);
     }
