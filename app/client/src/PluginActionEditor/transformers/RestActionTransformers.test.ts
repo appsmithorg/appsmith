@@ -9,6 +9,7 @@ import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
 } from "../constants/CommonApiConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 // jest.mock("POST_");
 
@@ -16,6 +17,7 @@ const BASE_ACTION: ApiAction = {
   dynamicBindingPathList: [],
   cacheResponse: "",
   executeOnLoad: false,
+  runBehavior: ActionRunBehaviour.MANUAL,
   invalids: [],
   isValid: false,
   workspaceId: "",

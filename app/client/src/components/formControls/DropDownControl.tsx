@@ -20,7 +20,7 @@ import {
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
-import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
+import { Icon, Option, OptGroup, Select, Flex, Text } from "@appsmith/ads";
 import { getFormConfigConditionalOutput } from "selectors/formSelectors";
 import { fetchFormDynamicValNextPage } from "actions/evaluationActions";
 import { objectKeys } from "@appsmith/utils";
@@ -29,6 +29,18 @@ import type {
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import NoSearchCommandFound from "./CustomActionsConfigControl/NoSearchCommandFound";
+import styled from "styled-components";
+
+const OptionLabel = styled(Text)`
+  color: var(--ads-v2-color-fg);
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const OptionSubText = styled(Text)`
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 12px;
+`;
 
 export interface DropDownGroupedOptions {
   label: string;
@@ -495,7 +507,24 @@ function renderDropdown(
 }
 
 function renderOptionWithIcon(option: SelectOptionProps) {
-  return (
+  return option.subText ? (
+    <Option
+      aria-label={option.label}
+      disabled={option.disabled}
+      isDisabled={option.isDisabled}
+      key={option.value}
+      label={option.label}
+      value={option.value}
+    >
+      <Flex flexDirection="column">
+        <Flex>
+          {option.icon && <Icon color={option.color} name={option.icon} />}
+          <OptionLabel>{option.label}</OptionLabel>
+        </Flex>
+        <OptionSubText>{option.subText}</OptionSubText>
+      </Flex>
+    </Option>
+  ) : (
     <Option
       aria-label={option.label}
       disabled={option.disabled}
