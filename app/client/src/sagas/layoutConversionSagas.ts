@@ -26,7 +26,7 @@ import {
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 /**
  * This method is used to convert from auto-layout to fixed layout
@@ -214,7 +214,9 @@ function* logLayoutConversionErrorSaga() {
       (state: AppState) => state.ui.layoutConversion.conversionError,
     );
 
-    yield call(captureException, error, { errorName: "LayoutConversionError" });
+    yield call(appsmithTelemetry.captureException, error, {
+      errorName: "LayoutConversionError",
+    });
   } catch (e) {
     throw e;
   }

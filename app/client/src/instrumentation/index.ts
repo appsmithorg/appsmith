@@ -1,6 +1,5 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
-import { ZoneContextManager } from "@opentelemetry/context-zone";
 import { trace, context } from "@opentelemetry/api";
 import { Resource } from "@opentelemetry/resources";
 import {
@@ -23,29 +22,27 @@ import {
 } from "@grafana/faro-web-tracing";
 import log from "loglevel";
 import { isTracingEnabled } from "instrumentation/utils";
+import { v4 as uuidv4 } from "uuid";
+import { error as errorLogger } from "loglevel";
+import type { User } from "constants/userConstants";
 
-declare global {
-  interface Window {
-    faro: Faro | null;
-  }
-}
+class AppsmithTelemetry {
+  private faro: Faro | null;
+  private ignoreUrls = ["smartlook.cloud"];
+  private internalLoggerLevel: InternalLoggerLevel;
+  private static instance: AppsmithTelemetry | null;
 
-const { appVersion, observability } = getAppsmithConfigs();
-const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
-  observability;
+  constructor() {
+    this.internalLoggerLevel =
+      log.getLevel() === log.levels.DEBUG
+        ? InternalLoggerLevel.ERROR
+        : InternalLoggerLevel.OFF;
+    const { appVersion, observability } = getAppsmithConfigs();
+    const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
+      observability;
 
-let faro: Faro | null = null;
-
-if (isTracingEnabled()) {
-  const ignoreUrls = ["smartlook.cloud"];
-  const internalLoggerLevel =
-    log.getLevel() === log.levels.DEBUG
-      ? InternalLoggerLevel.ERROR
-      : InternalLoggerLevel.OFF;
-
-  try {
-    if (!window.faro) {
-      faro = initializeFaro({
+    if (isTracingEnabled()) {
+      this.faro = initializeFaro({
         url: tracingUrl,
         app: {
           name: serviceName,
@@ -56,7 +53,7 @@ if (isTracingEnabled()) {
           new ReactIntegration(),
           ...getWebInstrumentations({}),
         ],
-        ignoreUrls,
+        ignoreUrls: this.ignoreUrls,
         consoleInstrumentation: {
           disabledLevels: [
             LogLevel.DEBUG,
@@ -67,7 +64,7 @@ if (isTracingEnabled()) {
         },
         trackResources: true,
         trackWebVitalsAttribution: true,
-        internalLoggerLevel,
+        internalLoggerLevel: this.internalLoggerLevel,
         sessionTracking: {
           generateSessionId: () => {
             // Disabling session tracing will not send any instrumentation data to the grafana backend
@@ -76,46 +73,90 @@ if (isTracingEnabled()) {
           },
         },
       });
+
+      const tracerProvider = new WebTracerProvider({
+        resource: new Resource({
+          [ATTR_DEPLOYMENT_NAME]: deploymentName,
+          [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
+          [ATTR_SERVICE_NAME]: serviceName,
+        }),
+      });
+
+      tracerProvider.addSpanProcessor(
+        new FaroSessionSpanProcessor(
+          new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
+          this.faro.metas,
+        ),
+      );
+
+      this.faro.api.initOTEL(trace, context);
+    } else {
+      this.faro = null;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
   }
 
-  faro = window.faro;
+  public identifyUser(userId: string, userData: User) {
+    if (this.faro) {
+      this.faro.api.setUser({
+        id: userId,
+        username: userData.username,
+        email: userData.email,
+      });
+    }
+  }
 
-  const tracerProvider = new WebTracerProvider({
-    resource: new Resource({
-      [ATTR_DEPLOYMENT_NAME]: deploymentName,
-      [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
-      [ATTR_SERVICE_NAME]: serviceName,
-    }),
-  });
+  public static getInstance() {
+    if (!AppsmithTelemetry.instance) {
+      AppsmithTelemetry.instance = new AppsmithTelemetry();
+    }
 
-  if (faro) {
-    tracerProvider.addSpanProcessor(
-      new FaroSessionSpanProcessor(
-        new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
-        faro.metas,
-      ),
-    );
+    return AppsmithTelemetry.instance;
+  }
 
-    tracerProvider.register({
-      contextManager: new ZoneContextManager(),
-    });
+  public getTraceAndContext() {
+    const otel = this.faro?.api.getOTEL();
 
-    faro.api.initOTEL(trace, context);
+    if (!otel || !this.faro) {
+      return { trace, context, pushError: () => {} };
+    }
+
+    return {
+      trace: otel.trace,
+      context: otel.context,
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public captureException(exception: any, hint?: Record<string, any>): string {
+    const eventId = uuidv4();
+
+    if (!this.faro) {
+      return eventId;
+    }
+
+    // Exception context in push error is Record<string, string> so we need to convert hint to that format
+    const context: Record<string, string> = {};
+
+    // Iterate over hint and convert to Record<string, string>
+    for (const key in hint) {
+      if (typeof hint[key] === "string") {
+        context[key] = hint[key];
+      } else {
+        context[key] = JSON.stringify(hint[key]);
+      }
+    }
+
+    try {
+      this.faro.api.pushError(
+        exception instanceof Error ? exception : new Error(String(exception)),
+        { type: "error", context: context },
+      );
+    } catch (error) {
+      errorLogger(error);
+    }
+
+    return eventId;
   }
 }
 
-export const getTraceAndContext = () => {
-  if (!faro) {
-    return { trace, context };
-  }
-
-  // The return type of getOTEL is OTELApi | undefined so we need to check for undefined
-  // return default OTEL context and trace if faro is not initialized
-  return faro.api.getOTEL() || { trace, context };
-};
-
-export { faro };
+export const appsmithTelemetry = AppsmithTelemetry.getInstance();

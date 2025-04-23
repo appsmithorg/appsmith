@@ -123,7 +123,7 @@ import type {
   AffectedJSObjects,
   EvaluationReduxAction,
 } from "actions/EvaluationReduxActionTypes";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -935,7 +935,7 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
     );
   } catch (e) {
     log.error(e);
-    captureException(e, { errorName: "EvaluationError" });
+    appsmithTelemetry.captureException(e, { errorName: "EvaluationError" });
   }
 }
 
@@ -1006,7 +1006,7 @@ export default function* evaluationSagaListeners() {
       yield call(evaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "EvaluationError" });
+      appsmithTelemetry.captureException(e, { errorName: "EvaluationError" });
     }
   }
 }

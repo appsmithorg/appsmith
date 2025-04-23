@@ -16,9 +16,9 @@ import {
 } from "./helpers";
 import WidgetFactory from "../WidgetProvider/factory";
 import { Colors } from "constants/Colors";
-import * as FaroErrors from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
-jest.mock("instrumentation/sendFaroErrors");
+jest.mock("instrumentation");
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -545,7 +545,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
 
     const mockCaptureException = jest.fn();
 
-    (FaroErrors.captureException as jest.Mock).mockImplementation(
+    (appsmithTelemetry.captureException as jest.Mock).mockImplementation(
       mockCaptureException,
     );
 

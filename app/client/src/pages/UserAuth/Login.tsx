@@ -52,7 +52,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -116,7 +116,9 @@ export function Login(props: LoginFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
-    captureException(new Error(errorMessage), { errorName: "LoginError" });
+    appsmithTelemetry.captureException(new Error(errorMessage), {
+      errorName: "LoginError",
+    });
   }
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;

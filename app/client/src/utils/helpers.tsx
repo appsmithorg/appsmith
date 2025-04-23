@@ -44,7 +44,7 @@ import { klona as klonaJson } from "klona/json";
 
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 import type { Property } from "entities/Action";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -944,7 +944,7 @@ export const captureInvalidDynamicBindingPath = (
      * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
      */
     if (!isDynamicValue(pathValue)) {
-      captureException(
+      appsmithTelemetry.captureException(
         new Error(
           `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
         ),

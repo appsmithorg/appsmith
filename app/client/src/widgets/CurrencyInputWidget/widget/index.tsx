@@ -43,7 +43,7 @@ import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -499,7 +499,9 @@ class CurrencyInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        captureException(e, { errorName: "CurrencyInputWidget" });
+        appsmithTelemetry.captureException(e, {
+          errorName: "CurrencyInputWidget",
+        });
       }
     }
   }
@@ -517,7 +519,9 @@ class CurrencyInputWidget extends BaseInputWidget<
     } catch (e) {
       formattedValue = value;
       log.error(e);
-      captureException(e, { errorName: "CurrencyInputWidget" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "CurrencyInputWidget",
+      });
     }
 
     // text is stored as what user has typed
@@ -575,7 +579,9 @@ class CurrencyInputWidget extends BaseInputWidget<
       }
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "CurrencyInputWidget" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "CurrencyInputWidget",
+      });
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 

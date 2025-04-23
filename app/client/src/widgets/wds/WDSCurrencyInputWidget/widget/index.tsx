@@ -29,7 +29,7 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -189,7 +189,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     } catch (e) {
       formattedValue = value;
       log.error(e);
-      captureException(e, { errorName: "WDSCurrencyInputWidget" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "WDSCurrencyInputWidget",
+      });
     }
 
     this.props.updateWidgetMetaProperty("text", String(formattedValue));
@@ -248,7 +250,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       }
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "WDSCurrencyInputWidget" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "WDSCurrencyInputWidget",
+      });
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 
@@ -311,7 +315,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        captureException(e, { errorName: "WDSCurrencyInputWidget" });
+        appsmithTelemetry.captureException(e, {
+          errorName: "WDSCurrencyInputWidget",
+        });
       }
     }
   }
