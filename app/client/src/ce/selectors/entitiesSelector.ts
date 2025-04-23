@@ -1686,7 +1686,7 @@ export const getQuerySegmentItems = createSelector(
     const items: EntityItem[] = actions.map((action) => {
       let group;
       const iconUrl = getAssetUrl(
-        pluginGroups[action.config.pluginId]?.iconLocation,
+        pluginGroups[action.config.pluginId]?.iconLocation ?? ImageAlt,
       );
 
       if (action.config.pluginType === PluginType.API) {
