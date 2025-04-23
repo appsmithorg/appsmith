@@ -45,34 +45,40 @@ export const useAddQueryListItems = () => {
   );
 
   const getListItems = (data: ActionOperation[]) => {
-    return data.map((fileOperation) => {
-      let title =
-        fileOperation.entityExplorerTitle ||
-        fileOperation.dsName ||
-        fileOperation.title;
+    return data
+      .map((fileOperation) => {
+        let title =
+          fileOperation.entityExplorerTitle ||
+          fileOperation.dsName ||
+          fileOperation.title;
 
-      title =
-        fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
-          ? fileOperation.title
-          : title;
-      const className = createAddClassName(title);
-      const icon =
-        fileOperation.icon ||
-        (fileOperation.pluginId &&
-          getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
-
-      return {
-        startIcon: icon,
-        className: className,
-        title,
-        description:
+        title =
           fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
-            ? fileOperation.dsName
-            : "",
-        descriptionType: "inline",
-        onClick: onCreateItemClick.bind(null, fileOperation),
-      } as ListItemProps;
-    });
+            ? fileOperation.title
+            : title;
+        const className = createAddClassName(title);
+        const icon =
+          fileOperation.icon ||
+          (fileOperation.pluginId &&
+            getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
+
+        if (fileOperation.pluginId && !pluginGroups[fileOperation.pluginId]) {
+          return undefined;
+        }
+
+        return {
+          startIcon: icon,
+          className: className,
+          title,
+          description:
+            fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+              ? fileOperation.dsName
+              : "",
+          descriptionType: "inline",
+          onClick: onCreateItemClick.bind(null, fileOperation),
+        } as ListItemProps;
+      })
+      .filter((item) => item !== undefined);
   };
 
   return { getListItems };

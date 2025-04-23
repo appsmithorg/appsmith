@@ -64,6 +64,9 @@ export const useFilteredFileOperations = ({
 }: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
+  const pluginById = useMemo(() => {
+    return keyBy(plugins, "id");
+  }, [plugins]);
   const moduleOptions = useModuleOptions();
   const workflowOptions = useWorkflowOptions();
 
@@ -106,7 +109,7 @@ export const useFilteredFileOperations = ({
         return AiPlugin.id !== ds.pluginId;
       }
 
-      return true;
+      return !!pluginById[ds.pluginId]?.id;
     });
 
   return useFilteredAndSortedFileOperations({

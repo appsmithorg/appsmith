@@ -28,6 +28,7 @@ import type { PluginType } from "entities/Plugin";
 import { useLocation } from "react-router";
 import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { getPlugin } from "ee/selectors/entitiesSelector";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -118,6 +119,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const ideType = getIDETypeByUrl(location.pathname);
+  const plugin = useSelector((state) =>
+    getPlugin(state, datasource?.pluginId || ""),
+  );
+  const isEditDisabled = !plugin?.id;
 
   const deleteAction = () => {
     if (isDeleting) return;
@@ -210,8 +215,11 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           )}
           <Button
             className="t--edit-datasource"
+            isDisabled={isEditDisabled}
             kind="secondary"
             onClick={() => {
+              if (isEditDisabled) return;
+
               setDatasourceViewMode({
                 datasourceId: datasourceId,
                 viewMode: false,
