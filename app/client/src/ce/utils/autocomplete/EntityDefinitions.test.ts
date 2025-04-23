@@ -2,7 +2,6 @@ import { PluginType } from "entities/Plugin";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { getPropsForJSActionEntity } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 const jsObject: JSCollectionData = {
   isLoading: false,
@@ -45,7 +44,7 @@ const jsObject: JSCollectionData = {
           jsArguments: [],
           isAsync: false,
         },
-        runBehavior: ActionRunBehaviour.MANUAL,
+        runBehavior: "MANUAL",
         clientSideExecution: true,
         dynamicBindingPathList: [
           {
@@ -87,7 +86,7 @@ const jsObject: JSCollectionData = {
           jsArguments: [],
           isAsync: true,
         },
-        runBehavior: ActionRunBehaviour.MANUAL,
+        runBehavior: "MANUAL",
         clientSideExecution: true,
         dynamicBindingPathList: [
           {

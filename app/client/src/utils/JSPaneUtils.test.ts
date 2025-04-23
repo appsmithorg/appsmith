@@ -2,7 +2,6 @@ import { PluginType } from "entities/Plugin";
 import type { JSCollection } from "entities/JSCollection";
 import type { ParsedBody } from "./JSPaneUtils";
 import { getDifferenceInJSCollection } from "./JSPaneUtils";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 const JSObject1: JSCollection = {
   id: "1234",
@@ -42,7 +41,7 @@ const JSObject1: JSCollection = {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -84,7 +83,7 @@ const JSObject1: JSCollection = {
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -152,7 +151,7 @@ const JSObject2: JSCollection = {
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -194,7 +193,7 @@ const JSObject2: JSCollection = {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -278,7 +277,7 @@ const resultRenamedActions = {
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -359,7 +358,7 @@ const resultDeletedActions = {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -470,7 +469,7 @@ const resultChangedBody = {
         body: "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -550,7 +549,7 @@ const resultChangedParameters = {
           { name: "b", value: undefined },
         ],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -625,7 +624,7 @@ const resultRemovedAsync = {
         body: "() => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -700,7 +699,7 @@ const resultAddedAsync = {
         body: "async () => {\n\t\t//write code here\n\t}",
         jsArguments: [],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -755,7 +754,7 @@ const resultAddedAction = {
   newActions: [
     {
       name: "myFun3",
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       pageId: "page123",
       collectionId: "1234",
       workspaceId: "workspace123",

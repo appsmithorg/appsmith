@@ -2,7 +2,6 @@ import type { Action } from "entities/Action";
 import { PluginType } from "entities/Plugin";
 import { getBindingAndReactivePathsOfAction } from "entities/Action/actionProperties";
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 const DEFAULT_ACTION: Action = {
   actionConfiguration: {},
@@ -11,7 +10,7 @@ const DEFAULT_ACTION: Action = {
     id: "randomDatasource",
   },
   dynamicBindingPathList: [],
-  runBehavior: ActionRunBehaviour.MANUAL,
+  runBehavior: "MANUAL",
   id: "",
   baseId: "",
   invalids: [],

@@ -21,3 +21,5 @@ export const RUN_BEHAVIOR = {
 };
 
 export const RUN_BEHAVIOR_VALUES = Object.values(RUN_BEHAVIOR);
+
+export type ActionRunBehaviourType = `${ActionRunBehaviour}`;

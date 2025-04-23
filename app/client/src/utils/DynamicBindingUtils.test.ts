@@ -13,7 +13,6 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
 } from "./DynamicBindingUtils";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 describe.each([
   ["{{A}}", ["{{A}}"]],
@@ -121,7 +120,7 @@ describe("DynamicBindingPathlist", () => {
           },
         ],
       },
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehavior: "MANUAL",
       dynamicBindingPathList: [
         {
           key: "body",

@@ -1,7 +1,6 @@
 import { PluginType } from "entities/Plugin";
 import { generateDataTreeJSAction } from "./dataTreeJSAction";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 describe("generateDataTreeJSAction", () => {
   it("generate js collection in data tree", () => {
@@ -45,7 +44,7 @@ describe("generateDataTreeJSAction", () => {
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
             },
-            runBehavior: ActionRunBehaviour.MANUAL,
+            runBehavior: "MANUAL",
             dynamicBindingPathList: [
               {
                 key: "body",
@@ -92,7 +91,7 @@ describe("generateDataTreeJSAction", () => {
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
             },
-            runBehavior: ActionRunBehaviour.MANUAL,
+            runBehavior: "MANUAL",
             clientSideExecution: true,
             dynamicBindingPathList: [
               {
@@ -240,7 +239,7 @@ describe("generateDataTreeJSAction", () => {
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
             },
-            runBehavior: ActionRunBehaviour.MANUAL,
+            runBehavior: "MANUAL",
             dynamicBindingPathList: [
               {
                 key: "body",
@@ -287,7 +286,7 @@ describe("generateDataTreeJSAction", () => {
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
             },
-            runBehavior: ActionRunBehaviour.MANUAL,
+            runBehavior: "MANUAL",
             clientSideExecution: true,
             dynamicBindingPathList: [
               {
