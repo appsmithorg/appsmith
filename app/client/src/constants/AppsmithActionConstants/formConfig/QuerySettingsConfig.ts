@@ -1,12 +1,19 @@
+import {
+  RUN_BEHAVIOR,
+  RUN_BEHAVIOR_VALUES,
+} from "PluginActionEditor/constants/PluginActionConstants";
+
 export default [
   {
     sectionName: "",
     id: 1,
     children: [
       {
-        label: "Run the query on page load",
-        configProperty: "executeOnLoad",
-        controlType: "SWITCH",
+        label: "Run behavior",
+        configProperty: "runBehavior",
+        controlType: "DROP_DOWN",
+        initialValue: RUN_BEHAVIOR.MANUAL.label,
+        options: RUN_BEHAVIOR_VALUES,
       },
       {
         label: "Request confirmation before running this query",
