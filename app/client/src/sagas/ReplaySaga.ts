@@ -83,7 +83,6 @@ import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import { objectKeys } from "@appsmith/utils";
-import { handleUIModuleWidgetReplay } from "ee/sagas/moduleInterfaceSaga";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -226,8 +225,6 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           paths,
           timeTaken: endTime - startTime,
         });
-
-        yield call(handleUIModuleWidgetReplay, replay, replayEntity.widgets);
 
         yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
           isRetry: false,

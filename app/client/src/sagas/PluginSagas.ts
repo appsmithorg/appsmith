@@ -31,12 +31,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import { getAppsmithAIPlugin, getGraphQLPlugin } from "entities/Action";
-import {
-  type DefaultPlugin,
-  type Plugin,
-  PluginType,
-  type UpcomingIntegration,
-} from "entities/Plugin";
+import { type DefaultPlugin, type Plugin, PluginType } from "entities/Plugin";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -310,24 +305,6 @@ function* getDefaultPluginsSaga() {
   }
 }
 
-function* getUpcomingPluginsSaga() {
-  try {
-    const response: ApiResponse<UpcomingIntegration[]> = yield call(
-      PluginsApi.fetchUpcomingIntegrations,
-    );
-
-    yield put({
-      type: ReduxActionTypes.GET_UPCOMING_PLUGINS_SUCCESS,
-      payload: response.data || [],
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.GET_UPCOMING_PLUGINS_ERROR,
-      payload: { error },
-    });
-  }
-}
-
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
@@ -342,10 +319,6 @@ function* root() {
     takeEvery(
       ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
       getDefaultPluginsSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.GET_UPCOMING_PLUGINS_REQUEST,
-      getUpcomingPluginsSaga,
     ),
   ]);
 }

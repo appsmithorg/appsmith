@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -20,7 +21,6 @@ import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
-import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
@@ -59,7 +59,6 @@ import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_MET
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
 import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
-import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 import static java.lang.Boolean.FALSE;
 
 @Slf4j
@@ -72,10 +71,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final NewPageService newPageService;
     private final AnalyticsService analyticsService;
     private final PagePermission pagePermission;
+    private final ApplicationService applicationService;
     private final ObjectMapper objectMapper;
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
-    private final ContextLayoutRefactorResolver contextLayoutRefactorResolver;
 
     private final String layoutOnLoadActionErrorToastMessage =
             "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -118,7 +117,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 });
     }
 
-    protected Mono<LayoutDTO> updateLayoutDsl(
+    private Mono<LayoutDTO> updateLayoutDsl(
             String creatorId,
             String layoutId,
             Layout layout,
@@ -248,27 +247,20 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         return layoutDTOMono;
     }
 
-    // TODO: Add contextType and change all its usage to conform to that so that we can get rid of the overloaded
-    // updateLayout method
     @Override
     public Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout) {
-        return contextLayoutRefactorResolver
-                .getContextLayoutRefactorHelper(null)
-                .getEvaluationVersionMono(applicationId)
-                .flatMap(evaluationVersion -> {
+        return applicationService
+                .findById(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .flatMap(application -> {
+                    Integer evaluationVersion = application.getEvaluationVersion();
+                    if (evaluationVersion == null) {
+                        evaluationVersion = EVALUATION_VERSION;
+                    }
                     return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
                             .name(UPDATE_LAYOUT_DSL_METHOD);
                 });
-    }
-
-    @Override
-    public Mono<LayoutDTO> updateLayout(
-            String pageId, String applicationId, String layoutId, Layout layout, CreatorContextType contextType) {
-        if (isPageContext(contextType)) {
-            return updateLayout(pageId, applicationId, layoutId, layout);
-        } else {
-            return updateLayoutDsl(pageId, layoutId, layout, EVALUATION_VERSION, contextType);
-        }
     }
 
     @Override

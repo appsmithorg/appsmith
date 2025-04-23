@@ -805,7 +805,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
     color.oklch.l += 0.05;
     color.oklch.c += 0.1;
-    color.oklch.h += 5;
+    color.oklch.h -= 10;
 
     if (
       this.seedIsRed &&
@@ -815,7 +815,7 @@ export class DarkModeTheme implements ColorModeTheme {
     ) {
       color.oklch.l += 0.05;
       color.oklch.c += 0.05;
-      color.oklch.h -= 20;
+      color.oklch.h -= 15;
     }
 
     return color;

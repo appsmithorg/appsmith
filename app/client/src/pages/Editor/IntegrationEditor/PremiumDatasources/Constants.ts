@@ -1,24 +1,40 @@
-import type { UpcomingIntegration } from "entities/Plugin";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "../../../../constants/ThirdPartyConstants";
 
-/**
- * Filters upcoming integrations based on available plugins.
- * Returns cached integrations synchronously.
- *
- * @param isExternalSaasEnabled Whether external SaaS integrations are enabled
- * @param pluginNames List of installed plugin names (lowercase)
- * @returns Filtered list of upcoming integrations
- */
-export const getFilteredUpcomingIntegrations = (
+export interface PremiumIntegration {
+  name: string;
+  icon: string;
+}
+
+const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
+  {
+    name: "Zendesk",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/zendesk-icon.png`),
+  },
+  {
+    name: "Salesforce",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-image.png`),
+  },
+  {
+    name: "Slack",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/slack.png`),
+  },
+  {
+    name: "Jira",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/jira.png`),
+  },
+];
+
+export const getFilteredPremiumIntegrations = (
   isExternalSaasEnabled: boolean,
   pluginNames: string[],
-  upcomingPlugins: UpcomingIntegration[],
-): UpcomingIntegration[] => {
+) => {
   return isExternalSaasEnabled
-    ? upcomingPlugins.filter(
+    ? PREMIUM_INTEGRATIONS.filter(
         (integration) =>
           !pluginNames.includes(integration.name.toLocaleLowerCase()),
       )
-    : upcomingPlugins;
+    : PREMIUM_INTEGRATIONS;
 };
 
 export const PREMIUM_INTEGRATION_CONTACT_FORM =

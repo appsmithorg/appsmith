@@ -1,9 +1,7 @@
 package com.appsmith.server.plugins.base;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
@@ -25,9 +23,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper,
-            CloudServicesConfig cloudServicesConfig,
-            ConfigService configService) {
+            ObjectMapper objectMapper) {
 
         super(
                 validator,
@@ -37,8 +33,6 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper,
-                cloudServicesConfig,
-                configService);
+                objectMapper);
     }
 }

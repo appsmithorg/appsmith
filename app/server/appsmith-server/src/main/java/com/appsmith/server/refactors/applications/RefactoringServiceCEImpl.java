@@ -2,23 +2,24 @@ package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.ContextLayoutRefactoringService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
-import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.validations.EntityValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 
 @Slf4j
@@ -42,6 +44,8 @@ import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNu
 public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final NewPageService newPageService;
     private final UpdateLayoutService updateLayoutService;
+    private final ApplicationService applicationService;
+    private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final EntityValidationService entityValidationService;
@@ -50,7 +54,6 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
     protected final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
     protected final EntityRefactoringService<Layout> widgetEntityRefactoringService;
-    protected final ContextLayoutRefactorResolver contextLayoutRefactorResolver;
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -70,7 +73,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
      * @return : The DSL after refactor updates
      */
     Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(RefactorEntityNameDTO refactorEntityNameDTO) {
-        String contextId = getBranchedContextId(refactorEntityNameDTO);
+        String pageId = refactorEntityNameDTO.getPageId();
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
 
@@ -80,30 +83,21 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
 
         refactoringMetaDTO.setOldNamePattern(oldNamePattern);
 
-        refactoringMetaDTO.setEvalVersionMono(contextLayoutRefactorResolver
-                .getContextLayoutRefactorHelper(refactorEntityNameDTO.getContextType())
-                .getEvaluationVersionMono(contextId, refactorEntityNameDTO, refactoringMetaDTO));
+        refactoringMetaDTO.setEvalVersionMono(
+                getContextBasedEvalVersionMono(pageId, refactorEntityNameDTO, refactoringMetaDTO));
 
         Mono<Void> refactoredReferencesMono = refactorAllReferences(refactorEntityNameDTO, refactoringMetaDTO);
 
         return refactoredReferencesMono.then(Mono.defer(() -> {
+            PageDTO page = refactoringMetaDTO.getUpdatedPage();
             Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
-            ContextLayoutRefactoringService<?, ?> contextLayoutRefactorHelper =
-                    contextLayoutRefactorResolver.getContextLayoutRefactorHelper(
-                            refactorEntityNameDTO.getContextType());
-            List<Layout> layouts = contextLayoutRefactorHelper.getLayouts(refactoringMetaDTO);
-            if (layouts != null) {
+            if (page != null) {
+                List<Layout> layouts = page.getLayouts();
                 for (Layout layout : layouts) {
                     if (layoutId.equals(layout.getId())) {
                         layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
-                        String artifactId = contextLayoutRefactorHelper.getArtifactId(refactoringMetaDTO);
                         return updateLayoutService
-                                .updateLayout(
-                                        contextId,
-                                        artifactId,
-                                        layout.getId(),
-                                        layout,
-                                        refactorEntityNameDTO.getContextType())
+                                .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .zipWith(Mono.just(updatedBindingPaths));
                     }
                 }
@@ -111,6 +105,27 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             // Return empty Layout when there is no layout
             return Mono.just(Tuples.of(new LayoutDTO(), Set.of()));
         }));
+    }
+
+    protected Mono<Integer> getContextBasedEvalVersionMono(
+            String contextId, RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+        Mono<PageDTO> pageMono = newPageService
+                // fetch the unpublished page
+                .findPageById(contextId, pagePermission.getEditPermission(), false)
+                .cache();
+
+        refactoringMetaDTO.setPageDTOMono(pageMono);
+        Mono<Integer> evalVersionMono = pageMono.flatMap(page -> {
+                    return applicationService.findById(page.getApplicationId()).map(application -> {
+                        Integer evaluationVersion = application.getEvaluationVersion();
+                        if (evaluationVersion == null) {
+                            evaluationVersion = EVALUATION_VERSION;
+                        }
+                        return evaluationVersion;
+                    });
+                })
+                .cache();
+        return evalVersionMono;
     }
 
     protected static Pattern getReplacementPattern(String oldName) {

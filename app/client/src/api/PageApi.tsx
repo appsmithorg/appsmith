@@ -135,12 +135,10 @@ export interface ClonePageRequest {
 }
 
 export interface UpdateWidgetNameRequest {
-  pageId?: string;
+  pageId: string;
   layoutId: string;
   newName: string;
   oldName: string;
-  moduleId?: string;
-  contextType?: "MODULE" | "PAGE";
 }
 
 export interface GenerateTemplatePageRequest {

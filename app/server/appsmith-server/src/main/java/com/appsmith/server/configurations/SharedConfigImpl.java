@@ -33,9 +33,4 @@ public class SharedConfigImpl implements SharedConfig {
     public String getRemoteExecutionUrl() {
         return cloudServicesConfig.getBaseUrl() + "/api/v1/actions/execute";
     }
-
-    @Override
-    public String getAIProxyBasePathUrl() {
-        return cloudServicesConfig.getBaseUrl();
-    }
 }

@@ -43,7 +43,6 @@ describe("UIEntitySidebar", () => {
         focusSearchInput={focusSearchInput}
         groupedCards={mockItems.groupedCards}
         isActive={isActive}
-        searchPlaceholderText={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
       />,
       {
         initialState: getIDETestState({}),
@@ -99,7 +98,6 @@ describe("UIEntitySidebar", () => {
         focusSearchInput
         groupedCards={emptyGroupedCards}
         isActive
-        searchPlaceholderText={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
       />,
       {
         initialState: getIDETestState({}),

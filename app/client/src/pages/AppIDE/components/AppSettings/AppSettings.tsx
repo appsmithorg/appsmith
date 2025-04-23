@@ -34,7 +34,6 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export enum AppSettingsTabs {
   General,
@@ -126,7 +125,7 @@ function AppSettings() {
     };
   }, [selectedTab]);
 
-  let SectionHeadersConfig: SectionHeaderProps[] = [
+  const SectionHeadersConfig: SectionHeaderProps[] = [
     {
       id: "t--general-settings-header",
       icon: "settings-v3",
@@ -193,14 +192,6 @@ function AppSettings() {
       subText: createMessage(UPDATE_VIA_IMPORT_SETTING.settingDesc),
     },
   ];
-
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
-
-  if (isAiAgentFlowEnabled) {
-    SectionHeadersConfig = SectionHeadersConfig.filter(
-      (config) => config.id !== "t--navigation-settings-header",
-    );
-  }
 
   // 50 px height of the sectionHeader item
   // 41px height of pages title

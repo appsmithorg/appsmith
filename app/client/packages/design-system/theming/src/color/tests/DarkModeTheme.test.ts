@@ -694,25 +694,25 @@ describe("fgNegative color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgNegative } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
+    expect(fgNegative).toEqual("rgb(95.583% 0% 26.685%)");
   });
 
   it("should return correct color when chroma > 0.04", () => {
     const { fgNegative } = new DarkModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
+    expect(fgNegative).toEqual("rgb(95.583% 0% 26.685%)");
   });
 
   it("should return correct color hue is between 5 and 49", () => {
     const { fgNegative } = new DarkModeTheme("oklch(0.45 0.1 30)").getColors();
 
-    expect(fgNegative).toEqual("rgb(96.738% 0% 0.56564%)");
+    expect(fgNegative).toEqual("rgb(94.917% 0% 33.564%)");
   });
 
   it("should return correct color hue is not between 5 and 49", () => {
     const { fgNegative } = new DarkModeTheme("oklch(0.45 0.1 120)").getColors();
 
-    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
+    expect(fgNegative).toEqual("rgb(95.583% 0% 26.685%)");
   });
 });
 

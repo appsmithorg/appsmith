@@ -22,10 +22,6 @@ const defaultStoreState = {
     ...unitTestBaseMockStore.entities,
     plugins: {
       list: [],
-      upcomingPlugins: {
-        list: [],
-        loading: false,
-      },
     },
     datasources: {
       list: [],

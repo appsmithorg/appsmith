@@ -91,8 +91,3 @@ export interface DefaultPlugin {
   iconLocation?: string;
   allowUserDatasources?: boolean;
 }
-
-export interface UpcomingIntegration {
-  name: string;
-  iconLocation: string;
-}

@@ -8,7 +8,6 @@ import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProductio
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import routeParamsMiddleware from "ee/middlewares/RouteParamsMiddleware";
-import packageMiddleware from "ee/middlewares/PackageMiddleware";
 
 const sagaMiddleware = createSagaMiddleware();
 const ignoredSentryActionTypes = [
@@ -31,7 +30,7 @@ export default createStore(
   appReducer,
   composeWithDevTools(
     reduxBatch,
-    applyMiddleware(packageMiddleware, sagaMiddleware, routeParamsMiddleware),
+    applyMiddleware(sagaMiddleware, routeParamsMiddleware),
     reduxBatch,
     sentryReduxEnhancer,
   ),

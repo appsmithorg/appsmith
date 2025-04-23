@@ -77,7 +77,6 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-  getCurrentPageDSLVersion,
 } from "ee/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
@@ -270,7 +269,6 @@ export function* evaluateTreeSaga(
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
-  const dslVersion: number | null = yield select(getCurrentPageDSLVersion);
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
@@ -281,7 +279,6 @@ export function* evaluateTreeSaga(
       pageId,
       timestamp: lastDeployedAt,
       instanceId,
-      dslVersion,
     },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,

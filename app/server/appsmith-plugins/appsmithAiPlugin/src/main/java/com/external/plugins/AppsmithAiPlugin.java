@@ -52,10 +52,9 @@ public class AppsmithAiPlugin extends BasePlugin {
     }
 
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
-        private final AiServerService aiServerService =
-                new AiServerServiceImpl(this.sharedConfig.getAIProxyBasePathUrl());
+        private static final AiServerService aiServerService = new AiServerServiceImpl();
 
-        private final TriggerService triggerService = new TriggerServiceImpl(aiServerService, objectMapper);
+        private static final TriggerService triggerService = new TriggerServiceImpl(aiServerService, objectMapper);
         private static final Gson gson = new GsonBuilder().create();
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
@@ -125,10 +124,7 @@ public class AppsmithAiPlugin extends BasePlugin {
             AiServerRequestDTO aiServerRequestDTO = new AiServerRequestDTO(feature, query);
 
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
-                    actionConfiguration,
-                    RequestUtils.getQueryUri(this.sharedConfig.getAIProxyBasePathUrl()),
-                    insertedParams,
-                    objectMapper);
+                    actionConfiguration, RequestUtils.getQueryUri(), insertedParams, objectMapper);
 
             SourceDetails sourceDetails = SourceDetails.createSourceDetails(executeActionDTO);
 

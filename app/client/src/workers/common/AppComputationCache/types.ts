@@ -9,16 +9,6 @@ export interface ICacheProps {
   appId: string;
   pageId: string;
   appMode?: APP_MODE;
-  timestamp?: string;
-  instanceId: string;
-  dslVersion: number | null;
-}
-
-export interface IValidatedCacheProps {
-  appId: string;
-  pageId: string;
-  appMode: APP_MODE;
   timestamp: string;
   instanceId: string;
-  dslVersion: number;
 }

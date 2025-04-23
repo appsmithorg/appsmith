@@ -3,12 +3,7 @@ import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import type {
-  DefaultPlugin,
-  Plugin,
-  UpcomingIntegration,
-} from "entities/Plugin";
-import { objectKeys } from "@appsmith/utils";
+import type { DefaultPlugin, Plugin } from "entities/Plugin";
 
 export interface PluginFormPayload {
   // TODO: Fix this the next time the file is edited
@@ -60,12 +55,6 @@ class PluginsApi extends Api {
     return Api.get(PluginsApi.url + `/default/icons`);
   }
 
-  static async fetchUpcomingIntegrations(): Promise<
-    AxiosPromise<ApiResponse<UpcomingIntegration[]>>
-  > {
-    return Api.get(PluginsApi.url + "/upcoming-integrations");
-  }
-
   static async uploadFiles(
     pluginId: string,
     files: File[],
@@ -81,7 +70,7 @@ class PluginsApi extends Api {
     });
 
     if (params) {
-      objectKeys(params).forEach((key) => {
+      Object.keys(params).forEach((key) => {
         formData.append(key, params[key]);
       });
     }

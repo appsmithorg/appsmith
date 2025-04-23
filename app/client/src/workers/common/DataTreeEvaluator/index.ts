@@ -302,21 +302,11 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    try {
-      this.allKeys = await appComputationCache.fetchOrCompute({
-        cacheProps,
-        cacheName: EComputationCacheName.ALL_KEYS,
-        computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
-      });
-    } catch (error) {
-      this.errors.push({
-        type: EvalErrorTypes.CACHE_ERROR,
-        message: (error as Error).message,
-        stack: (error as Error).stack,
-      });
-
-      this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
-    }
+    this.allKeys = await appComputationCache.fetchOrCompute({
+      cacheProps,
+      cacheName: EComputationCacheName.ALL_KEYS,
+      computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
+    });
 
     const allKeysGenerationEndTime = performance.now();
 

@@ -14,9 +14,6 @@ import java.util.Set;
 public interface UpdateLayoutServiceCE {
     Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
 
-    Mono<LayoutDTO> updateLayout(
-            String pageId, String applicationId, String layoutId, Layout layout, CreatorContextType contextType);
-
     Mono<Integer> updateMultipleLayouts(
             String defaultApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 

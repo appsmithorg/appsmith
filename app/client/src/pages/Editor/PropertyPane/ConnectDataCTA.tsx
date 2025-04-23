@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Button, Text } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
@@ -11,7 +11,6 @@ import { integrationEditorURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { getCurrentBaseModuleId } from "ee/selectors/modulesSelector";
 
 const Container = styled.div`
   height: 75px;
@@ -35,25 +34,17 @@ interface ConnectDataCTAProps {
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
   const basePageId: string = useSelector(getCurrentBasePageId);
-  const baseModuleId: string = useSelector(getCurrentBaseModuleId);
 
-  const onClick = useCallback(() => {
+  const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
-    const refirectionProps: Parameters<typeof integrationEditorURL>[0] & {
-      baseModuleId?: string;
-    } = {
-      selectedTab: INTEGRATION_TABS.NEW,
-      params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
-    };
 
-    if (baseModuleId) {
-      refirectionProps.baseModuleId = baseModuleId;
-    } else {
-      refirectionProps.basePageId = basePageId;
-    }
-
-    history.push(integrationEditorURL(refirectionProps));
-
+    history.push(
+      integrationEditorURL({
+        basePageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
+      }),
+    );
     AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
       widgetTitle,
       widgetId,
@@ -66,7 +57,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
-  }, [baseModuleId, basePageId, props]);
+  };
 
   return (
     <Container className="flex flex-col t--propertypane-connect-cta">

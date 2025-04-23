@@ -167,8 +167,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 widgetDynamicBindingsMap,
                                 executableNameToExecutableMapMono,
                                 executableBindingsInDslRef,
-                                evaluatedVersion,
-                                creatorType)
+                                evaluatedVersion)
                         .name(ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH)
                         .tap(Micrometer.observation(observationRegistry));
 
@@ -198,8 +197,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         executablesFoundDuringWalkRef,
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
-                        evaluatedVersion,
-                        creatorType))
+                        evaluatedVersion))
                 .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
                 .tap(Micrometer.observation(observationRegistry))
                 // At last, add all the widget relationships to the graph as well.
@@ -412,8 +410,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     // Finally update the actions which require an update
                     return Flux.fromIterable(toUpdateExecutables)
-                            .flatMap(executable ->
-                                    this.updateUnpublishedExecutable(executable.getId(), executable, creatorType))
+                            .flatMap(executable -> this.updateUnpublishedExecutable(executable.getId(), executable))
                             .then(Mono.just(TRUE));
                 });
     }
@@ -421,13 +418,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     @Override
     public Mono<Layout> findAndUpdateLayout(
             String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
-        return getExecutableOnLoadService(creatorType).findAndUpdateLayout(creatorId, layoutId, layout);
+        return pageExecutableOnLoadService.findAndUpdateLayout(creatorId, layoutId, layout);
     }
 
-    private Mono<Executable> updateUnpublishedExecutable(
-            String id, Executable executable, CreatorContextType contextType) {
+    private Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return getExecutableOnLoadService(contextType).updateUnpublishedExecutable(id, actionDTO);
+            return pageExecutableOnLoadService.updateUnpublishedExecutable(id, actionDTO);
         } else return Mono.just(executable);
     }
 
@@ -441,7 +437,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
-        return getExecutableOnLoadService(creatorType)
+        return pageExecutableOnLoadService
                 .getAllExecutablesByCreatorIdFlux(creatorId)
                 .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID)
                 .tap(Micrometer.observation(observationRegistry));
@@ -705,8 +701,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Map<String, Set<String>> widgetDynamicBindingsMap,
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDslRef,
-            int evalVersion,
-            CreatorContextType contextType) {
+            int evalVersion) {
 
         Map<String, Set<EntityDependencyNode>> bindingToWidgetNodesMap = new HashMap<>();
         List<String> allBindings = new ArrayList<>();
@@ -746,7 +741,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     // candidate for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
 
-                                    return updateExecutableSelfReferencingPaths(possibleEntity, contextType)
+                                    return updateExecutableSelfReferencingPaths(possibleEntity)
                                             .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
                                             .tap(Micrometer.observation(observationRegistry))
                                             .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
@@ -768,19 +763,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .thenReturn(edgesRef);
     }
 
-    protected Mono<Executable> updateExecutableSelfReferencingPaths(
-            EntityDependencyNode possibleEntity, CreatorContextType contextType) {
-        return this.fillSelfReferencingPaths(possibleEntity.getExecutable(), contextType)
-                .map(executable -> {
-                    possibleEntity.setExecutable(executable);
-                    return executable;
-                });
+    protected Mono<Executable> updateExecutableSelfReferencingPaths(EntityDependencyNode possibleEntity) {
+        return this.fillSelfReferencingPaths(possibleEntity.getExecutable()).map(executable -> {
+            possibleEntity.setExecutable(executable);
+            return executable;
+        });
     }
 
-    protected <T extends Executable> Mono<Executable> fillSelfReferencingPaths(
-            T executable, CreatorContextType contextType) {
+    protected <T extends Executable> Mono<Executable> fillSelfReferencingPaths(T executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return getExecutableOnLoadService(contextType).fillSelfReferencingPaths(actionDTO);
+            return pageExecutableOnLoadService.fillSelfReferencingPaths(actionDTO);
         } else return Mono.just(executable);
     }
 
@@ -1015,8 +1007,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Map<String, EntityDependencyNode> executablesFoundDuringWalk,
             Set<String> dynamicBindings,
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
-            int evalVersion,
-            CreatorContextType contextType) {
+            int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
         }
@@ -1033,7 +1024,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 // Add dependencies of the executables found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
                     if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
-                        return updateExecutableSelfReferencingPaths(possibleEntity, contextType)
+                        return updateExecutableSelfReferencingPaths(possibleEntity)
                                 .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
                                 .tap(Micrometer.observation(observationRegistry))
                                 .then(extractAndSetExecutableBindingsInGraphEdges(
@@ -1061,8 +1052,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             executablesFoundDuringWalk,
                             newBindings,
                             executableNameToExecutableMapMono,
-                            evalVersion,
-                            contextType)
+                            evalVersion)
                     .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
                     .tap(Micrometer.observation(observationRegistry));
         });
@@ -1101,7 +1091,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
                 .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(executable -> fillSelfReferencingPaths(executable, creatorType))
+                .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
                     EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
@@ -1129,8 +1119,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     protected Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(
             String creatorId, CreatorContextType creatorType) {
-        return getExecutableOnLoadService(creatorType)
-                .getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(creatorId);
+        return pageExecutableOnLoadService.getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(creatorId);
     }
 
     /**
@@ -1474,9 +1463,5 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         }
 
         return onPageLoadCandidates;
-    }
-
-    protected ExecutableOnLoadService<?> getExecutableOnLoadService(CreatorContextType contextType) {
-        return pageExecutableOnLoadService;
     }
 }

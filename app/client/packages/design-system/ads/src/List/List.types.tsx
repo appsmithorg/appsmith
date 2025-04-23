@@ -16,8 +16,6 @@ export interface ListItemProps {
   onDoubleClick?: () => void;
   /** Whether the list item is disabled. */
   isDisabled?: boolean;
-  /** Whether the list item should be subtle styled, but not disabled. */
-  isSubtle?: boolean;
   /** Whether the list item is selected. */
   isSelected?: boolean;
   /** The size of the list item. */

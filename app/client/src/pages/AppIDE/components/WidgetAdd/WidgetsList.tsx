@@ -2,10 +2,6 @@ import React from "react";
 
 import { useUIExplorerItems } from "pages/Editor/widgetSidebar/hooks";
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
-import {
-  createMessage,
-  UI_ELEMENT_PANEL_SEARCH_TEXT,
-} from "ee/constants/messages";
 
 interface WidgetsListProps {
   focusSearchInput?: boolean;
@@ -21,7 +17,6 @@ function WidgetsList({ focusSearchInput }: WidgetsListProps) {
       focusSearchInput={focusSearchInput}
       groupedCards={groupedCards}
       isActive
-      searchPlaceholderText={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
     />
   );
 }

@@ -1,4 +1,5 @@
 import {
+  UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
@@ -22,7 +23,6 @@ interface UIEntitySidebarProps {
   cards: WidgetCardProps[];
   entityLoading?: Partial<Record<WidgetTags, boolean>>;
   groupedCards: WidgetCardsGroupedByTags;
-  searchPlaceholderText?: string;
 }
 
 function UIEntitySidebar({
@@ -31,7 +31,6 @@ function UIEntitySidebar({
   focusSearchInput,
   groupedCards,
   isActive,
-  searchPlaceholderText,
 }: UIEntitySidebarProps) {
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -116,7 +115,7 @@ function UIEntitySidebar({
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder={searchPlaceholderText}
+          placeholder={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
           ref={searchInputRef}
           type="text"
         />

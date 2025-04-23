@@ -200,7 +200,6 @@ describe("evaluateAndGenerateResponse", () => {
         timestamp: "timestamp",
         appMode: APP_MODE.PUBLISHED,
         instanceId: "instanceId",
-        dslVersion: 1,
       },
     );
     evaluator.evalAndValidateFirstTree();

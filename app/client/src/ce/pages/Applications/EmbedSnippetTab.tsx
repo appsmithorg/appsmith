@@ -52,13 +52,13 @@ export function ShareModal() {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
-  const isCloudBillingEnabled = useIsCloudBillingEnabled();
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp || isAiAgentFlowEnabled,
+    isPublicApp,
     selectedMethod,
   );
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   return (
     <div className="flex flex-col gap-6">
@@ -107,7 +107,7 @@ export function ShareModal() {
         </Switch>
       )}
 
-      {!isPublicApp && !isAiAgentFlowEnabled && (
+      {!isPublicApp && (
         <PrivateEmbedSettings
           selectedMethod={selectedMethod}
           setSelectedMethod={setSelectedMethod}
@@ -142,10 +142,9 @@ export function AppSettings() {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp || isAiAgentFlowEnabled,
+    isPublicApp,
     selectedMethod,
   );
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
@@ -183,24 +182,20 @@ export function AppSettings() {
           </div>
         )}
 
-        {Boolean(isAiAgentFlowEnabled) === false && (
-          <Switch
-            data-testid={"show-navigation-bar-toggle"}
-            defaultSelected={
-              embedSnippet.currentEmbedSetting?.showNavigationBar
-            }
-            onChange={() =>
-              embedSnippet.onChange({
-                showNavigationBar:
-                  !embedSnippet.currentEmbedSetting.showNavigationBar,
-              })
-            }
-          >
-            {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-          </Switch>
-        )}
+        <Switch
+          data-testid={"show-navigation-bar-toggle"}
+          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
+          onChange={() =>
+            embedSnippet.onChange({
+              showNavigationBar:
+                !embedSnippet.currentEmbedSetting.showNavigationBar,
+            })
+          }
+        >
+          {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
+        </Switch>
 
-        {!isPublicApp && !isAiAgentFlowEnabled && (
+        {!isPublicApp && (
           <PrivateEmbedSettings
             selectedMethod={selectedMethod}
             setSelectedMethod={setSelectedMethod}
@@ -221,10 +216,10 @@ export function EmbedSnippetTab({
   isAppSettings?: boolean;
 }) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
-  const isPublicApp = currentApplicationDetails?.isPublic || false;
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
-  if (!isPublicApp && !isAiAgentFlowEnabled) {
+  const isPublicApp = currentApplicationDetails?.isPublic || false;
+
+  if (!isPublicApp) {
     return (
       <div className="flex flex-col gap-6">
         <PrivateEmbeddingContent

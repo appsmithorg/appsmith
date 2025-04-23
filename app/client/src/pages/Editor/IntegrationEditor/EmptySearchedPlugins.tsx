@@ -10,8 +10,8 @@ import {
 } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import { getPlugins, getUpcomingPlugins } from "ee/selectors/entitiesSelector";
-import { getFilteredUpcomingIntegrations } from "./PremiumDatasources/Constants";
+import { getPlugins } from "ee/selectors/entitiesSelector";
+import { getFilteredPremiumIntegrations } from "./PremiumDatasources/Constants";
 import styled from "styled-components";
 import { filterSearch } from "./util";
 import type { MockDatasource } from "entities/Datasource";
@@ -33,8 +33,6 @@ export default function EmptySearchedPlugins({
   let searchedPlugin = useSelector((state) =>
     pluginSearchSelector(state, "search"),
   );
-
-  const upcomingPlugins = useSelector(getUpcomingPlugins);
 
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
   const plugins = useSelector(getPlugins);
@@ -61,10 +59,9 @@ export default function EmptySearchedPlugins({
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
         ...(isPremiumDatasourcesViewEnabled
-          ? getFilteredUpcomingIntegrations(
+          ? getFilteredPremiumIntegrations(
               isExternalSaasEnabled || isIntegrationsEnabledForPaid,
               pluginNames,
-              upcomingPlugins,
             )
           : []),
       ],
