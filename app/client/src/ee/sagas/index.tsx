@@ -2,8 +2,8 @@ export * from "ce/sagas";
 import { sagas as CE_Sagas } from "ce/sagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { call, all, spawn, race, take } from "redux-saga/effects";
-import log from "loglevel";
 import { appsmithTelemetry } from "instrumentation";
+import log from "loglevel";
 
 const sagasArr = [...CE_Sagas];
 
