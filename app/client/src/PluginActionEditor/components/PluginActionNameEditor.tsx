@@ -12,7 +12,7 @@ import { Flex } from "@appsmith/ads";
 import styled from "styled-components";
 import { noop } from "lodash";
 import { EditableName, useIsRenaming } from "IDE";
-
+import ImageAlt from "assets/images/placeholder-image.svg";
 export interface SaveActionNameParams {
   id: string;
   name: string;
@@ -64,7 +64,7 @@ const PluginActionNameEditor = ({
     isFeatureEnabled,
     action?.userPermissions,
   );
-  const iconUrl = getAssetUrl(plugin?.iconLocation) || "";
+  const iconUrl = getAssetUrl(plugin?.iconLocation ?? ImageAlt);
   const icon = ActionUrlIcon(iconUrl);
 
   const handleDoubleClick = isChangePermitted ? enterEditMode : noop;

@@ -5,12 +5,12 @@ import { useSelector } from "react-redux";
 import {
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
-  getPlugins,
+  getPluginImages,
 } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { getSelectedDatasourceId } from "ee/navigation/FocusSelectors";
-import { get, keyBy } from "lodash";
+import { get } from "lodash";
 import CreateDatasourceButton from "./CreateDatasourceButton";
 import { useLocation } from "react-router";
 import {
@@ -53,8 +53,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   >("");
   const datasources = useSelector(getDatasources);
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
-  const plugins = useSelector(getPlugins);
-  const groupedPlugins = keyBy(plugins, "id");
+  const pluginImages = useSelector(getPluginImages);
   const location = useLocation();
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
@@ -123,9 +122,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
                   title: data.name,
                   startIcon: (
                     <DatasourceIcon
-                      src={getAssetUrl(
-                        groupedPlugins[data.pluginId]?.iconLocation || "",
-                      )}
+                      src={getAssetUrl(pluginImages[data.pluginId])}
                     />
                   ),
                   description: get(dsUsageMap, data.id, ""),
