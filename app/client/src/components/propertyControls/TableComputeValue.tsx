@@ -172,19 +172,19 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
     // Find the actual computation expression between the map parentheses
     const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-    
+
     const { endIndex, isValid } = this.findMatchingClosingParenthesis(
       propertyValue,
-      computationStart
+      computationStart,
     );
-    
+
     // Handle case where no matching closing parenthesis is found
     if (!isValid) {
       // If we can't find the proper closing parenthesis, fall back to returning the original value
       // This prevents errors when the expression is malformed
       return propertyValue;
     }
-    
+
     // Extract the computation expression between the map parentheses
     const computationExpression = propertyValue.substring(
       computationStart,
@@ -193,7 +193,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
     return JSToString(computationExpression);
   };
-  
+
   /**
    * Check if the computed value string looks structurally valid
    * This helps catch obviously malformed expressions early
@@ -204,9 +204,13 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     const hasTableDataAssignment = value.includes("const tableData =");
     const hasReturnStatement = value.includes("return tableData.length > 0 ?");
     const hasClosingStructure = value.includes("})()}}");
-    
-    return hasOpeningStructure && hasTableDataAssignment && 
-           hasReturnStatement && hasClosingStructure;
+
+    return (
+      hasOpeningStructure &&
+      hasTableDataAssignment &&
+      hasReturnStatement &&
+      hasClosingStructure
+    );
   }
 
   /**
@@ -215,9 +219,12 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
    * @param startIndex - The index after the opening parenthesis
    * @returns Object containing the index of the matching closing parenthesis and whether it was found
    */
-  private static findMatchingClosingParenthesis(text: string, startIndex: number) {
+  private static findMatchingClosingParenthesis(
+    text: string,
+    startIndex: number,
+  ) {
     let openParenCount = 1; // Start with 1 for the opening parenthesis
-    
+
     for (let i = startIndex; i < text.length; i++) {
       if (text[i] === "(") {
         openParenCount++;
@@ -229,7 +236,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
         }
       }
     }
-    
+
     // No matching closing parenthesis found
     return { endIndex: text.length, isValid: false };
   }
