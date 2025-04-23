@@ -3,15 +3,15 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 export const THEME = EditorTheme.LIGHT;
 
 export enum ActionRunBehaviour {
-  PAGE_LOAD = "PAGE_LOAD",
+  ON_PAGE_LOAD = "ON_PAGE_LOAD",
   MANUAL = "MANUAL",
 }
 
 export const RUN_BEHAVIOR = {
-  PAGE_LOAD: {
+  ON_PAGE_LOAD: {
     label: "On page load",
     subText: "Query runs when the page loads or when manually triggered",
-    value: ActionRunBehaviour.PAGE_LOAD,
+    value: ActionRunBehaviour.ON_PAGE_LOAD,
   },
   MANUAL: {
     label: "Manual",

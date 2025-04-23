@@ -13,6 +13,7 @@ import type {
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import { klona } from "klona";
+import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 export interface ActionData {
   isLoading: boolean;
@@ -314,7 +315,7 @@ export const handlers = {
     draftMetaState: ActionDataState,
     action: ReduxAction<
       Array<{
-        executeOnLoad: boolean;
+        runBehavior: ActionRunBehaviour;
         id: string;
         name: string;
       }>
@@ -324,8 +325,8 @@ export const handlers = {
 
     draftMetaState.forEach((action) => {
       if (action.config.id in actionUpdateSearch) {
-        action.config.executeOnLoad =
-          actionUpdateSearch[action.config.id].executeOnLoad;
+        action.config.runBehavior =
+          actionUpdateSearch[action.config.id].runBehavior;
       }
     });
   },

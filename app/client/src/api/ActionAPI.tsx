@@ -10,6 +10,7 @@ import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstan
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import type { PostActionRunConfig } from "./types";
+import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 export interface Property {
   key: string;
@@ -307,6 +308,15 @@ class ActionAPI extends API {
   ) {
     return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
       flag: shouldExecute.toString(),
+    });
+  }
+
+  static async updateActionRunBehavior(
+    actionId: string,
+    runBehavior: ActionRunBehaviour,
+  ) {
+    return API.put(ActionAPI.url + `/runBehavior/${actionId}`, {
+      runBehavior,
     });
   }
 }

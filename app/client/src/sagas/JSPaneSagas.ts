@@ -782,7 +782,7 @@ function* setFunctionPropertySaga(
 
   const actionId = action.id;
 
-  if (propertyName === "executeOnLoad") {
+  if (propertyName === "runBehavior") {
     yield put({
       type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
       payload: {
@@ -868,7 +868,7 @@ function* toggleFunctionExecuteOnLoadSaga(
         payload: {
           actionId: actionId,
           collectionId: collectionId,
-          executeOnLoad: shouldExecute,
+          runBehavior: shouldExecute,
         },
       });
     }

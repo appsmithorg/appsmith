@@ -16,7 +16,6 @@ import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionCon
 const BASE_ACTION: ApiAction = {
   dynamicBindingPathList: [],
   cacheResponse: "",
-  executeOnLoad: false,
   runBehavior: ActionRunBehaviour.MANUAL,
   invalids: [],
   isValid: false,

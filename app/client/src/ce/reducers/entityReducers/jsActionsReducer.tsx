@@ -8,6 +8,7 @@ import {
 import { set, keyBy, findIndex, unset } from "lodash";
 import { create } from "mutative";
 import { klona } from "klona";
+import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const initialState: JSCollectionDataState = [];
 
@@ -365,14 +366,14 @@ export const handlers = {
     action: ReduxAction<{
       actionId: string;
       collectionId: string;
-      executeOnLoad: boolean;
+      runBehavior: ActionRunBehaviour;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
         const updatedActions = a.config.actions.map((jsAction) => {
           if (jsAction.id === action.payload.actionId) {
-            set(jsAction, `executeOnLoad`, action.payload.executeOnLoad);
+            set(jsAction, `runBehavior`, action.payload.runBehavior);
           }
 
           return jsAction;
@@ -393,7 +394,7 @@ export const handlers = {
     state: JSCollectionDataState,
     action: ReduxAction<
       Array<{
-        executeOnLoad: boolean;
+        runBehavior: ActionRunBehaviour;
         id: string;
         name: string;
         collectionId: string;
@@ -410,7 +411,7 @@ export const handlers = {
 
           allActions.forEach((js) => {
             if (js.id in actionUpdateSearch) {
-              js.executeOnLoad = actionUpdateSearch[js.id].executeOnLoad;
+              js.runBehavior = actionUpdateSearch[js.id].runBehavior;
             }
           });
         }

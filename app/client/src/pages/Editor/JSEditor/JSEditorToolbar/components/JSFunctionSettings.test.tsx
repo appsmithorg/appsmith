@@ -4,6 +4,7 @@ import { render, screen } from "test/testUtils";
 import { JSFunctionSettings } from "./JSFunctionSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
+import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 // Mock the useFeatureFlag hook
 jest.mock("utils/hooks/useFeatureFlag");
@@ -54,11 +55,11 @@ describe("JSFunctionSettings", () => {
     const updatedJSActions = [
       {
         ...actions[0],
-        executeOnLoad: true,
+        runBehavior: ActionRunBehaviour.ON_PAGE_LOAD,
       },
       {
         ...actions[1],
-        executeOnLoad: false,
+        runBehavior: ActionRunBehaviour.MANUAL,
       },
     ];
 

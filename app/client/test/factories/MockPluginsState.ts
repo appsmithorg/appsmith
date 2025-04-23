@@ -6961,7 +6961,7 @@ export default {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
-                value: "PAGE_LOAD",
+                value: "ON_PAGE_LOAD",
               },
               {
                 label: "Manual",
@@ -7041,7 +7041,7 @@ export default {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
-                value: "PAGE_LOAD",
+                value: "ON_PAGE_LOAD",
               },
               {
                 label: "Manual",
@@ -7121,7 +7121,7 @@ export default {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
-                value: "PAGE_LOAD",
+                value: "ON_PAGE_LOAD",
               },
               {
                 label: "Manual",
@@ -7165,7 +7165,7 @@ export default {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
-                value: "PAGE_LOAD",
+                value: "ON_PAGE_LOAD",
               },
               {
                 label: "Manual",

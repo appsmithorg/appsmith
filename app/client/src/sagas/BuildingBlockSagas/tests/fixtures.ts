@@ -4,6 +4,7 @@ import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasAren
 import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { PaginationType, type Action } from "entities/Action";
 import { PluginType } from "entities/Plugin";
+import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const skeletonWidget: FlattenedWidgetProps = {
   needsErrorInfo: false,
@@ -129,7 +130,7 @@ export const newlyCreatedActions: Action[] = [
         },
       ],
     },
-    executeOnLoad: true,
+    runBehavior: ActionRunBehaviour.ON_PAGE_LOAD,
     dynamicBindingPathList: [
       {
         key: "body",

@@ -76,7 +76,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
       key={props.action.id}
       w="100%"
     >
-      <Text>{props.action.name}</Text>
+      <Text renderAs="label">{props.action.name}</Text>
       <StyledSelect
         data-testid={`execute-on-page-load-${props.action.id}`}
         defaultValue={RUN_BEHAVIOR.MANUAL.label}
