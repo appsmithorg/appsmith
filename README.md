@@ -25,9 +25,9 @@
 
 ---
 
-Organizations build internal applications such as dashboards, database GUIs, admin panels, approval apps, customer support dashboards, and more to help their teams perform day-to-day operations. Appsmith is an open-source tool that enables the rapid development of these internal apps. Read more on our [website](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
+Organizations build custom applications like dashboards, admin panels, customer 360, IT automation, and service management tools to help their teams work more efficiently and effectively. Appsmith is an open-source low-code platform that streamlines custom application development, deployment, and maintenance. Learn more on our [website](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
   
-[![Appsmith in 100 secs](/static/images/appsmith-in-100-seconds.png)](https://www.youtube.com/watch?v=NnaJdA1A11s?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)  
+[![Appsmith in 100 secs](/static/images/appsmith-introduction-video-tile.png)](https://www.youtube.com/watch?v=jhyDI0e1o08?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)  
 
 
 ## Installation
@@ -59,6 +59,8 @@ To build and run Appsmith in your local dev environment, see [Setup for local de
 - [Community Portal](https://community.appsmith.com/?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [support@appsmith.com](mailto:support@appsmith.com)
 
+## Appsmith Agents
+Introducing a new agentic AI platform that integrates the latest AI models with private and proprietary data at scale — inside the tools and systems that teams use every day. Appsmith Agents expands generative AI’s capabilities for the millions of knowledge workers in sales, support, customer success, human resources, and other business teams. By giving continuous context to AI models, Appsmith Agents lets teams ask questions and configure automations specific to their business without model fine-tuning or complex RAG implementations. Visit [appsmith.com/ai](https://www.appsmith.com/ai) to learn more.
                                                                                                                 
 ## Contributing
 We ❤️ our contributors. We're committed to fostering an open, welcoming, and safe environment in the community.
