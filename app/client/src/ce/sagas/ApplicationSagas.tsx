@@ -25,7 +25,7 @@ import type {
   UploadNavigationLogoRequest,
 } from "ee/api/ApplicationApi";
 import ApplicationApi from "ee/api/ApplicationApi";
-import { all, call, put, select, take } from "redux-saga/effects";
+import { all, call, fork, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import {
@@ -121,6 +121,7 @@ import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
 import { findDefaultPage } from "pages/utils";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 export let windowReference: Window | null = null;
 
@@ -1004,6 +1005,7 @@ export function* initDatasourceConnectionDuringImport(
   }>,
 ) {
   const workspaceId = action.payload.workspaceId;
+  const isAgentFlowEnabled: boolean = yield select(getIsAiAgentFlowEnabled);
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
@@ -1032,9 +1034,13 @@ export function* initDatasourceConnectionDuringImport(
   });
 
   yield all(
-    datasources.map((datasource: Datasource) =>
-      call(initializeDatasourceWithDefaultValues, datasource),
-    ),
+    datasources.map((datasource: Datasource) => {
+      if (isAgentFlowEnabled) {
+        return fork(initializeDatasourceWithDefaultValues, datasource);
+      }
+
+      return call(initializeDatasourceWithDefaultValues, datasource);
+    }),
   );
 
   if (!action.payload.isPartialImport) {

@@ -15,6 +15,8 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
+import { useSelector } from "react-redux";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const BodyContainer = styled.div`
   display: flex;
@@ -40,6 +42,7 @@ function ImportSuccessModal(props: ImportSuccessModalProps) {
   const importedAppSuccess = localStorage.getItem("importSuccess");
   // const isOpen = importedAppSuccess === "true";
   const [isOpen, setIsOpen] = useState(importedAppSuccess === "true");
+  const isAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   const onClose = (open: boolean) => {
     if (!open) {
@@ -53,7 +56,7 @@ function ImportSuccessModal(props: ImportSuccessModalProps) {
   };
 
   return (
-    <Modal onOpenChange={onClose} open={isOpen}>
+    <Modal onOpenChange={onClose} open={isOpen && !isAgentFlowEnabled}>
       <StyledModalContent className={"t--import-app-success-modal"}>
         <ModalHeader>Datasource configured</ModalHeader>
         <ModalBody>
