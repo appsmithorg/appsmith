@@ -82,7 +82,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMainCanvasProps(state),
     );
     const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
-    const renderMode = useSelector(getRenderMode);
+    let renderMode = useSelector(getRenderMode);
+
+    // This property is primarily used by UI modules in app editor where it wants to load all the underlying
+    // widgets in page mode as they are not editable and mimics the behavior of view mode.
+    // Since in app's edit mode the default render mode is canvas and due to this some widgets do not behave
+    // properly.
+    if (props.overrideRenderMode) {
+      renderMode = props.overrideRenderMode;
+    }
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 

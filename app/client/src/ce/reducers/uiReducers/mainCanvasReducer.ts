@@ -7,15 +7,16 @@ import {
 } from "constants/WidgetConstants";
 import type { UpdateCanvasLayoutPayload } from "actions/controlActions";
 import type { UpdateCanvasPayload } from "actions/pageActions";
+import { klona } from "klona";
 
-const initialState: MainCanvasReduxState = {
+export const initialState: MainCanvasReduxState = {
   initialized: false,
   width: 0,
   height: 0,
   isMobile: false,
 };
 
-const mainCanvasReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: MainCanvasReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
@@ -38,7 +39,12 @@ const mainCanvasReducer = createImmerReducer(initialState, {
     state.isMobile =
       action.payload.width <= layoutConfigurations.MOBILE.maxWidth;
   },
-});
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
+    return klona(initialState);
+  },
+};
+
+const mainCanvasReducer = createImmerReducer(initialState, handlers);
 
 export interface MainCanvasReduxState {
   initialized: boolean;
