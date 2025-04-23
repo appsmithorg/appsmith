@@ -15,10 +15,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
 import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
-import {
-  RUN_BEHAVIOR,
-  RUN_BEHAVIOR_VALUES,
-} from "PluginActionEditor/constants/PluginActionConstants";
+import { RUN_BEHAVIOR_VALUES } from "PluginActionEditor/constants/PluginActionConstants";
 import styled from "styled-components";
 
 const OptionLabel = styled(Text)`
@@ -71,6 +68,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     <Flex
       alignItems="center"
       className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
+      gap="spaces-4"
       id={`${props.action.name}-settings`}
       justifyContent="space-between"
       key={props.action.id}
@@ -79,16 +77,13 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
       <Text renderAs="label">{props.action.name}</Text>
       <StyledSelect
         data-testid={`execute-on-page-load-${props.action.id}`}
-        defaultValue={RUN_BEHAVIOR.MANUAL.label}
+        defaultValue={runBehavior}
         isDisabled={props.disabled}
         listHeight={240}
         onSelect={onSelectOptions}
-        // Default value of optionFilterProp prop is `value` which searches the dropdown based on value and not label,
-        // hence explicitly setting this to label to search based on label.
-        // For eg. If value is `Create_ticket` and label is `Create ticket`, we should be able to search using `Create ticket`.
-        optionFilterProp="label"
         size="sm"
         value={runBehavior}
+        virtual
       >
         {options.map((option) => (
           <Option

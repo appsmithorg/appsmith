@@ -147,7 +147,7 @@ import {
 import { handleQueryEntityRedirect } from "./IDESaga";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -1044,7 +1044,7 @@ export function* setActionPropertySaga(
       type: ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_INIT,
       payload: {
         actionId,
-        runBehavior: value as ActionRunBehaviour,
+        runBehavior: value as ActionRunBehaviourType,
       },
     });
 
@@ -1062,7 +1062,10 @@ export function* setActionPropertySaga(
 }
 
 function* updateActionRunBehaviorSaga(
-  action: ReduxAction<{ actionId: string; runBehavior: ActionRunBehaviour }>,
+  action: ReduxAction<{
+    actionId: string;
+    runBehavior: ActionRunBehaviourType;
+  }>,
 ) {
   try {
     const response: ApiResponse = yield call(

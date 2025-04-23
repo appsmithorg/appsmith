@@ -311,7 +311,7 @@ export const handlers = {
       },
     ]);
   },
-  [ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+  [ReduxActionTypes.SET_ACTION_RUN_BEHAVIOR]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<
       Array<{

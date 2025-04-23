@@ -361,7 +361,7 @@ export const handlers = {
 
       return a;
     }),
-  [ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
       actionId: string;
@@ -390,7 +390,7 @@ export const handlers = {
 
       return a;
     }),
-  [ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+  [ReduxActionTypes.SET_JS_ACTION_RUN_BEHAVIOR]: (
     state: JSCollectionDataState,
     action: ReduxAction<
       Array<{

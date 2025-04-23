@@ -352,7 +352,7 @@ export const executePageLoadActions = (
   };
 };
 
-export const setActionsToExecuteOnPageLoad = (
+export const setActionsRunBehavior = (
   actions: Array<{
     runBehavior: ActionRunBehaviour;
     id: string;
@@ -360,12 +360,12 @@ export const setActionsToExecuteOnPageLoad = (
   }>,
 ) => {
   return {
-    type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    type: ReduxActionTypes.SET_ACTION_RUN_BEHAVIOR,
     payload: actions,
   };
 };
 
-export const setJSActionsToExecuteOnPageLoad = (
+export const setJSActionsRunBehavior = (
   actions: Array<{
     runBehavior: ActionRunBehaviour;
     id: string;
@@ -374,7 +374,7 @@ export const setJSActionsToExecuteOnPageLoad = (
   }>,
 ) => {
   return {
-    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    type: ReduxActionTypes.SET_JS_ACTION_RUN_BEHAVIOR,
     payload: actions,
   };
 };
