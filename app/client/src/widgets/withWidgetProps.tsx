@@ -159,7 +159,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     // widgets in page mode as they are not editable and mimics the behavior of view mode.
     // Since in app's edit mode the default render mode is canvas and due to this some widgets do not behave
     // properly.
-    if (widget.overrideRenderMode) {
+    if (widget?.overrideRenderMode) {
       renderMode = widget.overrideRenderMode;
     }
 
