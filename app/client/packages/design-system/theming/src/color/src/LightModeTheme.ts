@@ -263,11 +263,16 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Colder seeds require a bit more chroma to not seem completely washed out
     if (this.seedChroma > 0.09 && this.seedIsCold) {
-      color.oklch.c = 0.09;
+      color.oklch.c = 0.06;
+    }
+
+    // Teal is quite intense in the perceived chroma, possibly because of the narrow range on both lighntess and chroma
+    if (color.oklch.h >= 160 && color.oklch.h <= 235) {
+      color.oklch.c = 0.04;
     }
 
     if (this.seedChroma > 0.06 && !this.seedIsCold) {
-      color.oklch.c = 0.06;
+      color.oklch.c = 0.03;
     }
 
     if (this.seedIsAchromatic) {
