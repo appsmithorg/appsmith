@@ -315,8 +315,8 @@ class ActionAPI extends API {
     actionId: string,
     runBehavior: ActionRunBehaviour,
   ) {
-    return API.put(ActionAPI.url + `/runBehavior/${actionId}`, {
-      runBehavior,
+    return API.put(ActionAPI.url + `/runBehavior/${actionId}`, undefined, {
+      behavior: runBehavior,
     });
   }
 }
