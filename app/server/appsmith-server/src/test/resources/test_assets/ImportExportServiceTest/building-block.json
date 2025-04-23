@@ -3277,7 +3277,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -3320,7 +3320,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -3370,7 +3370,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -3407,7 +3407,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -3451,7 +3451,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -3493,7 +3493,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

@@ -2159,7 +2159,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "collectionId": "Page2__$JSModule11$_JSModule1",
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "isValid": false,
         "invalids": ["No configurations found in this action"],
@@ -2185,7 +2185,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "collectionId": "Page2__$JSModule11$_JSModule1",
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "isValid": false,
         "invalids": ["No configurations found in this action"],
@@ -2221,7 +2221,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "collectionId": "Page2__$JSModule11$_JSModule1",
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "isValid": false,
         "invalids": ["No configurations found in this action"],
@@ -2247,7 +2247,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "collectionId": "Page2__$JSModule11$_JSModule1",
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "isValid": false,
         "invalids": ["No configurations found in this action"],
@@ -2346,7 +2346,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2392,7 +2392,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2445,7 +2445,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2486,7 +2486,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2590,7 +2590,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2643,7 +2643,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2703,7 +2703,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -2757,7 +2757,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"

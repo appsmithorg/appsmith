@@ -29,7 +29,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+    Flux<NewAction> findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
             String pageId, AclPermission permission);
 
     Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(

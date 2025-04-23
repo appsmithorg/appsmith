@@ -7,6 +7,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -344,7 +345,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    action.setExecuteOnLoad(false);
+                    action.setRunBehaviour(RunBehaviourEnum.MANUAL);
                     action.setUserSetOnLoad(true);
                     monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
 
@@ -889,8 +890,10 @@ public class LayoutServiceTest {
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
-                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                    ;
+                    assertThat(tuple.getT2().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                    ;
                 })
                 .verifyComplete();
     }
@@ -1115,8 +1118,9 @@ public class LayoutServiceTest {
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
-                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                    ;
+                    assertThat(tuple.getT2().getRunBehaviour()).isNotEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }
@@ -1213,8 +1217,8 @@ public class LayoutServiceTest {
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
-                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                    assertThat(tuple.getT2().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }

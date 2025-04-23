@@ -563,7 +563,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -613,7 +613,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -707,7 +707,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -793,7 +793,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -833,7 +833,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -865,7 +865,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -961,7 +961,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1049,7 +1049,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1143,7 +1143,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1229,7 +1229,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1284,7 +1284,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1331,7 +1331,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1427,7 +1427,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1515,7 +1515,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1553,7 +1553,7 @@
           "body": "async () => {\n\t\t//use async-await or promises\n\t}",
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -1609,7 +1609,7 @@
           "body": "() => {\n\t\t//write code here\n\t}",
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {

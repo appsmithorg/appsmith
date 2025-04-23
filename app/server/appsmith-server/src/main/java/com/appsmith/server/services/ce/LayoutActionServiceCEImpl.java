@@ -6,7 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.RunBehaviorEnum;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -290,6 +290,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
     }
 
+    @Deprecated
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
         return newActionService
@@ -300,13 +301,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     action.setUserSetOnLoad(true);
                     action.setExecuteOnLoad(isExecuteOnLoad);
-
-                    // Update runBehavior based on executeOnLoad for forward compatibility
-                    if (Boolean.TRUE.equals(isExecuteOnLoad)) {
-                        action.setRunBehavior(RunBehaviorEnum.ON_PAGE_LOAD);
-                    } else {
-                        action.setRunBehavior(RunBehaviorEnum.MANUAL);
-                    }
 
                     newAction.setUnpublishedAction(action);
 
@@ -320,7 +314,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     @Override
-    public Mono<ActionDTO> setRunBehavior(String id, RunBehaviorEnum behavior) {
+    public Mono<ActionDTO> setRunBehaviour(String id, RunBehaviourEnum behaviour) {
         return newActionService
                 .findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
@@ -328,14 +322,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     ActionDTO action = newAction.getUnpublishedAction();
 
                     action.setUserSetOnLoad(true);
-                    action.setRunBehavior(behavior);
-
-                    // Update executeOnLoad based on RunBehaviorEnum for backward compatibility
-                    if (RunBehaviorEnum.ON_PAGE_LOAD.equals(behavior)) {
-                        action.setExecuteOnLoad(true);
-                    } else {
-                        action.setExecuteOnLoad(false);
-                    }
+                    action.setRunBehaviour(behaviour);
 
                     newAction.setUnpublishedAction(action);
 
@@ -422,15 +409,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // New actions will never be set to auto-magical execution, unless it is triggered via a
                     // page or application clone event.
                     if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                        actionDTO.setExecuteOnLoad(false);
-
-                        actionDTO.setRunBehavior(RunBehaviorEnum.MANUAL);
+                        actionDTO.setRunBehaviour(RunBehaviourEnum.MANUAL);
                     } else {
-                        // For cloned pages, if executeOnLoad is true, set runBehavior to ON_PAGE_LOAD
-                        if (Boolean.TRUE.equals(actionDTO.getExecuteOnLoad())) {
-                            actionDTO.setRunBehavior(RunBehaviorEnum.ON_PAGE_LOAD);
+                        // For cloned pages, if executeOnLoad is true, set runBehaviour to ON_PAGE_LOAD
+                        if (RunBehaviourEnum.ON_PAGE_LOAD.equals(actionDTO.getRunBehaviour())) {
+                            actionDTO.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            actionDTO.setRunBehavior(RunBehaviorEnum.MANUAL);
+                            actionDTO.setRunBehaviour(RunBehaviourEnum.MANUAL);
                         }
                     }
 

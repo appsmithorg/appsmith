@@ -2,7 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.RunBehaviorEnum;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
@@ -117,17 +117,17 @@ public class ActionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/runBehavior/{branchedActionId}")
-    public Mono<ResponseDTO<ActionDTO>> setRunBehavior(
-            @PathVariable String branchedActionId, @RequestParam RunBehaviorEnum behavior) {
-        log.debug("Going to set run behavior for action id {} to {}", branchedActionId, behavior);
+    @PutMapping("/runBehaviour/{branchedActionId}")
+    public Mono<ResponseDTO<ActionDTO>> setRunbehaviour(
+            @PathVariable String branchedActionId, @RequestParam RunBehaviourEnum behaviour) {
+        log.debug("Going to set run behaviour for action id {} to {}", branchedActionId, behaviour);
         return layoutActionService
-                .setRunBehavior(branchedActionId, behavior)
+                .setRunBehaviour(branchedActionId, behaviour)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK, action));
     }
 
     /**
-     * @deprecated This endpoint is deprecated. Use /runBehavior/{branchedActionId} instead.
+     * @deprecated This endpoint is deprecated. Use /runBehaviour/{branchedActionId} instead.
      */
     @Deprecated
     @JsonView(Views.Public.class)

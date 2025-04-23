@@ -15,7 +15,7 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.RunBehaviorEnum;
+import com.appsmith.external.models.RunbehaviourEnum;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -103,14 +103,25 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     /**
      * @deprecated This field is deprecated and will be removed in a future release.
-     * Use runBehavior instead.
+     * Use runBehaviour instead.
      */
     @Deprecated
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Boolean executeOnLoad;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    RunBehaviorEnum runBehavior = RunBehaviorEnum.MANUAL;
+    RunbehaviourEnum runBehaviour;
+
+    public RunbehaviourEnum getRunBehaviour() {
+        if (runBehaviour != null) {
+            return runBehaviour;
+        }
+        if (executeOnLoad != null) {
+            return executeOnLoad ? RunbehaviourEnum.ON_PAGE_LOAD : RunbehaviourEnum.MANUAL;
+        } else {
+            return RunbehaviourEnum.MANUAL;
+        }
+    }
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Boolean clientSideExecution;

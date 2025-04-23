@@ -11,6 +11,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -1943,7 +1944,7 @@ public class ApplicationServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("cloneActionTest");
                     action.setPageId(application.getPages().get(0).getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -2247,7 +2248,7 @@ public class ApplicationServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("cloneActionTest");
                     action.setPageId(application.getPages().get(0).getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -2662,7 +2663,7 @@ public class ApplicationServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("publishActionTest");
                     action.setPageId(page.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -3636,7 +3637,7 @@ public class ApplicationServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setPageId(page.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -4158,7 +4159,7 @@ public class ApplicationServiceCETest {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(gitAppPageId);
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
