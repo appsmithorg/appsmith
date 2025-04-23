@@ -103,6 +103,7 @@ import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -143,6 +144,7 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isPluginAllowedToPreviewData: boolean;
   isOnboardingFlow?: boolean;
+  isAiAgentFlowEnabled?: boolean;
 }
 
 const Form = styled.div`
@@ -160,8 +162,11 @@ type Props = ReduxStateProps &
     basePageId: string;
   }>;
 
-export const DSEditorWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+export const DSEditorWrapper = styled.div<{ isAiAgentFlowEnabled?: boolean }>`
+  height: ${(props) =>
+    props.isAiAgentFlowEnabled
+      ? `auto`
+      : `calc(100vh - ${props.theme.headerHeight})`};
   overflow: hidden;
   display: flex;
   flex-direction: row;
@@ -1022,6 +1027,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           >
             <DSEditorWrapper
               className={!!isOnboardingFlow ? "onboarding-flow" : ""}
+              isAiAgentFlowEnabled={this.props.isAiAgentFlowEnabled}
             >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
@@ -1155,6 +1161,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const featureFlags = selectFeatureFlags(state);
   const isFeatureEnabled = isGACEnabled(featureFlags);
+  const isAiAgentFlowEnabled = getIsAiAgentFlowEnabled(state);
 
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
@@ -1223,6 +1230,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    isAiAgentFlowEnabled,
   };
 };
 

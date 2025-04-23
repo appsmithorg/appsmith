@@ -46,6 +46,8 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
 import { getAllPageIdentities } from "./selectors";
+import { setCreateAgentModalOpen } from "ee/actions/aiAgentActions";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const isAirgappedInstance = isAirgapped();
 const AI_DATASOURCE_NAME = "AI Datasource";
@@ -76,6 +78,8 @@ function* getAllTemplatesSaga() {
 function* importTemplateToWorkspaceSaga(
   action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
+  const isAiAgentFlowEnabled: boolean = yield select(getIsAiAgentFlowEnabled);
+
   try {
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
@@ -97,6 +101,10 @@ function* importTemplateToWorkspaceSaga(
         payload: response.data.application,
       });
 
+      if (isAiAgentFlowEnabled) {
+        yield put(setCreateAgentModalOpen({ isOpen: false }));
+      }
+
       // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
       // so we can avoid showing the AI Datasource in reconnect datasource modal
       const filteredUnConfiguredDatasourceList = (
@@ -117,6 +125,9 @@ function* importTemplateToWorkspaceSaga(
       } else {
         const pageURL = builderURL({
           basePageId: application.defaultBasePageId,
+          params: {
+            type: isAiAgentFlowEnabled ? "agent" : undefined,
+          },
         });
 
         history.push(pageURL);
