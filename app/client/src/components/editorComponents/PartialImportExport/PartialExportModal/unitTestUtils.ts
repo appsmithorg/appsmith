@@ -2307,8 +2307,7 @@ export const defaultAppState = {
               },
             ],
           },
-          executeOnLoad: true,
-          runBehavior: "PAGE_LOAD",
+          runBehavior: "ON_PAGE_LOAD",
           dynamicBindingPathList: [],
           isValid: true,
           invalids: [],
@@ -2392,7 +2391,6 @@ export const defaultAppState = {
               },
             },
           },
-          executeOnLoad: false,
           runBehavior: "MANUAL",
           isValid: true,
           invalids: [],
@@ -10049,7 +10047,7 @@ export const defaultAppState = {
                     label: "On page load",
                     subText:
                       "Query runs when the page loads or when manually triggered",
-                    value: "PAGE_LOAD",
+                    value: "ON_PAGE_LOAD",
                   },
                   {
                     label: "Manual",
@@ -10100,7 +10098,7 @@ export const defaultAppState = {
                     label: "On page load",
                     subText:
                       "Query runs when the page loads or when manually triggered",
-                    value: "PAGE_LOAD",
+                    value: "ON_PAGE_LOAD",
                   },
                   {
                     label: "Manual",
@@ -10151,7 +10149,7 @@ export const defaultAppState = {
                     label: "On page load",
                     subText:
                       "Query runs when the page loads or when manually triggered",
-                    value: "PAGE_LOAD",
+                    value: "ON_PAGE_LOAD",
                   },
                   {
                     label: "Manual",
@@ -10231,7 +10229,7 @@ export const defaultAppState = {
                     label: "On page load",
                     subText:
                       "Query runs when the page loads or when manually triggered",
-                    value: "PAGE_LOAD",
+                    value: "ON_PAGE_LOAD",
                   },
                   {
                     label: "Manual",
@@ -10414,7 +10412,6 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              executeOnLoad: false,
               runBehavior: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
@@ -10465,7 +10462,6 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              executeOnLoad: false,
               runBehavior: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
@@ -10550,7 +10546,6 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              executeOnLoad: false,
               runBehavior: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
@@ -10601,7 +10596,6 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              executeOnLoad: false,
               runBehavior: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [

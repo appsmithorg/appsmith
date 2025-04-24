@@ -82,7 +82,6 @@
               }
             ]
           },
-          "executeOnLoad": false,
           "runBehavior": "MANUAL",
           "dynamicBindingPathList": [],
           "isValid": true,
@@ -2551,7 +2550,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2597,7 +2596,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2643,7 +2642,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2695,7 +2694,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2734,7 +2733,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2780,7 +2779,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",
@@ -2826,7 +2825,7 @@
                   {
                     "label": "On page load",
                     "subText": "Query runs when the page loads or when manually triggered",
-                    "value": "PAGE_LOAD"
+                    "value": "ON_PAGE_LOAD"
                   },
                   {
                     "label": "Manual",

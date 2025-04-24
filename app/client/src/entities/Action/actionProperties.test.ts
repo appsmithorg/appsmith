@@ -10,7 +10,7 @@ const DEFAULT_ACTION: Action = {
     id: "randomDatasource",
   },
   dynamicBindingPathList: [],
-  executeOnLoad: false,
+  runBehavior: "MANUAL",
   id: "",
   baseId: "",
   invalids: [],

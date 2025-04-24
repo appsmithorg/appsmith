@@ -81,7 +81,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *getTab(propertyPath: string) {
     if (
-      propertyPath.includes("executeOnLoad") ||
+      propertyPath.includes("runBehavior") ||
       propertyPath.includes("confirmBeforeExecute")
     ) {
       return JSEditorTab.SETTINGS;

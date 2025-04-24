@@ -10,7 +10,7 @@ import {
   type Plugin,
   type PluginName,
 } from "../Plugin";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export enum PaginationType {
   NONE = "NONE",
@@ -140,8 +140,7 @@ export interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
-  executeOnLoad: boolean;
-  runBehavior?: ActionRunBehaviour;
+  runBehavior: ActionRunBehaviourType;
   dynamicBindingPathList: DynamicPath[];
   isValid: boolean;
   invalids: string[];

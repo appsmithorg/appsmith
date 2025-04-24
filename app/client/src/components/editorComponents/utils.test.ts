@@ -1,4 +1,5 @@
 import { getJSResponseViewState, JSResponseState } from "./utils";
+import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
 const TEST_JS_FUNCTION_BASE_ID = "627ccff468e1fa5185b7f912";
@@ -30,7 +31,7 @@ const TEST_JS_FUNCTION = {
     jsArguments: [],
     isAsync: true,
   },
-  executeOnLoad: false,
+  runBehavior: ActionRunBehaviour.MANUAL,
   clientSideExecution: true,
   dynamicBindingPathList: [
     {

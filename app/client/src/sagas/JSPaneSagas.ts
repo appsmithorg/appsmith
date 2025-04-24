@@ -101,6 +101,7 @@ import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { fetchActionsForPage } from "actions/pluginActionActions";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -782,13 +783,13 @@ function* setFunctionPropertySaga(
 
   const actionId = action.id;
 
-  if (propertyName === "executeOnLoad") {
+  if (propertyName === "runBehavior") {
     yield put({
-      type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
+      type: ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_INIT,
       payload: {
         collectionId: action.collectionId,
         actionId,
-        shouldExecute: value,
+        runBehavior: value,
       },
     });
 
@@ -846,35 +847,35 @@ function* handleUpdateJSFunctionPropertySaga(
   }
 }
 
-function* toggleFunctionExecuteOnLoadSaga(
+function* updateFunctionRunBehaviorSaga(
   action: ReduxAction<{
     collectionId: string;
     actionId: string;
-    shouldExecute: boolean;
+    runBehavior: ActionRunBehaviourType;
   }>,
 ) {
   try {
-    const { actionId, collectionId, shouldExecute } = action.payload;
+    const { actionId, collectionId, runBehavior } = action.payload;
     const response: ApiResponse = yield call(
-      ActionAPI.toggleActionExecuteOnLoad,
+      ActionAPI.updateActionRunBehavior,
       actionId,
-      shouldExecute,
+      runBehavior,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
+        type: ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_SUCCESS,
         payload: {
           actionId: actionId,
           collectionId: collectionId,
-          executeOnLoad: shouldExecute,
+          runBehavior,
         },
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_ERROR,
       payload: error,
     });
   }
@@ -943,8 +944,8 @@ export default function* root() {
       handleUpdateJSFunctionPropertySaga,
     ),
     takeLatest(
-      ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
-      toggleFunctionExecuteOnLoadSaga,
+      ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_INIT,
+      updateFunctionRunBehaviorSaga,
     ),
     takeLatest(
       ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,

@@ -6,6 +6,7 @@ import {
   getJSActionOption,
 } from "./JSEditorToolbar/utils";
 import { NO_FUNCTION_DROPDOWN_OPTION } from "./JSEditorToolbar/constants";
+import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
 
 const BASE_JS_OBJECT_BODY = `export default {
 	myVar1: [],
@@ -44,7 +45,7 @@ const BASE_JS_ACTION = (useLiterals = false) => {
     pageId: "page-id",
     collectionId: "collection-id",
     pluginId: "plugin-id",
-    executeOnLoad: false,
+    runBehavior: ActionRunBehaviour.MANUAL,
     dynamicBindingPathList: [],
     isValid: false,
     invalids: [],

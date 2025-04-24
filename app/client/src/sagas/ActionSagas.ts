@@ -147,6 +147,7 @@ import {
 import { handleQueryEntityRedirect } from "./IDESaga";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -1038,12 +1039,12 @@ export function* setActionPropertySaga(
     ),
   );
 
-  if (propertyName === "executeOnLoad") {
+  if (propertyName === "runBehavior") {
     yield put({
-      type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
+      type: ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_INIT,
       payload: {
         actionId,
-        shouldExecute: value,
+        runBehavior: value as ActionRunBehaviourType,
       },
     });
 
@@ -1060,25 +1061,28 @@ export function* setActionPropertySaga(
   if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 
-function* toggleActionExecuteOnLoadSaga(
-  action: ReduxAction<{ actionId: string; shouldExecute: boolean }>,
+function* updateActionRunBehaviorSaga(
+  action: ReduxAction<{
+    actionId: string;
+    runBehavior: ActionRunBehaviourType;
+  }>,
 ) {
   try {
     const response: ApiResponse = yield call(
-      ActionAPI.toggleActionExecuteOnLoad,
+      ActionAPI.updateActionRunBehavior,
       action.payload.actionId,
-      action.payload.shouldExecute,
+      action.payload.runBehavior,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS,
+        type: ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_SUCCESS,
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_ACTION_RUN_BEHAVIOR_ERROR,
       payload: error,
     });
   }
@@ -1262,8 +1266,8 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionErrorTypes.MOVE_ACTION_ERROR, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
     takeLatest(
-      ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
-      toggleActionExecuteOnLoadSaga,
+      ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_INIT,
+      updateActionRunBehaviorSaga,
     ),
     takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
     takeLatest(
