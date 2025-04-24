@@ -208,4 +208,4 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/par
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/**/* @sharat87
 
 # Cypress
-app/client/cypress/**/* @ApekshaBhosale @sagar-qa007
+app/client/cypress/**/* @ApekshaBhosale
