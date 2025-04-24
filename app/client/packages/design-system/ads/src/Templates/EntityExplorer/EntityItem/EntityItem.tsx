@@ -51,6 +51,7 @@ export const EntityItem = (props: EntityItemProps) => {
     normalizeName,
     onEditComplete,
     onNameSave,
+    props.hasError,
     props.title,
     startIcon,
     validateName,
