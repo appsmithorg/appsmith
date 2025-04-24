@@ -56,7 +56,7 @@ const PluginActionEditor = (props: ChildrenProps) => {
 
   if (!plugin) {
     return (
-      <CenteredWrapper className="flex flex-col items-center justify-center">
+      <CenteredWrapper className="flex-col">
         <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
           {createMessage(PLUGIN_NOT_INSTALLED)}
         </Text>
