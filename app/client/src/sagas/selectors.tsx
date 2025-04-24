@@ -169,18 +169,6 @@ export const getExistingActionNames = createSelector(
   },
 );
 
-export const getPluginIdToImageLocation = createSelector(
-  getPlugins,
-  (plugins) =>
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugins.reduce((acc: any, p: Plugin) => {
-      acc[p.id] = p.iconLocation;
-
-      return acc;
-    }, {}),
-);
-
 /**
  * returns a objects of existing page name in data tree
  *

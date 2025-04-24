@@ -704,6 +704,8 @@ export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
   "Fill these with utmost care as the application will not behave normally otherwise";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION_FOR_AGENTS =
+  () => "Ensure your agent is ready by integrating the required datasources.";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
@@ -714,6 +716,7 @@ export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
   `Skip this step to configure datasources later`;
 export const SKIP_TO_APPLICATION = () => "Go to application";
+export const SKIP_TO_APPLICATION_FOR_AGENTS = () => "Go to agent";
 export const SKIP_CONFIGURATION = () => "Skip configuration";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
@@ -2038,6 +2041,7 @@ export const SAVE_BUTTON_TEXT = () => "Save";
 export const TEST_BUTTON_TEXT = () => "Test configuration";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save & Authorize";
 export const CONNECT_DATASOURCE_BUTTON_TEXT = () => "Connect Datasource";
+export const CONNECT_DATASOURCE_BUTTON_TEXT_FOR_AGENTS = () => "Connect";
 export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save & Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";

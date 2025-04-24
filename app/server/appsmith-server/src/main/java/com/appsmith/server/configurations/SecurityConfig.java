@@ -2,6 +2,7 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
+import com.appsmith.server.authentication.handlers.AuthenticationFailureHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
@@ -11,6 +12,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.filters.ConditionalFilter;
+import com.appsmith.server.filters.LoginMetricsFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -18,6 +20,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +45,6 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -90,7 +92,7 @@ public class SecurityConfig {
     private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    private ServerAuthenticationFailureHandler authenticationFailureHandler;
+    private AuthenticationFailureHandler authenticationFailureHandler;
 
     @Autowired
     private ServerAuthenticationEntryPoint authenticationEntryPoint;
@@ -119,21 +121,28 @@ public class SecurityConfig {
     @Autowired
     private CsrfConfig csrfConfig;
 
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
     private static final String INTERNAL = "INTERNAL";
 
     /**
-     * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
-     * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
+     * This routerFunction is required to map /public/** endpoints to the
+     * src/main/resources/public folder
+     * This is to allow static resources to be served by the server. Couldn't find
+     * an easier way to do this,
      * hence using RouterFunctions to implement this feature.
      * <p>
      * Future folks: Please check out links:
      * - <a href="https://www.baeldung.com/spring-webflux-static-content">...</a>
-     * - <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources">...</a>
+     * - <a href=
+     * "https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources">...</a>
      * - Class ResourceHandlerRegistry
-     * for details. If you figure out a cleaner approach, please modify this function
+     * for details. If you figure out a cleaner approach, please modify this
+     * function
      */
     @Bean
     public RouterFunction<ServerResponse> publicRouter() {
@@ -182,14 +191,17 @@ public class SecurityConfig {
                         // Disabled because we use CSP's `frame-ancestors` instead.
                         .frameOptions(options -> options.disable()))
                 .anonymous(anonymousSpec -> anonymousSpec.principal(createAnonymousUser()))
-                // This returns 401 unauthorized for all requests that are not authenticated but authentication is
+                // This returns 401 unauthorized for all requests that are not authenticated but
+                // authentication is
                 // required
-                // The client will redirect to the login page if we return 401 as Http status response
+                // The client will redirect to the login page if we return 401 as Http status
+                // response
                 .exceptionHandling(exceptionHandlingSpec -> exceptionHandlingSpec
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        // The following endpoints are allowed to be accessed without authentication
+                        // The following endpoints are allowed to be accessed without
+                        // authentication
                         .matchers(
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
@@ -226,7 +238,10 @@ public class SecurityConfig {
                         .authenticated())
                 // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
-                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService), Url.LOGIN_URL),
+                        new ConditionalFilter(new LoginMetricsFilter(meterRegistry), Url.LOGIN_URL),
+                        SecurityWebFiltersOrder.FORM_LOGIN)
+                .addFilterBefore(
+                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService, meterRegistry), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
@@ -264,7 +279,8 @@ public class SecurityConfig {
     }
 
     /**
-     * This bean configures the parameters that need to be set when a Cookie is created for a logged in user
+     * This bean configures the parameters that need to be set when a Cookie is
+     * created for a logged in user
      */
     @Bean
     public WebSessionIdResolver webSessionIdResolver() {
@@ -283,7 +299,8 @@ public class SecurityConfig {
     private Mono<Void> sanityCheckFilter(ServerWebExchange exchange, WebFilterChain chain) {
         final HttpHeaders headers = exchange.getRequest().getHeaders();
 
-        // 1. Check if the content-type is valid at all. Mostly just checks if it contains a `/`.
+        // 1. Check if the content-type is valid at all. Mostly just checks if it
+        // contains a `/`.
         MediaType contentType;
         try {
             contentType = headers.getContentType();
@@ -299,7 +316,8 @@ public class SecurityConfig {
             return writeErrorResponse(exchange, chain, "Unsupported Content-Type");
         }
 
-        // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
+        // 3. Check Appsmith version, if present. Not making this a mandatory check for
+        // now, but reconsider later.
         final String versionHeaderValue = headers.getFirst(CsrfConfig.VERSION_HEADER);
         final String serverVersion = projectProperties.getVersion();
         if (versionHeaderValue != null && !serverVersion.equals(versionHeaderValue)) {
