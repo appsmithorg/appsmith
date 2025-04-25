@@ -298,9 +298,13 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.LOG_TO_SENTRY: {
-        yield call(appsmithTelemetry.captureException, error, {
-          errorName: "ErrorSagaError",
-        });
+        yield call(
+          [appsmithTelemetry, appsmithTelemetry.captureException],
+          error,
+          {
+            errorName: "ErrorSagaError",
+          },
+        );
         break;
       }
     }
