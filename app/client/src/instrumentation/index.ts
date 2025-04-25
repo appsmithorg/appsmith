@@ -138,11 +138,13 @@ class AppsmithTelemetry {
     const context: Record<string, string> = {};
 
     // Iterate over hint and convert to Record<string, string>
-    for (const key in hint) {
-      if (typeof hint[key] === "string") {
-        context[key] = hint[key];
-      } else {
-        context[key] = JSON.stringify(hint[key]);
+    if (hint) {
+      for (const key in hint) {
+        if (typeof hint[key] === "string") {
+          context[key] = hint[key];
+        } else {
+          context[key] = JSON.stringify(hint[key]);
+        }
       }
     }
 
