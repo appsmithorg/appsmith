@@ -71,33 +71,30 @@ const QUOTE = {
   authorImage: `${getAssetUrl(`${ASSETS_CDN_URL}/thomas-zwick.png`)}`,
 };
 
-const QUOTE_FOR_AGENTS = {
-  quote: `Our goal was to have an omni-channel AI system that could help our usersin every step of the journey. Appsmith serves as a command center for us to control the behavior of the agent. This is a competitive advantage. We're able to serve our customers much faster than our competitors`,
-  author: "Shawn Lim",
-  authorTitle: "VP, Platform & AI, Funding Societies",
-  authorImage: "https://assets.appsmith.com/fundingsocieties-logo.svg",
-};
-
 function LeftSideContent() {
   const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
-  const quote = isAiAgentFlowEnabled ? QUOTE_FOR_AGENTS : QUOTE;
-
   return (
     <Wrapper>
-      <div className="left-description">
-        <div className="left-description-container">
-          &quot;{quote.quote}&quot;
+      {!isAiAgentFlowEnabled && (
+        <div className="left-description">
+          <div className="left-description-container">
+            &quot;{QUOTE.quote}&quot;
+          </div>
+          <div className="left-description-author">
+            {QUOTE.authorImage && (
+              <Avatar
+                image={QUOTE.authorImage}
+                label={QUOTE.author}
+                size="sm"
+              />
+            )}
+            <div>{QUOTE.author}</div>
+            <div className="dot">&#183;</div>
+            <div>{QUOTE.authorTitle}</div>
+          </div>
         </div>
-        <div className="left-description-author">
-          {quote.authorImage && (
-            <Avatar image={quote.authorImage} label={quote.author} size="sm" />
-          )}
-          <div>{quote.author}</div>
-          <div className="dot">&#183;</div>
-          <div>{quote.authorTitle}</div>
-        </div>
-      </div>
+      )}
 
       <div className="client-logo-container">
         <div className="client-heading">
