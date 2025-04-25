@@ -1,7 +1,36 @@
-import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { renderHook } from "@testing-library/react-hooks";
 import type { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Plugin";
+import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
+
+// Mock applicationSelectors
+jest.mock("ee/selectors/applicationSelectors", () => ({
+  getApplications: jest.fn(() => []),
+  getCurrentApplication: jest.fn(() => ({})),
+  getApplicationSearchKeyword: jest.fn(),
+  getIsDeletingApplication: jest.fn(() => false),
+  getIsDuplicatingApplication: jest.fn(() => false),
+  getIsImportingApplication: jest.fn(() => false),
+}));
+
+// Mock AppState and create MockStore
+jest.mock("store", () => ({
+  store: {
+    getState: jest.fn(() => ({
+      entities: {
+        app: {
+          mode: "EDIT",
+        },
+      },
+      ui: {
+        applications: {
+          searchKeyword: "",
+          deletingApplication: false,
+        },
+      },
+    })),
+  },
+}));
 
 // Mock pageListSelectors
 jest.mock("selectors/pageListSelectors", () => ({
@@ -106,8 +135,11 @@ jest.mock("utils/editorContextUtils", () => ({
 
 // Mock utils/helpers
 jest.mock("utils/helpers", () => ({
-  getAppMode: jest.fn(),
+  getAppMode: jest.fn(() => "EDIT"),
   isEllipsisActive: jest.fn(),
+  modText: jest.fn(() => "Ctrl +"),
+  isMacOrIOS: jest.fn(() => false),
+  shiftText: jest.fn(() => "Shift +"),
 }));
 
 // Mock WidgetOperationUtils
@@ -115,6 +147,12 @@ jest.mock("sagas/WidgetOperationUtils", () => ({}));
 
 // Mock WidgetUtils
 jest.mock("widgets/WidgetUtils", () => ({}));
+
+// Mock environmentSelectors
+jest.mock("ee/selectors/environmentSelectors", () => ({
+  getCurrentEnvironmentId: jest.fn(),
+  getCurrentEnvironmentName: jest.fn(),
+}));
 
 // Mock the context
 jest.mock("react", () => {
@@ -135,8 +173,8 @@ jest.mock("react", () => {
 });
 
 // Import after all mocks are set up
-import { useSelector } from "react-redux";
 import * as React from "react";
+import { useSelector } from "react-redux";
 
 // Create a simplified test
 describe("useTableOrSpreadsheet", () => {
