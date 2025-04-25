@@ -2693,3 +2693,6 @@ export const GOOGLE_RECAPTCHA_FAILED = () =>
   "Google reCAPTCHA verification failed";
 export const PASSWORD_INSUFFICIENT_STRENGTH = () =>
   "Insufficient password strength";
+
+export const PLUGIN_NOT_INSTALLED = () =>
+  "Upgrade your plan to unlock access to these integrations.";
