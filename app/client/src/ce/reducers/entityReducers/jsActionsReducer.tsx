@@ -8,7 +8,7 @@ import {
 import { set, keyBy, findIndex, unset } from "lodash";
 import { create } from "mutative";
 import { klona } from "klona";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const initialState: JSCollectionDataState = [];
 
@@ -366,7 +366,7 @@ export const handlers = {
     action: ReduxAction<{
       actionId: string;
       collectionId: string;
-      runBehavior: ActionRunBehaviour;
+      runBehavior: ActionRunBehaviourType;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -394,7 +394,7 @@ export const handlers = {
     state: JSCollectionDataState,
     action: ReduxAction<
       Array<{
-        runBehavior: ActionRunBehaviour;
+        runBehavior: ActionRunBehaviourType;
         id: string;
         name: string;
         collectionId: string;

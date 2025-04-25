@@ -20,7 +20,7 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export const createActionRequest = (
   payload: Partial<Action>,
@@ -354,7 +354,7 @@ export const executePageLoadActions = (
 
 export const setActionsRunBehavior = (
   actions: Array<{
-    runBehavior: ActionRunBehaviour;
+    runBehavior: ActionRunBehaviourType;
     id: string;
     name: string;
   }>,
@@ -367,7 +367,7 @@ export const setActionsRunBehavior = (
 
 export const setJSActionsRunBehavior = (
   actions: Array<{
-    runBehavior: ActionRunBehaviour;
+    runBehavior: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;

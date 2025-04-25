@@ -13,7 +13,7 @@ import type {
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import { klona } from "klona";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export interface ActionData {
   isLoading: boolean;
@@ -315,7 +315,7 @@ export const handlers = {
     draftMetaState: ActionDataState,
     action: ReduxAction<
       Array<{
-        runBehavior: ActionRunBehaviour;
+        runBehavior: ActionRunBehaviourType;
         id: string;
         name: string;
       }>
