@@ -1,7 +1,7 @@
-import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { renderHook } from "@testing-library/react-hooks";
 import type { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Plugin";
+import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 
 // Mock pageListSelectors
 jest.mock("selectors/pageListSelectors", () => ({
@@ -108,6 +108,8 @@ jest.mock("utils/editorContextUtils", () => ({
 jest.mock("utils/helpers", () => ({
   getAppMode: jest.fn(),
   isEllipsisActive: jest.fn(),
+  modText: jest.fn(() => "Ctrl +"),
+  isMacOrIOS: jest.fn(() => false),
 }));
 
 // Mock WidgetOperationUtils
@@ -135,8 +137,8 @@ jest.mock("react", () => {
 });
 
 // Import after all mocks are set up
-import { useSelector } from "react-redux";
 import * as React from "react";
+import { useSelector } from "react-redux";
 
 // Create a simplified test
 describe("useTableOrSpreadsheet", () => {
