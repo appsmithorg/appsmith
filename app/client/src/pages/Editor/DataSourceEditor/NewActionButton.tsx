@@ -24,7 +24,7 @@ import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { getSelectedTableName } from "ee/selectors/entitiesSelector";
+import { getPlugin, getSelectedTableName } from "ee/selectors/entitiesSelector";
 
 interface NewActionButtonProps {
   datasource?: Datasource;
@@ -75,6 +75,11 @@ function NewActionButton(props: NewActionButtonProps) {
     ...pages.filter((p) => p.pageId !== currentPageId),
   ];
   const queryDefaultTableName = useSelector(getSelectedTableName);
+  const plugin = useSelector((state) =>
+    getPlugin(state, datasource?.pluginId || ""),
+  );
+
+  const isDisabled = !!disabled || !plugin?.id;
 
   const createQueryAction = useCallback(
     (pageId: string) => {
@@ -106,7 +111,7 @@ function NewActionButton(props: NewActionButtonProps) {
 
   const handleOnInteraction = useCallback(
     (open: boolean) => {
-      if (disabled || isLoading) return;
+      if (isDisabled || isLoading) return;
 
       if (!open) {
         setIsPageSelectionOpen(false);
@@ -122,7 +127,7 @@ function NewActionButton(props: NewActionButtonProps) {
 
       setIsPageSelectionOpen(true);
     },
-    [pages, createQueryAction, disabled, isLoading],
+    [pages, createQueryAction, isDisabled, isLoading],
   );
 
   const getCreateButtonText = () => {
@@ -139,11 +144,11 @@ function NewActionButton(props: NewActionButtonProps) {
 
   return (
     <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
-      <MenuTrigger disabled={disabled}>
+      <MenuTrigger disabled={isDisabled}>
         <Button
           className="t--create-query"
           id={"create-query"}
-          isDisabled={!!disabled}
+          isDisabled={isDisabled}
           isLoading={isSelected || isLoading}
           kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
           onClick={() => handleOnInteraction(true)}

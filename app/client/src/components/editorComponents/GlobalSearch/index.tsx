@@ -43,7 +43,7 @@ import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
-import { noop } from "lodash";
+import { keyBy, noop } from "lodash";
 import {
   getCurrentPageId,
   getPagePermissions,
@@ -179,6 +179,9 @@ function GlobalSearch() {
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
   const plugins = useSelector(getPlugins);
+  const pluginById = useMemo(() => {
+    return keyBy(plugins, "id");
+  }, [plugins]);
   const setCategory = useCallback(
     (category: SearchCategory) => {
       dispatch(setGlobalSearchFilterContext({ category: category }));
@@ -233,10 +236,15 @@ function GlobalSearch() {
   }, [basePageIdToPageIdMap, params?.basePageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
-    if (!query) return datasourcesList;
+    if (!query)
+      return datasourcesList.filter(
+        (datasource) => pluginById[datasource.pluginId]?.id,
+      );
 
-    return datasourcesList.filter((datasource) =>
-      isMatching(datasource.name, query),
+    return datasourcesList.filter(
+      (datasource) =>
+        isMatching(datasource.name, query) &&
+        pluginById[datasource.pluginId]?.id,
     );
   }, [datasourcesList, query]);
   const recentEntities = useRecentEntities();

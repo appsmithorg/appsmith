@@ -7,6 +7,8 @@ import LeftSideContent from "./LeftSideContent";
 import { getAppsmithConfigs } from "ee/configs";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import styled from "styled-components";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import clsx from "clsx";
 
 interface ContainerProps {
   title: string;
@@ -43,10 +45,15 @@ function Container(props: ContainerProps) {
   const organizationConfig = useSelector(getOrganizationConfig);
   const { cloudHosting } = getAppsmithConfigs();
   const isMobileDevice = useIsMobileDevice();
+  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
 
   return (
     <ContainerWrapper
-      className={`gap-14 my-auto flex items-center justify-center min-w-min`}
+      className={clsx({
+        "my-auto flex items-center justify-center min-w-min": true,
+        "flex-col-reverse gap-4": isAiAgentFlowEnabled,
+        "flex-row gap-14": !isAiAgentFlowEnabled,
+      })}
       data-testid={testId}
     >
       {cloudHosting && !isMobileDevice && <LeftSideContent />}

@@ -2002,10 +2002,12 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
     "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
-  chromeExtensionBannerTitle: () => "Get the Chrome extension",
+  chromeExtensionBannerTitle: (isInstalled: boolean) =>
+    isInstalled ? "Appsmith Agents extension" : "Install the Chrome extension",
   chromeExtensionBannerDescription: () =>
     "Bring powerful AI assistance to the tools you and your teams use.",
-  chromeExtensionBannerButton: () => "Get the extension",
+  chromeExtensionBannerButton: (isInstalled: boolean) =>
+    isInstalled ? "Extension settings" : "Get the extension",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -2691,3 +2693,6 @@ export const GOOGLE_RECAPTCHA_FAILED = () =>
   "Google reCAPTCHA verification failed";
 export const PASSWORD_INSUFFICIENT_STRENGTH = () =>
   "Insufficient password strength";
+
+export const PLUGIN_NOT_INSTALLED = () =>
+  "Upgrade your plan to unlock access to these integrations.";
