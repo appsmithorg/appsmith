@@ -159,6 +159,26 @@ class AppsmithTelemetry {
 
     return eventId;
   }
+
+  public captureMeasurement(
+    value: Record<string, number>,
+    context?: Record<string, string>,
+  ) {
+    if (!this.faro) {
+      return;
+    }
+
+    //add name inside cotext
+    try {
+      this.faro.api.pushMeasurement({
+        type: "measurement",
+        values: value,
+        context: context,
+      });
+    } catch (e) {
+      errorLogger(e);
+    }
+  }
 }
 
 export const appsmithTelemetry = AppsmithTelemetry.getInstance();
