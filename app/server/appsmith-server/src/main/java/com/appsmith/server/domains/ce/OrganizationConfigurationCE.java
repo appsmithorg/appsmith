@@ -1,6 +1,5 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
@@ -58,7 +57,7 @@ public class OrganizationConfigurationCE implements Serializable {
     // the feature flags. This can happen for 2 reasons:
     // 1. The license plan changes
     // 2. Because of grandfathering via cron where organization level feature flags are fetched
-    Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
+    Map<String, FeatureMigrationType> featuresWithPendingMigration;
 
     Boolean isStrongPasswordPolicyEnabled;
 

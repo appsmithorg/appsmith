@@ -226,7 +226,7 @@ public class FeatureFlagServiceCETest {
             getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations_disableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE)));
+                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE.name(), DISABLE)));
 
         organizationService
                 .retrieveAll()
@@ -237,7 +237,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
+                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE.name(), DISABLE));
                     assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
@@ -249,7 +249,7 @@ public class FeatureFlagServiceCETest {
             getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations_enableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE)));
+                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE.name(), ENABLE)));
 
         organizationService
                 .retrieveAll()
@@ -260,7 +260,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
+                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE.name(), ENABLE));
                     assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
