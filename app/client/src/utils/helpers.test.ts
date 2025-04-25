@@ -18,7 +18,20 @@ import WidgetFactory from "../WidgetProvider/factory";
 import { Colors } from "constants/Colors";
 import { appsmithTelemetry } from "instrumentation";
 
-jest.mock("instrumentation");
+// Mock appsmithTelemetry
+jest.mock("instrumentation", () => ({
+  appsmithTelemetry: {
+    getTraceAndContext: jest.fn().mockReturnValue({
+      context: {},
+      trace: {
+        getTracer: jest.fn().mockReturnValue({
+          startSpan: jest.fn(),
+        }),
+      },
+    }),
+    captureException: jest.fn(),
+  },
+}));
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
