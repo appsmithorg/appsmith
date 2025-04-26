@@ -328,6 +328,8 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
       item.tags.forEach((tag) => {
         if (groupedCards[tag]) {
           groupedCards[tag].push(item);
+        } else {
+          groupedCards[tag] = [item];
         }
       });
     }

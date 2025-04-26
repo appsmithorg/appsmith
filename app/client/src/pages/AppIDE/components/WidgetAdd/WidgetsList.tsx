@@ -5,6 +5,7 @@ import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import {
   createMessage,
   UI_ELEMENT_PANEL_SEARCH_TEXT,
+  WIDGET_PANEL_EMPTY_MESSAGE,
 } from "ee/constants/messages";
 
 interface WidgetsListProps {
@@ -17,6 +18,7 @@ function WidgetsList({ focusSearchInput }: WidgetsListProps) {
   return (
     <UIEntitySidebar
       cards={cards}
+      emptyMessage={createMessage(WIDGET_PANEL_EMPTY_MESSAGE)}
       entityLoading={entityLoading}
       focusSearchInput={focusSearchInput}
       groupedCards={groupedCards}

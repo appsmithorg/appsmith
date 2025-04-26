@@ -38,7 +38,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import convertDSLtoAuto from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
