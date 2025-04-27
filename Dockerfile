@@ -1,5 +1,5 @@
 ARG BASE
-FROM gouthamappsmith/appsmith_base:0.0.1
+FROM ${BASE}
 
 ENV IN_DOCKER=1
 
