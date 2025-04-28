@@ -7,7 +7,6 @@ import {
 } from "constants/WidgetConstants";
 import type { UpdateCanvasLayoutPayload } from "actions/controlActions";
 import type { UpdateCanvasPayload } from "actions/pageActions";
-import { klona } from "klona";
 
 export const initialState: MainCanvasReduxState = {
   initialized: false,
@@ -38,9 +37,6 @@ export const handlers = {
     state.initialized = true;
     state.isMobile =
       action.payload.width <= layoutConfigurations.MOBILE.maxWidth;
-  },
-  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
-    return klona(initialState);
   },
 };
 
