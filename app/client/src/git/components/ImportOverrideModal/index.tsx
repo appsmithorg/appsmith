@@ -1,47 +1,37 @@
-import {
-  Button,
-  Callout,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Text,
-} from "@appsmith/ads";
-import React from "react";
-import styled from "styled-components";
+import React, { useCallback } from "react";
+import ImportOverrideModalView from "./ImportOverrideModalView";
+import useImport from "git/hooks/useImport";
 
-const StyledModalContent = styled(ModalContent)`
-  width: 640px;
-`;
+function ImportOverrideModal() {
+  const {
+    gitImport,
+    importOverrideParams,
+    isImportOverrideModalOpen,
+    resetImportOverrideParams,
+  } = useImport();
 
-interface ImportOverrideModalProps {
-  artifactType?: string;
-}
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        resetImportOverrideParams();
+      }
+    },
+    [resetImportOverrideParams],
+  );
 
-function ImportOverrideModal({
-  artifactType = "artifact",
-}: ImportOverrideModalProps) {
+  const handleImport = useCallback(() => {
+    if (importOverrideParams) {
+      gitImport(importOverrideParams);
+    }
+  }, [gitImport, importOverrideParams]);
+
   return (
-    <Modal open>
-      <StyledModalContent>
-        <ModalHeader>Override existing {artifactType}?</ModalHeader>
-        <ModalBody>
-          <Callout kind="warning">
-            <Text>
-              You&apos;re trying to import a {artifactType} that already exists
-              in this workspace as <b>my-app</b>. Do you want to override it?
-            </Text>
-          </Callout>
-        </ModalBody>
-        <ModalFooter>
-          <Button kind="secondary" size="md">
-            Cancel
-          </Button>
-          <Button size="md">Import and override {artifactType}</Button>
-        </ModalFooter>
-      </StyledModalContent>
-    </Modal>
+    <ImportOverrideModalView
+      artifactType={"package"}
+      isOpen={isImportOverrideModalOpen}
+      onImport={handleImport}
+      onOpenChange={handleOpenChange}
+    />
   );
 }
 

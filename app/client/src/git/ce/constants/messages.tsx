@@ -4,6 +4,14 @@ export const IMPORT_GIT = {
   WAIT_TEXT: "Please wait while we import via Git..",
 };
 
+export const IMPORT_OVERRIDE_MODAL = {
+  TITLE: "Override existing {{artifactType}}?",
+  DESCRIPTION:
+    "You're trying to import a {{artifactType}} that already exists in this workspace as <b>my-app</b>. Do you want to override it?",
+  CANCEL_BTN: "Cancel",
+  OVERRIDE_BTN: "Import and override {{artifactType}}",
+};
+
 export const CONNECT_GIT = {
   MODAL_TITLE: "Configure Git",
   CHOOSE_PROVIDER_CTA: "Configure Git",

@@ -10,7 +10,11 @@ import {
   updateGlobalProfileSuccessAction,
 } from "./actions/updateGlobalProfileActions";
 import { gitGlobalInitialState } from "./helpers/initialState";
-import { toggleImportModalAction } from "./actions/uiActions";
+import {
+  resetImportOverrideParamsAction,
+  setImportOverrideParamsAction,
+  toggleImportModalAction,
+} from "./actions/uiActions";
 import {
   gitImportErrorAction,
   gitImportInitAction,
@@ -42,6 +46,8 @@ export const gitGlobalSlice = createSlice({
     gitImportSuccess: gitImportSuccessAction,
     gitImportError: gitImportErrorAction,
     toggleImportModal: toggleImportModalAction,
+    resetImportOverrideParams: resetImportOverrideParamsAction,
+    setImportOverrideParams: setImportOverrideParamsAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });
