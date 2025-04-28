@@ -1,6 +1,5 @@
 import {
   Button,
-  Callout,
   Modal,
   ModalBody,
   ModalContent,
@@ -20,19 +19,27 @@ const StyledModalContent = styled(ModalContent)`
 
 interface ImportOverrideModalViewProps {
   artifactType?: string;
+  isImportLoading: boolean;
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  newArtifactName: string | null;
+  oldArtifactName: string | null;
   onImport: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 function ImportOverrideModalView({
   artifactType = "artifact",
+  isImportLoading = false,
   isOpen = false,
+  newArtifactName = null,
+  oldArtifactName = null,
   onImport = noop,
   onOpenChange = noop,
 }: ImportOverrideModalViewProps) {
   const modalTitle = useMessage(IMPORT_OVERRIDE_MODAL.TITLE, { artifactType });
   const modalDescription = useMessage(IMPORT_OVERRIDE_MODAL.DESCRIPTION, {
+    newArtifactName: newArtifactName ?? "",
+    oldArtifactName: oldArtifactName ?? "",
     artifactType,
   });
   const ctaBtnText = useMessage(IMPORT_OVERRIDE_MODAL.OVERRIDE_BTN, {
@@ -44,23 +51,30 @@ function ImportOverrideModalView({
   }, [onOpenChange]);
 
   const handleImport = useCallback(() => {
-    onImport();
-  }, [onImport]);
+    if (!isImportLoading) {
+      onImport();
+    }
+  }, [isImportLoading, onImport]);
 
   return (
     <Modal onOpenChange={onOpenChange} open={isOpen}>
       <StyledModalContent>
         <ModalHeader>{modalTitle}</ModalHeader>
         <ModalBody>
-          <Callout kind="warning">
-            <Text>{modalDescription}</Text>
-          </Callout>
+          <Text kind="body-m" renderAs="p">
+            {modalDescription}
+          </Text>
         </ModalBody>
         <ModalFooter>
           <Button kind="secondary" onClick={handleCancel} size="md">
             {IMPORT_OVERRIDE_MODAL.CANCEL_BTN}
           </Button>
-          <Button onClick={handleImport} size="md">
+          <Button
+            isLoading={isImportLoading}
+            onClick={handleImport}
+            size="md"
+            type="submit"
+          >
             {ctaBtnText}
           </Button>
         </ModalFooter>

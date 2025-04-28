@@ -7,7 +7,7 @@ export const IMPORT_GIT = {
 export const IMPORT_OVERRIDE_MODAL = {
   TITLE: "Override existing {{artifactType}}?",
   DESCRIPTION:
-    "You're trying to import a {{artifactType}} that already exists in this workspace as <b>my-app</b>. Do you want to override it?",
+    "{{newArtifactName}} already exists in this workspace as {{oldArtifactName}}. Do you want to override it with the imported {{artifactType}}?",
   CANCEL_BTN: "Cancel",
   OVERRIDE_BTN: "Import and override {{artifactType}}",
 };
