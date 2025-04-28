@@ -933,6 +933,9 @@ public class CommonGitFileUtilsCE {
         String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
         String refName = gitArtifactMetadata.getRefName();
         String repoName = gitArtifactMetadata.getRepoName();
+        Mono<Boolean> useFSGitHandlerMono = featureFlagService.check(FeatureFlagEnum.release_git_api_contracts_enabled);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         if (!hasText(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -957,8 +960,14 @@ public class CommonGitFileUtilsCE {
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, defaultArtifactId, repoName);
 
-        Mono<JSONObject> jsonObjectMono = fileUtils
-                .reconstructPageFromGitRepo(pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired)
+        Mono<JSONObject> jsonObjectMono = Mono.zip(useFSGitHandlerMono, keepWorkingDirChangesMono)
+                .flatMap(tuple -> fileUtils.reconstructPageFromGitRepo(
+                        pageDTO.getName(),
+                        refName,
+                        baseRepoSuffix,
+                        isResetToLastCommitRequired,
+                        tuple.getT1(),
+                        tuple.getT2()))
                 .onErrorResume(error -> Mono.error(
                         new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
                 .map(pageJson -> {
