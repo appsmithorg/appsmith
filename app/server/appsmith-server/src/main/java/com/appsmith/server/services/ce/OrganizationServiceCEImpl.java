@@ -290,16 +290,27 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         if (!isMigrationRequired(organization)) {
             return Mono.just(organization);
         }
-        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+        Map<String, FeatureMigrationType> featureMigrationTypeMap =
                 organization.getOrganizationConfiguration().getFeaturesWithPendingMigration();
 
-        FeatureFlagEnum featureFlagEnum =
+        final String featureFlagKey =
                 featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);
+
+        FeatureFlagEnum featureFlagEnum = null;
+        if (featureFlagKey != null) {
+            try {
+                featureFlagEnum = FeatureFlagEnum.valueOf(featureFlagKey);
+            } catch (IllegalArgumentException e) {
+                log.warn("Unknown feature flag: {}", featureFlagKey);
+            }
+        }
+
+        final FeatureFlagEnum finalFeatureFlagEnum = featureFlagEnum;
         return featureFlagMigrationHelper
-                .checkAndExecuteMigrationsForFeatureFlag(organization, featureFlagEnum)
+                .checkAndExecuteMigrationsForFeatureFlag(organization, finalFeatureFlagEnum)
                 .flatMap(isSuccessful -> {
                     if (TRUE.equals(isSuccessful)) {
-                        featureMigrationTypeMap.remove(featureFlagEnum);
+                        featureMigrationTypeMap.remove(featureFlagKey);
                         if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
                             organization.getOrganizationConfiguration().setMigrationStatus(MigrationStatus.COMPLETED);
                         } else {
@@ -312,7 +323,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                 .flatMap(this::checkAndExecuteMigrationsForOrganizationFeatureFlags);
                     }
                     return Mono.error(
-                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
+                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, finalFeatureFlagEnum, ""));
                 });
     }
 
