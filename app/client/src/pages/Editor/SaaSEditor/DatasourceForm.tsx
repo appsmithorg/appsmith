@@ -94,6 +94,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -188,6 +189,7 @@ interface SaasEditorWrappperProps {
   datasourceId: string;
   pageId: string;
   pluginPackageName: string;
+  isAiAgentFlowEnabled?: boolean;
 }
 interface RouteProps {
   datasourceId: string;
@@ -643,7 +645,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               showingTabsOnViewMode && "saas-form-resizer-content-show-tabs"
             }`}
           >
-            <DSEditorWrapper>
+            <DSEditorWrapper
+              isAiAgentFlowEnabled={this.props.isAiAgentFlowEnabled}
+            >
               <DSDataFilter
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
@@ -852,6 +856,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
+  const isAiAgentFlowEnabled = getIsAiAgentFlowEnabled(state);
 
   return {
     datasource,
@@ -890,6 +895,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isPluginAuthFailed,
     featureFlags: selectFeatureFlags(state),
     isPluginAllowedToPreviewData,
+    isAiAgentFlowEnabled,
   };
 };
 
