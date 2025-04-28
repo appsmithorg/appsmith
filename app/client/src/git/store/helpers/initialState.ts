@@ -168,6 +168,6 @@ export const gitGlobalInitialState: GitGlobalReduxState = {
     error: null,
   },
   isImportModalOpen: false,
-  importOverrideParams: null,
+  importOverrideDetails: null,
   repoLimitErrorModalOpen: false,
 };
