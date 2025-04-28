@@ -104,4 +104,13 @@ public interface ContextLayoutRefactoringService<U extends BaseDomain, T extends
      * @param updatedContext The updated layout container to persist in metadata
      */
     void setUpdatedContext(RefactoringMetaDTO refactoringMetaDTO, LayoutContainer updatedContext);
+
+    /**
+     * Retrieves context information needed for analytics based on the context ID.
+     * This includes the username of the current user, the artifact ID, and the domain object.
+     *
+     * @param contextId The unique identifier of the context
+     * @return A Mono emitting the analytics context information
+     */
+    Mono<AnalyticsContextDTO> getContextForAnalytics(String contextId);
 }
