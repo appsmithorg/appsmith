@@ -48,17 +48,25 @@ export const toggleImportModalAction = (
   return state;
 };
 
-export const resetImportOverrideParamsAction = (state: GitGlobalReduxState) => {
-  state.importOverrideParams = null;
+export const resetImportOverrideDetailsAction = (
+  state: GitGlobalReduxState,
+) => {
+  state.importOverrideDetails = null;
 
   return state;
 };
 
-export const setImportOverrideParamsAction = (
+export interface SetImportOverrideDetailsPayload {
+  params: GitImportRequestParams;
+  oldArtifactName: string;
+  newArtifactName: string;
+}
+
+export const setImportOverrideDetailsAction = (
   state: GitGlobalReduxState,
-  action: PayloadAction<GitImportRequestParams>,
+  action: PayloadAction<SetImportOverrideDetailsPayload>,
 ) => {
-  state.importOverrideParams = { ...action.payload };
+  state.importOverrideDetails = { ...action.payload };
 
   return state;
 };

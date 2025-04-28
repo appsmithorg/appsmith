@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectGitImportState,
   selectImportModalOpen,
+  selectImportOverrideDetails,
   selectImportOverrideModalOpen,
-  selectImportOverrideParams,
 } from "git/store/selectors/gitGlobalSelectors";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
+import type { SetImportOverrideDetailsPayload } from "git/store/actions/uiActions";
 
 export default function useImport() {
   const dispatch = useDispatch();
@@ -36,17 +37,17 @@ export default function useImport() {
 
   const isImportOverrideModalOpen = useSelector(selectImportOverrideModalOpen);
 
-  const importOverrideParams = useSelector(selectImportOverrideParams);
+  const importOverrideDetails = useSelector(selectImportOverrideDetails);
 
-  const setImportOverrideParams = useCallback(
-    (params: GitImportRequestParams) => {
-      dispatch(gitGlobalActions.setImportOverrideParams(params));
+  const setImportOverrideDetails = useCallback(
+    (details: SetImportOverrideDetailsPayload) => {
+      dispatch(gitGlobalActions.setImportOverrideDetails(details));
     },
     [dispatch],
   );
 
-  const resetImportOverrideParams = useCallback(() => {
-    dispatch(gitGlobalActions.resetImportOverrideParams());
+  const resetImportOverrideDetails = useCallback(() => {
+    dispatch(gitGlobalActions.resetImportOverrideDetails());
   }, [dispatch]);
 
   return {
@@ -57,8 +58,8 @@ export default function useImport() {
     isImportModalOpen: isImportModalOpen ?? false,
     toggleImportModal,
     isImportOverrideModalOpen: isImportOverrideModalOpen ?? false,
-    importOverrideParams,
-    setImportOverrideParams,
-    resetImportOverrideParams,
+    importOverrideDetails,
+    setImportOverrideDetails,
+    resetImportOverrideDetails,
   };
 }

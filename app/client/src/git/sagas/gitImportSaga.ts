@@ -2,13 +2,17 @@ import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import gitImportRequest from "git/requests/gitImportRequest";
-import type { GitImportResponse } from "git/requests/gitImportRequest.types";
+import type {
+  GitImportRequestParams,
+  GitImportResponse,
+} from "git/requests/gitImportRequest.types";
 import type { GitImportInitPayload } from "git/store/actions/gitImportActions";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { getWorkspaceIdForImport } from "ee/selectors/applicationSelectors";
 import { GitErrorCodes } from "git/constants/enums";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
+import type { GitApiError } from "git/store/types";
 
 export default function* gitImportSaga(
   action: PayloadAction<GitImportInitPayload>,
@@ -36,6 +40,7 @@ export default function* gitImportSaga(
         gitGlobalActions.gitImportSuccess({ responseData: response.data }),
       );
       yield put(gitGlobalActions.toggleImportModal({ open: false }));
+      yield put(gitGlobalActions.resetImportOverrideDetails());
     }
   } catch (e) {
     const error = handleApiErrors(e as Error, response);
@@ -49,9 +54,36 @@ export default function* gitImportSaga(
       }
 
       if (GitErrorCodes.DUPLICATE_ARTIFACT_OVERRIDE === error.code) {
-        yield put(gitGlobalActions.setImportOverrideParams(params));
-        yield put(gitGlobalActions.toggleImportModal({ open: false }));
+        yield call(handleDuplicateArtifactOverride, error, params);
       }
     }
   }
+}
+
+function* handleDuplicateArtifactOverride(
+  error: GitApiError,
+  params: GitImportRequestParams,
+) {
+  yield put(gitGlobalActions.toggleImportModal({ open: false }));
+
+  let artifactNames = { newArtifactName: null, oldArtifactName: null };
+
+  if (error?.message) {
+    const jsonMatch = error.message.match(/\{.*\}/);
+    const jsonStr = jsonMatch ? jsonMatch[0] : null;
+
+    if (jsonStr) {
+      try {
+        artifactNames = JSON.parse(jsonStr);
+      } catch {}
+    }
+  }
+
+  yield put(
+    gitGlobalActions.setImportOverrideDetails({
+      params,
+      oldArtifactName: artifactNames.oldArtifactName ?? "",
+      newArtifactName: artifactNames.newArtifactName ?? "",
+    }),
+  );
 }

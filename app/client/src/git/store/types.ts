@@ -99,7 +99,11 @@ export interface GitGlobalReduxState {
   globalSSHKey: GitAsyncState<FetchGlobalSSHKeyResponseData>;
   // ui
   isImportModalOpen: boolean;
-  importOverrideParams: GitImportRequestParams | null;
+  importOverrideDetails: {
+    params: GitImportRequestParams;
+    oldArtifactName: string;
+    newArtifactName: string;
+  } | null;
   repoLimitErrorModalOpen: boolean;
 }
 

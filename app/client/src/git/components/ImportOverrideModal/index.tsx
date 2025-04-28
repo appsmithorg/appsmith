@@ -1,58 +1,42 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import ImportOverrideModalView from "./ImportOverrideModalView";
 import useImport from "git/hooks/useImport";
 
 function ImportOverrideModal() {
   const {
     gitImport,
-    gitImportError,
-    importOverrideParams,
+    importOverrideDetails,
     isGitImportLoading,
     isImportOverrideModalOpen,
     resetGitImport,
-    resetImportOverrideParams,
+    resetImportOverrideDetails,
   } = useImport();
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open && !isGitImportLoading) {
-        resetImportOverrideParams();
+        resetImportOverrideDetails();
         resetGitImport();
       }
     },
-    [isGitImportLoading, resetGitImport, resetImportOverrideParams],
+    [isGitImportLoading, resetGitImport, resetImportOverrideDetails],
   );
 
   const handleImport = useCallback(() => {
-    if (importOverrideParams) {
-      gitImport({ ...importOverrideParams, override: true });
+    if (importOverrideDetails) {
+      const params = { ...importOverrideDetails.params, override: true };
+
+      gitImport(params);
     }
-  }, [gitImport, importOverrideParams]);
-
-  const { newArtifactName, oldArtifactName } = useMemo(() => {
-    let artifactNames = { newArtifactName: null, oldArtifactName: null };
-
-    if (gitImportError?.message) {
-      const jsonMatch = gitImportError.message.match(/\{.*\}/);
-      const jsonStr = jsonMatch ? jsonMatch[0] : null;
-
-      if (jsonStr) {
-        try {
-          artifactNames = JSON.parse(jsonStr);
-        } catch {}
-      }
-    }
-
-    return artifactNames;
-  }, [gitImportError]);
+  }, [gitImport, importOverrideDetails]);
 
   return (
     <ImportOverrideModalView
       artifactType={"package"}
       isImportLoading={isGitImportLoading}
       isOpen={isImportOverrideModalOpen}
-      newArtifactName={newArtifactName}
-      oldArtifactName={oldArtifactName}
+      newArtifactName={importOverrideDetails?.newArtifactName ?? null}
+      oldArtifactName={importOverrideDetails?.oldArtifactName ?? null}
       onImport={handleImport}
       onOpenChange={handleOpenChange}
     />

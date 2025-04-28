@@ -11,8 +11,8 @@ import {
 } from "./actions/updateGlobalProfileActions";
 import { gitGlobalInitialState } from "./helpers/initialState";
 import {
-  resetImportOverrideParamsAction,
-  setImportOverrideParamsAction,
+  resetImportOverrideDetailsAction,
+  setImportOverrideDetailsAction,
   toggleImportModalAction,
 } from "./actions/uiActions";
 import {
@@ -48,8 +48,8 @@ export const gitGlobalSlice = createSlice({
     gitImportError: gitImportErrorAction,
     resetGitImport: resetGitImportAction,
     toggleImportModal: toggleImportModalAction,
-    resetImportOverrideParams: resetImportOverrideParamsAction,
-    setImportOverrideParams: setImportOverrideParamsAction,
+    resetImportOverrideDetails: resetImportOverrideDetailsAction,
+    setImportOverrideDetails: setImportOverrideDetailsAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });
