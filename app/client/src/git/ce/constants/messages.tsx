@@ -9,7 +9,7 @@ export const IMPORT_OVERRIDE_MODAL = {
   DESCRIPTION:
     "{{newArtifactName}} already exists in this workspace as {{oldArtifactName}}. Do you want to override it with the imported {{artifactType}}?",
   CANCEL_BTN: "Cancel",
-  OVERRIDE_BTN: "Import and override {{artifactType}}",
+  OVERRIDE_BTN: "Override",
 };
 
 export const CONNECT_GIT = {

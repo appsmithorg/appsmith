@@ -21,6 +21,10 @@ export default function useImport() {
     [dispatch],
   );
 
+  const resetGitImport = useCallback(() => {
+    dispatch(gitGlobalActions.resetGitImport());
+  }, [dispatch]);
+
   const isImportModalOpen = useSelector(selectImportModalOpen);
 
   const toggleImportModal = useCallback(
@@ -49,6 +53,7 @@ export default function useImport() {
     isGitImportLoading: gitImportState?.loading ?? false,
     gitImportError: gitImportState?.error ?? null,
     gitImport,
+    resetGitImport,
     isImportModalOpen: isImportModalOpen ?? false,
     toggleImportModal,
     isImportOverrideModalOpen: isImportOverrideModalOpen ?? false,

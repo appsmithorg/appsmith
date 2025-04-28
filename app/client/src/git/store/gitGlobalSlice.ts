@@ -19,6 +19,7 @@ import {
   gitImportErrorAction,
   gitImportInitAction,
   gitImportSuccessAction,
+  resetGitImportAction,
 } from "./actions/gitImportActions";
 import {
   fetchGlobalSSHKeyErrorAction,
@@ -45,6 +46,7 @@ export const gitGlobalSlice = createSlice({
     gitImportInit: gitImportInitAction,
     gitImportSuccess: gitImportSuccessAction,
     gitImportError: gitImportErrorAction,
+    resetGitImport: resetGitImportAction,
     toggleImportModal: toggleImportModalAction,
     resetImportOverrideParams: resetImportOverrideParamsAction,
     setImportOverrideParams: setImportOverrideParamsAction,

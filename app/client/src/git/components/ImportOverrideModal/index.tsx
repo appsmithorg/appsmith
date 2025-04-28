@@ -9,16 +9,18 @@ function ImportOverrideModal() {
     importOverrideParams,
     isGitImportLoading,
     isImportOverrideModalOpen,
+    resetGitImport,
     resetImportOverrideParams,
   } = useImport();
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open) {
+      if (!open && !isGitImportLoading) {
         resetImportOverrideParams();
+        resetGitImport();
       }
     },
-    [resetImportOverrideParams],
+    [isGitImportLoading, resetGitImport, resetImportOverrideParams],
   );
 
   const handleImport = useCallback(() => {
