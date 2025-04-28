@@ -2014,7 +2014,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     Mono<ArtifactExchangeJson> artifactExchangeJsonMono = mergeStatusDTOMono.flatMap(status ->
                             gitHandlingService.reconstructArtifactJsonFromGitRepository(jsonTransformationDTO));
 
-                    return Mono.zip(mergeStatusDTOMono, artifactExchangeJsonMono);
+                    return mergeStatusDTOMono.zipWhen(mergeStatusDTO -> artifactExchangeJsonMono);
                 })
                 .flatMap(tuple -> {
                     MergeStatusDTO status = tuple.getT1();

@@ -704,6 +704,8 @@ export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
   "Fill these with utmost care as the application will not behave normally otherwise";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION_FOR_AGENTS =
+  () => "Ensure your agent is ready by integrating the required datasources.";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
@@ -714,6 +716,7 @@ export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
   `Skip this step to configure datasources later`;
 export const SKIP_TO_APPLICATION = () => "Go to application";
+export const SKIP_TO_APPLICATION_FOR_AGENTS = () => "Go to agent";
 export const SKIP_CONFIGURATION = () => "Skip configuration";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
@@ -1999,10 +2002,12 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
     "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
-  chromeExtensionBannerTitle: () => "Get the Chrome extension",
+  chromeExtensionBannerTitle: (isInstalled: boolean) =>
+    isInstalled ? "Appsmith Agents extension" : "Install the Chrome extension",
   chromeExtensionBannerDescription: () =>
     "Bring powerful AI assistance to the tools you and your teams use.",
-  chromeExtensionBannerButton: () => "Get the extension",
+  chromeExtensionBannerButton: (isInstalled: boolean) =>
+    isInstalled ? "Extension settings" : "Get the extension",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -2038,6 +2043,7 @@ export const SAVE_BUTTON_TEXT = () => "Save";
 export const TEST_BUTTON_TEXT = () => "Test configuration";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save & Authorize";
 export const CONNECT_DATASOURCE_BUTTON_TEXT = () => "Connect Datasource";
+export const CONNECT_DATASOURCE_BUTTON_TEXT_FOR_AGENTS = () => "Connect";
 export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save & Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
@@ -2687,3 +2693,6 @@ export const GOOGLE_RECAPTCHA_FAILED = () =>
   "Google reCAPTCHA verification failed";
 export const PASSWORD_INSUFFICIENT_STRENGTH = () =>
   "Insufficient password strength";
+
+export const PLUGIN_NOT_INSTALLED = () =>
+  "Upgrade your plan to unlock access to these integrations.";

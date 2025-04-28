@@ -19,6 +19,7 @@ import {
   getAllJSCollections,
   getJSModuleInstancesData,
   getModuleInstances,
+  getPluginImages,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
 import store from "store";
@@ -115,6 +116,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const queryModuleInstances = [] as ModuleInstanceDataState;
     const jsModuleInstances = getJSModuleInstancesData(state);
     const modules = getAllModules(state);
+    const pluginImages = getPluginImages(state);
 
     if (!!moduleInstances) {
       for (const moduleInstance of Object.values(moduleInstances)) {
@@ -174,6 +176,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       queryModuleInstances,
       jsModuleInstances,
       modules,
+      pluginImages,
     );
 
     try {
