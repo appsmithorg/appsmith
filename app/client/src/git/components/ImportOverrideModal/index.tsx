@@ -21,7 +21,7 @@ function ImportOverrideModal() {
 
   const handleImport = useCallback(() => {
     if (importOverrideParams) {
-      gitImport(importOverrideParams);
+      gitImport({ ...importOverrideParams, override: true });
     }
   }, [gitImport, importOverrideParams]);
 

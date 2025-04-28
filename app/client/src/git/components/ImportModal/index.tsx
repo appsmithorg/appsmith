@@ -24,7 +24,7 @@ function ImportModal() {
 
   const onSubmit = useCallback(
     (params: GitImportRequestParams) => {
-      gitImport(params);
+      gitImport({ ...params, override: false });
     },
     [gitImport],
   );

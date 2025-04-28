@@ -47,6 +47,11 @@ export default function* gitImportSaga(
         yield put(gitGlobalActions.toggleImportModal({ open: false }));
         yield put(gitGlobalActions.toggleRepoLimitErrorModal({ open: true }));
       }
+
+      if (GitErrorCodes.DUPLICATE_ARTIFACT_OVERRIDE === error.code) {
+        yield put(gitGlobalActions.setImportOverrideParams(params));
+        yield put(gitGlobalActions.toggleImportModal({ open: false }));
+      }
     }
   }
 }
