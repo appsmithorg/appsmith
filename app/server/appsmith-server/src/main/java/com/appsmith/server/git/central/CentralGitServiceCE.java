@@ -22,9 +22,6 @@ import java.util.List;
 public interface CentralGitServiceCE {
 
     Mono<? extends ArtifactImportDTO> importArtifactFromGit(
-            String workspaceId, GitConnectDTO gitConnectDTO, ArtifactType artifactType, GitType gitType);
-
-    Mono<? extends ArtifactImportDTO> importArtifactFromGit(
             String workspaceId, GitConnectDTO gitConnectDTO, GitType gitType);
 
     Mono<? extends Artifact> connectArtifactToGit(

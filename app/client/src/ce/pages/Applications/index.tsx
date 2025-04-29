@@ -135,6 +135,7 @@ import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import {
   GitRepoLimitErrorModal as NewGitRepoLimitErrorModal,
   GitImportModal as NewGitImportModal,
+  GitImportOverrideModal,
 } from "git";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 
@@ -145,6 +146,7 @@ function GitModals() {
     <>
       <NewGitImportModal />
       <NewGitRepoLimitErrorModal />
+      <GitImportOverrideModal />
     </>
   ) : (
     <>

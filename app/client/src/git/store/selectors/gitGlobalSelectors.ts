@@ -14,6 +14,12 @@ export const selectUpdateGlobalProfileState = (state: GitRootState) =>
 export const selectImportModalOpen = (state: GitRootState) =>
   selectGitGlobal(state).isImportModalOpen;
 
+export const selectImportOverrideModalOpen = (state: GitRootState) =>
+  !!selectGitGlobal(state).importOverrideDetails;
+
+export const selectImportOverrideDetails = (state: GitRootState) =>
+  selectGitGlobal(state).importOverrideDetails ?? null;
+
 export const selectGitImportState = (state: GitRootState) =>
   selectGitGlobal(state).gitImport;
 
