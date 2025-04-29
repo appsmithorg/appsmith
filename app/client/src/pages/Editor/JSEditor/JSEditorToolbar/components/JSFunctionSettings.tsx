@@ -47,7 +47,8 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehavior, setRunBehavior] = useState(props.action.runBehavior);
-  const options = RUN_BEHAVIOR_VALUES as Omit<SelectOptionProps, "children">[];
+  const options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
+  const selectedValue = options.find((opt) => opt.value === runBehavior);
 
   const onSelectOptions = useCallback(
     (newRunBehavior: ActionRunBehaviourType) => {
@@ -69,29 +70,30 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   return (
     <Flex
       alignItems="center"
-      className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
+      className={`t--async-js-function-settings ${props.action.name}-run-behavior-setting`}
       gap="spaces-4"
       id={`${props.action.name}-settings`}
       justifyContent="space-between"
       key={props.action.id}
       w="100%"
     >
-      <Text renderAs="label">{props.action.name}</Text>
+      <Text htmlFor={props.action.id} renderAs="label">
+        {props.action.name}
+      </Text>
       <StyledSelect
         data-testid={`execute-on-page-load-${props.action.id}`}
-        defaultValue={runBehavior}
+        defaultValue={selectedValue}
+        id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}
         onSelect={onSelectOptions}
         size="sm"
-        value={runBehavior}
-        virtual
+        value={selectedValue}
       >
         {options.map((option) => (
           <Option
             aria-label={option.label}
             disabled={option.disabled}
-            isDisabled={option.isDisabled}
             key={option.value}
             label={option.label}
             value={option.value}

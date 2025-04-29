@@ -51,10 +51,10 @@ export class JSEditor {
     "div.t--js-response-parse-error-call-out";
 
   private _onPageLoadSwitch = (functionName: string) =>
-    `.${functionName}-on-page-load-setting
-    input[role="switch"]`;
+    `.${functionName}-run-behavior
+    input[role="combobox"]`;
   private _onPageLoadSwitchStatus = (functionName: string) =>
-    `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
+    `//div[contains(@class, '${functionName}-run-behavior-setting')]//label/input`;
 
   private _jsObjName = this.locator._activeEntityTab;
   public _jsObjTxt = this.locator._activeEntityTabInput;
