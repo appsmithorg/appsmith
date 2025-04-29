@@ -20,7 +20,7 @@ import {
 } from "widgets/WidgetUtils";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import { getLocale } from "utils/helpers";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -237,7 +237,9 @@ export function InlineCellEditor({
 
           value = convertToNumber(inputValue);
         } catch (e) {
-          captureException(e, { errorName: "TableWidgetV2_InlineCellEditor" });
+          appsmithTelemetry.captureException(e, {
+            errorName: "TableWidgetV2_InlineCellEditor",
+          });
         }
       }
 

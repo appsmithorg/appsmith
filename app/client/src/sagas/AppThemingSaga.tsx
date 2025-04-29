@@ -44,7 +44,7 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { find } from "lodash";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
@@ -126,16 +126,19 @@ export function* fetchAppSelectedTheme(
         payload: response.data,
       });
     } else {
-      captureException(new Error("Unable to fetch the selected theme"), {
-        errorName: "ThemeFetchError",
-        extra: {
-          pageIdentities,
-          applicationId,
-          applicationVersion,
-          userDetails,
-          themeResponse: response,
+      appsmithTelemetry.captureException(
+        new Error("Unable to fetch the selected theme"),
+        {
+          errorName: "ThemeFetchError",
+          extra: {
+            pageIdentities,
+            applicationId,
+            applicationVersion,
+            userDetails,
+            themeResponse: response,
+          },
         },
-      });
+      );
 
       // If the response.data is undefined then we set selectedTheme to default Theme
       yield put({

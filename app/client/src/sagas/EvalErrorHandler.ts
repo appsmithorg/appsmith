@@ -17,7 +17,7 @@ import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
@@ -235,7 +235,7 @@ export function* evalErrorHandler(
 
           if (error.context.logToSentry) {
             // Send the generic error message to sentry for better grouping
-            captureException(reconstructedError, {
+            appsmithTelemetry.captureException(reconstructedError, {
               errorName: "CyclicalDependencyError",
               tags: {
                 node,
@@ -268,18 +268,20 @@ export function* evalErrorHandler(
           kind: "error",
         });
         log.error(error);
-        captureException(reconstructedError, { errorName: "EvalTreeError" });
+        appsmithTelemetry.captureException(reconstructedError, {
+          errorName: "EvalTreeError",
+        });
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
         log.error(error);
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "BadUnevalTreeError",
         });
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "EvalPropertyError",
         });
         log.error(error);
@@ -287,7 +289,7 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.CLONE_ERROR: {
         log.debug(error);
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "CloneError",
           extra: {
             request: error.context,
@@ -303,14 +305,14 @@ export function* evalErrorHandler(
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
         log.error(error);
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "ParseJSError",
           entity: error.context,
         });
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "ExtractDependencyError",
           extra: error.context,
         });
@@ -318,7 +320,7 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.UPDATE_DATA_TREE_ERROR: {
         // Log to Sentry with additional context
-        captureException(reconstructedError, {
+        appsmithTelemetry.captureException(reconstructedError, {
           errorName: "UpdateDataTreeError",
         });
         // Log locally with error details
@@ -329,12 +331,14 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.CACHE_ERROR: {
         log.error(error);
-        captureException(error, { errorName: "CacheError" });
+        appsmithTelemetry.captureException(error, { errorName: "CacheError" });
         break;
       }
       default: {
         log.error(error);
-        captureException(reconstructedError, { errorName: "UnknownEvalError" });
+        appsmithTelemetry.captureException(reconstructedError, {
+          errorName: "UnknownEvalError",
+        });
       }
     }
   });

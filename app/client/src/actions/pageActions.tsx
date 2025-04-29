@@ -29,7 +29,7 @@ import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -323,9 +323,12 @@ export const updatePageAction = (
   payload: UpdatePageActionPayload,
 ): ReduxAction<UpdatePageActionPayload> => {
   if (!payload.id) {
-    captureException(new Error("Attempting to update page without page id"), {
-      errorName: "PageActions_UpdatePage",
-    });
+    appsmithTelemetry.captureException(
+      new Error("Attempting to update page without page id"),
+      {
+        errorName: "PageActions_UpdatePage",
+      },
+    );
   }
 
   return {

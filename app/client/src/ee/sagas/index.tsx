@@ -2,8 +2,8 @@ export * from "ce/sagas";
 import { sagas as CE_Sagas } from "ce/sagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { call, all, spawn, race, take } from "redux-saga/effects";
+import { appsmithTelemetry } from "instrumentation";
 import log from "loglevel";
-import captureException from "instrumentation/sendFaroErrors";
 
 const sagasArr = [...CE_Sagas];
 
@@ -22,7 +22,9 @@ export function* rootSaga(sagasToRun = sagasArr): any {
               break;
             } catch (e) {
               log.error(e);
-              captureException(e, { errorName: "RootSagaError" });
+              appsmithTelemetry.captureException(e, {
+                errorName: "RootSagaError",
+              });
             }
           }
         }),

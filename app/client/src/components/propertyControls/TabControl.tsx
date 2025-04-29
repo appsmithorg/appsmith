@@ -10,7 +10,7 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
@@ -131,7 +131,7 @@ class TabControl extends BaseControl<ControlProps, State> {
 
         return parsedData;
       } catch (error) {
-        captureException(
+        appsmithTelemetry.captureException(
           {
             message: "Tab Migration Failed",
             oldData: this.props.propertyValue,

@@ -13,7 +13,7 @@ import { APP_MODE } from "entities/App";
 import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 interface ErrorMetaData {
   userScript: string;
@@ -224,7 +224,9 @@ export function convertAllDataTypesToString(e: any) {
       return JSON.stringify(e);
     } catch (error) {
       log.debug(error);
-      captureException(error, { errorName: "ErrorModifier_StringifyError" });
+      appsmithTelemetry.captureException(error, {
+        errorName: "ErrorModifier_StringifyError",
+      });
     }
   }
 }

@@ -11,7 +11,7 @@ import {
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import type {
@@ -372,7 +372,9 @@ export default function* formEvaluationChangeListener() {
       yield call(formEvaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "FormEvaluationError" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "FormEvaluationError",
+      });
     }
   }
 }

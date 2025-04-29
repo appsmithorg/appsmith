@@ -38,7 +38,7 @@ import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -348,7 +348,9 @@ class PhoneInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        captureException(e, { errorName: "PhoneInputWidget" });
+        appsmithTelemetry.captureException(e, {
+          errorName: "PhoneInputWidget",
+        });
       }
     }
   }
