@@ -1454,23 +1454,12 @@ export const updateAllowAddNewRowOnInfiniteScrollChange = (
   propertyPath: string,
   propertyValue: unknown,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
-  if (propertyValue === true) {
-    return [
-      {
-        propertyPath: "allowAddNewRow",
-        propertyValue: false,
-      },
-    ];
-  } else if (propertyValue === false) {
-    return [
-      {
-        propertyPath: "allowAddNewRow",
-        propertyValue: true,
-      },
-    ];
-  }
-
-  return;
+  return [
+    {
+      propertyPath: "allowAddNewRow",
+      propertyValue: !propertyValue,
+    },
+  ];
 };
 
 // Infinite scroll not supported for search, sort and filters yet
@@ -1479,39 +1468,20 @@ export const updateSearchSortFilterOnInfiniteScrollChange = (
   propertyPath: string,
   propertyValue: unknown,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
-  if (propertyValue === true) {
-    return [
-      {
-        propertyPath: "isVisibleSearch",
-        propertyValue: false,
-      },
-      {
-        propertyPath: "isVisibleFilters",
-        propertyValue: false,
-      },
-      {
-        propertyPath: "isSortable",
-        propertyValue: false,
-      },
-    ];
-  } else if (propertyValue === false) {
-    return [
-      {
-        propertyPath: "isVisibleFilters",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isVisibleSearch",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isSortable",
-        propertyValue: true,
-      },
-    ];
-  }
-
-  return;
+  return [
+    {
+      propertyPath: "isVisibleSearch",
+      propertyValue: !propertyValue,
+    },
+    {
+      propertyPath: "isVisibleFilters",
+      propertyValue: !propertyValue,
+    },
+    {
+      propertyPath: "isSortable",
+      propertyValue: !propertyValue,
+    },
+  ];
 };
 
 // Disable cell editability when infinite scroll is enabled
@@ -1524,35 +1494,19 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
 
   const updates: Array<{ propertyPath: string; propertyValue: unknown }> = [];
 
-  if (propertyValue === true) {
-    Object.entries(props.primaryColumns).forEach(([, column]) => {
-      const columnName = column.alias;
+  Object.entries(props.primaryColumns).forEach(([, column]) => {
+    const columnName = column.alias;
 
-      updates.push({
-        propertyPath: `primaryColumns.${columnName}.isCellEditable`,
-        propertyValue: false,
-      });
-
-      updates.push({
-        propertyPath: `primaryColumns.${columnName}.isEditable`,
-        propertyValue: false,
-      });
+    updates.push({
+      propertyPath: `primaryColumns.${columnName}.isCellEditable`,
+      propertyValue: !propertyValue,
     });
-  } else if (propertyValue === false) {
-    Object.entries(props.primaryColumns).forEach(([, column]) => {
-      const columnName = column.alias;
 
-      updates.push({
-        propertyPath: `primaryColumns.${columnName}.isCellEditable`,
-        propertyValue: true,
-      });
-
-      updates.push({
-        propertyPath: `primaryColumns.${columnName}.isEditable`,
-        propertyValue: true,
-      });
+    updates.push({
+      propertyPath: `primaryColumns.${columnName}.isEditable`,
+      propertyValue: !propertyValue,
     });
-  }
+  });
 
   return updates.length > 0 ? updates : undefined;
 };
