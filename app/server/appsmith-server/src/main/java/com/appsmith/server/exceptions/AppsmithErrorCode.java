@@ -103,6 +103,8 @@ public enum AppsmithErrorCode {
     JSON_PROCESSING_ERROR("AE-JSN-4001", "Json processing error"),
     INCOMPATIBLE_IMPORTED_JSON("AE-JSN-4045", "Incompatible imported json"),
     GENERIC_JSON_IMPORT_ERROR("AE-JSN-4049", "Generic json import error"),
+    ARTIFACT_IMPORT_DUPLICATE_KEY_WRITE_ERROR(
+            "AE-JSN-5001", "Artifact import failed due to a duplicate key conflict during write operation"),
     INVALID_LOGIN_METHOD("AE-LGN-4000", "Invalid login method"),
     PLUGIN_NOT_INSTALLED("AE-PLG-4001", "Plugin not installed"),
     PLUGIN_ID_NOT_GIVEN("AE-PLG-4002", "Plugin id not given"),

@@ -77,6 +77,8 @@ public interface FileInterface {
 
     Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix);
 
+    Mono<Object> reconstructPackageJsonFromGitRepository(Path repoSuffix);
+
     Mono<Object> reconstructPageFromGitRepo(
             String pageName, String branchName, Path repoSuffixPath, Boolean checkoutRequired);
 

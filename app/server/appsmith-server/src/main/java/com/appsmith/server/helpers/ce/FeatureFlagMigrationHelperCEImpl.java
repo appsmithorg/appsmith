@@ -7,6 +7,7 @@ import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
+import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
     private static final long ORGANIZATION_FEATURES_CACHE_TIME_MIN = 115;
 
     @Override
-    public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
+    public Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
             Organization defaultOrganization) {
         return getUpdatedFlagsWithPendingMigration(defaultOrganization, FALSE);
     }
@@ -49,7 +50,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      * @return              Map of feature flags with pending migrations
      */
     @Override
-    public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
+    public Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
             Organization organization, boolean forceUpdate) {
 
         /*
@@ -127,50 +128,43 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      * @param existingCachedFlags       Flags which are already stored in cache
      * @return                          updated organization with the required flags with pending migrations
      */
-    private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
+    private Map<String, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
             Organization organization, CachedFeatures latestFlags, CachedFeatures existingCachedFlags) {
 
         // 1. Check if there are any diffs for the feature flags
         // 2. Update the flags for pending migration within provided organization object
-        Map<FeatureFlagEnum, FeatureMigrationType> featureDiffsWithMigrationType = new HashMap<>();
+        Map<String, FeatureMigrationType> featureDiffsWithMigrationType = new HashMap<>();
         Map<String, Boolean> existingFeatureMap = existingCachedFlags.getFeatures();
         latestFlags.getFeatures().forEach((key, value) -> {
             if (value != null && !value.equals(existingFeatureMap.get(key))) {
                 try {
-                    featureDiffsWithMigrationType.put(
-                            FeatureFlagEnum.valueOf(key), Boolean.TRUE.equals(value) ? ENABLE : DISABLE);
+                    featureDiffsWithMigrationType.put(key, Boolean.TRUE.equals(value) ? ENABLE : DISABLE);
                 } catch (Exception e) {
-                    // Ignore IllegalArgumentException as all the feature flags are not added on
-                    // server side
-                    if (!(e instanceof IllegalArgumentException)) {
-                        log.error("Error while parsing the feature flag {} with value {}", key, value, e);
-                    }
+                    log.error("Error while processing the feature flag {} with value {}", key, value, e);
                 }
             }
         });
         return getUpdatedFlagsWithPendingMigration(featureDiffsWithMigrationType, organization);
     }
 
-    private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
-            Map<FeatureFlagEnum, FeatureMigrationType> latestFeatureDiffsWithMigrationType,
-            Organization dbOrganization) {
+    private Map<String, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
+            Map<String, FeatureMigrationType> latestFeatureDiffsWithMigrationType, Organization dbOrganization) {
 
-        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationDB =
+        Map<String, FeatureMigrationType> featuresWithPendingMigrationDB =
                 dbOrganization.getOrganizationConfiguration().getFeaturesWithPendingMigration() == null
                         ? new HashMap<>()
                         : dbOrganization.getOrganizationConfiguration().getFeaturesWithPendingMigration();
 
-        Map<FeatureFlagEnum, FeatureMigrationType> updatedFlagsForMigrations =
-                new HashMap<>(featuresWithPendingMigrationDB);
+        Map<String, FeatureMigrationType> updatedFlagsForMigrations = new HashMap<>(featuresWithPendingMigrationDB);
 
         // We should expect the following state after the latest run:
         // featuresWithPendingMigrationDB       => {feature1 : enable, feature2 : disable}
         // latestFeatureDiffsWithMigrationType  => {feature1 : enable, feature2 : enable, feature3 : disable}
         // updatedFlagsForMigrations            => {feature1 : enable, feature3 : disable}
-        List<FeatureFlagEnum> featureFlagsToBeRemoved = new ArrayList<>();
-        updatedFlagsForMigrations.forEach((featureFlagEnum, featureMigrationType) -> {
-            if (latestFeatureDiffsWithMigrationType.containsKey(featureFlagEnum)
-                    && !featureMigrationType.equals(latestFeatureDiffsWithMigrationType.get(featureFlagEnum))) {
+        List<String> featureFlagsToBeRemoved = new ArrayList<>();
+        updatedFlagsForMigrations.forEach((featureFlag, featureMigrationType) -> {
+            if (latestFeatureDiffsWithMigrationType.containsKey(featureFlag)
+                    && !featureMigrationType.equals(latestFeatureDiffsWithMigrationType.get(featureFlag))) {
                 /*
                 Scenario when the migrations will be blocked on user input and may end up in a case where we just have
                 to remove the entry as migration is no longer needed:
@@ -182,7 +176,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     Step 4: User adds the valid key or renews the subscription again which results in enabling the
                             feature and ends up in nullifying the effect for step 2
                  */
-                featureFlagsToBeRemoved.add(featureFlagEnum);
+                featureFlagsToBeRemoved.add(featureFlag);
             }
         });
 
@@ -217,16 +211,16 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                 return Mono.just(TRUE);
             }
 
-            Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration =
+            Map<String, FeatureMigrationType> featuresWithPendingMigration =
                     organizationConfiguration.getFeaturesWithPendingMigration();
             if (CollectionUtils.isNullOrEmpty(featuresWithPendingMigration)
-                    || !featuresWithPendingMigration.containsKey(featureFlagEnum)) {
+                    || !featuresWithPendingMigration.containsKey(featureFlagEnum.name())) {
                 return Mono.just(TRUE);
             }
             log.debug(
                     "Running the migration for flag {} with migration type {}",
                     featureFlagEnum.name(),
-                    featuresWithPendingMigration.get(featureFlagEnum));
+                    featuresWithPendingMigration.get(featureFlagEnum.name()));
             return this.executeMigrationsBasedOnFeatureFlag(organization, featureFlagEnum);
         });
     }
@@ -238,7 +232,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      * @return                  Boolean indicating if the migrations is required or not
      */
     private Mono<Boolean> isMigrationRequired(Organization organization, FeatureFlagEnum featureFlagEnum) {
-        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+        Map<String, FeatureMigrationType> featureMigrationTypeMap =
                 organization.getOrganizationConfiguration().getFeaturesWithPendingMigration();
         if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
             return Mono.just(FALSE);
@@ -250,10 +244,10 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     if (featureFlags.containsKey(featureFlagEnum.name())) {
                         return (TRUE.equals(featureFlags.get(featureFlagEnum.name()))
                                         && FeatureMigrationType.ENABLE.equals(
-                                                featureMigrationTypeMap.get(featureFlagEnum)))
+                                                featureMigrationTypeMap.get(featureFlagEnum.name())))
                                 || (FALSE.equals(featureFlags.get(featureFlagEnum.name()))
                                         && FeatureMigrationType.DISABLE.equals(
-                                                featureMigrationTypeMap.get(featureFlagEnum)));
+                                                featureMigrationTypeMap.get(featureFlagEnum.name())));
                     }
                     return FALSE;
                 });
@@ -268,6 +262,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
     @Override
     public Mono<Boolean> executeMigrationsBasedOnFeatureFlag(
             Organization organization, FeatureFlagEnum featureFlagEnum) {
+        // Placeholder implementation for extending classes
         return Mono.just(TRUE);
     }
 }

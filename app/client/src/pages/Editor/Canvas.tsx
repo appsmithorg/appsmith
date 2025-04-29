@@ -19,7 +19,7 @@ import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { focusWidget } from "actions/widgetActions";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -120,7 +120,7 @@ const Canvas = (props: CanvasProps) => {
     return renderChildren();
   } catch (error) {
     log.error("Error rendering DSL", error);
-    captureException(error, { errorName: "Canvas" });
+    appsmithTelemetry.captureException(error, { errorName: "Canvas" });
 
     return null;
   }

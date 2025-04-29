@@ -169,8 +169,8 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
-import captureException from "instrumentation/sendFaroErrors";
 import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { appsmithTelemetry } from "instrumentation";
 
 interface FilePickerInstumentationObject {
   numberOfFiles: number;
@@ -990,7 +990,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
 
   if (!collection) {
-    captureException(
+    appsmithTelemetry.captureException(
       new Error(
         "Collection present in layoutOnLoadActions but no collection exists ",
       ),

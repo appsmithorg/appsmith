@@ -1,6 +1,7 @@
 package com.appsmith.server.newpages.refactors;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -11,7 +12,9 @@ import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.AnalyticsContextDTO;
 import com.appsmith.server.refactors.ContextLayoutRefactoringService;
+import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,6 +30,7 @@ import static com.appsmith.server.constants.ce.CommonConstantsCE.EVALUATION_VERS
 public class PageLayoutRefactoringServiceImpl implements ContextLayoutRefactoringService<NewPage, PageDTO> {
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
+    private final SessionUserService sessionUserService;
 
     @Override
     public Mono<PageDTO> updateContext(String contextId, LayoutContainer dto) {
@@ -105,5 +109,18 @@ public class PageLayoutRefactoringServiceImpl implements ContextLayoutRefactorin
     @Override
     public void setUpdatedContext(RefactoringMetaDTO refactoringMetaDTO, LayoutContainer updatedContext) {
         refactoringMetaDTO.setUpdatedPage((PageDTO) updatedContext);
+    }
+
+    @Override
+    public Mono<AnalyticsContextDTO> getContextForAnalytics(String contextId) {
+        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(contextId))
+                .map(tuple -> {
+                    return AnalyticsContextDTO.builder()
+                            .username(tuple.getT1().getUsername())
+                            .artifactType(ArtifactType.APPLICATION)
+                            .artifactId(tuple.getT2().getApplicationId())
+                            .domain(tuple.getT2())
+                            .build();
+                });
     }
 }

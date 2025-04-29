@@ -64,7 +64,7 @@ import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 declare global {
@@ -145,7 +145,7 @@ export function SignUp(props: SignUpFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
-    captureException(new Error(errorMessage), {
+    appsmithTelemetry.captureException(new Error(errorMessage), {
       errorName: "SignUp",
     });
   }

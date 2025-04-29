@@ -93,6 +93,7 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
 
   return (
     <EntityItem
+      hasError={item.hasError}
       id={item.id}
       isSelected={item.isSelected}
       nameEditorConfig={nameEditorConfig}

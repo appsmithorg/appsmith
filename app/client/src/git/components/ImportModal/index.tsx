@@ -11,6 +11,7 @@ function ImportModal() {
     gitImportError,
     isGitImportLoading,
     isImportModalOpen,
+    resetGitImport,
     toggleImportModal,
   } = useImport();
   const {
@@ -24,10 +25,15 @@ function ImportModal() {
 
   const onSubmit = useCallback(
     (params: GitImportRequestParams) => {
-      gitImport(params);
+      gitImport({ ...params, override: false });
     },
     [gitImport],
   );
+
+  const resetConnectState = useCallback(() => {
+    resetGlobalSSHKey();
+    resetGitImport();
+  }, [resetGitImport, resetGlobalSSHKey]);
 
   return (
     <ConnectModalView
@@ -41,7 +47,7 @@ function ImportModal() {
       onGenerateSSHKey={fetchGlobalSSHKey}
       onOpenImport={null}
       onSubmit={onSubmit}
-      resetConnectState={resetGlobalSSHKey}
+      resetConnectState={resetConnectState}
       sshPublicKey={sshPublicKey}
       toggleModalOpen={toggleImportModal}
     />

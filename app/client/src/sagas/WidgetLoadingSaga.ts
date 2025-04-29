@@ -16,7 +16,7 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
 
 const actionExecutionRequestActions = [
@@ -101,7 +101,9 @@ export default function* actionExecutionChangeListeners() {
       yield call(actionExecutionChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "WidgetLoadingError" });
+      appsmithTelemetry.captureException(e, {
+        errorName: "WidgetLoadingError",
+      });
     }
   }
 }

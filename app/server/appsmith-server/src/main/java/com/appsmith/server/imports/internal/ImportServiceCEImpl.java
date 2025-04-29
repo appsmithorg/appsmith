@@ -37,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -530,6 +531,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     .onErrorResume(throwable -> {
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+
+                        if (throwable instanceof DuplicateKeyException) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.ARTIFACT_IMPORT_DUPLICATE_KEY_WRITE_ERROR, "Duplicate artifact key"));
+                        }
                         return Mono.error(new AppsmithException(
                                 AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                     })

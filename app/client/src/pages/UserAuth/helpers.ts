@@ -5,7 +5,7 @@ import type { Dispatch } from "redux";
 import UserApi from "ee/api/UserApi";
 import { toast } from "@appsmith/ads";
 import type { ApiResponse } from "../../api/ApiResponses";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export interface LoginFormValues {
   username?: string;
@@ -95,7 +95,7 @@ export const useResendEmailVerification = (
     if (!email) {
       const errorMessage = "Email not found for retry verification";
 
-      captureException(new Error(errorMessage), {
+      appsmithTelemetry.captureException(new Error(errorMessage), {
         errorName: "EmailVerificationRetryError",
       });
       toast.show(errorMessage, { kind: "error" });
