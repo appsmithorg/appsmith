@@ -10,7 +10,6 @@ const mockStore = configureStore([]);
 
 describe("useTableOrSpreadsheet", () => {
   it("returns correct options and labelText for minimal valid state", () => {
-    // Minimal mock Redux state
     const state = {
       entities: {
         datasources: {
@@ -18,7 +17,7 @@ describe("useTableOrSpreadsheet", () => {
           structure: {
             ds1: {
               id: "ds1",
-              tables: [], // add mock tables if your test needs them
+              tables: [],
             },
           },
           fetchingDatasourceStructure: {
@@ -53,15 +52,13 @@ describe("useTableOrSpreadsheet", () => {
     };
     const store = mockStore(state);
 
-    // Minimal context value
     const contextValue = {
       config: {
         datasource: "ds1",
         datasourcePluginType: "DB",
-        table: "", // instead of table: undefined
+        table: "",
         datasourcePluginName: "TestPlugin",
         datasourceConnectionMode: "READ_WRITE",
-        // Add other required config properties with dummy values if needed
         alias: {},
         sheet: "",
         searchableColumn: "",
@@ -102,7 +99,6 @@ describe("useTableOrSpreadsheet", () => {
   });
 
   it("should disable tables without primary keys for non-MongoDB datasources", () => {
-    // Mock state for regular SQL datasource with tables that have and don't have primary keys
     const state = {
       entities: {
         datasources: {
@@ -202,17 +198,18 @@ describe("useTableOrSpreadsheet", () => {
     const tableWithPkOption = result.current.options.find(
       (option) => option.value === "table_with_pk",
     );
+
     expect(tableWithPkOption?.disabled).toBe(false);
 
     // Verify that table without primary key is disabled
     const tableWithoutPkOption = result.current.options.find(
       (option) => option.value === "table_without_pk",
     );
+
     expect(tableWithoutPkOption?.disabled).toBe(true);
   });
 
   it("should not disable tables for MongoDB datasources regardless of primary keys", () => {
-    // Mock state for MongoDB datasource
     const state = {
       entities: {
         datasources: {
@@ -313,7 +310,6 @@ describe("useTableOrSpreadsheet", () => {
   });
 
   it("should not disable tables for Google Sheets datasource", () => {
-    // Mock state for Google Sheets datasource
     const state = {
       entities: {
         datasources: {
