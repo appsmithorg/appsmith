@@ -48,6 +48,7 @@ describe(
 
     it("1. should enable infinite scroll and verify records are loaded automatically when scrolling", () => {
       // Enable infinite scroll in the property pane
+      propPane.TogglePropertyState("Server side pagination", "On");
       propPane.TogglePropertyState("Infinite scroll", "On");
 
       // Wait for network call to complete
