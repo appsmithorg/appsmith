@@ -45,7 +45,8 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehavior, setRunBehavior] = useState(props.action.runBehavior);
-  const options = RUN_BEHAVIOR_VALUES as Omit<SelectOptionProps, "children">[];
+  const options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
+  const selectedValue = options.find((opt) => opt.value === runBehavior);
 
   const onSelectOptions = useCallback(
     (newRunBehavior: ActionRunBehaviour) => {
@@ -67,29 +68,31 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   return (
     <Flex
       alignItems="center"
-      className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
+      className={`t--async-js-function-settings ${props.action.name}-run-behavior-setting`}
       gap="spaces-4"
       id={`${props.action.name}-settings`}
       justifyContent="space-between"
       key={props.action.id}
       w="100%"
     >
-      <Text renderAs="label">{props.action.name}</Text>
+      <Text htmlFor={props.action.id} renderAs="label">
+        {props.action.name}
+      </Text>
       <StyledSelect
-        data-testid={`execute-on-page-load-${props.action.id}`}
-        defaultValue={runBehavior}
+        data-testid={`execute-run-behavior`}
+        defaultValue={selectedValue}
+        id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}
         onSelect={onSelectOptions}
         size="sm"
-        value={runBehavior}
-        virtual
+        value={selectedValue}
       >
         {options.map((option) => (
           <Option
             aria-label={option.label}
+            data-testid={`${props.action.id}_${option.value}`}
             disabled={option.disabled}
-            isDisabled={option.isDisabled}
             key={option.value}
             label={option.label}
             value={option.value}
@@ -111,21 +114,23 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
  */
 export const JSFunctionSettings = (props: Props) => {
   return (
-    <Flex flexDirection="column" gap="spaces-4" w="100%">
-      <Text kind="heading-xs">
-        {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
-      </Text>
-      {props.actions.map((action) => (
-        <FunctionSettingRow
-          action={action}
-          disabled={props.disabled}
-          key={action.id}
-          onUpdateSettings={props.onUpdateSettings}
-        />
-      ))}
-      {props.actions.length === 0 && (
-        <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
-      )}
-    </Flex>
+    <form>
+      <Flex flexDirection="column" gap="spaces-4" w="100%">
+        <Text kind="heading-xs">
+          {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
+        </Text>
+        {props.actions.map((action) => (
+          <FunctionSettingRow
+            action={action}
+            disabled={props.disabled}
+            key={action.id}
+            onUpdateSettings={props.onUpdateSettings}
+          />
+        ))}
+        {props.actions.length === 0 && (
+          <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
+        )}
+      </Flex>
+    </form>
   );
 };
