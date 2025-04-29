@@ -1452,7 +1452,7 @@ export function colorForEachRowValidation(
 export const updateAllowAddNewRowOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
-  propertyValue: unknown,
+  propertyValue: boolean,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
   return [
     {
@@ -1466,7 +1466,7 @@ export const updateAllowAddNewRowOnInfiniteScrollChange = (
 export const updateSearchSortFilterOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
-  propertyValue: unknown,
+  propertyValue: boolean,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
   return [
     {
@@ -1488,7 +1488,7 @@ export const updateSearchSortFilterOnInfiniteScrollChange = (
 export const updateCellEditabilityOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
-  propertyValue: unknown,
+  propertyValue: boolean,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
   if (!props.primaryColumns) return;
 
@@ -1514,13 +1514,13 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
 export const updateServerSidePaginationOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
-  propertyValue: unknown,
-): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  propertyValue: boolean,
+): Array<{ propertyPath: string; propertyValue: boolean }> | undefined => {
   if (propertyValue === true && !props.serverSidePaginationEnabled) {
     return [
       {
         propertyPath: "serverSidePaginationEnabled",
-        propertyValue: true,
+        propertyValue,
       },
     ];
   }

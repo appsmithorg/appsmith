@@ -1087,15 +1087,6 @@ describe("Infinite Scroll Update Hooks - ", () => {
         propertyValue: true,
       },
     ]);
-
-    // When some other value is passed
-    expect(
-      updateAllowAddNewRowOnInfiniteScrollChange(
-        props,
-        "infiniteScrollEnabled",
-        "some-other-value",
-      ),
-    ).toBeUndefined();
   });
 
   it("updateSearchSortFilterOnInfiniteScrollChange - should disable/enable search, filter, sort when infinite scroll is toggled", () => {
@@ -1132,11 +1123,11 @@ describe("Infinite Scroll Update Hooks - ", () => {
       ),
     ).toEqual([
       {
-        propertyPath: "isVisibleFilters",
+        propertyPath: "isVisibleSearch",
         propertyValue: true,
       },
       {
-        propertyPath: "isVisibleSearch",
+        propertyPath: "isVisibleFilters",
         propertyValue: true,
       },
       {
@@ -1144,15 +1135,6 @@ describe("Infinite Scroll Update Hooks - ", () => {
         propertyValue: true,
       },
     ]);
-
-    // When some other value is passed
-    expect(
-      updateSearchSortFilterOnInfiniteScrollChange(
-        props,
-        "infiniteScrollEnabled",
-        "some-other-value",
-      ),
-    ).toBeUndefined();
   });
 
   it("updateCellEditabilityOnInfiniteScrollChange - should disable cell editability when infinite scroll is enabled", () => {
@@ -1234,15 +1216,6 @@ describe("Infinite Scroll Update Hooks - ", () => {
         propsWithoutColumns,
         "infiniteScrollEnabled",
         true,
-      ),
-    ).toBeUndefined();
-
-    // When some other value is passed
-    expect(
-      updateCellEditabilityOnInfiniteScrollChange(
-        props,
-        "infiniteScrollEnabled",
-        "some-other-value",
       ),
     ).toBeUndefined();
   });
