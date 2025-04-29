@@ -84,7 +84,7 @@ import static com.appsmith.git.constants.ce.CommonConstantsCE.DELIMITER_PATH;
 @Import({GitServiceConfig.class})
 public class FileUtilsCEImpl implements FileInterface {
 
-    private final GitServiceConfig gitServiceConfig;
+    protected final GitServiceConfig gitServiceConfig;
     protected final FSGitHandler fsGitHandler;
     private final GitExecutor gitExecutor;
     protected final FileOperations fileOperations;
@@ -98,7 +98,7 @@ public class FileUtilsCEImpl implements FileInterface {
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN =
             Pattern.compile("(.*?)\\.(md|MD|git|gitignore|github|yml|yaml)$");
 
-    private final Scheduler scheduler = Schedulers.boundedElastic();
+    protected final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
 
@@ -1248,6 +1248,12 @@ public class FileUtilsCEImpl implements FileInterface {
         }
 
         return metadataMono.subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<Object> reconstructPackageJsonFromGitRepository(Path repoSuffix) {
+        return Mono.error(
+                new AppsmithPluginException(AppsmithPluginError.PLUGIN_UNSUPPORTED_OPERATION, "package json creation"));
     }
 
     @Override

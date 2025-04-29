@@ -876,6 +876,14 @@ public enum AppsmithError {
             "Duplicate Configuration",
             ErrorType.BAD_REQUEST,
             null),
+    ARTIFACT_IMPORT_DUPLICATE_KEY_WRITE_ERROR(
+            500,
+            AppsmithErrorCode.ARTIFACT_IMPORT_DUPLICATE_KEY_WRITE_ERROR.getCode(),
+            "Duplicate key detected while importing artifact into the workspace during a write operation to the server.. Details: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Import operation failed because of a duplicate key error.",
+            ErrorType.ARTIFACT_IMPORT_ERROR,
+            null),
     INVALID_PROPERTIES_CONFIGURATION(
             500,
             AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
