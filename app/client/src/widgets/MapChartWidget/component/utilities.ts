@@ -3,7 +3,7 @@ import countryDetails from "./countryDetails";
 import { MapTypes } from "../constants";
 import { geoAlbers, geoAzimuthalEqualArea, geoMercator } from "d3-geo";
 import log from "loglevel";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import { retryPromise } from "utils/AppsmithUtils";
 
 interface GeoSpecialAreas {
@@ -75,7 +75,7 @@ export const loadMapGenerator = () => {
 
             if (error.code !== 20) {
               log.error({ error });
-              captureException(error, {
+              appsmithTelemetry.captureException(error, {
                 errorName: "MapChartWidget_utilities",
               });
             }

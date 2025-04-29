@@ -95,7 +95,7 @@ public class CommonGitFileUtilsCE {
 
     protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
     protected final GitServiceConfig gitServiceConfig;
-    private final FileInterface fileUtils;
+    protected final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -830,7 +830,7 @@ public class CommonGitFileUtilsCE {
                             "Error while moving repository from temporary storage {} to permanent storage {}",
                             currentGitPath,
                             targetPath,
-                            error.getMessage());
+                            error);
                     return Mono.error(error);
                 })
                 .subscribeOn(Schedulers.boundedElastic());

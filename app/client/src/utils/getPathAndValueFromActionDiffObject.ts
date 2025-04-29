@@ -1,4 +1,4 @@
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 //Following function is the fix for the missing where key
 /**
@@ -47,7 +47,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
 
               return acc;
             } catch (error) {
-              captureException(
+              appsmithTelemetry.captureException(
                 {
                   message: `Adding key: where failed, cannot create path`,
                   oldData: actionObjectDiff,

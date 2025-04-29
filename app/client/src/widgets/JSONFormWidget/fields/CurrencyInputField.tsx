@@ -14,7 +14,7 @@ import derived from "widgets/CurrencyInputWidget/widget/derived";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;
@@ -132,7 +132,9 @@ function CurrencyInputField({
         }
       } catch (e) {
         text = inputValue;
-        captureException(e, { errorName: "JSONFormWidget_CurrencyInputField" });
+        appsmithTelemetry.captureException(e, {
+          errorName: "JSONFormWidget_CurrencyInputField",
+        });
       }
 
       const value = derived.value({ text });

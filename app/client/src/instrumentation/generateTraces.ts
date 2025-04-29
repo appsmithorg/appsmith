@@ -5,11 +5,11 @@ import type {
   SpanOptions,
 } from "@opentelemetry/api";
 import { SpanKind } from "@opentelemetry/api";
-import { getTraceAndContext } from "./index";
+import { appsmithTelemetry } from "./index";
 import type { WebworkerSpanData } from "./types";
 import { getCommonTelemetryAttributes } from "./utils";
 
-const { context, trace } = getTraceAndContext();
+const { context, trace } = appsmithTelemetry.getTraceAndContext();
 
 const DEFAULT_TRACE = "default";
 
