@@ -1510,20 +1510,3 @@ export const updateCellEditabilityOnInfiniteScrollChange = (
 
   return updates.length > 0 ? updates : undefined;
 };
-
-export const updateServerSidePaginationOnInfiniteScrollChange = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: boolean,
-): Array<{ propertyPath: string; propertyValue: boolean }> | undefined => {
-  if (propertyValue === true && !props.serverSidePaginationEnabled) {
-    return [
-      {
-        propertyPath: "serverSidePaginationEnabled",
-        propertyValue,
-      },
-    ];
-  }
-
-  return undefined;
-};

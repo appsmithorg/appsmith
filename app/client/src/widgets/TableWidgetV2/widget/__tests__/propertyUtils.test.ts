@@ -1,7 +1,4 @@
-import {
-  updateAllowAddNewRowOnInfiniteScrollChange,
-  updateServerSidePaginationOnInfiniteScrollChange,
-} from "../propertyUtils";
+import { updateAllowAddNewRowOnInfiniteScrollChange } from "../propertyUtils";
 import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
@@ -1218,22 +1215,5 @@ describe("Infinite Scroll Update Hooks - ", () => {
         true,
       ),
     ).toBeUndefined();
-  });
-
-  it("updateServerSidePaginationOnInfiniteScrollChange - should enable server side pagination when infinite scroll is enabled", () => {
-    const props = {} as TableWidgetProps;
-
-    expect(
-      updateServerSidePaginationOnInfiniteScrollChange(
-        props,
-        "infiniteScrollEnabled",
-        true,
-      ),
-    ).toEqual([
-      {
-        propertyPath: "serverSidePaginationEnabled",
-        propertyValue: true,
-      },
-    ]);
   });
 });
