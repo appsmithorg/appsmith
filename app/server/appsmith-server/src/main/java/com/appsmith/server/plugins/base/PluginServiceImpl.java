@@ -1,6 +1,7 @@
 package com.appsmith.server.plugins.base;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.plugins.solutions.PluginTransformationSolution;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
@@ -27,7 +28,8 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             ChannelTopic topic,
             ObjectMapper objectMapper,
             CloudServicesConfig cloudServicesConfig,
-            ConfigService configService) {
+            ConfigService configService,
+            PluginTransformationSolution pluginTransformationSolution) {
 
         super(
                 validator,
@@ -39,6 +41,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 topic,
                 objectMapper,
                 cloudServicesConfig,
-                configService);
+                configService,
+                pluginTransformationSolution);
     }
 }

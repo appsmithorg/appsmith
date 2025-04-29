@@ -12,7 +12,7 @@ import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
@@ -20,7 +20,7 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       currentDSL.type = "TABS_MIGRATOR_WIDGET";
       currentDSL.version = 1;
     } catch (error) {
-      captureException(error, {
+      appsmithTelemetry.captureException(error, {
         errorName: "TabsMigrator",
         message: "Tabs Migration Failed",
         oldData: currentDSL.tabs,
@@ -117,7 +117,7 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       currentDSL.version = 2;
       delete currentDSL.tabs;
     } catch (error) {
-      captureException(error, {
+      appsmithTelemetry.captureException(error, {
         errorName: "TabsMigrator",
         message: "Tabs Migration Failed",
         oldData: currentDSL.tabs,

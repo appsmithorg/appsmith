@@ -33,7 +33,7 @@ import crudInfoModalReducer from "reducers/uiReducers/crudInfoModalReducer";
 import { widgetReflowReducer } from "reducers/uiReducers/reflowReducer";
 import jsObjectNameReducer from "reducers/uiReducers/jsObjectNameReducer";
 import appThemingReducer from "reducers/uiReducers/appThemingReducer";
-import mainCanvasReducer from "reducers/uiReducers/mainCanvasReducer";
+import mainCanvasReducer from "ee/reducers/uiReducers/mainCanvasReducer";
 import focusHistoryReducer from "reducers/uiReducers/focusHistoryReducer";
 import { editorContextReducer } from "ee/reducers/uiReducers/editorContextReducer";
 import libraryReducer from "reducers/uiReducers/libraryReducer";

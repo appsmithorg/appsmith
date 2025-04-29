@@ -4,7 +4,7 @@ import { is404orAuthPath } from "api/helpers";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { API_STATUS_CODES, ERROR_CODES } from "ee/constants/ApiConstants";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export const handleUnauthorizedError = async (error: AxiosError) => {
   if (is404orAuthPath()) return null;
@@ -20,7 +20,9 @@ export const handleUnauthorizedError = async (error: AxiosError) => {
       }),
     );
 
-    captureException(error, { errorName: "UnauthorizedError" });
+    appsmithTelemetry.captureException(error, {
+      errorName: "UnauthorizedError",
+    });
 
     return Promise.reject({
       ...error,

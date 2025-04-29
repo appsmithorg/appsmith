@@ -9,7 +9,7 @@ import type {
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
 
 export interface FetchPageRequest {
   pageId: string;
@@ -70,7 +70,7 @@ export interface SavePageResponseData {
   dsl: Partial<DSLWidget>;
   messages: string[];
   actionUpdates: Array<{
-    runBehavior: ActionRunBehaviour;
+    runBehavior: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;

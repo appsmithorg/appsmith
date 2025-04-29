@@ -10,11 +10,16 @@ import {
   updateGlobalProfileSuccessAction,
 } from "./actions/updateGlobalProfileActions";
 import { gitGlobalInitialState } from "./helpers/initialState";
-import { toggleImportModalAction } from "./actions/uiActions";
+import {
+  resetImportOverrideDetailsAction,
+  setImportOverrideDetailsAction,
+  toggleImportModalAction,
+} from "./actions/uiActions";
 import {
   gitImportErrorAction,
   gitImportInitAction,
   gitImportSuccessAction,
+  resetGitImportAction,
 } from "./actions/gitImportActions";
 import {
   fetchGlobalSSHKeyErrorAction,
@@ -41,7 +46,10 @@ export const gitGlobalSlice = createSlice({
     gitImportInit: gitImportInitAction,
     gitImportSuccess: gitImportSuccessAction,
     gitImportError: gitImportErrorAction,
+    resetGitImport: resetGitImportAction,
     toggleImportModal: toggleImportModalAction,
+    resetImportOverrideDetails: resetImportOverrideDetailsAction,
+    setImportOverrideDetails: setImportOverrideDetailsAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });

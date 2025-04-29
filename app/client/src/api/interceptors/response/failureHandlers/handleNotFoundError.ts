@@ -6,7 +6,7 @@ import {
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "api/types";
 import { is404orAuthPath } from "api/helpers";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export async function handleNotFoundError(error: AxiosError<ApiResponse>) {
   if (is404orAuthPath()) return null;
@@ -20,7 +20,7 @@ export async function handleNotFoundError(error: AxiosError<ApiResponse>) {
     (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error?.code) ||
       SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData?.error?.code))
   ) {
-    captureException(error, { errorName: "NotFoundError" });
+    appsmithTelemetry.captureException(error, { errorName: "NotFoundError" });
 
     return Promise.reject({
       ...error,

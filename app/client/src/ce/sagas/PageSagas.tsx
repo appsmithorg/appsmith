@@ -126,7 +126,7 @@ import { getPageList } from "ee/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -151,7 +151,7 @@ import {
   selectCombinedPreviewMode,
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -575,9 +575,12 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { message } = incorrectBindingError;
 
       if (isRetry) {
-        captureException(new Error("Failed to correct binding paths"), {
-          errorName: "PageSagas_BindingPathCorrection",
-        });
+        appsmithTelemetry.captureException(
+          new Error("Failed to correct binding paths"),
+          {
+            errorName: "PageSagas_BindingPathCorrection",
+          },
+        );
         yield put({
           type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
           payload: {
