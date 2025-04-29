@@ -1,5 +1,5 @@
 import { getJSResponseViewState, JSResponseState } from "./utils";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
 const TEST_JS_FUNCTION_BASE_ID = "627ccff468e1fa5185b7f912";

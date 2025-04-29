@@ -3,7 +3,7 @@ import type {
   FieldEntityInformation,
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "ee/entities/DataTree/types";
 import React from "react";
 import type CodeMirror from "codemirror";
 

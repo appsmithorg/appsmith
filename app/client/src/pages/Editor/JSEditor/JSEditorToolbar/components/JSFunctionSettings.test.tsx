@@ -4,7 +4,7 @@ import { render, screen } from "test/testUtils";
 import { JSFunctionSettings } from "./JSFunctionSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 // Mock the useFeatureFlag hook
 jest.mock("utils/hooks/useFeatureFlag");

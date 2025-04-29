@@ -14,8 +14,10 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
-import type { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
-import { RUN_BEHAVIOR_VALUES } from "PluginActionEditor/constants/PluginActionConstants";
+import {
+  RUN_BEHAVIOR_VALUES,
+  type ActionRunBehaviourType,
+} from "PluginActionEditor/types/PluginActionTypes";
 import styled from "styled-components";
 
 const OptionLabel = styled(Text)`
@@ -48,7 +50,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const options = RUN_BEHAVIOR_VALUES as Omit<SelectOptionProps, "children">[];
 
   const onSelectOptions = useCallback(
-    (newRunBehavior: ActionRunBehaviour) => {
+    (newRunBehavior: ActionRunBehaviourType) => {
       setRunBehavior(newRunBehavior);
       props.onUpdateSettings?.({
         value: newRunBehavior,

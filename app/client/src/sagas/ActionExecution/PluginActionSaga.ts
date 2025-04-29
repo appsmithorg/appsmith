@@ -169,7 +169,7 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import { appsmithTelemetry } from "instrumentation";
 
 interface FilePickerInstumentationObject {

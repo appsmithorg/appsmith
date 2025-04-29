@@ -2,7 +2,7 @@ import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type {
   EntityNavigationData,
   NavigationData,
-} from "selectors/navigationSelectors";
+} from "entities/DataTree/dataTreeTypes";
 
 export const createNavData = (general: {
   name: string;

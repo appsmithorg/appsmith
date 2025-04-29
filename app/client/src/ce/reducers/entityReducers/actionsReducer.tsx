@@ -13,7 +13,7 @@ import type {
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import { klona } from "klona";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface ActionData {
   isLoading: boolean;
