@@ -79,7 +79,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
         {props.action.name}
       </Text>
       <StyledSelect
-        data-testid={`execute-run-behavior`}
+        data-testid={`execute-on-page-load-${props.action.id}`}
         defaultValue={selectedValue}
         id={props.action.id}
         isDisabled={props.disabled}
@@ -91,7 +91,6 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
         {options.map((option) => (
           <Option
             aria-label={option.label}
-            data-testid={`${props.action.id}_${option.value}`}
             disabled={option.disabled}
             key={option.value}
             label={option.label}
@@ -114,23 +113,21 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
  */
 export const JSFunctionSettings = (props: Props) => {
   return (
-    <form>
-      <Flex flexDirection="column" gap="spaces-4" w="100%">
-        <Text kind="heading-xs">
-          {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
-        </Text>
-        {props.actions.map((action) => (
-          <FunctionSettingRow
-            action={action}
-            disabled={props.disabled}
-            key={action.id}
-            onUpdateSettings={props.onUpdateSettings}
-          />
-        ))}
-        {props.actions.length === 0 && (
-          <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
-        )}
-      </Flex>
-    </form>
+    <Flex flexDirection="column" gap="spaces-4" w="100%">
+      <Text kind="heading-xs">
+        {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
+      </Text>
+      {props.actions.map((action) => (
+        <FunctionSettingRow
+          action={action}
+          disabled={props.disabled}
+          key={action.id}
+          onUpdateSettings={props.onUpdateSettings}
+        />
+      ))}
+      {props.actions.length === 0 && (
+        <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
+      )}
+    </Flex>
   );
 };

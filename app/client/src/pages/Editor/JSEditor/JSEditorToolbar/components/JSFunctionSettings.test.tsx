@@ -37,9 +37,7 @@ describe("JSFunctionSettings", () => {
       />,
     );
 
-    expect(screen.getAllByTestId(`execute-run-behavior`)).toHaveLength(
-      actions.length,
-    );
+    expect(screen.getAllByRole(`combobox`)).toHaveLength(actions.length);
   });
 
   it("renders the run behavior correctly", () => {
