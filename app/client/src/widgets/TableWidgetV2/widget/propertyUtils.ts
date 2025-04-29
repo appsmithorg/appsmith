@@ -1516,7 +1516,7 @@ export const updateServerSidePaginationOnInfiniteScrollChange = (
   propertyPath: string,
   propertyValue: unknown,
 ): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
-  if (propertyValue === true) {
+  if (propertyValue === true && !props.serverSidePaginationEnabled) {
     return [
       {
         propertyPath: "serverSidePaginationEnabled",
@@ -1524,4 +1524,6 @@ export const updateServerSidePaginationOnInfiniteScrollChange = (
       },
     ];
   }
+
+  return undefined;
 };
