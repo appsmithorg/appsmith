@@ -80,6 +80,7 @@ import ArrayControl from "./ArrayControl";
 import TableCustomSortControl, {
   type TableCustomSortControlProps,
 } from "./TableCustomSortControl";
+import EEPropertyControls from "ee/components/propertyControls";
 
 export const PropertyControls = {
   InputTextControl,
@@ -134,6 +135,7 @@ export const PropertyControls = {
   PrimaryColumnsControlWDS,
   ToolbarButtonListControl,
   TableCustomSortControl,
+  ...EEPropertyControls,
 };
 
 export type PropertyControlPropsType =
