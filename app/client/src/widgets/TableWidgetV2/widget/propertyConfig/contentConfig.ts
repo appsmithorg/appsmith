@@ -28,6 +28,7 @@ import {
   updateInlineEditingOptionDropdownVisibilityHook,
   updateInlineEditingSaveOptionHook,
   updateSearchSortFilterOnInfiniteScrollChange,
+  updateServerSidePaginationOnInfiniteScrollChange,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 
@@ -196,6 +197,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: composePropertyUpdateHook([
+          updateServerSidePaginationOnInfiniteScrollChange,
           updateAllowAddNewRowOnInfiniteScrollChange,
           updateCellEditabilityOnInfiniteScrollChange,
           updateSearchSortFilterOnInfiniteScrollChange,
