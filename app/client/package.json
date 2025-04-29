@@ -226,7 +226,7 @@
     "tailwindcss": "^3.3.3",
     "tern": "^0.21.0",
     "tinycolor2": "^1.4.2",
-    "tinymce": "7.7.1",
+    "tinymce": "6.8.3",
     "toposort": "^2.0.2",
     "tslib": "^2.3.1",
     "typescript": "^5.5.4",
