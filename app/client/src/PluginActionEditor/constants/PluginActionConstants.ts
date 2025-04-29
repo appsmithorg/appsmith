@@ -18,7 +18,7 @@ export const RUN_BEHAVIOR = {
     label: "Manual",
     subText: "Query only runs when called in an event or JS with .run()",
     value: ActionRunBehaviour.MANUAL,
-    children: "On page load",
+    children: "Manual",
   },
 };
 
