@@ -50,13 +50,13 @@ export class JSEditor {
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
 
-  private _onPageLoadSwitch = (functionName: string) =>
-    `.${functionName}-run-behavior
+  private _runBehaviourSwitch = (functionName: string) =>
+    `.${functionName}-run-behavior-setting
     input[role="combobox"]`;
-  private _onPageLoadSwitchStatus = (functionName: string) =>
-    `//div[contains(@class, '${functionName}-run-behavior-setting')]//label/input`;
+  private __runBehaviourSwitchStatus = (functionName: string) =>
+    `.${functionName}-run-behavior-setting .rc-select-selection-item`;
 
-  private _jsObjName = this.locator._activeEntityTab;
+  public _jsObjName = this.locator._activeEntityTab;
   public _jsObjTxt = this.locator._activeEntityTabInput;
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
@@ -95,6 +95,7 @@ export class JSEditor {
   _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
   _jsPageActions = ".entity-context-menu";
   _moreActions = '[data-testid="t--more-action-trigger"]';
+  _dropdownOption = ".rc-select-item-option-content";
   //#endregion
 
   //#region constants
@@ -296,20 +297,32 @@ export class JSEditor {
     cy.get(this._bindingsClose).click({ force: true });
   }
 
-  public VerifyAsyncFuncSettings(funName: string, onLoad = true) {
+  public VerifyAsyncFuncSettings(
+    funName: string,
+    runBehavior: "On page load" | "Manual",
+  ) {
     this.toolbar.toggleSettings();
-    this.agHelper.AssertExistingCheckedState(
-      this._onPageLoadSwitchStatus(funName),
-      onLoad.toString(),
+    this.agHelper.GetNAssertContains(
+      this.__runBehaviourSwitchStatus(funName),
+      runBehavior,
     );
     this.toolbar.toggleSettings();
   }
 
-  public EnableDisableAsyncFuncSettings(funName: string, onLoad = true) {
+  public EnableDisableAsyncFuncSettings(
+    funName: string,
+    runBehavior: "On page load" | "Manual",
+  ) {
     // Navigate to Settings tab
     this.toolbar.toggleSettings();
-    // Set onPageLoad
-    this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
+    // Set runBehavior to On page load
+    this.agHelper.GetNClick(this._runBehaviourSwitch(funName));
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      runBehavior,
+      0,
+      true,
+    );
     // Return to code tab
     this.toolbar.toggleSettings();
   }

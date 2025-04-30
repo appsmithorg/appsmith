@@ -78,7 +78,6 @@ export class ApiPage {
   _noBodyMessage = "This request does not have a body";
   _imageSrc = "//img/parent::div";
   private _trashDelete = "[data-testid=t--trash-icon]";
-  private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunning =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
@@ -100,13 +99,13 @@ export class ApiPage {
   private curlImport = ".t--datasoucre-create-option-new_curl_import";
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  private runOnPageLoadJSObject =
-    "input[name^='execute-on-page-load'][type='checkbox']";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public splitPaneContextMenuTrigger = ".entity-context-menu";
   public moreActionsTrigger = "[data-testid='t--more-action-trigger']";
   private apiNameInput = this.locator._activeEntityTabInput;
   public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
+  public _runBehaviorDropdown = "[data-testid='t--dropdown-runBehavior']";
+  public _runBehaviorOption = ".rc-select-item-option-content";
 
   CreateApi(
     apiName = "",
@@ -275,10 +274,17 @@ export class ApiPage {
     this.SelectPaneTab("Headers");
   }
 
-  ToggleOnPageLoadRun(enable = true || false) {
+  ToggleOnPageLoadRun(runBehavior: "On page load" | "Manual") {
+    // Navigate to Settings tab
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
-    else this.agHelper.CheckUncheck(this._onPageLoad, false);
+    // Set runBehavior to On page load
+    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviorOption,
+      runBehavior,
+      0,
+      true,
+    );
   }
 
   ToggleConfirmBeforeRunning(enable = true || false) {
@@ -503,16 +509,29 @@ export class ApiPage {
     this.RunAPI();
   }
 
-  ToggleOnPageLoadRunJsObject(enable = true || false) {
+  ToggleOnPageLoadRunJsObject(runBehavior: "On page load" | "Manual") {
+    // Navigate to Settings tab
     this.SelectPaneTab("Settings");
-    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
-    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+    // Set runBehavior to On page load
+    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviorOption,
+      runBehavior,
+      0,
+      true,
+    );
   }
 
-  public clickSettingIcon(enable: boolean) {
+  public clickSettingIcon(runBehavior: "On page load" | "Manual") {
     this.agHelper.GetNClick(this.settingsTriggerLocator);
-    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
-    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+    // Set runBehavior to On page load
+    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviorOption,
+      runBehavior,
+      0,
+      true,
+    );
   }
 
   public renameFromEditor(renameVal: string) {
