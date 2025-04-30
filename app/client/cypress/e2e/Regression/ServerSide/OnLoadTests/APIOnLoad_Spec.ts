@@ -50,7 +50,7 @@ describe(
           "PageLoadApi2",
         );
       });
-      apiPage.ToggleOnPageLoadRun(true);
+      apiPage.ToggleOnPageLoadRun("On page load");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);

@@ -142,7 +142,7 @@ describe(
 
       EditorNavigation.SelectEntityByName("MultipartAPI", EntityType.Api);
 
-      apiPage.ToggleOnPageLoadRun(false); //Bug 12476
+      apiPage.ToggleOnPageLoadRun("Manual"); //Bug 12476
       EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       deployMode.DeployApp(locators._buttonByText("Select Files"));
       agHelper.ClickButton("Select Files");
