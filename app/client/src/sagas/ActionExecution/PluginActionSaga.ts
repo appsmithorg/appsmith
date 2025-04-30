@@ -169,6 +169,7 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import { appsmithTelemetry } from "instrumentation";
 
 interface FilePickerInstumentationObject {
@@ -1553,13 +1554,16 @@ function triggerFileUploadInstrumentation(
   });
 }
 
-// Function to clear the action responses for the actions which are not executeOnLoad.
+// Function to clear the action responses for the actions which are not runBehavior: ON_PAGE_LOAD.
 function* clearTriggerActionResponse() {
   const currentPageActions: ActionData[] = yield select(getCurrentActions);
 
   for (const action of currentPageActions) {
-    // Clear the action response if the action has data and is not executeOnLoad.
-    if (action.data && !action.config.executeOnLoad) {
+    // Clear the action response if the action has data and is not runBehavior: ON_PAGE_LOAD.
+    if (
+      action.data &&
+      action.config.runBehavior !== ActionRunBehaviour.ON_PAGE_LOAD
+    ) {
       yield put(clearActionResponse(action.config.id));
       yield put(
         updateActionData([

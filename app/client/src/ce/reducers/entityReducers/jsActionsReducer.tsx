@@ -8,6 +8,7 @@ import {
 import { set, keyBy, findIndex, unset } from "lodash";
 import { create } from "mutative";
 import { klona } from "klona";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export const initialState: JSCollectionDataState = [];
 
@@ -360,19 +361,19 @@ export const handlers = {
 
       return a;
     }),
-  [ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
       actionId: string;
       collectionId: string;
-      executeOnLoad: boolean;
+      runBehavior: ActionRunBehaviourType;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
         const updatedActions = a.config.actions.map((jsAction) => {
           if (jsAction.id === action.payload.actionId) {
-            set(jsAction, `executeOnLoad`, action.payload.executeOnLoad);
+            set(jsAction, `runBehavior`, action.payload.runBehavior);
           }
 
           return jsAction;
@@ -389,11 +390,11 @@ export const handlers = {
 
       return a;
     }),
-  [ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+  [ReduxActionTypes.SET_JS_ACTION_RUN_BEHAVIOR]: (
     state: JSCollectionDataState,
     action: ReduxAction<
       Array<{
-        executeOnLoad: boolean;
+        runBehavior: ActionRunBehaviourType;
         id: string;
         name: string;
         collectionId: string;
@@ -410,7 +411,7 @@ export const handlers = {
 
           allActions.forEach((js) => {
             if (js.id in actionUpdateSearch) {
-              js.executeOnLoad = actionUpdateSearch[js.id].executeOnLoad;
+              js.runBehavior = actionUpdateSearch[js.id].runBehavior;
             }
           });
         }

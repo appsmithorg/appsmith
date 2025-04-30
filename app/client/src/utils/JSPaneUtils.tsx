@@ -3,6 +3,7 @@ import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface ParsedJSSubAction {
   name: string;
@@ -130,7 +131,7 @@ export const getDifferenceInJSCollection = (
       const obj = {
         name: action.name,
         collectionId: jsAction.id,
-        executeOnLoad: false,
+        runBehavior: ActionRunBehaviour.MANUAL,
         pageId: jsAction.pageId,
         workspaceId: jsAction.workspaceId,
         actionConfiguration: {
@@ -229,7 +230,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun1",
       workspaceId,
-      executeOnLoad: false,
+      runBehavior: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "function () {}",
         timeoutInMillisecond: 0,
@@ -241,7 +242,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun2",
       workspaceId,
-      executeOnLoad: false,
+      runBehavior: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "async function () {}",
         timeoutInMillisecond: 0,
@@ -281,7 +282,7 @@ export const createSingleFunctionJsCollection = (
     {
       name: functionName,
       workspaceId,
-      executeOnLoad: false,
+      runBehavior: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "function () {}",
         timeoutInMillisecond: 0,

@@ -63,7 +63,7 @@ export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
     datasourceConfiguration: { url: "www.mock-api.appsmith.com" },
   },
   dynamicBindingPathList: [],
-  executeOnLoad: false,
+  runBehavior: "MANUAL",
   invalids: [],
   isValid: true,
   jsonPathKeys: [],

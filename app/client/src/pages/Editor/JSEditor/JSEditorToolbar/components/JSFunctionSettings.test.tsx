@@ -2,12 +2,8 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { JSFunctionSettings } from "./JSFunctionSettings";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
-
-// Mock the useFeatureFlag hook
-jest.mock("utils/hooks/useFeatureFlag");
-const mockUseFeatureFlag = useFeatureFlag as jest.Mock;
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const JSObject = JSObjectFactory.build();
 
@@ -20,9 +16,7 @@ describe("JSFunctionSettings", () => {
     jest.clearAllMocks();
   });
 
-  it("disables the switch when the component is disabled", () => {
-    mockUseFeatureFlag.mockReturnValue(true);
-
+  it("disables the run behavior when the component is disabled", () => {
     render(
       <JSFunctionSettings
         actions={actions}
@@ -34,9 +28,7 @@ describe("JSFunctionSettings", () => {
     expect(screen.getByLabelText(actions[0].name)).toBeDisabled();
   });
 
-  it("renders the correct number of switches for the actions", () => {
-    mockUseFeatureFlag.mockReturnValue(true);
-
+  it("renders the correct number of dropdowns for the actions", () => {
     render(
       <JSFunctionSettings
         actions={actions}
@@ -45,20 +37,18 @@ describe("JSFunctionSettings", () => {
       />,
     );
 
-    expect(screen.getAllByRole("switch")).toHaveLength(actions.length);
+    expect(screen.getAllByRole(`combobox`)).toHaveLength(actions.length);
   });
 
-  it("renders the switch state correctly", () => {
-    mockUseFeatureFlag.mockReturnValue(true);
-
+  it("renders the run behavior correctly", () => {
     const updatedJSActions = [
       {
         ...actions[0],
-        executeOnLoad: true,
+        runBehavior: ActionRunBehaviour.ON_PAGE_LOAD,
       },
       {
         ...actions[1],
-        executeOnLoad: false,
+        runBehavior: ActionRunBehaviour.MANUAL,
       },
     ];
 
@@ -70,10 +60,14 @@ describe("JSFunctionSettings", () => {
       />,
     );
 
-    const switchElement1 = screen.getByLabelText(updatedJSActions[0].name);
-    const switchElement2 = screen.getByLabelText(updatedJSActions[1].name);
+    const selectedItem1 = screen.getByText("On page load", {
+      selector: ".myFun1-run-behavior-setting .rc-select-selection-item",
+    });
+    const selectedItem2 = screen.getByText("Manual", {
+      selector: ".myFun2-run-behavior-setting .rc-select-selection-item",
+    });
 
-    expect(switchElement1).toBeChecked();
-    expect(switchElement2).not.toBeChecked();
+    expect(selectedItem1).toBeInTheDocument();
+    expect(selectedItem2).toBeInTheDocument();
   });
 });
