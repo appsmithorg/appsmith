@@ -51,10 +51,10 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.LayoutSpan.EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL;
 import static com.appsmith.external.constants.spans.LayoutSpan.FIND_ALL_ON_LOAD_EXECUTABLES;
 import static com.appsmith.external.constants.spans.LayoutSpan.FIND_AND_UPDATE_LAYOUT;
-import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_EXECUTABLES_EXECUTE_ONLOAD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_DSL_METHOD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_METHOD;
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_EXECUTABLES_RUN_BEHAVIOUR;
 import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
@@ -197,12 +197,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         return Mono.just(allOnLoadExecutables);
                     }
                     // Update these executables to be executed on load, unless the user has touched
-                    // the executeOnLoad
+                    // the runBehaviour
                     // setting for this
                     return onLoadExecutablesUtil
-                            .updateExecutablesExecuteOnLoad(
+                            .updateExecutablesRunBehaviour(
                                     flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
-                            .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
+                            .name(UPDATE_EXECUTABLES_RUN_BEHAVIOUR)
                             .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(allOnLoadExecutables);
                 })

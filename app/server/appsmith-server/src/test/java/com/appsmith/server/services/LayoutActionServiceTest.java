@@ -8,7 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.RunBehaviorEnum;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactType;
@@ -286,7 +286,7 @@ class LayoutActionServiceTest {
                     ActionDTO updates = new ActionDTO();
 
                     // Configure action to execute on page load.
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
@@ -358,7 +358,7 @@ class LayoutActionServiceTest {
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -371,7 +371,7 @@ class LayoutActionServiceTest {
                 .flatMap(savedAction -> layoutActionService.createSingleAction(unreferencedAction, Boolean.FALSE))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -386,7 +386,7 @@ class LayoutActionServiceTest {
                     assertFalse(savedAction.getActionConfiguration().getIsValid());
                     assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
                     ActionDTO updates = new ActionDTO();
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(d2);
@@ -474,20 +474,20 @@ class LayoutActionServiceTest {
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
                     assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
-                    assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
+                    assertThat(actionUpdates.get(0).getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
 
         StepVerifier.create(newActionService.findById(createdAction1.getId()))
                 .assertNext(
-                        newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
-                                .isTrue())
+                        newAction -> assertThat(newAction.getUnpublishedAction().getRunBehaviour())
+                                .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD))
                 .verifyComplete();
 
         StepVerifier.create(newActionService.findById(createdAction2.getId()))
                 .assertNext(
-                        newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
-                                .isFalse())
+                        newAction -> assertThat(newAction.getUnpublishedAction().getRunBehaviour())
+                                .isEqualTo(RunBehaviourEnum.MANUAL))
                 .verifyComplete();
 
         dsl = new JSONObject();
@@ -520,24 +520,24 @@ class LayoutActionServiceTest {
                             .findFirst();
                     LayoutExecutableUpdateDTO firstActionUpdate = firstActionUpdateOptional.get();
                     assertThat(firstActionUpdate).isNotNull();
-                    assertThat(firstActionUpdate.getExecuteOnLoad()).isFalse();
+                    assertThat(firstActionUpdate.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
 
                     Optional<LayoutExecutableUpdateDTO> secondActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("secondAction"))
                             .findFirst();
                     LayoutExecutableUpdateDTO secondActionUpdate = secondActionUpdateOptional.get();
                     assertThat(secondActionUpdate).isNotNull();
-                    assertThat(secondActionUpdate.getExecuteOnLoad()).isTrue();
+                    assertThat(secondActionUpdate.getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
 
         StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
-                        newAction.getUnpublishedAction().getExecuteOnLoad())
-                .isFalse());
+                        newAction.getUnpublishedAction().getRunBehaviour())
+                .isEqualTo(RunBehaviourEnum.MANUAL));
 
         StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
-                        newAction.getUnpublishedAction().getExecuteOnLoad())
-                .isTrue());
+                        newAction.getUnpublishedAction().getRunBehaviour())
+                .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD));
     }
 
     @Test
@@ -558,7 +558,7 @@ class LayoutActionServiceTest {
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     Datasource ds = new Datasource();
@@ -837,7 +837,7 @@ class LayoutActionServiceTest {
                     ActionDTO updates = new ActionDTO();
 
                     // Configure action to execute on page load.
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService
@@ -853,7 +853,7 @@ class LayoutActionServiceTest {
                     ActionDTO updates = new ActionDTO();
 
                     // Configure action to execute on page load.
-                    updates.setExecuteOnLoad(true);
+                    updates.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService
@@ -1083,7 +1083,7 @@ class LayoutActionServiceTest {
         ActionConfiguration actionConfiguration1 = new ActionConfiguration();
         actionConfiguration1.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration1);
-        action1.setExecuteOnLoad(true);
+        action1.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         action1.setDatasource(datasource);
 
         // Configure action2
@@ -1095,7 +1095,7 @@ class LayoutActionServiceTest {
         actionConfiguration2.setBody("{{ firstAction.data }}"); // make action2 dependent on action1
         action2.setActionConfiguration(actionConfiguration2);
         action2.setDynamicBindingPathList(List.of(new Property("body", null)));
-        action2.setExecuteOnLoad(true);
+        action2.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         action2.setDatasource(datasource);
 
         JSONObject parentDsl = new JSONObject(
@@ -1106,7 +1106,8 @@ class LayoutActionServiceTest {
         ActionDTO createdAction1 =
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block(); // create action1
         assertNotNull(createdAction1);
-        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction1.setRunBehaviour(
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setRefType(createdAction1.getRefType());
@@ -1118,7 +1119,8 @@ class LayoutActionServiceTest {
         ActionDTO createdAction2 =
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block(); // create action2
         assertNotNull(createdAction1);
-        createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction2.setRunBehaviour(
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setRefType(createdAction2.getRefType());
@@ -1192,7 +1194,8 @@ class LayoutActionServiceTest {
         ActionDTO createdAction1 =
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
-        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction1.setRunBehaviour(
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
         createdAction1.setUserSetOnLoad(true);
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
@@ -1241,7 +1244,7 @@ class LayoutActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionDTO.setActionConfiguration(actionConfiguration);
         actionDTO.setDatasource(datasource);
-        actionDTO.setExecuteOnLoad(true);
+        actionDTO.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
 
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(actionDTO, Boolean.FALSE).block();
@@ -1356,13 +1359,13 @@ class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void testSetRunBehavior_WhenRunBehaviorChanged_ValuesUpdatedCorrectly() {
+    void testSetRunbehaviour_WhenRunbehaviourChanged_ValuesUpdatedCorrectly() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
         // Create a new action
         ActionDTO action = new ActionDTO();
-        action.setName("testRunBehaviorAction");
+        action.setName("testRunbehaviourAction");
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -1373,70 +1376,27 @@ class LayoutActionServiceTest {
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
         assertNotNull(createdAction);
-        assertEquals(RunBehaviorEnum.MANUAL, createdAction.getRunBehavior());
-        assertEquals(Boolean.FALSE, createdAction.getExecuteOnLoad());
+        assertEquals(RunBehaviourEnum.MANUAL, createdAction.getRunBehaviour());
 
-        // Test setting runBehavior to ON_PAGE_LOAD
+        // Test setting runBehaviour to ON_PAGE_LOAD
         ActionDTO updatedAction = layoutActionService
-                .setRunBehavior(createdAction.getId(), RunBehaviorEnum.ON_PAGE_LOAD)
+                .setRunBehaviour(createdAction.getId(), RunBehaviourEnum.ON_PAGE_LOAD)
                 .block();
         assertNotNull(updatedAction);
-        assertEquals(RunBehaviorEnum.ON_PAGE_LOAD, updatedAction.getRunBehavior());
-        assertEquals(Boolean.TRUE, updatedAction.getExecuteOnLoad());
+        assertEquals(RunBehaviourEnum.ON_PAGE_LOAD, updatedAction.getRunBehaviour());
         assertEquals(Boolean.TRUE, updatedAction.getUserSetOnLoad());
 
-        // Test setting runBehavior back to MANUAL
+        // Test setting runBehaviour back to MANUAL
         updatedAction = layoutActionService
-                .setRunBehavior(createdAction.getId(), RunBehaviorEnum.MANUAL)
+                .setRunBehaviour(createdAction.getId(), RunBehaviourEnum.MANUAL)
                 .block();
         assertNotNull(updatedAction);
-        assertEquals(RunBehaviorEnum.MANUAL, updatedAction.getRunBehavior());
-        assertEquals(Boolean.FALSE, updatedAction.getExecuteOnLoad());
+        assertEquals(RunBehaviourEnum.MANUAL, updatedAction.getRunBehaviour());
         assertEquals(Boolean.TRUE, updatedAction.getUserSetOnLoad());
 
         // Ensure the changes were persisted by getting the action again
         NewAction savedAction = actionRepository.findById(createdAction.getId()).block();
         assertNotNull(savedAction);
-        assertEquals(RunBehaviorEnum.MANUAL, savedAction.getUnpublishedAction().getRunBehavior());
-        assertEquals(Boolean.FALSE, savedAction.getUnpublishedAction().getExecuteOnLoad());
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testSetExecuteOnLoad_AlsoUpdatesRunBehavior() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        // Create a new action
-        ActionDTO action = new ActionDTO();
-        action.setName("testExecuteLoadRunBehaviorAction");
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        // Create the action and validate default values
-        ActionDTO createdAction =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
-        assertNotNull(createdAction);
-        assertEquals(RunBehaviorEnum.MANUAL, createdAction.getRunBehavior());
-        assertEquals(Boolean.FALSE, createdAction.getExecuteOnLoad());
-
-        // Test setting executeOnLoad to TRUE
-        ActionDTO updatedAction = layoutActionService
-                .setExecuteOnLoad(createdAction.getId(), Boolean.TRUE)
-                .block();
-        assertNotNull(updatedAction);
-        assertEquals(RunBehaviorEnum.ON_PAGE_LOAD, updatedAction.getRunBehavior());
-        assertEquals(Boolean.TRUE, updatedAction.getExecuteOnLoad());
-
-        // Test setting executeOnLoad to FALSE
-        updatedAction = layoutActionService
-                .setExecuteOnLoad(createdAction.getId(), Boolean.FALSE)
-                .block();
-        assertNotNull(updatedAction);
-        assertEquals(RunBehaviorEnum.MANUAL, updatedAction.getRunBehavior());
-        assertEquals(Boolean.FALSE, updatedAction.getExecuteOnLoad());
+        assertEquals(RunBehaviourEnum.MANUAL, savedAction.getUnpublishedAction().getRunBehaviour());
     }
 }

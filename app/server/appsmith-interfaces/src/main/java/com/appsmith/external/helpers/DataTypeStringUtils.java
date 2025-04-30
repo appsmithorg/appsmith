@@ -195,7 +195,7 @@ public class DataTypeStringUtils {
      * @param replacement value that needs to be substituted in place of mustache expression
      * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
      *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
-     *                            default behavior.
+     *                            default behaviour.
      * @param insertedParams keeps a list of tuple (replacement, data_type)
      * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
      *                               value before the final substitution happens

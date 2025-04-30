@@ -665,7 +665,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+                .findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
                         pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }

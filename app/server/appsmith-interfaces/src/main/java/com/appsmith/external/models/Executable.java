@@ -23,6 +23,8 @@ public interface Executable {
 
     Boolean getExecuteOnLoad();
 
+    RunBehaviourEnum getRunBehaviour();
+
     Set<String> getSelfReferencingDataPaths();
 
     @JsonIgnore
@@ -69,12 +71,14 @@ public interface Executable {
 
         layoutExecutableUpdateDTO.setId(this.getId());
         layoutExecutableUpdateDTO.setName(this.getValidName());
-        layoutExecutableUpdateDTO.setExecuteOnLoad(this.getExecuteOnLoad());
+        layoutExecutableUpdateDTO.setRunBehaviour(this.getRunBehaviour());
 
         return layoutExecutableUpdateDTO;
     }
 
     void setExecuteOnLoad(Boolean isExecuteOnLoad);
+
+    void setRunBehaviour(RunBehaviourEnum runBehaviour);
 
     @JsonIgnore
     @Transient

@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -21,6 +22,10 @@ public class LayoutExecutableUpdateDTO {
     @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Public.class)
+    @Deprecated
+    @JsonView(Views.Internal.class)
     Boolean executeOnLoad;
+
+    @JsonView(Views.Public.class)
+    RunBehaviourEnum runBehaviour;
 }

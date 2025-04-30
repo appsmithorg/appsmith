@@ -9,6 +9,7 @@ import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -295,7 +296,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     @Override
-    public Mono<Boolean> updateExecutablesExecuteOnLoad(
+    public Mono<Boolean> updateExecutablesRunBehaviour(
             List<Executable> onLoadExecutables,
             String creatorId,
             List<LayoutExecutableUpdateDTO> executableUpdatesRef,
@@ -310,7 +311,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // Before we update the actions, fetch all the actions which are currently set to execute on load.
         Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
                 .flatMap(executable -> {
-                    if (TRUE.equals(executable.getExecuteOnLoad())) {
+                    if (RunBehaviourEnum.ON_PAGE_LOAD.equals(executable.getRunBehaviour())) {
                         return Mono.just(executable);
                     }
                     return Mono.empty();
@@ -364,13 +365,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                             // If this executable is no longer an onload executable, turn the execute on load to false
                             if (turnedOffExecutableNames.contains(executableName)) {
-                                executable.setExecuteOnLoad(FALSE);
+                                executable.setRunBehaviour(RunBehaviourEnum.MANUAL);
                                 toUpdateExecutables.add(executable);
                             }
 
                             // If this executable is newly found to be on load, turn execute on load to true
                             if (turnedOnExecutableNames.contains(executableName)) {
-                                executable.setExecuteOnLoad(TRUE);
+                                executable.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                                 toUpdateExecutables.add(executable);
                             }
 
@@ -1262,7 +1263,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     private boolean hasUserSetExecutableToNotRunOnPageLoad(Executable executable) {
-        if (TRUE.equals(executable.getUserSetOnLoad()) && !TRUE.equals(executable.getExecuteOnLoad())) {
+        if (TRUE.equals(executable.getUserSetOnLoad())
+                && RunBehaviourEnum.MANUAL.equals(executable.getRunBehaviour())) {
             return true;
         }
 

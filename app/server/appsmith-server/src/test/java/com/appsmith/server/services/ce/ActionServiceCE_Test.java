@@ -11,6 +11,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -302,7 +303,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("findActionByBranchNameTest");
         action.setPageId(gitConnectedPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -336,7 +337,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -349,7 +350,7 @@ public class ActionServiceCE_Test {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
-                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
                     List<PermissionGroup> permissionGroups = tuple.getT2();
@@ -408,7 +409,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(gitConnectedPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -419,7 +420,7 @@ public class ActionServiceCE_Test {
         StepVerifier.create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
-                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
                     assertThat(createdAction.getBaseId()).isEqualTo(createdAction.getId());
 
@@ -798,8 +799,8 @@ public class ActionServiceCE_Test {
         Mono<ActionDTO> newActionMono =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
 
-        Mono<ActionDTO> setExecuteOnLoadMono =
-                newActionMono.flatMap(savedAction -> layoutActionService.setExecuteOnLoad(savedAction.getId(), true));
+        Mono<ActionDTO> setRunbehaviourMono = newActionMono.flatMap(
+                savedAction -> layoutActionService.setRunBehaviour(savedAction.getId(), RunBehaviourEnum.ON_PAGE_LOAD));
 
         Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
             ActionDTO actionUpdate = action;
@@ -811,7 +812,7 @@ public class ActionServiceCE_Test {
                             .thenReturn(updatedAction));
         });
 
-        StepVerifier.create(setExecuteOnLoadMono.then(updateActionMono))
+        StepVerifier.create(setRunbehaviourMono.then(updateActionMono))
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction).isNotNull();
                     assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
@@ -1148,7 +1149,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
         action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -1158,7 +1159,7 @@ public class ActionServiceCE_Test {
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
-                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                 })
                 .verifyComplete();
     }
@@ -1172,7 +1173,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
         action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -1186,7 +1187,7 @@ public class ActionServiceCE_Test {
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
-                    assertThat(createdAction.getExecuteOnLoad()).isTrue();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }
@@ -1273,7 +1274,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setTimeoutInMillisecond("60001");
@@ -1305,7 +1306,7 @@ public class ActionServiceCE_Test {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setTimeoutInMillisecond("6000");
