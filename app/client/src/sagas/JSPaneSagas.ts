@@ -101,7 +101,7 @@ import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { fetchActionsForPage } from "actions/pluginActionActions";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;

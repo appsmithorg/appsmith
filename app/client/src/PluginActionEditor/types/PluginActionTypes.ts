@@ -12,11 +12,13 @@ export const RUN_BEHAVIOR = {
     label: "On page load",
     subText: "Query runs when the page loads or when manually triggered",
     value: ActionRunBehaviour.ON_PAGE_LOAD,
+    children: "On page load",
   },
   MANUAL: {
     label: "Manual",
     subText: "Query only runs when called in an event or JS with .run()",
     value: ActionRunBehaviour.MANUAL,
+    children: "Manual",
   },
 };
 

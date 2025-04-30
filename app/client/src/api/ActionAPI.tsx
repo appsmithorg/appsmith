@@ -10,7 +10,7 @@ import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstan
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import type { PostActionRunConfig } from "./types";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface Property {
   key: string;

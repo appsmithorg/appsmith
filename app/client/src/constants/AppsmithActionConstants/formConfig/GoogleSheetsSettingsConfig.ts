@@ -1,7 +1,7 @@
 import {
   RUN_BEHAVIOR,
   RUN_BEHAVIOR_VALUES,
-} from "PluginActionEditor/constants/PluginActionConstants";
+} from "PluginActionEditor/types/PluginActionTypes";
 
 export default [
   {

@@ -10,7 +10,7 @@ import {
   type Plugin,
   type PluginName,
 } from "../Plugin";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export enum PaginationType {
   NONE = "NONE",

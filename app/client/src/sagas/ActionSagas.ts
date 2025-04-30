@@ -147,7 +147,7 @@ import {
 import { handleQueryEntityRedirect } from "./IDESaga";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
