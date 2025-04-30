@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { JSFunctionSettings } from "./JSFunctionSettings";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const JSObject = JSObjectFactory.build();
 

@@ -6,7 +6,7 @@ import {
   getJSActionOption,
 } from "./JSEditorToolbar/utils";
 import { NO_FUNCTION_DROPDOWN_OPTION } from "./JSEditorToolbar/constants";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const BASE_JS_OBJECT_BODY = `export default {
 	myVar1: [],

@@ -3,7 +3,7 @@ import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ActionRunBehaviour } from "PluginActionEditor/constants/PluginActionConstants";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface ParsedJSSubAction {
   name: string;

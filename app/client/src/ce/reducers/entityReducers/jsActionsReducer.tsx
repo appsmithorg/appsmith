@@ -8,7 +8,7 @@ import {
 import { set, keyBy, findIndex, unset } from "lodash";
 import { create } from "mutative";
 import { klona } from "klona";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export const initialState: JSCollectionDataState = [];
 

@@ -20,7 +20,7 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export const createActionRequest = (
   payload: Partial<Action>,

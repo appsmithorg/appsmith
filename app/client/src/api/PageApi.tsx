@@ -9,7 +9,7 @@ import type {
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
-import type { ActionRunBehaviourType } from "PluginActionEditor/constants/PluginActionConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface FetchPageRequest {
   pageId: string;
