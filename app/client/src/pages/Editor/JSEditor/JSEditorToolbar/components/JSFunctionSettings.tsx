@@ -81,7 +81,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
         {props.action.name}
       </Text>
       <StyledSelect
-        data-testid={`t--dropdown-runBehavior`}
+        data-testid={`t--dropdown-runBehaviour`}
         defaultValue={selectedValue}
         id={props.action.id}
         isDisabled={props.disabled}

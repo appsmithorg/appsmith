@@ -299,27 +299,27 @@ export class JSEditor {
 
   public VerifyAsyncFuncSettings(
     funName: string,
-    runBehavior: "On page load" | "Manual",
+    runBehaviour: "On page load" | "Manual",
   ) {
     this.toolbar.toggleSettings();
     this.agHelper.GetNAssertContains(
       this.__runBehaviourSwitchStatus(funName),
-      runBehavior,
+      runBehaviour,
     );
     this.toolbar.toggleSettings();
   }
 
   public EnableDisableAsyncFuncSettings(
     funName: string,
-    runBehavior: "On page load" | "Manual",
+    runBehaviour: "On page load" | "Manual",
   ) {
     // Navigate to Settings tab
     this.toolbar.toggleSettings();
-    // Set runBehavior to On page load
+    // Set runBehaviour to On page load
     this.agHelper.GetNClick(this._runBehaviourSwitch(funName));
     this.agHelper.GetNClickByContains(
       this._dropdownOption,
-      runBehavior,
+      runBehaviour,
       0,
       true,
     );
