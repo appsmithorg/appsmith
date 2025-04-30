@@ -46,7 +46,7 @@ describe(
         cy.wrap(jsObjectName).as("jsObjectName");
       });
 
-      apiPage.clickSettingIcon(true);
+      apiPage.clickSettingIcon("On page load");
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);

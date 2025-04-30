@@ -76,7 +76,7 @@ describe(
       propPane.EnterJSContext("Table data", "{{ParamsTest.data}}");
 
       EditorNavigation.SelectEntityByName("ParamsTest", EntityType.Query);
-      apiPage.ToggleOnPageLoadRun(false); //Bug 12476
+      apiPage.ToggleOnPageLoadRun("Manual"); //Bug 12476
 
       deployMode.DeployApp(locators._buttonByText("Submit"));
       agHelper.SelectDropDown("7");
