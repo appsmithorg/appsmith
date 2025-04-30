@@ -9,7 +9,7 @@ import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "entities/Plugin";
 import log from "loglevel";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   checkIfSectionCanRender,
@@ -103,7 +103,7 @@ const FormRender = (props: Props) => {
       }
     } catch (e) {
       log.error(e);
-      captureException(e, { errorName: "FormRenderError" });
+      appsmithTelemetry.captureException(e, { errorName: "FormRenderError" });
 
       return (
         <ErrorComponent

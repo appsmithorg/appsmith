@@ -48,3 +48,10 @@ export const gitImportErrorAction = (
 
   return state;
 };
+
+export const resetGitImportAction = (state: GitGlobalReduxState) => {
+  state.gitImport.loading = false;
+  state.gitImport.error = null;
+
+  return state;
+};

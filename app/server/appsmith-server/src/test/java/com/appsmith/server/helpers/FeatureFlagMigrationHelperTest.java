@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
@@ -65,14 +64,14 @@ class FeatureFlagMigrationHelperTest {
         Mockito.when(cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(any()))
                 .thenReturn(Mono.empty());
 
-        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+        Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
                 featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultOrganization);
 
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotEmpty();
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(1);
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.get(ORGANIZATION_TEST_FEATURE))
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap.get(ORGANIZATION_TEST_FEATURE.name()))
                             .isEqualTo(DISABLE);
                 })
                 .verifyComplete();
@@ -103,14 +102,14 @@ class FeatureFlagMigrationHelperTest {
         Mockito.when(cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(any()))
                 .thenReturn(Mono.empty());
 
-        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+        Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
                 featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultOrganization);
 
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotEmpty();
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(1);
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.get(ORGANIZATION_TEST_FEATURE))
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap.get(ORGANIZATION_TEST_FEATURE.name()))
                             .isEqualTo(ENABLE);
                 })
                 .verifyComplete();
@@ -134,7 +133,7 @@ class FeatureFlagMigrationHelperTest {
         Mockito.when(cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(any()))
                 .thenReturn(Mono.empty());
 
-        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+        Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
                 featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultOrganization);
 
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
@@ -172,7 +171,7 @@ class FeatureFlagMigrationHelperTest {
         Mockito.when(cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(any()))
                 .thenReturn(Mono.empty());
 
-        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+        Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
                 featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultOrganization);
 
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
@@ -198,7 +197,7 @@ class FeatureFlagMigrationHelperTest {
     void checkAndExecuteMigrationsForFeatureFlag_validFeatureFlag_success() {
         Organization defaultOrganization = new Organization();
         OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
-        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
+        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE.name(), ENABLE));
         organizationConfiguration.setMigrationStatus(PENDING);
         defaultOrganization.setOrganizationConfiguration(organizationConfiguration);
 
@@ -231,7 +230,7 @@ class FeatureFlagMigrationHelperTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(UUID.randomUUID().toString());
         OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
-        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
+        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE.name(), DISABLE));
         defaultOrganization.setOrganizationConfiguration(organizationConfiguration);
 
         // Mock CS calls to fetch the feature flags to have the feature flag in pending migration list with ENABLE
@@ -256,7 +255,7 @@ class FeatureFlagMigrationHelperTest {
         Mockito.when(cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(any()))
                 .thenReturn(Mono.empty());
 
-        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+        Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
                 featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultOrganization);
 
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)

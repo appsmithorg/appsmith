@@ -25,7 +25,7 @@ import {
   getLoadingEntities,
   getConfigTree,
 } from "selectors/dataTreeSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasReducer";
 
 import { getActionEditorSavingMap } from "PluginActionEditor/store";
 import {

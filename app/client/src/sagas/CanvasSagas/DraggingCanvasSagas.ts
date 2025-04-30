@@ -26,7 +26,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "ee/reducers/entityReducers/canvasWidgetsReducer";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { addAndMoveBuildingBlockToCanvasSaga } from "sagas/BuildingBlockSagas/BuildingBlockAdditionSagas";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";

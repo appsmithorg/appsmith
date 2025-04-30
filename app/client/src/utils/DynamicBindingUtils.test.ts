@@ -120,7 +120,7 @@ describe("DynamicBindingPathlist", () => {
           },
         ],
       },
-      executeOnLoad: false,
+      runBehavior: "MANUAL",
       dynamicBindingPathList: [
         {
           key: "body",

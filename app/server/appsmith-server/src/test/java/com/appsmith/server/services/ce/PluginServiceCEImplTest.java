@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
+import com.appsmith.server.plugins.solutions.PluginTransformationSolution;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
@@ -55,6 +56,9 @@ public class PluginServiceCEImplTest {
     @MockBean
     ChannelTopic topic;
 
+    @MockBean
+    PluginTransformationSolution pluginTransformationSolution;
+
     ObjectMapper objectMapper;
 
     PluginServiceCE pluginService;
@@ -74,7 +78,8 @@ public class PluginServiceCEImplTest {
                 topic,
                 objectMapper,
                 cloudServicesConfig,
-                configService);
+                configService,
+                pluginTransformationSolution);
     }
 
     @Test

@@ -44,7 +44,7 @@ describe("generateDataTreeJSAction", () => {
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
             },
-            executeOnLoad: false,
+            runBehavior: "MANUAL",
             dynamicBindingPathList: [
               {
                 key: "body",
@@ -91,7 +91,7 @@ describe("generateDataTreeJSAction", () => {
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
             },
-            executeOnLoad: false,
+            runBehavior: "MANUAL",
             clientSideExecution: true,
             dynamicBindingPathList: [
               {
@@ -239,7 +239,7 @@ describe("generateDataTreeJSAction", () => {
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
             },
-            executeOnLoad: false,
+            runBehavior: "MANUAL",
             dynamicBindingPathList: [
               {
                 key: "body",
@@ -286,7 +286,7 @@ describe("generateDataTreeJSAction", () => {
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
             },
-            executeOnLoad: false,
+            runBehavior: "MANUAL",
             clientSideExecution: true,
             dynamicBindingPathList: [
               {

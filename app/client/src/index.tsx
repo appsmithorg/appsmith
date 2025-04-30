@@ -27,22 +27,18 @@ import GlobalStyles from "globalStyles";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { FaroErrorBoundary } from "@grafana/faro-react";
-import { isTracingEnabled } from "instrumentation/utils";
 
 runSagaMiddleware();
 
 appInitializer();
 
-isTracingEnabled() &&
-  (async () => {
-    try {
-      await import(
-        /* webpackChunkName: "instrumentation" */ "./instrumentation"
-      );
-    } catch (e) {
-      log.error("Error loading telemetry script", e);
-    }
-  })();
+(async () => {
+  try {
+    await import(/* webpackChunkName: "instrumentation" */ "./instrumentation");
+  } catch (e) {
+    log.error("Error loading telemetry script", e);
+  }
+})();
 
 function App() {
   return (

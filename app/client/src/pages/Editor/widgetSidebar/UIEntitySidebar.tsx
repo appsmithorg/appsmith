@@ -1,7 +1,3 @@
-import {
-  WIDGET_PANEL_EMPTY_MESSAGE,
-  createMessage,
-} from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
@@ -23,10 +19,12 @@ interface UIEntitySidebarProps {
   entityLoading?: Partial<Record<WidgetTags, boolean>>;
   groupedCards: WidgetCardsGroupedByTags;
   searchPlaceholderText?: string;
+  emptyMessage?: string;
 }
 
 function UIEntitySidebar({
   cards,
+  emptyMessage,
   entityLoading,
   focusSearchInput,
   groupedCards,
@@ -133,8 +131,7 @@ function UIEntitySidebar({
             renderAs="p"
             style={{ marginBottom: "15px" }}
           >
-            {createMessage(WIDGET_PANEL_EMPTY_MESSAGE)} `
-            {searchInputRef.current?.value}`
+            {emptyMessage} `{searchInputRef.current?.value}`
           </Text>
         )}
         <div>

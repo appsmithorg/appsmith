@@ -161,24 +161,85 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
     if (!isComputedValue) return propertyValue;
 
+    // Check if the entire structure of the expression looks valid before attempting to parse
+    if (!this.isLikelyValidComputedValue(propertyValue)) {
+      return propertyValue;
+    }
+
     // Extract the computation logic from the full binding string
     // Input example: "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow.price * 2)) : currentRow.price * 2 })()}}"
     const mapSignatureIndex = propertyValue.indexOf(MAP_FUNCTION_SIGNATURE);
 
     // Find the actual computation expression between the map parentheses
     const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-    const computationEnd = propertyValue.indexOf("))", computationStart);
+
+    const { endIndex, isValid } = this.findMatchingClosingParenthesis(
+      propertyValue,
+      computationStart,
+    );
+
+    // Handle case where no matching closing parenthesis is found
+    if (!isValid) {
+      // If we can't find the proper closing parenthesis, fall back to returning the original value
+      // This prevents errors when the expression is malformed
+      return propertyValue;
+    }
 
     // Extract the computation expression between the map parentheses
-    // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
-    // The actual removal of "currentRow." prefix happens later in JSToString()
     const computationExpression = propertyValue.substring(
       computationStart,
-      computationEnd,
+      endIndex,
     );
 
     return JSToString(computationExpression);
   };
+
+  /**
+   * Check if the computed value string looks structurally valid
+   * This helps catch obviously malformed expressions early
+   */
+  private static isLikelyValidComputedValue(value: string): boolean {
+    // Check for basic structural elements that should be present
+    const hasOpeningStructure = value.includes("(() => {");
+    const hasTableDataAssignment = value.includes("const tableData =");
+    const hasReturnStatement = value.includes("return tableData.length > 0 ?");
+    const hasClosingStructure = value.includes("})()}}");
+
+    return (
+      hasOpeningStructure &&
+      hasTableDataAssignment &&
+      hasReturnStatement &&
+      hasClosingStructure
+    );
+  }
+
+  /**
+   * Utility function to find the matching closing parenthesis
+   * @param text - The text to search in
+   * @param startIndex - The index after the opening parenthesis
+   * @returns Object containing the index of the matching closing parenthesis and whether it was found
+   */
+  private static findMatchingClosingParenthesis(
+    text: string,
+    startIndex: number,
+  ) {
+    let openParenCount = 1; // Start with 1 for the opening parenthesis
+
+    for (let i = startIndex; i < text.length; i++) {
+      if (text[i] === "(") {
+        openParenCount++;
+      } else if (text[i] === ")") {
+        openParenCount--;
+
+        if (openParenCount === 0) {
+          return { endIndex: i, isValid: true };
+        }
+      }
+    }
+
+    // No matching closing parenthesis found
+    return { endIndex: text.length, isValid: false };
+  }
 
   getComputedValue = (value: string, tableName: string) => {
     // Return raw value if:

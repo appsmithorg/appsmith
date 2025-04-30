@@ -41,7 +41,7 @@ import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "../entities/App";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 const shouldShowToast = (action: string) => {
   return action in toastMessageErrorTypes;
@@ -298,7 +298,13 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.LOG_TO_SENTRY: {
-        yield call(captureException, error, { errorName: "ErrorSagaError" });
+        yield call(
+          [appsmithTelemetry, appsmithTelemetry.captureException],
+          error,
+          {
+            errorName: "ErrorSagaError",
+          },
+        );
         break;
       }
     }

@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
 import { isEnvironmentConfigured } from "ee/utils/Environments";
+import ImageAlt from "assets/images/placeholder-image.svg";
 import type { Plugin } from "entities/Plugin";
 import {
   isDatasourceAuthorizedForQueryCreation,
@@ -76,7 +77,10 @@ function ListItemWrapper(props: {
       className={`t--ds-list ${selected ? "active" : ""}`}
       onClick={() => onClick(ds)}
     >
-      <PluginImage alt="Datasource" src={getAssetUrl(plugin?.iconLocation)} />
+      <PluginImage
+        alt="Datasource"
+        src={getAssetUrl(plugin?.iconLocation || ImageAlt)}
+      />
       <ListLabels>
         <Tooltip content={ds.name} placement="left">
           <DsTitle>

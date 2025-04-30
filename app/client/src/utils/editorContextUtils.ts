@@ -168,6 +168,10 @@ export function isGoogleSheetPluginDS(pluginPackageName?: string) {
   return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 }
 
+export function isMongoDBPluginDS(pluginPackageName?: string) {
+  return pluginPackageName === PluginPackageName.MONGO;
+}
+
 /**
  * Returns datasource property value from datasource?.datasourceConfiguration?.properties
  * @param datasource Datasource

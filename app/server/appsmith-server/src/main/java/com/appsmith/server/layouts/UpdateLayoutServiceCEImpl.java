@@ -10,8 +10,6 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -87,29 +85,22 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             boolean isSuccess,
             Throwable error,
             CreatorContextType creatorType) {
-        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(creatorId))
-                .flatMap(tuple -> {
-                    User t1 = tuple.getT1();
-                    NewPage t2 = tuple.getT2();
-
-                    final Map<String, Object> data = Map.of(
-                            "username",
-                            t1.getUsername(),
-                            "appId",
-                            t2.getApplicationId(),
-                            "creatorId",
-                            creatorId,
-                            "creatorType",
-                            creatorType,
-                            "layoutId",
-                            layoutId,
-                            "isSuccessfulExecution",
-                            isSuccess,
-                            "error",
-                            error == null ? "" : error.getMessage());
+        return contextLayoutRefactorResolver
+                .getContextLayoutRefactorHelper(creatorType)
+                .getContextForAnalytics(creatorId)
+                .flatMap(contextInfo -> {
+                    final Map<String, Object> data = Map.ofEntries(
+                            Map.entry("username", contextInfo.getUsername()),
+                            Map.entry("artifactType", contextInfo.getArtifactType()),
+                            Map.entry("artifactId", contextInfo.getArtifactId()),
+                            Map.entry("creatorId", creatorId),
+                            Map.entry("creatorType", creatorType),
+                            Map.entry("layoutId", layoutId),
+                            Map.entry("isSuccessfulExecution", isSuccess),
+                            Map.entry("error", error == null ? "" : error.getMessage()));
 
                     return analyticsService
-                            .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data)
+                            .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, contextInfo.getDomain(), data)
                             .thenReturn(isSuccess);
                 })
                 .onErrorResume(e -> {

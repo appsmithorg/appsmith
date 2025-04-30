@@ -17,7 +17,10 @@ async function gitImportRequestNew(
   workspaceId: string,
   params: GitImportRequestParams,
 ): AxiosPromise<GitImportResponse> {
-  return Api.post(`${GIT_BASE_URL}/artifacts/import`, params, { workspaceId });
+  const { override = false, ...restParams } = params;
+  const body = { override, ...restParams };
+
+  return Api.post(`${GIT_BASE_URL}/artifacts/import`, body, { workspaceId });
 }
 
 export default async function gitImportRequest(

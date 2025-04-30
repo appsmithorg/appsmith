@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import log from "loglevel";
 
 import {
@@ -133,7 +133,9 @@ export function* openPropertyPaneSaga(replay: any) {
     );
   } catch (e) {
     log.error(e);
-    captureException(e, { errorName: "OpenPropertyPaneError" });
+    appsmithTelemetry.captureException(e, {
+      errorName: "OpenPropertyPaneError",
+    });
   }
 }
 
@@ -165,7 +167,7 @@ export function* postUndoRedoSaga(replay: any) {
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
-    captureException(e, { errorName: "PostUndoRedoError" });
+    appsmithTelemetry.captureException(e, { errorName: "PostUndoRedoError" });
   }
 }
 
@@ -260,7 +262,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     }
   } catch (e) {
     log.error(e);
-    captureException(e, { errorName: "UndoRedoSagaError" });
+    appsmithTelemetry.captureException(e, { errorName: "UndoRedoSagaError" });
   }
 }
 

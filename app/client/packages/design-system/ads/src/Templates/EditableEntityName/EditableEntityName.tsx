@@ -16,6 +16,7 @@ export const isEllipsisActive = (element: HTMLElement | null) => {
 export const EditableEntityName = (props: EditableEntityNameProps) => {
   const {
     canEdit,
+    hasError,
     icon,
     inputTestId,
     isEditing,
@@ -106,6 +107,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
           <Styled.Text
             aria-invalid={Boolean(validationError)}
             className={clsx("t--entity-name", { editing: inEditMode })}
+            color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
             data-isediting={inEditMode}
             data-isfixedwidth={isFixedWidth}
             inputProps={inputProps}

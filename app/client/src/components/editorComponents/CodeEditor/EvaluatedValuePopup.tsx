@@ -28,7 +28,7 @@ import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -290,10 +290,13 @@ export function PreparedStatementViewer(props: {
   const { parameters, value } = props.evaluatedValue;
 
   if (!value) {
-    captureException(new Error("Prepared statement got no value"), {
-      errorName: "PreparedStatementError",
-      extra: { props },
-    });
+    appsmithTelemetry.captureException(
+      new Error("Prepared statement got no value"),
+      {
+        errorName: "PreparedStatementError",
+        extra: { props },
+      },
+    );
 
     return <div />;
   }

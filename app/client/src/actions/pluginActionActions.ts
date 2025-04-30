@@ -20,6 +20,7 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export const createActionRequest = (
   payload: Partial<Action>,
@@ -351,29 +352,29 @@ export const executePageLoadActions = (
   };
 };
 
-export const setActionsToExecuteOnPageLoad = (
+export const setActionsRunBehavior = (
   actions: Array<{
-    executeOnLoad: boolean;
+    runBehavior: ActionRunBehaviourType;
     id: string;
     name: string;
   }>,
 ) => {
   return {
-    type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    type: ReduxActionTypes.SET_ACTION_RUN_BEHAVIOR,
     payload: actions,
   };
 };
 
-export const setJSActionsToExecuteOnPageLoad = (
+export const setJSActionsRunBehavior = (
   actions: Array<{
-    executeOnLoad: boolean;
+    runBehavior: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;
   }>,
 ) => {
   return {
-    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    type: ReduxActionTypes.SET_JS_ACTION_RUN_BEHAVIOR,
     payload: actions,
   };
 };

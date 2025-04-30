@@ -9,10 +9,9 @@ import java.util.Map;
 
 public interface FeatureFlagMigrationHelperCE {
 
-    Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
-            Organization defaultOrganization);
+    Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(Organization defaultOrganization);
 
-    Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
+    Mono<Map<String, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
             Organization organization, boolean forceUpdate);
 
     Mono<Boolean> checkAndExecuteMigrationsForFeatureFlag(Organization organization, FeatureFlagEnum featureFlagEnum);
