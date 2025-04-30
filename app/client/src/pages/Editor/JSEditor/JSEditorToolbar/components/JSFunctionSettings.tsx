@@ -99,7 +99,9 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
             value={option.value}
           >
             <Flex flexDirection="column">
-              <OptionLabel>{option.label}</OptionLabel>
+              <OptionLabel data-testid={`t--label-${option.label}`}>
+                {option.label}
+              </OptionLabel>
               <OptionSubText>{option.subText}</OptionSubText>
             </Flex>
           </Option>

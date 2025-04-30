@@ -105,7 +105,8 @@ export class ApiPage {
   private apiNameInput = this.locator._activeEntityTabInput;
   public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
   public _runBehaviorDropdown = "[data-testid='t--dropdown-runBehavior']";
-  public _runBehaviorOption = ".rc-select-item-option-content";
+  public _runBehaviorOption = (runBehaviour: string) =>
+    `.rc-select-item-option-content [data-testid='t--label-${runBehaviour}']`;
 
   CreateApi(
     apiName = "",
@@ -511,14 +512,12 @@ export class ApiPage {
 
   ToggleOnPageLoadRunJsObject(runBehavior: "On page load" | "Manual") {
     // Navigate to Settings tab
-    this.SelectPaneTab("Settings");
+    this.agHelper.GetNClick(this.settingsTriggerLocator);
     // Set runBehavior to On page load
     this.agHelper.GetNClick(this._runBehaviorDropdown);
     this.agHelper.GetNClickByContains(
-      this._runBehaviorOption,
+      this._runBehaviorOption(runBehavior),
       runBehavior,
-      0,
-      true,
     );
   }
 
@@ -527,10 +526,8 @@ export class ApiPage {
     // Set runBehavior to On page load
     this.agHelper.GetNClick(this._runBehaviorDropdown);
     this.agHelper.GetNClickByContains(
-      this._runBehaviorOption,
+      this._runBehaviorOption(runBehavior),
       runBehavior,
-      0,
-      true,
     );
   }
 

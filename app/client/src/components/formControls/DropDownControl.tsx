@@ -520,7 +520,9 @@ function renderOptionWithIcon(option: SelectOptionProps) {
       <Flex flexDirection="column">
         <Flex>
           {option.icon && <Icon color={option.color} name={option.icon} />}
-          <OptionLabel>{option.label}</OptionLabel>
+          <OptionLabel data-testid={`t--label-${option.label}`}>
+            {option.label}
+          </OptionLabel>
         </Flex>
         <OptionSubText>{option.subText}</OptionSubText>
       </Flex>
