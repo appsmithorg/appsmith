@@ -56,7 +56,7 @@ export class JSEditor {
   private __runBehaviourSwitchStatus = (functionName: string) =>
     `.${functionName}-run-behavior-setting .rc-select-selection-item`;
 
-  private _jsObjName = this.locator._activeEntityTab;
+  public _jsObjName = this.locator._activeEntityTab;
   public _jsObjTxt = this.locator._activeEntityTabInput;
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
