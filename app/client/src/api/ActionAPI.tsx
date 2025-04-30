@@ -307,7 +307,7 @@ class ActionAPI extends API {
     runBehaviour: ActionRunBehaviourType,
   ) {
     return API.put(ActionAPI.url + `/runBehaviour/${actionId}`, undefined, {
-      behavior: runBehaviour,
+      behaviour: runBehaviour,
     });
   }
 }
