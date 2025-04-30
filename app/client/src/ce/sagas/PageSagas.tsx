@@ -151,7 +151,7 @@ import {
   selectCombinedPreviewMode,
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -575,9 +575,12 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { message } = incorrectBindingError;
 
       if (isRetry) {
-        captureException(new Error("Failed to correct binding paths"), {
-          errorName: "PageSagas_BindingPathCorrection",
-        });
+        appsmithTelemetry.captureException(
+          new Error("Failed to correct binding paths"),
+          {
+            errorName: "PageSagas_BindingPathCorrection",
+          },
+        );
         yield put({
           type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
           payload: {

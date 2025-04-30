@@ -11,9 +11,7 @@ import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.dto.CommitDTO;
-import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.ArtifactType;
-import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -23,29 +21,19 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
-import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.git.central.GitHandlingServiceCE;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
-import com.appsmith.server.git.utils.GitProfileUtils;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
-import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +43,6 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -79,30 +66,14 @@ import static java.lang.Boolean.TRUE;
 public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     private final GitDeployKeysRepository gitDeployKeysRepository;
-    private final GitPrivateRepoHelper gitPrivateRepoHelper;
-    private final CommonGitFileUtils commonGitFileUtils;
-    private final GitRedisUtils gitRedisUtils;
+    protected final CommonGitFileUtils commonGitFileUtils;
+    protected final GitRedisUtils gitRedisUtils;
     protected final SessionUserService sessionUserService;
-    private final UserDataService userDataService;
-    protected final UserService userService;
-    private final EmailConfig emailConfig;
-    private final TransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
 
-    private final WorkspaceService workspaceService;
-    private final DatasourceService datasourceService;
-    private final DatasourcePermission datasourcePermission;
-    private final PluginService pluginService;
-
-    private final ExportService exportService;
-    private final ImportService importService;
-
     protected final FSGitHandler fsGitHandler;
-    private final GitAutoCommitHelper gitAutoCommitHelper;
-
-    private final GitProfileUtils gitProfileUtils;
     private final GitAnalyticsUtils gitAnalyticsUtils;
 
     protected final GitArtifactHelperResolver gitArtifactHelperResolver;
@@ -202,6 +173,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 });
     }
 
+    @Override
+    public Mono<Tuple2<ArtifactType, String>> obtainArtifactTypeAndIdentifierFromGitRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        return obtainArtifactTypeFromGitRepository(jsonTransformationDTO).zipWith(Mono.just(""));
+    }
+
     public Mono<ArtifactType> obtainArtifactTypeFromGitRepository(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String placeHolder = jsonTransformationDTO.getBaseArtifactId();
@@ -290,6 +267,17 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .resetToLastCommit(repoSuffix)
                 .flatMap(resetFlag -> commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
                         artifactJsonTransformationDTO));
+    }
+
+    @Override
+    public Mono<Boolean> removeRepository(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean isArtifactTypeUnknown) {
+        // Since the artifact type is unknown, we can assume that the repository is yet to be
+        if (TRUE.equals(isArtifactTypeUnknown)) {
+            artifactJsonTransformationDTO.setArtifactType(ArtifactType.APPLICATION);
+        }
+
+        return removeRepository(artifactJsonTransformationDTO);
     }
 
     @Override

@@ -1,4 +1,4 @@
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 import type { ApiResponse } from "api/types";
 import log from "loglevel";
 
@@ -22,7 +22,7 @@ export default function handleApiErrors(error?: Error, response?: ApiResponse) {
     }
   } else {
     log.error(error);
-    captureException(error, { errorName: "GitApiError" });
+    appsmithTelemetry.captureException(error, { errorName: "GitApiError" });
   }
 
   return apiError;

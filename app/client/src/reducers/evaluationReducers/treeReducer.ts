@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { applyChange, type Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -32,7 +32,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
 
         applyChange(state, undefined, update);
       } catch (e) {
-        captureException(e, {
+        appsmithTelemetry.captureException(e, {
           errorName: "TreeReducer",
           extra: {
             update,

@@ -6,7 +6,7 @@ import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -24,9 +24,12 @@ const VerifyUser = (
 
   useEffect(() => {
     if (!token || !email) {
-      captureException(new Error("User email verification link is damaged"), {
-        errorName: "VerificationLinkDamaged",
-      });
+      appsmithTelemetry.captureException(
+        new Error("User email verification link is damaged"),
+        {
+          errorName: "VerificationLinkDamaged",
+        },
+      );
     }
 
     const formElement: HTMLFormElement = document.getElementById(

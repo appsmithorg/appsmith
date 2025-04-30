@@ -20,7 +20,7 @@ import * as config from "../config";
 import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
@@ -163,7 +163,9 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        captureException(e, { errorName: "WDSPhoneInputWidget" });
+        appsmithTelemetry.captureException(e, {
+          errorName: "WDSPhoneInputWidget",
+        });
       }
     }
   }

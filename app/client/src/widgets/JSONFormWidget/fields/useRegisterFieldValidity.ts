@@ -7,7 +7,7 @@ import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 import { klonaRegularWithTelemetry } from "utils/helpers";
-import captureException from "instrumentation/sendFaroErrors";
+import { appsmithTelemetry } from "instrumentation";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -53,7 +53,7 @@ function useRegisterFieldValidity({
           }
         }
       } catch (e) {
-        captureException(e, {
+        appsmithTelemetry.captureException(e, {
           errorName: "JSONFormWidget_useRegisterFieldValidity",
         });
       }
