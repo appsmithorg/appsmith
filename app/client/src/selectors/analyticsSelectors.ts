@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export const getSegmentState = (state: AppState) =>
+export const getSegmentState = (state: DefaultRootState) =>
   state.ui.analytics.telemetry.segmentState;

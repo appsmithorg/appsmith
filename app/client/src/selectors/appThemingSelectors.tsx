@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 export enum AppThemingMode {
   APP_THEME_EDIT = "APP_THEME_EDIT",
@@ -11,7 +11,7 @@ export enum AppThemingMode {
  * @param state
  * @returns
  */
-export const getAppThemingStack = (state: AppState) => {
+export const getAppThemingStack = (state: DefaultRootState) => {
   return state.ui.appTheming.stack;
 };
 
@@ -21,7 +21,7 @@ export const getAppThemingStack = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getAppThemes = (state: AppState) => {
+export const getAppThemes = (state: DefaultRootState) => {
   return state.ui.appTheming.themes;
 };
 
@@ -31,7 +31,7 @@ export const getAppThemes = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getSelectedAppTheme = (state: AppState) => {
+export const getSelectedAppTheme = (state: DefaultRootState) => {
   return state.ui.appTheming.selectedTheme;
 };
 
@@ -41,7 +41,7 @@ export const getSelectedAppTheme = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getSelectedAppThemeStylesheet = (state: AppState) => {
+export const getSelectedAppThemeStylesheet = (state: DefaultRootState) => {
   return state.ui.appTheming.selectedTheme.stylesheet;
 };
 
@@ -51,7 +51,7 @@ export const getSelectedAppThemeStylesheet = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getSelectedAppThemeProperties = (state: AppState) => {
+export const getSelectedAppThemeProperties = (state: DefaultRootState) => {
   return state.ui.appTheming.selectedTheme.properties;
 };
 
@@ -61,7 +61,7 @@ export const getSelectedAppThemeProperties = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getAppThemeIsChanging = (state: AppState) => {
+export const getAppThemeIsChanging = (state: DefaultRootState) => {
   return state.ui.appTheming.isChanging;
 };
 
@@ -71,5 +71,5 @@ export const getAppThemeIsChanging = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getIsBetaCardShown = (state: AppState): boolean =>
+export const getIsBetaCardShown = (state: DefaultRootState): boolean =>
   state.ui.appTheming.isBetaCardShown;

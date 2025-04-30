@@ -1,17 +1,19 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getJSEntityItemUrl } from "ee/pages/AppIDE/layouts/routers/utils/getJSEntityItemUrl";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { selectJSSegmentEditorTabs } from "ee/selectors/appIDESelectors";
 import { getCurrentBasePageId } from "./editorSelectors";
 
-export const getJSPaneConfigSelectedTab = (state: AppState) =>
+export const getJSPaneConfigSelectedTab = (state: DefaultRootState) =>
   state.ui.jsPane.selectedConfigTab;
 
-export const getJsPaneDebuggerState = (state: AppState) =>
+export const getJsPaneDebuggerState = (state: DefaultRootState) =>
   state.ui.jsPane.debugger;
 
-export const getLastJSTab = (state: AppState): FocusEntityInfo | undefined => {
+export const getLastJSTab = (
+  state: DefaultRootState,
+): FocusEntityInfo | undefined => {
   const tabs = selectJSSegmentEditorTabs(state);
   const basePageId = getCurrentBasePageId(state);
 
@@ -24,6 +26,6 @@ export const getLastJSTab = (state: AppState): FocusEntityInfo | undefined => {
 };
 
 export const getIsJSCollectionSaving = (
-  state: AppState,
+  state: DefaultRootState,
   collectionId: string,
 ) => state.ui.jsPane.isSaving[collectionId];
