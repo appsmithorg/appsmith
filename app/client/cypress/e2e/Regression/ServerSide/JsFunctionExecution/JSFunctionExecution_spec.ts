@@ -505,7 +505,7 @@ return "yes";`;
       // Modify js object
       jsEditor.EditJSObj(syncJSCode, false);
       agHelper.RefreshPage();
-      jsEditor.VerifyAsyncFuncSettings("asyncToSync", true);
+      jsEditor.VerifyAsyncFuncSettings("asyncToSync", "On page load");
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.JSObject,

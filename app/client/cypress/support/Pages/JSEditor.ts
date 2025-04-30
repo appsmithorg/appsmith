@@ -54,7 +54,7 @@ export class JSEditor {
     `.${functionName}-run-behavior-setting
     input[role="combobox"]`;
   private __runBehaviourSwitchStatus = (functionName: string) =>
-    `//div[contains(@class, '${functionName}-run-behavior-setting')]//label/input`;
+    `.${functionName}-run-behavior-setting .rc-select-selection-item`;
 
   private _jsObjName = this.locator._activeEntityTab;
   public _jsObjTxt = this.locator._activeEntityTabInput;
@@ -297,11 +297,14 @@ export class JSEditor {
     cy.get(this._bindingsClose).click({ force: true });
   }
 
-  public VerifyAsyncFuncSettings(funName: string, onLoad = true) {
+  public VerifyAsyncFuncSettings(
+    funName: string,
+    runBehavior: "On page load" | "Manual",
+  ) {
     this.toolbar.toggleSettings();
-    this.agHelper.AssertExistingCheckedState(
+    this.agHelper.GetNAssertContains(
       this.__runBehaviourSwitchStatus(funName),
-      onLoad.toString(),
+      runBehavior,
     );
     this.toolbar.toggleSettings();
   }
