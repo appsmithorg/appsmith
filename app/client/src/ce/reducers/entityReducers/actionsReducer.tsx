@@ -315,7 +315,7 @@ export const handlers = {
     draftMetaState: ActionDataState,
     action: ReduxAction<
       Array<{
-        runBehavior: ActionRunBehaviourType;
+        runBehaviour: ActionRunBehaviourType;
         id: string;
         name: string;
       }>
@@ -325,8 +325,8 @@ export const handlers = {
 
     draftMetaState.forEach((action) => {
       if (action.config.id in actionUpdateSearch) {
-        action.config.runBehavior =
-          actionUpdateSearch[action.config.id].runBehavior;
+        action.config.runBehaviour =
+          actionUpdateSearch[action.config.id].runBehaviour;
       }
     });
   },

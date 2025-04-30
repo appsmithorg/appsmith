@@ -2307,7 +2307,7 @@ export const defaultAppState = {
               },
             ],
           },
-          runBehavior: "ON_PAGE_LOAD",
+          runBehaviour: "ON_PAGE_LOAD",
           dynamicBindingPathList: [],
           isValid: true,
           invalids: [],
@@ -2391,7 +2391,7 @@ export const defaultAppState = {
               },
             },
           },
-          runBehavior: "MANUAL",
+          runBehaviour: "MANUAL",
           isValid: true,
           invalids: [],
           messages: [],
@@ -10039,7 +10039,7 @@ export const defaultAppState = {
             children: [
               {
                 label: "Run behavior",
-                configProperty: "runBehavior",
+                configProperty: "runBehaviour",
                 controlType: "DROP_DOWN",
                 initialValue: "MANUAL",
                 options: [
@@ -10090,7 +10090,7 @@ export const defaultAppState = {
             children: [
               {
                 label: "Run behavior",
-                configProperty: "runBehavior",
+                configProperty: "runBehaviour",
                 controlType: "DROP_DOWN",
                 initialValue: "MANUAL",
                 options: [
@@ -10141,7 +10141,7 @@ export const defaultAppState = {
             children: [
               {
                 label: "Run behavior",
-                configProperty: "runBehavior",
+                configProperty: "runBehaviour",
                 controlType: "DROP_DOWN",
                 initialValue: "MANUAL",
                 options: [
@@ -10221,7 +10221,7 @@ export const defaultAppState = {
             children: [
               {
                 label: "Run behavior",
-                configProperty: "runBehavior",
+                configProperty: "runBehaviour",
                 controlType: "DROP_DOWN",
                 initialValue: "MANUAL",
                 options: [
@@ -10412,7 +10412,7 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              runBehavior: "MANUAL",
+              runBehaviour: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
                 {
@@ -10462,7 +10462,7 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              runBehavior: "MANUAL",
+              runBehaviour: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
                 {
@@ -10546,7 +10546,7 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              runBehavior: "MANUAL",
+              runBehaviour: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
                 {
@@ -10596,7 +10596,7 @@ export const defaultAppState = {
                 selfReferencingDataPaths: [],
                 jsArguments: [],
               },
-              runBehavior: "MANUAL",
+              runBehaviour: "MANUAL",
               clientSideExecution: true,
               dynamicBindingPathList: [
                 {

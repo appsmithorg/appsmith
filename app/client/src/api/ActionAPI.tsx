@@ -302,12 +302,12 @@ class ActionAPI extends API {
     });
   }
 
-  static async updateActionRunBehavior(
+  static async updateActionRunBehaviour(
     actionId: string,
-    runBehavior: ActionRunBehaviourType,
+    runBehaviour: ActionRunBehaviourType,
   ) {
-    return API.put(ActionAPI.url + `/runBehavior/${actionId}`, undefined, {
-      behavior: runBehavior,
+    return API.put(ActionAPI.url + `/runBehaviour/${actionId}`, undefined, {
+      behavior: runBehaviour,
     });
   }
 }

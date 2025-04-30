@@ -140,7 +140,7 @@ export interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
-  runBehavior: ActionRunBehaviourType;
+  runBehaviour: ActionRunBehaviourType;
   dynamicBindingPathList: DynamicPath[];
   isValid: boolean;
   invalids: string[];
