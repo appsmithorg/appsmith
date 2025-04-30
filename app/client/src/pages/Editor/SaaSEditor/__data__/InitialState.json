@@ -82,7 +82,7 @@
               }
             ]
           },
-          "runBehavior": "MANUAL",
+          "runBehaviour": "MANUAL",
           "dynamicBindingPathList": [],
           "isValid": true,
           "invalids": [],
@@ -2543,7 +2543,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2589,7 +2589,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2635,7 +2635,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2687,7 +2687,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2726,7 +2726,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2772,7 +2772,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [
@@ -2818,7 +2818,7 @@
             "children": [
               {
                 "label": "Run behavior",
-                "configProperty": "runBehavior",
+                "configProperty": "runBehaviour",
                 "controlType": "DROP_DOWN",
                 "initialValue": "MANUAL",
                 "options": [

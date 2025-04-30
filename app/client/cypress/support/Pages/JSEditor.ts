@@ -95,7 +95,8 @@ export class JSEditor {
   _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
   _jsPageActions = ".entity-context-menu";
   _moreActions = '[data-testid="t--more-action-trigger"]';
-  _dropdownOption = ".rc-select-item-option-content";
+  _dropdownOption = (runBehaviour: string) =>
+    `.rc-select-item-option-content [data-testid='t--label-${runBehaviour}']`;
   //#endregion
 
   //#region constants
@@ -299,29 +300,27 @@ export class JSEditor {
 
   public VerifyAsyncFuncSettings(
     funName: string,
-    runBehavior: "On page load" | "Manual",
+    runBehaviour: "On page load" | "Manual",
   ) {
     this.toolbar.toggleSettings();
     this.agHelper.GetNAssertContains(
       this.__runBehaviourSwitchStatus(funName),
-      runBehavior,
+      runBehaviour,
     );
     this.toolbar.toggleSettings();
   }
 
   public EnableDisableAsyncFuncSettings(
     funName: string,
-    runBehavior: "On page load" | "Manual",
+    runBehaviour: "On page load" | "Manual",
   ) {
     // Navigate to Settings tab
     this.toolbar.toggleSettings();
-    // Set runBehavior to On page load
+    // Set runBehaviour to On page load
     this.agHelper.GetNClick(this._runBehaviourSwitch(funName));
     this.agHelper.GetNClickByContains(
-      this._dropdownOption,
-      runBehavior,
-      0,
-      true,
+      this._dropdownOption(runBehaviour),
+      runBehaviour,
     );
     // Return to code tab
     this.toolbar.toggleSettings();

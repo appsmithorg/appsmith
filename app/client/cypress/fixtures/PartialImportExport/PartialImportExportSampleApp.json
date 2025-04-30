@@ -2208,7 +2208,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [{ "key": "body" }],
         "isValid": true,
@@ -2264,7 +2264,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": [{ "name": "a" }, { "name": "b" }]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [{ "key": "body" }],
         "isValid": true,
         "invalids": [],
@@ -2318,7 +2318,7 @@
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -2383,7 +2383,7 @@
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -2447,7 +2447,7 @@
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -2499,7 +2499,7 @@
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [{ "value": false }]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "invalids": [],
         "messages": [],

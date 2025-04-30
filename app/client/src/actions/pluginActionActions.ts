@@ -352,9 +352,9 @@ export const executePageLoadActions = (
   };
 };
 
-export const setActionsRunBehavior = (
+export const setActionsRunBehaviour = (
   actions: Array<{
-    runBehavior: ActionRunBehaviourType;
+    runBehaviour: ActionRunBehaviourType;
     id: string;
     name: string;
   }>,
@@ -365,9 +365,9 @@ export const setActionsRunBehavior = (
   };
 };
 
-export const setJSActionsRunBehavior = (
+export const setJSActionsRunBehaviour = (
   actions: Array<{
-    runBehavior: ActionRunBehaviourType;
+    runBehaviour: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;
