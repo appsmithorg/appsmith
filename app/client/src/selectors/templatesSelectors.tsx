@@ -14,7 +14,6 @@ import Fuse from "fuse.js";
 import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
 import { createSelector } from "reselect";
-import type { WidgetCardProps } from "widgets/BaseWidget";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
 const fuzzySearchOptions = {
@@ -92,27 +91,25 @@ export const getBuildingBlocksList = (state: AppState) => {
 export const getBuildingBlockExplorerCards = createSelector(
   getBuildingBlocksList,
   (buildingBlocks) => {
-    const adjustedBuildingBlocks: WidgetCardProps[] = buildingBlocks.map(
-      (buildingBlock) => ({
-        rows:
-          buildingBlock.templateGridRowSize ||
-          DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
-        columns:
-          buildingBlock.templateGridColumnSize ||
-          DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
-        type: BUILDING_BLOCK_EXPLORER_TYPE,
-        displayName: buildingBlock.title,
-        icon:
-          buildingBlock.screenshotUrls.length > 1
-            ? buildingBlock.screenshotUrls[1]
-            : buildingBlock.screenshotUrls[0],
-        thumbnail:
-          buildingBlock.screenshotUrls.length > 1
-            ? buildingBlock.screenshotUrls[1]
-            : buildingBlock.screenshotUrls[0],
-        tags: [WIDGET_TAGS.BUILDING_BLOCKS],
-      }),
-    );
+    const adjustedBuildingBlocks = buildingBlocks.map((buildingBlock) => ({
+      rows:
+        buildingBlock.templateGridRowSize ||
+        DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
+      columns:
+        buildingBlock.templateGridColumnSize ||
+        DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
+      type: BUILDING_BLOCK_EXPLORER_TYPE,
+      displayName: buildingBlock.title,
+      icon:
+        buildingBlock.screenshotUrls.length > 1
+          ? buildingBlock.screenshotUrls[1]
+          : buildingBlock.screenshotUrls[0],
+      thumbnail:
+        buildingBlock.screenshotUrls.length > 1
+          ? buildingBlock.screenshotUrls[1]
+          : buildingBlock.screenshotUrls[0],
+      tags: [WIDGET_TAGS.BUILDING_BLOCKS],
+    }));
 
     return adjustedBuildingBlocks;
   },
