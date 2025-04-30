@@ -95,7 +95,8 @@ export class JSEditor {
   _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
   _jsPageActions = ".entity-context-menu";
   _moreActions = '[data-testid="t--more-action-trigger"]';
-  _dropdownOption = ".rc-select-item-option-content";
+  _dropdownOption = (runBehaviour: string) =>
+    `.rc-select-item-option-content [data-testid='t--label-${runBehaviour}']`;
   //#endregion
 
   //#region constants
@@ -318,10 +319,8 @@ export class JSEditor {
     // Set runBehavior to On page load
     this.agHelper.GetNClick(this._runBehaviourSwitch(funName));
     this.agHelper.GetNClickByContains(
-      this._dropdownOption,
+      this._dropdownOption(runBehavior),
       runBehavior,
-      0,
-      true,
     );
     // Return to code tab
     this.toolbar.toggleSettings();
