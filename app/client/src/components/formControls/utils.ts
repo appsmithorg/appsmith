@@ -422,7 +422,7 @@ export const getConfigInitialValues = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseConfig = (section: any): any => {
-    if ("initialValue" in section) {
+    if ("initialValue" in section && section.configProperty !== "runBehavior") {
       if (section.controlType === "KEYVALUE_ARRAY") {
         section.initialValue.forEach(
           (initialValue: string | number, index: number) => {
