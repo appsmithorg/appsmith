@@ -15,7 +15,7 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.RunbehaviourEnum;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -110,16 +110,16 @@ public class ActionCE_DTO implements Identifiable, Executable {
     Boolean executeOnLoad;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    RunbehaviourEnum runBehaviour;
+    RunBehaviourEnum runBehaviour;
 
-    public RunbehaviourEnum getRunBehaviour() {
+    public RunBehaviourEnum getRunBehaviour() {
         if (runBehaviour != null) {
             return runBehaviour;
         }
         if (executeOnLoad != null) {
-            return executeOnLoad ? RunbehaviourEnum.ON_PAGE_LOAD : RunbehaviourEnum.MANUAL;
+            return executeOnLoad ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
         } else {
-            return RunbehaviourEnum.MANUAL;
+            return RunBehaviourEnum.MANUAL;
         }
     }
 

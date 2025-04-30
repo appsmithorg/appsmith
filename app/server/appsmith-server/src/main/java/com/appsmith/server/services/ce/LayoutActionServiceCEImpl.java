@@ -410,13 +410,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // page or application clone event.
                     if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
                         actionDTO.setRunBehaviour(RunBehaviourEnum.MANUAL);
-                    } else {
-                        // For cloned pages, if executeOnLoad is true, set runBehaviour to ON_PAGE_LOAD
-                        if (RunBehaviourEnum.ON_PAGE_LOAD.equals(actionDTO.getRunBehaviour())) {
-                            actionDTO.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
-                        } else {
-                            actionDTO.setRunBehaviour(RunBehaviourEnum.MANUAL);
-                        }
                     }
 
                     newAction.setUnpublishedAction(actionDTO);
