@@ -57,10 +57,7 @@ import type {
   UpdateWidgetNameResponse,
 } from "api/PageApi";
 import PageApi from "api/PageApi";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "ee/reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
@@ -152,6 +149,7 @@ import {
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
 import { appsmithTelemetry } from "instrumentation";
+import { getLayoutSavePayload } from "ee/sagas/helpers";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -479,7 +477,8 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
   if (!editorConfigs) return;
 
-  const savePageRequest: SavePageRequest = getLayoutSavePayload(
+  const savePageRequest: SavePageRequest = yield call(
+    getLayoutSavePayload,
     widgets,
     editorConfigs,
   );
@@ -631,22 +630,6 @@ export function* saveAllPagesSaga(pageLayouts: PageLayoutsRequest[]) {
   } catch (error) {
     throw error;
   }
-}
-
-export function getLayoutSavePayload(
-  widgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  },
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editorConfigs: any,
-) {
-  const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
-
-  return {
-    ...editorConfigs,
-    dsl: nestedDSL,
-  };
 }
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {

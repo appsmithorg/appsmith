@@ -31,6 +31,7 @@ export const initialState: EditorReduxState = {
     cloningPageError: false,
     updatingWidgetName: false,
     updateWidgetNameError: false,
+    isSettingUpPage: false,
   },
   isSnipingMode: false,
   snipModeBindTo: undefined,
@@ -269,6 +270,31 @@ export const handlers = {
     ...state,
     widgetConfigBuilt: true,
   }),
+
+  [ReduxActionTypes.SETUP_PAGE_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isSettingUpPage: true,
+      },
+    };
+  },
+  [ReduxActionTypes.SETUP_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        isSettingUpPage: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.SETUP_PAGE_ERROR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      loadingStates: { ...state.loadingStates, isSettingUpPage: false },
+    };
+  },
 };
 
 const editorReducer = createReducer(initialState, handlers);
@@ -305,6 +331,7 @@ export interface EditorReduxState {
     cloningPageError: boolean;
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
+    isSettingUpPage: boolean;
   };
 }
 

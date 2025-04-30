@@ -10,6 +10,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { getConfigInitialValues } from "components/formControls/utils";
 import type { CreateDatasourceConfig } from "ee/api/DatasourcesApi";
 import type { Datasource } from "entities/Datasource";
+import { nestDSL, type FlattenedDSL } from "@shared/dsl/src/transform";
 
 export interface ResolveParentEntityMetadataReturnType {
   parentEntityId?: string;
@@ -96,3 +97,16 @@ export const createDatasourceAPIPayloadFromAction = (
 
   return payload;
 };
+
+// This function is extended in EE for UI modules
+export function* getLayoutSavePayload(
+  widgets: FlattenedDSL<unknown>,
+  editorConfigs: Record<string, unknown>,
+) {
+  const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
+
+  return {
+    ...editorConfigs,
+    dsl: nestedDSL,
+  };
+}

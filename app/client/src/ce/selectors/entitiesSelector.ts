@@ -1818,3 +1818,7 @@ export const getUpcomingPlugins = createSelector(
 export const getCurrentPageDSLVersion = (state: AppState) => {
   return state.entities.canvasWidgets[0]?.version || null;
 };
+
+export const getIsSettingUpPage = (state: AppState) => {
+  return state.ui.editor.loadingStates.isSettingUpPage;
+};
