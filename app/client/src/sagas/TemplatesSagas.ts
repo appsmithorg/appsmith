@@ -46,8 +46,13 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
 import { getAllPageIdentities } from "./selectors";
-import { setCreateAgentModalOpen } from "ee/actions/aiAgentActions";
+import {
+  openCarbonModal,
+  setCreateAgentModalOpen,
+  toggleFCIntegrations,
+} from "ee/actions/aiAgentActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getTemplatesByFlagSelector } from "selectors/templatesSelectors";
 
 const isAirgappedInstance = isAirgapped();
 const AI_DATASOURCE_NAME = "AI Datasource";
@@ -79,6 +84,9 @@ function* importTemplateToWorkspaceSaga(
   action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
   const isAiAgentFlowEnabled: boolean = yield select(getIsAiAgentFlowEnabled);
+  const templates: ReturnType<typeof getTemplatesByFlagSelector> = yield select(
+    getTemplatesByFlagSelector,
+  );
 
   try {
     const response: ImportTemplateResponse = yield call(
@@ -102,6 +110,15 @@ function* importTemplateToWorkspaceSaga(
       });
 
       if (isAiAgentFlowEnabled) {
+        const isScratchTemplate = templates.find(
+          (template) => template.title === "AI Agent",
+        );
+
+        if (isScratchTemplate) {
+          yield put(openCarbonModal({ shouldOpen: true }));
+          yield put(toggleFCIntegrations({ isEnabled: true }));
+        }
+
         yield put(setCreateAgentModalOpen({ isOpen: false }));
       }
 
