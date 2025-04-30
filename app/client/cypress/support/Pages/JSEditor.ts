@@ -50,10 +50,10 @@ export class JSEditor {
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
 
-  private _onPageLoadSwitch = (functionName: string) =>
-    `.${functionName}-run-behavior
+  private _runBehaviourSwitch = (functionName: string) =>
+    `.${functionName}-run-behavior-setting
     input[role="combobox"]`;
-  private _onPageLoadSwitchStatus = (functionName: string) =>
+  private __runBehaviourSwitchStatus = (functionName: string) =>
     `//div[contains(@class, '${functionName}-run-behavior-setting')]//label/input`;
 
   private _jsObjName = this.locator._activeEntityTab;
@@ -95,6 +95,7 @@ export class JSEditor {
   _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
   _jsPageActions = ".entity-context-menu";
   _moreActions = '[data-testid="t--more-action-trigger"]';
+  _dropdownOption = ".rc-select-item-option-content";
   //#endregion
 
   //#region constants
@@ -299,17 +300,26 @@ export class JSEditor {
   public VerifyAsyncFuncSettings(funName: string, onLoad = true) {
     this.toolbar.toggleSettings();
     this.agHelper.AssertExistingCheckedState(
-      this._onPageLoadSwitchStatus(funName),
+      this.__runBehaviourSwitchStatus(funName),
       onLoad.toString(),
     );
     this.toolbar.toggleSettings();
   }
 
-  public EnableDisableAsyncFuncSettings(funName: string, onLoad = true) {
+  public EnableDisableAsyncFuncSettings(
+    funName: string,
+    runBehavior: "On page load" | "Manual",
+  ) {
     // Navigate to Settings tab
     this.toolbar.toggleSettings();
-    // Set onPageLoad
-    this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
+    // Set runBehavior to On page load
+    this.agHelper.GetNClick(this._runBehaviourSwitch(funName));
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      runBehavior,
+      0,
+      true,
+    );
     // Return to code tab
     this.toolbar.toggleSettings();
   }

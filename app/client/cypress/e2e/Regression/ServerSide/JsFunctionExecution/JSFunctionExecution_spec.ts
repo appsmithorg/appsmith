@@ -17,7 +17,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 interface IFunctionSettingData {
   name: string;
-  onPageLoad: boolean;
+  runBehavior: "On page load" | "Manual";
   confirmBeforeExecute: boolean;
   // uses the "async" keyword
   isMarkedAsync: boolean;
@@ -35,31 +35,31 @@ describe(
     const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
       {
         name: "getId",
-        onPageLoad: true,
+        runBehavior: "On page load",
         confirmBeforeExecute: false,
         isMarkedAsync: true,
       },
       {
         name: "zip",
-        onPageLoad: true,
+        runBehavior: "On page load",
         confirmBeforeExecute: true,
         isMarkedAsync: false,
       },
       {
         name: "base",
-        onPageLoad: false,
+        runBehavior: "Manual",
         confirmBeforeExecute: false,
         isMarkedAsync: true,
       },
       {
         name: "assert",
-        onPageLoad: false,
+        runBehavior: "Manual",
         confirmBeforeExecute: false,
         isMarkedAsync: false,
       },
       {
         name: "test",
-        onPageLoad: true,
+        runBehavior: "On page load",
         confirmBeforeExecute: true,
         isMarkedAsync: true,
       },
@@ -359,7 +359,7 @@ describe(
       // Number of functions set to run on page load and should also confirm before execute
       onPageLoadAndConfirmExecuteFunctionsLength =
         FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-          (func) => func.onPageLoad && func.confirmBeforeExecute,
+          (func) => func.runBehavior && func.confirmBeforeExecute,
         ).length;
 
       getJSObject = (data: IFunctionSettingData[]) => {
@@ -404,7 +404,7 @@ describe(
         (functionSetting) => {
           jsEditor.EnableDisableAsyncFuncSettings(
             functionSetting.name,
-            functionSetting.onPageLoad,
+            functionSetting.runBehavior,
           );
         },
       );
@@ -425,31 +425,31 @@ describe(
       const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
         {
           name: "newGetId",
-          onPageLoad: true,
+          runBehavior: "On page load",
           confirmBeforeExecute: false,
           isMarkedAsync: false,
         },
         {
           name: "zip1",
-          onPageLoad: true,
+          runBehavior: "On page load",
           confirmBeforeExecute: true,
           isMarkedAsync: true,
         },
         {
           name: "base",
-          onPageLoad: false,
+          runBehavior: "Manual",
           confirmBeforeExecute: false,
           isMarkedAsync: true,
         },
         {
           name: "newAssert",
-          onPageLoad: true,
+          runBehavior: "On page load",
           confirmBeforeExecute: false,
           isMarkedAsync: false,
         },
         {
           name: "test",
-          onPageLoad: true,
+          runBehavior: "On page load",
           confirmBeforeExecute: true,
           isMarkedAsync: true,
         },
@@ -500,7 +500,7 @@ return "yes";`;
       });
 
       // Enable all settings
-      jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true);
+      jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", "On page load");
 
       // Modify js object
       jsEditor.EditJSObj(syncJSCode, false);
