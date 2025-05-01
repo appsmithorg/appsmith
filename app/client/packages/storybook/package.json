@@ -32,7 +32,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "chromatic": "^11.3.0",
     "storybook": "8.2.7",
-    "vite": "^6.2.6",
+    "vite": "^6.3.4",
     "vite-plugin-svgr": "^4.2.0"
   },
   "dependencies": {
