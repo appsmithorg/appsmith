@@ -3704,10 +3704,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@github/g-emoji-element@npm:^1.1.5":
-  version: 1.1.5
-  resolution: "@github/g-emoji-element@npm:1.1.5"
-  checksum: 418caf30af447b4540bcf4709e86145138bcc37f40ce6ec1fb2dd731bf16499550c11a07bab5f85558c7fc4accbd81ed237ff573d344e783358cf65790eac77c
+"@github/g-emoji-element@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@github/g-emoji-element@npm:1.2.0"
+  checksum: ab21aa85c24f9767b12efc87a8b8db4754c5e09fe843b90cad4cac329c6627c835b4d049a335fb8d62f0d6ec57b8c722995ce1e52e152f88a6af55746414aaf2
   languageName: node
   linkType: hard
 
@@ -13574,7 +13574,7 @@ __metadata:
     "@faker-js/faker": ^7.4.0
     "@floating-ui/dom": ^1.6.4
     "@floating-ui/react": ^0.26.24
-    "@github/g-emoji-element": ^1.1.5
+    "@github/g-emoji-element": ^1.2.0
     "@googlemaps/markerclusterer": ^2.0.14
     "@googlemaps/react-wrapper": ^1.1.35
     "@grafana/faro-react": ^1.12.2
