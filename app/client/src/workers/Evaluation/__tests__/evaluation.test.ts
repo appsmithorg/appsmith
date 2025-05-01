@@ -18,7 +18,6 @@ import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import klona from "klona";
-import { APP_MODE } from "entities/App";
 
 const klonaFullSpy = jest.fn();
 
@@ -578,19 +577,7 @@ describe("DataTreeEvaluator", () => {
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
 
   it("Checks the number of clone operations in first tree flow", async () => {
-    await evaluator.setupFirstTree(
-      unEvalTree,
-      configTree,
-      {},
-      {
-        appId: "appId",
-        pageId: "pageId",
-        timestamp: "timestamp",
-        appMode: APP_MODE.PUBLISHED,
-        instanceId: "instanceId",
-        dslVersion: 1,
-      },
-    );
+    await evaluator.setupFirstTree(unEvalTree, configTree, {});
     evaluator.evalAndValidateFirstTree();
     // Hard check to not regress on the number of clone operations. Try to improve this number.
     expect(klonaFullSpy).toBeCalledTimes(15);

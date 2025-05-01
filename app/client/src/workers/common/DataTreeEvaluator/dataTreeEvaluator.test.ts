@@ -26,7 +26,6 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
-import { APP_MODE } from "entities/App";
 
 const widgetConfigMap: Record<
   string,
@@ -284,14 +283,6 @@ describe("DataTreeEvaluator", () => {
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
         {},
-        {
-          appId: "appId",
-          pageId: "pageId",
-          timestamp: "timestamp",
-          appMode: APP_MODE.PUBLISHED,
-          instanceId: "instanceId",
-          dslVersion: 1,
-        },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -386,14 +377,6 @@ describe("DataTreeEvaluator", () => {
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
         {},
-        {
-          appId: "appId",
-          pageId: "pageId",
-          timestamp: "timestamp",
-          appMode: APP_MODE.PUBLISHED,
-          instanceId: "instanceId",
-          dslVersion: 1,
-        },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -450,14 +433,6 @@ describe("DataTreeEvaluator", () => {
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
         nestedArrayAccessorCyclicDependencyConfig.initConfigTree,
         {},
-        {
-          appId: "appId",
-          pageId: "pageId",
-          timestamp: new Date().toISOString(),
-          appMode: APP_MODE.PUBLISHED,
-          instanceId: "instanceId",
-          dslVersion: 1,
-        },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
