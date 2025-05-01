@@ -13,7 +13,7 @@
     "@react-aria/focus": "^3.11.0",
     "@react-aria/interactions": "^3.14.0",
     "@react-aria/textfield": "^3.11.0",
-    "@react-aria/utils": "^3.16.0",
+    "@react-aria/utils": "^3.28.2",
     "@react-spectrum/utils": "^3.9.0",
     "@react-stately/utils": "^3.10.3",
     "@react-types/label": "^3.7.3",
