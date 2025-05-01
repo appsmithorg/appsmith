@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { EntityItem, EntityContextMenu } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -23,7 +23,7 @@ import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem
 import clsx from "clsx";
 
 export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
-  const jsAction = useSelector((state: AppState) =>
+  const jsAction = useSelector((state: DefaultRootState) =>
     getJsCollectionByBaseId(state, item.key),
   ) as JSCollection;
   const location = useLocation();

@@ -5,7 +5,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { ModalResizable } from "layoutSystems/common/resizer/ModalResizable";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -81,7 +81,7 @@ export const ModalResizableLayer = ({
   }, [disabledResizeHandles]);
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
   const onResizeStop = (dimensions: UIElementSize) => {
     onModalResize(dimensions);

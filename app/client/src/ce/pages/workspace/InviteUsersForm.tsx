@@ -3,7 +3,7 @@ import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getRolesForField } from "ee/selectors/workspaceSelectors";
 import type {
   InviteUsersToWorkspaceFormValues,
@@ -551,7 +551,7 @@ function InviteUsersForm(props: any) {
 }
 
 export const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   { formName }: { formName?: string },
 ) => {
   return {

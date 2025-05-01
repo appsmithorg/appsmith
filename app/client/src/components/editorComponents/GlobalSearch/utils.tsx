@@ -10,7 +10,7 @@ import { PluginPackageName, PluginType } from "entities/Plugin";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
@@ -98,7 +98,10 @@ export const filterEntityTypeLabels: Partial<Record<EntityTypeValue, string>> =
     JSACTION: "JS Objects",
   };
 
-export const getSnippetFilterLabel = (state: AppState, label: string) => {
+export const getSnippetFilterLabel = (
+  state: DefaultRootState,
+  label: string,
+) => {
   return (
     WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||

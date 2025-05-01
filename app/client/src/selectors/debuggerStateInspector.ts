@@ -1,4 +1,5 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export const getDebuggerStateInspectorSelectedItem = (state: AppState) =>
-  state.ui.debugger.stateInspector.selectedItemId;
+export const getDebuggerStateInspectorSelectedItem = (
+  state: DefaultRootState,
+) => state.ui.debugger.stateInspector.selectedItemId;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
@@ -178,7 +178,7 @@ function AppInviteUsersForm(props: any) {
 }
 
 export default connect(
-  (state: AppState) => {
+  (state: DefaultRootState) => {
     return {
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,

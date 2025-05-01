@@ -16,7 +16,7 @@ import {
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
 import history from "utils/history";
@@ -115,9 +115,12 @@ export const useShowPageGenerationOnHeader = (
   datasource: Datasource,
 ): boolean => {
   const pluginId = get(datasource, "pluginId", "");
-  const plugin = useSelector((state: AppState) => getPlugin(state, pluginId));
+  const plugin = useSelector((state: DefaultRootState) =>
+    getPlugin(state, pluginId),
+  );
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
 
   const pagePermissions = useSelector(getPagePermissions);

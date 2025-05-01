@@ -9,7 +9,7 @@ import {
   getPluginDatasourceComponentFromId,
   getDatasource,
 } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
@@ -63,7 +63,7 @@ const DatasourceTab = (props: Props) => {
 
   const [selectedTable, setSelectedTable] = useState<string>();
 
-  const isLoading = useSelector((state: AppState) =>
+  const isLoading = useSelector((state: DefaultRootState) =>
     getIsFetchingDatasourceStructure(state, datasourceId),
   );
 

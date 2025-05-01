@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   BaseItemProps,
   DroppableComponentProps,
@@ -19,7 +19,7 @@ export type DraggableListControlProps<TItem extends BaseItemProps> =
 export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,
 ) => {
-  const defaultPanelIndex = useSelector((state: AppState) =>
+  const defaultPanelIndex = useSelector((state: DefaultRootState) =>
     getSelectedPropertyPanelIndex(state, props.propertyPath),
   );
 

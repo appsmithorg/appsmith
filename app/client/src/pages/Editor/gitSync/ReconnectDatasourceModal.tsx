@@ -69,7 +69,7 @@ import {
   areEnvironmentsFetched,
   getCurrentEnvironmentDetails,
 } from "ee/selectors/environmentSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import useReconnectModalData from "ee/pages/Editor/gitSync/useReconnectModalData";
@@ -258,7 +258,7 @@ function ReconnectDatasourceModal() {
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const importWorkspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
-  const environmentsFetched = useSelector((state: AppState) =>
+  const environmentsFetched = useSelector((state: DefaultRootState) =>
     areEnvironmentsFetched(state, importWorkspaceId),
   );
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);

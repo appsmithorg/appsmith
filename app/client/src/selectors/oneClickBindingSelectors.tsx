@@ -1,15 +1,16 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 export const getOneClickBindingConfigForWidget =
-  (widgetId: string) => (state: AppState) =>
+  (widgetId: string) => (state: DefaultRootState) =>
     state.ui.oneClickBinding.config?.widgetId === widgetId
       ? state.ui.oneClickBinding.config
       : null;
 
 export const getisOneClickBindingConnectingForWidget =
-  (widgetId: string) => (state: AppState) =>
+  (widgetId: string) => (state: DefaultRootState) =>
     state.ui.oneClickBinding.isConnecting &&
     state.ui.oneClickBinding.config?.widgetId === widgetId;
 
-export const getIsOneClickBindingOptionsVisibility = (state: AppState) =>
-  state.ui.oneClickBinding.showOptions;
+export const getIsOneClickBindingOptionsVisibility = (
+  state: DefaultRootState,
+) => state.ui.oneClickBinding.showOptions;

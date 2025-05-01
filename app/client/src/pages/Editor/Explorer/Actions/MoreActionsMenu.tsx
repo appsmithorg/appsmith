@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import {
   moveActionRequest,
@@ -92,7 +92,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
+  const menuPages = useSelector((state: DefaultRootState) => {
     return state.entities.pageList.pages.map((page) => ({
       label: page.pageName,
       id: page.pageId,

@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getDefaultPlugin } from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
 import { Tag } from "@appsmith/ads";
@@ -28,7 +28,7 @@ interface DatasourceChipProps {
 }
 
 function DatasourceChip(props: DatasourceChipProps) {
-  const plugin = useSelector((state: AppState) =>
+  const plugin = useSelector((state: DefaultRootState) =>
     getDefaultPlugin(state, props.pluginPackageName),
   );
 

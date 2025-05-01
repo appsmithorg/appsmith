@@ -21,7 +21,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Plugin";
@@ -170,7 +170,7 @@ function ActionItem(props: {
   const { item, query } = props;
   const { config } = item || {};
   const { pluginType } = config;
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -229,7 +229,7 @@ function DatasourceItem(props: {
   isActiveItem: boolean;
 }) {
   const { item, query } = props;
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -371,7 +371,7 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ActionOperationItem({ isActiveItem, item }: any) {
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);

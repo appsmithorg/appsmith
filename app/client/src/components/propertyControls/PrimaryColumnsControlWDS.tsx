@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { connect } from "react-redux";
 import type { Placement } from "popper.js";
 import _, { toString } from "lodash";
@@ -486,7 +486,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
   };
 }
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   { dataTreePath }: EvaluatedValueProps,
 ): ReduxStateProps => {
   return {

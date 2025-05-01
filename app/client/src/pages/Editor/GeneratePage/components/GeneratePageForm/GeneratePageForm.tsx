@@ -41,7 +41,7 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -247,7 +247,7 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+  const isFetchingDatasourceStructure = useSelector((state: DefaultRootState) =>
     getIsFetchingDatasourceStructure(state, selectedDatasource.id || ""),
   );
 
@@ -265,7 +265,7 @@ function GeneratePageForm() {
   const isS3Plugin =
     selectedDatasourcePluginPackageName === PluginPackageName.S3;
 
-  const isFetchingSheetPluginForm = useSelector((state: AppState) => {
+  const isFetchingSheetPluginForm = useSelector((state: DefaultRootState) => {
     if (isGoogleSheetPlugin) {
       return getIsFetchingSinglePluginForm(
         state,

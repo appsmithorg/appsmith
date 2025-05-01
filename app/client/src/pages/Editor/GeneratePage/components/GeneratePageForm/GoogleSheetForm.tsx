@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEditorConfig } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
@@ -135,7 +135,7 @@ function GoogleSheetForm(props: Props) {
   );
   const dispatch = useDispatch();
 
-  const googleSheetEditorConfig = useSelector((state: AppState) =>
+  const googleSheetEditorConfig = useSelector((state: DefaultRootState) =>
     getEditorConfig(state, googleSheetPluginId),
   );
 

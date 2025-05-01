@@ -4,7 +4,7 @@ import { keyBy } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
@@ -19,17 +19,19 @@ import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 
 export const useGetEntityInfo = (name: string) => {
-  const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
+  const entity = useSelector(
+    (state: DefaultRootState) => state.evaluations.tree[name],
+  );
   const debuggerErrors = useSelector(getFilteredErrors);
-  const action = useSelector((state: AppState) =>
+  const action = useSelector((state: DefaultRootState) =>
     isAction(entity) ? getAction(state, entity.actionId) : undefined,
   );
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   }, equal);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
-  const datasource = useSelector((state: AppState) =>
+  const datasource = useSelector((state: DefaultRootState) =>
     action && isStoredDatasource(action.datasource)
       ? getDatasource(state, action.datasource.id)
       : undefined,

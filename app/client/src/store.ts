@@ -1,6 +1,6 @@
 import { reduxBatch } from "@manaflair/redux-batch";
 import { createStore, applyMiddleware, compose } from "redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import appReducer from "ee/reducers";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "ee/sagas";
@@ -37,7 +37,7 @@ export default createStore(
   ),
 );
 
-export const testStore = (initialState: Partial<AppState>) =>
+export const testStore = (initialState: Partial<DefaultRootState>) =>
   createStore(
     appReducer,
     initialState,

@@ -22,7 +22,7 @@ import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
 } from "ee/selectors/selectedWorkspaceSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 const NoEmailConfigImage = importSvg(
   async () => import("assets/images/email-not-configured.svg"),
@@ -106,7 +106,7 @@ function WorkspaceInviteUsers(props: any) {
     showAppLevelInviteModal ? getAllAppUsers : getAllUsersOfWorkspace,
   );
   const isLoading: boolean =
-    useSelector((state: AppState) =>
+    useSelector((state: DefaultRootState) =>
       showAppLevelInviteModal
         ? getApplicationLoadingStates(state).isFetchingAllUsers
         : selectedWorkspaceLoadingStates(state).isFetchingAllUsers,
