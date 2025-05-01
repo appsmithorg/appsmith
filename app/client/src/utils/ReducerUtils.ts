@@ -1,4 +1,5 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
+import log from "loglevel";
 import { create } from "mutative";
 
 export const createReducer = (
@@ -35,10 +36,14 @@ export const createImmerReducer = (
       if (action?.payload?.updates) {
         const updates = action?.payload?.updates;
 
-        for (const update of updates) {
-          if (update.kind === "newTree") {
-            return update.rhs;
+        try {
+          for (const update of updates) {
+            if (update.kind === "newTree") {
+              return update.rhs;
+            }
           }
+        } catch (e) {
+          log.error(e);
         }
       }
 
