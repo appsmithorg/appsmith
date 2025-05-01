@@ -30,6 +30,7 @@ describe("Check Page Actions Menu", { tags: ["@tag.IDE"] }, function () {
     PageList.ClonePage("NewPage");
     PageList.HidePage("NewPage Copy");
     PageList.ShowList();
+
     agHelper.AssertAttribute(
       locators._entityTestId("NewPage Copy"),
       "data-subtle",
