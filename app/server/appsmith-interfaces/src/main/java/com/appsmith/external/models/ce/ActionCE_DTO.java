@@ -396,7 +396,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     public void setExecuteOnLoad(Boolean executeOnLoad) {
         this.executeOnLoad = executeOnLoad;
-        // Also update the runBehaviour to maintain consistency
-        this.runBehaviour = executeOnLoad ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
+        // Safely handle null by providing a default value
+        this.runBehaviour =
+                (executeOnLoad != null && executeOnLoad) ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
     }
 }
