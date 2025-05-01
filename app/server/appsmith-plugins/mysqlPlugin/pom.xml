@@ -63,7 +63,7 @@
                 seems incompatible with r2dbc-mysql version 0.8.2.RELEASE because 0.9.x version contains a higher
                 version of one of the dependent packages (not able to remember the name of the package at the moment)
             -->
-            <version>0.8.8.RELEASE</version>
+            <version>1.0.2.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
