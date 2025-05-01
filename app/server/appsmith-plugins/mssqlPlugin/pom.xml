@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>11.2.1.jre17</version>
+            <version>12.3.0.jre17-preview</version>
         </dependency>
 
         <dependency>
