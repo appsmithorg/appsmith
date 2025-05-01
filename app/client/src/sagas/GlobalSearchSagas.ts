@@ -14,7 +14,7 @@ import {
   restoreRecentEntitiesSuccess,
   setRecentEntities,
 } from "actions/globalSearchActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -37,7 +37,7 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
     );
 
     const recentEntitiesRestored: boolean = yield select(
-      (state: AppState) => state.ui.globalSearch.recentEntitiesRestored,
+      (state: DefaultRootState) => state.ui.globalSearch.recentEntitiesRestored,
     );
     const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
 
@@ -65,7 +65,7 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
       basePageId ?? "",
     );
     let recentEntities: RecentEntity[] = yield select(
-      (state: AppState) => state.ui.globalSearch.recentEntities,
+      (state: DefaultRootState) => state.ui.globalSearch.recentEntities,
     );
 
     recentEntities = recentEntities.slice();

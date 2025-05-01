@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
   GridDefaults,
@@ -71,14 +71,14 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const span = startRootSpan("withWidgetProps", { widgetType: type });
     const isPreviewMode = useSelector(selectCombinedPreviewMode);
 
-    const canvasWidget = useSelector((state: AppState) =>
+    const canvasWidget = useSelector((state: DefaultRootState) =>
       getWidget(state, widgetId),
     );
 
     const mainCanvasWidth = useSelector(getCanvasWidth);
     const metaWidget = useSelector(getMetaWidget(widgetId));
 
-    const mainCanvasProps = useSelector((state: AppState) =>
+    const mainCanvasProps = useSelector((state: DefaultRootState) =>
       getMainCanvasProps(state),
     );
     const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
@@ -86,11 +86,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
-    const evaluatedWidget = useSelector((state: AppState) =>
+    const evaluatedWidget = useSelector((state: DefaultRootState) =>
       getWidgetEvalValues(state, widgetName),
     );
 
-    const isLoading = useSelector((state: AppState) =>
+    const isLoading = useSelector((state: DefaultRootState) =>
       getIsWidgetLoading(state, widgetName),
     );
 
@@ -112,7 +112,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
 
-    const isWidgetSelected = useSelector((state: AppState) =>
+    const isWidgetSelected = useSelector((state: DefaultRootState) =>
       isWidgetSelectedForPropertyPane(state, widgetId),
     );
 
@@ -128,28 +128,34 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const dispatch = useDispatch();
 
-    const childWidgets = useSelector((state: AppState) => {
+    const childWidgets = useSelector((state: DefaultRootState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
 
       return getChildWidgets(state, widgetId);
     }, equal);
 
-    const flattenedChildCanvasWidgets = useSelector((state: AppState) => {
-      if (requiresFlatWidgetChildren) {
-        return getFlattenedChildCanvasWidgets(
-          state,
-          referencedWidgetId || widgetId,
-        );
-      }
-    }, equal);
+    const flattenedChildCanvasWidgets = useSelector(
+      (state: DefaultRootState) => {
+        if (requiresFlatWidgetChildren) {
+          return getFlattenedChildCanvasWidgets(
+            state,
+            referencedWidgetId || widgetId,
+          );
+        }
+      },
+      equal,
+    );
 
-    const selectedWidgetAncestry: string[] = useSelector((state: AppState) => {
-      if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) {
-        return [];
-      }
+    const selectedWidgetAncestry: string[] = useSelector(
+      (state: DefaultRootState) => {
+        if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) {
+          return [];
+        }
 
-      return getSelectedWidgetAncestry(state);
-    }, equal);
+        return getSelectedWidgetAncestry(state);
+      },
+      equal,
+    );
 
     let widgetProps: WidgetProps = {} as WidgetProps;
 

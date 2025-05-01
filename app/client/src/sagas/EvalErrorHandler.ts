@@ -26,13 +26,13 @@ import {
   VALUE_IS_INVALID,
 } from "ee/constants/messages";
 import log from "loglevel";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 import { reconstructErrorFromEvalError } from "./helper";
 
-const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
+const getDebuggerErrors = (state: DefaultRootState) => state.ui.debugger.errors;
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,

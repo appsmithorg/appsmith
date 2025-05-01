@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   Button,
   Modal,
@@ -45,7 +45,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const dispatch = useDispatch();
   const workspaces = useSelector(getFetchedWorkspaces);
   const forkingApplication = useSelector(
-    (state: AppState) => state.ui.applications.forkingApplication,
+    (state: DefaultRootState) => state.ui.applications.forkingApplication,
   );
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);

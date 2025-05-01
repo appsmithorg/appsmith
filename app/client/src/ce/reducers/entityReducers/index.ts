@@ -15,7 +15,7 @@ import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canv
     or done so by a module that is designed to be eventually pluggable */
 import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { AppState } from "..";
+import type { DefaultRootState } from "react-redux";
 
 export const entityReducerObject = {
   canvasWidgets: canvasWidgetsReducer,
@@ -31,8 +31,12 @@ export const entityReducerObject = {
   autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
   layoutElementPositions: layoutElementPositionsReducer,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  moduleInstanceEntities: (state: AppState, action: ReduxAction<any>) => {
+  moduleInstanceEntities: (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    state: DefaultRootState,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    action: ReduxAction<any>,
+  ) => {
     return {};
   },
 };

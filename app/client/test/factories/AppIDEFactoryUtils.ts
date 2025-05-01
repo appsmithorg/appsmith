@@ -1,6 +1,6 @@
 import store from "store";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import MockPluginsState from "test/factories/MockPluginsState";
 import type { Action } from "entities/Action";
 import type {
@@ -36,7 +36,7 @@ export const getIDETestState = ({
   js = [],
   pages = [],
   tabs = IDETabsDefaultValue,
-}: IDEStateArgs): AppState => {
+}: IDEStateArgs): DefaultRootState => {
   const initialState = store.getState();
 
   const pageList = {
@@ -52,6 +52,7 @@ export const getIDETestState = ({
   };
 
   let ideTabs: ParentEntityIDETabs = {};
+
   if (pageList.currentBasePageId) {
     ideTabs = { [pageList.currentBasePageId]: tabs };
   }

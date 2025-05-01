@@ -15,7 +15,7 @@ import {
 import type { FormErrors } from "redux-form";
 import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { SUPER_USER_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { useState } from "react";
 import { isAirgapped } from "ee/utils/airgapHelpers";
@@ -235,7 +235,7 @@ function SetupForm(props: SetupFormProps) {
 
 const selector = formValueSelector(WELCOME_FORM_NAME);
 
-export default connect((state: AppState) => {
+export default connect((state: DefaultRootState) => {
   return {
     name: selector(state, WELCOME_FORM_NAME_FIELD_NAME),
     email: selector(state, WELCOME_FORM_EMAIL_FIELD_NAME),

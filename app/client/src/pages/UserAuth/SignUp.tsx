@@ -41,7 +41,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "ee/constants/forms";
 import { getAppsmithConfigs } from "ee/configs";
@@ -319,7 +319,7 @@ export function SignUp(props: SignUpFormProps) {
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
 
-export default connect((state: AppState, props: SignUpFormProps) => {
+export default connect((state: DefaultRootState, props: SignUpFormProps) => {
   const queryParams = new URLSearchParams(props.location.search);
 
   return {

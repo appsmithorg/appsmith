@@ -2,7 +2,7 @@ import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -101,7 +101,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     newWidget,
   } = dragDetails;
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
   const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal);
@@ -109,7 +109,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const childrenOccupiedSpaces: WidgetSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
 
   const allWidgets = useSelector(getWidgets);

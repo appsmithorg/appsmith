@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Icon } from "@appsmith/ads";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
@@ -129,7 +129,7 @@ export default (props: PopperProps) => {
   // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
-    () => getThemeDetails({} as AppState, themeMode),
+    () => getThemeDetails({} as DefaultRootState, themeMode),
     [themeMode],
   );
 

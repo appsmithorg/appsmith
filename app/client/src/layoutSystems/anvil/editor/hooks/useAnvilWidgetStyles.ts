@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
 import { AnvilDataAttributes } from "widgets/wds/constants";
 
@@ -16,7 +16,7 @@ export const useAnvilWidgetStyles = (
   // Selectors to determine whether the widget is selected or dragging
   const isSelected = useSelector(isWidgetSelected(widgetId));
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   // Get widget border styles using useWidgetBorderStyles
   const widgetBorderStyles = useWidgetBorderStyles(widgetId, widgetType);

@@ -7,7 +7,7 @@ import { Text as ADSText, Flex } from "@appsmith/ads";
 import styled from "styled-components";
 import { noop } from "lodash";
 import { useParams } from "react-router";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getJsCollectionByBaseId,
   getPlugin,
@@ -66,11 +66,11 @@ export const JSObjectNameEditor = ({
     baseQueryId?: string;
   }>();
 
-  const currentJSObjectConfig = useSelector((state: AppState) =>
+  const currentJSObjectConfig = useSelector((state: DefaultRootState) =>
     getJsCollectionByBaseId(state, params.baseCollectionId || ""),
   );
 
-  const currentPlugin = useSelector((state: AppState) =>
+  const currentPlugin = useSelector((state: DefaultRootState) =>
     getPlugin(state, currentJSObjectConfig?.pluginId || ""),
   );
 

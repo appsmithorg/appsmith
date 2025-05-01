@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
@@ -13,7 +13,7 @@ import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
 /**
  *
- * @param state AppState
+ * @param state DefaultRootState
  * @param widgetId WidgetId for which we need the error count
  * @returns The number of errors reported by evaluations for this error
  *
@@ -22,7 +22,7 @@ import { isEditOnlyModeSelector } from "selectors/editorSelectors";
  *
  * Note: The logic to count the number of errors has been copied to make it easier to remove the dependency on the Fixed mode code.
  */
-export function getWidgetErrorCount(state: AppState, widgetId: string) {
+export function getWidgetErrorCount(state: DefaultRootState, widgetId: string) {
   const widgetObj = Object.values(state.evaluations.tree).find(
     (entity) => entity.ENTITY_TYPE === "WIDGET" && entity.widgetId === widgetId,
   );

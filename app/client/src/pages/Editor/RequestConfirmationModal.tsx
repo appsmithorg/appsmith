@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,
@@ -122,7 +122,7 @@ class RequestConfirmationModal extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   modals: state.ui.modalAction.modals,
 });
 
