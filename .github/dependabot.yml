@@ -14,3 +14,14 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+  - package-ecosystem: "maven"
+    directory: "/app/server"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "java"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
