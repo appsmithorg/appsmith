@@ -65,14 +65,6 @@ describe("evaluateTreeSaga", () => {
         [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
-          appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
-        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},
@@ -113,14 +105,6 @@ describe("evaluateTreeSaga", () => {
         [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
-          appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
-        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},
@@ -170,14 +154,6 @@ describe("evaluateTreeSaga", () => {
         [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
-          appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
-        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},
