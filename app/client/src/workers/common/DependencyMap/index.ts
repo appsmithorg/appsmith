@@ -12,11 +12,7 @@ import type {
   DataTreeEntityObject,
 } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import {
-  EvalErrorTypes,
-  getEntityId,
-  getEvalErrorPath,
-} from "utils/DynamicBindingUtils";
+import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
@@ -33,11 +29,6 @@ import {
 } from "ee/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
-import appComputationCache from "../AppComputationCache";
-import {
-  EComputationCacheName,
-  type ICacheProps,
-} from "../AppComputationCache/types";
 import type DependencyMap from "entities/DependencyMap";
 import { profileFn } from "instrumentation/generateWebWorkerTraces";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
@@ -46,7 +37,6 @@ export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
-  cacheProps: ICacheProps,
   webworkerSpans: Record<string, WebworkerSpanData | Attributes> = {},
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
@@ -63,76 +53,28 @@ export async function createDependencyMap(
     );
   });
 
-  let dependencyMapCache: Record<string, string[]> | null = null;
+  Object.keys(configTree).forEach((entityName) => {
+    const entity = unEvalTree[entityName];
+    const entityConfig = configTree[entityName];
+    const entityDependencies = getEntityDependencies(
+      entity as DataTreeEntityObject,
+      entityConfig,
+      allKeys,
+    );
 
-  try {
-    dependencyMapCache = await appComputationCache.getCachedComputationResult<
-      Record<string, string[]>
-    >({
-      cacheProps,
-      cacheName: EComputationCacheName.DEPENDENCY_MAP,
-    });
-  } catch (error) {
-    dataTreeEvalRef.errors.push({
-      type: EvalErrorTypes.CACHE_ERROR,
-      message: (error as Error).message,
-      stack: (error as Error).stack,
-    });
-    dependencyMapCache = null;
-  }
-
-  if (dependencyMapCache) {
-    profileFn("createDependencyMap.addDependency", {}, webworkerSpans, () => {
-      Object.entries(dependencyMapCache).forEach(([path, references]) => {
-        dependencyMap.addDependency(path, references);
-      });
-    });
-  } else {
-    let shouldCache = true;
-
-    Object.keys(configTree).forEach((entityName) => {
-      const entity = unEvalTree[entityName];
-      const entityConfig = configTree[entityName];
-      const entityDependencies = getEntityDependencies(
-        entity as DataTreeEntityObject,
-        entityConfig,
+    for (const path of Object.keys(entityDependencies)) {
+      const pathDependencies = entityDependencies[path];
+      const { errors, references } = extractInfoFromBindings(
+        pathDependencies,
         allKeys,
       );
 
-      for (const path of Object.keys(entityDependencies)) {
-        const pathDependencies = entityDependencies[path];
-        const { errors, references } = extractInfoFromBindings(
-          pathDependencies,
-          allKeys,
-        );
-
-        dependencyMap.addDependency(path, references);
-        dataTreeEvalRef.errors.push(...errors);
-
-        if (errors.length) {
-          shouldCache = false;
-        }
-      }
-    });
-
-    DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
-
-    if (shouldCache) {
-      try {
-        await appComputationCache.cacheComputationResult({
-          cacheProps,
-          cacheName: EComputationCacheName.DEPENDENCY_MAP,
-          computationResult: dependencyMap.dependencies,
-        });
-      } catch (error) {
-        dataTreeEvalRef.errors.push({
-          type: EvalErrorTypes.CACHE_ERROR,
-          message: (error as Error).message,
-          stack: (error as Error).stack,
-        });
-      }
+      dependencyMap.addDependency(path, references);
+      dataTreeEvalRef.errors.push(...errors);
     }
-  }
+  });
+
+  DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
   return {
     dependencies: dependencyMap.dependencies,

@@ -77,7 +77,6 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-  getCurrentPageDSLVersion,
 } from "ee/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
@@ -113,12 +112,6 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
-import {
-  getApplicationLastDeployedAt,
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { getInstanceId } from "ee/selectors/organizationSelectors";
 import type {
   AffectedJSObjects,
   EvaluationReduxAction,
@@ -263,26 +256,13 @@ export function* evaluateTreeSaga(
     yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-  const instanceId: string = yield select(getInstanceId);
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string = yield select(getCurrentPageId);
-  const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
-  const dslVersion: number | null = yield select(getCurrentPageDSLVersion);
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
-    cacheProps: {
-      appMode,
-      appId: applicationId,
-      pageId,
-      timestamp: lastDeployedAt,
-      instanceId,
-      dslVersion,
-    },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,

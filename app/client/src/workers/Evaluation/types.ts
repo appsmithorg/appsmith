@@ -16,7 +16,6 @@ import type { WorkerRequest } from "ee/workers/common/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
-import type { ICacheProps } from "../common/AppComputationCache/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 import type { UpdateActionProps } from "./handlers/types";
 
@@ -35,7 +34,6 @@ export type EvalWorkerASyncRequest<T = any> = WorkerRequest<
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
-  cacheProps: ICacheProps;
   unevalTree: unEvalAndConfigTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
   widgets: CanvasWidgetsReduxState;

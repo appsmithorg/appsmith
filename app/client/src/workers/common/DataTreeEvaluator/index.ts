@@ -146,11 +146,6 @@ import {
   profileFn,
 } from "instrumentation/generateWebWorkerTraces";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
-import appComputationCache from "../AppComputationCache";
-import {
-  EComputationCacheName,
-  type ICacheProps,
-} from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
@@ -258,7 +253,6 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
-    cacheProps: ICacheProps,
   ) {
     this.setConfigTree(configTree);
 
@@ -302,21 +296,7 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    try {
-      this.allKeys = await appComputationCache.fetchOrCompute({
-        cacheProps,
-        cacheName: EComputationCacheName.ALL_KEYS,
-        computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
-      });
-    } catch (error) {
-      this.errors.push({
-        type: EvalErrorTypes.CACHE_ERROR,
-        message: (error as Error).message,
-        stack: (error as Error).stack,
-      });
-
-      this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
-    }
+    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
 
     const allKeysGenerationEndTime = performance.now();
 
@@ -329,7 +309,6 @@ export default class DataTreeEvaluator {
           this,
           localUnEvalTree,
           configTree,
-          cacheProps,
           webworkerTelemetry,
         ),
       webworkerTelemetry,
