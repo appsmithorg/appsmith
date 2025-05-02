@@ -708,7 +708,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -761,7 +761,7 @@
           "pluginSpecifiedTemplates": [{ "value": true }],
           "formData": { "apiContentType": "none" }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -808,7 +808,7 @@
           "body": "SELECT * FROM public.\"users\" LIMIT 10;",
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -854,7 +854,7 @@
           "body": "SELECT * FROM configs LIMIT 10;",
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -903,7 +903,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [{ "key": "body" }],
         "isValid": true,
         "invalids": [],
@@ -953,7 +953,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [{ "key": "body" }],
         "isValid": true,
         "invalids": [],
