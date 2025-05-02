@@ -15,7 +15,7 @@ import {
 const BASE_ACTION: ApiAction = {
   dynamicBindingPathList: [],
   cacheResponse: "",
-  runBehavior: "MANUAL",
+  runBehaviour: "MANUAL",
   invalids: [],
   isValid: false,
   workspaceId: "",

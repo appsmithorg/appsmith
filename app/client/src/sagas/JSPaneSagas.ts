@@ -783,13 +783,13 @@ function* setFunctionPropertySaga(
 
   const actionId = action.id;
 
-  if (propertyName === "runBehavior") {
+  if (propertyName === "runBehaviour") {
     yield put({
       type: ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_INIT,
       payload: {
         collectionId: action.collectionId,
         actionId,
-        runBehavior: value,
+        runBehaviour: value,
       },
     });
 
@@ -847,19 +847,19 @@ function* handleUpdateJSFunctionPropertySaga(
   }
 }
 
-function* updateFunctionRunBehaviorSaga(
+function* updateFunctionRunBehaviourSaga(
   action: ReduxAction<{
     collectionId: string;
     actionId: string;
-    runBehavior: ActionRunBehaviourType;
+    runBehaviour: ActionRunBehaviourType;
   }>,
 ) {
   try {
-    const { actionId, collectionId, runBehavior } = action.payload;
+    const { actionId, collectionId, runBehaviour } = action.payload;
     const response: ApiResponse = yield call(
-      ActionAPI.updateActionRunBehavior,
+      ActionAPI.updateActionRunBehaviour,
       actionId,
-      runBehavior,
+      runBehaviour,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -869,7 +869,7 @@ function* updateFunctionRunBehaviorSaga(
         payload: {
           actionId: actionId,
           collectionId: collectionId,
-          runBehavior,
+          runBehaviour,
         },
       });
     }
@@ -945,7 +945,7 @@ export default function* root() {
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_FUNCTION_RUN_BEHAVIOR_INIT,
-      updateFunctionRunBehaviorSaga,
+      updateFunctionRunBehaviourSaga,
     ),
     takeLatest(
       ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,

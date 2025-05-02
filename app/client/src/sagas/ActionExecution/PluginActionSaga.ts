@@ -1554,15 +1554,15 @@ function triggerFileUploadInstrumentation(
   });
 }
 
-// Function to clear the action responses for the actions which are not runBehavior: ON_PAGE_LOAD.
+// Function to clear the action responses for the actions which are not runBehaviour: ON_PAGE_LOAD.
 function* clearTriggerActionResponse() {
   const currentPageActions: ActionData[] = yield select(getCurrentActions);
 
   for (const action of currentPageActions) {
-    // Clear the action response if the action has data and is not runBehavior: ON_PAGE_LOAD.
+    // Clear the action response if the action has data and is not runBehaviour: ON_PAGE_LOAD.
     if (
       action.data &&
-      action.config.runBehavior !== ActionRunBehaviour.ON_PAGE_LOAD
+      action.config.runBehaviour !== ActionRunBehaviour.ON_PAGE_LOAD
     ) {
       yield put(clearActionResponse(action.config.id));
       yield put(

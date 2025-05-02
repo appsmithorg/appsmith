@@ -30,7 +30,7 @@ export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
         body: "function (){\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t}",
         jsArguments: [],
       },
-      runBehavior: "MANUAL",
+      runBehaviour: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
@@ -70,7 +70,7 @@ export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
         body: "async function () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}",
         jsArguments: [],
       },
-      runBehavior: "MANUAL",
+      runBehaviour: "MANUAL",
       clientSideExecution: true,
       dynamicBindingPathList: [
         {
