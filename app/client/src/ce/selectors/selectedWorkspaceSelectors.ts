@@ -1,19 +1,19 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export const getIsFetchingApplications = (state: AppState): boolean =>
+export const getIsFetchingApplications = (state: DefaultRootState): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingApplications;
 
-export const getApplicationsOfWorkspace = (state: AppState) => {
+export const getApplicationsOfWorkspace = (state: DefaultRootState) => {
   return state.ui.selectedWorkspace.applications;
 };
 
-export const getAllUsersOfWorkspace = (state: AppState) =>
+export const getAllUsersOfWorkspace = (state: DefaultRootState) =>
   state.ui.selectedWorkspace.users;
 
-export const isFetchingUsersOfWorkspace = (state: AppState): boolean =>
+export const isFetchingUsersOfWorkspace = (state: DefaultRootState): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingAllUsers;
 
-export const selectedWorkspaceLoadingStates = (state: AppState) => {
+export const selectedWorkspaceLoadingStates = (state: DefaultRootState) => {
   return {
     isFetchingApplications:
       state.ui.selectedWorkspace.loadingStates.isFetchingApplications,
@@ -30,9 +30,9 @@ export const selectedWorkspaceLoadingStates = (state: AppState) => {
   };
 };
 
-export const getCurrentWorkspaceId = (state: AppState) =>
+export const getCurrentWorkspaceId = (state: DefaultRootState) =>
   state.ui.selectedWorkspace.workspace.id;
 
-export const getCurrentAppWorkspace = (state: AppState) => {
+export const getCurrentAppWorkspace = (state: DefaultRootState) => {
   return state.ui.selectedWorkspace.workspace;
 };

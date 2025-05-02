@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
@@ -69,7 +69,7 @@ export function FixedCanvasDraggingArena({
   });
 
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const canvasReRenderDependencies = useMemo(
     () => ({

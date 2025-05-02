@@ -5,7 +5,7 @@ import {
   switchViewType,
   ViewTypes,
 } from "components/formControls/utils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Action } from "entities/Action";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";
@@ -40,7 +40,7 @@ interface HandlerProps {
 }
 
 function ToggleComponentToJsonHandler(props: HandlerProps) {
-  const formValues: Partial<Action> = useSelector((state: AppState) =>
+  const formValues: Partial<Action> = useSelector((state: DefaultRootState) =>
     getFormValues(props.formName)(state),
   );
 

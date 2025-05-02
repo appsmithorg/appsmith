@@ -91,7 +91,7 @@ import {
 } from "selectors/editorSelectors";
 import log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
@@ -179,7 +179,7 @@ interface FilePickerInstumentationObject {
 }
 
 export const getActionTimeout = (
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): number | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);

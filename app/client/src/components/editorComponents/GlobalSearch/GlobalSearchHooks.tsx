@@ -32,7 +32,7 @@ import {
   UIComponentTypes,
 } from "entities/Plugin";
 import { integrationEditorURL } from "ee/RouteBuilder";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -79,12 +79,13 @@ export const useFilteredFileOperations = ({
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
 
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
-  const AiPlugin = useSelector((state: AppState) =>
+  const AiPlugin = useSelector((state: DefaultRootState) =>
     getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
   );
 

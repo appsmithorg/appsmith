@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
 import type { CalloutKind } from "@appsmith/ads";
 import { Callout } from "@appsmith/ads";
@@ -54,7 +54,7 @@ export default function AuthMessage(props: AuthMessageProps) {
     style = {},
   } = props;
   const dispatch = useDispatch();
-  const pluginType = useSelector((state: AppState) =>
+  const pluginType = useSelector((state: DefaultRootState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
   );
   const pluginId: string = props?.datasource?.pluginId || "";

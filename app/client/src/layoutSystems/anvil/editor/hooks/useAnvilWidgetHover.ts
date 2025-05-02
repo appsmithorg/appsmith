@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -15,7 +15,7 @@ export const useAnvilWidgetHover = (
   const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   // Access the focusWidget function from the useWidgetSelection hook
   const { focusWidget } = useWidgetSelection();

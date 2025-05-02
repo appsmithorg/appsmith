@@ -5,7 +5,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { shallowEqual, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid } from "utils/helpers";
 
@@ -26,7 +26,7 @@ export function useValidateEntityName(props: UseValidateEntityNameProps) {
   } = props;
 
   const usedEntityNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, entityId),
+    (state: DefaultRootState) => getUsedActionNames(state, entityId),
     shallowEqual,
   );
 

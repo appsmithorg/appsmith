@@ -11,7 +11,7 @@ import {
 import type { TooltipPlacement } from "@appsmith/ads";
 import { Tooltip, Button } from "@appsmith/ads";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
@@ -59,7 +59,8 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const dispatch = useDispatch();
   const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
-    (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
+    (state: DefaultRootState) =>
+      state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isCurrentWidgetRecentlyAdded = useSelector(
     getIsCurrentWidgetRecentlyAdded,

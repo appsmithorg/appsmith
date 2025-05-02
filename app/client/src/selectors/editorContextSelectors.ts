@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   CodeEditorHistory,
@@ -11,33 +11,33 @@ import { isSubEntities } from "ee/reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
-export const getFocusableInputField = (state: AppState) =>
+export const getFocusableInputField = (state: DefaultRootState) =>
   state.ui.editorContext.focusedInputField;
 
-export const getCodeEditorHistory = (state: AppState) =>
+export const getCodeEditorHistory = (state: DefaultRootState) =>
   state.ui.editorContext.codeEditorHistory;
 
-export const getPropertyPanelState = (state: AppState) =>
+export const getPropertyPanelState = (state: DefaultRootState) =>
   state.ui.editorContext.propertyPanelState;
 
-export const getAllPropertySectionState = (state: AppState) =>
+export const getAllPropertySectionState = (state: DefaultRootState) =>
   state.ui.editorContext.propertySectionState;
 
-export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
+export const getWidgetSelectedPropertyTabIndex = (state: DefaultRootState) =>
   state.ui.editorContext.selectedPropertyTabIndex;
 
-export const getAllEntityCollapsibleStates = (state: AppState) =>
+export const getAllEntityCollapsibleStates = (state: DefaultRootState) =>
   state.ui.editorContext.entityCollapsibleFields;
 
-export const getAllSubEntityCollapsibleStates = (state: AppState) =>
+export const getAllSubEntityCollapsibleStates = (state: DefaultRootState) =>
   state.ui.editorContext.subEntityCollapsibleFields;
 
-export const getExplorerSwitchIndex = (state: AppState) =>
+export const getExplorerSwitchIndex = (state: DefaultRootState) =>
   state.ui.editorContext.explorerSwitchIndex;
 
 export const getPanelPropertyContext = createSelector(
   getPropertyPanelState,
-  (_state: AppState, panelPropertyPath: string | undefined) =>
+  (_state: DefaultRootState, panelPropertyPath: string | undefined) =>
     panelPropertyPath,
   (
     propertyPanelState: PropertyPanelState,
@@ -66,7 +66,10 @@ export const getSelectedPropertyTabIndex = createSelector(
 );
 
 export const getCodeEditorLastCursorPosition = createSelector(
-  [getCodeEditorHistory, (state: AppState, key: string | undefined) => key],
+  [
+    getCodeEditorHistory,
+    (state: DefaultRootState, key: string | undefined) => key,
+  ],
   (
     codeEditorHistory: CodeEditorHistory,
     key: string | undefined,
@@ -78,7 +81,10 @@ export const getCodeEditorLastCursorPosition = createSelector(
 );
 
 export const getEvaluatedPopupState = createSelector(
-  [getCodeEditorHistory, (_state: AppState, key: string | undefined) => key],
+  [
+    getCodeEditorHistory,
+    (_state: DefaultRootState, key: string | undefined) => key,
+  ],
   (
     codeEditorHistory: CodeEditorHistory,
     key: string | undefined,
@@ -91,7 +97,7 @@ export const getIsInputFieldFocused = createSelector(
   [
     getFocusableInputField,
     selectFeatureFlags,
-    (_state: AppState, key: string | undefined) => key,
+    (_state: DefaultRootState, key: string | undefined) => key,
   ],
   (
     focusableField: string | undefined,
@@ -103,7 +109,7 @@ export const getIsInputFieldFocused = createSelector(
 );
 
 const getPanelContext = (
-  _state: AppState,
+  _state: DefaultRootState,
   options: { key: string; panelPropertyPath: string | undefined },
 ) => {
   return {
@@ -137,7 +143,7 @@ export const getEntityCollapsibleState = createSelector(
   [
     getAllEntityCollapsibleStates,
     getAllSubEntityCollapsibleStates,
-    (_state: AppState, entityName: string) => entityName,
+    (_state: DefaultRootState, entityName: string) => entityName,
   ],
   (
     entityCollapsibleStates: { [key: string]: boolean },

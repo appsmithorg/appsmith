@@ -1,5 +1,5 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -51,7 +51,7 @@ export const useAnvilGlobalDnDStates = (): AnvilGlobalDnDStates => {
    * isDragging is a boolean that indicates if a widget is being dragged.
    */
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
 
   /**

@@ -1,7 +1,7 @@
 import { GitArtifactType } from "git/constants/enums";
 import type { GitArtifactDef } from "git/types";
 
-function isProtectedBranchesEnabled(artifactDef: GitArtifactDef) {
+function isContinuousDeliveryEnabled(artifactDef: GitArtifactDef) {
   if (artifactDef.artifactType === GitArtifactType.Application) {
     return true;
   }
@@ -9,4 +9,4 @@ function isProtectedBranchesEnabled(artifactDef: GitArtifactDef) {
   return false;
 }
 
-export default isProtectedBranchesEnabled;
+export default isContinuousDeliveryEnabled;

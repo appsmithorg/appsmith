@@ -8,7 +8,7 @@ import type {
 import { createSelector } from "reselect";
 import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 
@@ -59,7 +59,7 @@ export const getFlattenedChildCanvasWidgets = createSelector(
     getRenderMode,
     getLayoutSystemType,
     getIsMobileBreakPoint,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
+    (_state: DefaultRootState, parentWidgetId: string) => parentWidgetId,
   ],
   buildFlattenedChildCanvasWidgets,
 );

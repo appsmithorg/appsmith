@@ -11,7 +11,7 @@ import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { ApplicationPayload } from "entities/Application";
@@ -299,7 +299,7 @@ function CreateDBOrMostPopularPlugins(props: CreateDBOrMostPopularPluginsType) {
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   props: {
     active?: boolean;
     pageId: string;

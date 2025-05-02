@@ -137,7 +137,7 @@ import {
 } from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplication,
@@ -608,7 +608,7 @@ export function* updateDatasourceSaga(
       const responseData: Datasource = response.data;
       const plugin: Plugin = yield select(getPlugin, responseData?.pluginId);
       const formName: string = getFormName(plugin);
-      const state: AppState = yield select();
+      const state: DefaultRootState = yield select();
       const isFormValid = isValid(formName)(state);
       const formData: GetFormData = yield select(getFormData, formName);
       const formDiffPaths: string[] = getFormDiffPaths(
@@ -1224,7 +1224,7 @@ export function* createDatasourceFromFormSaga(
     if (isValidResponse) {
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
-      const state: AppState = yield select();
+      const state: DefaultRootState = yield select();
       const isFormValid = isValid(formName)(state);
       const formData: GetFormData = yield select(getFormData, formName);
       const formDiffPaths: string[] = getFormDiffPaths(
@@ -1497,7 +1497,7 @@ export function* storeAsDatasourceSaga() {
 export function* updateDatasourceSuccessSaga(
   action: UpdateDatasourceSuccessAction,
 ) {
-  const state: AppState = yield select();
+  const state: DefaultRootState = yield select();
   const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
@@ -1658,7 +1658,7 @@ export function* fetchDatasourceStructureSaga(
 export function* addAndFetchDatasourceStructureSaga(
   action: ReduxAction<MockDatasource>,
 ) {
-  const plugin: Plugin = yield select((state: AppState) =>
+  const plugin: Plugin = yield select((state: DefaultRootState) =>
     getPluginByPackageName(state, action.payload.packageName),
   );
 
@@ -1974,7 +1974,7 @@ export function* fetchGsheetSpreadhsheets(
         initialValue: string;
       },
     ];
-  }[] = yield select((state: AppState) =>
+  }[] = yield select((state: DefaultRootState) =>
     getEditorConfig(state, action.payload.pluginId),
   );
 
@@ -1999,7 +1999,7 @@ export function* fetchGsheetSpreadhsheets(
         throw new Error("Unable to fetch plugin form config");
       }
 
-      googleSheetEditorConfig = yield select((state: AppState) =>
+      googleSheetEditorConfig = yield select((state: DefaultRootState) =>
         getEditorConfig(state, action.payload.pluginId),
       );
     }

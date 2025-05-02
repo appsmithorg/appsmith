@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { CSSProperties, DragEventHandler, ReactNode } from "react";
@@ -68,12 +68,12 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
 
   const isDraggingSibling = useSelector(

@@ -9,7 +9,7 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { getFormValues, change } from "redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
@@ -42,9 +42,9 @@ export interface FormControlProps {
 
 function FormControl(props: FormControlProps) {
   const formValues: Partial<Action | Datasource> = useSelector(
-    (state: AppState) => getFormValues(props.formName)(state),
+    (state: DefaultRootState) => getFormValues(props.formName)(state),
   );
-  const actionValues = useSelector((state: AppState) =>
+  const actionValues = useSelector((state: DefaultRootState) =>
     getAction(state, formValues?.id || ""),
   );
 
@@ -69,7 +69,7 @@ function FormControl(props: FormControlProps) {
     featureFlags,
   );
   const configErrors: EvaluationError[] = useSelector(
-    (state: AppState) =>
+    (state: DefaultRootState) =>
       getConfigErrors(state, {
         configProperty: props?.config?.configProperty,
         formName: props.formName,
@@ -83,16 +83,16 @@ function FormControl(props: FormControlProps) {
     (formValues as Datasource)?.id;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
-    getPluginTemplates(state),
+  const pluginTemplates: Record<string, any> = useSelector(
+    (state: DefaultRootState) => getPluginTemplates(state),
   );
   const dsStructure: DatasourceStructure | undefined = useSelector(
-    (state: AppState) => getDatasourceStructureById(state, dsId),
+    (state: DefaultRootState) => getDatasourceStructureById(state, dsId),
   );
 
   const pluginId: string = formValues?.pluginId || "";
   const pluginTemplate = !!pluginId ? pluginTemplates[pluginId] : undefined;
-  const pluginName: string = useSelector((state: AppState) =>
+  const pluginName: string = useSelector((state: DefaultRootState) =>
     getPluginNameFromId(state, pluginId),
   );
   const workspaceId = useSelector(getCurrentWorkspaceId);
