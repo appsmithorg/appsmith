@@ -6953,7 +6953,7 @@ export default {
         children: [
           {
             label: "Run behavior",
-            configProperty: "runBehavior",
+            configProperty: "runBehaviour",
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [
@@ -7033,7 +7033,7 @@ export default {
         children: [
           {
             label: "Run behavior",
-            configProperty: "runBehavior",
+            configProperty: "runBehaviour",
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [
@@ -7113,7 +7113,7 @@ export default {
         children: [
           {
             label: "Run behavior",
-            configProperty: "runBehavior",
+            configProperty: "runBehaviour",
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [
@@ -7157,7 +7157,7 @@ export default {
         children: [
           {
             label: "Run behavior",
-            configProperty: "runBehavior",
+            configProperty: "runBehaviour",
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [

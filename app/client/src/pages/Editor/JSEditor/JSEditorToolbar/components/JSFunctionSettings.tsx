@@ -46,22 +46,22 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 }
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
-  const [runBehavior, setRunBehavior] = useState(props.action.runBehavior);
+  const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
   const options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
-  const selectedValue = options.find((opt) => opt.value === runBehavior);
+  const selectedValue = options.find((opt) => opt.value === runBehaviour);
 
   const onSelectOptions = useCallback(
-    (newRunBehavior: ActionRunBehaviourType) => {
-      setRunBehavior(newRunBehavior);
+    (newRunBehaviour: ActionRunBehaviourType) => {
+      setRunBehaviour(newRunBehaviour);
       props.onUpdateSettings?.({
-        value: newRunBehavior,
-        propertyName: "runBehavior",
+        value: newRunBehaviour,
+        propertyName: "runBehaviour",
         action: props.action,
       });
 
       AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
         toggleSetting: "ON_PAGE_LOAD",
-        toggleValue: newRunBehavior,
+        toggleValue: newRunBehaviour,
       });
     },
     [props],
@@ -81,7 +81,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
         {props.action.name}
       </Text>
       <StyledSelect
-        data-testid={`t--dropdown-runBehavior`}
+        data-testid={`t--dropdown-runBehaviour`}
         defaultValue={selectedValue}
         id={props.action.id}
         isDisabled={props.disabled}

@@ -88,8 +88,8 @@ import {
   fetchActionsForPageError,
   fetchActionsForPageSuccess,
   fetchActionsForView,
-  setActionsRunBehavior,
-  setJSActionsRunBehavior,
+  setActionsRunBehaviour,
+  setJSActionsRunBehaviour,
 } from "actions/pluginActionActions";
 import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -536,7 +536,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         );
 
         if (actions && actions.length) {
-          yield put(setActionsRunBehavior(actions));
+          yield put(setActionsRunBehaviour(actions));
         }
 
         const jsActions = actionUpdates.filter((d) =>
@@ -544,7 +544,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         );
 
         if (jsActions && jsActions.length) {
-          yield put(setJSActionsRunBehavior(jsActions));
+          yield put(setJSActionsRunBehaviour(jsActions));
         }
       }
 
