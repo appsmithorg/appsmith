@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "styled-components";
 
 // Type imports
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { ApplicationPayload } from "entities/Application";
 
 // Application-specific imports
@@ -43,7 +43,7 @@ export function Navigation() {
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const currentUser = useSelector(getCurrentUser);
-  const lightTheme = useSelector((state: AppState) =>
+  const lightTheme = useSelector((state: DefaultRootState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(

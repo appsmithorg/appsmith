@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
@@ -78,7 +78,7 @@ export function AutoCanvasDraggingArena({
   });
 
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const canvasReRenderDependencies = useMemo(
     () => ({

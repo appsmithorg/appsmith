@@ -1,7 +1,7 @@
 import { Button, ModalFooter, toast } from "@appsmith/ads";
 import { Close } from "@radix-ui/react-dialog";
 import { createMessage, REQUEST_NEW_INTEGRATIONS } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import React from "react";
 import { connect } from "react-redux";
 import {
@@ -128,7 +128,7 @@ const validate = (values: RequestIntegrationFormValues) => {
   return errors;
 };
 
-export default connect((state: AppState) => {
+export default connect((state: DefaultRootState) => {
   const currentUser = getCurrentUser(state);
 
   return {

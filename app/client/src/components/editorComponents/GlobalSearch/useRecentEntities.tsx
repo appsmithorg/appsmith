@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
@@ -13,7 +13,7 @@ import { FocusEntity } from "navigation/FocusEntity";
 import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
 import { useMemo } from "react";
 
-const recentEntitiesSelector = (state: AppState) =>
+const recentEntitiesSelector = (state: DefaultRootState) =>
   state.ui.globalSearch.recentEntities || [];
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +27,7 @@ const useResentEntities = (): Array<
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
   const jsActions = useSelector(getJSCollections);
-  const reducerDatasources = useSelector((state: AppState) => {
+  const reducerDatasources = useSelector((state: DefaultRootState) => {
     return state.entities.datasources.list;
   });
 

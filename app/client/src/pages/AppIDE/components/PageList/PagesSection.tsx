@@ -10,7 +10,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createNewPageFromEntities } from "actions/pageActions";
 import AddPageContextMenu from "./AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -24,7 +24,8 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const pages: Page[] = useSelector(selectAllPages);
   const applicationId = useSelector(getCurrentApplicationId);
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const instanceId = useSelector(getInstanceId);

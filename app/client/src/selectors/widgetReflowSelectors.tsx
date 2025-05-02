@@ -1,12 +1,12 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
 import { getIsResizing } from "./widgetSelectors";
 
-export const getReflow = (state: AppState): widgetReflow =>
+export const getReflow = (state: DefaultRootState): widgetReflow =>
   state.ui.widgetReflow;
 
-export const getIsReflowing = (state: AppState): boolean =>
+export const getIsReflowing = (state: DefaultRootState): boolean =>
   state.ui.widgetReflow.isReflowing;
 
 export const getReflowSelector = (widgetId: string) => {
@@ -24,7 +24,7 @@ export const getIsReflowEffectedSelector = (
   reflowed: boolean,
 ) => {
   return createSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    (state: DefaultRootState) => state.ui.widgetDragResize.dragDetails,
     getIsResizing,
     (dragDetails, isResizing) => {
       return (

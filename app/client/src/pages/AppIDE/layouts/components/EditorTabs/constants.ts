@@ -1,5 +1,5 @@
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
@@ -15,8 +15,8 @@ import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 export const TabSelectors: Record<
   EditorEntityTab,
   {
-    tabsSelector: (state: AppState) => EntityItem[];
-    listSelector: (state: AppState) => EntityItem[];
+    tabsSelector: (state: DefaultRootState) => EntityItem[];
+    listSelector: (state: DefaultRootState) => EntityItem[];
     itemUrlSelector: (item: EntityItem, basePageId: string) => string;
   }
 > = {

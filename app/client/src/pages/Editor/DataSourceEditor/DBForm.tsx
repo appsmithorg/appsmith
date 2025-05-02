@@ -10,7 +10,7 @@ import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Plugin";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -50,7 +50,7 @@ export const Form = styled.form<{
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
   openDocumentation = () => {
-    const appState: AppState = store.getState();
+    const appState: DefaultRootState = store.getState();
     const plugin = appState.entities.plugins.list.find(
       (plugin) => plugin.id === this.props.datasource?.pluginId,
     );
@@ -134,7 +134,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, props: any) => {
+const mapStateToProps = (state: DefaultRootState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
   ) as Datasource;

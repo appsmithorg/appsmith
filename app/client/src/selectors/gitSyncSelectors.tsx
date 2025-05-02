@@ -1,6 +1,5 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
-import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
@@ -8,42 +7,42 @@ import {
 import type { Branch } from "entities/GitSync";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
-export const getGitSyncState = (state: AppState): GitSyncReducerState =>
-  state.ui.gitSync;
+export const getGitSyncState = (state: DefaultRootState) => state.ui.gitSync;
 
-export const getIsGitSyncModalOpen = (state: AppState) =>
+export const getIsGitSyncModalOpen = (state: DefaultRootState) =>
   state.ui.gitSync.isGitSyncModalOpen;
 
-export const getIsDeploying = (state: AppState) => state.ui.gitSync.isDeploying;
+export const getIsDeploying = (state: DefaultRootState) =>
+  state.ui.gitSync.isDeploying;
 
-export const getIsDisconnectGitModalOpen = (state: AppState) =>
+export const getIsDisconnectGitModalOpen = (state: DefaultRootState) =>
   state.ui.gitSync.isDisconnectGitModalOpen;
 
-export const getIsGitRepoSetup = (state: AppState) => {
+export const getIsGitRepoSetup = (state: DefaultRootState) => {
   const gitMetadata = getCurrentAppGitMetaData(state);
 
   return gitMetadata?.remoteUrl;
 };
 
-export const getIsCommittingInProgress = (state: AppState) =>
+export const getIsCommittingInProgress = (state: DefaultRootState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsDiscardInProgress = (state: AppState) =>
+export const getIsDiscardInProgress = (state: DefaultRootState) =>
   state.ui.gitSync.isDiscarding;
 
-export const getIsCommitSuccessful = (state: AppState) =>
+export const getIsCommitSuccessful = (state: DefaultRootState) =>
   state.ui.gitSync.isCommitSuccessful;
 
-export const getActiveGitSyncModalTab = (state: AppState) =>
+export const getActiveGitSyncModalTab = (state: DefaultRootState) =>
   state.ui.gitSync.activeGitSyncModalTab;
 
-export const getIsGitErrorPopupVisible = (state: AppState) =>
+export const getIsGitErrorPopupVisible = (state: DefaultRootState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getGlobalGitConfig = (state: AppState) =>
+export const getGlobalGitConfig = (state: DefaultRootState) =>
   state.ui.gitSync.globalGitConfig;
 
-export const getLocalGitConfig = (state: AppState) =>
+export const getLocalGitConfig = (state: DefaultRootState) =>
   state.ui.gitSync.localGitConfig;
 
 export const getIsLocalConfigDefined = createSelector(
@@ -58,39 +57,41 @@ export const getIsGlobalConfigDefined = createSelector(
     !!(globalGitConfig.authorEmail || globalGitConfig.authorName),
 );
 
-export const getIsFetchingGlobalGitConfig = (state: AppState) =>
+export const getIsFetchingGlobalGitConfig = (state: DefaultRootState) =>
   state.ui.gitSync.isFetchingGlobalGitConfig;
 
-export const getIsFetchingLocalGitConfig = (state: AppState) =>
+export const getIsFetchingLocalGitConfig = (state: DefaultRootState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;
 
-export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
+export const getGitStatus = (state: DefaultRootState) =>
+  state.ui.gitSync.gitStatus;
 
-export const getGitConnectError = (state: AppState) =>
+export const getGitConnectError = (state: DefaultRootState) =>
   state.ui.gitSync.connectError?.error;
 
-export const getGitPullError = (state: AppState) =>
+export const getGitPullError = (state: DefaultRootState) =>
   state.ui.gitSync.pullError?.error;
 
-export const getGitMergeError = (state: AppState) =>
+export const getGitMergeError = (state: DefaultRootState) =>
   state.ui.gitSync.mergeError?.error;
 
-export const getGitCommitAndPushError = (state: AppState) =>
+export const getGitCommitAndPushError = (state: DefaultRootState) =>
   state.ui.gitSync.commitAndPushError?.error;
 
-export const getGitDiscardError = (state: AppState) =>
+export const getGitDiscardError = (state: DefaultRootState) =>
   state.ui.gitSync.discardError?.error;
 
-export const getIsFetchingGitStatus = (state: AppState) =>
+export const getIsFetchingGitStatus = (state: DefaultRootState) =>
   state.ui.gitSync.isFetchingGitStatus;
 
-export const getIsPullingProgress = (state: AppState) =>
+export const getIsPullingProgress = (state: DefaultRootState) =>
   state.ui.gitSync.pullInProgress;
 
-export const getIsFetchingMergeStatus = (state: AppState) =>
+export const getIsFetchingMergeStatus = (state: DefaultRootState) =>
   state.ui.gitSync.isFetchingMergeStatus;
 
-export const getMergeStatus = (state: AppState) => state.ui.gitSync.mergeStatus;
+export const getMergeStatus = (state: DefaultRootState) =>
+  state.ui.gitSync.mergeStatus;
 
 export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
@@ -99,10 +100,10 @@ export const getIsGitConnected = createSelector(
 
 /**
  * getGitBranches: returns list of git branches in redux store
- * @param state {AppState}
+ * @param state {DefaultRootState}
  * @return Branch[]
  */
-export const getGitBranches = (state: AppState): Branch[] =>
+export const getGitBranches = (state: DefaultRootState): Branch[] =>
   state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
@@ -115,31 +116,35 @@ export const getDefaultGitBranchName = createSelector(
     branches.find((branchObj) => branchObj.default)?.branchName,
 );
 
-export const getFetchingBranches = (state: AppState) =>
+export const getFetchingBranches = (state: DefaultRootState) =>
   state.ui.gitSync.fetchingBranches;
 
-export const getCurrentGitBranch = (state: AppState): string | undefined => {
+export const getCurrentGitBranch = (
+  state: DefaultRootState,
+): string | undefined => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
 
   return gitApplicationMetadata?.branchName;
 };
 
-export const showBranchPopupSelector = (state: AppState) =>
+export const showBranchPopupSelector = (state: DefaultRootState) =>
   state.ui.gitSync.showBranchPopup;
 
-export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
+export const getPullFailed = (state: DefaultRootState) =>
+  state.ui.gitSync.pullFailed;
 
-export const getPullInProgress = (state: AppState) =>
+export const getPullInProgress = (state: DefaultRootState) =>
   state.ui.gitSync.pullInProgress;
 
-export const getIsMergeInProgress = (state: AppState) =>
+export const getIsMergeInProgress = (state: DefaultRootState) =>
   state.ui.gitSync.isMerging;
-export const getTempRemoteUrl = (state: AppState) =>
+export const getTempRemoteUrl = (state: DefaultRootState) =>
   state.ui.gitSync.tempRemoteUrl;
 
-export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
+export const getMergeError = (state: DefaultRootState) =>
+  state.ui.gitSync.mergeError;
 
-export const getCountOfChangesToCommit = (state: AppState) => {
+export const getCountOfChangesToCommit = (state: DefaultRootState) => {
   const gitStatus = getGitStatus(state);
   const {
     modified = [],
@@ -168,35 +173,35 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   );
 };
 
-export const getShowRepoLimitErrorModal = (state: AppState) =>
+export const getShowRepoLimitErrorModal = (state: DefaultRootState) =>
   state.ui.gitSync.showRepoLimitErrorModal;
 
-export const getDisconnectingGitApplication = (state: AppState) =>
+export const getDisconnectingGitApplication = (state: DefaultRootState) =>
   state.ui.gitSync.disconnectingGitApp;
 
-export const getUseGlobalProfile = (state: AppState) =>
+export const getUseGlobalProfile = (state: DefaultRootState) =>
   state.ui.gitSync.useGlobalProfile;
 
 const FALLBACK_GIT_SYNC_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git";
 
-export const getDiscardDocUrl = (state: AppState) =>
+export const getDiscardDocUrl = (state: DefaultRootState) =>
   state.ui.gitSync.gitStatus?.discardDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git connect ssh key deploy url
-export const getSSHKeyDeployDocUrl = (state: AppState) =>
+export const getSSHKeyDeployDocUrl = (state: DefaultRootState) =>
   state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git connect remote url
-export const getRemoteUrlDocUrl = (state: AppState) =>
+export const getRemoteUrlDocUrl = (state: DefaultRootState) =>
   state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git deploy conflict doc url
-export const getConflictFoundDocUrlDeploy = (state: AppState) =>
+export const getConflictFoundDocUrlDeploy = (state: DefaultRootState) =>
   state.ui.gitSync.pullError?.error?.referenceDoc || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git deploy conflict doc url
-export const getConflictFoundDocUrlMerge = (state: AppState) =>
+export const getConflictFoundDocUrlMerge = (state: DefaultRootState) =>
   state.ui.gitSync.mergeStatus?.referenceDoc ||
   state.ui.gitSync.mergeError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
@@ -205,30 +210,31 @@ export const getConflictFoundDocUrlMerge = (state: AppState) =>
 export const getDisconnectDocUrl = () =>
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
-export const getConnectingErrorDocUrl = (state: AppState) =>
+export const getConnectingErrorDocUrl = (state: DefaultRootState) =>
   state.ui.gitSync.connectError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
 
-export const getUpstreamErrorDocUrl = (state: AppState) =>
+export const getUpstreamErrorDocUrl = (state: DefaultRootState) =>
   state.ui.gitSync.commitAndPushError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
 
-export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
-export const getSupportedKeyTypes = (state: AppState) =>
+export const getSshKeyPair = (state: DefaultRootState) =>
+  state.ui.gitSync.SSHKeyPair;
+export const getSupportedKeyTypes = (state: DefaultRootState) =>
   state.ui.gitSync.supportedKeyTypes;
 
-export const getIsImportingApplicationViaGit = (state: AppState) =>
+export const getIsImportingApplicationViaGit = (state: DefaultRootState) =>
   state.ui.gitSync.isImportingApplicationViaGit;
 
-export const getDeleteBranchWarning = (state: AppState) =>
+export const getDeleteBranchWarning = (state: DefaultRootState) =>
   state.ui.gitSync.deleteBranchWarning;
 
-export const getBranchSwitchingDetails = (state: AppState) => ({
+export const getBranchSwitchingDetails = (state: DefaultRootState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
 
-export const getProtectedBranchesSelector = (state: AppState) =>
+export const getProtectedBranchesSelector = (state: DefaultRootState) =>
   state.ui.gitSync.protectedBranches;
 
 export const protectedModeSelector = createSelector(
@@ -244,42 +250,44 @@ export const protectedModeSelector = createSelector(
   },
 );
 
-export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
+export const getIsUpdateProtectedBranchesLoading = (
+  state: DefaultRootState,
+) => {
   return (
     state.ui.gitSync.isUpdateProtectedBranchesLoading ||
     state.ui.gitSync.protectedBranchesLoading
   );
 };
 
-export const getIsGetProtectedBranchesLoading = (state: AppState) => {
+export const getIsGetProtectedBranchesLoading = (state: DefaultRootState) => {
   return state.ui.gitSync.protectedBranchesLoading;
 };
 
-export const getIsAutocommitToggling = (state: AppState) =>
+export const getIsAutocommitToggling = (state: DefaultRootState) =>
   state.ui.gitSync.togglingAutocommit;
 
-export const getIsAutocommitModalOpen = (state: AppState) =>
+export const getIsAutocommitModalOpen = (state: DefaultRootState) =>
   state.ui.gitSync.isAutocommitModalOpen;
 
-export const getIsTriggeringAutocommit = (state: AppState) =>
+export const getIsTriggeringAutocommit = (state: DefaultRootState) =>
   state.ui.gitSync.triggeringAutocommit;
 
-export const getIsPollingAutocommit = (state: AppState) =>
+export const getIsPollingAutocommit = (state: DefaultRootState) =>
   state.ui.gitSync.pollingAutocommitStatus;
 
-export const getGitMetadataSelector = (state: AppState) =>
+export const getGitMetadataSelector = (state: DefaultRootState) =>
   state.ui.gitSync.gitMetadata;
 
-export const getGitMetadataLoadingSelector = (state: AppState) =>
+export const getGitMetadataLoadingSelector = (state: DefaultRootState) =>
   state.ui.gitSync.gitMetadataLoading;
 
-export const getAutocommitEnabledSelector = (state: AppState) =>
+export const getAutocommitEnabledSelector = (state: DefaultRootState) =>
   !!state.ui.gitSync.gitMetadata?.autoCommitConfig?.enabled;
 
-export const isGitSettingsModalOpenSelector = (state: AppState) =>
+export const isGitSettingsModalOpenSelector = (state: DefaultRootState) =>
   state.ui.gitSync.isGitSettingsModalOpen;
 
-export const activeGitSettingsModalTabSelector = (state: AppState) =>
+export const activeGitSettingsModalTabSelector = (state: DefaultRootState) =>
   state.ui.gitSync.activeGitSettingsModalTab;
 
 export const isGitPersistBranchEnabledSelector = createSelector(

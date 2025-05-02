@@ -140,6 +140,7 @@ import {
   isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
+import resetWidget from "workers/Evaluation/fns/resetWidget";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -3064,46 +3065,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   resetTableForInfiniteScroll = () => {
-    const {
-      infiniteScrollEnabled,
-      pushBatchMetaUpdates,
-      updateWidgetMetaProperty,
-    } = this.props;
-
-    if (infiniteScrollEnabled) {
-      // reset the cachedRows
-      const isAlreadyOnFirstPage = this.props.pageNo === 1;
-      const data = isAlreadyOnFirstPage ? { 1: this.props.tableData } : {};
-
-      pushBatchMetaUpdates("cachedTableData", data);
-      pushBatchMetaUpdates("endOfData", false);
-
-      // Explicitly reset specific meta properties
-      updateWidgetMetaProperty("selectedRowIndex", undefined);
-      updateWidgetMetaProperty("selectedRowIndices", undefined);
-      updateWidgetMetaProperty("searchText", undefined);
-      updateWidgetMetaProperty("triggeredRowIndex", undefined);
-      updateWidgetMetaProperty("filters", []);
-      updateWidgetMetaProperty("sortOrder", {
-        column: "",
-        order: null,
-      });
-      updateWidgetMetaProperty("transientTableData", {});
-      updateWidgetMetaProperty("updatedRowIndex", -1);
-      updateWidgetMetaProperty("editableCell", defaultEditableCell);
-      updateWidgetMetaProperty("columnEditableCellValue", {});
-      updateWidgetMetaProperty("selectColumnFilterText", {});
-      updateWidgetMetaProperty("isAddRowInProgress", false);
-      updateWidgetMetaProperty("newRowContent", undefined);
-      updateWidgetMetaProperty("newRow", undefined);
-      updateWidgetMetaProperty("previousPageVisited", false);
-      updateWidgetMetaProperty("nextPageVisited", false);
-
-      // reset and reload page
-      if (!isAlreadyOnFirstPage) {
-        this.updatePageNumber(1, EventType.ON_NEXT_PAGE);
-      }
-    }
+    resetWidget(this.props.widgetId, false);
   };
 }
 

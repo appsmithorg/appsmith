@@ -17,7 +17,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getPageById } from "selectors/editorSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 interface Props {
@@ -38,7 +38,8 @@ export const ContextMenu = (props: Props) => {
     useSelector(getPageById(props.pageId))?.userPermissions || [];
 
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
 
   const canManagePages = getHasManagePagePermission(

@@ -9,7 +9,7 @@ import {
 import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
 import { getParentWidget } from "selectors/widgetSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 
@@ -98,7 +98,7 @@ export const PropertyPaneZoneSpaceDistributor = ({
   zoneWidgetId: string;
 }) => {
   // Get the section widget containing the specified zone widget
-  const sectionWidget = useSelector((state: AppState) =>
+  const sectionWidget = useSelector((state: DefaultRootState) =>
     getParentWidget(state, zoneWidgetId),
   );
 

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import type {
   OccupiedSpace,
@@ -76,7 +76,7 @@ export const useReflow = (
   const dispatch = useDispatch();
   const isReflowingGlobal = useSelector(getIsReflowing);
 
-  const isDraggingCanvas = useSelector((state: AppState) =>
+  const isDraggingCanvas = useSelector((state: DefaultRootState) =>
     isCurrentCanvasDragging(state, parentId),
   );
   const isResizing = useSelector(getIsResizing);

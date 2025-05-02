@@ -1,5 +1,5 @@
 import React from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentUser, getUserAuthError } from "selectors/usersSelectors";
 import { connect } from "react-redux";
 import type { User } from "constants/userConstants";
@@ -30,7 +30,7 @@ function LandingScreen(props: Props) {
   return <PageLoadingBar />;
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   user: getCurrentUser(state),
   authError: getUserAuthError(state),
 });

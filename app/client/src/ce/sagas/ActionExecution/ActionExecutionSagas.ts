@@ -42,7 +42,7 @@ import {
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { getSourceFromTriggerMeta } from "ee/entities/AppsmithConsole/utils";
 import { globalFunctionLogoutUser } from "../userSagas";
@@ -78,7 +78,7 @@ export function* executeActionTriggers(
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
       const action: ReturnType<typeof getAction> = yield select(
-        (state: AppState) => getAction(state, trigger.payload.actionId),
+        (state: DefaultRootState) => getAction(state, trigger.payload.actionId),
       );
 
       if (action) {

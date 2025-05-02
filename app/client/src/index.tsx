@@ -17,7 +17,7 @@ import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "ee/AppRouter";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
@@ -69,7 +69,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { get } from "lodash";
 import * as log from "loglevel";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
@@ -133,7 +133,10 @@ class TableFilterPane extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  ownProps: TableFilterPaneProps,
+) => {
   const widgetLikeProps = {
     widgetId: ownProps.widgetId,
   } as WidgetProps;

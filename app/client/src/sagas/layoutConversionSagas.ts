@@ -2,7 +2,7 @@ import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Page } from "entities/Page";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
@@ -211,7 +211,7 @@ function* convertFromFixedToAutoSaga() {
 function* logLayoutConversionErrorSaga() {
   try {
     const error: Error = yield select(
-      (state: AppState) => state.ui.layoutConversion.conversionError,
+      (state: DefaultRootState) => state.ui.layoutConversion.conversionError,
     );
 
     yield call(appsmithTelemetry.captureException, error, {
