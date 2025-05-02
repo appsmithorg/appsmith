@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Organization;
@@ -10,7 +9,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.PolicySolution;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -20,11 +18,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,22 +40,16 @@ public class Migration10000_UpdateSuperUser {
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
     private final UpdateSuperUserMigrationHelper updateSuperUserMigrationHelper;
-    private final CommonConfig commonConfig;
-    private final EnvManager envManager;
 
     public Migration10000_UpdateSuperUser(
             MongoTemplate mongoTemplate,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             PolicySolution policySolution,
-            PolicyGenerator policyGenerator,
-            CommonConfig commonConfig,
-            EnvManager envManager) {
+            PolicyGenerator policyGenerator) {
         this.mongoTemplate = mongoTemplate;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.policySolution = policySolution;
         this.policyGenerator = policyGenerator;
-        this.commonConfig = commonConfig;
-        this.envManager = envManager;
         this.updateSuperUserMigrationHelper = new UpdateSuperUserMigrationHelper();
     }
 
@@ -72,22 +59,7 @@ public class Migration10000_UpdateSuperUser {
     @Execution
     public void executeMigration() {
         // Read the admin emails from the environment and update the super users accordingly
-        String originalContent = "";
-        try {
-            originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
-        } catch (NoSuchFileException e) {
-            log.error("Env file not found at " + commonConfig.getEnvFilePath(), e);
-            // No need to throw an exception here, as this is a non-critical migration
-            return;
-        } catch (IOException e) {
-            log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
-            // No need to throw an exception here, as this is a non-critical migration
-            return;
-        }
-
-        Map<String, String> envVariableMap = envManager.parseToMap(originalContent);
-        // Get the admin emails from the environment variable
-        String adminEmailsStr = envVariableMap.get(APPSMITH_ADMIN_EMAILS.name());
+        String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
 
