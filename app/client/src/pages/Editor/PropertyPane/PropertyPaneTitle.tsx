@@ -23,6 +23,10 @@ import {
   getIsCurrentWidgetRecentlyAdded,
   getPropertyPaneWidth,
 } from "selectors/propertyPaneSelectors";
+import {
+  createMessage,
+  PROPERTY_PANE_TITLE_RENAME_DISABLED,
+} from "ee/constants/messages";
 
 interface PropertyPaneTitleProps {
   title: string;
@@ -31,6 +35,7 @@ interface PropertyPaneTitleProps {
   updatePropertyTitle?: (title: string) => void;
   onBackClick?: () => void;
   isPanelTitle?: boolean;
+  isRenameDisabled?: boolean;
   actions: Array<{
     tooltipContent: string;
     icon: ReactElement;
@@ -186,22 +191,36 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         className="flex-grow"
         onKeyDown={handleTabKeyDown}
       >
-        <EditableText
-          className="flex-grow text-lg font-semibold t--property-pane-title"
-          defaultValue={name}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          fill
-          hideEditIcon
-          isEditingDefault={isEditingDefault}
-          onBlur={!props.isPanelTitle ? updateTitle : undefined}
-          onBlurEverytime={handleOnBlurEverytime}
-          onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-          placeholder={props.title}
-          savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
-          underline
-          valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
-          wrapperRef={containerRef}
-        />
+        {props.isRenameDisabled ? (
+          <div className="flex-grow text-lg font-semibold t--property-pane-title">
+            <Tooltip
+              content={createMessage(PROPERTY_PANE_TITLE_RENAME_DISABLED)}
+            >
+              <div>{name}</div>
+            </Tooltip>
+          </div>
+        ) : (
+          <EditableText
+            className="flex-grow text-lg font-semibold t--property-pane-title"
+            defaultValue={name}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            fill
+            hideEditIcon
+            isEditingDefault={isEditingDefault}
+            onBlur={!props.isPanelTitle ? updateTitle : undefined}
+            onBlurEverytime={handleOnBlurEverytime}
+            onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
+            placeholder={props.title}
+            savingState={
+              updating ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
+            underline
+            valueTransform={
+              !props.isPanelTitle ? removeSpecialChars : undefined
+            }
+            wrapperRef={containerRef}
+          />
+        )}
       </StyledEditableContainer>
 
       {/* ACTIONS */}

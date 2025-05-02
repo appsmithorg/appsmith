@@ -1627,6 +1627,8 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
+export const PROPERTY_PANE_TITLE_RENAME_DISABLED = () =>
+  "This widget cannot be renamed";
 export const EXPLORER_BETA_ENTITY = () => "BETA";
 export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
 export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
