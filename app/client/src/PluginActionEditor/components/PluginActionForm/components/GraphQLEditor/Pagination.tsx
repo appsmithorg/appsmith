@@ -9,7 +9,7 @@ import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorC
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { GRAPHQL_PAGINATION_TYPE } from "../../../../constants/GraphQLEditorConstants";
@@ -722,7 +722,10 @@ function Pagination(props: PaginationProps) {
   );
 }
 
-const mapStateToProps = (state: AppState, props: { formName: string }) => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  props: { formName: string },
+) => {
   const selector = formValueSelector(props.formName);
   const pluginExtraData: GRAPHQL_PAGINATION_TYPE = selector(
     state,

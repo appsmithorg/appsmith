@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   Annotation,
   EditorConfiguration,
@@ -1876,7 +1876,7 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => {
+const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
   const currentPageId: string = getCurrentPageId(state);
   let entitiesForNavigation: EntityNavigationData = {};
 

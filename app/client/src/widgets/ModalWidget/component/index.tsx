@@ -2,7 +2,7 @@ import type { ReactNode, RefObject } from "react";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { closeTableFilterPane } from "actions/widgetActions";
 import { Colors } from "constants/Colors";
 import { getCanvasClassName } from "utils/generators";
@@ -67,7 +67,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const modalWidth = getModalWidth(props.width);
   const dispatch = useDispatch();
   const isTableFilterPaneVisible = useSelector(
-    (state: AppState) => state.ui.tableFilterPane.isVisible,
+    (state: DefaultRootState) => state.ui.tableFilterPane.isVisible,
   );
 
   useEffect(() => {

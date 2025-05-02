@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { EntityItem, EntityContextMenu } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getActionByBaseId,
   getDatasource,
@@ -28,7 +28,7 @@ import { AppQueryContextMenuItems } from "./AppQueryContextMenuItems";
 import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem";
 
 export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
-  const action = useSelector((state: AppState) =>
+  const action = useSelector((state: DefaultRootState) =>
     getActionByBaseId(state, item.key),
   ) as Action;
   const datasource = useSelector((state) =>

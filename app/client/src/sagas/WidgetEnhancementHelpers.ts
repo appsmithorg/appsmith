@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get, set } from "lodash";
@@ -99,7 +99,7 @@ export function getWidgetEnhancementFn(
 // TODO(abhinav): Getting data from the tree may not be needed
 // confirm this.
 export const getPropsFromTree = (
-  state: AppState,
+  state: DefaultRootState,
   widgetName?: string,
 ): unknown => {
   // Get the evaluated data of this widget from the evaluations tree.
@@ -161,8 +161,9 @@ export function useChildWidgetEnhancementFn(
   const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
   // If such a parent is found
   // Get the parent's evaluated data from the evaluatedTree
-  const parentDataFromDataTree: unknown = useSelector((state: AppState) =>
-    getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
+  const parentDataFromDataTree: unknown = useSelector(
+    (state: DefaultRootState) =>
+      getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
   );
 
   if (parentWithEnhancementFn) {
@@ -212,8 +213,9 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancementFns {
   const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
   // If such a parent is found
   // Get the parent's evaluated data from the evaluatedTree
-  const parentDataFromDataTree: unknown = useSelector((state: AppState) =>
-    getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
+  const parentDataFromDataTree: unknown = useSelector(
+    (state: DefaultRootState) =>
+      getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
   );
 
   if (parentWithEnhancementFn) {

@@ -1,7 +1,7 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 
-export const getLayoutElementPositions = (state: AppState) =>
+export const getLayoutElementPositions = (state: DefaultRootState) =>
   state.entities.layoutElementPositions;
 
 export const getPositionsByLayoutId = (layoutId: string) =>

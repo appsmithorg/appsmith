@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { PluginPackageName } from "entities/Plugin";
 import { isArray } from "lodash";
 import { useContext, useMemo } from "react";
@@ -26,7 +26,9 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state: DefaultRootState) =>
+    getWidget(state, widgetId),
+  );
 
   const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
@@ -47,8 +49,9 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     primaryColumn = "_id";
   }
 
-  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, config.datasource),
+  const selectedDatasourcePluginPackageName = useSelector(
+    (state: DefaultRootState) =>
+      getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
   const columnDropdownProps = {

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   EDIT_DATASOURCE_MESSAGE,
   OAUTH_2_0,
@@ -94,7 +94,8 @@ function ApiAuthentication(props: Props): JSX.Element {
   const datasourceId = get(datasource, "id");
 
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentAppWorkspace(state)?.userPermissions ?? [],
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -131,9 +132,12 @@ function ApiAuthentication(props: Props): JSX.Element {
   );
 }
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ownProps: any,
+): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   const currentEnvironment = getCurrentEnvironmentId(state);

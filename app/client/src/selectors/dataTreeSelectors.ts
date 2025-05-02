@@ -26,7 +26,7 @@ import {
   getWidgetsMeta,
 } from "sagas/selectors";
 import "url-search-params-polyfill";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import _, { get } from "lodash";
@@ -45,7 +45,7 @@ import type { PageListReduxState } from "reducers/entityReducers/pageListReducer
 import { getCurrentEnvironmentName } from "ee/selectors/dataTreeCyclicSelectors";
 import { objectKeys } from "@appsmith/utils";
 
-export const getLoadingEntities = (state: AppState) =>
+export const getLoadingEntities = (state: DefaultRootState) =>
   state.evaluations.loadingEntities;
 
 /**
@@ -134,7 +134,7 @@ const getMetaWidgetsFromUnevaluatedDataTree = createSelector(
 );
 
 // * This is only for internal use to avoid cyclic dependency issue
-const getPageListState = (state: AppState) => state.entities.pageList;
+const getPageListState = (state: DefaultRootState) => state.entities.pageList;
 const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -195,11 +195,14 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
-export const getEvaluationInverseDependencyMap = (state: AppState) =>
+export const getEvaluationInverseDependencyMap = (state: DefaultRootState) =>
   state.evaluations.dependencies.inverseDependencyMap;
 
 export const getIsWidgetLoading = createSelector(
-  [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],
+  [
+    getLoadingEntities,
+    (_state: DefaultRootState, widgetName: string) => widgetName,
+  ],
   (loadingEntities: LoadingEntitiesState, widgetName: string) =>
     loadingEntities.has(widgetName),
 );
@@ -209,7 +212,7 @@ export const getIsWidgetLoading = createSelector(
  *
  * @param state
  */
-export const getDataTree = (state: AppState): DataTree =>
+export const getDataTree = (state: DefaultRootState): DataTree =>
   state.evaluations.tree;
 
 // TODO: Fix this the next time the file is edited
@@ -219,7 +222,7 @@ export const getConfigTree = (): any => {
 };
 
 export const getWidgetEvalValues = createSelector(
-  [getDataTree, (_state: AppState, widgetName: string) => widgetName],
+  [getDataTree, (_state: DefaultRootState, widgetName: string) => widgetName],
   (tree: DataTree, widgetName: string) => tree[widgetName] as WidgetEntity,
 );
 

@@ -31,7 +31,7 @@ import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
 import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../utils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -91,7 +91,7 @@ function PageSettings(props: { page: Page }) {
   ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
 
   const conflictingNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, ""),
+    (state: DefaultRootState) => getUsedActionNames(state, ""),
     shallowEqual,
   );
 

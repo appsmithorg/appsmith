@@ -1,9 +1,9 @@
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 
-export const getIsDraggingForSelection = (state: AppState) => {
+export const getIsDraggingForSelection = (state: DefaultRootState) => {
   return state.ui.canvasSelection.isDraggingForSelection;
 };
 

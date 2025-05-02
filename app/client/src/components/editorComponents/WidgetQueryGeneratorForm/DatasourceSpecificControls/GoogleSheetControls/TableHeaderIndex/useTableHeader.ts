@@ -1,5 +1,5 @@
 import { fetchGheetColumns } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";
@@ -12,7 +12,7 @@ export function useTableHeaderIndex() {
 
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
-  const selectedDatasource = useSelector((state: AppState) =>
+  const selectedDatasource = useSelector((state: DefaultRootState) =>
     getDatasource(state, config.datasource),
   );
 

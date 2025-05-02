@@ -179,6 +179,25 @@ class AppsmithTelemetry {
       errorLogger(e);
     }
   }
+
+  public captureLog(
+    args: unknown[],
+    level: LogLevel = LogLevel.INFO,
+    context?: Record<string, string>,
+  ) {
+    if (!this.faro) {
+      return;
+    }
+
+    try {
+      this.faro.api.pushLog(args, {
+        level,
+        context,
+      });
+    } catch (e) {
+      errorLogger(e);
+    }
+  }
 }
 
 export const appsmithTelemetry = AppsmithTelemetry.getInstance();
