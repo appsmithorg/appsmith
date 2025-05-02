@@ -788,7 +788,7 @@
             "apiContentType": "application/json"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -867,7 +867,7 @@
             "apiContentType": "application/json"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -922,7 +922,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -994,7 +994,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1107,7 +1107,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1164,7 +1164,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -1243,7 +1243,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -1297,7 +1297,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"

@@ -128,7 +128,7 @@
           "body": "UPDATE users\n  SET status = 'APPROVED'\n  WHERE id = {{Table1.selectedRow.id}};\n",
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

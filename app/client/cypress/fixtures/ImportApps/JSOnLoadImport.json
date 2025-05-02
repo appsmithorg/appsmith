@@ -1053,7 +1053,7 @@
 						}
 					]
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 
 				],
@@ -1106,7 +1106,7 @@
 						}
 					]
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 
 				],
@@ -1166,7 +1166,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"clientSideExecution": true,
 				"dynamicBindingPathList": [
 					{
@@ -1222,7 +1222,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"clientSideExecution": true,
 				"dynamicBindingPathList": [
 					{
@@ -1285,7 +1285,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"clientSideExecution": true,
 				"dynamicBindingPathList": [
 					{
@@ -1341,7 +1341,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"clientSideExecution": true,
 				"dynamicBindingPathList": [
 					{

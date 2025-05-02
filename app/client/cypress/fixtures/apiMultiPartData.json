@@ -321,7 +321,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -367,7 +367,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -415,7 +415,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -456,7 +456,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -511,7 +511,7 @@
                         "apiContentType": "application/x-www-form-urlencoded"
                     }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -559,7 +559,7 @@
                         "apiContentType": "application/x-www-form-urlencoded"
                     }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -612,7 +612,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -658,7 +658,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -706,7 +706,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -747,7 +747,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -795,7 +795,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -836,7 +836,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "none" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [],
                 "isValid": true,
                 "invalids": [],
@@ -899,7 +899,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [{ "key": "bodyFormData[0].value" }],
                 "isValid": true,
                 "invalids": [],
@@ -955,7 +955,7 @@
                     "pluginSpecifiedTemplates": [{ "value": true }],
                     "formData": { "apiContentType": "multipart/form-data" }
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [{ "key": "bodyFormData[0].value" }],
                 "isValid": true,
                 "invalids": [],
@@ -997,7 +997,7 @@
                     "selfReferencingDataPaths": [],
                     "jsArguments": []
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [{ "key": "body" }],
                 "isValid": true,
                 "invalids": [],
@@ -1034,7 +1034,7 @@
                     "selfReferencingDataPaths": [],
                     "jsArguments": []
                 },
-                "executeOnLoad": false,
+                "runBehaviour": "MANUAL",
                 "dynamicBindingPathList": [{ "key": "body" }],
                 "isValid": true,
                 "invalids": [],
