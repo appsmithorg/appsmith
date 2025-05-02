@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Tabs, TabsList, Tab, TabPanel } from "@appsmith/ads";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 interface PropertyPaneTabProps {
   styleComponent: JSX.Element | null;
@@ -33,7 +33,7 @@ const StyledTabs = styled(Tabs)`
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const dispatch = useDispatch();
-  const selectedIndex = useSelector((state: AppState) =>
+  const selectedIndex = useSelector((state: DefaultRootState) =>
     getSelectedPropertyTabIndex(state, props.panelPropertyPath),
   );
 

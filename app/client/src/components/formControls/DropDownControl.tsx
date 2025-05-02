@@ -9,7 +9,7 @@ import {
   type WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
@@ -511,7 +511,7 @@ function renderOptionWithIcon(option: SelectOptionProps) {
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: DropDownControlProps,
 ): {
   isLoading: boolean;

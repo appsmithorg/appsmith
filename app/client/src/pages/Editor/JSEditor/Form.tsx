@@ -16,7 +16,7 @@ import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
@@ -120,15 +120,15 @@ function JSEditorForm({
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
   const parseErrors = useSelector(
-    (state: AppState) =>
+    (state: DefaultRootState) =>
       getJSCollectionParseErrors(state, currentJSCollection.name),
     equal,
   );
   const jsActions = useSelector(
-    (state: AppState) => getJSActions(state, currentJSCollection.id),
+    (state: DefaultRootState) => getJSActions(state, currentJSCollection.id),
     equal,
   );
-  const activeJSActionId = useSelector((state: AppState) =>
+  const activeJSActionId = useSelector((state: DefaultRootState) =>
     getActiveJSActionId(state, currentJSCollection.id),
   );
 
@@ -146,7 +146,7 @@ function JSEditorForm({
       getJSActionOption(activeJSAction, jsActions),
     );
 
-  const isExecutingCurrentJSAction = useSelector((state: AppState) =>
+  const isExecutingCurrentJSAction = useSelector((state: DefaultRootState) =>
     getIsExecutingJSAction(
       state,
       currentJSCollection.id,

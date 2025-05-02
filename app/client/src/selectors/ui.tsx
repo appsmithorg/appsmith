@@ -1,13 +1,13 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 
-export const getLastSelectedWidget = (state: AppState) =>
+export const getLastSelectedWidget = (state: DefaultRootState) =>
   state.ui.widgetDragResize.lastSelectedWidget;
 
-export const getSelectedWidgets = (state: AppState) =>
+export const getSelectedWidgets = (state: DefaultRootState) =>
   state.ui.widgetDragResize.selectedWidgets;
 
-export const getDefaultSelectedWidgetIds = (state: AppState) => {
+export const getDefaultSelectedWidgetIds = (state: DefaultRootState) => {
   const widgets = Object.keys(state.entities.canvasWidgets);
 
   // We check for more than 1 because MainContainer is always present
@@ -19,51 +19,56 @@ export const getDefaultSelectedWidgetIds = (state: AppState) => {
 /**
  * Selector to use id and provide the status of saving an API.
  */
-export const getIsSavingForApiName = (state: AppState, id: string) =>
+export const getIsSavingForApiName = (state: DefaultRootState, id: string) =>
   state.ui.apiName.isSaving[id];
 
 /** Select saving status for all API names */
-export const getApiNameSavingStatuses = (state: AppState) =>
+export const getApiNameSavingStatuses = (state: DefaultRootState) =>
   state.ui.apiName.isSaving;
 
 /**
  * Selector to use id and provide the status of error in an API.
  */
-export const getErrorForApiName = (state: AppState, id: string) =>
+export const getErrorForApiName = (state: DefaultRootState, id: string) =>
   state.ui.apiName.errors[id];
 
 /**
  * Selector to use id and provide the status of saving a JS Object.
  */
-export const getIsSavingForJSObjectName = (state: AppState, id: string) =>
-  state.ui.jsObjectName.isSaving[id];
+export const getIsSavingForJSObjectName = (
+  state: DefaultRootState,
+  id: string,
+) => state.ui.jsObjectName.isSaving[id];
 
 /** Select saving status for all JS object names */
-export const getJsObjectNameSavingStatuses = (state: AppState) =>
+export const getJsObjectNameSavingStatuses = (state: DefaultRootState) =>
   state.ui.jsObjectName.isSaving;
 
 /**
  * Selector to use id and provide the status of error in a JS Object.
  */
-export const getErrorForJSObjectName = (state: AppState, id: string) =>
+export const getErrorForJSObjectName = (state: DefaultRootState, id: string) =>
   state.ui.jsObjectName.errors[id];
 
-export const getFocusedWidget = (state: AppState) =>
+export const getFocusedWidget = (state: DefaultRootState) =>
   state.ui.widgetDragResize.focusedWidget;
 
-export const isDatasourceInViewMode = (state: AppState) =>
+export const isDatasourceInViewMode = (state: DefaultRootState) =>
   state.ui.datasourcePane.viewMode;
 
-export const getDsViewModeValues = (state: AppState) => ({
+export const getDsViewModeValues = (state: DefaultRootState) => ({
   datasourceId: state.ui.datasourcePane.expandDatasourceId,
   viewMode: state.ui.datasourcePane.viewMode,
 });
 
-export const getAllDatasourceCollapsibleState = (state: AppState) =>
+export const getAllDatasourceCollapsibleState = (state: DefaultRootState) =>
   state.ui.datasourcePane.collapsibleState;
 
 export const getDatasourceCollapsibleState = createSelector(
-  [getAllDatasourceCollapsibleState, (_state: AppState, key: string) => key],
+  [
+    getAllDatasourceCollapsibleState,
+    (_state: DefaultRootState, key: string) => key,
+  ],
   (
     datasourceCollapsibleState: { [key: string]: boolean },
     key: string,
@@ -72,13 +77,13 @@ export const getDatasourceCollapsibleState = createSelector(
   },
 );
 
-export const getIsConsolidatedPageLoading = (state: AppState) =>
+export const getIsConsolidatedPageLoading = (state: DefaultRootState) =>
   state.ui.consolidatedPageLoad.isLoading;
 
-export const getIsAltFocusWidget = (state: AppState) =>
+export const getIsAltFocusWidget = (state: DefaultRootState) =>
   state.ui.widgetDragResize.altFocus;
 
-export const getWidgetSelectionBlock = (state: AppState) =>
+export const getWidgetSelectionBlock = (state: DefaultRootState) =>
   state.ui.widgetDragResize.blockSelection;
 
 export const getAltBlockWidgetSelection = createSelector(

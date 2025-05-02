@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.LoadShifter;
+import com.appsmith.server.plugins.solutions.PluginTransformationSolution;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -71,6 +72,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ObjectMapper objectMapper;
     private final CloudServicesConfig cloudServicesConfig;
 
+    private final PluginTransformationSolution pluginTransformationSolution;
+
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
     private final Map<String, Mono<Map>> labelCache = new HashMap<>();
@@ -104,7 +107,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             ChannelTopic topic,
             ObjectMapper objectMapper,
             CloudServicesConfig cloudServicesConfig,
-            ConfigService configService) {
+            ConfigService configService,
+            PluginTransformationSolution pluginTransformationSolution) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
@@ -113,6 +117,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         this.objectMapper = objectMapper;
         this.cloudServicesConfig = cloudServicesConfig;
         this.configService = configService;
+        this.pluginTransformationSolution = pluginTransformationSolution;
     }
 
     @Override
@@ -342,7 +347,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             formCache.put(pluginId, resourceMono);
         }
 
-        return formCache.get(pluginId);
+        return formCache.get(pluginId).flatMap(input -> pluginTransformationSolution.transform(pluginId, input));
     }
 
     @Override
@@ -667,7 +672,17 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     .filter(Objects::nonNull)
                     .collect(Collectors.toUnmodifiableSet());
 
-            return repository.findAllById(pluginIds);
+            return repository.findAllById(pluginIds).flatMap(plugin -> {
+                if (Objects.nonNull(plugin.getActionUiConfig())) {
+                    return pluginTransformationSolution
+                            .transform(plugin.getId(), plugin.getActionUiConfig())
+                            .flatMap(transformedActionUiConfig -> {
+                                plugin.setActionUiConfig(transformedActionUiConfig);
+                                return Mono.just(plugin);
+                            });
+                }
+                return Mono.just(plugin);
+            });
         });
     }
 

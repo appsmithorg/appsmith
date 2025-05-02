@@ -22,7 +22,7 @@ import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { creatingApplicationMap } from "ee/reducers/uiReducers/applicationsReducer";
 import {
   getApplicationList,
@@ -135,6 +135,7 @@ import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import {
   GitRepoLimitErrorModal as NewGitRepoLimitErrorModal,
   GitImportModal as NewGitImportModal,
+  GitImportOverrideModal,
 } from "git";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 
@@ -145,6 +146,7 @@ function GitModals() {
     <>
       <NewGitImportModal />
       <NewGitRepoLimitErrorModal />
+      <GitImportOverrideModal />
     </>
   ) : (
     <>
@@ -1180,7 +1182,7 @@ export class Applications<
   }
 }
 
-export const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: DefaultRootState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),

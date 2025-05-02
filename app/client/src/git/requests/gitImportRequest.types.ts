@@ -9,6 +9,7 @@ export interface GitImportRequestParams {
     authorEmail: string;
     useDefaultProfile?: boolean;
   };
+  override?: boolean;
 }
 
 export interface GitImportResponseData {

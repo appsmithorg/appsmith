@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { WorkflowMetadata } from "ee/constants/WorkflowConstants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
@@ -6,27 +6,26 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 const DEFAULT_WORKFLOW_LIST: WorkflowMetadata[] = [];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getIsFetchingWorkflows = (state: AppState) => false;
+export const getIsFetchingWorkflows = (state: DefaultRootState) => false;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getIsCreatingWorkflow = (state: AppState, workspaceId: string) =>
-  false;
+export const getIsCreatingWorkflow = () => false;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getWorkflowsList = (state: AppState): WorkflowMetadata[] =>
+export const getWorkflowsList = (state: DefaultRootState): WorkflowMetadata[] =>
   DEFAULT_WORKFLOW_LIST;
 
 export const getIsCurrentEditorWorkflowType = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  state: AppState,
+  state: DefaultRootState,
 ) => false;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getCurrentWorkflowActions = (state: AppState): ActionData[] => [];
+export const getCurrentWorkflowActions = (): ActionData[] => [];
 
 export const getCurrentWorkflowJSActions = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  state: AppState,
+  state: DefaultRootState,
 ): JSCollectionData[] => [];
 
 export const getShowWorkflowFeature = () => false;

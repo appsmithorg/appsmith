@@ -7,7 +7,7 @@ import {
   isDirty,
   reset,
 } from "redux-form";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
 import {
   getPluginImages,
@@ -1111,8 +1111,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 }
 
 // TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props: any,
+): ReduxStateProps => {
   const applicationId = props.applicationId ?? getCurrentApplicationId(state);
   const application = getApplicationByIdFromWorkspaces(state, applicationId);
 

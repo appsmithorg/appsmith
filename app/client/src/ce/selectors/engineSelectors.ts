@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 export interface DependentFeatureFlags {}
 
-export const getFeatureFlagsForEngine = (state: AppState) => {
+export const getFeatureFlagsForEngine = (state: DefaultRootState) => {
   return {};
 };

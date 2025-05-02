@@ -12,7 +12,7 @@ import DatasourceStructure from "./DatasourceStructure";
 import { Flex, SearchInput, Text } from "@appsmith/ads";
 import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -39,7 +39,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
 ];
 
 const Container = (props: Props) => {
-  const isLoading = useSelector((state: AppState) =>
+  const isLoading = useSelector((state: DefaultRootState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
   let view: ReactElement<Props> | JSX.Element = <div />;

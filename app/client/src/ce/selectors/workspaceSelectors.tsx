@@ -1,12 +1,12 @@
 import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Workspace, WorkspaceRole } from "ee/constants/workspaceConstants";
 
-export const getRolesFromState = (state: AppState) => {
+export const getRolesFromState = (state: DefaultRootState) => {
   return state.ui.workspaces.roles;
 };
 
-export const getWorkspaceLoadingStates = (state: AppState) => {
+export const getWorkspaceLoadingStates = (state: DefaultRootState) => {
   return {
     isFetchingWorkspaces:
       state.ui.workspaces.loadingStates.isFetchingWorkspaces,
@@ -16,15 +16,18 @@ export const getWorkspaceLoadingStates = (state: AppState) => {
   };
 };
 
-export const getIsFetchingWorkspaces = (state: AppState) => {
+export const getIsFetchingWorkspaces = (state: DefaultRootState) => {
   return state.ui.workspaces.loadingStates.isFetchingWorkspaces;
 };
 
-export const getFetchedWorkspaces = (state: AppState): Workspace[] => {
+export const getFetchedWorkspaces = (state: DefaultRootState): Workspace[] => {
   return state.ui.workspaces.list || [];
 };
 
-export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
+export const getWorkspaceFromId = (
+  state: DefaultRootState,
+  workspaceId: string,
+) => {
   const filteredWorkspaces = state.ui.workspaces.list.filter(
     (el) => el.id === workspaceId,
   );
@@ -34,7 +37,7 @@ export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
     : undefined;
 };
 
-export const getAllRoles = (state: AppState) =>
+export const getAllRoles = (state: DefaultRootState) =>
   state.ui.workspaces.workspaceRoles;
 
 export const getRoles = createSelector(
@@ -69,26 +72,26 @@ export const getDefaultRole = createSelector(
   },
 );
 
-export const getCurrentError = (state: AppState) => {
+export const getCurrentError = (state: DefaultRootState) => {
   return state.ui.errors.currentError;
 };
 
-export const getIsSavingWorkspaceInfo = (state: AppState) =>
+export const getIsSavingWorkspaceInfo = (state: DefaultRootState) =>
   state.ui.workspaces.loadingStates.isSavingWorkspaceInfo;
 
-export const getSearchedWorkspaces = (state: AppState) =>
+export const getSearchedWorkspaces = (state: DefaultRootState) =>
   state.ui.workspaces.searchEntities?.workspaces;
 
-export const getSearchedApplications = (state: AppState) =>
+export const getSearchedApplications = (state: DefaultRootState) =>
   state.ui.workspaces.searchEntities?.applications;
 
-export const getSearchedWorkflows = (state: AppState) =>
+export const getSearchedWorkflows = (state: DefaultRootState) =>
   state.ui.workspaces.searchEntities?.workflows;
 
-export const getIsFetchingEntities = (state: AppState) => {
+export const getIsFetchingEntities = (state: DefaultRootState) => {
   return state.ui.workspaces.loadingStates.isFetchingEntities;
 };
 
-export const getIsDeletingWorkspace = (state: AppState) => {
+export const getIsDeletingWorkspace = (state: DefaultRootState) => {
   return state.ui.workspaces.loadingStates.isDeletingWorkspace;
 };

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
@@ -7,7 +7,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
  * @param state - The current state of the application.
  * @returns The layout system type.
  */
-export const getLayoutSystemType = (state: AppState) => {
+export const getLayoutSystemType = (state: DefaultRootState) => {
   const applicationLayoutSystemType =
     state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
       ?.type;
@@ -25,7 +25,7 @@ export const getLayoutSystemType = (state: AppState) => {
 };
 
 export const getWidgetSelectorByWidgetId = (
-  state: AppState,
+  state: DefaultRootState,
   widgetId: string,
 ) => {
   const layoutSystemType = getLayoutSystemType(state);
@@ -38,5 +38,5 @@ export const getWidgetSelectorByWidgetId = (
   }
 };
 
-export const isFixedLayoutSelector = (state: AppState) =>
+export const isFixedLayoutSelector = (state: DefaultRootState) =>
   getLayoutSystemType(state) === LayoutSystemTypes.FIXED;

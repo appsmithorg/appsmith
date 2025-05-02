@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
@@ -168,7 +168,7 @@ export const checkIfMigrationIsNeeded = (
 
 export const WidgetTypes = WidgetFactory.widgetTypes;
 
-export const getWidgetName = (state: AppState, widgetId: string) =>
+export const getWidgetName = (state: DefaultRootState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
 
 //Method to load the default page if current page is not found
@@ -1062,7 +1062,7 @@ export function* updateWidgetNameSaga(
         widgetId: string;
         label: string;
       }
-    > = yield select((state: AppState) => {
+    > = yield select((state: DefaultRootState) => {
       // Check if this widget exists in the canvas widgets
       if (state.entities.canvasWidgets.hasOwnProperty(action.payload.id)) {
         // If it does assign it to a variable
@@ -1270,7 +1270,7 @@ export function* populatePageDSLsSaga(action?: {
   const { pagesWithMigratedDsl } = action?.payload || {};
 
   try {
-    const pageIds: string[] = yield select((state: AppState) =>
+    const pageIds: string[] = yield select((state: DefaultRootState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
     const pageDSLs: unknown = yield all(

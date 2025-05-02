@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import { Tooltip, Tag, Spinner } from "@appsmith/ads";
 import { createMessage, EXPLORER_BETA_ENTITY } from "ee/constants/messages";
@@ -257,7 +257,7 @@ export interface EntityProps {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
-    const isEntityOpen = useSelector((state: AppState) =>
+    const isEntityOpen = useSelector((state: DefaultRootState) =>
       getEntityCollapsibleState(state, props.entityId),
     );
     const isDefaultExpanded = useMemo(() => !!props.isDefaultExpanded, []);

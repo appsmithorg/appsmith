@@ -1,11 +1,23 @@
 {
-  "src/**/*.{js,ts,tsx}": ["eslint --fix --cache"],
-  "src/**/*.{css,md,json}": ["prettier --write --cache"],
+  "src/**/*.{js,ts,tsx}": [
+    "eslint --fix --cache"
+  ],
+  "src/**/*.{css,md,json}": [
+    "prettier --write --cache"
+  ],
   "cypress/**/*.{js,ts}": [
     "cd ./cypress && eslint -c .eslintrc.json --fix --cache"
   ],
-  "cypress/**/*.json": ["prettier --write --cache"],
-  "packages/**/*.{js,ts,tsx}": ["eslint --fix --cache"],
-  "packages/**/*.{css,mdx,json}": ["prettier --write --cache"],
-  "*": ["gitleaks protect --staged --verbose --no-banner"]
+  "cypress/**/*.json": [
+    "prettier --write --cache"
+  ],
+  "packages/**/*.{js,ts,tsx}": [
+    "eslint --fix --cache"
+  ],
+  "packages/**/*.{css,mdx,json}": [
+    "prettier --write --cache"
+  ],
+  "*": [
+    "gitleaks protect --staged --verbose --no-banner"
+  ]
 }

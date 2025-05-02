@@ -5,7 +5,7 @@ import {
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import {
   getAllTemplates,
@@ -50,7 +50,8 @@ function CreateNewAppFromTemplatesModal({
   const dispatch = useDispatch();
   const templatesCount = useSelector(templatesCountSelector);
   const pluginListLength = useSelector(
-    (state: AppState) => state.entities.plugins.defaultPluginList.length,
+    (state: DefaultRootState) =>
+      state.entities.plugins.defaultPluginList.length,
   );
   const filters = useSelector(allTemplatesFiltersSelector);
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
