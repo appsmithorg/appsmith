@@ -31,7 +31,7 @@ const TEST_JS_FUNCTION = {
     jsArguments: [],
     isAsync: true,
   },
-  runBehavior: ActionRunBehaviour.MANUAL,
+  runBehaviour: ActionRunBehaviour.MANUAL,
   clientSideExecution: true,
   dynamicBindingPathList: [
     {

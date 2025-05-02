@@ -366,14 +366,14 @@ export const handlers = {
     action: ReduxAction<{
       actionId: string;
       collectionId: string;
-      runBehavior: ActionRunBehaviourType;
+      runBehaviour: ActionRunBehaviourType;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
         const updatedActions = a.config.actions.map((jsAction) => {
           if (jsAction.id === action.payload.actionId) {
-            set(jsAction, `runBehavior`, action.payload.runBehavior);
+            set(jsAction, `runBehaviour`, action.payload.runBehaviour);
           }
 
           return jsAction;
@@ -394,7 +394,7 @@ export const handlers = {
     state: JSCollectionDataState,
     action: ReduxAction<
       Array<{
-        runBehavior: ActionRunBehaviourType;
+        runBehaviour: ActionRunBehaviourType;
         id: string;
         name: string;
         collectionId: string;
@@ -411,7 +411,7 @@ export const handlers = {
 
           allActions.forEach((js) => {
             if (js.id in actionUpdateSearch) {
-              js.runBehavior = actionUpdateSearch[js.id].runBehavior;
+              js.runBehaviour = actionUpdateSearch[js.id].runBehaviour;
             }
           });
         }

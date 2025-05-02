@@ -104,8 +104,8 @@ export class ApiPage {
   public moreActionsTrigger = "[data-testid='t--more-action-trigger']";
   private apiNameInput = this.locator._activeEntityTabInput;
   public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
-  public _runBehaviorDropdown = "[data-testid='t--dropdown-runBehavior']";
-  public _runBehaviorOption = (runBehaviour: string) =>
+  public _runBehaviourDropdown = "[data-testid='t--dropdown-runBehaviour']";
+  public _runBehaviourOption = (runBehaviour: string) =>
     `.rc-select-item-option-content [data-testid='t--label-${runBehaviour}']`;
 
   CreateApi(
@@ -275,16 +275,14 @@ export class ApiPage {
     this.SelectPaneTab("Headers");
   }
 
-  ToggleOnPageLoadRun(runBehavior: "On page load" | "Manual") {
+  ToggleOnPageLoadRun(runBehaviour: "On page load" | "Manual") {
     // Navigate to Settings tab
     this.pluginActionForm.toolbar.toggleSettings();
-    // Set runBehavior to On page load
-    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
     this.agHelper.GetNClickByContains(
-      this._runBehaviorOption,
-      runBehavior,
-      0,
-      true,
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
     );
   }
 
@@ -510,24 +508,24 @@ export class ApiPage {
     this.RunAPI();
   }
 
-  ToggleOnPageLoadRunJsObject(runBehavior: "On page load" | "Manual") {
+  ToggleOnPageLoadRunJsObject(runBehaviour: "On page load" | "Manual") {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this.settingsTriggerLocator);
-    // Set runBehavior to On page load
-    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
     this.agHelper.GetNClickByContains(
-      this._runBehaviorOption(runBehavior),
-      runBehavior,
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
     );
   }
 
-  public clickSettingIcon(runBehavior: "On page load" | "Manual") {
+  public clickSettingIcon(runBehaviour: "On page load" | "Manual") {
     this.agHelper.GetNClick(this.settingsTriggerLocator);
-    // Set runBehavior to On page load
-    this.agHelper.GetNClick(this._runBehaviorDropdown);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
     this.agHelper.GetNClickByContains(
-      this._runBehaviorOption(runBehavior),
-      runBehavior,
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
     );
   }
 

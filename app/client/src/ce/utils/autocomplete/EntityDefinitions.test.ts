@@ -44,7 +44,7 @@ const jsObject: JSCollectionData = {
           jsArguments: [],
           isAsync: false,
         },
-        runBehavior: "MANUAL",
+        runBehaviour: "MANUAL",
         clientSideExecution: true,
         dynamicBindingPathList: [
           {
@@ -86,7 +86,7 @@ const jsObject: JSCollectionData = {
           jsArguments: [],
           isAsync: true,
         },
-        runBehavior: "MANUAL",
+        runBehaviour: "MANUAL",
         clientSideExecution: true,
         dynamicBindingPathList: [
           {
