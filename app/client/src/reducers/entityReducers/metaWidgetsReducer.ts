@@ -38,6 +38,7 @@ export interface UpdateMetaWidgetPropertyPayload {
   updates: BatchPropertyUpdatePayload;
   widgetId: string;
   creatorId?: string;
+  computeDynamicPaths?: boolean;
 }
 
 export interface DeleteMetaWidgetsPayload {

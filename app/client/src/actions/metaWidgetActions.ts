@@ -30,6 +30,6 @@ export const deleteMetaWidgets = (
 export const updateMetaWidgetProperty = (
   payload: UpdateMetaWidgetPropertyPayload,
 ) => ({
-  type: ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY,
+  type: ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY_INIT,
   payload,
 });
