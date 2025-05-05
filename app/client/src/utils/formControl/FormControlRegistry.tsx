@@ -255,7 +255,7 @@ class FormControlRegistry {
       },
     );
     FormControlFactory.registerControlBuilder(
-      formControlTypes.FUNCTION_CALLING_CONFIG_FORM,
+      formControlTypes.AI_CHAT_INTEGRATIONS_FORM,
       {
         buildPropertyControl(controlProps): JSX.Element {
           return <AIChatIntegrationsControl {...controlProps} />;
