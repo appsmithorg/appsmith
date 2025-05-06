@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class ActionViewCE_DTO {
     @JsonView(Views.Public.class)
     Boolean executeOnLoad;
 
-    @JsonView({Views.Public.class, FromRequest.class, Git.class})
+    @JsonView({Views.Public.class})
     RunBehaviourEnum runBehaviour;
 
     public RunBehaviourEnum getRunBehaviour() {
