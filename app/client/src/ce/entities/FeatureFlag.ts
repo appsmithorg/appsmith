@@ -59,6 +59,7 @@ export const FEATURE_FLAG = {
   license_external_saas_plugins_enabled:
     "license_external_saas_plugins_enabled",
   release_computation_cache_enabled: "release_computation_cache_enabled",
+  release_ai_chat_integrations_enabled: "release_ai_chat_integrations_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -108,6 +109,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_package_enabled: false,
   license_external_saas_plugins_enabled: false,
   release_computation_cache_enabled: false,
+  release_ai_chat_integrations_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
