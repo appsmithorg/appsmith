@@ -9,7 +9,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import SearchModal from "./SearchModal";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
@@ -107,10 +107,11 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   }
 `;
 
-export const isModalOpenSelector = (state: AppState) =>
+export const isModalOpenSelector = (state: DefaultRootState) =>
   state.ui.globalSearch.modalOpen;
 
-const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
+const searchQuerySelector = (state: DefaultRootState) =>
+  state.ui.globalSearch.query;
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   const title = getItemTitle(item) || "";
@@ -176,7 +177,7 @@ function GlobalSearch() {
     [setQueryInState],
   );
   const category = useSelector(
-    (state: AppState) => state.ui.globalSearch.filterContext.category,
+    (state: DefaultRootState) => state.ui.globalSearch.filterContext.category,
   );
   const plugins = useSelector(getPlugins);
   const pluginById = useMemo(() => {
@@ -223,7 +224,7 @@ function GlobalSearch() {
     setActiveItemIndex(0);
   }, []);
 
-  const reducerDatasources = useSelector((state: AppState) => {
+  const reducerDatasources = useSelector((state: DefaultRootState) => {
     return state.entities.datasources.list.filter(
       (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
     );

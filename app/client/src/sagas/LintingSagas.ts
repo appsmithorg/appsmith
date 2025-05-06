@@ -7,7 +7,7 @@ import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "ee/configs";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { get, set, uniq } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
@@ -51,8 +51,9 @@ function* updateOldJSCollectionLintErrors(
 
   for (const jsObjectName of jsEntities) {
     const jsObjectBodyPath = `["${jsObjectName}.body"]`;
-    const oldJsBodyLintErrors: LintError[] = yield select((state: AppState) =>
-      get(state.linting.errors, jsObjectBodyPath, []),
+    const oldJsBodyLintErrors: LintError[] = yield select(
+      (state: DefaultRootState) =>
+        get(state.linting.errors, jsObjectBodyPath, []),
     );
     const newJSBodyLintErrors = get(
       errors,

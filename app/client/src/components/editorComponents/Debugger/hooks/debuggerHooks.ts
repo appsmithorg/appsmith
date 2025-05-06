@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import type { Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -33,7 +33,7 @@ import type { WidgetEntity } from "ee/entities/DataTree/types";
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFilteredLogs = (query: string, filter?: any) => {
-  let logs = useSelector((state: AppState) => state.ui.debugger.logs);
+  let logs = useSelector((state: DefaultRootState) => state.ui.debugger.logs);
 
   if (filter) {
     logs = logs.filter(
@@ -107,7 +107,7 @@ export const useSelectedEntity = () => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = useParams();
-  const action = useSelector((state: AppState) => {
+  const action = useSelector((state: DefaultRootState) => {
     if (onApiEditor() || onQueryEditor()) {
       const baseId = params.baseApiId || params.baseQueryId;
 
@@ -118,7 +118,7 @@ export const useSelectedEntity = () => {
   });
 
   const selectedWidget = useSelector(getLastSelectedWidget);
-  const widget = useSelector((state: AppState) => {
+  const widget = useSelector((state: DefaultRootState) => {
     if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }

@@ -15,7 +15,7 @@ import {
   WELCOME_FORM_FULL_NAME,
 } from "ee/constants/messages";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
@@ -121,7 +121,7 @@ function NonSuperUserProfilingQuestions(
 
 const selector = formValueSelector(WELCOME_NON_SUPER_FORM_NAME);
 
-export default connect((state: AppState) => {
+export default connect((state: DefaultRootState) => {
   return {
     proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),

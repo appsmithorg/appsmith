@@ -20,7 +20,7 @@ import {
   getPluginImages,
 } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -58,17 +58,18 @@ export const PluginDatasourceSelector = ({
       ? getActionByBaseId(state, activeActionBaseId)
       : undefined,
   );
-  const plugin = useSelector((state: AppState) =>
+  const plugin = useSelector((state: DefaultRootState) =>
     getPlugin(state, currentActionConfig?.pluginId || ""),
   );
 
-  const dataSources = useSelector((state: AppState) =>
+  const dataSources = useSelector((state: DefaultRootState) =>
     getDatasourceByPluginId(state, currentActionConfig?.pluginId || ""),
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentAppWorkspace(state).userPermissions ?? [],
   );
   const isActionChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,

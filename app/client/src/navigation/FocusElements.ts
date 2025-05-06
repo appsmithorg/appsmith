@@ -1,5 +1,5 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 export enum FocusElement {
   PluginActionConfigTabs = "PluginActionConfigTabs",
@@ -37,14 +37,14 @@ interface ConfigOther {
   name: FocusElement;
   /* If a selector is added for default value, it will be supplied the state to
   derive a default value */
-  defaultValue?: unknown | ((state: AppState) => unknown);
+  defaultValue?: unknown | ((state: DefaultRootState) => unknown);
   subTypes?: Record<string, { defaultValue: unknown }>;
   persist?: boolean;
 }
 
 type ConfigRedux = {
   type: FocusElementConfigType.Redux;
-  selector: (state: AppState) => unknown;
+  selector: (state: DefaultRootState) => unknown;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setter: (payload: any) => ReduxAction<any>;

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -111,7 +111,7 @@ export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
   const widget: DSLWidget = yield select(getWidget, widgetId);
   const widgetName: string = widget.widgetName;
   const errors: Record<string, Array<unknown>> = yield select(
-    (state: AppState) =>
+    (state: DefaultRootState) =>
       get(state.evaluations.tree[widgetName], EVAL_ERROR_PATH, {}),
   );
 

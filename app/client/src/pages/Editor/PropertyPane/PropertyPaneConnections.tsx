@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "ee/workers/Evaluation/evaluationUtils";
@@ -99,7 +99,8 @@ const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
 const useDependencyList = (name: string) => {
   const dataTree = useSelector(getDataTreeWithOnlyIds, equal);
   const inverseDependencyMap = useSelector(
-    (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
+    (state: DefaultRootState) =>
+      state.evaluations.dependencies.inverseDependencyMap,
     equal,
   );
 

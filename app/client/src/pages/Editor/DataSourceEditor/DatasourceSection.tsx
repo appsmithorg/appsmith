@@ -1,7 +1,7 @@
 import React from "react";
 import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { connect } from "react-redux";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
@@ -80,7 +80,7 @@ class RenderDatasourceInformation extends React.Component<RenderDatasourceSectio
 }
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, ownProps: any) => {
+const mapStateToProps = (state: DefaultRootState, ownProps: any) => {
   const { datasource } = ownProps;
   const pluginId = datasource.pluginId;
   const plugin = getPlugin(state, pluginId);

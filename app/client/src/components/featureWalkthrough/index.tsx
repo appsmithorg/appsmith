@@ -11,7 +11,7 @@ import { hideIndicator } from "components/utils/Indicator";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
@@ -32,7 +32,7 @@ export default function Walkthrough({ children }: any) {
   const [feature, setFeature] = useState<FeatureParams[]>([]);
   const location = useLocation();
 
-  const isWalkthroughDisabled = useSelector((state: AppState) =>
+  const isWalkthroughDisabled = useSelector((state: DefaultRootState) =>
     selectFeatureFlagCheck(
       state,
       FEATURE_FLAG.rollout_remove_feature_walkthrough_enabled,

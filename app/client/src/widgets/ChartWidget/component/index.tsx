@@ -25,7 +25,7 @@ import {
 } from "./helpers";
 
 import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { connect } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
@@ -403,7 +403,7 @@ class ChartComponent extends React.Component<
  * TODO: Balaji to refactor code to move out selected widget details to platform
  */
 export const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: ChartComponentProps,
 ) => {
   const isPreviewMode = selectCombinedPreviewMode(state);

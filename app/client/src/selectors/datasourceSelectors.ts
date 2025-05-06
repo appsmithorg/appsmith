@@ -1,34 +1,34 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 export const getGsheetSpreadsheets =
   (id = "") =>
-  (state: AppState) => {
+  (state: DefaultRootState) => {
     return state.entities.datasources.gsheetStructure.spreadsheets[id];
   };
 
-export const getIsFetchingGsheetSpreadsheets = (state: AppState) =>
+export const getIsFetchingGsheetSpreadsheets = (state: DefaultRootState) =>
   state.entities.datasources.gsheetStructure.isFetchingSpreadsheets;
 
 export const getGsheetsSheets =
   (id = "") =>
-  (state: AppState) => {
+  (state: DefaultRootState) => {
     return state.entities.datasources.gsheetStructure.sheets[id];
   };
 
-export const getisFetchingGsheetsSheets = (state: AppState) =>
+export const getisFetchingGsheetsSheets = (state: DefaultRootState) =>
   state.entities.datasources.gsheetStructure.isFetchingSheets;
 
 export const getGsheetsColumns =
   (id = "") =>
-  (state: AppState) => {
+  (state: DefaultRootState) => {
     return state.entities.datasources.gsheetStructure.columns[id];
   };
 
-export const getIsFetchingGsheetsColumns = (state: AppState) => {
+export const getIsFetchingGsheetsColumns = (state: DefaultRootState) => {
   return state.entities.datasources.gsheetStructure.isFetchingColumns;
 };
 
-export const getFirstDatasourceId = (state: AppState) => {
+export const getFirstDatasourceId = (state: DefaultRootState) => {
   const { list } = state.entities.datasources;
 
   if (list.length) {
@@ -36,8 +36,8 @@ export const getFirstDatasourceId = (state: AppState) => {
   }
 };
 
-export const getLoadingTokenForDatasourceId = (state: AppState) =>
+export const getLoadingTokenForDatasourceId = (state: DefaultRootState) =>
   state.entities.datasources.loadingTokenForDatasourceId;
 
-export const getDatasourcesLoadingState = (state: AppState) =>
+export const getDatasourcesLoadingState = (state: DefaultRootState) =>
   state.entities.datasources.loading;

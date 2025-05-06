@@ -5,7 +5,7 @@ import { memo } from "react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 interface DropTargetComponentWrapperProps {
@@ -27,7 +27,7 @@ export const DropTargetComponentWrapper = memo(
     dropTargetProps,
   }: DropTargetComponentWrapperProps) => {
     // This code block is added exclusively to handle List Widget Meta Canvas Widget which is generated via template.
-    const widget = useSelector((state: AppState) =>
+    const widget = useSelector((state: DefaultRootState) =>
       getWidget(state, dropTargetProps.parentId || MAIN_CONTAINER_WIDGET_ID),
     );
 

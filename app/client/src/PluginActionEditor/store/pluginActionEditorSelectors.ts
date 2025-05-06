@@ -1,7 +1,7 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 
-export const getActionEditorSavingMap = (state: AppState) =>
+export const getActionEditorSavingMap = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isSaving;
 
 export const isActionSaving = (id: string) =>
@@ -9,7 +9,7 @@ export const isActionSaving = (id: string) =>
     return id in savingMap && savingMap[id];
   });
 
-const getActionDirtyState = (state: AppState) =>
+const getActionDirtyState = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isDirty;
 
 export const isActionDirty = (id: string) =>
@@ -17,7 +17,7 @@ export const isActionDirty = (id: string) =>
     return id in actionDirtyMap && actionDirtyMap[id];
   });
 
-const getActionRunningState = (state: AppState) =>
+const getActionRunningState = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isRunning;
 
 export const isActionRunning = (id: string) =>
@@ -26,7 +26,7 @@ export const isActionRunning = (id: string) =>
     (isRunningMap) => id in isRunningMap && isRunningMap[id],
   );
 
-const getActionDeletingState = (state: AppState) =>
+const getActionDeletingState = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isDeleting;
 
 export const isActionDeleting = (id: string) =>
@@ -35,14 +35,14 @@ export const isActionDeleting = (id: string) =>
     (deletingMap) => id in deletingMap && deletingMap[id],
   );
 
-export const getPluginActionConfigSelectedTab = (state: AppState) =>
+export const getPluginActionConfigSelectedTab = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.selectedConfigTab;
 
-export const getPluginActionDebuggerState = (state: AppState) =>
+export const getPluginActionDebuggerState = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.debugger;
 
-export const isPluginActionCreating = (state: AppState) =>
+export const isPluginActionCreating = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isCreating;
 
-export const isPluginActionSettingsOpen = (state: AppState) =>
+export const isPluginActionSettingsOpen = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.settingsOpen;

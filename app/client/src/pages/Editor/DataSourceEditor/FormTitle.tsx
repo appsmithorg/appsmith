@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getDatasource, getDatasources } from "ee/selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import type { Datasource } from "entities/Datasource";
@@ -32,7 +32,7 @@ type FormTitleProps = ComponentProps;
 
 function FormTitle(props: FormTitleProps) {
   const currentDatasource: Datasource | undefined = useSelector(
-    (state: AppState) => getDatasource(state, props.datasourceId),
+    (state: DefaultRootState) => getDatasource(state, props.datasourceId),
   );
   const datasources: Datasource[] = useSelector(getDatasources);
   const [forceUpdate, setForceUpdate] = useState(false);
@@ -40,7 +40,7 @@ function FormTitle(props: FormTitleProps) {
   const saveStatus: {
     isSaving: boolean;
     error: boolean;
-  } = useSelector((state: AppState) => {
+  } = useSelector((state: DefaultRootState) => {
     const id = currentDatasource ? currentDatasource.id : "";
 
     return {

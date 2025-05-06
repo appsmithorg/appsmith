@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   ActionData,
   ActionDataState,
@@ -21,14 +21,10 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
-import type {
-  JSCollectionData,
-  JSCollectionDataState,
-} from "ee/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import {
   type DefaultPlugin,
   type GenerateCRUDEnabledPluginMap,
-  type Plugin,
   PluginPackageName,
   PluginType,
 } from "entities/Plugin";
@@ -85,14 +81,14 @@ export enum GROUP_TYPES {
   PACKAGES = "Packages",
 }
 
-export const getEntities = (state: AppState): AppState["entities"] =>
-  state.entities;
+export const getEntities = (state: DefaultRootState) => state.entities;
 
-export const getDatasources = (state: AppState): Datasource[] => {
+export const getDatasources = (state: DefaultRootState) => {
   return state.entities.datasources.list;
 };
 
-export const getPlugins = (state: AppState) => state.entities.plugins.list;
+export const getPlugins = (state: DefaultRootState) =>
+  state.entities.plugins.list;
 
 export enum PluginCategory {
   SAAS = "SaaS integrations",
@@ -148,24 +144,24 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
 );
 
 // Returns non temp datasources
-export const getSavedDatasources = (state: AppState): Datasource[] => {
+export const getSavedDatasources = (state: DefaultRootState): Datasource[] => {
   return state.entities.datasources.list.filter(
     (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
   );
 };
 
-export const getRecentDatasourceIds = (state: AppState): string[] => {
+export const getRecentDatasourceIds = (state: DefaultRootState): string[] => {
   return state.entities.datasources.recentDatasources;
 };
 
 export const getDatasourcesStructure = (
-  state: AppState,
+  state: DefaultRootState,
 ): Record<string, DatasourceStructure> => {
   return state.entities.datasources.structure;
 };
 
 export const getDatasourceStructureById = (
-  state: AppState,
+  state: DefaultRootState,
   id: string,
 ): DatasourceStructure => {
   return state.entities.datasources.structure[id];
@@ -176,10 +172,10 @@ export const getDatasourceStructureById = (
  * Selector to indicate if the widget name should be shown/drawn on canvas
  */
 // export const getShouldShowWidgetName = createSelector(
-//   (state: AppState) => state.ui.widgetDragResize.isResizing,
-//   (state: AppState) => state.ui.widgetDragResize.isDragging,
-//   (state: AppState) => state.ui.editor.isPreviewMode,
-//   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+//   (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
+//   (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
+//   (state: DefaultRootState) => state.ui.editor.isPreviewMode,
+//   (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
 //   getAnvilSpaceDistributionStatus,
 //   // cannot import other selectors, breaks the app
 //   (state) => {
@@ -215,7 +211,7 @@ export const getDatasourceStructureById = (
 // );
 
 export const getDatasourceTableColumns =
-  (datasourceId: string, tableName: string) => (state: AppState) => {
+  (datasourceId: string, tableName: string) => (state: DefaultRootState) => {
     const structure = getDatasourceStructureById(state, datasourceId);
 
     if (structure) {
@@ -225,7 +221,7 @@ export const getDatasourceTableColumns =
     }
   };
 export const getDatasourceTablePrimaryColumn =
-  (datasourceId: string, tableName: string) => (state: AppState) => {
+  (datasourceId: string, tableName: string) => (state: DefaultRootState) => {
     const structure = getDatasourceStructureById(state, datasourceId);
 
     if (structure) {
@@ -240,7 +236,7 @@ export const getDatasourceTablePrimaryColumn =
   };
 
 export const getDatasourceFirstTableName = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ) => {
   if (!datasourceId) {
@@ -259,22 +255,24 @@ export const getDatasourceFirstTableName = (
 };
 
 export const getIsFetchingDatasourceStructure = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure[datasourceId];
 };
 
-export const getMockDatasources = (state: AppState): MockDatasource[] => {
+export const getMockDatasources = (
+  state: DefaultRootState,
+): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
 };
 
-export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
+export const getDefaultPlugins = (state: DefaultRootState): DefaultPlugin[] =>
   state.entities.plugins.defaultPluginList;
 
 // Get plugin by id or package name
 export const getDefaultPlugin = (
-  state: AppState,
+  state: DefaultRootState,
   pluginIdentifier: string,
 ): DefaultPlugin | undefined => {
   return state.entities.plugins.defaultPluginList.find(
@@ -284,7 +282,7 @@ export const getDefaultPlugin = (
 };
 
 export const getPluginIdsOfNames = (
-  state: AppState,
+  state: DefaultRootState,
   names: Array<string>,
 ): Array<string> | undefined => {
   const plugins = state.entities.plugins.list.filter((plugin) =>
@@ -298,7 +296,7 @@ export const getPluginIdsOfNames = (
 };
 
 export const getPluginIdsOfPackageNames = (
-  state: AppState,
+  state: DefaultRootState,
   names: Array<string>,
 ): Array<string> | undefined => {
   const plugins = state.entities.plugins.list.filter((plugin) =>
@@ -312,7 +310,7 @@ export const getPluginIdsOfPackageNames = (
 };
 
 export const getPluginNameFromDatasourceId = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): string | undefined => {
   const datasource = state.entities.datasources.list.find(
@@ -328,7 +326,7 @@ export const getPluginNameFromDatasourceId = (
 };
 
 export const getPluginPackageFromDatasourceId = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): string | undefined => {
   const datasource = state.entities.datasources.list.find(
@@ -344,7 +342,7 @@ export const getPluginPackageFromDatasourceId = (
 };
 
 export const getPluginIdFromDatasourceId = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): string | undefined => {
   const datasource = state.entities.datasources.list.find(
@@ -359,7 +357,7 @@ export const getPluginIdFromDatasourceId = (
 };
 
 export const getPluginNameFromId = (
-  state: AppState,
+  state: DefaultRootState,
   pluginId: string,
 ): string => {
   const plugin = state.entities.plugins.list.find(
@@ -372,7 +370,7 @@ export const getPluginNameFromId = (
 };
 
 export const getPluginPackageNameFromId = (
-  state: AppState,
+  state: DefaultRootState,
   pluginId: string,
 ): string => {
   const plugin = state.entities.plugins.list.find(
@@ -385,7 +383,7 @@ export const getPluginPackageNameFromId = (
 };
 
 export const getPluginDatasourceComponentFromId = (
-  state: AppState,
+  state: DefaultRootState,
   pluginId: string,
 ): string => {
   const plugin = state.entities.plugins.list.find(
@@ -398,7 +396,7 @@ export const getPluginDatasourceComponentFromId = (
 };
 
 export const getPluginTypeFromDatasourceId = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): PluginType | undefined => {
   const datasource = state.entities.datasources.list.find(
@@ -413,70 +411,69 @@ export const getPluginTypeFromDatasourceId = (
   return plugin.type;
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getPluginForm = (state: AppState, pluginId: string): any[] => {
+export const getPluginForm = (state: DefaultRootState, pluginId: string) => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 export const getIsFetchingSinglePluginForm = (
-  state: AppState,
+  state: DefaultRootState,
   pluginId: string,
 ): boolean => {
   return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
 };
 
-export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
+export const getIsExecutingDatasourceQuery = (
+  state: DefaultRootState,
+): boolean => {
   return state.entities.datasources.executingDatasourceQuery;
 };
 
-export const getIsDatasourceTesting = (state: AppState): boolean => {
+export const getIsDatasourceTesting = (state: DefaultRootState) => {
   return state.entities.datasources.isTesting;
 };
 
 // TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
+export const getEditorConfig = (state: DefaultRootState, pluginId: string) => {
   return state.entities.plugins.editorConfigs[pluginId];
 };
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
+export const getSettingConfig = (state: DefaultRootState, pluginId: string) => {
   return state.entities.plugins.settingConfigs[pluginId];
 };
 
 export const getDatasourceFormButtonConfig = (
-  state: AppState,
+  state: DefaultRootState,
   pluginId: string,
-): string[] => {
+) => {
   return state.entities.plugins.datasourceFormButtonConfigs[pluginId];
 };
 
-export const getActions = (state: AppState): ActionDataState =>
+export const getActions = (state: DefaultRootState): ActionDataState =>
   state.entities.actions;
 
-export const getJSCollections = (state: AppState): JSCollectionDataState =>
+export const getJSCollections = (state: DefaultRootState) =>
   state.entities.jsActions;
 
-export const getAllJSCollectionActions = (state: AppState) => {
+export const getAllJSCollectionActions = (state: DefaultRootState) => {
   return state.entities.jsActions.flatMap(
     (jsCollection) => jsCollection.config.actions,
   );
 };
 
 export const getDatasource = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
 ): Datasource | undefined =>
   state.entities.datasources.list.find(
     (datasource) => datasource.id === datasourceId,
   );
 
-export const getDatasourceDrafts = (state: AppState) => {
+export const getDatasourceDrafts = (state: DefaultRootState) => {
   return state.ui.datasourcePane.drafts;
 };
 
-export const getDatasourceDraft = (state: AppState, id: string) => {
+export const getDatasourceDraft = (state: DefaultRootState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
 
   if (id in drafts) return drafts[id];
@@ -484,28 +481,30 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
-export const getDatasourceActionRouteInfo = (state: AppState) => {
+export const getDatasourceActionRouteInfo = (state: DefaultRootState) => {
   return state.ui.datasourcePane.actionRouteInfo;
 };
 
 export const getDatasourcesByPluginId = (
-  state: AppState,
+  state: DefaultRootState,
   id: string,
-): Datasource[] => {
+) => {
   return state.entities.datasources.list.filter((d) => d.pluginId === id);
 };
 
-export const getPluginByPackageName = (state: AppState, name: string) =>
+export const getPluginByPackageName = (state: DefaultRootState, name: string) =>
   state.entities.plugins.list.find((p) => p.packageName === name);
 
-export const getPluginEditorConfigs = (state: AppState) =>
+export const getPluginEditorConfigs = (state: DefaultRootState) =>
   state.entities.plugins.editorConfigs;
 
-export const getPluginDependencyConfig = (state: AppState) =>
+export const getPluginDependencyConfig = (state: DefaultRootState) =>
   state.entities.plugins.dependencies;
 
-export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
-  state.entities.plugins.settingConfigs[pluginId];
+export const getPluginSettingConfigs = (
+  state: DefaultRootState,
+  pluginId: string,
+) => state.entities.plugins.settingConfigs[pluginId];
 
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
@@ -514,7 +513,7 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
 // Most popular datasources are hardcoded right now to include these 4 plugins and REST API
 // Going forward we may want to have separate list for each instance based on usage
 export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
-  const popularPlugins: Plugin[] = [];
+  const popularPlugins = [];
 
   const gsheetPlugin = plugins.find(
     (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
@@ -550,11 +549,13 @@ export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   ),
 );
 
-export const getUnconfiguredDatasources = (state: AppState) =>
+export const getUnconfiguredDatasources = (state: DefaultRootState) =>
   state.entities.datasources.unconfiguredList ?? [];
 
-export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
-  state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
+export const getDatasourceByPluginId = (
+  state: DefaultRootState,
+  pluginId: string,
+) => state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
 export const getDBDatasources = createSelector(
   getDBPlugins,
@@ -582,7 +583,10 @@ export const getDBAndRemoteDatasources = createSelector(
   },
 );
 
-export const getQueryName = (state: AppState, actionId: string): string => {
+export const getQueryName = (
+  state: DefaultRootState,
+  actionId: string,
+): string => {
   const action = state.entities.actions.find((action: ActionData) => {
     return action.config.id === actionId;
   });
@@ -591,7 +595,7 @@ export const getQueryName = (state: AppState, actionId: string): string => {
 };
 
 // * This is only for internal use to avoid cyclic dependency issue
-const getCurrentPageId = (state: AppState) =>
+const getCurrentPageId = (state: DefaultRootState) =>
   state.entities.pageList.currentPageId;
 
 export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
@@ -701,8 +705,9 @@ export const getCurrentActions = createSelector(
   },
 );
 
-export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
+export const getCanvasWidgets = (
+  state: DefaultRootState,
+): CanvasWidgetsReduxState => state.entities.canvasWidgets;
 
 export const actionsExistInCurrentPage = createSelector(
   getCurrentActions,
@@ -736,7 +741,7 @@ export const getCurrentModuleJSCollections = () => [];
 export const getJSCollectionFromName = createSelector(
   [
     getCurrentJSCollections,
-    (_state: AppState, JSObjectName: string) => JSObjectName,
+    (_state: DefaultRootState, JSObjectName: string) => JSObjectName,
   ],
   (jsCollections, JSObjectName) => {
     let currentJSCollection = null;
@@ -753,9 +758,13 @@ export const getJSCollectionFromName = createSelector(
 );
 export const getJSActionFromName = createSelector(
   [
-    (state: AppState, jsCollectionName: string) =>
+    (state: DefaultRootState, jsCollectionName: string) =>
       getJSCollectionFromName(state, jsCollectionName),
-    (_state: AppState, jsCollectionName: string, functionName: string) => ({
+    (
+      _state: DefaultRootState,
+      jsCollectionName: string,
+      functionName: string,
+    ) => ({
       jsCollectionName,
       functionName,
     }),
@@ -789,7 +798,7 @@ export const getJSActionFromJSCollection = (
   return currentAction;
 };
 
-export const getPlugin = (state: AppState, pluginId: string) => {
+export const getPlugin = (state: DefaultRootState, pluginId: string) => {
   return state.entities.plugins.list.find((plugin) => plugin.id === pluginId);
 };
 
@@ -804,7 +813,7 @@ export const getActionResponses = createSelector(getActions, (actions) => {
 });
 
 export const getAction = (
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
@@ -813,7 +822,7 @@ export const getAction = (
 };
 
 export const getActionByBaseId = (
-  state: AppState,
+  state: DefaultRootState,
   baseActionId: string,
 ): Action | undefined => {
   const action = find(
@@ -825,7 +834,7 @@ export const getActionByBaseId = (
 };
 
 export const getActionData = (
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): ActionResponse | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
@@ -833,7 +842,10 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (state: AppState, collectionId: string) => {
+export const getJSCollection = (
+  state: DefaultRootState,
+  collectionId: string,
+) => {
   const jsaction = find(
     state.entities.jsActions,
     (a) => a.config.id === collectionId,
@@ -843,7 +855,7 @@ export const getJSCollection = (state: AppState, collectionId: string) => {
 };
 
 export const getJsCollectionByBaseId = (
-  state: AppState,
+  state: DefaultRootState,
   baseCollectionId: string,
 ) => {
   const jsaction = find(
@@ -855,7 +867,7 @@ export const getJsCollectionByBaseId = (
 };
 
 export const getJSCollectionAction = (
-  state: AppState,
+  state: DefaultRootState,
   collectionId: string,
   actionId: string,
 ) => {
@@ -873,7 +885,7 @@ export const getJSCollectionAction = (
  * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
  */
 export const getJSCollectionFromAllEntities = (
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ) => {
   const jsaction = find(
@@ -885,7 +897,7 @@ export const getJSCollectionFromAllEntities = (
 };
 
 export function getCurrentPageNameByActionId(
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): string {
   const action = state.entities.actions.find((action) => {
@@ -897,7 +909,7 @@ export function getCurrentPageNameByActionId(
 }
 
 export function getCurrentPageNameByJSCollectionId(
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): string {
   const action = state.entities.jsActions.find((action) => {
@@ -908,7 +920,10 @@ export function getCurrentPageNameByJSCollectionId(
   return getPageNameByPageId(state, pageId);
 }
 
-export function getPageNameByPageId(state: AppState, pageId: string): string {
+export function getPageNameByPageId(
+  state: DefaultRootState,
+  pageId: string,
+): string {
   const page = state.entities.pageList.pages.find(
     (page) => page.pageId === pageId,
   );
@@ -916,15 +931,15 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
   return page ? page.pageName : "";
 }
 
-export const getAppData = (state: AppState) => state.entities.app;
+export const getAppData = (state: DefaultRootState) => state.entities.app;
 
-export const getAppStoreData = (state: AppState): AppStoreState =>
+export const getAppStoreData = (state: DefaultRootState): AppStoreState =>
   state.entities.app.store;
 
-export const getCanvasWidgetsStructure = (state: AppState) =>
+export const getCanvasWidgetsStructure = (state: DefaultRootState) =>
   state.entities.canvasWidgetsStructure;
 
-export const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
+export const getPageWidgets = (state: DefaultRootState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
@@ -1036,12 +1051,12 @@ export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
 });
 
 export const getPageList = createSelector(
-  (state: AppState) => state.entities.pageList.pages,
+  (state: DefaultRootState) => state.entities.pageList.pages,
   (pages) => pages,
 );
 
 export const getPageListAsOptions = createSelector(
-  (state: AppState) => state.entities.pageList.pages,
+  (state: DefaultRootState) => state.entities.pageList.pages,
   (pages) =>
     pages.map((page) => ({
       label: page.pageName,
@@ -1051,20 +1066,20 @@ export const getPageListAsOptions = createSelector(
 );
 
 export const getExistingPageNames = createSelector(
-  (state: AppState) => state.entities.pageList.pages,
+  (state: DefaultRootState) => state.entities.pageList.pages,
   (pages) => pages.map((page) => page.pageName),
 );
 
 export const getExistingWidgetNames = createSelector(
-  (state: AppState) => state.entities.canvasWidgets,
+  (state: DefaultRootState) => state.entities.canvasWidgets,
   (widgets) => Object.values(widgets).map((widget) => widget.widgetName),
 );
 
 export const getExistingActionNames = createSelector(
-  (state: AppState) => state.entities.actions,
+  (state: DefaultRootState) => state.entities.actions,
   getCurrentPageId,
   // editingEntityName is actually an id and not a name per say and it points to the id of an action being edited through the explorer.
-  (state: AppState) => state.ui.explorer.entity.editingEntityName,
+  (state: DefaultRootState) => state.ui.explorer.entity.editingEntityName,
   (actions, currentPageId, editingEntityId) => {
     // get the current action being edited
     const editingAction =
@@ -1112,9 +1127,9 @@ export const getExistingJSCollectionNames = createSelector(
     jsActions.map((action: { config: { name: string } }) => action.config.name),
 );
 
-export const getAppMode = (state: AppState) => state.entities.app.mode;
+export const getAppMode = (state: DefaultRootState) => state.entities.app.mode;
 
-export const widgetsMapWithParentModalId = (state: AppState) => {
+export const widgetsMapWithParentModalId = (state: DefaultRootState) => {
   const appMode = getAppMode(state);
 
   return appMode === APP_MODE.EDIT
@@ -1122,11 +1137,12 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
     : getCanvasWidgetsWithParentId(state);
 };
 
-export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
-  state.entities.datasources.isReconnectingModalOpen;
+export const getIsReconnectingDatasourcesModalOpen = (
+  state: DefaultRootState,
+) => state.entities.datasources.isReconnectingModalOpen;
 
 export const getPageActions = (pageId = "") => {
-  return (state: AppState) => {
+  return (state: DefaultRootState) => {
     return state.entities.actions.filter((action) => {
       return action.config.pageId == pageId;
     });
@@ -1148,20 +1164,20 @@ export const selectDatasourceIdToNameMap = createSelector(
 );
 
 export const selectWidgetsForCurrentPage = createSelector(
-  (state: AppState) => state.ui.pageCanvasStructure,
+  (state: DefaultRootState) => state.ui.pageCanvasStructure,
   getCurrentPageId,
   (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
 );
 
-export const selectAllPages = (state: AppState) => {
+export const selectAllPages = (state: DefaultRootState) => {
   return state.entities.pageList.pages;
 };
 
-export const getIsListing = (state: AppState) => {
+export const getIsListing = (state: DefaultRootState) => {
   return state.entities.datasources.isListing;
 };
 
-export const getDatasourceLoading = (state: AppState) => {
+export const getDatasourceLoading = (state: DefaultRootState) => {
   return state.entities.datasources.loading;
 };
 
@@ -1254,8 +1270,11 @@ export const selectFilesForExplorer = createSelector(
 );
 
 // TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getActionValidationConfig = (state: AppState, action: any) => {
+export const getActionValidationConfig = (
+  state: DefaultRootState,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  action: any,
+) => {
   const pluginId = action.pluginId;
 
   return getActionValidationConfigFromPlugin(
@@ -1264,7 +1283,7 @@ export const getActionValidationConfig = (state: AppState, action: any) => {
   );
 };
 
-export const getAllActionValidationConfig = (state: AppState) => {
+export const getAllActionValidationConfig = (state: DefaultRootState) => {
   const allActions = state.entities.actions;
   const allValidationConfigs: {
     [actionId: string]: ActionValidationConfigMap;
@@ -1320,7 +1339,7 @@ function getActionValidationConfigFromPlugin(
 }
 
 export const getJSActions = (
-  state: AppState,
+  state: DefaultRootState,
   JSCollectionId: string,
 ): JSAction[] => {
   const jsCollection = state.entities.jsActions.find(
@@ -1333,7 +1352,7 @@ export const getJSActions = (
 };
 
 export const getActiveJSActionId = (
-  state: AppState,
+  state: DefaultRootState,
   jsCollectionId: string,
 ): string | null => {
   const jsCollection = state.entities.jsActions.find(
@@ -1344,7 +1363,7 @@ export const getActiveJSActionId = (
 };
 
 export const getIsExecutingJSAction = (
-  state: AppState,
+  state: DefaultRootState,
   jsCollectionId: string,
   actionId: string,
 ): boolean => {
@@ -1360,7 +1379,7 @@ export const getIsExecutingJSAction = (
 };
 
 export const getJSCollectionParseErrors = (
-  state: AppState,
+  state: DefaultRootState,
   jsCollectionName: string,
 ) => {
   const dataTree = state.evaluations.tree;
@@ -1386,18 +1405,18 @@ export const getNumberOfEntitiesInCurrentPage = createSelector(
   },
 );
 
-export const selectIsInstallerOpen = (state: AppState) =>
+export const selectIsInstallerOpen = (state: DefaultRootState) =>
   state.ui.libraries.isInstallerOpen;
-export const selectInstallationStatus = (state: AppState) =>
+export const selectInstallationStatus = (state: DefaultRootState) =>
   state.ui.libraries.installationStatus;
-export const selectInstalledLibraries = (state: AppState) =>
+export const selectInstalledLibraries = (state: DefaultRootState) =>
   state.ui.libraries.installedLibraries;
 export const selectStatusForURL = (url: string) =>
   createSelector(selectInstallationStatus, (statusMap) => {
     return statusMap[url];
   });
 export const selectIsLibraryInstalled = createSelector(
-  [selectInstalledLibraries, (_: AppState, url: string) => url],
+  [selectInstalledLibraries, (_: DefaultRootState, url: string) => url],
   (installedLibraries, url) => {
     return !!installedLibraries.find((lib) => lib.url === url);
   },
@@ -1436,7 +1455,7 @@ export const selectLibrariesForExplorer = createSelector(
   },
 );
 
-export const getAllJSActionsData = (state: AppState) => {
+export const getAllJSActionsData = (state: DefaultRootState) => {
   const jsActionsData: Record<string, unknown> = {};
   const jsCollections = state.entities.jsActions;
 
@@ -1471,9 +1490,9 @@ export const selectJSCollectionByName = (collectionName: string) =>
   });
 
 export const getAllDatasourceTableKeys = createSelector(
-  (state: AppState) => getDatasourcesStructure(state),
-  (state: AppState) => getActions(state),
-  (state: AppState, dataTreePath: string | undefined) => dataTreePath,
+  (state: DefaultRootState) => getDatasourcesStructure(state),
+  (state: DefaultRootState) => getActions(state),
+  (state: DefaultRootState, dataTreePath: string | undefined) => dataTreePath,
   (
     datasourceStructures: ReturnType<typeof getDatasourcesStructure>,
     actions: ReturnType<typeof getActions>,
@@ -1511,7 +1530,7 @@ export const getAllDatasourceTableKeys = createSelector(
 );
 
 export const getDatasourceScopeValue = (
-  state: AppState,
+  state: DefaultRootState,
   datasourceId: string,
   formName: string,
 ) => {
@@ -1543,7 +1562,7 @@ export const getDatasourceScopeValue = (
 };
 
 export const getDatasourcesUsedInApplicationByActions = (
-  state: AppState,
+  state: DefaultRootState,
 ): Datasource[] => {
   const actions = getActions(state);
   const datasources = getDatasources(state);
@@ -1568,7 +1587,9 @@ export const getDatasourcesUsedInApplicationByActions = (
   );
 };
 
-const getOtherDatasourcesInWorkspace = (state: AppState): Datasource[] => {
+const getOtherDatasourcesInWorkspace = (
+  state: DefaultRootState,
+): Datasource[] => {
   const actions = getActions(state);
   const allDatasources = getDatasources(state);
   const datasourceIdsUsedInCurrentApplication = actions.reduce(
@@ -1593,7 +1614,9 @@ const getOtherDatasourcesInWorkspace = (state: AppState): Datasource[] => {
 };
 
 //This function returns the datasources which are not used by actions but visible in the workspace
-export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
+export const getEntityExplorerDatasources = (
+  state: DefaultRootState,
+): Datasource[] => {
   const datasourcesUsedInApplication =
     getDatasourcesUsedInApplicationByActions(state);
   const otherDatasourceInWorkspace = getOtherDatasourcesInWorkspace(state);
@@ -1612,7 +1635,7 @@ export function getInputsForModule(): Module["inputsForm"] {
 
 export const getModuleInstances = (
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  state: AppState,
+  state: DefaultRootState,
 ) => {
   return null;
 };
@@ -1625,7 +1648,7 @@ export const getQueryModuleInstances = () => {
   return [];
 };
 
-export const getJSModuleInstancesData = (_: AppState) => {
+export const getJSModuleInstancesData = (_: DefaultRootState) => {
   return [] as Array<{
     config: JSCollection;
     data: unknown;
@@ -1641,14 +1664,17 @@ export const getAllJSCollections = createSelector(
   },
 );
 
-export const getIsActionConverting = (state: AppState, actionId: string) => {
+export const getIsActionConverting = (
+  state: DefaultRootState,
+  actionId: string,
+) => {
   return false;
 };
 
 export const getNewEntityName = createSelector(
   getActions,
   getJSCollections,
-  (_state: AppState, options: NewEntityNameOptions) => options,
+  (_state: DefaultRootState, options: NewEntityNameOptions) => options,
   (actions, jsCollections, options) => {
     const {
       parentEntityId,
@@ -1731,13 +1757,13 @@ export const getJSSegmentItems = createSelector(
   },
 );
 
-export const getSelectedTableName = (state: AppState) =>
+export const getSelectedTableName = (state: DefaultRootState) =>
   state.ui.datasourcePane.selectedTableName;
 
 export const getDatasourceUsageCountForApp = createSelector(
   getActions,
   getDatasources,
-  (state: AppState, ideType: IDEType) => ideType,
+  (state: DefaultRootState, ideType: IDEType) => ideType,
   (actions, datasources, ideType) => {
     const actionCount = countBy(actions, "config.datasource.id");
     const actionDsMap: Record<string, string> = {};
@@ -1761,7 +1787,7 @@ export interface IsSavingEntityNameParams {
 }
 
 export const getIsSavingEntityName = (
-  state: AppState,
+  state: DefaultRootState,
   { id, segment }: IsSavingEntityNameParams,
 ) => {
   let isSavingEntityName = getIsSavingForApiName(state, id);
@@ -1775,7 +1801,7 @@ export const getIsSavingEntityName = (
 
 export const getActionSchemaDirtyState = createSelector(
   getAction,
-  (state: AppState) =>
+  (state: DefaultRootState) =>
     getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
   (action, agentPlugin) => {
     if (!action) return false;
@@ -1789,7 +1815,7 @@ export const getActionSchemaDirtyState = createSelector(
 );
 
 export const getJSCollectionSchemaDirtyState = createSelector(
-  (state: AppState, collectionId: string) =>
+  (state: DefaultRootState, collectionId: string) =>
     getJSCollection(state, collectionId),
   (jsCollection) => {
     if (!jsCollection) return false;
@@ -1801,7 +1827,7 @@ export const getJSCollectionSchemaDirtyState = createSelector(
 );
 
 export const getJSCollectionActionSchemaDirtyState = createSelector(
-  (state: AppState, collectionId: string, actionId: string) =>
+  (state: DefaultRootState, collectionId: string, actionId: string) =>
     getJSCollectionAction(state, collectionId, actionId),
   (action) => {
     if (!action) return false;
@@ -1811,10 +1837,10 @@ export const getJSCollectionActionSchemaDirtyState = createSelector(
 );
 
 export const getUpcomingPlugins = createSelector(
-  (state: AppState) => state.entities.plugins.upcomingPlugins,
+  (state: DefaultRootState) => state.entities.plugins.upcomingPlugins,
   (upcomingPlugins) => upcomingPlugins.list,
 );
 
-export const getCurrentPageDSLVersion = (state: AppState) => {
+export const getCurrentPageDSLVersion = (state: DefaultRootState) => {
   return state.entities.canvasWidgets[0]?.version || null;
 };

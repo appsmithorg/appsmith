@@ -24,7 +24,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
@@ -37,7 +37,7 @@ function ConversionButton() {
     FEATURE_FLAG.release_layout_conversion_enabled,
   );
   const conversionState = useSelector(
-    (state: AppState) => state.ui.layoutConversion.conversionState,
+    (state: DefaultRootState) => state.ui.layoutConversion.conversionState,
   );
 
   //Text base on if it is an auto-layout

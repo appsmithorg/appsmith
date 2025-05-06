@@ -9,6 +9,7 @@ import {
 } from "./types";
 import debounce from "lodash/debounce";
 import { isFinite, isNumber, isString } from "lodash";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 
 interface ICachedData<T> {
   value: T;
@@ -82,6 +83,12 @@ export class AppComputationCache {
     5000,
   );
 
+  isComputationCacheFeatureEnabled() {
+    const featureFlags = WorkerEnv.getFeatureFlags();
+
+    return featureFlags["release_computation_cache_enabled"] || false;
+  }
+
   /**
    * Check if the computation result should be cached based on the app mode configuration
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
@@ -95,7 +102,8 @@ export class AppComputationCache {
     if (
       !this.isAppModeValid(appMode) ||
       !this.isTimestampValid(timestamp) ||
-      !this.isDSLVersionValid(dslVersion)
+      !this.isDSLVersionValid(dslVersion) ||
+      !this.isComputationCacheFeatureEnabled()
     ) {
       return false;
     }

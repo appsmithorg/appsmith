@@ -56,6 +56,7 @@ import {
   AiChatSystemInstructionsControl,
   type AiChatSystemInstructionsControlProps,
 } from "components/formControls/AIChatSystemInstructionsControl";
+import AIChatIntegrationsControl from "ee/components/formControls/AIChatIntegrationsControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -250,6 +251,14 @@ class FormControlRegistry {
       {
         buildPropertyControl(controlProps): JSX.Element {
           return <FunctionCallingConfigControl {...controlProps} />;
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.AI_CHAT_INTEGRATIONS_FORM,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <AIChatIntegrationsControl {...controlProps} />;
         },
       },
     );

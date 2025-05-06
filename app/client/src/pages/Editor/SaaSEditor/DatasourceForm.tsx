@@ -16,7 +16,7 @@ import {
 } from "redux-form";
 import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getDatasource,
   getPluginImages,
@@ -753,7 +753,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, props: any) => {
+const mapStateToProps = (state: DefaultRootState, props: any) => {
   // This is only present during onboarding flow
   const currentApplicationIdForCreateNewApp =
     getCurrentApplicationIdForCreateNewApp(state);

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import WidgetFactory from "WidgetProvider/factory";
 import { getWidgetErrorCount } from "layoutSystems/anvil/editor/AnvilWidgetName/selectors";
 import {
@@ -15,12 +15,12 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSelected = useSelector(isWidgetSelected(widgetId));
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const highlightShown = useSelector(getAnvilHighlightShown);
 
   const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
 
   const showError = useSelector(

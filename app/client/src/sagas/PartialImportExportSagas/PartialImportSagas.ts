@@ -5,7 +5,7 @@ import {
 import ApplicationApi from "ee/api/ApplicationApi";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { areEnvironmentsFetched } from "ee/selectors/environmentSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
@@ -85,8 +85,8 @@ export function* partialImportSaga(
         kind: "success",
       });
 
-      const environmentsFetched: boolean = yield select((state: AppState) =>
-        areEnvironmentsFetched(state, workspaceId),
+      const environmentsFetched: boolean = yield select(
+        (state: DefaultRootState) => areEnvironmentsFetched(state, workspaceId),
       );
 
       if (workspaceId && environmentsFetched) {
