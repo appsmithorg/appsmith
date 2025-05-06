@@ -37,6 +37,23 @@ public class ActionViewCE_DTO {
     @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
+    @Deprecated
+    @JsonView(Views.Public.class)
+    Boolean executeOnLoad;
+
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
+    RunBehaviourEnum runBehaviour;
+
+    public RunBehaviourEnum getRunBehaviour() {
+        if (runBehaviour != null) {
+            return runBehaviour;
+        }
+        if (executeOnLoad != null) {
+            return Boolean.TRUE.equals(executeOnLoad) ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
+        }
+        return null;
+    }
+
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is
     // still set for the client to use as a guideline (even though this would be an invalid action
     // and hence would return an action execution error.

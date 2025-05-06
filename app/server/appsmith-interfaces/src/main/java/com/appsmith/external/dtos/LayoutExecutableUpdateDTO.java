@@ -39,25 +39,8 @@ public class LayoutExecutableUpdateDTO {
             return runBehaviour;
         }
         if (executeOnLoad != null) {
-            return executeOnLoad ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
-        } else {
-            return RunBehaviourEnum.MANUAL;
+            return Boolean.TRUE.equals(executeOnLoad) ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
         }
-    }
-
-    /**
-     * @deprecated This method is deprecated and will be removed in a future release.
-     * Use setRunBehaviour(RunBehaviourEnum) instead.
-     *
-     * Sets the executeOnLoad flag and also updates the runBehaviour accordingly.
-     *
-     * @param executeOnLoad true to run on page load, false to run manually
-     */
-    @Deprecated
-    public void setExecuteOnLoad(Boolean executeOnLoad) {
-        this.executeOnLoad = executeOnLoad;
-        // Safely handle null by providing a default value
-        this.runBehaviour =
-                (executeOnLoad != null && executeOnLoad) ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
+        return null;
     }
 }
