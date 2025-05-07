@@ -335,6 +335,10 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
+const isModuleWidget = (
+  config: ReturnType<typeof WidgetFactory.getConfigs>[string],
+) => config.type.startsWith("MODULE_WIDGET_");
+
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
   getIsAnvilLayout,
@@ -357,7 +361,7 @@ export const getWidgetCards = createSelector(
         return config.widgetName !== "Map" && !config.hideCard;
       }
 
-      return !config.hideCard;
+      return !config.hideCard && !isModuleWidget(config);
     });
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
