@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -408,13 +409,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             }
 
             applicationJson.getActionList().forEach(action -> {
-                action.getPublishedAction().setPageId(pageName);
                 action.getUnpublishedAction().setPageId(pageName);
-                if (action.getPublishedAction().getCollectionId() != null) {
-                    String collectionName =
-                            action.getPublishedAction().getCollectionId().split("_")[1];
-                    action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
-                    action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
+                if (Objects.nonNull(action.getPublishedAction())) {
+                    action.getPublishedAction().setPageId(pageName);
+                    if (action.getPublishedAction().getCollectionId() != null) {
+                        String collectionName =
+                                action.getPublishedAction().getCollectionId().split("_")[1];
+                        action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
+                        action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
+                    }
                 }
 
                 String actionName = action.getId().split("_")[1];
