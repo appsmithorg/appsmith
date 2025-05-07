@@ -1107,7 +1107,7 @@ class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load only after creation.
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setRefType(createdAction1.getRefType());
@@ -1120,7 +1120,7 @@ class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction2.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setRefType(createdAction2.getRefType());
@@ -1195,7 +1195,7 @@ class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load post action creation.
         createdAction1.setUserSetOnLoad(true);
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
