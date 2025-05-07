@@ -413,7 +413,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.97;
+      color.oklch.l = 0.975;
     }
 
     if (this.seedChroma > 0.002) {
@@ -785,7 +785,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.12;
+    color.oklch.l += 0.1;
 
     return color;
   }
