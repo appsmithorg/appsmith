@@ -770,11 +770,18 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        // TODO: add the checkout to the current branch as well.
-        return fsGitHandler.checkoutToBranch(repoSuffix, baseRefName).flatMap(isCheckedOut -> fsGitHandler
-                .createAndCheckoutReference(repoSuffix, gitRefDTO)
-                .flatMap(newRef -> fsGitHandler.pushArtifact(
-                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName(), incomingRefType)));
+        return fsGitHandler
+                .resetToLastCommit(repoSuffix)
+                .then(fsGitHandler.checkoutToBranch(repoSuffix, baseRefName))
+                .flatMap(isCheckedOut -> fsGitHandler
+                        .createAndCheckoutReference(repoSuffix, gitRefDTO)
+                        .flatMap(newRef -> fsGitHandler.pushArtifact(
+                                repoSuffix,
+                                remoteUrl,
+                                publicKey,
+                                privateKey,
+                                gitRefDTO.getRefName(),
+                                incomingRefType)));
     }
 
     @Override
@@ -787,7 +794,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        return fsGitHandler.checkoutRemoteBranch(repoSuffix, jsonTransformationDTO.getRefName());
+        return fsGitHandler
+                .resetToLastCommit(repoSuffix)
+                .then(fsGitHandler.checkoutRemoteBranch(repoSuffix, jsonTransformationDTO.getRefName()));
     }
 
     @Override
