@@ -1473,7 +1473,7 @@
 						"apiContentType": "none"
 					}
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -1542,7 +1542,7 @@
 						"apiContentType": "none"
 					}
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],

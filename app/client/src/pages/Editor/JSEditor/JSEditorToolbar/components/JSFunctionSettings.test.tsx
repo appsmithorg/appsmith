@@ -44,11 +44,11 @@ describe("JSFunctionSettings", () => {
     const updatedJSActions = [
       {
         ...actions[0],
-        runBehavior: ActionRunBehaviour.ON_PAGE_LOAD,
+        runBehaviour: ActionRunBehaviour.ON_PAGE_LOAD,
       },
       {
         ...actions[1],
-        runBehavior: ActionRunBehaviour.MANUAL,
+        runBehaviour: ActionRunBehaviour.MANUAL,
       },
     ];
 

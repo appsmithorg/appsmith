@@ -18,7 +18,7 @@ export const getJsActionPeekData = (
 
       if (
         jsAction.data?.[jsChild.id] &&
-        jsChild.runBehavior === ActionRunBehaviour.ON_PAGE_LOAD
+        jsChild.runBehaviour === ActionRunBehaviour.ON_PAGE_LOAD
       ) {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

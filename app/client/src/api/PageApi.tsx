@@ -70,7 +70,7 @@ export interface SavePageResponseData {
   dsl: Partial<DSLWidget>;
   messages: string[];
   actionUpdates: Array<{
-    runBehavior: ActionRunBehaviourType;
+    runBehaviour: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;

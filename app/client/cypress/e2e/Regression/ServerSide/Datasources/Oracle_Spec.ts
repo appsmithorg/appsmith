@@ -467,7 +467,7 @@ describe(
     });
 
     it("7. Tc #2365  - Query settings tab validations", () => {
-      apiPage.ToggleOnPageLoadRun(false); // All above cases validated for onpage load run with confirmation dialog set to false
+      apiPage.ToggleOnPageLoadRun("Manual"); // All above cases validated for onpage load run with confirmation dialog set to false
       pluginActionForm.toolbar.toggleSettings();
       apiPage.ToggleConfirmBeforeRunning(true);
       deployMode.DeployApp();

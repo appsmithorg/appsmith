@@ -34,12 +34,12 @@ describe(
         },
       );
 
-      jsEditor.VerifyAsyncFuncSettings("myFun1", false);
-      jsEditor.VerifyAsyncFuncSettings("myFun2", false);
-      jsEditor.VerifyAsyncFuncSettings("myFun3", false);
-      jsEditor.VerifyAsyncFuncSettings("myFun4", false);
-      jsEditor.VerifyAsyncFuncSettings("myFun5", false);
-      jsEditor.VerifyAsyncFuncSettings("myFun6", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun1", "Manual");
+      jsEditor.VerifyAsyncFuncSettings("myFun2", "Manual");
+      jsEditor.VerifyAsyncFuncSettings("myFun3", "Manual");
+      jsEditor.VerifyAsyncFuncSettings("myFun4", "Manual");
+      jsEditor.VerifyAsyncFuncSettings("myFun5", "Manual");
+      jsEditor.VerifyAsyncFuncSettings("myFun6", "Manual");
 
       VerifyFunctionDropdown([
         "myFun1",

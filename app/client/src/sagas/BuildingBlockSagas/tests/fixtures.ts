@@ -129,7 +129,7 @@ export const newlyCreatedActions: Action[] = [
         },
       ],
     },
-    runBehavior: "ON_PAGE_LOAD",
+    runBehaviour: "ON_PAGE_LOAD",
     dynamicBindingPathList: [
       {
         key: "body",

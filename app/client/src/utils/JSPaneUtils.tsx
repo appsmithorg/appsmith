@@ -131,7 +131,7 @@ export const getDifferenceInJSCollection = (
       const obj = {
         name: action.name,
         collectionId: jsAction.id,
-        runBehavior: ActionRunBehaviour.MANUAL,
+        runBehaviour: ActionRunBehaviour.MANUAL,
         pageId: jsAction.pageId,
         workspaceId: jsAction.workspaceId,
         actionConfiguration: {
@@ -230,7 +230,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun1",
       workspaceId,
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehaviour: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "function () {}",
         timeoutInMillisecond: 0,
@@ -242,7 +242,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun2",
       workspaceId,
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehaviour: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "async function () {}",
         timeoutInMillisecond: 0,
@@ -282,7 +282,7 @@ export const createSingleFunctionJsCollection = (
     {
       name: functionName,
       workspaceId,
-      runBehavior: ActionRunBehaviour.MANUAL,
+      runBehaviour: ActionRunBehaviour.MANUAL,
       actionConfiguration: {
         body: "function () {}",
         timeoutInMillisecond: 0,

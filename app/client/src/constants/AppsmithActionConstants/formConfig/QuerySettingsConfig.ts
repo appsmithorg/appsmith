@@ -10,7 +10,7 @@ export default [
     children: [
       {
         label: "Run behavior",
-        configProperty: "runBehavior",
+        configProperty: "runBehaviour",
         controlType: "DROP_DOWN",
         initialValue: RUN_BEHAVIOR.MANUAL.label,
         options: RUN_BEHAVIOR_VALUES,

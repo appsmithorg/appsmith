@@ -45,7 +45,7 @@ const BASE_JS_ACTION = (useLiterals = false) => {
     pageId: "page-id",
     collectionId: "collection-id",
     pluginId: "plugin-id",
-    runBehavior: ActionRunBehaviour.MANUAL,
+    runBehaviour: ActionRunBehaviour.MANUAL,
     dynamicBindingPathList: [],
     isValid: false,
     invalids: [],

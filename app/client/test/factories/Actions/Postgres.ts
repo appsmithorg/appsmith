@@ -31,7 +31,7 @@ export const PostgresFactory = Factory.Sync.makeFactory<QueryAction>({
       },
     ],
   },
-  runBehavior: "MANUAL",
+  runBehaviour: "MANUAL",
   dynamicBindingPathList: [],
   isValid: true,
   invalids: [],

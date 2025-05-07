@@ -1039,12 +1039,12 @@ export function* setActionPropertySaga(
     ),
   );
 
-  if (propertyName === "runBehavior") {
+  if (propertyName === "runBehaviour") {
     yield put({
       type: ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_INIT,
       payload: {
         actionId,
-        runBehavior: value as ActionRunBehaviourType,
+        runBehaviour: value as ActionRunBehaviourType,
       },
     });
 
@@ -1061,17 +1061,17 @@ export function* setActionPropertySaga(
   if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 
-function* updateActionRunBehaviorSaga(
+function* updateActionRunBehaviourSaga(
   action: ReduxAction<{
     actionId: string;
-    runBehavior: ActionRunBehaviourType;
+    runBehaviour: ActionRunBehaviourType;
   }>,
 ) {
   try {
     const response: ApiResponse = yield call(
-      ActionAPI.updateActionRunBehavior,
+      ActionAPI.updateActionRunBehaviour,
       action.payload.actionId,
-      action.payload.runBehavior,
+      action.payload.runBehaviour,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -1267,7 +1267,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
     takeLatest(
       ReduxActionTypes.UPDATE_ACTION_RUN_BEHAVIOR_INIT,
-      updateActionRunBehaviorSaga,
+      updateActionRunBehaviourSaga,
     ),
     takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
     takeLatest(
