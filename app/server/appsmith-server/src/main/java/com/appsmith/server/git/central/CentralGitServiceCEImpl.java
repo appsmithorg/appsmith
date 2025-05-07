@@ -2781,8 +2781,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
                     final String repoName = baseGitMetadata.getRepoName();
 
-                    // 1. Hydrate from db to git system for both ref Artifacts
-                    // Update function call
+                    // 1. Hydrate from db to a git system for both branch artifacts
                     return Mono.usingWhen(
                             gitRedisUtils.acquireGitLock(
                                     artifactType, baseArtifactId, GitConstants.GitCommandConstants.MERGE_BRANCH, TRUE),

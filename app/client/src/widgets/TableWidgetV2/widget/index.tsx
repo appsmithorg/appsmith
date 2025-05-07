@@ -3066,6 +3066,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   resetTableForInfiniteScroll = () => {
     resetWidget(this.props.widgetId, false);
+    this.updatePageNumber(0, EventType.ON_NEXT_PAGE);
   };
 }
 
