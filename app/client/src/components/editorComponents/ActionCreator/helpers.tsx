@@ -7,7 +7,7 @@ import {
   setCatchBlockInQuery,
 } from "@shared/ast";
 import { createModalAction } from "actions/widgetActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getEntityNameAndPropertyPath,
   isEntityAction,
@@ -679,7 +679,7 @@ export function getJSOptions(
 export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const pageId = useSelector(getCurrentPageId) || "";
   const dispatch = useDispatch();
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const actions = useSelector(getCurrentActions);

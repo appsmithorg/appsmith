@@ -28,7 +28,7 @@ import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { PluginType } from "entities/Plugin";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -173,7 +173,7 @@ export const getEntitiesForNavigation = createSelector(
 );
 export const getPathNavigationUrl = createSelector(
   [
-    (state: AppState, entityName: string) =>
+    (state: DefaultRootState, entityName: string) =>
       getEntitiesForNavigation(state, entityName),
     (_, __, fullPath: string | undefined) => fullPath,
   ],

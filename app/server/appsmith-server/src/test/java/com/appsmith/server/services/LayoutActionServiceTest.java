@@ -1104,7 +1104,7 @@ class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         ActionDTO createdAction1 =
-                layoutActionService.createSingleAction(action1, Boolean.FALSE).block(); // create action1
+                layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setRunBehaviour(
                 RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
@@ -1117,7 +1117,7 @@ class LayoutActionServiceTest {
         newAction1.setPluginType(installed_plugin.getType());
 
         ActionDTO createdAction2 =
-                layoutActionService.createSingleAction(action2, Boolean.FALSE).block(); // create action2
+                layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction2.setRunBehaviour(
                 RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.

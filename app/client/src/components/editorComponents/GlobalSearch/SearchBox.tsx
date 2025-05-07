@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
@@ -111,7 +111,9 @@ const useListenToChange = (modalOpen: boolean) => {
 };
 
 function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
-  const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
+  const { modalOpen } = useSelector(
+    (state: DefaultRootState) => state.ui.globalSearch,
+  );
   const listenToChange = useListenToChange(modalOpen);
 
   const updateSearchQuery = useCallback(

@@ -19,7 +19,7 @@ import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
@@ -487,7 +487,7 @@ const ControlledCurrentValueViewer = memo(
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
   const dispatch = useDispatch();
-  const popupContext = useSelector((state: AppState) =>
+  const popupContext = useSelector((state: DefaultRootState) =>
     getEvaluatedPopupState(state, props.dataTreePath),
   );
   const [openExpectedDataType, setOpenExpectedDataType] = useState(
@@ -506,7 +506,7 @@ function PopoverContent(props: PopoverContentProps) {
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
   const errorWithSource = errors.find(({ kind }) => kind && kind.rootcause);
 
-  const errorNavigationUrl = useSelector((state: AppState) =>
+  const errorNavigationUrl = useSelector((state: DefaultRootState) =>
     getPathNavigationUrl(state, entityName, errorWithSource?.kind?.rootcause),
   );
   const toggleExpectedDataType = () =>

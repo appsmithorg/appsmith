@@ -2,7 +2,7 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import React from "react";
 import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   selectFeatureFlagCheck,
@@ -179,7 +179,7 @@ class CreateNewDatasourceTab extends React.Component<
   }
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: DefaultRootState) => {
   const onboardingAppId = getCurrentApplicationIdForCreateNewApp(state);
   const onboardingApplication = getApplicationByIdFromWorkspaces(
     state,

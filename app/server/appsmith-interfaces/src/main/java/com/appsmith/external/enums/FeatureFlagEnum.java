@@ -24,6 +24,7 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if the RTS git reset is enabled
      */
     ab_rts_git_reset_enabled,
+    release_git_api_contracts_enabled,
 
     // Deprecated CE flags over here
     release_git_autocommit_feature_enabled,

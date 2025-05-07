@@ -4,7 +4,7 @@ import { connect, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
@@ -120,7 +120,7 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   user: getCurrentUser(state),
   safeCrash: getSafeCrash(state),
 });

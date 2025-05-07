@@ -8,7 +8,7 @@ import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import VerificationPending from "./VerificationPending";
 import VerifyUser from "./VerifyUser";
@@ -23,7 +23,7 @@ import { SentryRoute } from "components/SentryRoute";
 export function UserAuth() {
   const { path } = useRouteMatch();
   const location = useLocation();
-  const lightTheme = useSelector((state: AppState) =>
+  const lightTheme = useSelector((state: DefaultRootState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const isMobileDevice = useIsMobileDevice();

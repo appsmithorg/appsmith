@@ -7,6 +7,8 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import loglevel from "loglevel";
 import { AppComputationCache } from "./index";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 jest.useFakeTimers();
 
@@ -68,6 +70,9 @@ describe("AppComputationCache", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     AppComputationCache.resetInstance();
+    WorkerEnv.setFeatureFlags({
+      release_computation_cache_enabled: true,
+    } as FeatureFlags);
 
     // Now instantiate the singleton after mocks are set up
     appComputationCache = AppComputationCache.getInstance();

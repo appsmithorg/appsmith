@@ -1,5 +1,5 @@
 import { fetchGheetSheets } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getDatasource,
   getDatasourceLoading,
@@ -34,7 +34,9 @@ export function useTableOrSpreadsheet() {
     WidgetQueryGeneratorFormContext,
   );
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state: DefaultRootState) =>
+    getWidget(state, widgetId),
+  );
 
   const datasourceStructure: DatasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, config.datasource),
@@ -46,15 +48,16 @@ export function useTableOrSpreadsheet() {
 
   const isFetchingSpreadsheets = useSelector(getIsFetchingGsheetSpreadsheets);
 
-  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+  const isFetchingDatasourceStructure = useSelector((state: DefaultRootState) =>
     getIsFetchingDatasourceStructure(state, config.datasource),
   );
 
-  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, config.datasource),
+  const selectedDatasourcePluginPackageName = useSelector(
+    (state: DefaultRootState) =>
+      getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
-  const selectedDatasource = useSelector((state: AppState) =>
+  const selectedDatasource = useSelector((state: DefaultRootState) =>
     getDatasource(state, config.datasource),
   );
 

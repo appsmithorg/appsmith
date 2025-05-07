@@ -1,5 +1,5 @@
 import { Flex, Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   CONNECT_A_DATASOURCE_HEADING,
   CONNECT_A_DATASOURCE_SUBHEADING,
@@ -59,7 +59,7 @@ const CreateNewDatasourceHeader = () => {
   );
 };
 
-export default connect((state: AppState) => {
+export default connect((state: DefaultRootState) => {
   return {
     search: pluginSearchSelector(state, "search"),
   };

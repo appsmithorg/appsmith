@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import type { WidgetType } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
@@ -84,7 +84,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   );
   const showTableFilterPane = useShowTableFilterPane();
   const isAutoCanvasResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isAutoLayout = useSelector(getIsAutoLayout);
   // Dispatch hook handy to set a widget as focused/selected

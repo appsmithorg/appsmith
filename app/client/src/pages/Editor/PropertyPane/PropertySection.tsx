@@ -4,7 +4,7 @@ import { setPropertySectionState } from "actions/propertyPaneActions";
 import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 import { Colors } from "constants/Colors";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { ReactNode } from "react";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -96,7 +96,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
   const currentWidgetId = useSelector(getCurrentWidgetId);
   const { isDefaultOpen } = props;
-  const isContextOpen = useSelector((state: AppState) =>
+  const isContextOpen = useSelector((state: DefaultRootState) =>
     getPropertySectionState(state, {
       key: `${currentWidgetId}.${props.id}`,
       panelPropertyPath: props.panelPropertyPath,

@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Button, Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
@@ -24,7 +24,7 @@ const Container = styled.div`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-export const actionsExist = (state: AppState): boolean =>
+export const actionsExist = (state: DefaultRootState): boolean =>
   !!state.entities.actions.length;
 
 interface ConnectDataCTAProps {

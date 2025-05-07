@@ -9,7 +9,7 @@ import {
 import { useSelector } from "react-redux";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
@@ -68,7 +68,7 @@ export function ExplorerMenuContent({
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
 
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);

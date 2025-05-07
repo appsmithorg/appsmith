@@ -1,7 +1,7 @@
 import { Layers } from "constants/Layers";
 
 import { useMemo } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 
@@ -12,7 +12,7 @@ export const usePositionedContainerZIndex = (
   selected?: boolean,
 ) => {
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const isSelected = useSelector(isWidgetSelected(widgetId));
   const isThisWidgetDragging = isDragging && isSelected;

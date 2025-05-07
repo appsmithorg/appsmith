@@ -61,7 +61,7 @@ import { updateApplication } from "ee/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
@@ -259,7 +259,7 @@ function* updateWidgetDimensionsSaga(
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
   const isCanvasResizing: boolean = yield select(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
 
   const widget = allWidgets[widgetId];

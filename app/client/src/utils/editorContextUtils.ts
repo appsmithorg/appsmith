@@ -21,7 +21,7 @@ import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
 import { getPlugin } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   DATASOURCES_ALLOWED_FOR_PREVIEW_MODE,
   MOCK_DB_TABLE_NAMES,
@@ -245,7 +245,7 @@ export function getFormDiffPaths(initialValues: any, currentValues: any) {
  * @returns string
  */
 export function getSQLPluginsMockTableName(pluginId: string) {
-  const state: AppState = store.getState();
+  const state: DefaultRootState = store.getState();
   const plugin: Plugin | undefined = getPlugin(state, pluginId);
 
   switch (plugin?.name) {

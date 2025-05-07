@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import IDE from "./layouts";
 import {
   getCurrentApplicationId,
@@ -196,7 +196,7 @@ class Editor extends Component<Props> {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),

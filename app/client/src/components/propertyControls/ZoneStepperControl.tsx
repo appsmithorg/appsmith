@@ -14,7 +14,7 @@ import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
 } from "layoutSystems/anvil/utils/constants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 const ZoneNumInput = React.forwardRef(
   (
@@ -32,7 +32,7 @@ const ZoneNumInput = React.forwardRef(
     ref: React.Ref<HTMLInputElement>,
   ) => {
     const dispatch = useDispatch();
-    const zoneCount = useSelector((state: AppState) => {
+    const zoneCount = useSelector((state: DefaultRootState) => {
       const sectionWidget = state.entities.canvasWidgets[sectionWidgetId];
 
       return sectionWidget && sectionWidget.zoneCount;

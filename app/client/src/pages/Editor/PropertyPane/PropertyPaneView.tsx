@@ -287,6 +287,7 @@ function PropertyPaneView(
     >
       <PropertyPaneTitle
         actions={actions}
+        isRenameDisabled={widgetProperties?.isRenameDisabled}
         key={widgetProperties.widgetId}
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}

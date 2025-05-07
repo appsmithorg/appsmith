@@ -21,7 +21,7 @@ import {
 } from "ee/constants/messages";
 import PaneHeader from "IDE/Components/PaneHeader";
 import { INTEGRATION_TABS } from "constants/routes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -64,7 +64,8 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   }, [location]);
 
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);

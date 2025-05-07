@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { PluginPackageName } from "entities/Plugin";
 import React, { useContext } from "react";
 import { useSelector } from "react-redux";
@@ -10,8 +10,9 @@ import { GoogleSheetControls } from "./GoogleSheetControls";
 export function DatasourceSpecificControls() {
   const { config } = useContext(WidgetQueryGeneratorFormContext);
 
-  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, config.datasource),
+  const selectedDatasourcePluginPackageName = useSelector(
+    (state: DefaultRootState) =>
+      getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
   return (

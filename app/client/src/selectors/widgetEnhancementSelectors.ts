@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import { get, set } from "lodash";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -10,7 +10,7 @@ import {
 } from "sagas/WidgetEnhancementHelpers";
 import { getWidgets } from "sagas/selectors";
 
-const getEvaluationTree = (state: AppState) => state.evaluations.tree;
+const getEvaluationTree = (state: DefaultRootState) => state.evaluations.tree;
 
 const getPropsFromTree = (tree: unknown, widgetName?: string): unknown => {
   // Get the evaluated data of this widget from the evaluations tree.

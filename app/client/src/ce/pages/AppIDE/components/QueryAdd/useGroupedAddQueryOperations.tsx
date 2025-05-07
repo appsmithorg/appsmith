@@ -19,7 +19,7 @@ import type {
   ListItemProps,
 } from "@appsmith/ads";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useCallback, useMemo } from "react";
 import keyBy from "lodash/keyBy";
 import { createAddClassName } from "pages/AppIDE/constants";
@@ -28,7 +28,7 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 export const useAddQueryListItems = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) as string;
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);

@@ -40,6 +40,8 @@ interface SettingsModalViewProps {
   isManageProtectedBranchesPermitted: boolean;
   isSettingsModalOpen: boolean;
   settingsModalTab: keyof typeof GitSettingsTab;
+  showBranchTab: boolean;
+  showCDTab: boolean;
   toggleSettingsModal: (
     open: boolean,
     tab?: keyof typeof GitSettingsTab,
@@ -53,11 +55,10 @@ function SettingsModalView({
   isManageProtectedBranchesPermitted = false,
   isSettingsModalOpen = false,
   settingsModalTab = GitSettingsTab.General,
+  showBranchTab = false,
+  showCDTab = false,
   toggleSettingsModal = noop,
 }: SettingsModalViewProps) {
-  const showBranchTab =
-    isManageDefaultBranchPermitted || isManageProtectedBranchesPermitted;
-
   const handleTabKeyChange = useCallback(
     (tabKey: string) => {
       toggleSettingsModal(true, tabKey as GitSettingsTab);
@@ -85,12 +86,14 @@ function SettingsModalView({
                 {createMessage(BRANCH)}
               </Tab>
             )}
-            <Tab
-              data-testid={"t--git-settings-tab-cd"}
-              value={GitSettingsTab.ContinuousDelivery}
-            >
-              {createMessage(CONTINUOUS_DELIVERY)}
-            </Tab>
+            {showCDTab && (
+              <Tab
+                data-testid={"t--git-settings-tab-cd"}
+                value={GitSettingsTab.ContinuousDelivery}
+              >
+                {createMessage(CONTINUOUS_DELIVERY)}
+              </Tab>
+            )}
           </TabsList>
         </Tabs>
         <ModalBody>

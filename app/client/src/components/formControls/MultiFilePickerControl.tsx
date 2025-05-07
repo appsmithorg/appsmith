@@ -7,7 +7,7 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
 import { Button, Tag, Text, toast } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Datasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { connect } from "react-redux";
@@ -317,7 +317,7 @@ export interface FilePickerComponentState {
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: MultipleFilePickerControlProps,
 ): ConnectProps => {
   const formValues: Partial<Action | Datasource> = getFormValues(

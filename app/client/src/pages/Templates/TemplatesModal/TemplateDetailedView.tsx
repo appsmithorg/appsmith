@@ -3,7 +3,7 @@ import {
   FETCHING_TEMPLATES,
   FORKING_TEMPLATE,
 } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
@@ -63,7 +63,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
   const [previewUrl, setPreviewUrl] = useState("");
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
-    (state: AppState) => state.ui.templates.similarTemplates,
+    (state: DefaultRootState) => state.ui.templates.similarTemplates,
   );
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
   const isImportingTemplateToApp = useSelector(

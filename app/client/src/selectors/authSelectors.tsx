@@ -1,5 +1,6 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export const getIsTokenValid = (state: AppState) => state.ui.auth.isTokenValid;
-export const getIsValidatingToken = (state: AppState) =>
+export const getIsTokenValid = (state: DefaultRootState) =>
+  state.ui.auth.isTokenValid;
+export const getIsValidatingToken = (state: DefaultRootState) =>
   state.ui.auth.isValidatingToken;

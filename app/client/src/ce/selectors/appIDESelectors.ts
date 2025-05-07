@@ -5,7 +5,7 @@ import {
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getQueryEntityItemUrl } from "ee/pages/AppIDE/layouts/routers/utils/getQueryEntityItemUrl";
@@ -24,7 +24,7 @@ export const selectJSSegmentEditorList = createSelector(
   },
 );
 
-export const selectJSSegmentEditorTabs = (state: AppState) => {
+export const selectJSSegmentEditorTabs = (state: DefaultRootState) => {
   const items = getJSSegmentItems(state);
   const tabs = getJSTabs(state);
 
@@ -37,7 +37,7 @@ export const selectJSSegmentEditorTabs = (state: AppState) => {
     .filter(Boolean);
 };
 
-export const selectQuerySegmentEditorTabs = (state: AppState) => {
+export const selectQuerySegmentEditorTabs = (state: DefaultRootState) => {
   const items = getQuerySegmentItems(state);
   const tabs = getQueryTabs(state);
 

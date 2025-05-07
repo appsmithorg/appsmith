@@ -7,7 +7,7 @@ import { ThemeProvider } from "styled-components";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import appReducer from "ee/reducers";
 import { applyMiddleware, compose, createStore } from "redux";
 import { reduxBatch } from "@manaflair/redux-batch";
@@ -21,7 +21,7 @@ import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 
 const testSagaMiddleware = createSagaMiddleware();
 
-const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
+const testStoreWithTestMiddleWare = (initialState: Partial<DefaultRootState>) =>
   createStore(
     appReducer,
     initialState,
@@ -43,7 +43,7 @@ const rootSaga = function* (sagasToRun = sagasToRunForTests) {
 
 interface State {
   url?: string;
-  initialState?: Partial<AppState>;
+  initialState?: Partial<DefaultRootState>;
   sagasToRun?: typeof sagasToRunForTests;
   featureFlags?: Partial<FeatureFlags>;
 }

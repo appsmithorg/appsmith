@@ -4,7 +4,7 @@ import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   type GenerateCRUDEnabledPluginMap,
@@ -299,7 +299,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   props: {
     showSaasAPIs?: boolean;
     isPremiumDatasourcesViewEnabled: boolean;

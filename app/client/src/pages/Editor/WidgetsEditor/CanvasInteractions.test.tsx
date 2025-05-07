@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { all } from "@redux-saga/core/effects";
 import lodash from "lodash";
 import React from "react";
@@ -30,7 +30,7 @@ import * as uiSelectors from "selectors/ui";
 const pageId = "0123456789abcdef00000000";
 
 const renderNestedComponent = () => {
-  const initialState = store.getState() as unknown as Partial<AppState>;
+  const initialState = store.getState() as unknown as Partial<DefaultRootState>;
   const canvasId = "canvas-id";
   const containerId = "container-id";
 
@@ -735,7 +735,8 @@ describe("Drag and Drop widgets into Main container", () => {
   });
 
   it("Disallow drag if widget not focused", async () => {
-    const initialState = store.getState() as unknown as Partial<AppState>;
+    const initialState =
+      store.getState() as unknown as Partial<DefaultRootState>;
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
 

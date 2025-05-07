@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -50,7 +50,7 @@ function SnipeableComponent(props: SnipeableComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const isFocusedWidget = useSelector(
-    (state: AppState) =>
+    (state: DefaultRootState) =>
       state.ui.widgetDragResize.focusedWidget === props.widgetId,
   );
 

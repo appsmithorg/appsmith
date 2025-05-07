@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -538,7 +538,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
   };
 }
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   { dataTreePath }: EvaluatedValueProps,
 ): ReduxStateProps => {
   return {

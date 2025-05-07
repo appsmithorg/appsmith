@@ -34,7 +34,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   ApplicationVersion,
   deleteApplicationNavigationLogoSuccessAction,
@@ -1029,7 +1029,7 @@ export function* initDatasourceConnectionDuringImport(
 
   if (!pluginFormCall) return;
 
-  const datasources: Datasource[] = yield select((state: AppState) => {
+  const datasources: Datasource[] = yield select((state: DefaultRootState) => {
     return state.entities.datasources.list;
   });
 

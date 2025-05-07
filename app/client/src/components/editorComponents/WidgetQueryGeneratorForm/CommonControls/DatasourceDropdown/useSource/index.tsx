@@ -4,7 +4,7 @@ import { getPluginImages } from "ee/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
@@ -74,7 +74,9 @@ export function useSource(searchText: string) {
 
   const pluginImages = useSelector(getPluginImages);
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state: DefaultRootState) =>
+    getWidget(state, widgetId),
+  );
 
   const constants = getDropdownConstants(datasourceDropdownVariant);
 

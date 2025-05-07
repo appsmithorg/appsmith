@@ -1063,7 +1063,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of neutral border, used in outlined buttons
     const color = this.bdNeutral.clone();
 
-    color.oklch.l += 0.47;
+    color.oklch.l += 0.35;
 
     return color;
   }

@@ -4,7 +4,7 @@ import history, { NavigationMethod } from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { useSelector } from "react-redux";
 import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
@@ -30,7 +30,7 @@ interface ExplorerJSCollectionEntityProps {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const jsAction = useSelector((state: AppState) =>
+    const jsAction = useSelector((state: DefaultRootState) =>
       getJsCollectionByBaseId(state, props.baseCollectionId),
     ) as JSCollection;
     const location = useLocation();

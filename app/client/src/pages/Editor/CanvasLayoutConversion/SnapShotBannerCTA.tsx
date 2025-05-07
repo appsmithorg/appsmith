@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import { ConversionForm } from "./ConversionForm";
@@ -37,7 +37,7 @@ export function SnapShotBannerCTA() {
   const [showModal, setShowModal] = useState(false);
 
   const conversionState = useSelector(
-    (state: AppState) => state.ui.layoutConversion.conversionState,
+    (state: DefaultRootState) => state.ui.layoutConversion.conversionState,
   );
 
   const hideCloseButton =

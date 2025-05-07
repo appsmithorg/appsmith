@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -50,39 +50,41 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
 
-const getIsDraggingOrResizing = (state: AppState) =>
+const getIsDraggingOrResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
-const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
+const getIsResizing = (state: DefaultRootState) =>
+  state.ui.widgetDragResize.isResizing;
 
-const getPageListState = (state: AppState) => state.entities.pageList;
+const getPageListState = (state: DefaultRootState) => state.entities.pageList;
 
-const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
+const getWidgets = (state: DefaultRootState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
-export const getIsEditorInitialized = (state: AppState) =>
+export const getIsEditorInitialized = (state: DefaultRootState) =>
   state.ui.editor.initialized;
 
-export const getIsWidgetConfigBuilt = (state: AppState) =>
+export const getIsWidgetConfigBuilt = (state: DefaultRootState) =>
   state.ui.editor.widgetConfigBuilt;
 
-export const getIsEditorLoading = (state: AppState) =>
+export const getIsEditorLoading = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.loading;
 
-export const getIsFetchingPage = (state: AppState) =>
+export const getIsFetchingPage = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.isPageSwitching;
 
-export const getLoadingError = (state: AppState) =>
+export const getLoadingError = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.loadingError;
 
 export const getIsPageSaving = createSelector(
   [
     getActionEditorSavingMap,
-    (state: AppState) => state.ui.jsPane.isSaving,
-    (state: AppState) => state.ui.appTheming.isSaving,
-    (state: AppState) => state.ui.applications.isSavingNavigationSetting,
-    (state: AppState) => state.ui.editor.loadingStates.savingEntity,
-    (state: AppState) => state.ui.editor.loadingStates.saving,
+    (state: DefaultRootState) => state.ui.jsPane.isSaving,
+    (state: DefaultRootState) => state.ui.appTheming.isSaving,
+    (state: DefaultRootState) =>
+      state.ui.applications.isSavingNavigationSetting,
+    (state: DefaultRootState) => state.ui.editor.loadingStates.savingEntity,
+    (state: DefaultRootState) => state.ui.editor.loadingStates.saving,
   ],
   (
     savingActions,
@@ -110,33 +112,35 @@ export const getIsPageSaving = createSelector(
   },
 );
 
-export const snipingModeSelector = (state: AppState) =>
+export const snipingModeSelector = (state: DefaultRootState) =>
   state.ui.editor.isSnipingMode;
 
-export const snipingModeBindToSelector = (state: AppState) =>
+export const snipingModeBindToSelector = (state: DefaultRootState) =>
   state.ui.editor.snipModeBindTo;
 
-export const getPageSavingError = (state: AppState) => {
+export const getPageSavingError = (state: DefaultRootState) => {
   return state.ui.editor.loadingStates.savingError;
 };
 
-export const getLayoutOnLoadActions = (state: AppState) =>
+export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
 
-export const getLayoutOnLoadIssues = (state: AppState) => {
+export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
 };
 
-export const getIsPublishingApplication = (state: AppState) =>
+export const getIsPublishingApplication = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishing;
 
-export const getPublishingError = (state: AppState) =>
+export const getPublishingError = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishingError;
 
-export const getCurrentLayoutId = (state: AppState): string | undefined =>
-  state.ui.editor.currentLayoutId;
+export const getCurrentLayoutId = (
+  state: DefaultRootState,
+): string | undefined => state.ui.editor.currentLayoutId;
 
-export const getPageList = (state: AppState) => state.entities.pageList.pages;
+export const getPageList = (state: DefaultRootState) =>
+  state.entities.pageList.pages;
 
 export const getPageById = (pageId: string) =>
   createSelector(getPageList, (pages: Page[]) =>
@@ -148,10 +152,10 @@ export const getPageByBaseId = (basePageId: string) =>
     pages.find((page) => page.basePageId === basePageId),
   );
 
-export const getCurrentPageId = (state: AppState) =>
+export const getCurrentPageId = (state: DefaultRootState) =>
   state.entities.pageList.currentPageId;
 
-export const getCurrentBasePageId = (state: AppState) =>
+export const getCurrentBasePageId = (state: DefaultRootState) =>
   state.entities.pageList.currentBasePageId;
 
 export const getCurrentPagePermissions = createSelector(
@@ -162,7 +166,7 @@ export const getCurrentPagePermissions = createSelector(
   },
 );
 
-export const getPagePermissions = (state: AppState) => {
+export const getPagePermissions = (state: DefaultRootState) => {
   const pageId = getCurrentPageId(state);
   const page = find(state.entities.pageList.pages, { pageId });
 
@@ -194,16 +198,16 @@ export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
   ),
 );
 
-export const getCurrentApplicationId = (state: AppState) =>
+export const getCurrentApplicationId = (state: DefaultRootState) =>
   state.entities.pageList.applicationId || "";
 
-export const getCurrentBaseApplicationId = (state: AppState) =>
+export const getCurrentBaseApplicationId = (state: DefaultRootState) =>
   state.entities.pageList.baseApplicationId || "";
 
-export const selectCurrentApplicationSlug = (state: AppState) =>
+export const selectCurrentApplicationSlug = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
 
-export const selectApplicationVersion = (state: AppState) =>
+export const selectApplicationVersion = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.applicationVersion ||
   ApplicationVersion.DEFAULT;
 
@@ -230,13 +234,13 @@ export const selectURLSlugs = createSelector(
   },
 );
 
-export const getRenderMode = (state: AppState) => {
+export const getRenderMode = (state: DefaultRootState) => {
   return state.entities.app.mode === APP_MODE.EDIT
     ? RenderModes.CANVAS
     : RenderModes.PAGE;
 };
 
-export const getIsViewMode = (state: AppState) =>
+export const getIsViewMode = (state: DefaultRootState) =>
   state.entities.app.mode === APP_MODE.PUBLISHED;
 
 export const getViewModePageList = createSelector(
@@ -265,7 +269,7 @@ const defaultLayout: AppLayoutConfig = {
   type: "FLUID",
 };
 
-const getAppLayout = (state: AppState) =>
+const getAppLayout = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
 export const getIsMobileCanvasLayout = createSelector(
@@ -288,10 +292,13 @@ export const getCurrentApplicationLayout = createSelector(
   },
 );
 
-export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
-export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
+export const getCanvasWidth = (state: DefaultRootState) =>
+  state.ui.mainCanvas.width;
+export const getMainCanvasProps = (state: DefaultRootState) =>
+  state.ui.mainCanvas;
 
-export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
+export const getMetaWidgets = (state: DefaultRootState) =>
+  state.entities.metaWidgets;
 
 export const getMetaWidget = (metaWidgetId: string) =>
   createSelector(getMetaWidgets, (metaWidgets) => {
@@ -328,6 +335,10 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
+const isModuleWidget = (
+  config: ReturnType<typeof WidgetFactory.getConfigs>[string],
+) => config.type.startsWith("MODULE_WIDGET_");
+
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
   getIsAnvilLayout,
@@ -350,7 +361,7 @@ export const getWidgetCards = createSelector(
         return config.widgetName !== "Map" && !config.hideCard;
       }
 
-      return !config.hideCard;
+      return !config.hideCard && !isModuleWidget(config);
     });
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
@@ -401,7 +412,8 @@ export const getWidgetCards = createSelector(
     return sortedCards;
   },
 );
-const getIsMobileBreakPoint = (state: AppState) => state.ui.mainCanvas.isMobile;
+const getIsMobileBreakPoint = (state: DefaultRootState) =>
+  state.ui.mainCanvas.isMobile;
 
 export const getIsAutoLayoutMobileBreakPoint = createSelector(
   getIsAutoLayout,
@@ -495,7 +507,7 @@ export const getChildWidgets = createSelector(
     getDataTree,
     getLoadingEntities,
     getConfigTree,
-    (_state: AppState, widgetId: string) => widgetId,
+    (_state: DefaultRootState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
 );
@@ -880,7 +892,10 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
 }
 
 export const getJSCollectionDataById = createSelector(
-  [getJSCollections, (state: AppState, collectionId: string) => collectionId],
+  [
+    getJSCollections,
+    (state: DefaultRootState, collectionId: string) => collectionId,
+  ],
   (jsActions, collectionId) => {
     const action = jsActions.find(
       (action) => action.config.id === collectionId,
@@ -897,7 +912,7 @@ export const getJSCollectionDataById = createSelector(
 export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
-    (state: AppState, baseCollectionId: string) => baseCollectionId,
+    (state: DefaultRootState, baseCollectionId: string) => baseCollectionId,
   ],
   (jsActions, baseCollectionId) => {
     const action = jsActions.find(
@@ -912,16 +927,16 @@ export const getJSCollectionDataByBaseId = createSelector(
   },
 );
 
-export const getApplicationLastDeployedAt = (state: AppState) =>
+export const getApplicationLastDeployedAt = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
 
 /**
  * returns the `state.ui.editor.isPreviewMode`
  *
- * @param state AppState
+ * @param state DefaultRootState
  * @returns boolean
  */
-export const previewModeSelector = (state: AppState) => {
+export const previewModeSelector = (state: DefaultRootState) => {
   return state.ui.editor.isPreviewMode;
 };
 
@@ -942,23 +957,23 @@ export const isEditOnlyModeSelector = createSelector(
 /**
  * returns the `state.ui.editor.zoomLevel`
  *
- * @param state AppState
+ * @param state DefaultRootState
  * @returns number
  */
-export const getZoomLevel = (state: AppState) => {
+export const getZoomLevel = (state: DefaultRootState) => {
   return state.ui.editor.zoomLevel;
 };
 
 /**
  * returns the `state.ui.editor.savingEntity`
  *
- * @param state AppState
+ * @param state DefaultRootState
  * @returns boolean
  */
-export const getIsSavingEntity = (state: AppState) =>
+export const getIsSavingEntity = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.savingEntity;
 
-export const selectJSCollections = (state: AppState) =>
+export const selectJSCollections = (state: DefaultRootState) =>
   state.entities.jsActions;
 
 export const showCanvasTopSectionSelector = createSelector(
@@ -983,8 +998,8 @@ export const showCanvasTopSectionSelector = createSelector(
   },
 );
 
-export const getGsheetToken = (state: AppState) =>
+export const getGsheetToken = (state: DefaultRootState) =>
   state.entities.datasources.gsheetToken;
 
-export const getGsheetProjectID = (state: AppState) =>
+export const getGsheetProjectID = (state: DefaultRootState) =>
   state.entities.datasources.gsheetProjectID;

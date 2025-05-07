@@ -14,7 +14,7 @@ import {
 } from "selectors/editorSelectors";
 import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { updatePageAction } from "actions/pageActions";
 import { useGetPageFocusUrl } from "./hooks/useGetPageFocusUrl";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -41,7 +41,8 @@ export const PageEntity = ({
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const applicationId = useSelector(getCurrentApplicationId);
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
 
   const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =

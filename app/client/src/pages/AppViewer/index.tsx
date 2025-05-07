@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
@@ -87,7 +87,7 @@ function AppViewer(props: Props) {
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getPageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const lightTheme = useSelector((state: AppState) =>
+  const lightTheme = useSelector((state: DefaultRootState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);

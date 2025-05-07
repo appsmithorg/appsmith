@@ -2,14 +2,16 @@ import { PluginType } from "entities/Plugin";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getAction } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { navigateToEntity } from "actions/editorActions";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 
 export default function ActionLink(props: EntityLinkProps) {
-  const action = useSelector((state: AppState) => getAction(state, props.id));
+  const action = useSelector((state: DefaultRootState) =>
+    getAction(state, props.id),
+  );
   const dispatch = useDispatch();
 
   const onClick = useCallback(() => {

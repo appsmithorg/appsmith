@@ -1,10 +1,10 @@
 import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-const getAppViewState = (state: AppState) => state.ui.appView;
-const getPageListState = (state: AppState): PageListReduxState =>
+const getAppViewState = (state: DefaultRootState) => state.ui.appView;
+const getPageListState = (state: DefaultRootState): PageListReduxState =>
   state.entities.pageList;
 
 export const getPageList = createSelector(
@@ -34,6 +34,6 @@ export const getCurrentDSLPageId = createSelector(
  * @param state
  * @returns
  */
-export const getAppViewHeaderHeight = (state: AppState) => {
+export const getAppViewHeaderHeight = (state: DefaultRootState) => {
   return state.ui.appView.headerHeight;
 };
