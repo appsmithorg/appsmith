@@ -202,24 +202,7 @@ export default {
 
     if (props.infiniteScrollEnabled) {
       /* This logic is needed as the cachedTableData will have data based on each pageNo. Since the object would be { 1: array of page 1 data, 2: array of page 2 data }, hence the values will have array of array data, hence it is flattened to store back in tableData for processing. */
-      const cachedData = props.cachedTableData;
-      const firstPageData = cachedData[1] || [];
-      const allData = _.flatten(_.values(cachedData));
-
-      // Get all unique keys from the first page of data
-      const firstPageKeys = new Set(Object.keys(firstPageData[0] || {}));
-
-      // Ensure all rows have the same structure as the first page
-      tableData = allData.map((row) => {
-        const newRow = {};
-
-        // Copy all keys from first page, using empty string as default value
-        firstPageKeys.forEach((key) => {
-          newRow[key] = row[key] !== undefined ? row[key] : "";
-        });
-
-        return newRow;
-      });
+      tableData = _.flatten(_.values(props.cachedTableData));
     } else {
       tableData = props.tableData;
     }
