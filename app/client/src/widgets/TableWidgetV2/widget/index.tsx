@@ -949,10 +949,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (
       this.props.primaryColumns &&
       (!equal(prevProps.columnOrder, this.props.columnOrder) ||
-        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
-          getAllStickyColumnsCount(this.props.orderedTableColumns) ||
         filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
-          filter(this.props.orderedTableColumns, { isVisible: false }).length)
+          filter(this.props.orderedTableColumns, { isVisible: false }).length ||
+        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
+          getAllStickyColumnsCount(this.props.orderedTableColumns))
     ) {
       if (this.props.renderMode === RenderModes.CANVAS) {
         super.batchUpdateWidgetProperty(
