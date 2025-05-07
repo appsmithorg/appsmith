@@ -172,6 +172,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
+  previousColumnOrder: string[] | null = null;
 
   static type = "TABLE_WIDGET_V2";
 
@@ -709,6 +710,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
     shouldPersistLocalOrderWhenTableDataChanges = false,
+    preservedColumnOrder?: string[],
   ) => {
     const { columnOrder = [], primaryColumns = {} } = this.props;
     const derivedColumns = getDerivedColumns(primaryColumns);
@@ -743,8 +745,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           !!_.xor(newColumnIds, columnOrder).length &&
           !equal(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
-          // Maintain original columnOrder and keep new columns at the end
-          let newColumnOrder = _.intersection(columnOrder, newColumnIds);
+          // Use preserved column order if provided, otherwise maintain original columnOrder and keep new columns at the end
+          let newColumnOrder =
+            preservedColumnOrder || _.intersection(columnOrder, newColumnIds);
 
           newColumnOrder = _.union(newColumnOrder, newColumnIds);
 
@@ -940,13 +943,25 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
+    const didColumnOrderChange = !equal(
+      prevProps.columnOrder,
+      this.props.columnOrder,
+    );
+
+    const didStickyColumnsChange =
+      getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
+      getAllStickyColumnsCount(this.props.orderedTableColumns);
+
+    const didHiddenColumnsChange =
+      filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
+      filter(this.props.orderedTableColumns, { isVisible: false }).length;
+
+    const shouldIgnoreColumnOrderUpdate =
+      this.props.infiniteScrollEnabled && this.props.pageNo !== 0;
+
     if (
       this.props.primaryColumns &&
-      (!equal(prevProps.columnOrder, this.props.columnOrder) ||
-        filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
-          filter(this.props.orderedTableColumns, { isVisible: false }).length ||
-        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
-          getAllStickyColumnsCount(this.props.orderedTableColumns))
+      (didColumnOrderChange || didHiddenColumnsChange || didStickyColumnsChange)
     ) {
       if (this.props.renderMode === RenderModes.CANVAS) {
         super.batchUpdateWidgetProperty(
@@ -957,6 +972,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
           false,
         );
+      }
+
+      // Store the previous column order if we need to ignore updates
+      if (shouldIgnoreColumnOrderUpdate) {
+        this.previousColumnOrder = prevProps.columnOrder || [];
       }
     }
 
@@ -985,7 +1005,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const newTableColumns = this.createTablePrimaryColumns();
 
         if (newTableColumns) {
-          this.updateColumnProperties(newTableColumns, isTableDataModified);
+          // If we should ignore column order updates, use the previous order
+          if (shouldIgnoreColumnOrderUpdate && this.previousColumnOrder) {
+            this.updateColumnProperties(
+              newTableColumns,
+              isTableDataModified,
+              this.previousColumnOrder,
+            );
+          } else {
+            this.updateColumnProperties(newTableColumns, isTableDataModified);
+          }
         }
 
         pushBatchMetaUpdates("filters", []);
