@@ -764,6 +764,7 @@ export default {
     const hiddenColumns = Object.values(props.primaryColumns)
       .filter((column) => !column.isVisible)
       .map((column) => column.alias);
+    const systemColumns = ["__originalIndex__"];
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
@@ -896,7 +897,7 @@ export default {
 
       if (searchKey) {
         const combinedRowContent = [
-          ...Object.values(_.omit(displayedRow, hiddenColumns)),
+          ...Object.values(_.omit(displayedRow, hiddenColumns, systemColumns)),
           ...Object.values(
             _.omit(originalRow, [...hiddenColumns, ...htmlColumnAliases]),
           ),
