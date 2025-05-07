@@ -21,6 +21,7 @@ public interface Executable {
 
     Boolean getUserSetOnLoad();
 
+    @Deprecated
     Boolean getExecuteOnLoad();
 
     RunBehaviourEnum getRunBehaviour();

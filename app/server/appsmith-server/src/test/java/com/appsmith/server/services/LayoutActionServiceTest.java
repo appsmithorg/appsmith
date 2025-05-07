@@ -1104,10 +1104,10 @@ class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         ActionDTO createdAction1 =
-                layoutActionService.createSingleAction(action1, Boolean.FALSE).block(); // create action1
+                layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load only after creation.
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setRefType(createdAction1.getRefType());
@@ -1117,10 +1117,10 @@ class LayoutActionServiceTest {
         newAction1.setPluginType(installed_plugin.getType());
 
         ActionDTO createdAction2 =
-                layoutActionService.createSingleAction(action2, Boolean.FALSE).block(); // create action2
+                layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction2.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setRefType(createdAction2.getRefType());
@@ -1195,7 +1195,7 @@ class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setRunBehaviour(
-                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to true post action creation.
+                RunBehaviourEnum.ON_PAGE_LOAD); // this can only be set to on page load post action creation.
         createdAction1.setUserSetOnLoad(true);
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);

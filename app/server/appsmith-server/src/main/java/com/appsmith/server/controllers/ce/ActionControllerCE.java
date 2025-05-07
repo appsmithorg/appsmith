@@ -118,7 +118,7 @@ public class ActionControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/runBehaviour/{branchedActionId}")
-    public Mono<ResponseDTO<ActionDTO>> setRunbehaviour(
+    public Mono<ResponseDTO<ActionDTO>> setRunBehaviour(
             @PathVariable String branchedActionId, @RequestParam RunBehaviourEnum behaviour) {
         log.debug("Going to set run behaviour for action id {} to {}", branchedActionId, behaviour);
         return layoutActionService

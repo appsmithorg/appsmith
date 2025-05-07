@@ -454,7 +454,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -502,7 +502,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -562,7 +562,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -610,7 +610,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
