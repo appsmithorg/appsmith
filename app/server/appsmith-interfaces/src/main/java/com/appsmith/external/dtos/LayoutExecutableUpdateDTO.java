@@ -27,10 +27,6 @@ public class LayoutExecutableUpdateDTO {
     Boolean executeOnLoad;
 
     @Deprecated
-    @JsonView(Views.Internal.class)
-    Boolean executeOnLoad;
-
-    @Deprecated
     @JsonView(Views.Public.class)
     RunBehaviourEnum runBehaviour;
 
