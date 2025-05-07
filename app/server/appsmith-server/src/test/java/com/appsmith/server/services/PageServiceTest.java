@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -739,6 +740,8 @@ public class PageServiceTest {
                     // Confirm that executeOnLoad is cloned as well.
                     assertThat(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad())
                             .isTrue();
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getRunBehaviour())
+                            .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();
@@ -976,6 +979,17 @@ public class PageServiceTest {
                                     .getUnpublishedAction()
                                     .getExecuteOnLoad())
                             .isTrue();
+
+                    assertThat(actions.stream()
+                                    .filter(clonedAction -> "PageAction"
+                                            .equals(clonedAction
+                                                    .getUnpublishedAction()
+                                                    .getName()))
+                                    .findFirst()
+                                    .get()
+                                    .getUnpublishedAction()
+                                    .getRunBehaviour())
+                            .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();

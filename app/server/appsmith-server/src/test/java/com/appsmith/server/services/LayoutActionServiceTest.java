@@ -8,6 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactType;
@@ -474,6 +475,7 @@ class LayoutActionServiceTest {
                     assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
+                    assertThat(actionUpdates.get(0).getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
 
@@ -482,11 +484,21 @@ class LayoutActionServiceTest {
                         newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
                                 .isTrue())
                 .verifyComplete();
+        StepVerifier.create(newActionService.findById(createdAction1.getId()))
+                .assertNext(
+                        newAction -> assertThat(newAction.getUnpublishedAction().getRunBehaviour())
+                                .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD))
+                .verifyComplete();
 
         StepVerifier.create(newActionService.findById(createdAction2.getId()))
                 .assertNext(
                         newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
                                 .isFalse())
+                .verifyComplete();
+        StepVerifier.create(newActionService.findById(createdAction2.getId()))
+                .assertNext(
+                        newAction -> assertThat(newAction.getUnpublishedAction().getRunBehaviour())
+                                .isEqualTo(RunBehaviourEnum.MANUAL))
                 .verifyComplete();
 
         dsl = new JSONObject();
@@ -520,6 +532,7 @@ class LayoutActionServiceTest {
                     LayoutExecutableUpdateDTO firstActionUpdate = firstActionUpdateOptional.get();
                     assertThat(firstActionUpdate).isNotNull();
                     assertThat(firstActionUpdate.getExecuteOnLoad()).isFalse();
+                    assertThat(firstActionUpdate.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
 
                     Optional<LayoutExecutableUpdateDTO> secondActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("secondAction"))
@@ -527,16 +540,23 @@ class LayoutActionServiceTest {
                     LayoutExecutableUpdateDTO secondActionUpdate = secondActionUpdateOptional.get();
                     assertThat(secondActionUpdate).isNotNull();
                     assertThat(secondActionUpdate.getExecuteOnLoad()).isTrue();
+                    assertThat(secondActionUpdate.getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
 
         StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isFalse());
+        StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
+                        newAction.getUnpublishedAction().getRunBehaviour())
+                .isEqualTo(RunBehaviourEnum.MANUAL));
 
         StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isTrue());
+        StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
+                        newAction.getUnpublishedAction().getRunBehaviour())
+                .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD));
     }
 
     @Test
@@ -1103,7 +1123,7 @@ class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         ActionDTO createdAction1 =
-                layoutActionService.createSingleAction(action1, Boolean.FALSE).block(); // create action1
+                layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction1 = new NewAction();
@@ -1115,7 +1135,7 @@ class LayoutActionServiceTest {
         newAction1.setPluginType(installed_plugin.getType());
 
         ActionDTO createdAction2 =
-                layoutActionService.createSingleAction(action2, Boolean.FALSE).block(); // create action2
+                layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
         assertNotNull(createdAction1);
         createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction2 = new NewAction();

@@ -11,6 +11,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -350,6 +351,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
                     List<PermissionGroup> permissionGroups = tuple.getT2();
@@ -420,6 +422,7 @@ public class ActionServiceCE_Test {
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
                     assertThat(createdAction.getBaseId()).isEqualTo(createdAction.getId());
 
@@ -1159,6 +1162,7 @@ public class ActionServiceCE_Test {
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                 })
                 .verifyComplete();
     }
@@ -1187,6 +1191,7 @@ public class ActionServiceCE_Test {
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getExecuteOnLoad()).isTrue();
+                    assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }

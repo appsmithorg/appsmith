@@ -7,6 +7,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -890,7 +891,9 @@ public class LayoutServiceTest {
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                     assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT2().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }
@@ -1116,7 +1119,9 @@ public class LayoutServiceTest {
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                     assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT2().getRunBehaviour()).isEqualTo(RunBehaviourEnum.MANUAL);
                 })
                 .verifyComplete();
     }
@@ -1214,7 +1219,9 @@ public class LayoutServiceTest {
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT1().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                     assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT2().getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                 })
                 .verifyComplete();
     }

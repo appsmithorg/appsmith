@@ -1249,6 +1249,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     layoutExecutableUpdateDTO.setName(pageAction.getValidName());
                     layoutExecutableUpdateDTO.setCollectionId(pageAction.getCollectionId());
                     layoutExecutableUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    layoutExecutableUpdateDTO.setRunBehaviour(pageAction.getRunBehaviour());
                     return layoutExecutableUpdateDTO;
                 })
                 .collect(Collectors.toList());
