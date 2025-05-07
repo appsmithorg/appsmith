@@ -49,7 +49,6 @@ import { getAllPageIdentities } from "./selectors";
 import {
   openCarbonModal,
   setCreateAgentModalOpen,
-  toggleFCIntegrations,
 } from "ee/actions/aiAgentActions";
 import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import { getTemplatesByFlagSelector } from "selectors/templatesSelectors";
@@ -116,7 +115,6 @@ function* importTemplateToWorkspaceSaga(
 
         if (isScratchTemplate) {
           yield put(openCarbonModal({ shouldOpen: true }));
-          yield put(toggleFCIntegrations({ isEnabled: true }));
         }
 
         yield put(setCreateAgentModalOpen({ isOpen: false }));
