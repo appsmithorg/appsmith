@@ -943,25 +943,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
-    const didColumnOrderChange = !equal(
-      prevProps.columnOrder,
-      this.props.columnOrder,
-    );
-
-    const didStickyColumnsChange =
-      getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
-      getAllStickyColumnsCount(this.props.orderedTableColumns);
-
-    const didHiddenColumnsChange =
-      filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
-      filter(this.props.orderedTableColumns, { isVisible: false }).length;
-
     const shouldIgnoreColumnOrderUpdate =
       this.props.infiniteScrollEnabled && this.props.pageNo !== 0;
 
     if (
       this.props.primaryColumns &&
-      (didColumnOrderChange || didHiddenColumnsChange || didStickyColumnsChange)
+      (!equal(prevProps.columnOrder, this.props.columnOrder) ||
+        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
+          getAllStickyColumnsCount(this.props.orderedTableColumns) ||
+        filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
+          filter(this.props.orderedTableColumns, { isVisible: false }).length)
     ) {
       if (this.props.renderMode === RenderModes.CANVAS) {
         super.batchUpdateWidgetProperty(
