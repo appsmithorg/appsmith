@@ -248,7 +248,7 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       pluginId,
     );
 
-    const featureFlagEnabled = yield select(
+    const featureFlagEnabled: boolean = yield select(
       selectFeatureFlagCheck,
       "release_reactive_actions_enabled",
     );
