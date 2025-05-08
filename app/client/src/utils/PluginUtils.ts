@@ -10,7 +10,7 @@ export const updatePluginRunBehaviourForPluginSettings = (
   pluginSettings: Record<PluginType, PluginActionSettingsConfig[]>,
   flagValueForReactiveActions: boolean,
 ) => {
-  if (!flagValueForReactiveActions) {
+  if (flagValueForReactiveActions) {
     return objectKeys(pluginSettings).reduce(
       (acc: Record<PluginType, PluginActionSettingsConfig[]>, pluginType) => {
         acc[pluginType] = pluginSettings[pluginType].map(
