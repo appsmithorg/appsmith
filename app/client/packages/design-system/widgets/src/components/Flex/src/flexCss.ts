@@ -97,7 +97,7 @@ export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
       if (current !== "base") {
         return (
           prev +
-          `@container (min-width: ${current}) {& {
+          `@container flex-container (min-width: ${current}) {& {
           ${cssProp}: ${
             //@ts-expect-error: type mismatch
             callback ? callback(value[current], extraProps) : value[current]
