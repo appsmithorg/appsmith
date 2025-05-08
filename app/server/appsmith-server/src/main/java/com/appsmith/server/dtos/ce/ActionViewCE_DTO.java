@@ -39,7 +39,7 @@ public class ActionViewCE_DTO {
     Set<String> jsonPathKeys;
 
     @Deprecated
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     Boolean executeOnLoad;
 
     @JsonView({Views.Public.class})
