@@ -86,28 +86,17 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(
-                Void connection,
-                ExecuteActionDTO executeActionDTO,
-                DatasourceConfiguration datasourceConfiguration,
-                ActionConfiguration actionConfiguration) {
-            return executeParameterizedWithFlags(
-                    connection, executeActionDTO, datasourceConfiguration, actionConfiguration, null);
-        }
-
-        @Override
         public Mono<TriggerResultDTO> trigger(
                 Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             return triggerWithFlags(connection, datasourceConfiguration, request, null);
         }
 
         @Override
-        public Mono<ActionExecutionResult> executeParameterizedWithFlags(
+        public Mono<ActionExecutionResult> executeParameterized(
                 Void connection,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
-                ActionConfiguration actionConfiguration,
-                Map<String, Boolean> featureFlagMap) {
+                ActionConfiguration actionConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": executeParameterized() called for GoogleSheets plugin.");
             boolean smartJsonSubstitution;
@@ -160,7 +149,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, featureFlagMap)
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration)
                     .tag("plugin", this.getClass().getName())
                     .name(PLUGIN_EXECUTE_COMMON)
                     .tap(Micrometer.observation(observationRegistry));
@@ -169,8 +158,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(
                 Void connection,
                 DatasourceConfiguration datasourceConfiguration,
-                ActionConfiguration actionConfiguration,
-                Map<String, Boolean> featureFlagMap) {
+                ActionConfiguration actionConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": executeCommon() called for GoogleSheets plugin.");
             // Initializing object for error condition
@@ -216,7 +204,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     // method
                     .flatMap(res -> {
                         return executionMethod
-                                .getExecutionClientWithFlags(client, methodConfig, featureFlagMap)
+                                .getExecutionClient(client, methodConfig)
                                 .headers(headers -> headers.set(
                                         "Authorization",
                                         "Bearer "
@@ -380,7 +368,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     validateAndGetUserAuthorizedSheetIds(datasourceConfiguration, methodConfig);
 
             return triggerMethod
-                    .getTriggerClientWithFlags(client, methodConfig, featureFlagMap)
+                    .getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
                             "Authorization",
                             "Bearer " + oauth2.getAuthenticationResponse().getToken()))
