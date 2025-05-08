@@ -5,23 +5,26 @@ export const THEME = EditorTheme.LIGHT;
 export enum ActionRunBehaviour {
   ON_PAGE_LOAD = "ON_PAGE_LOAD",
   MANUAL = "MANUAL",
+  AUTOMATIC = "AUTOMATIC",
 }
 
-export const RUN_BEHAVIOR = {
-  ON_PAGE_LOAD: {
-    label: "On page load",
-    subText: "Query runs when the page loads or when manually triggered",
-    value: ActionRunBehaviour.ON_PAGE_LOAD,
-    children: "On page load",
-  },
-  MANUAL: {
-    label: "Manual",
-    subText: "Query only runs when called in an event or JS with .run()",
-    value: ActionRunBehaviour.MANUAL,
-    children: "Manual",
-  },
-};
-
-export const RUN_BEHAVIOR_VALUES = Object.values(RUN_BEHAVIOR);
-
 export type ActionRunBehaviourType = `${ActionRunBehaviour}`;
+
+interface PluginActionSettingsConfigChildren {
+  label: string;
+  configProperty: string;
+  controlType: string;
+  initialValue?: string | boolean;
+  options?: Array<{ label: string; value: string }>;
+  tooltipText?: string;
+  placeholder?: string;
+  dataType?: string;
+  subtitle?: string;
+  name?: string;
+}
+
+export interface PluginActionSettingsConfig {
+  sectionName: string;
+  id: number;
+  children: PluginActionSettingsConfigChildren[];
+}

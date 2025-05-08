@@ -14,11 +14,9 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
-import {
-  RUN_BEHAVIOR_VALUES,
-  type ActionRunBehaviourType,
-} from "PluginActionEditor/types/PluginActionTypes";
+import { type ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 import styled from "styled-components";
+import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);

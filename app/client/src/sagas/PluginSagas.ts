@@ -45,6 +45,8 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { updatePluginRunBehaviourForPluginSettings } from "utils/PluginUtils";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 
 function* fetchPluginsSaga(
   action: ReduxAction<
@@ -164,11 +166,21 @@ function* fetchPluginFormConfigsSaga(action?: {
     const dependencies: FormDependencyConfigs = {};
     const datasourceFormButtonConfigs: FormDatasourceButtonConfigs = {};
 
+    const featureFlagEnabled: boolean = yield select(
+      selectFeatureFlagCheck,
+      "release_reactive_actions_enabled",
+    );
+
+    const updatedPluginSettings = updatePluginRunBehaviourForPluginSettings(
+      defaultActionSettings,
+      featureFlagEnabled,
+    );
+
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
 
       if (plugin && plugin.type === PluginType.JS) {
-        settingConfigs[pluginId] = defaultActionSettings[plugin.type];
+        settingConfigs[pluginId] = updatedPluginSettings[plugin.type];
         editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
         formConfigs[pluginId] = [];
         dependencies[pluginId] = defaultActionDependenciesConfig[plugin.type];
@@ -186,7 +198,7 @@ function* fetchPluginFormConfigsSaga(action?: {
 
           // Action settings form if not available use default
           if (plugin && !pluginFormData[index].setting) {
-            settingConfigs[pluginId] = defaultActionSettings[plugin.type];
+            settingConfigs[pluginId] = updatedPluginSettings[plugin.type];
           } else {
             settingConfigs[pluginId] = pluginFormData[index].setting;
           }
@@ -236,6 +248,16 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       pluginId,
     );
 
+    const featureFlagEnabled = yield select(
+      selectFeatureFlagCheck,
+      "release_reactive_actions_enabled",
+    );
+
+    const updatedPluginSettings = updatePluginRunBehaviourForPluginSettings(
+      defaultActionSettings,
+      featureFlagEnabled,
+    );
+
     if (!formConfig) {
       const formConfigResponse: ApiResponse<PluginFormPayload> =
         yield PluginApi.fetchFormConfig(pluginId);
@@ -243,7 +265,7 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       yield validateResponse(formConfigResponse);
 
       if (!formConfigResponse.data.setting) {
-        formConfigResponse.data.setting = defaultActionSettings[plugin.type];
+        formConfigResponse.data.setting = updatedPluginSettings[plugin.type];
       }
 
       if (!formConfigResponse.data.editor) {
