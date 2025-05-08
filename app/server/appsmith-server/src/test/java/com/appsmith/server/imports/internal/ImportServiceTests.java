@@ -18,6 +18,7 @@ import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -493,7 +494,7 @@ public class ImportServiceTests {
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setPageId(testPage.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -502,7 +503,7 @@ public class ImportServiceTests {
                     ActionDTO action2 = new ActionDTO();
                     action2.setName("validAction2");
                     action2.setPageId(testPage.getId());
-                    action2.setExecuteOnLoad(true);
+                    action2.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     action2.setUserSetOnLoad(true);
                     ActionConfiguration actionConfiguration2 = new ActionConfiguration();
                     actionConfiguration2.setHttpMethod(HttpMethod.GET);
@@ -738,7 +739,7 @@ public class ImportServiceTests {
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setPageId(testPage.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -1382,7 +1383,7 @@ public class ImportServiceTests {
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setPageId(newPage.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -2798,7 +2799,7 @@ public class ImportServiceTests {
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
                     action.setPageId(testPage.getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -2807,7 +2808,7 @@ public class ImportServiceTests {
                     ActionDTO action2 = new ActionDTO();
                     action2.setName("validAction2");
                     action2.setPageId(testPage.getId());
-                    action2.setExecuteOnLoad(true);
+                    action2.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     action2.setUserSetOnLoad(true);
                     ActionConfiguration actionConfiguration2 = new ActionConfiguration();
                     actionConfiguration2.setHttpMethod(HttpMethod.GET);

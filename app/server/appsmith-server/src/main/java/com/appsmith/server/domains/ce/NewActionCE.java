@@ -71,8 +71,8 @@ public class NewActionCE extends RefAwareDomain {
                 dotted(unpublishedAction, ActionDTO.Fields.contextType);
         public static final String unpublishedAction_userSetOnLoad =
                 dotted(unpublishedAction, ActionDTO.Fields.userSetOnLoad);
-        public static final String unpublishedAction_executeOnLoad =
-                dotted(unpublishedAction, ActionDTO.Fields.executeOnLoad);
+        public static final String unpublishedAction_runBehaviour =
+                dotted(unpublishedAction, ActionDTO.Fields.runBehaviour);
         public static final String unpublishedAction_fullyQualifiedName =
                 dotted(unpublishedAction, ActionDTO.Fields.fullyQualifiedName);
         public static final String unpublishedAction_actionConfiguration_httpMethod =
