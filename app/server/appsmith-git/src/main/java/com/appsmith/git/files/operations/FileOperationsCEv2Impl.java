@@ -113,6 +113,28 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
         }
     }
 
+    public boolean hasFileChanged(Object sourceEntity, Object fsSourceEntity) throws IOException {
+        if (fsSourceEntity == null) {
+            return true;
+        }
+
+        boolean hasChanged = true;
+        if (sourceEntity instanceof String s) {
+            hasChanged = !s.equals(fsSourceEntity.toString());
+        } else if (sourceEntity instanceof JSONObject json) {
+            JsonNode sourceNode = objectMapper.readTree(json.toString());
+            String contentToWrite = objectWriter.writeValueAsString(sourceNode);
+            String fsContent = objectWriter.writeValueAsString(fsSourceEntity);
+            hasChanged = !contentToWrite.equals(fsContent);
+        } else {
+            String contentToWrite = objectWriter.writeValueAsString(sourceEntity);
+            String fsContent = objectWriter.writeValueAsString(fsSourceEntity);
+            hasChanged = !contentToWrite.equals(fsContent);
+        }
+
+        return hasChanged;
+    }
+
     /**
      * This method will be used to read and dehydrate the json file present from the local git repo
      *
