@@ -16,7 +16,11 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
 import { type ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 import styled from "styled-components";
-import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import {
+  RUN_BEHAVIOR_VALUES,
+  AUTOMATIC_RUN_BEHAVIOR,
+} from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -45,8 +49,20 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
-  const options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
+  let options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
   const selectedValue = options.find((opt) => opt.value === runBehaviour);
+  const flagValueForReactiveActions = useFeatureFlag(
+    "release_reactive_actions_enabled",
+  );
+
+  if (flagValueForReactiveActions) {
+    options = [
+      AUTOMATIC_RUN_BEHAVIOR,
+      ...options.filter(
+        (option) => option.value !== AUTOMATIC_RUN_BEHAVIOR.value,
+      ),
+    ];
+  }
 
   const onSelectOptions = useCallback(
     (newRunBehaviour: ActionRunBehaviourType) => {
