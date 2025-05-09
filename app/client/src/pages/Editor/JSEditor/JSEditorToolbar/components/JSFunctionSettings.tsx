@@ -47,7 +47,6 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
   let options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
-  const selectedValue = options.find((opt) => opt.value === runBehaviour);
   const flagValueForReactiveActions = useFeatureFlag(
     "release_reactive_actions_enabled",
   );
@@ -55,6 +54,8 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   if (!flagValueForReactiveActions) {
     options = [...options.filter((option) => option.value !== "AUTOMATIC")];
   }
+
+  const selectedValue = options.find((opt) => opt.value === runBehaviour);
 
   const onSelectOptions = useCallback(
     (newRunBehaviour: ActionRunBehaviourType) => {
@@ -88,7 +89,6 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
       </Text>
       <StyledSelect
         data-testid={`t--dropdown-runBehaviour`}
-        defaultValue={selectedValue}
         id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}
