@@ -13,6 +13,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -1219,7 +1220,7 @@ public class CommonGitServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("onPageLoadAction");
                     action.setPageId(application.getPages().get(0).getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);
@@ -2546,7 +2547,7 @@ public class CommonGitServiceCETest {
                     ActionDTO action = new ActionDTO();
                     action.setName("onPageLoadAction");
                     action.setPageId(application.getPages().get(0).getId());
-                    action.setExecuteOnLoad(true);
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
                     action.setActionConfiguration(actionConfiguration);

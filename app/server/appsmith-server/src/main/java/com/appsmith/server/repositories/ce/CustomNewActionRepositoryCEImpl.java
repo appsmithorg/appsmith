@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -178,9 +179,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+    public Flux<NewAction> findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
             String pageId, AclPermission permission) {
-        BridgeQuery<NewAction> q = Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad)
+        BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
+                        NewAction.Fields.unpublishedAction_runBehaviour, RunBehaviourEnum.ON_PAGE_LOAD)
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
                 .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
                 // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object

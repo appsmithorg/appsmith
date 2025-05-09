@@ -33,10 +33,10 @@ public interface OnLoadExecutablesUtilCE {
      * @param executableUpdatesRef : Empty array list which would be set in this function with all the page actions whose
      *                      execute on load setting has changed (whether flipped from true to false, or vice versa)
      * @param messagesRef      : Empty array list which would be set in this function with all the messagesRef that should be
-     *                      displayed to the developer user communicating the action executeOnLoad changes.
+     *                      displayed to the developer user communicating the action runBehaviour changes.
      * @return
      */
-    Mono<Boolean> updateExecutablesExecuteOnLoad(
+    Mono<Boolean> updateExecutablesRunBehaviour(
             List<Executable> onLoadExecutables,
             String creatorId,
             List<LayoutExecutableUpdateDTO> executableUpdatesRef,
