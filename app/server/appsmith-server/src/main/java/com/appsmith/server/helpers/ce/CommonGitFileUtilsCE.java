@@ -178,7 +178,7 @@ public class CommonGitFileUtilsCE {
             Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         // this should come from the specific files
-        GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
+        GitResourceMap gitResourceMapFromDB = createGitResourceMap(artifactExchangeJson);
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
@@ -186,7 +186,7 @@ public class CommonGitFileUtilsCE {
         return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
             try {
                 return fileUtils
-                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName, keepWorkingDirChanges)
+                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMapFromDB, branchName, keepWorkingDirChanges)
                         .subscribeOn(Schedulers.boundedElastic());
             } catch (IOException | GitAPIException exception) {
                 return Mono.error(exception);

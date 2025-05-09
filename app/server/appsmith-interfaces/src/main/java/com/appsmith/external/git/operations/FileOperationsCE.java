@@ -18,6 +18,8 @@ public interface FileOperationsCE {
 
     boolean writeToFile(Object sourceEntity, Path path) throws IOException;
 
+    boolean hasFileChanged(Object sourceEntity, Object fsSourceEntity) throws IOException;
+
     void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory);
 
     void scanAndDeleteDirectoryForDeletedResources(Set<String> validResources, Path resourceDirectory);
