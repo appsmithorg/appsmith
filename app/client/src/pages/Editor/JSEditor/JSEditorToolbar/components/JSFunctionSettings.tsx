@@ -16,10 +16,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
 import { type ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 import styled from "styled-components";
-import {
-  RUN_BEHAVIOR_VALUES,
-  AUTOMATIC_RUN_BEHAVIOR,
-} from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const OptionLabel = styled(Text)`
@@ -55,13 +52,8 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     "release_reactive_actions_enabled",
   );
 
-  if (flagValueForReactiveActions) {
-    options = [
-      AUTOMATIC_RUN_BEHAVIOR,
-      ...options.filter(
-        (option) => option.value !== AUTOMATIC_RUN_BEHAVIOR.value,
-      ),
-    ];
+  if (!flagValueForReactiveActions) {
+    options = [...options.filter((option) => option.value !== "AUTOMATIC")];
   }
 
   const onSelectOptions = useCallback(
