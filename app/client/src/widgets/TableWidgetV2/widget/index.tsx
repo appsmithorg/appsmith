@@ -637,7 +637,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { primaryColumns = {}, tableData = [] } = this.props;
+    const {
+      infiniteScrollEnabled,
+      primaryColumns = {},
+      tableData = [],
+    } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -695,6 +699,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const newColumnIds = Object.keys(newTableColumns);
 
+    /**
+     * When infinite scroll is enabled, we need to merge the new columns with the existing ones.
+     * Why?
+     * The infinite scroll behavior differs from the existing server-side pagination in that it merges new incoming data with the existing data.
+     * If the new page contains corrupted data with either more or fewer columns than the existing data, the current product behavior only considers the new columns, which is not ideal for infinite scroll.
+     * Therefore, in this block, we are merging the new columns with the existing ones without removing any data.
+     */
+    if (infiniteScrollEnabled) {
+      const mergedColumns = {
+        ...primaryColumns,
+        ...newTableColumns,
+      };
+
+      if (_.xor(existingColumnIds, Object.keys(mergedColumns)).length > 0) {
+        return mergedColumns;
+      }
+
+      return;
+    }
+
+    // For non-infinite scroll, keep existing logic
     // check if the columns ids differ
     if (_.xor(existingColumnIds, newColumnIds).length > 0) {
       return newTableColumns;
