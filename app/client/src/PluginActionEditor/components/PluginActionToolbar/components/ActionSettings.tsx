@@ -6,6 +6,9 @@ import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorC
 import styled from "styled-components";
 import { Text } from "@appsmith/ads";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { useSelector, type DefaultRootState } from "react-redux";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { updateRunBehaviourForActionSettings } from "utils/PluginUtils";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited
@@ -41,9 +44,18 @@ const ActionSettingsWrapper = styled.div`
 `;
 
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
+  const featureFlagEnabled: boolean = useSelector((state: DefaultRootState) =>
+    selectFeatureFlagCheck(state, "release_reactive_actions_enabled"),
+  );
+
+  const updateSettingsConfig = updateRunBehaviourForActionSettings(
+    props.actionSettingsConfig || [],
+    featureFlagEnabled,
+  );
+
   return (
     <ActionSettingsWrapper>
-      {!props.actionSettingsConfig ? (
+      {!updateSettingsConfig ? (
         <CenteredWrapper>
           <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
             Error: No settings config found
@@ -52,7 +64,7 @@ function ActionSettings(props: ActionSettingsProps): JSX.Element {
       ) : (
         /* TODO: Fix this the next time the file is edited */
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        props.actionSettingsConfig.map((section: any) =>
+        updateSettingsConfig.map((section: any) =>
           renderEachConfig(section, props.formName),
         )
       )}
