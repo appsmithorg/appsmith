@@ -1,6 +1,5 @@
 package com.external.config;
 
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
 import com.external.enums.GoogleSheetMethodEnum;
@@ -39,16 +38,11 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getExecutionClientWithFlags(
-            WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
-        // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
-        // Once thoroughly tested, this flag can be removed
-        Boolean isSharedDriveSupportEnabled = featureFlagMap.getOrDefault(
-                FeatureFlagEnum.release_google_sheets_shared_drive_support_enabled.name(), Boolean.FALSE);
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(
                 this.BASE_DRIVE_API_URL,
                 "?orderBy=name&q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse"
-                        + (isSharedDriveSupportEnabled.equals(Boolean.TRUE) ? SHARED_DRIVE_PARAMS : ""),
+                        + SHARED_DRIVE_PARAMS,
                 true);
 
         return webClient
@@ -82,9 +76,8 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getTriggerClientWithFlags(
-            WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
-        return this.getExecutionClientWithFlags(webClient, methodConfig, featureFlagMap);
+    public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        return this.getExecutionClient(webClient, methodConfig);
     }
 
     @Override

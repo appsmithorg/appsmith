@@ -104,9 +104,4 @@ public interface ExecutionMethod {
         conversionMap.put(DataType.FLOAT, DataType.DOUBLE);
         return conversionMap;
     }
-
-    default WebClient.RequestHeadersSpec<?> getExecutionClientWithFlags(
-            WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
-        return getExecutionClient(webClient, methodConfig);
-    }
 }
