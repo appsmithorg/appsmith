@@ -20,7 +20,40 @@
               "subText": "Query only runs when called in an event or JS with .run()",
               "value": "MANUAL"
             }
-          ]
+          ],
+          "hidden": {
+            "flagValue": "release_reactive_actions_enabled",
+            "comparison": "FEATURE_FLAG",
+            "value": false
+          }
+        },
+        {
+          "label": "Run behavior",
+          "configProperty": "runBehaviour",
+          "controlType": "DROP_DOWN",
+          "initialValue": "MANUAL",
+          "options": [
+            {
+              "label": "Automatic",
+              "subText": "Query runs on page load or when a variable it depends on changes",
+              "value": "AUTOMATIC"
+            },
+            {
+              "label": "On page load",
+              "subText": "Query runs when the page loads or when manually triggered",
+              "value": "ON_PAGE_LOAD"
+            },
+            {
+              "label": "Manual",
+              "subText": "Query only runs when called in an event or JS with .run()",
+              "value": "MANUAL"
+            }
+          ],
+          "hidden": {
+            "flagValue": "release_reactive_actions_enabled",
+            "comparison": "FEATURE_FLAG",
+            "value": true
+          }
         },
         {
           "label": "Request confirmation before running this query",

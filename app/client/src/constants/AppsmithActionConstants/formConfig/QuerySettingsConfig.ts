@@ -1,7 +1,8 @@
 import {
   RUN_BEHAVIOR,
   RUN_BEHAVIOR_VALUES,
-} from "PluginActionEditor/types/PluginActionTypes";
+  RUN_BEHAVIOR_CONFIG_PROPERTY,
+} from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 
 export default [
   {
@@ -10,7 +11,7 @@ export default [
     children: [
       {
         label: "Run behavior",
-        configProperty: "runBehaviour",
+        configProperty: RUN_BEHAVIOR_CONFIG_PROPERTY,
         controlType: "DROP_DOWN",
         initialValue: RUN_BEHAVIOR.MANUAL.label,
         options: RUN_BEHAVIOR_VALUES,
