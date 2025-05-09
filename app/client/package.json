@@ -59,7 +59,7 @@
     "@design-system/widgets-old": "workspace:^",
     "@floating-ui/dom": "^1.6.4",
     "@floating-ui/react": "^0.26.24",
-    "@github/g-emoji-element": "^1.1.5",
+    "@github/g-emoji-element": "^1.2.0",
     "@googlemaps/markerclusterer": "^2.0.14",
     "@googlemaps/react-wrapper": "^1.1.35",
     "@grafana/faro-react": "^1.12.2",
