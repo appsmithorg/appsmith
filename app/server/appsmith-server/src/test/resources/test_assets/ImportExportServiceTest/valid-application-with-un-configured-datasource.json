@@ -315,7 +315,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -366,7 +366,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

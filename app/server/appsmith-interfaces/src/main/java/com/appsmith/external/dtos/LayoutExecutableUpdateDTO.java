@@ -1,5 +1,6 @@
 package com.appsmith.external.dtos;
 
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -21,6 +22,26 @@ public class LayoutExecutableUpdateDTO {
     @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Public.class)
+    @Deprecated
+    @JsonView(Views.Internal.class)
     Boolean executeOnLoad;
+
+    @Deprecated
+    @JsonView(Views.Public.class)
+    RunBehaviourEnum runBehaviour;
+
+    /**
+     * Custom getter for runBehaviour that provides fallback to executeOnLoad if runBehaviour is null
+     *
+     * @return The runBehaviour, or a value derived from executeOnLoad if runBehaviour is null
+     */
+    public RunBehaviourEnum getRunBehaviour() {
+        if (runBehaviour != null) {
+            return runBehaviour;
+        }
+        if (executeOnLoad != null) {
+            return Boolean.TRUE.equals(executeOnLoad) ? RunBehaviourEnum.ON_PAGE_LOAD : RunBehaviourEnum.MANUAL;
+        }
+        return null;
+    }
 }

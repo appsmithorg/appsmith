@@ -1835,7 +1835,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -1869,7 +1869,7 @@
       "id": "SQL_DeleteQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -1904,7 +1904,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -1945,7 +1945,7 @@
       "id": "SQL_SelectQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -1987,7 +1987,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2035,7 +2035,7 @@
       "id": "SQL_UpdateQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2084,7 +2084,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2132,7 +2132,7 @@
       "id": "SQL_InsertQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2181,7 +2181,7 @@
       "pluginType": "SAAS",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2281,7 +2281,7 @@
       "id": "Google Sheets_UpdateQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2382,7 +2382,7 @@
       "pluginType": "SAAS",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2497,7 +2497,7 @@
       "id": "Google Sheets_SelectQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2613,7 +2613,7 @@
       "pluginType": "SAAS",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2731,7 +2731,7 @@
       "id": "Google Sheets_DeleteQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2850,7 +2850,7 @@
       "pluginType": "SAAS",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -2946,7 +2946,7 @@
       "id": "Google Sheets_InsertQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3043,7 +3043,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3117,7 +3117,7 @@
       "id": "S3_CreateFile",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3192,7 +3192,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "path": "",
@@ -3293,7 +3293,7 @@
       "id": "S3_ListFiles",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "path": "",
@@ -3395,7 +3395,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3449,7 +3449,7 @@
       "id": "S3_DeleteFile",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3504,7 +3504,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3565,7 +3565,7 @@
       "id": "S3_ReadFile",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3627,7 +3627,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3699,7 +3699,7 @@
       "id": "S3_UpdateFile",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -3772,7 +3772,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [],
@@ -3811,7 +3811,7 @@
       "id": "Admin_get_datasource_structure",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [],
@@ -3851,7 +3851,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [
@@ -3898,7 +3898,7 @@
       "id": "Admin_update_template",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [
@@ -3946,7 +3946,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [
@@ -3990,7 +3990,7 @@
       "id": "Admin_get_exported_app",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "autoGeneratedHeaders": [
@@ -4035,7 +4035,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/users/me",
@@ -4078,7 +4078,7 @@
       "id": "Admin_get_user",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/users/me",
@@ -4122,7 +4122,7 @@
       "pluginType": "JS",
       "unpublishedAction": {
         "userSetOnLoad": true,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4162,7 +4162,7 @@
       "id": "Admin_Utils.myFun2",
       "publishedAction": {
         "userSetOnLoad": true,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4203,7 +4203,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4257,7 +4257,7 @@
       "id": "Page Generator_generate_sql_app",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4312,7 +4312,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4364,7 +4364,7 @@
       "id": "Page Generator_generate_mongo_app",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4417,7 +4417,7 @@
       "pluginType": "API",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4469,7 +4469,7 @@
       "id": "Page Generator_generate_gsheet_app",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "/api/v1/pages/crud-page",
@@ -4522,7 +4522,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4622,7 +4622,7 @@
       "id": "MongoDB_UpdateQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4723,7 +4723,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4791,7 +4791,7 @@
       "id": "MongoDB_InsertQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4860,7 +4860,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -4963,7 +4963,7 @@
       "id": "MongoDB_FindQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5067,7 +5067,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "template_table/{{data_table.selectedRow._ref}}",
@@ -5132,7 +5132,7 @@
       "id": "MongoDB_DeleteQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "path": "template_table/{{data_table.selectedRow._ref}}",
@@ -5198,7 +5198,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5280,7 +5280,7 @@
       "id": "Firestore_UpdateQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5363,7 +5363,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5468,7 +5468,7 @@
       "id": "Firestore_SelectQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5574,7 +5574,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5640,7 +5640,7 @@
       "id": "Firestore_DeleteQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5707,7 +5707,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5784,7 +5784,7 @@
       "id": "Firestore_InsertQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5862,7 +5862,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5896,7 +5896,7 @@
       "id": "Redis_FetchKeys",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5931,7 +5931,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5964,7 +5964,7 @@
       "id": "Redis_InsertKey",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -5998,7 +5998,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6034,7 +6034,7 @@
       "id": "Redis_UpdateKey",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6071,7 +6071,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6104,7 +6104,7 @@
       "id": "Redis_DeleteKey",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6138,7 +6138,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6171,7 +6171,7 @@
       "id": "Redis_FetchValue",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6205,7 +6205,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6246,7 +6246,7 @@
       "id": "PostgreSQL_SelectQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6288,7 +6288,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6336,7 +6336,7 @@
       "id": "PostgreSQL_InsertQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6385,7 +6385,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6420,7 +6420,7 @@
       "id": "PostgreSQL_DeleteQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6456,7 +6456,7 @@
       "pluginType": "DB",
       "unpublishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",
@@ -6504,7 +6504,7 @@
       "id": "PostgreSQL_UpdateQuery",
       "publishedAction": {
         "userSetOnLoad": false,
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "actionConfiguration": {
           "paginationType": "NONE",

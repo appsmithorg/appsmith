@@ -420,7 +420,7 @@
           "body": "SELECT * FROM users ORDER BY id LIMIT 10;",
           "pluginSpecifiedTemplates": [{ "value": true }]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

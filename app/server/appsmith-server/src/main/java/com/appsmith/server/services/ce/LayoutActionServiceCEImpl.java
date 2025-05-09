@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -289,6 +290,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
     }
 
+    @Deprecated
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
         return newActionService
@@ -299,6 +301,28 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     action.setUserSetOnLoad(true);
                     action.setExecuteOnLoad(isExecuteOnLoad);
+
+                    newAction.setUnpublishedAction(action);
+
+                    return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(
+                                    savedAction.getUnpublishedAction().getPageId())
+                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                            .tap(Micrometer.observation(observationRegistry))
+                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
+                });
+    }
+
+    @Override
+    public Mono<ActionDTO> setRunBehaviour(String id, RunBehaviourEnum behaviour) {
+        return newActionService
+                .findById(id, actionPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .flatMap(newAction -> {
+                    ActionDTO action = newAction.getUnpublishedAction();
+
+                    action.setUserSetOnLoad(true);
+                    action.setRunBehaviour(behaviour);
 
                     newAction.setUnpublishedAction(action);
 
@@ -385,7 +409,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // New actions will never be set to auto-magical execution, unless it is triggered via a
                     // page or application clone event.
                     if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                        actionDTO.setExecuteOnLoad(false);
+                        actionDTO.setRunBehaviour(RunBehaviourEnum.MANUAL);
                     }
 
                     newAction.setUnpublishedAction(actionDTO);

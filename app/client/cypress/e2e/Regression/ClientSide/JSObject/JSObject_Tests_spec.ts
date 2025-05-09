@@ -33,7 +33,7 @@ describe("Validate JSObj", {}, () => {
         shouldCreateNewJSObj: true,
       },
     );
-    jsEditor.EnableDisableAsyncFuncSettings("myFun1");
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", "On page load");
 
     // Add new JSObject
     PageList.AddNewPage("New blank page");

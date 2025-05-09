@@ -94,7 +94,7 @@ describe(
         },
       );
 
-      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
+      jsEditor.EnableDisableAsyncFuncSettings("astros", "On page load");
 
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.RefreshPage();

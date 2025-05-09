@@ -20303,7 +20303,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20342,7 +20342,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20388,7 +20388,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20427,7 +20427,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20473,7 +20473,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20514,7 +20514,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20561,7 +20561,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20602,7 +20602,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20651,7 +20651,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20695,7 +20695,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20743,7 +20743,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20786,7 +20786,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -20834,7 +20834,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20876,7 +20876,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20923,7 +20923,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -20965,7 +20965,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21012,7 +21012,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21053,7 +21053,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21100,7 +21100,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21139,7 +21139,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21185,7 +21185,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21226,7 +21226,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21273,7 +21273,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21314,7 +21314,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21362,7 +21362,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21405,7 +21405,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21453,7 +21453,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21495,7 +21495,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21542,7 +21542,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21585,7 +21585,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21633,7 +21633,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21675,7 +21675,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21722,7 +21722,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21765,7 +21765,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21814,7 +21814,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21857,7 +21857,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -21904,7 +21904,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21945,7 +21945,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -21992,7 +21992,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22031,7 +22031,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22077,7 +22077,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22116,7 +22116,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22163,7 +22163,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22206,7 +22206,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22253,7 +22253,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22292,7 +22292,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22340,7 +22340,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22383,7 +22383,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22429,7 +22429,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22470,7 +22470,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22517,7 +22517,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22558,7 +22558,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22605,7 +22605,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22646,7 +22646,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22692,7 +22692,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22731,7 +22731,7 @@
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22778,7 +22778,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22820,7 +22820,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22867,7 +22867,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22908,7 +22908,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -22956,7 +22956,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -22998,7 +22998,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23045,7 +23045,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23087,7 +23087,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23134,7 +23134,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23176,7 +23176,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23223,7 +23223,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23265,7 +23265,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -23312,7 +23312,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -23355,7 +23355,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -23416,7 +23416,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23469,7 +23469,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23529,7 +23529,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23582,7 +23582,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23639,7 +23639,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23689,7 +23689,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23746,7 +23746,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -23792,7 +23792,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -23835,7 +23835,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -23878,7 +23878,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "clientSideExecution": true,
         "dynamicBindingPathList": [
           {
@@ -23936,7 +23936,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -23986,7 +23986,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "datasourceUrl"
@@ -24033,7 +24033,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24075,7 +24075,7 @@
           "jsArguments": [],
           "isAsync": false
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24137,7 +24137,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24188,7 +24188,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24260,7 +24260,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24325,7 +24325,7 @@
             }
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24383,7 +24383,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -24438,7 +24438,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -24485,7 +24485,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24527,7 +24527,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24574,7 +24574,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24616,7 +24616,7 @@
           "jsArguments": [],
           "isAsync": true
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -24675,7 +24675,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24723,7 +24723,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24774,7 +24774,7 @@
           "httpMethod": "GET",
           "selfReferencingDataPaths": []
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -24822,7 +24822,7 @@
           "httpMethod": "GET",
           "selfReferencingDataPaths": []
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -24885,7 +24885,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24937,7 +24937,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -24981,7 +24981,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -25022,7 +25022,7 @@
             }
           ]
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -25078,7 +25078,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25123,7 +25123,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25175,7 +25175,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25220,7 +25220,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25289,7 +25289,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -25350,7 +25350,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -25405,7 +25405,7 @@
           "httpMethod": "GET",
           "selfReferencingDataPaths": []
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -25461,7 +25461,7 @@
           "httpMethod": "GET",
           "selfReferencingDataPaths": []
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [
           {
             "key": "path"
@@ -25520,7 +25520,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25565,7 +25565,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25616,7 +25616,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25660,7 +25660,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25712,7 +25712,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25757,7 +25757,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25801,7 +25801,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25838,7 +25838,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25891,7 +25891,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -25937,7 +25937,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

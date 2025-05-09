@@ -4571,7 +4571,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -4636,7 +4636,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -4699,7 +4699,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -4750,7 +4750,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -4811,7 +4811,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -4860,7 +4860,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -4921,7 +4921,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -4970,7 +4970,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5055,7 +5055,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -5136,7 +5136,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -5207,7 +5207,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5258,7 +5258,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5324,7 +5324,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5378,7 +5378,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5444,7 +5444,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5498,7 +5498,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5562,7 +5562,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5614,7 +5614,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5678,7 +5678,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5730,7 +5730,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5792,7 +5792,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5843,7 +5843,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -5927,7 +5927,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6008,7 +6008,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6093,7 +6093,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6158,7 +6158,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6220,7 +6220,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6271,7 +6271,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6347,7 +6347,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6412,7 +6412,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6476,7 +6476,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6529,7 +6529,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6605,7 +6605,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6670,7 +6670,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -6734,7 +6734,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6787,7 +6787,7 @@
 					],
 					"isAsync": false
 				},
-				"executeOnLoad": false,
+				"runBehaviour": "MANUAL",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -6864,7 +6864,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -6927,7 +6927,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -7001,7 +7001,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -7064,7 +7064,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -7139,7 +7139,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -7202,7 +7202,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 
 				],
@@ -7277,7 +7277,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -7342,7 +7342,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -7427,7 +7427,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"
@@ -7508,7 +7508,7 @@
 						}
 					]
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "queryParameters[0].value"

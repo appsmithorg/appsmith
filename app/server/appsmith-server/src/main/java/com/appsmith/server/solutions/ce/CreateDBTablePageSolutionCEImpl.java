@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -452,7 +453,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .flatMap(actionDTO -> StringUtils.equals(actionDTO.getName(), SELECT_QUERY)
                                             || StringUtils.equals(actionDTO.getName(), FIND_QUERY)
                                             || StringUtils.equals(actionDTO.getName(), LIST_QUERY)
-                                    ? layoutActionService.setExecuteOnLoad(actionDTO.getId(), true)
+                                    ? layoutActionService.setRunBehaviour(
+                                            actionDTO.getId(), RunBehaviourEnum.ON_PAGE_LOAD)
                                     : Mono.just(actionDTO))
                             .then(applicationPageService
                                     .getPage(savedPageId, false)

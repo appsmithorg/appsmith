@@ -402,7 +402,7 @@
             "sortBy": { "data": [{ "column": "", "order": "Ascending" }] }
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -456,7 +456,7 @@
             "sortBy": { "data": [{ "column": "", "order": "Ascending" }] }
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],

@@ -22,14 +22,14 @@ describe.skip(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
         "Correct_users",
       );
-      _.apiPage.ToggleOnPageLoadRun(true);
+      _.apiPage.ToggleOnPageLoadRun("On page load");
       _.apiPage.CreateAndFillApi(
         _.dataManager.dsValues[
           _.dataManager.defaultEnviorment
         ].mockApiUrl.replace("mock-api", "mock-api2err"),
         "Incorrect_users",
       );
-      _.apiPage.ToggleOnPageLoadRun(true);
+      _.apiPage.ToggleOnPageLoadRun("On page load");
       _.jsEditor.CreateJSObject(
         `export default {
         async myFun1 () {

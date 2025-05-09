@@ -11,8 +11,8 @@ public class LayoutSpanCE {
 
     public static final String FIND_ALL_ON_LOAD_EXECUTABLES =
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAllOnLoadExecutables";
-    public static final String UPDATE_EXECUTABLES_EXECUTE_ONLOAD =
-            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesExecuteOnLoad";
+    public static final String UPDATE_EXECUTABLES_RUN_BEHAVIOUR =
+            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesRunBehaviour";
     public static final String FIND_AND_UPDATE_LAYOUT =
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
     public static final String UNESCAPE_MONGO_SPECIAL_CHARS = APPSMITH_SPAN_PREFIX + "unescapeMongoSpecialCharacters";

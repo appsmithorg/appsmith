@@ -63,7 +63,7 @@ export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
       },
     },
   },
-  executeOnLoad: false,
+  runBehaviour: "MANUAL",
   isValid: true,
   invalids: [],
   messages: [],

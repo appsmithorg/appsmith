@@ -18,7 +18,7 @@ import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   EntityNavigationData,
   NavigationData,
-} from "selectors/navigationSelectors";
+} from "entities/DataTree/dataTreeTypes";
 import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
 import type { Plugin } from "entities/Plugin";
 

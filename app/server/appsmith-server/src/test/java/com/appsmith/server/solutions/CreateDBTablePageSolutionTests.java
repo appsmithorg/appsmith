@@ -13,6 +13,7 @@ import com.appsmith.external.models.DatasourceStructure.Key;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -679,11 +680,11 @@ public class CreateDBTablePageSolutionTests {
                         assertThat(actionBody).isEqualTo(templateActionBody);
 
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isTrue();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isFalse();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
                         }
                     }
                     assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase(pluginName);
@@ -759,11 +760,11 @@ public class CreateDBTablePageSolutionTests {
                         assertThat(actionBody).isEqualTo(templateActionBody);
 
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isTrue();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isFalse();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
                         }
                     }
                 })
@@ -817,9 +818,9 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(actionBody).isEqualTo(templateActionBody);
 
                     if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
-                        assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
+                        assertThat(action.getUnpublishedAction().getRunbehaviour()()).isTrue();
                     } else {
-                        assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
+                        assertThat(action.getUnpublishedAction().getRunbehaviour()()).isFalse();
                     }
                 }
             })
@@ -887,11 +888,11 @@ public class CreateDBTablePageSolutionTests {
                                 .replaceAll(specialCharactersRegex, "");
                         assertThat(actionBody).isEqualTo(templateActionBody);
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isTrue();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isFalse();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
                         }
                     }
                 })
@@ -1054,11 +1055,11 @@ public class CreateDBTablePageSolutionTests {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isTrue();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isFalse();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
                         }
 
                         List<Property> pluginSpecifiedTemplate = actionConfiguration.getPluginSpecifiedTemplates();
@@ -1134,11 +1135,11 @@ public class CreateDBTablePageSolutionTests {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         if (FIND_QUERY.equals(action.getUnpublishedAction().getName())) {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isTrue();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
                         } else {
-                            assertThat(action.getUnpublishedAction().getExecuteOnLoad())
-                                    .isFalse();
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
                         }
 
                         Map<String, Object> formData = actionConfiguration.getFormData();

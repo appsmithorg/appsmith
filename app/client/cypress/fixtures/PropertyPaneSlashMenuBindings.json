@@ -465,7 +465,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -550,7 +550,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -635,7 +635,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -720,7 +720,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -805,7 +805,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -890,7 +890,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -975,7 +975,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],
@@ -1060,7 +1060,7 @@
             "apiContentType": "none"
           }
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "messages": [],

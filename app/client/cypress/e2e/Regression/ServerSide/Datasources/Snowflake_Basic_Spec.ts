@@ -165,7 +165,7 @@ describe.skip(
         "Select",
       );
       agHelper.RenameQuery("TemplateSelectQuery");
-      apiPage.ToggleOnPageLoadRun(true);
+      apiPage.ToggleOnPageLoadRun("On page load");
       pluginActionForm.toolbar.toggleSettings();
       apiPage.ToggleConfirmBeforeRunning(true);
       agHelper.RefreshPage();

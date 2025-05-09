@@ -177,7 +177,7 @@ describe(
       }`,
         false,
       );
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true);
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", "On page load");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON)); //Asserting before setTimeout JS function execution, button is visible
       agHelper.Sleep(2000); //waiting for settimeout to execute
       agHelper.AssertElementAbsence(
@@ -236,7 +236,7 @@ describe(
       }`,
         false,
       );
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", false);
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", "Manual");
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2), //Asserting before setTimeout JS function execution, Input is visible

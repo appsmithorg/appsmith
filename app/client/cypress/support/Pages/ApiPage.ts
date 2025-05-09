@@ -78,7 +78,6 @@ export class ApiPage {
   _noBodyMessage = "This request does not have a body";
   _imageSrc = "//img/parent::div";
   private _trashDelete = "[data-testid=t--trash-icon]";
-  private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunning =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
@@ -100,13 +99,14 @@ export class ApiPage {
   private curlImport = ".t--datasoucre-create-option-new_curl_import";
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  private runOnPageLoadJSObject =
-    "input[name^='execute-on-page-load'][type='checkbox']";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public splitPaneContextMenuTrigger = ".entity-context-menu";
   public moreActionsTrigger = "[data-testid='t--more-action-trigger']";
   private apiNameInput = this.locator._activeEntityTabInput;
   public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
+  public _runBehaviourDropdown = "[data-testid='t--dropdown-runBehaviour']";
+  public _runBehaviourOption = (runBehaviour: string) =>
+    `.rc-select-item-option-content [data-testid='t--label-${runBehaviour}']`;
 
   CreateApi(
     apiName = "",
@@ -275,10 +275,15 @@ export class ApiPage {
     this.SelectPaneTab("Headers");
   }
 
-  ToggleOnPageLoadRun(enable = true || false) {
+  ToggleOnPageLoadRun(runBehaviour: "On page load" | "Manual") {
+    // Navigate to Settings tab
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
-    else this.agHelper.CheckUncheck(this._onPageLoad, false);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
+    );
   }
 
   ToggleConfirmBeforeRunning(enable = true || false) {
@@ -503,16 +508,25 @@ export class ApiPage {
     this.RunAPI();
   }
 
-  ToggleOnPageLoadRunJsObject(enable = true || false) {
-    this.SelectPaneTab("Settings");
-    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
-    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+  ToggleOnPageLoadRunJsObject(runBehaviour: "On page load" | "Manual") {
+    // Navigate to Settings tab
+    this.agHelper.GetNClick(this.settingsTriggerLocator);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
+    );
   }
 
-  public clickSettingIcon(enable: boolean) {
+  public clickSettingIcon(runBehaviour: "On page load" | "Manual") {
     this.agHelper.GetNClick(this.settingsTriggerLocator);
-    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
-    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+    // Set runBehaviour to On page load
+    this.agHelper.GetNClick(this._runBehaviourDropdown);
+    this.agHelper.GetNClickByContains(
+      this._runBehaviourOption(runBehaviour),
+      runBehaviour,
+    );
   }
 
   public renameFromEditor(renameVal: string) {

@@ -29,7 +29,7 @@
 				"encodeParamsToggle": true,
 				"body": "DELETE FROM CC\n  WHERE rating = {{Table1.triggeredRow.rating}};"
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 
@@ -75,7 +75,7 @@
 					}
 				]
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 
@@ -124,7 +124,7 @@
 					}
 				]
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 
@@ -173,7 +173,7 @@
 					}
 				]
 			},
-			"executeOnLoad": true,
+			"runBehaviour": "ON_PAGE_LOAD",
 			"isValid": true,
 			"invalids": [
 

@@ -49,7 +49,6 @@
   "actionlist": ".action div div",
   "settings": "[data-testid='t--action-settings-trigger']",
   "headers": "span:contains('Headers')",
-  "onPageLoad": "[name=executeOnLoad]",
   "renameEntity": "div[role='menuitem']:contains('Rename')",
   "paramsTab": "//span[text()='Params']",
   "paramKey": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\.0",
