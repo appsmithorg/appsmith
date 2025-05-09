@@ -1045,14 +1045,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // Reset widget state when infinite scroll is initially enabled
     // This should come after all updateInfiniteScrollProperties are done
-    if (!prevProps.infiniteScrollEnabled && infiniteScrollEnabled) {
-      this.resetTableForInfiniteScroll();
-    }
+    const didInfiniteScrollEnabledChange =
+      prevProps.infiniteScrollEnabled !== infiniteScrollEnabled;
+    const didComponentHeightChange =
+      prevProps.componentHeight !== componentHeight;
 
-    // Reset widget state when height changes while infinite scroll is enabled
     if (
-      infiniteScrollEnabled &&
-      prevProps.componentHeight !== componentHeight
+      didInfiniteScrollEnabledChange ||
+      (infiniteScrollEnabled && didComponentHeightChange)
     ) {
       this.resetTableForInfiniteScroll();
     }

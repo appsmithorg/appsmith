@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.RunBehaviorEnum;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.CreateActionMetaDTO;
 import reactor.core.publisher.Mono;
@@ -18,7 +18,7 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
-    Mono<ActionDTO> setRunBehavior(String id, RunBehaviorEnum behavior);
+    Mono<ActionDTO> setRunBehaviour(String id, RunBehaviourEnum behaviour);
 
     Mono<ActionDTO> createAction(ActionDTO actionDTO);
 

@@ -1,3 +1,4 @@
 .make-container {
   container-type: inline-size;
+  container-name: flex-container;
 }
