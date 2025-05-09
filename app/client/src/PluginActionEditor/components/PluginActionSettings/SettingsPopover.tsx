@@ -8,7 +8,7 @@ import {
   API_EDITOR_TAB_TITLES,
   MORE_ON_QUERY_SETTINGS,
 } from "ee/constants/messages";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, type DefaultRootState } from "react-redux";
 import {
   isPluginActionSettingsOpen,
   openPluginActionSettings,
@@ -16,6 +16,8 @@ import {
 import { THEME } from "../../types/PluginActionTypes";
 import { type DocsLink, openDoc } from "constants/DocumentationLinks";
 import { ToolbarSettingsPopover } from "IDE";
+import { updateRunBehaviourForActionSettings } from "utils/PluginUtils";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 
 export interface SettingsProps {
   formName: string;
@@ -40,6 +42,15 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
   const openSettings = useSelector(isPluginActionSettingsOpen);
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
+
+  const featureFlagEnabled: boolean = useSelector((state: DefaultRootState) =>
+    selectFeatureFlagCheck(state, "release_reactive_actions_enabled"),
+  );
+
+  const updateSettingsConfig = updateRunBehaviourForActionSettings(
+    settingsConfig || [],
+    featureFlagEnabled,
+  );
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -74,7 +85,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
     >
       <SettingsWrapper>
         <ActionSettings
-          actionSettingsConfig={settingsConfig}
+          actionSettingsConfig={updateSettingsConfig}
           formName={props.formName}
           theme={THEME}
         />

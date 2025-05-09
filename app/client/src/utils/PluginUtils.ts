@@ -1,45 +1,61 @@
-import { objectKeys } from "@appsmith/utils";
 import type { PluginType } from "entities/Plugin";
 import { RUN_BEHAVIOR_CONFIG_PROPERTY } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
-import type { PluginActionSettingsConfig } from "PluginActionEditor/types/PluginActionTypes";
+import type {
+  PluginActionSettingsConfig,
+  PluginActionSettingsConfigChildren,
+} from "PluginActionEditor/types/PluginActionTypes";
 
-export const updatePluginRunBehaviourForPluginSettings = (
+export const updateDefaultPluginSettings = (
   pluginSettings: Record<PluginType, PluginActionSettingsConfig[]>,
   flagValueForReactiveActions: boolean,
-) => {
+): Record<PluginType, PluginActionSettingsConfig[]> => {
   if (!flagValueForReactiveActions) {
-    return objectKeys(pluginSettings).reduce(
-      (acc: Record<PluginType, PluginActionSettingsConfig[]>, pluginType) => {
-        acc[pluginType] = pluginSettings[pluginType].map(
-          (plugin: PluginActionSettingsConfig) => {
-            return {
-              ...plugin,
-              children: plugin.children.map((child) => {
-                if (
-                  child.configProperty === RUN_BEHAVIOR_CONFIG_PROPERTY &&
-                  child.options
-                ) {
-                  return {
-                    ...child,
-                    options: [
-                      ...child.options.filter(
-                        (option) => option.value !== "AUTOMATIC",
-                      ),
-                    ],
-                  };
-                }
+    return Object.fromEntries(
+      Object.entries(pluginSettings).map(([pluginType, settings]) => {
+        let newSettings = settings;
 
-                return child;
-              }),
-            };
-          },
-        );
+        if (newSettings.length > 0) {
+          newSettings = updateRunBehaviourForActionSettings(
+            settings,
+            flagValueForReactiveActions,
+          );
+        }
 
-        return acc;
-      },
-      pluginSettings,
-    );
+        return [pluginType, newSettings];
+      }),
+    ) as Record<PluginType, PluginActionSettingsConfig[]>;
   }
 
   return pluginSettings;
+};
+
+export const updateRunBehaviourForActionSettings = (
+  pluginSettings: PluginActionSettingsConfig[],
+  flagValueForReactiveActions: boolean,
+): PluginActionSettingsConfig[] => {
+  return pluginSettings.map((settings) => ({
+    ...settings,
+    children: settings.children.map(
+      (settings: PluginActionSettingsConfigChildren) => {
+        if (
+          settings.configProperty === RUN_BEHAVIOR_CONFIG_PROPERTY &&
+          settings.options
+        ) {
+          return {
+            ...settings,
+            options: [
+              ...settings.options.filter(
+                (option) =>
+                  (!flagValueForReactiveActions &&
+                    option.value !== "AUTOMATIC") ||
+                  flagValueForReactiveActions,
+              ),
+            ],
+          };
+        }
+
+        return settings;
+      },
+    ),
+  }));
 };

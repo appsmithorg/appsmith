@@ -45,7 +45,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
-import { updatePluginRunBehaviourForPluginSettings } from "utils/PluginUtils";
+import { updateDefaultPluginSettings } from "utils/PluginUtils";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 
 function* fetchPluginsSaga(
@@ -171,7 +171,7 @@ function* fetchPluginFormConfigsSaga(action?: {
       "release_reactive_actions_enabled",
     );
 
-    const updatedPluginSettings = updatePluginRunBehaviourForPluginSettings(
+    const updatedPluginSettings = updateDefaultPluginSettings(
       defaultActionSettings,
       featureFlagEnabled,
     );
@@ -253,7 +253,7 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       "release_reactive_actions_enabled",
     );
 
-    const updatedPluginSettings = updatePluginRunBehaviourForPluginSettings(
+    const updatedPluginSettings = updateDefaultPluginSettings(
       defaultActionSettings,
       featureFlagEnabled,
     );

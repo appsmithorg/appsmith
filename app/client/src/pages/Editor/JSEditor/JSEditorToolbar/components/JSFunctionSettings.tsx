@@ -46,15 +46,14 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
-  let options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
   const flagValueForReactiveActions = useFeatureFlag(
     "release_reactive_actions_enabled",
   );
-
-  if (!flagValueForReactiveActions) {
-    options = [...options.filter((option) => option.value !== "AUTOMATIC")];
-  }
-
+  const options = RUN_BEHAVIOR_VALUES.filter(
+    (option) =>
+      (option.value !== "AUTOMATIC" && !flagValueForReactiveActions) ||
+      flagValueForReactiveActions,
+  ) as SelectOptionProps[];
   const selectedValue = options.find((opt) => opt.value === runBehaviour);
 
   const onSelectOptions = useCallback(

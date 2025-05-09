@@ -5,7 +5,11 @@ import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride"
 
 const combineFeatureFlags = memoize(
   (featureFlags: FeatureFlags, overriddenFlags: OverriddenFeatureFlags) => {
-    return { ...featureFlags, ...overriddenFlags };
+    return {
+      ...featureFlags,
+      ...overriddenFlags,
+      release_reactive_actions_enabled: false,
+    };
   },
 );
 
