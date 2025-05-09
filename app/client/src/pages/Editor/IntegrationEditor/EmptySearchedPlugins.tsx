@@ -24,10 +24,8 @@ const EmptyImage = styled.img`
 `;
 
 export default function EmptySearchedPlugins({
-  isPremiumDatasourcesViewEnabled,
   mockDatasources,
 }: {
-  isPremiumDatasourcesViewEnabled: boolean;
   mockDatasources: MockDatasource[];
 }) {
   let searchedPlugin = useSelector((state) =>
@@ -60,13 +58,11 @@ export default function EmptySearchedPlugins({
         ...plugins,
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
-        ...(isPremiumDatasourcesViewEnabled
-          ? getFilteredUpcomingIntegrations(
-              isExternalSaasEnabled || isIntegrationsEnabledForPaid,
-              pluginNames,
-              upcomingPlugins,
-            )
-          : []),
+        ...getFilteredUpcomingIntegrations(
+          isExternalSaasEnabled || isIntegrationsEnabledForPaid,
+          pluginNames,
+          upcomingPlugins,
+        ),
       ],
       searchedPlugin,
     ).length > 0;

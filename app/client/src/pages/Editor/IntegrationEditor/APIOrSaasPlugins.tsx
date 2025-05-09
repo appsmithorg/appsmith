@@ -73,7 +73,6 @@ interface CreateAPIOrSaasPluginsProps {
     parentEntityType: ActionParentEntityTypeInterface,
     apiType: string,
   ) => void;
-  isPremiumDatasourcesViewEnabled?: boolean;
   upcomingIntegrations: UpcomingIntegration[];
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
@@ -302,7 +301,6 @@ const mapStateToProps = (
   state: DefaultRootState,
   props: {
     showSaasAPIs?: boolean;
-    isPremiumDatasourcesViewEnabled: boolean;
     isCreating?: boolean;
   },
 ) => {
@@ -356,17 +354,16 @@ const mapStateToProps = (
     plugin.name.toLocaleLowerCase(),
   );
 
-  const upcomingIntegrations =
-    props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
-      ? (filterSearch(
-          getFilteredUpcomingIntegrations(
-            isExternalSaasEnabled || isIntegrationsEnabledForPaid,
-            pluginNames,
-            upcomingPlugins,
-          ),
-          searchedPlugin,
-        ) as UpcomingIntegration[])
-      : [];
+  const upcomingIntegrations = props.showSaasAPIs
+    ? (filterSearch(
+        getFilteredUpcomingIntegrations(
+          isExternalSaasEnabled || isIntegrationsEnabledForPaid,
+          pluginNames,
+          upcomingPlugins,
+        ),
+        searchedPlugin,
+      ) as UpcomingIntegration[])
+    : [];
 
   const restAPIVisible =
     !props.showSaasAPIs &&

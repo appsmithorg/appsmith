@@ -4,10 +4,7 @@ import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "ee/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
@@ -35,7 +32,6 @@ import RequestNewIntegration from "./RequestNewIntegration";
 import { StyledDivider } from "./IntegrationStyledComponents";
 import CreateNewDatasourceHeader from "./CreateNewDatasourceHeader";
 import EmptySearchedPlugins from "./EmptySearchedPlugins";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 // This css file contains for the EXTERNAL_SAAS plugin modal
 import "./index.css";
 
@@ -61,8 +57,6 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isOnboardingScreen?: boolean;
-  isRequestNewIntegrationEnabled: boolean;
-  isPremiumDatasourcesViewEnabled: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -94,8 +88,6 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isCreating,
       isOnboardingScreen,
-      isPremiumDatasourcesViewEnabled,
-      isRequestNewIntegrationEnabled,
       pageId,
       showDebugger,
     } = this.props;
@@ -132,7 +124,6 @@ class CreateNewDatasourceTab extends React.Component<
             active={false}
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
-            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
@@ -148,7 +139,6 @@ class CreateNewDatasourceTab extends React.Component<
           <APIOrSaasPlugins
             active={false}
             isCreating={isCreating}
-            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showSaasAPIs
@@ -165,14 +155,9 @@ class CreateNewDatasourceTab extends React.Component<
               preDivider
             />
           )}
-          <EmptySearchedPlugins
-            isPremiumDatasourcesViewEnabled={
-              this.props.isPremiumDatasourcesViewEnabled
-            }
-            mockDatasources={this.props.mockDatasources}
-          />
+          <EmptySearchedPlugins mockDatasources={this.props.mockDatasources} />
         </NewIntegrationsContainer>
-        {isRequestNewIntegrationEnabled && <RequestNewIntegration />}
+        <RequestNewIntegration />
         {showDebugger && <Debugger />}
       </>
     );
@@ -201,16 +186,6 @@ const mapStateToProps = (state: DefaultRootState) => {
     userWorkspacePermissions,
   );
 
-  const isRequestNewIntegrationEnabled = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.ab_request_new_integration_enabled,
-  );
-
-  const isPremiumDatasourcesViewEnabled = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.ab_premium_datasources_view_enabled,
-  );
-
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -219,8 +194,6 @@ const mapStateToProps = (state: DefaultRootState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
-    isRequestNewIntegrationEnabled,
-    isPremiumDatasourcesViewEnabled,
   };
 };
 
