@@ -8,12 +8,13 @@ import type { Action } from "entities/Action";
 import type { Plugin } from "entities/Plugin";
 import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import type { ActionResponse } from "api/ActionAPI";
+import type { PluginActionSettingsConfig } from "./types/PluginActionTypes";
 
 interface PluginActionContextType {
   action: Action;
   actionResponse?: ActionResponse;
   editorConfig?: unknown[];
-  settingsConfig?: unknown[];
+  settingsConfig?: PluginActionSettingsConfig[];
   plugin: Plugin;
   datasource?: EmbeddedRestDatasource | Datasource;
 }

@@ -7,6 +7,7 @@ import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromAc
 import { setActionProperty } from "actions/pluginActionActions";
 import { usePluginActionContext } from "../../../../../PluginActionContext";
 import { useDispatch } from "react-redux";
+import type { PluginActionSettingsConfig } from "PluginActionEditor/types/PluginActionTypes";
 
 export const useGoogleSheetsSetDefaultProperty = () => {
   const {
@@ -30,7 +31,9 @@ export const useGoogleSheetsSetDefaultProperty = () => {
 
         merge(
           initialValues,
-          getConfigInitialValues(settingsConfig as Record<string, unknown>[]),
+          getConfigInitialValues(
+            settingsConfig as PluginActionSettingsConfig[],
+          ),
         );
 
         // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form

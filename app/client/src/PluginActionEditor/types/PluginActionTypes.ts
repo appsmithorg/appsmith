@@ -10,7 +10,7 @@ export enum ActionRunBehaviour {
 
 export type ActionRunBehaviourType = `${ActionRunBehaviour}`;
 
-interface PluginActionSettingsConfigChildren {
+export interface PluginActionSettingsConfigChildren {
   label: string;
   configProperty: string;
   controlType: string;
