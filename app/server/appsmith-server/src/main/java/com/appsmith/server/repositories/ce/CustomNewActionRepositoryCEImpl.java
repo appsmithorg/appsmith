@@ -181,12 +181,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
             String pageId, AclPermission permission) {
-        BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
-                        NewAction.Fields.unpublishedAction_runBehaviour, RunBehaviourEnum.ON_PAGE_LOAD)
+        BridgeQuery<NewAction> q = Bridge.<NewAction>or(
+                        // First condition: new runBehaviour = ON_PAGE_LOAD
+                        Bridge.<NewAction>equal(
+                                NewAction.Fields.unpublishedAction_runBehaviour, RunBehaviourEnum.ON_PAGE_LOAD),
+                        // Second condition: legacy executeOnLoad = true
+                        Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad))
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
                 .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
-                // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-                // would exist. To handle this, only fetch non-deleted actions
                 .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
         return queryBuilder().criteria(q).permission(permission).all();
