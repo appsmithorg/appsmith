@@ -18,16 +18,16 @@ RUN apt-get update && \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Setup nss_wrapper configuration in /etc/profile
-RUN echo '# Setup nss_wrapper for arbitrary user support' >> /etc/profile && \
-    echo 'if [ -f ${TMP}/passwd ] && [ -f ${TMP}/group ]; then' >> /etc/profile && \
-    echo '  NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)' >> /etc/profile && \
-    echo '  if [ -n "$NSS_WRAPPER_LIB" ]; then' >> /etc/profile && \
-    echo '    export LD_PRELOAD="$NSS_WRAPPER_LIB"' >> /etc/profile && \
-    echo '    export NSS_WRAPPER_PASSWD="${TMP}/passwd"' >> /etc/profile && \
-    echo '    export NSS_WRAPPER_GROUP="${TMP}/group"' >> /etc/profile && \
-    echo '  fi' >> /etc/profile && \
-    echo 'fi' >> /etc/profile
+# Setup nss_wrapper configuration in /etc/bash.bashrc
+RUN echo '# Setup nss_wrapper for arbitrary user support' >> /etc/bash.bashrc && \
+    echo 'if [ -f $TMP/passwd ] && [ -f $TMP/group ]; then' >> /etc/bash.bashrc && \
+    echo '  NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)' >> /etc/bash.bashrc && \
+    echo '  if [ -n "$NSS_WRAPPER_LIB" ]; then' >> /etc/bash.bashrc && \
+    echo '    export LD_PRELOAD="$NSS_WRAPPER_LIB"' >> /etc/bash.bashrc && \
+    echo '    export NSS_WRAPPER_PASSWD="$TMP/passwd"' >> /etc/bash.bashrc && \
+    echo '    export NSS_WRAPPER_GROUP="$TMP/group"' >> /etc/bash.bashrc && \
+    echo '  fi' >> /etc/bash.bashrc && \
+    echo 'fi' >> /etc/bash.bashrc
 
 RUN <<END
   if ! [ -f info.json ]; then
