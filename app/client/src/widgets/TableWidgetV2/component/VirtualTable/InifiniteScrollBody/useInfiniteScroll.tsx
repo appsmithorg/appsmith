@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { debounce } from "lodash";
 import type { Row } from "react-table";
 import type { ListOnItemsRenderedProps } from "react-window";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface UseInfiniteScrollProps {
   loadMore: () => void;
@@ -9,6 +10,8 @@ export interface UseInfiniteScrollProps {
   pageSize: number;
   isLoading: boolean;
   endOfData: boolean;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
+  cachedTableData: Array<Record<string, unknown>>;
 }
 
 export interface UseInfiniteScrollReturn {
@@ -16,27 +19,42 @@ export interface UseInfiniteScrollReturn {
 }
 
 export const useInfiniteScroll = ({
+  cachedTableData,
   endOfData,
   isLoading,
   loadMore,
   pageSize,
   rows,
+  updatePageNo,
 }: UseInfiniteScrollProps): UseInfiniteScrollReturn => {
   const lastLoadedPageRef = useRef(1);
   const haveWeJustTriggeredLoadMoreRef = useRef(false);
   const hasLoadedSecondPageRef = useRef(false);
-  const lastRenderedRowInCurrentViewPortRef = useRef(0);
-  const currentPage = Math.ceil(rows.length / pageSize);
+  const lastRenderedRowAtWhichWeLoadedData = useRef(0);
+  const lastPageInTableDataset = Math.ceil(rows.length / pageSize);
 
   /**
    * We implement debouncing to avoid triggering unnecessary load more events, incorporating an additional timeout of 100 milliseconds to further prevent this.
    * There is also a ref that indicates whether a load more request has just been triggered, serving as a safety net to prevent multiple simultaneous requests.
    */
   const debouncedLoadMore = useCallback(
-    debounce(() => {
-      if (!isLoading && !endOfData && !haveWeJustTriggeredLoadMoreRef.current) {
+    debounce((pageToLoad: number) => {
+      /**
+       * We need this `hasNextPageData` variable to verify that in scenarios where a query fails or the user goes offline momentarily,
+       * if we trigger a next page load, the meta property may update, but the table has not received any data.
+       * In such cases, we need to send another request to load the data if it has not been received yet.
+       */
+      const hasNextPageData =
+        pageToLoad in cachedTableData &&
+        Array.isArray(cachedTableData[pageToLoad]);
+      const shouldLoad = !isLoading && !endOfData && !hasNextPageData;
+      const preRequisitesForLoadingMore =
+        shouldLoad && !haveWeJustTriggeredLoadMoreRef.current;
+
+      if (preRequisitesForLoadingMore) {
         haveWeJustTriggeredLoadMoreRef.current = true;
-        loadMore();
+        updatePageNo(pageToLoad, EventType.ON_NEXT_PAGE);
+
         setTimeout(() => {
           haveWeJustTriggeredLoadMoreRef.current = false;
         }, 100);
@@ -62,22 +80,28 @@ export const useInfiniteScroll = ({
    */
   const onItemsRendered = useCallback(
     (props: ListOnItemsRenderedProps) => {
-      const { visibleStopIndex } = props;
-
-      const currentVisiblePage = Math.ceil(visibleStopIndex / pageSize);
-      const isInLastPage = currentVisiblePage === currentPage;
+      const { visibleStopIndex: lastRenderedRowInTheCurrentView } = props;
+      const currentVisiblePage = Math.ceil(
+        lastRenderedRowInTheCurrentView / pageSize,
+      );
+      const isInLastPage = currentVisiblePage === lastPageInTableDataset;
 
       if (
         isInLastPage &&
         !isLoading &&
         !endOfData &&
-        visibleStopIndex > lastRenderedRowInCurrentViewPortRef.current
+        lastRenderedRowInTheCurrentView >=
+          lastRenderedRowAtWhichWeLoadedData.current
       ) {
-        lastRenderedRowInCurrentViewPortRef.current = visibleStopIndex;
-        debouncedLoadMore();
+        if (lastRenderedRowAtWhichWeLoadedData.current !== rows.length) {
+          lastRenderedRowAtWhichWeLoadedData.current =
+            lastRenderedRowInTheCurrentView;
+        }
+
+        debouncedLoadMore(currentVisiblePage + 1);
       }
     },
-    [currentPage, isLoading, endOfData, pageSize, debouncedLoadMore],
+    [lastPageInTableDataset, isLoading, endOfData, pageSize, debouncedLoadMore],
   );
 
   /**

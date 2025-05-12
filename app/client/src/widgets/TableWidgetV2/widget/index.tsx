@@ -1302,6 +1302,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
+          cachedTableData={this.props.cachedTableData}
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
