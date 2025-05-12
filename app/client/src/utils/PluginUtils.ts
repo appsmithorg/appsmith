@@ -22,9 +22,8 @@ export const updateRunBehaviourForActionSettings = (
             options: [
               ...settings.options.filter(
                 (option) =>
-                  (!flagValueForReactiveActions &&
-                    option.value !== ActionRunBehaviour.AUTOMATIC) ||
-                  flagValueForReactiveActions,
+                  flagValueForReactiveActions ||
+                  option.value !== ActionRunBehaviour.AUTOMATIC,
               ),
             ],
           };

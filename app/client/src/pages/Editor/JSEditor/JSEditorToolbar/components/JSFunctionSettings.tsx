@@ -54,9 +54,8 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   );
   const options = RUN_BEHAVIOR_VALUES.filter(
     (option) =>
-      (option.value !== ActionRunBehaviour.AUTOMATIC &&
-        !flagValueForReactiveActions) ||
-      flagValueForReactiveActions,
+      flagValueForReactiveActions ||
+      option.value !== ActionRunBehaviour.AUTOMATIC,
   ) as SelectOptionProps[];
   const selectedValue = options.find((opt) => opt.value === runBehaviour);
 
