@@ -13,8 +13,9 @@ COPY deploy/docker/fs /
 
 # Install git
 RUN apt-get update && \
-    apt-get install -y git && \
-    apt-get clean && \
+    apt-get install -y git \
+    libnss-wrapper \
+    && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN <<END

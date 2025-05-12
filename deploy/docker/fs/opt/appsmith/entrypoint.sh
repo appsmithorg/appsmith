@@ -5,6 +5,14 @@ source pg-utils.sh
 
 set -e
 
+if ! getent passwd "$(id -u)" &> /dev/null && [ -e /usr/lib/libnss_wrapper.so ]; then
+  export LD_PRELOAD=/usr/lib/libnss_wrapper.so
+  export NSS_WRAPPER_PASSWD=$(mktemp)
+  export NSS_WRAPPER_GROUP=$(mktemp)
+  echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > "$NSS_WRAPPER_PASSWD"
+  echo "appsmith:x:$(id -g):" > "$NSS_WRAPPER_GROUP"
+fi
+
 tlog "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
