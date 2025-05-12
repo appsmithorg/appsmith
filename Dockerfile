@@ -24,8 +24,8 @@ RUN echo '# Setup nss_wrapper for arbitrary user support' >> /etc/profile && \
     echo '  NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)' >> /etc/profile && \
     echo '  if [ -n "$NSS_WRAPPER_LIB" ]; then' >> /etc/profile && \
     echo '    export LD_PRELOAD="$NSS_WRAPPER_LIB"' >> /etc/profile && \
-    echo '    export NSS_WRAPPER_PASSWD="${TMP}/appsmith/passwd"' >> /etc/profile && \
-    echo '    export NSS_WRAPPER_GROUP="${TMP}/appsmith/group"' >> /etc/profile && \
+    echo '    export NSS_WRAPPER_PASSWD="${TMP}/passwd"' >> /etc/profile && \
+    echo '    export NSS_WRAPPER_GROUP="${TMP}/group"' >> /etc/profile && \
     echo '  fi' >> /etc/profile && \
     echo 'fi' >> /etc/profile
 
