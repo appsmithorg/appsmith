@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { render, screen } from "@testing-library/react";
+import React, { useContext, useEffect } from "react";
+import { render, screen, waitFor } from "@testing-library/react";
 import TestRenderer from "react-test-renderer";
 import {
   TableProvider,
@@ -208,6 +208,7 @@ describe("TableContext", () => {
         "onConnectData",
         "isInfiniteScrollEnabled",
         "endOfData",
+        "focusFirstEditableCellInNewRow",
       ].sort();
 
       const result = Object.keys(
@@ -307,5 +308,54 @@ describe("TableContext", () => {
     const secondText = secondRender.textContent;
 
     expect(firstText).toBe(secondText);
+  });
+
+  describe("focusFirstEditableCellInNewRow", () => {
+    it("focuses the first editable cell input in the new row for the correct table", async () => {
+      const widgetId = "table-widget-1";
+
+      const FocusCaller = () => {
+        const context = useContext(TableContext);
+
+        useEffect(() => {
+          context?.focusFirstEditableCellInNewRow();
+        }, [context]);
+
+        return null;
+      };
+
+      render(
+        <TableProvider {...mockTableProviderProps} widgetId={widgetId}>
+          <FocusCaller />
+        </TableProvider>,
+      );
+
+      const tableDiv = document.createElement("div");
+
+      tableDiv.className = "tableWrap";
+      tableDiv.setAttribute("data-widgetid", widgetId);
+
+      const newRowDiv = document.createElement("div");
+
+      newRowDiv.className = "new-row";
+
+      const cellEditorDiv = document.createElement("div");
+
+      cellEditorDiv.className = "t--inlined-cell-editor";
+
+      const input = document.createElement("input");
+
+      input.type = "text";
+      cellEditorDiv.appendChild(input);
+      newRowDiv.appendChild(cellEditorDiv);
+      tableDiv.appendChild(newRowDiv);
+      document.body.appendChild(tableDiv);
+
+      await waitFor(() => {
+        expect(document.activeElement).toBe(input);
+      });
+
+      document.body.removeChild(tableDiv);
+    });
   });
 });
