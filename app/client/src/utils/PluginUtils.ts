@@ -1,18 +1,18 @@
 import { RUN_BEHAVIOR_CONFIG_PROPERTY } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import {
   ActionRunBehaviour,
-  type PluginActionSettingsConfig,
-  type PluginActionSettingsConfigChildren,
+  type ActionSettingsConfig,
+  type ActionSettingsConfigChildren,
 } from "PluginActionEditor/types/PluginActionTypes";
 
 export const updateRunBehaviourForActionSettings = (
-  pluginSettings: PluginActionSettingsConfig[],
+  actionSettings: ActionSettingsConfig[],
   flagValueForReactiveActions: boolean,
-): PluginActionSettingsConfig[] => {
-  return pluginSettings.map((settings) => ({
+): ActionSettingsConfig[] => {
+  return actionSettings.map((settings) => ({
     ...settings,
     children: settings.children.map(
-      (settings: PluginActionSettingsConfigChildren) => {
+      (settings: ActionSettingsConfigChildren) => {
         if (
           settings.configProperty === RUN_BEHAVIOR_CONFIG_PROPERTY &&
           settings.options
