@@ -1,46 +1,36 @@
-import { objectKeys } from "@appsmith/utils";
-import type { PluginType } from "entities/Plugin";
 import { RUN_BEHAVIOR_CONFIG_PROPERTY } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import {
   ActionRunBehaviour,
-  type PluginActionSettingsConfig,
+  type ActionSettingsConfig,
+  type ActionSettingsConfigChildren,
 } from "PluginActionEditor/types/PluginActionTypes";
 
-export const updatePluginRunBehaviourForPluginSettings = (
-  pluginSettings: Record<PluginType, PluginActionSettingsConfig[]>,
+export const updateRunBehaviourForActionSettings = (
+  actionSettings: ActionSettingsConfig[],
   flagValueForReactiveActions: boolean,
-) => {
-  if (!flagValueForReactiveActions) {
-    return objectKeys(pluginSettings).reduce(
-      (acc: Record<PluginType, PluginActionSettingsConfig[]>, pluginType) => {
-        acc[pluginType] = pluginSettings[pluginType].map(
-          (plugin: PluginActionSettingsConfig) => {
-            return {
-              ...plugin,
-              children: plugin.children.map((child) => {
-                if (
-                  child.configProperty === RUN_BEHAVIOR_CONFIG_PROPERTY &&
-                  child.options
-                ) {
-                  return {
-                    ...child,
-                    options: child.options.filter(
-                      (option) => option.value !== ActionRunBehaviour.AUTOMATIC,
-                    ),
-                  };
-                }
+): ActionSettingsConfig[] => {
+  return actionSettings.map((settings) => ({
+    ...settings,
+    children: settings.children.map(
+      (settings: ActionSettingsConfigChildren) => {
+        if (
+          settings.configProperty === RUN_BEHAVIOR_CONFIG_PROPERTY &&
+          settings.options
+        ) {
+          return {
+            ...settings,
+            options: [
+              ...settings.options.filter(
+                (option) =>
+                  flagValueForReactiveActions ||
+                  option.value !== ActionRunBehaviour.AUTOMATIC,
+              ),
+            ],
+          };
+        }
 
-                return child;
-              }),
-            };
-          },
-        );
-
-        return acc;
+        return settings;
       },
-      pluginSettings,
-    );
-  }
-
-  return pluginSettings;
+    ),
+  }));
 };
