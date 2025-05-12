@@ -5,6 +5,14 @@ source pg-utils.sh
 
 set -e
 
+stacks_path=/appsmith-stacks
+
+export APPSMITH_PG_DATABASE="appsmith"
+export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
+export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
+
 if ! getent passwd "$(id -u)" &> /dev/null; then
   NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)
   if [ -n "$NSS_WRAPPER_LIB" ]; then
@@ -22,14 +30,6 @@ if ! getent passwd "$(id -u)" &> /dev/null; then
 fi
 
 tlog "Running as: $(id)"
-
-stacks_path=/appsmith-stacks
-
-export APPSMITH_PG_DATABASE="appsmith"
-export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
-export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
-
-mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
