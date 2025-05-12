@@ -45,6 +45,7 @@ export interface TableContextState
     width: number;
   };
   tableSizes: TableSizes;
+  focusFirstEditableCellInNewRow: () => void;
 }
 
 export const TableContext = createContext<TableContextState | undefined>(
@@ -64,9 +65,30 @@ export const TableProvider = ({ children, ...state }: TableProviderProps) => {
     };
   }, [state.isHeaderVisible, state.height, state.compactMode, state.width]);
 
+  const focusFirstEditableCellInNewRow = React.useCallback(() => {
+    setTimeout(() => {
+      const table = document.querySelector(
+        `.tableWrap[data-widgetid="${state.widgetId}"]`,
+      );
+
+      if (!table) return;
+
+      const firstEditableInput = table.querySelector(
+        ".tableWrap .new-row .t--inlined-cell-editor input:not([disabled])",
+      );
+
+      if (firstEditableInput) (firstEditableInput as HTMLElement).focus();
+    }, 0);
+  }, [state.widgetId]);
+
   return (
     <TableContext.Provider
-      value={{ ...value, scrollContainerStyles, tableSizes }}
+      value={{
+        ...value,
+        scrollContainerStyles,
+        tableSizes,
+        focusFirstEditableCellInNewRow,
+      }}
     >
       {children}
     </TableContext.Provider>
