@@ -5,12 +5,18 @@ source pg-utils.sh
 
 set -e
 
-if ! getent passwd "$(id -u)" &> /dev/null && [ -e /usr/lib/libnss_wrapper.so ]; then
-  export LD_PRELOAD=/usr/lib/libnss_wrapper.so
-  export NSS_WRAPPER_PASSWD=$(mktemp)
-  export NSS_WRAPPER_GROUP=$(mktemp)
-  echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > "$NSS_WRAPPER_PASSWD"
-  echo "appsmith:x:$(id -g):" > "$NSS_WRAPPER_GROUP"
+if ! getent passwd "$(id -u)" &> /dev/null; then
+  NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)
+  if [ -n "$NSS_WRAPPER_LIB" ]; then
+    export LD_PRELOAD="$NSS_WRAPPER_LIB"
+    export NSS_WRAPPER_PASSWD=$(mktemp)
+    export NSS_WRAPPER_GROUP=$(mktemp)
+    echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > "$NSS_WRAPPER_PASSWD"
+    echo "appsmith:x:$(id -g):" > "$NSS_WRAPPER_GROUP"
+  else
+    echo "libnss_wrapper.so not found. Please install libnss-wrapper package." >&2
+    exit 1
+  fi
 fi
 
 tlog "Running as: $(id)"
