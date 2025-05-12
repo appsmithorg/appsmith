@@ -1,7 +1,8 @@
 import { RUN_BEHAVIOR_CONFIG_PROPERTY } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
-import type {
-  PluginActionSettingsConfig,
-  PluginActionSettingsConfigChildren,
+import {
+  ActionRunBehaviour,
+  type PluginActionSettingsConfig,
+  type PluginActionSettingsConfigChildren,
 } from "PluginActionEditor/types/PluginActionTypes";
 
 export const updateRunBehaviourForActionSettings = (
@@ -22,7 +23,7 @@ export const updateRunBehaviourForActionSettings = (
               ...settings.options.filter(
                 (option) =>
                   (!flagValueForReactiveActions &&
-                    option.value !== "AUTOMATIC") ||
+                    option.value !== ActionRunBehaviour.AUTOMATIC) ||
                   flagValueForReactiveActions,
               ),
             ],
