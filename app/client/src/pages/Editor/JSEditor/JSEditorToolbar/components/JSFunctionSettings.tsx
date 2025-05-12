@@ -14,7 +14,10 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
-import { type ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
+import {
+  ActionRunBehaviour,
+  type ActionRunBehaviourType,
+} from "PluginActionEditor/types/PluginActionTypes";
 import styled from "styled-components";
 import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -51,7 +54,8 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   );
   const options = RUN_BEHAVIOR_VALUES.filter(
     (option) =>
-      (option.value !== "AUTOMATIC" && !flagValueForReactiveActions) ||
+      (option.value !== ActionRunBehaviour.AUTOMATIC &&
+        !flagValueForReactiveActions) ||
       flagValueForReactiveActions,
   ) as SelectOptionProps[];
   const selectedValue = options.find((opt) => opt.value === runBehaviour);
