@@ -12,7 +12,7 @@ import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import EnterpriseTag from "components/EnterpriseTag";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 function PrivateEmbeddingContent(props: {
   // TODO: Fix this the next time the file is edited
@@ -56,10 +56,10 @@ export function PrivateEmbedRampModal() {
     false,
     isPrivateEmbedEnabled,
   );
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
   const canShowRamp = useSelector(showRampSelector);
 
-  if (canShowRamp && !isAiAgentFlowEnabled) {
+  if (canShowRamp && !isAgentApp) {
     return (
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-1 w-4/5">
@@ -108,10 +108,10 @@ export function PrivateEmbedRampSidebar() {
     false,
     isPrivateEmbedEnabled,
   );
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
   const canShowRamp = useSelector(showRampSelector);
 
-  if (canShowRamp && !isAiAgentFlowEnabled) {
+  if (canShowRamp && !isAgentApp) {
     return (
       <div className="mt-6" data-testid="t--private-embed-settings-ramp">
         <Text kind="body-m">

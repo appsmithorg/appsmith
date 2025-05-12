@@ -47,7 +47,7 @@ import {
   checkIfJSObjectCreationAllowed,
   useWorkflowOptions,
 } from "ee/utils/workflowHelpers";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
@@ -84,7 +84,7 @@ export const useFilteredFileOperations = ({
   );
 
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
   const AiPlugin = useSelector((state: DefaultRootState) =>
     getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
   );
@@ -106,7 +106,7 @@ export const useFilteredFileOperations = ({
     .filter((ds) => {
       // We don't want to show the AI datasource in the
       // lists if the AI agent flow is enabled
-      if (isAiAgentFlowEnabled && AiPlugin) {
+      if (isAgentApp && AiPlugin) {
         return AiPlugin.id !== ds.pluginId;
       }
 

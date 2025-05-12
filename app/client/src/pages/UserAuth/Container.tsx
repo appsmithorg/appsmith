@@ -7,8 +7,10 @@ import LeftSideContent from "./LeftSideContent";
 import { getAppsmithConfigs } from "ee/configs";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import styled from "styled-components";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import clsx from "clsx";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isBrandingEnabled, isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 
 interface ContainerProps {
   title: string;
@@ -45,18 +47,24 @@ function Container(props: ContainerProps) {
   const organizationConfig = useSelector(getOrganizationConfig);
   const { cloudHosting } = getAppsmithConfigs();
   const isMobileDevice = useIsMobileDevice();
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const featureFlags = useSelector(selectFeatureFlags);
+  const multiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+  const brandingEnabled = isBrandingEnabled(featureFlags);
+
+  const shouldShowLeftSideContent =
+    cloudHosting && !isMobileDevice && !multiOrgEnabled && brandingEnabled;
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   return (
     <ContainerWrapper
       className={clsx({
         "my-auto flex items-center justify-center min-w-min": true,
-        "flex-col-reverse gap-4": isAiAgentFlowEnabled,
-        "flex-row gap-14": !isAiAgentFlowEnabled,
+        "flex-col-reverse gap-4": isAiAgentInstanceEnabled,
+        "flex-row gap-14": !isAiAgentInstanceEnabled,
       })}
       data-testid={testId}
     >
-      {cloudHosting && !isMobileDevice && <LeftSideContent />}
+      {shouldShowLeftSideContent && <LeftSideContent />}
       <BoxWrapper
         className={`t--login-container ${
           isMobileDevice ? "w-full" : "w-[min(400px,80%)]"

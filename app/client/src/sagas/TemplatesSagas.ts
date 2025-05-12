@@ -50,8 +50,7 @@ import {
   openCarbonModal,
   setCreateAgentModalOpen,
 } from "ee/actions/aiAgentActions";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
-import { getTemplatesByFlagSelector } from "selectors/templatesSelectors";
+import { getAgentTemplatesSelector } from "selectors/templatesSelectors";
 
 const isAirgappedInstance = isAirgapped();
 const AI_DATASOURCE_NAME = "AI Datasource";
@@ -82,9 +81,10 @@ function* getAllTemplatesSaga() {
 function* importTemplateToWorkspaceSaga(
   action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
-  const isAiAgentFlowEnabled: boolean = yield select(getIsAiAgentFlowEnabled);
-  const templates: ReturnType<typeof getTemplatesByFlagSelector> = yield select(
-    getTemplatesByFlagSelector,
+  const agentTemplates: ReturnType<typeof getAgentTemplatesSelector> =
+    yield select(getAgentTemplatesSelector);
+  const isAgentTemplate: boolean = agentTemplates.some(
+    (template) => template.id === action.payload.templateId,
   );
 
   try {
@@ -108,8 +108,8 @@ function* importTemplateToWorkspaceSaga(
         payload: response.data.application,
       });
 
-      if (isAiAgentFlowEnabled) {
-        const isScratchTemplate = templates.find(
+      if (isAgentTemplate) {
+        const isScratchTemplate = agentTemplates.find(
           (template) => template.title === "AI Agent",
         );
 
@@ -141,7 +141,7 @@ function* importTemplateToWorkspaceSaga(
         const pageURL = builderURL({
           basePageId: application.defaultBasePageId,
           params: {
-            type: isAiAgentFlowEnabled ? "agent" : undefined,
+            type: isAgentTemplate ? "agent" : undefined,
           },
         });
 

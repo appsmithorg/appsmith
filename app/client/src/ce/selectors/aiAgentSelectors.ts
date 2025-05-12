@@ -6,6 +6,13 @@ export const getAgentChatQuery = () => {
   return undefined;
 };
 
+export const getIsAiAgentInstanceEnabled = (state: DefaultRootState) => {
+  return selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_ai_agent_instance_enabled,
+  );
+};
+
 export const getIsAiAgentFlowEnabled = (state: DefaultRootState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.license_ai_agent_enabled);
 };
