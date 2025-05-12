@@ -9,10 +9,12 @@ if ! getent passwd "$(id -u)" &> /dev/null; then
   NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)
   if [ -n "$NSS_WRAPPER_LIB" ]; then
     export LD_PRELOAD="$NSS_WRAPPER_LIB"
-    export NSS_WRAPPER_PASSWD=$(mktemp)
-    export NSS_WRAPPER_GROUP=$(mktemp)
+    export NSS_WRAPPER_PASSWD="${TMP}/passwd"
+    export NSS_WRAPPER_GROUP="${TMP}/group"
     echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > "$NSS_WRAPPER_PASSWD"
     echo "appsmith:x:$(id -g):" > "$NSS_WRAPPER_GROUP"
+    # Remove write permissions after creation
+    chmod 444 "$NSS_WRAPPER_PASSWD" "$NSS_WRAPPER_GROUP"
   else
     echo "libnss_wrapper.so not found. Please install libnss-wrapper package." >&2
     exit 1
@@ -608,3 +610,29 @@ setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"
+
+# Function to setup nss_wrapper
+setup_nss_wrapper() {
+    # Check if user exists
+    if ! id -u "$(id -u)" >/dev/null 2>&1; then
+        # Find libnss_wrapper.so
+        NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1)
+        if [ -n "$NSS_WRAPPER_LIB" ]; then
+            # Create nss_wrapper files
+            mkdir -p /tmp/appsmith
+            echo "appsmith:x:$(id -u):$(id -g):Appsmith User:/opt/appsmith:/bin/bash" > /tmp/appsmith/passwd
+            echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
+            
+            # Set permissions to read-only
+            chmod 444 /tmp/appsmith/passwd /tmp/appsmith/group
+            
+            # Export environment variables
+            export LD_PRELOAD="$NSS_WRAPPER_LIB"
+            export NSS_WRAPPER_PASSWD="/tmp/appsmith/passwd"
+            export NSS_WRAPPER_GROUP="/tmp/appsmith/group"
+        else
+            echo "Error: libnss_wrapper.so not found"
+            exit 1
+        fi
+    fi
+}
