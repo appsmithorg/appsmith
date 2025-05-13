@@ -87,7 +87,7 @@ export function useTableOrSpreadsheet() {
         },
       }));
     } else if (isMongoDBPluginDS(selectedDatasourcePluginPackageName)) {
-      return (datasourceStructure.tables || []).map((table) => ({
+      return (datasourceStructure?.tables || []).map((table) => ({
         id: table.name,
         label: table.name,
         value: table.name,
@@ -97,7 +97,7 @@ export function useTableOrSpreadsheet() {
         disabled: false,
       }));
     } else if (datasourceStructure) {
-      return (datasourceStructure.tables || []).map((table) => {
+      return (datasourceStructure?.tables || []).map((table) => {
         const hasPrimaryKeys = tableHasPrimaryKeys(table);
 
         return {
