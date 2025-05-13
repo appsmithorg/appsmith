@@ -2,6 +2,7 @@ package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,6 @@ public class LayoutExecutableUpdateDTO {
     @JsonView(Views.Internal.class)
     Boolean executeOnLoad;
 
-    @Deprecated
     @JsonView(Views.Public.class)
     RunBehaviourEnum runBehaviour;
 
@@ -35,6 +35,7 @@ public class LayoutExecutableUpdateDTO {
      *
      * @return The runBehaviour, or a value derived from executeOnLoad if runBehaviour is null
      */
+    @JsonIgnore
     public RunBehaviourEnum getRunBehaviour() {
         if (runBehaviour != null) {
             return runBehaviour;

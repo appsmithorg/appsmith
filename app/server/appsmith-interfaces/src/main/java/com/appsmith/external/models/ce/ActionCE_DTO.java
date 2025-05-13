@@ -112,6 +112,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     RunBehaviourEnum runBehaviour;
 
+    @JsonIgnore
     public RunBehaviourEnum getRunBehaviour() {
         if (runBehaviour != null) {
             return runBehaviour;
