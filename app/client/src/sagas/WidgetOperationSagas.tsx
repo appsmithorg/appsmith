@@ -52,6 +52,7 @@ import {
   getCurrentBasePageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
+  getMetaWidgets,
 } from "selectors/editorSelectors";
 import { convertToString } from "utils/AppsmithUtils";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -166,6 +167,8 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import localStorage from "utils/localStorage";
 import { getNewPositions } from "./PasteWidgetUtils";
+import type { UpdateMetaWidgetPropertyPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import { modifyMetaWidgets } from "actions/metaWidgetActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -728,16 +731,29 @@ export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
-  const { dynamicUpdates, updates, widgetId } = updatesObj;
-
-  const { modify = {}, postUpdateAction, remove = [], triggerPaths } = updates;
+  const { widgetId } = updatesObj;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
   // if there is no widget in the state, don't do anything
   if (!stateWidget) return;
 
-  let widget = cloneDeep(stateWidget);
+  const widget = cloneDeep(stateWidget);
+
+  const result: {
+    updatedWidget: WidgetProps;
+    actionToDispatch?: ReduxActionType;
+  } = yield call(computeWidgetProperties, widget, updatesObj);
+
+  return result;
+}
+
+function* computeWidgetProperties(
+  widget: WidgetProps,
+  updatesObj: UpdateWidgetPropertyPayload,
+) {
+  const { dynamicUpdates, updates } = updatesObj;
+  const { modify = {}, postUpdateAction, remove = [], triggerPaths } = updates;
 
   try {
     if (Object.keys(modify).length > 0) {
@@ -1997,6 +2013,49 @@ function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   }
 }
 
+function* updateMetaWidgetPropertySaga(
+  action: ReduxAction<UpdateMetaWidgetPropertyPayload>,
+) {
+  try {
+    if (action.payload.computeDynamicPaths) {
+      const metaWidgets: Record<string, WidgetProps> =
+        yield select(getMetaWidgets);
+      const updatedWidgetAndActionsToDispatch: {
+        updatedWidget: WidgetProps;
+      } = yield call(
+        computeWidgetProperties,
+        metaWidgets[action.payload.widgetId],
+        {
+          widgetId: action.payload.widgetId,
+          updates: action.payload.updates,
+        },
+      );
+
+      yield put(
+        modifyMetaWidgets({
+          addOrUpdate: {
+            [action.payload.widgetId]:
+              updatedWidgetAndActionsToDispatch.updatedWidget,
+          },
+          deleteIds: [],
+          creatorId: action.payload.creatorId,
+        }),
+      );
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY,
+        payload: action.payload,
+      });
+    }
+  } catch (error) {
+    log.error(error);
+    yield put({
+      type: ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY,
+      payload: action.payload,
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -2051,5 +2110,9 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
     takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
     takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY_INIT,
+      updateMetaWidgetPropertySaga,
+    ),
   ]);
 }

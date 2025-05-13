@@ -7,7 +7,7 @@ import { jsCollectionIdURL } from "ee/RouteBuilder";
 import type {
   EntityNavigationData,
   NavigationData,
-} from "selectors/navigationSelectors";
+} from "entities/DataTree/dataTreeTypes";
 import { createNavData } from "./common";
 
 export const getJsChildrenNavData = (

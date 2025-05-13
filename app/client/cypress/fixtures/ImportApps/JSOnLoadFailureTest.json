@@ -292,7 +292,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"
@@ -347,7 +347,7 @@
 					],
 					"isAsync": true
 				},
-				"executeOnLoad": true,
+				"runBehaviour": "ON_PAGE_LOAD",
 				"dynamicBindingPathList": [
 					{
 						"key": "body"

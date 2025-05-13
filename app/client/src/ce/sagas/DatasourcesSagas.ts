@@ -1168,6 +1168,8 @@ export function* createOrUpdateDataSourceWithAction(
     type: ReduxActionTypes.CREATE_ACTION_REQUEST,
   });
 
+  yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+
   yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   const actions: ActionDataState = yield select(getActions);
