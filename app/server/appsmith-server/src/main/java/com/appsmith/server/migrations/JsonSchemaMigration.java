@@ -179,6 +179,13 @@ public class JsonSchemaMigration {
                                     baseApplicationId, branchName, migratedJson));
                 }
                 applicationJson.setServerSchemaVersion(11);
+            case 11:
+                // This server version bump has been made to support an autocommit for
+                // structural changes to the git directory. This change refactors
+                // source modules from source modules directory to subdirectories named after
+                // packages of the respective modules.
+                // I.e., source modules/module1.json -> source modules/package1/module1.json
+                applicationJson.setServerSchemaVersion(12);
             default:
         }
 
