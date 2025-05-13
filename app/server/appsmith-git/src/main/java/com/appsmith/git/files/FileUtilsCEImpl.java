@@ -251,7 +251,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<Path> saveArtifactToGitRepo(
-            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
+            Path baseRepoSuffix, GitResourceMap gitResourceMapFromDB, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException {
 
         // Repo path will be:
@@ -261,14 +261,18 @@ public class FileUtilsCEImpl implements FileInterface {
                 .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
+                    Mono<GitResourceMap> gitResourceMapFromFSMono = constructGitResourceMapFromGitRepo(
+                                    baseRepoSuffix, branchName)
+                            .name("constructGitResourceMapFromGitRepo");
 
-                    try {
-                        updateEntitiesInRepo(gitResourceMap, baseRepo);
-                    } catch (IOException e) {
-                        return Mono.error(e);
-                    }
-
-                    return Mono.just(baseRepo);
+                    return gitResourceMapFromFSMono.flatMap(gitResourceMapFromFS -> {
+                        try {
+                            updateEntitiesInRepo(gitResourceMapFromDB, baseRepo, gitResourceMapFromFS);
+                        } catch (IOException e) {
+                            return Mono.error(e);
+                        }
+                        return Mono.just(baseRepo);
+                    });
                 })
                 .subscribeOn(scheduler);
     }
@@ -327,19 +331,28 @@ public class FileUtilsCEImpl implements FileInterface {
         }
     }
 
-    protected Set<String> updateEntitiesInRepo(GitResourceMap gitResourceMap, Path baseRepo) throws IOException {
-        ModifiedResources modifiedResources = gitResourceMap.getModifiedResources();
-        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+    protected Set<String> updateEntitiesInRepo(
+            GitResourceMap gitResourceMapFromDB, Path baseRepo, GitResourceMap gitResourceMapFromFS)
+            throws IOException {
+        Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
 
-        Set<String> filesInRepo = getExistingFilesInRepo(baseRepo);
-
-        Set<String> updatedFilesToBeSerialized = resourceMap.keySet().parallelStream()
+        Set<String> filesInRepo = new HashSet<>();
+        Set<String> updatedFiles = new HashSet<>();
+        Set<String> filesInDB = resourceMapFromDB.keySet().parallelStream()
                 .map(gitResourceIdentity -> gitResourceIdentity.getFilePath())
                 .collect(Collectors.toSet());
 
+        Map<String, Object> filesInFS = gitResourceMapFromFS.getGitResourceMap().entrySet().parallelStream()
+                .map(entry -> {
+                    filesInRepo.add(entry.getKey().getFilePath());
+                    return entry;
+                })
+                .collect(Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
         // Remove all files that need to be serialized from the existing files list, as well as the README file
         // What we are left with are all the files to be deleted
-        filesInRepo.removeAll(updatedFilesToBeSerialized);
+
+        filesInRepo.removeAll(filesInDB);
         filesInRepo.remove(README_FILE_NAME);
 
         // Delete all the files because they are no longer needed
@@ -357,20 +370,19 @@ public class FileUtilsCEImpl implements FileInterface {
 
         // Now go through the resource map and based on resource type, check if the resource is modified before
         // serialization
-        // Or simply choose the mechanism for serialization
-        Map<GitResourceType, GitResourceType> modifiedResourcesTypes = getModifiedResourcesTypes();
-        return resourceMap.entrySet().parallelStream()
+        resourceMapFromDB.entrySet().parallelStream()
                 .map(entry -> {
                     GitResourceIdentity key = entry.getKey();
                     boolean resourceUpdated = true;
-                    if (modifiedResourcesTypes.containsKey(key.getResourceType()) && modifiedResources != null) {
-                        GitResourceType comparisonType = modifiedResourcesTypes.get(key.getResourceType());
-
+                    try {
                         resourceUpdated =
-                                modifiedResources.isResourceUpdatedNew(comparisonType, key.getResourceIdentifier());
+                                fileOperations.hasFileChanged(entry.getValue(), filesInFS.get(key.getFilePath()));
+                    } catch (IOException e) {
+                        log.error("Error while checking if file has changed", e);
                     }
 
                     if (resourceUpdated) {
+                        log.info("Resource updated: {}", key.getFilePath());
                         String filePath = key.getFilePath();
                         saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
 
@@ -380,6 +392,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+        return updatedFiles;
     }
 
     protected Set<String> updateEntitiesInRepo(ApplicationGitReference applicationGitReference, Path baseRepo) {
