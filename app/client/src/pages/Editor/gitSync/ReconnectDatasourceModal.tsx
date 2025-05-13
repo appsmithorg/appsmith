@@ -76,7 +76,8 @@ import useReconnectModalData from "ee/pages/Editor/gitSync/useReconnectModalData
 import { resetImportData } from "ee/actions/workspaceActions";
 import { getLoadingTokenForDatasourceId } from "selectors/datasourceSelectors";
 import ReconnectDatasourceForm from "Datasource/components/ReconnectDatasourceForm";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsCreatingAgent } from "ee/selectors/aiAgentSelectors";
+import { setIsCreatingAgent } from "ee/actions/aiAgentActions";
 
 const Section = styled.div`
   display: flex;
@@ -87,10 +88,10 @@ const Section = styled.div`
   width: calc(100% - 206px);
 `;
 
-const BodyContainer = styled.div<{ isAiAgentFlowEnabled?: boolean }>`
+const BodyContainer = styled.div<{ isCreatingAiAgent?: boolean }>`
   flex: 3;
-  height: ${(props) => (props.isAiAgentFlowEnabled ? "auto" : "640px")};
-  max-height: ${(props) => (props.isAiAgentFlowEnabled ? "auto" : "82vh")};
+  height: ${(props) => (props.isCreatingAiAgent ? "auto" : "640px")};
+  max-height: ${(props) => (props.isCreatingAiAgent ? "auto" : "82vh")};
 `;
 
 // TODO: Removed usage of "t--" classes since they clash with the test classes.
@@ -226,9 +227,9 @@ const ModalHeaderWrapper = styled.div<{ isAgentFlowEnabled: boolean }>`
 `;
 
 const ModalContentWrapper = styled(ModalContent)<{
-  isAiAgentFlowEnabled?: boolean;
+  isCreatingAiAgent?: boolean;
 }>`
-  width: ${(props) => (props.isAiAgentFlowEnabled ? "auto" : "100%")};
+  width: ${(props) => (props.isCreatingAiAgent ? "auto" : "100%")};
 `;
 const ModalBodyWrapper = styled(ModalBody)`
   overflow-y: hidden;
@@ -342,7 +343,7 @@ function ReconnectDatasourceModal() {
     parentEntityId, // appId or packageId from query params
     skipMessage,
   } = useReconnectModalData({ pageId, appId });
-  const isAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isCreatingAgent = useSelector(getIsCreatingAgent);
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -624,27 +625,32 @@ function ReconnectDatasourceModal() {
   };
 
   return (
-    <Modal open={isModalOpen}>
+    <Modal
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          dispatch(setIsCreatingAgent({ isCreatingAgent: false }));
+        }
+      }}
+      open={isModalOpen}
+    >
       <ModalContentWrapper
         data-testid="reconnect-datasource-modal"
-        isAiAgentFlowEnabled={isAgentFlowEnabled}
+        isCreatingAiAgent={isCreatingAgent}
         onClick={handleClose}
         onEscapeKeyDown={onClose}
         onInteractOutside={handleClose}
         overlayClassName="reconnect-datasource-modal"
       >
-        <ModalHeaderWrapper isAgentFlowEnabled={isAgentFlowEnabled}>
+        <ModalHeaderWrapper isAgentFlowEnabled={isCreatingAgent}>
           <ModalHeader>
-            {isAgentFlowEnabled
-              ? "Connect Datasources"
-              : "Reconnect datasources"}
+            {isCreatingAgent ? "Connect Datasources" : "Reconnect datasources"}
           </ModalHeader>
         </ModalHeaderWrapper>
         <ModalBodyWrapper
-          style={{ padding: isAgentFlowEnabled ? "0px" : undefined }}
+          style={{ padding: isCreatingAgent ? "0px" : undefined }}
         >
-          <BodyContainer isAiAgentFlowEnabled={isAgentFlowEnabled}>
-            {!isAgentFlowEnabled && (
+          <BodyContainer isCreatingAiAgent={isCreatingAgent}>
+            {!isCreatingAgent && (
               <Title>
                 {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
               </Title>

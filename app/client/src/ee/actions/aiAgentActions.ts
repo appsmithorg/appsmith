@@ -21,3 +21,12 @@ export const toggleFCIntegrations = ({
   type: "",
   payload: { isEnabled },
 });
+
+export const setIsCreatingAgent = ({
+  isCreatingAgent,
+}: {
+  isCreatingAgent: boolean;
+}) => ({
+  type: "",
+  payload: { isCreatingAgent },
+});

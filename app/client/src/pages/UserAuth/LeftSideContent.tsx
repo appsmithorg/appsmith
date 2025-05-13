@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Avatar } from "@appsmith/ads";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import { useSelector } from "react-redux";
 
 const Wrapper = styled.div`
@@ -72,11 +72,11 @@ const QUOTE = {
 };
 
 function LeftSideContent() {
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   return (
     <Wrapper>
-      {!isAiAgentFlowEnabled && (
+      {!isAiAgentInstanceEnabled && (
         <div className="left-description">
           <div className="left-description-container">
             &quot;{QUOTE.quote}&quot;
@@ -102,7 +102,7 @@ function LeftSideContent() {
         </div>
         <div
           className="client-logo-section"
-          style={{ marginBottom: isAiAgentFlowEnabled ? "0px" : "24px" }}
+          style={{ marginBottom: isAiAgentInstanceEnabled ? "0px" : "24px" }}
         >
           <img
             alt="GSK logo"

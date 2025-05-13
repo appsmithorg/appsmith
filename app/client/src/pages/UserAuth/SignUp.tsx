@@ -63,8 +63,8 @@ import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import { appsmithTelemetry } from "instrumentation";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 declare global {
@@ -103,10 +103,10 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   useEffect(() => {
-    if (!isFormLoginEnabled && !isAiAgentFlowEnabled) {
+    if (!isFormLoginEnabled && !isAiAgentInstanceEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
 
       history.replace({
@@ -227,7 +227,7 @@ export function SignUp(props: SignUpFormProps) {
           </Link>
         </div>
       )}
-      {cloudHosting && !isAiAgentFlowEnabled && (
+      {cloudHosting && !isAiAgentInstanceEnabled && (
         <>
           <OrWithLines>or</OrWithLines>
           <div className="px-2 text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
@@ -251,7 +251,7 @@ export function SignUp(props: SignUpFormProps) {
     <Container
       footer={footerSection}
       title={createMessage(
-        isAiAgentFlowEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
+        isAiAgentInstanceEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
       )}
     >
       <Helmet>

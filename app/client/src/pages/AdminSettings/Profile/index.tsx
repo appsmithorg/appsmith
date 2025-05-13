@@ -50,7 +50,7 @@ import {
 import { Classes } from "@blueprintjs/core";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import useGlobalProfile from "git/hooks/useGlobalProfile";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 
 const nameValidator = (
   value: string,
@@ -95,7 +95,7 @@ export const Profile = () => {
   );
   const [authorName, setAuthorNameInState] = useState(gitConfig?.authorName);
   const [authorEmail, setAuthorEmailInState] = useState(gitConfig?.authorEmail);
-  const isAIAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   useEffect(() => {
     setIsSaving(false);
@@ -277,12 +277,12 @@ export const Profile = () => {
             </Flex>
           </FieldWrapper>
         </Flex>
-        {!isAIAgentFlowEnabled && (
+        {!isAiAgentInstanceEnabled && (
           <SubCategory kind="heading-s" renderAs="p">
             Git author
           </SubCategory>
         )}
-        {!isAIAgentFlowEnabled && (
+        {!isAiAgentInstanceEnabled && (
           <Flex flexDirection="column" gap="spaces-5">
             <FieldWrapper>
               {isFetching && <Loader className={Classes.SKELETON} />}

@@ -34,7 +34,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 export enum AppSettingsTabs {
   General,
@@ -194,9 +194,9 @@ function AppSettings() {
     },
   ];
 
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
 
-  if (isAiAgentFlowEnabled) {
+  if (isAgentApp) {
     SectionHeadersConfig = SectionHeadersConfig.filter(
       (config) => config.id !== "t--navigation-settings-header",
     );
