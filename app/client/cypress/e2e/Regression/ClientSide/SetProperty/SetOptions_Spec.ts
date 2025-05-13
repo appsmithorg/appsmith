@@ -209,7 +209,7 @@ describe(
 
     it("3. Update 'setOptions' property - during onPage load", () => {
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true); //for on page load execution
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", "On page load"); //for on page load execution
       deployMode.DeployApp();
       agHelper
         .GetText(
@@ -268,7 +268,7 @@ describe(
         ])}, () => {showAlert('unable to run API')});
       }
     }`);
-      jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true); //for on page load execution, since sync function is updated to async
+      jsEditor.EnableDisableAsyncFuncSettings("myFunc1", "On page load"); //for on page load execution, since sync function is updated to async
       deployMode.DeployApp();
       agHelper.WaitForCondition(
         agHelper
@@ -313,7 +313,7 @@ describe(
         Select3.setOptions(Select1.options.concat(Select2.options));
       }
     }`);
-      jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true); //for on page load execution, since sync function is updated to async
+      jsEditor.EnableDisableAsyncFuncSettings("myFunc1", "On page load"); //for on page load execution, since sync function is updated to async
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
       deployMode.DeployApp();
@@ -355,7 +355,7 @@ describe(
         setTimeout(() => {Select1.setOptions(localValue)}, 1000);
       }
     }`);
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", false); //for on page load execution
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", "Manual"); //for on page load execution
       deployMode.DeployApp();
       agHelper
         .GetText(

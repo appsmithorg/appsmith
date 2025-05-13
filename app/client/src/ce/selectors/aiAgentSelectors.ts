@@ -1,11 +1,25 @@
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { DefaultRootState } from "react-redux";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 
 export const getAgentChatQuery = () => {
   return undefined;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getIsAiAgentInstanceEnabled = (state: DefaultRootState) => {
+  return false;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getIsAiAgentFlowEnabled = (state: DefaultRootState) => {
-  return selectFeatureFlagCheck(state, FEATURE_FLAG.license_ai_agent_enabled);
+  return false;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getIsAiAgentApp = (state: DefaultRootState) => {
+  return false;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getIsCreatingAgent = (state: DefaultRootState) => {
+  return false;
 };

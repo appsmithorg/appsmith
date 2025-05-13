@@ -103,7 +103,10 @@ import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import {
+  getIsAiAgentApp,
+  getIsCreatingAgent,
+} from "ee/selectors/aiAgentSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -144,7 +147,8 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isPluginAllowedToPreviewData: boolean;
   isOnboardingFlow?: boolean;
-  isAiAgentFlowEnabled?: boolean;
+  isCreatingAgent?: boolean;
+  isAgentApp?: boolean;
 }
 
 const Form = styled.div`
@@ -162,9 +166,11 @@ type Props = ReduxStateProps &
     basePageId: string;
   }>;
 
-export const DSEditorWrapper = styled.div<{ isAiAgentFlowEnabled?: boolean }>`
+export const DSEditorWrapper = styled.div<{
+  isCreatingAiAgent?: boolean;
+}>`
   height: ${(props) =>
-    props.isAiAgentFlowEnabled
+    props.isCreatingAiAgent
       ? `auto`
       : `calc(100vh - ${props.theme.headerHeight})`};
   overflow: hidden;
@@ -1027,7 +1033,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           >
             <DSEditorWrapper
               className={!!isOnboardingFlow ? "onboarding-flow" : ""}
-              isAiAgentFlowEnabled={this.props.isAiAgentFlowEnabled}
+              isCreatingAiAgent={
+                this.props.isCreatingAgent || this.props.isAgentApp
+              }
             >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
@@ -1164,8 +1172,8 @@ const mapStateToProps = (
 
   const featureFlags = selectFeatureFlags(state);
   const isFeatureEnabled = isGACEnabled(featureFlags);
-  const isAiAgentFlowEnabled = getIsAiAgentFlowEnabled(state);
-
+  const isAgentApp = getIsAiAgentApp(state);
+  const isCreatingAgent = getIsCreatingAgent(state);
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasourcePermissions,
@@ -1233,7 +1241,8 @@ const mapStateToProps = (
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
-    isAiAgentFlowEnabled,
+    isAgentApp,
+    isCreatingAgent,
   };
 };
 

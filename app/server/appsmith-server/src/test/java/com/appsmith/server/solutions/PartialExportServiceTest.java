@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
@@ -297,7 +298,7 @@ public class PartialExportServiceTest {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(savedPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setTimeoutInMillisecond("6000");
@@ -357,7 +358,7 @@ public class PartialExportServiceTest {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(savedPage.getId());
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setTimeoutInMillisecond("6000");

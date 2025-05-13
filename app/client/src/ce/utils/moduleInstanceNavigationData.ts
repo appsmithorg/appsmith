@@ -1,5 +1,5 @@
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
 
 export const getModuleInstanceNavigationData = (
   /* eslint-disable @typescript-eslint/no-unused-vars */

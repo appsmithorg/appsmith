@@ -439,7 +439,7 @@
             "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}"
           }
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -498,7 +498,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -539,7 +539,7 @@
             }
           ]
         },
-        "executeOnLoad": true,
+        "runBehaviour": "ON_PAGE_LOAD",
         "dynamicBindingPathList": [],
         "isValid": true,
         "invalids": [],
@@ -573,7 +573,7 @@
           "body": "() => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}",
           "jsArguments": []
         },
-        "executeOnLoad": false,
+        "runBehaviour": "MANUAL",
         "isValid": true,
         "invalids": [],
         "jsonPathKeys": [
