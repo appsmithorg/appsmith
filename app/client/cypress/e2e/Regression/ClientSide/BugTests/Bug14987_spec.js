@@ -32,7 +32,7 @@ describe(
       pluginActionForm.toolbar.toggleSettings();
 
       cy.get(".label-icon-wrapper")
-        .contains("Run the query on page load")
+        .contains("Run behavior")
         .parent()
         .then(($el) => {
           cy.window().then((win) => {
