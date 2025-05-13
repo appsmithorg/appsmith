@@ -8,7 +8,7 @@ import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConf
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
-import type { PluginActionSettingsConfig } from "PluginActionEditor/types/PluginActionTypes";
+import type { ActionSettingsConfig } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface ExecuteActionPayloadEvent {
   type: EventType;
@@ -167,19 +167,17 @@ export const POSTMAN = "POSTMAN";
 export const CURL = "CURL";
 export const Swagger = "Swagger";
 
-export const defaultActionSettings: Record<
-  PluginType,
-  PluginActionSettingsConfig[]
-> = {
-  [PluginType.API]: apiActionSettingsConfig,
-  [PluginType.DB]: queryActionSettingsConfig,
-  [PluginType.SAAS]: saasActionSettingsConfig,
-  [PluginType.REMOTE]: saasActionSettingsConfig,
-  [PluginType.JS]: [],
-  [PluginType.AI]: saasActionSettingsConfig,
-  [PluginType.INTERNAL]: saasActionSettingsConfig,
-  [PluginType.EXTERNAL_SAAS]: saasActionSettingsConfig,
-};
+export const defaultActionSettings: Record<PluginType, ActionSettingsConfig[]> =
+  {
+    [PluginType.API]: apiActionSettingsConfig,
+    [PluginType.DB]: queryActionSettingsConfig,
+    [PluginType.SAAS]: saasActionSettingsConfig,
+    [PluginType.REMOTE]: saasActionSettingsConfig,
+    [PluginType.JS]: [],
+    [PluginType.AI]: saasActionSettingsConfig,
+    [PluginType.INTERNAL]: saasActionSettingsConfig,
+    [PluginType.EXTERNAL_SAAS]: saasActionSettingsConfig,
+  };
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
