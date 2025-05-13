@@ -899,7 +899,11 @@ export default {
         const combinedRowContent = [
           ...Object.values(_.omit(displayedRow, hiddenColumns, systemColumns)),
           ...Object.values(
-            _.omit(originalRow, [...hiddenColumns, ...htmlColumnAliases]),
+            _.omit(originalRow, [
+              ...hiddenColumns,
+              ...htmlColumnAliases,
+              ...systemColumns,
+            ]),
           ),
         ]
           .join(", ")

@@ -1324,27 +1324,6 @@ describe("Validates getFilteredTableData Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("validate search on table data for URL columntype with display text", () => {
-    const { getFilteredTableData } = derivedProperty;
-    const input = {
-      ...inputWithDisplayText,
-      searchText: "Y",
-      enableClientSideSearch: true,
-    };
-
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
-      (a, b) => {
-        return input.columnOrder[a.id] < input.columnOrder[b.id];
-      },
-    );
-
-    const expected = [{ url: "B.COM", __originalIndex__: 1 }];
-
-    let result = getFilteredTableData(input, moment, _);
-
-    expect(result).toStrictEqual(expected);
-  });
-
   it("filters correctly after editing a value with an applied search key", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
@@ -1453,5 +1432,253 @@ describe("Validates getFilteredTableData Properties", () => {
     let result = getFilteredTableData(input, moment, _);
 
     expect(result).toStrictEqual(expected);
+  });
+
+  describe("Search in table data", () => {
+    it("validate search on table data for URL columntype with display text", () => {
+      const { getFilteredTableData } = derivedProperty;
+      const input = {
+        ...inputWithDisplayText,
+        searchText: "Y",
+        enableClientSideSearch: true,
+      };
+
+      input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+        (a, b) => {
+          return input.columnOrder[a.id] < input.columnOrder[b.id];
+        },
+      );
+
+      const expected = [{ url: "B.COM", __originalIndex__: 1 }];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+    });
+
+    it("should exclude system columns from search results", () => {
+      const { getFilteredTableData } = derivedProperty;
+      const input = {
+        processedTableData: [
+          { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
+          { id: 123, name: "John Doe", __originalIndex__: 1 },
+          { id: 234, name: "Jane Doe", __originalIndex__: 2 },
+        ],
+        searchText: "0",
+        enableClientSideSearch: true,
+        sortOrder: { column: "id", order: "desc" },
+        columnOrder: ["name", "id"],
+        primaryColumns: {
+          id: {
+            index: 1,
+            width: 150,
+            id: "id",
+            alias: "id",
+            originalId: "id",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "number",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "id",
+            isAscOrder: false,
+          },
+          name: {
+            index: 0,
+            width: 150,
+            id: "name",
+            alias: "name",
+            originalId: "name",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "text",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "awesome",
+            isAscOrder: undefined,
+          },
+        },
+      };
+
+      input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+        (a, b) => {
+          return input.columnOrder[a.id] < input.columnOrder[b.id];
+        },
+      );
+
+      const expected = [];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+    });
+
+    it("should exclude hidden columns from search results", () => {
+      const { getFilteredTableData } = derivedProperty;
+      const input = {
+        processedTableData: [
+          { id: 1234, name: "Jim Doe", hidden: "secret", __originalIndex__: 0 },
+          { id: 123, name: "John Doe", hidden: "public", __originalIndex__: 1 },
+          {
+            id: 234,
+            name: "Jane Doe",
+            hidden: "private",
+            __originalIndex__: 2,
+          },
+        ],
+        searchText: "secret",
+        enableClientSideSearch: true,
+        sortOrder: { column: "id", order: "desc" },
+        columnOrder: ["name", "id", "hidden"],
+        primaryColumns: {
+          id: {
+            index: 1,
+            width: 150,
+            id: "id",
+            alias: "id",
+            originalId: "id",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "number",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "id",
+            isAscOrder: false,
+          },
+          name: {
+            index: 0,
+            width: 150,
+            id: "name",
+            alias: "name",
+            originalId: "name",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "text",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "awesome",
+            isAscOrder: undefined,
+          },
+          hidden: {
+            index: 2,
+            width: 150,
+            id: "hidden",
+            alias: "hidden",
+            originalId: "hidden",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "text",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: false,
+            isDerived: false,
+            label: "hidden",
+            isAscOrder: undefined,
+          },
+        },
+      };
+
+      input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+        (a, b) => {
+          return input.columnOrder[a.id] < input.columnOrder[b.id];
+        },
+      );
+
+      const expected = [];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+    });
+
+    it("should search correctly in visible columns while ignoring system columns", () => {
+      const { getFilteredTableData } = derivedProperty;
+      const input = {
+        processedTableData: [
+          { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
+          { id: 123, name: "John Doe", __originalIndex__: 1 },
+          { id: 234, name: "Jane Doe", __originalIndex__: 2 },
+        ],
+        searchText: "Jim",
+        enableClientSideSearch: true,
+        sortOrder: { column: "id", order: "desc" },
+        columnOrder: ["name", "id"],
+        primaryColumns: {
+          id: {
+            index: 1,
+            width: 150,
+            id: "id",
+            alias: "id",
+            originalId: "id",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "number",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "id",
+            isAscOrder: false,
+          },
+          name: {
+            index: 0,
+            width: 150,
+            id: "name",
+            alias: "name",
+            originalId: "name",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "text",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: "awesome",
+            isAscOrder: undefined,
+          },
+        },
+      };
+
+      input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+        (a, b) => {
+          return input.columnOrder[a.id] < input.columnOrder[b.id];
+        },
+      );
+
+      const expected = [{ id: 1234, name: "Jim Doe", __originalIndex__: 0 }];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+    });
   });
 });
