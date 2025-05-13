@@ -46,7 +46,8 @@ export const useInfiniteScroll = ({
        */
       const hasNextPageData =
         pageToLoad in cachedTableData &&
-        Array.isArray(cachedTableData[pageToLoad]);
+        Array.isArray(cachedTableData[pageToLoad]) &&
+        cachedTableData[pageToLoad].length > 0;
       const shouldLoad = !isLoading && !endOfData && !hasNextPageData;
       const preRequisitesForLoadingMore =
         shouldLoad && !haveWeJustTriggeredLoadMoreRef.current;
