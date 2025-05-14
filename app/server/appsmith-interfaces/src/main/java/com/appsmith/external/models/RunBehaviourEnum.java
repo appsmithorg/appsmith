@@ -5,5 +5,6 @@ package com.appsmith.external.models;
  */
 public enum RunBehaviourEnum {
     MANUAL, // Action will only run when manually triggered
-    ON_PAGE_LOAD // Action will run when the page loads
+    ON_PAGE_LOAD, // Action will run when the page loads
+    AUTOMATIC // Action will run automatically when a variable it depends on changes
 }

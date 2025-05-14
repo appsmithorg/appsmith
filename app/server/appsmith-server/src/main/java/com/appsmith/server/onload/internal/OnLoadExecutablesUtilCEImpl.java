@@ -2,6 +2,7 @@ package com.appsmith.server.onload.internal;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
@@ -18,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
@@ -90,6 +92,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
+    private final FeatureFlagService featureFlagService;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -399,23 +402,45 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         }
                     }
 
-                    // Now add messagesRef that would eventually be displayed to the developer user informing them
-                    // about the action setting change.
-                    if (!turnedOffExecutableNames.isEmpty()) {
-                        messagesRef.add(
-                                turnedOffExecutableNames.toString() + " will no longer be executed on page load");
-                    }
+                    return featureFlagService
+                            .check(FeatureFlagEnum.release_reactive_actions_enabled)
+                            .flatMap(isReactiveActionsEnabled -> {
+                                if (isReactiveActionsEnabled) {
+                                    // Now add messagesRef that would eventually be displayed to the developer user
+                                    // informing them
+                                    // about the action setting change.
+                                    if (!turnedOffExecutableNames.isEmpty()) {
+                                        messagesRef.add(
+                                                turnedOffExecutableNames.toString()
+                                                        + " will no longer run automatically. You can run it manually when needed.");
+                                    }
 
-                    if (!turnedOnExecutableNames.isEmpty()) {
-                        messagesRef.add(
-                                turnedOnExecutableNames.toString() + " will be executed automatically on page load");
-                    }
+                                    if (!turnedOnExecutableNames.isEmpty()) {
+                                        messagesRef.add(
+                                                turnedOnExecutableNames.toString()
+                                                        + " will run automatically on page load or when a variable it depends on changes");
+                                    }
+                                } else {
+                                    // Now add messagesRef that would eventually be displayed to the developer user
+                                    // informing them
+                                    // about the action setting change.
+                                    if (!turnedOffExecutableNames.isEmpty()) {
+                                        messagesRef.add(turnedOffExecutableNames.toString()
+                                                + " will no longer be executed on page load");
+                                    }
 
-                    // Finally update the actions which require an update
-                    return Flux.fromIterable(toUpdateExecutables)
-                            .flatMap(executable ->
-                                    this.updateUnpublishedExecutable(executable.getId(), executable, creatorType))
-                            .then(Mono.just(TRUE));
+                                    if (!turnedOnExecutableNames.isEmpty()) {
+                                        messagesRef.add(turnedOnExecutableNames.toString()
+                                                + " will be executed automatically on page load");
+                                    }
+                                }
+
+                                // Finally update the actions which require an update
+                                return Flux.fromIterable(toUpdateExecutables)
+                                        .flatMap(executable -> this.updateUnpublishedExecutable(
+                                                executable.getId(), executable, creatorType))
+                                        .then(Mono.just(TRUE));
+                            });
                 });
     }
 
