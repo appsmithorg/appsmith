@@ -13,15 +13,14 @@ export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor p
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
-# setup nss_wrapper
-touch /tmp/appsmith/passwd /tmp/appsmith/group
 if [ "$(id -u)" != "0" ]; then
+    # if user is non-root setup nss_wrapper
     echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > /tmp/appsmith/passwd
-fi
-if [ "$(id -g)" != "0" ]; then
     echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
+    chmod 444 /tmp/appsmith/passwd /tmp/appsmith/group
+    # NSS_WRAPPER_PASSWD, NSS_WRAPPER_GROUP, and NSS_WRAPPER_SYMLINK are set in Dockerfile
+    export LD_PRELOAD="/usr/local/lib/libnss_wrapper.so"
 fi
-chmod 444 /tmp/appsmith/passwd /tmp/appsmith/group
 
 tlog "Running as: $(id)"
 

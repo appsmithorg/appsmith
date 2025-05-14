@@ -19,9 +19,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
+ENV NSS_WRAPPER_SYMLINK=/usr/local/lib/libnss_wrapper.so
 RUN NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1) && \
-    ln -sf "$NSS_WRAPPER_LIB" /usr/local/lib/libnss_wrapper.so
-ENV LD_PRELOAD="/usr/local/lib/libnss_wrapper.so"
+    ln -sf "$NSS_WRAPPER_LIB" $NSS_WRAPPER_SYMLINK
 ENV NSS_WRAPPER_PASSWD="${TMP}/passwd"
 ENV NSS_WRAPPER_GROUP="${TMP}/group"
 
