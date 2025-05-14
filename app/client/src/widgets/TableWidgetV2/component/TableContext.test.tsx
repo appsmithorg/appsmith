@@ -209,6 +209,7 @@ describe("TableContext", () => {
         "onConnectData",
         "isInfiniteScrollEnabled",
         "endOfData",
+        "cachedTableData",
       ].sort();
 
       const result = Object.keys(
