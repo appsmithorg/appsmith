@@ -185,6 +185,11 @@ public class JsonSchemaMigration {
                 // source modules from source modules directory to subdirectories named after
                 // packages of the respective modules.
                 // I.e., source modules/module1.json -> source modules/package1/module1.json
+                migrateApplicationJsonMono = migrateApplicationJsonMono.map(migratedJson -> {
+                    MigrationHelperMethods.addRunBehaviourToApplicationJson(migratedJson);
+                    return migratedJson;
+                });
+
                 applicationJson.setServerSchemaVersion(12);
             default:
         }
