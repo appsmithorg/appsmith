@@ -109,6 +109,7 @@ interface ReactTableComponentProps {
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
   endOfData: boolean;
+  cachedTableData: Array<Record<string, unknown>>;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -243,6 +244,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
+      cachedTableData={props.cachedTableData}
       canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
@@ -356,6 +358,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
     prev.canFreezeColumn === next.canFreezeColumn &&
     prev.showConnectDataOverlay === next.showConnectDataOverlay &&
-    prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled
+    prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled &&
+    equal(prev.cachedTableData, next.cachedTableData)
   );
 });
