@@ -40,14 +40,6 @@ RUN set -o xtrace \
     /var/lib/apt/lists/* \
     /tmp/*
 
-# libnss_wrapper.so is written to an architecture-specific directory, so we symlink to it in a common location to make it easier to activate
-ENV NSS_WRAPPER_SYMLINK=/usr/local/lib/libnss_wrapper.so
-RUN NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1) && \
-    ln -sf "$NSS_WRAPPER_LIB" $NSS_WRAPPER_SYMLINK
-# these env vars need to be set for NSS Wrapper to work but don't matter until LD_PRELOAD is set which is optionally done at runtime
-ENV NSS_WRAPPER_PASSWD="${TMP}/passwd"
-ENV NSS_WRAPPER_GROUP="${TMP}/group"
-
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
@@ -92,3 +84,11 @@ VOLUME [ "/appsmith-stacks" ]
 
 ENV TMP="/tmp/appsmith"
 ENV WWW_PATH="$TMP/www"
+
+# libnss_wrapper.so is written to an architecture-specific directory, so we symlink to it in a common location to make it easier to activate
+ENV NSS_WRAPPER_SYMLINK=/usr/local/lib/libnss_wrapper.so
+RUN NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1) && \
+    ln -sf "$NSS_WRAPPER_LIB" $NSS_WRAPPER_SYMLINK
+# these env vars need to be set for NSS Wrapper to work but don't matter until LD_PRELOAD is set which is optionally done at runtime
+ENV NSS_WRAPPER_PASSWD="${TMP}/passwd"
+ENV NSS_WRAPPER_GROUP="${TMP}/group"
