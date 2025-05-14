@@ -1,5 +1,5 @@
 ARG BASE
-FROM ${BASE}
+FROM wyattappsmith/appsmith-base:latest
 
 ENV IN_DOCKER=1
 
