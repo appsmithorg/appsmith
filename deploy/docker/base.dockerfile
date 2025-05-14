@@ -30,6 +30,7 @@ RUN set -o xtrace \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
+  && find /etc/redis -type d -exec chmod o+rx {} + -o -type f -exec chmod o+r {} + \
   && apt-get clean \
   && rm -rf \
     /root/.cache \

@@ -268,7 +268,6 @@ init_replica_set() {
   fi
 
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
-  fail_if_non_root
     tlog "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
@@ -398,7 +397,6 @@ configure_supervisord() {
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-      fail_if_non_root
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
