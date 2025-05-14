@@ -347,7 +347,11 @@ export function Table(props: TableProps) {
           widgetId={props.widgetId}
         />
         {isHeaderVisible && <TableHeader />}
-        <div className={getTableWrapClassName} ref={tableWrapperRef}>
+        <div
+          className={getTableWrapClassName}
+          data-widgetid={props.widgetId}
+          ref={tableWrapperRef}
+        >
           <div {...getTableProps()} className="table column-freeze">
             {shouldUseVirtual ? (
               <VirtualTable ref={scrollBarRef} />

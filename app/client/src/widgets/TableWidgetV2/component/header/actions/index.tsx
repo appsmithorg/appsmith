@@ -103,6 +103,7 @@ function Actions() {
     delimiter,
     editableCell,
     filters,
+    focusFirstEditableCellInNewRow,
     isInfiniteScrollEnabled,
     isVisibleDownload,
     isVisibleFilters,
@@ -130,6 +131,11 @@ function Actions() {
       }),
     [tableColumns],
   );
+
+  const handleAddNewRow = () => {
+    onAddNewRow();
+    focusFirstEditableCellInNewRow();
+  };
 
   return (
     <>
@@ -178,7 +184,7 @@ function Actions() {
                 disabled={!!editableCell?.column}
                 disabledMessage="Save or discard the unsaved row to add a new row"
                 icon="add"
-                selectMenu={onAddNewRow}
+                selectMenu={handleAddNewRow}
                 selected={false}
                 title="Add new row"
                 width={12}
