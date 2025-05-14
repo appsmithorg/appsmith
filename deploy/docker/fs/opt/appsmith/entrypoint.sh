@@ -13,6 +13,12 @@ export APPSMITH_PG_DATABASE="appsmith"
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
+DATABASE_TYPE="mongodb"
+START_EMBEDDED_POSTGRES=1
+START_EMBEDDED_MONGODB=1
+START_EMBEDDED_REDIS=1
+
+
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
 setup_proxy_variables() {
@@ -196,24 +202,46 @@ unset_unused_variables() {
   fi
 }
 
-configure_database_connection_url() {
+configure_database_details() {
   tlog "Configuring database connection URL"
-  isPostgresUrl=0
-  isMongoUrl=0
 
   if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
-    isPostgresUrl=1
-  elif [[ "${APPSMITH_DB_URL}" == "mongodb"* ]]; then
-    isMongoUrl=1
+    DATABASE_TYPE="postgres"
   fi
-}
 
-check_db_uri() {
-  tlog "Checking APPSMITH_DB_URL"
-  isUriLocal=1
+  # Don't start embedded databases if running on a Heroku dyno
+  if [[ -n "${DYNO}" ]]; then
+    START_EMBEDDED_POSTGRES=0
+    START_EMBEDDED_MONGODB=0
+    START_EMBEDDED_REDIS=0
+  fi
+
   if [[ $APPSMITH_DB_URL == *"localhost"* || $APPSMITH_DB_URL == *"127.0.0.1"* ]]; then
     tlog "Detected local DB"
-    isUriLocal=0
+    START_EMBEDDED_POSTGRES=0
+    START_EMBEDDED_MONGODB=0
+  fi
+
+  if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+    START_EMBEDDED_REDIS=0
+  fi
+
+  echo "Appsmith starting with the options:"
+  echo "  DATABASE_TYPE: $DATABASE_TYPE"
+  echo "  START_EMBEDDED_POSTGRES: $START_EMBEDDED_POSTGRES"
+  echo "  START_EMBEDDED_MONGODB: $START_EMBEDDED_MONGODB"
+  echo "  START_EMBEDDED_REDIS: $START_EMBEDDED_REDIS"
+
+  if [ "$(id -u)" != "0" ]; then
+    if [[ $START_EMBEDDED_POSTGRES -eq 1 || $START_EMBEDDED_MONGODB -eq 1 || $START_EMBEDDED_REDIS -eq 1 ]]; then
+      tlog "====================================================================================================" >&2
+      tlog "==" >&2
+      tlog "== When running as a non-root user embedded databases cannot be used. Please use an external MongoDB, Redis, and Postges instead." >&2
+      tlog "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+      tlog "==" >&2
+      tlog "====================================================================================================" >&2
+      exit 1
+    fi
   fi
 }
 
@@ -383,19 +411,16 @@ configure_supervisord() {
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
   # Disable services based on configuration
-  if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
-      cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
-    fi
-    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-      cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
-      mkdir -p "$stacks_path/data/redis"
-    fi
-    if [[ $runEmbeddedPostgres -eq 1 ]]; then
-      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
-    fi
+  if [[ $START_EMBEDDED_MONGODB -eq 1 ]]; then
+    cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
   fi
-
+  if [[ $START_EMBEDDED_REDIS -eq 1 ]]; then
+    cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
+    mkdir -p "$stacks_path/data/redis"
+  fi
+  if [[ $START_EMBEDDED_POSTGRES -eq 1 ]]; then
+    cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
+  fi
 }
 
 # This is a workaround to get Redis working on different memory pagesize
@@ -554,17 +579,15 @@ setup_caddy
 init_loading_pages
 unset_unused_variables
 
-configure_database_connection_url
-check_db_uri
-# Don't run MongoDB if running in a Heroku dyno.
-if [[ -z "${DYNO}" ]]; then
-  if [[ $isMongoUrl -eq 1 ]]; then
-    # Setup MongoDB and initialize replica set
-    tlog "Initializing MongoDB"
-    init_mongodb
-    init_replica_set
-  fi
-else
+configure_database_details
+if [[ $START_EMBEDDED_MONGODB -eq 1 ]]; then
+  # Setup MongoDB and initialize replica set
+  tlog "Initializing MongoDB"
+  init_mongodb
+  init_replica_set
+fi
+
+if [[ -n "${DYNO}" ]]; then
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
   setup_backend_heap_arg
@@ -575,9 +598,9 @@ fi
 check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
-check_redis_compatible_page_size
-
-safe_init_postgres
+if [[ $START_EMBEDDED_REDIS -eq 1 ]]; then
+  check_redis_compatible_page_size
+fi
 
 configure_supervisord
 
