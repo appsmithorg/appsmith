@@ -106,13 +106,12 @@ public class ActionCE_DTO implements Identifiable, Executable {
      * Use runBehaviour instead.
      */
     @Deprecated
-    @JsonView({Views.Internal.class, FromRequest.class, Git.class})
+    @JsonView({Views.Internal.class, FromRequest.class})
     Boolean executeOnLoad;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     RunBehaviourEnum runBehaviour;
 
-    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     public RunBehaviourEnum getRunBehaviour() {
         if (runBehaviour != null) {
             return runBehaviour;

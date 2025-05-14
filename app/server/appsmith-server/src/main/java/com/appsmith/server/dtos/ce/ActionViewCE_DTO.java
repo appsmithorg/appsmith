@@ -2,7 +2,6 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,7 +45,6 @@ public class ActionViewCE_DTO {
     @JsonView({Views.Public.class})
     RunBehaviourEnum runBehaviour;
 
-    @JsonIgnore
     public RunBehaviourEnum getRunBehaviour() {
         if (runBehaviour != null) {
             return runBehaviour;
