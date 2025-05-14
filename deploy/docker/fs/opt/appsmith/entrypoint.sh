@@ -437,8 +437,12 @@ check_redis_compatible_page_size() {
 
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
-  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
-    fail_if_non_root
+  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 || "$(id -u)" != "0" ]]; then
+    if [[ "$(id -u)" != "0" ]]; then
+      tlog "== When running as a non-root user embedded PostgreSQL cannot be used. Please use an external PostgreSQL instance instead." >&2
+      exit 1
+    fi
+
     tlog "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
@@ -556,14 +560,6 @@ print_appsmith_info(){
 
 function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
-}
-
-function fail_if_non_root(){
-  if [[ "$(id -u)" != "0" ]]; then
-    tlog "== When running as a non-root user embedded databases cannot be used. Please use an external MongoDB, Redis, and Postgres instead." >&2
-    tlog "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
-    exit 1
-  fi
 }
 
 # Main Section
