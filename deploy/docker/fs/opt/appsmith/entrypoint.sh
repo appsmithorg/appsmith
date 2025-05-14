@@ -19,7 +19,7 @@ if [ "$(id -u)" != "0" ]; then
     echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
     chmod 444 /tmp/appsmith/passwd /tmp/appsmith/group
     # NSS_WRAPPER_PASSWD, NSS_WRAPPER_GROUP, and NSS_WRAPPER_SYMLINK are set in Dockerfile
-    export LD_PRELOAD="/usr/local/lib/libnss_wrapper.so"
+    export LD_PRELOAD="$NSS_WRAPPER_SYMLINK"
 fi
 
 tlog "Running as: $(id)"
