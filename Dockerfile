@@ -14,16 +14,8 @@ COPY deploy/docker/fs /
 # Install git
 RUN apt-get update && \
     apt-get install -y git \
-    libnss-wrapper \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-
-ENV NSS_WRAPPER_SYMLINK=/usr/local/lib/libnss_wrapper.so
-RUN NSS_WRAPPER_LIB=$(find /usr/lib -name libnss_wrapper.so -type f 2>/dev/null | head -n1) && \
-    ln -sf "$NSS_WRAPPER_LIB" $NSS_WRAPPER_SYMLINK
-ENV NSS_WRAPPER_PASSWD="${TMP}/passwd"
-ENV NSS_WRAPPER_GROUP="${TMP}/group"
 
 RUN <<END
   if ! [ -f info.json ]; then
