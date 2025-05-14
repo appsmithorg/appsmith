@@ -268,6 +268,7 @@ init_replica_set() {
   fi
 
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
+  fail_if_non_root
     tlog "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
@@ -397,6 +398,7 @@ configure_supervisord() {
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+      fail_if_non_root
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
@@ -438,6 +440,7 @@ check_redis_compatible_page_size() {
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
   if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
+    fail_if_non_root
     tlog "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
@@ -555,6 +558,14 @@ print_appsmith_info(){
 
 function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
+}
+
+function fail_if_non_root(){
+  if [[ "$(id -u)" != "0" ]]; then
+    tlog "== When running as a non-root user embedded databases cannot be used. Please use an external MongoDB, Redis, and Postgres instead." >&2
+    tlog "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+    exit 1
+  fi
 }
 
 # Main Section
