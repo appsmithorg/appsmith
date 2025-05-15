@@ -16,6 +16,9 @@ import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import io.micrometer.observation.ObservationRegistry;
+import com.appsmith.server.helpers.ObservationHelperImpl;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +40,26 @@ class OnLoadExecutablesUtilCEImplTest {
     @Mock
     private FeatureFlagService featureFlagService;
 
+    @Mock
+    private ObservationRegistry observationRegistry;
+
+    @Mock
+    private ObservationHelperImpl observationHelper;
+
     @InjectMocks
     private OnLoadExecutablesUtilCEImpl onLoadExecutablesUtilCEImpl;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        observationRegistry = ObservationRegistry.create(); // No-op registry
+        observationHelper = Mockito.mock(ObservationHelperImpl.class);
         onLoadExecutablesUtilCEImpl = new OnLoadExecutablesUtilCEImpl(
                 astService,
                 objectMapper,
                 executableOnLoadService,
-                null, // ObservationRegistry
-                null, // ObservationHelperImpl
+                observationRegistry,
+                observationHelper,
                 featureFlagService);
     }
 
@@ -251,6 +262,4 @@ class OnLoadExecutablesUtilCEImplTest {
 
         assert messagesRef.isEmpty();
     }
-
-    // Add more tests for other scenarios as needed
 }
