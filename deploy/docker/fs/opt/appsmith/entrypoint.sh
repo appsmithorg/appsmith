@@ -15,9 +15,15 @@ mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
 if [ "$(id -u)" != "0" ]; then
     # if user is non-root setup nss_wrapper
-    echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > /tmp/appsmith/passwd
-    echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
-    chmod 444 /tmp/appsmith/passwd /tmp/appsmith/group
+    # If this is a container restart, the files may already exist and we want them to remain read-only
+    if [[ ! -f /tmp/appsmith/passwd ]]; then
+        echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > /tmp/appsmith/passwd
+        chmod 444 /tmp/appsmith/passwd
+    fi
+    if [[ ! -f /tmp/appsmith/group ]]; then
+        echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
+        chmod 444 /tmp/appsmith/group
+    fi
     # NSS_WRAPPER_PASSWD, NSS_WRAPPER_GROUP, and NSS_WRAPPER_SYMLINK are set in Dockerfile
     export LD_PRELOAD="$NSS_WRAPPER_SYMLINK"
 fi
