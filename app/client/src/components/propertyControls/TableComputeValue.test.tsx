@@ -34,6 +34,7 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
     "currentRow.price * 2",
     "currentRow.isValid && true",
     "!currentRow.isDeleted",
+    "JSObject1.myFun1(currentRow['id'])",
   ];
 
   it("1. should return the correct computed value", () => {

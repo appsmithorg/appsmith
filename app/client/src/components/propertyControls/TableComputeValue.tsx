@@ -167,7 +167,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
     // Find the actual computation expression between the map parentheses
     const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-    const computationEnd = propertyValue.indexOf("))", computationStart);
+    const computationEnd = propertyValue.lastIndexOf("))");
 
     // Extract the computation expression between the map parentheses
     // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
