@@ -1369,6 +1369,10 @@ public class MigrationHelperMethods {
 
     public static void addRunBehaviourToApplicationJson(ApplicationJson applicationJson) {
         List<NewAction> actionList = applicationJson.getActionList();
+        if (CollectionUtils.isNullOrEmpty(actionList)) {
+            return;
+        }
+
         for (NewAction action : actionList) {
             if (action.getUnpublishedAction() != null) {
                 ActionDTO actionDTO = action.getUnpublishedAction();
