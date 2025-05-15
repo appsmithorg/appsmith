@@ -443,7 +443,7 @@ check_redis_compatible_page_size() {
 
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
-  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 || "$(id -u)" != "0" ]]; then
+  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
     if [[ "$(id -u)" != "0" ]]; then
       tlog "== When running as a non-root user embedded PostgreSQL cannot be used. Please use an external PostgreSQL instance instead." >&2
       exit 1
