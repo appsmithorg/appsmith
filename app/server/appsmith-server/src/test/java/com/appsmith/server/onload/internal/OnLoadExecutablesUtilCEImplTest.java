@@ -2,23 +2,24 @@ package com.appsmith.server.onload.internal;
 
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.RunBehaviourEnum;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import io.micrometer.observation.ObservationRegistry;
-import com.appsmith.server.helpers.ObservationHelperImpl;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any())).thenReturn(Flux.empty());
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(false)
                 .verifyComplete();
     }
@@ -99,7 +100,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(false));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -130,7 +131,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -157,7 +158,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(false));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -182,7 +183,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -221,7 +222,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -256,7 +257,7 @@ class OnLoadExecutablesUtilCEImplTest {
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
 
         StepVerifier.create(onLoadExecutablesUtilCEImpl.updateExecutablesRunBehaviour(
-                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, null))
+                        onLoadExecutables, "creatorId", executableUpdatesRef, messagesRef, CreatorContextType.PAGE))
                 .expectNext(false)
                 .verifyComplete();
 
