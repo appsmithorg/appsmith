@@ -42,6 +42,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -444,6 +445,19 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 });
     }
 
+    public Mono<GitStatusDTO> computeGitStatus(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String branchName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+        return commonGitFileUtils.computeGitStatus(repoSuffix, artifactExchangeJson, branchName);
+    }
+
     @Override
     public Mono<Tuple2<? extends Artifact, String>> commitArtifact(
             Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO) {
@@ -747,6 +761,18 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
         return keepWorkingDirChangesMono.flatMap(
                 keepWorkingDirChanges -> fsGitHandler.getStatus(repoPath, refName, keepWorkingDirChanges));
+    }
+
+    public Mono<BranchTrackingStatus> getBranchTrackingStatus(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String refName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+        return fsGitHandler.getBranchTrackingStatus(repoSuffix, refName);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.appsmith.git.files;
 
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -277,6 +278,65 @@ public class FileUtilsCEImpl implements FileInterface {
                 .subscribeOn(scheduler);
     }
 
+    public Mono<GitStatusDTO> computeGitStatus(
+            Path baseRepoSuffix, GitResourceMap gitResourceMapFromDB, String branchName, boolean keepWorkingDirChanges)
+            throws GitAPIException, IOException {
+        return fsGitHandler
+                .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
+                .flatMap(__ -> constructGitResourceMapFromGitRepo(baseRepoSuffix, branchName))
+                .flatMap(gitResourceMapFromFS -> {
+                    Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
+                    Map<GitResourceIdentity, Object> resourceMapFromFS = gitResourceMapFromFS.getGitResourceMap();
+                    Map<String, Object> filesInDBMap = resourceMapFromDB.entrySet().stream()
+                            .collect(Collectors.toMap(e -> e.getKey().getFilePath(), Map.Entry::getValue));
+
+                    Map<String, Object> filesInFSMap = resourceMapFromFS.entrySet().stream()
+                            .collect(Collectors.toMap(e -> e.getKey().getFilePath(), Map.Entry::getValue));
+
+                    // plain path sets
+                    Set<String> fileNamesInDB = new HashSet<>(filesInDBMap.keySet());
+                    Set<String> fileNamesInFS = new HashSet<>(filesInFSMap.keySet());
+
+                    // added files
+                    Set<String> addedFiles = new HashSet<>(fileNamesInDB);
+                    addedFiles.removeAll(fileNamesInFS);
+
+                    // removed files
+                    Set<String> removedFiles = new HashSet<>(fileNamesInFS);
+                    removedFiles.removeAll(fileNamesInDB);
+                    removedFiles.remove(README_FILE_NAME);
+
+                    // common files
+                    Set<String> commonFiles = new HashSet<>(fileNamesInDB);
+                    commonFiles.retainAll(fileNamesInFS);
+
+                    // modified files
+                    Set<String> modifiedFiles = commonFiles.parallelStream()
+                            .filter(path -> {
+                                try {
+                                    return fileOperations.hasFileChanged(
+                                            filesInDBMap.get(path), filesInFSMap.get(path));
+
+                                } catch (IOException e) {
+                                    log.error("Error while checking if file has changed", e);
+                                    return false;
+                                }
+                            })
+                            .collect(Collectors.toSet());
+
+                    GitStatusDTO localRepoStatus = new GitStatusDTO();
+                    localRepoStatus.setAdded(addedFiles);
+                    localRepoStatus.setModified(modifiedFiles);
+                    localRepoStatus.setRemoved(removedFiles);
+
+                    fsGitHandler.populateModifiedEntities(localRepoStatus);
+
+                    // return the added, deleted and modified files
+                    return Mono.just(localRepoStatus);
+                })
+                .subscribeOn(scheduler);
+    }
+
     protected Set<String> getWhitelistedPaths() {
         String pages = PAGE_DIRECTORY + DELIMITER_PATH;
         String datasources = DATASOURCE_DIRECTORY + DELIMITER_PATH;
@@ -335,30 +395,27 @@ public class FileUtilsCEImpl implements FileInterface {
             GitResourceMap gitResourceMapFromDB, Path baseRepo, GitResourceMap gitResourceMapFromFS)
             throws IOException {
         Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
+        Map<GitResourceIdentity, Object> resourceMapFromFS = gitResourceMapFromFS.getGitResourceMap();
 
-        Set<String> filesInRepo = new HashSet<>();
+        Set<String> deletedFiles = new HashSet<>();
         Set<String> updatedFiles = new HashSet<>();
-        Set<String> filesInDB = resourceMapFromDB.keySet().parallelStream()
-                .map(gitResourceIdentity -> gitResourceIdentity.getFilePath())
+        Set<String> fileNamesInDB = resourceMapFromDB.entrySet().stream()
+                .map(e -> e.getKey().getFilePath())
                 .collect(Collectors.toSet());
 
-        Map<String, Object> filesInFS = gitResourceMapFromFS.getGitResourceMap().entrySet().parallelStream()
-                .map(entry -> {
-                    filesInRepo.add(entry.getKey().getFilePath());
-                    return entry;
-                })
-                .collect(Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+        Map<String, Object> filesInFSMap = resourceMapFromFS.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().getFilePath(), Map.Entry::getValue));
 
         // Remove all files that need to be serialized from the existing files list, as well as the README file
         // What we are left with are all the files to be deleted
 
-        filesInRepo.removeAll(filesInDB);
-        filesInRepo.remove(README_FILE_NAME);
+        deletedFiles.addAll(fileNamesInDB);
+        deletedFiles.remove(README_FILE_NAME);
 
         // Delete all the files because they are no longer needed
         // This covers both older structures of storing files and,
         // legitimate changes in the artifact that might cause deletions
-        filesInRepo.stream().parallel().forEach(filePath -> {
+        deletedFiles.stream().parallel().forEach(filePath -> {
             try {
                 Files.deleteIfExists(baseRepo.resolve(filePath));
             } catch (IOException e) {
@@ -376,7 +433,7 @@ public class FileUtilsCEImpl implements FileInterface {
                     boolean resourceUpdated = true;
                     try {
                         resourceUpdated =
-                                fileOperations.hasFileChanged(entry.getValue(), filesInFS.get(key.getFilePath()));
+                                fileOperations.hasFileChanged(entry.getValue(), filesInFSMap.get(key.getFilePath()));
                     } catch (IOException e) {
                         log.error("Error while checking if file has changed", e);
                     }
