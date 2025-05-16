@@ -935,7 +935,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .subscribeOn(scheduler);
     }
 
-    protected void populateModifiedEntities(GitStatusDTO response) {
+    public void populateModifiedEntities(GitStatusDTO response) {
         populatePageChanges(response);
         populateQueryChanges(response);
         populateJsObjectChanges(response);
@@ -1565,7 +1565,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     @Override
     public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
         return Mono.using(
-                        () -> Git.open(repoPath.toFile()),
+                        () -> Git.open(createRepoPath(repoPath).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     Span jgitBranchTrackingSpan =
                                             observationHelper.createSpan(GitSpan.JGIT_BRANCH_TRACK);
