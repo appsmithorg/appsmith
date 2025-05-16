@@ -637,7 +637,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { primaryColumns = {}, tableData = [] } = this.props;
+    const {
+      infiniteScrollEnabled,
+      primaryColumns = {},
+      tableData = [],
+    } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -695,6 +699,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const newColumnIds = Object.keys(newTableColumns);
 
+    /**
+     * When infinite scroll is enabled, we need to merge the new columns with the existing ones.
+     * Why?
+     * The infinite scroll behavior differs from the existing server-side pagination in that it merges new incoming data with the existing data.
+     * If the new page contains corrupted data with either more or fewer columns than the existing data, the current product behavior only considers the new columns, which is not ideal for infinite scroll.
+     * Therefore, in this block, we are merging the new columns with the existing ones without removing any data.
+     */
+    if (infiniteScrollEnabled) {
+      const mergedColumns = {
+        ...primaryColumns,
+        ...newTableColumns,
+      };
+
+      if (_.xor(existingColumnIds, Object.keys(mergedColumns)).length > 0) {
+        return mergedColumns;
+      }
+
+      return;
+    }
+
+    // For non-infinite scroll, keep existing logic
     // check if the columns ids differ
     if (_.xor(existingColumnIds, newColumnIds).length > 0) {
       return newTableColumns;
@@ -1302,6 +1327,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
+          cachedTableData={this.props.cachedTableData}
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
@@ -3048,14 +3074,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("cachedTableData", updatedCachedTableData);
 
       // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array except the current tableData page i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
-      if (
-        (!!totalRecordsCount &&
-          processedTableData.length + tableData.length === totalRecordsCount) ||
-        (!totalRecordsCount && tableData.length < pageSize)
-      ) {
-        pushBatchMetaUpdates("endOfData", true);
-      } else {
-        pushBatchMetaUpdates("endOfData", false);
+      if (window?.navigator?.onLine) {
+        if (
+          (!!totalRecordsCount &&
+            processedTableData.length + tableData.length ===
+              totalRecordsCount) ||
+          (!totalRecordsCount && tableData.length < pageSize)
+        ) {
+          pushBatchMetaUpdates("endOfData", true);
+        } else {
+          pushBatchMetaUpdates("endOfData", false);
+        }
       }
 
       if (shouldCommitBatchUpdates) {

@@ -7,7 +7,7 @@ import {
   SKIP_TO_APPLICATION_FOR_AGENTS,
   createMessage,
 } from "ee/constants/messages";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsCreatingAgent } from "ee/selectors/aiAgentSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 
@@ -17,7 +17,7 @@ interface UseReconnectModalDataProps {
 }
 
 function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isCreatingAgent = useSelector(getIsCreatingAgent);
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(state, appId ?? ""),
   );
@@ -31,18 +31,16 @@ function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
       basePageId,
       branch,
       params: {
-        type: isAiAgentFlowEnabled ? "agent" : undefined,
+        type: isCreatingAgent ? "agent" : undefined,
       },
     });
 
   return {
     skipMessage: createMessage(
-      isAiAgentFlowEnabled
-        ? SKIP_TO_APPLICATION_FOR_AGENTS
-        : SKIP_TO_APPLICATION,
+      isCreatingAgent ? SKIP_TO_APPLICATION_FOR_AGENTS : SKIP_TO_APPLICATION,
     ),
     missingDsCredentialsDescription: createMessage(
-      isAiAgentFlowEnabled
+      isCreatingAgent
         ? RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION_FOR_AGENTS
         : RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
     ),

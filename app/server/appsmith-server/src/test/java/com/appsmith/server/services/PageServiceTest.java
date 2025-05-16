@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -593,7 +594,7 @@ public class PageServiceTest {
                 pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         action.setDatasource(datasource);
-        action.setExecuteOnLoad(true);
+        action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
 
         assert page != null;
         Layout layout = page.getLayouts().get(0);
@@ -736,9 +737,9 @@ public class PageServiceTest {
                     assertThat(actionWithoutCollection.getUnpublishedAction().getName())
                             .isEqualTo("PageAction");
 
-                    // Confirm that executeOnLoad is cloned as well.
-                    assertThat(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad())
-                            .isTrue();
+                    // Confirm that RunBehaviour Page load is cloned as well.
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getRunBehaviour())
+                            .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();
@@ -965,7 +966,7 @@ public class PageServiceTest {
                     assertThat(actionWithoutCollection.getBaseId()).isEqualTo(actionWithoutCollection.getId());
                     assertThat(actionWithoutCollection.getBranchName()).isEqualTo(branchName);
 
-                    // Confirm that executeOnLoad is cloned as well.
+                    // Confirm that RunBehaviour page load is cloned as well.
                     assertThat(actions.stream()
                                     .filter(clonedAction -> "PageAction"
                                             .equals(clonedAction
@@ -974,8 +975,9 @@ public class PageServiceTest {
                                     .findFirst()
                                     .get()
                                     .getUnpublishedAction()
-                                    .getExecuteOnLoad())
-                            .isTrue();
+                                    .getRunBehaviour())
+                            .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                    ;
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();

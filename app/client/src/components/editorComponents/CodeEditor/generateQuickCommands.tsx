@@ -14,7 +14,7 @@ import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
-import type { NavigationData } from "selectors/navigationSelectors";
+import type { NavigationData } from "entities/DataTree/dataTreeTypes";
 import type { AIEditorContext } from "ee/components/editorComponents/GPT";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import history, { NavigationMethod } from "utils/history";

@@ -16,7 +16,7 @@ import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useIsCloudBillingEnabled } from "hooks";
 import { ChromeExtensionBanner } from "ee/pages/Applications/ChromeExtensionBanner";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -53,10 +53,10 @@ export function ShareModal() {
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp || isAiAgentFlowEnabled,
+    isPublicApp || isAgentApp,
     selectedMethod,
   );
 
@@ -92,7 +92,7 @@ export function ShareModal() {
         </div>
       )}
 
-      {Boolean(isAiAgentFlowEnabled) === false && (
+      {Boolean(isAgentApp) === false && (
         <Switch
           data-testid={"show-navigation-bar-toggle"}
           defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
@@ -107,7 +107,7 @@ export function ShareModal() {
         </Switch>
       )}
 
-      {!isPublicApp && !isAiAgentFlowEnabled && (
+      {!isPublicApp && !isAgentApp && (
         <PrivateEmbedSettings
           selectedMethod={selectedMethod}
           setSelectedMethod={setSelectedMethod}
@@ -142,10 +142,10 @@ export function AppSettings() {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
   const snippetUrl = getSnippetUrl(
     embedSnippet.appViewEndPoint,
-    isPublicApp || isAiAgentFlowEnabled,
+    isPublicApp || isAgentApp,
     selectedMethod,
   );
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
@@ -183,7 +183,7 @@ export function AppSettings() {
           </div>
         )}
 
-        {Boolean(isAiAgentFlowEnabled) === false && (
+        {Boolean(isAgentApp) === false && (
           <Switch
             data-testid={"show-navigation-bar-toggle"}
             defaultSelected={
@@ -200,7 +200,7 @@ export function AppSettings() {
           </Switch>
         )}
 
-        {!isPublicApp && !isAiAgentFlowEnabled && (
+        {!isPublicApp && !isAgentApp && (
           <PrivateEmbedSettings
             selectedMethod={selectedMethod}
             setSelectedMethod={setSelectedMethod}
@@ -222,9 +222,9 @@ export function EmbedSnippetTab({
 }) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isPublicApp = currentApplicationDetails?.isPublic || false;
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
 
-  if (!isPublicApp && !isAiAgentFlowEnabled) {
+  if (!isPublicApp && !isAgentApp) {
     return (
       <div className="flex flex-col gap-6">
         <PrivateEmbeddingContent

@@ -665,7 +665,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+                .findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
                         pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }
@@ -1248,7 +1248,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     layoutExecutableUpdateDTO.setId(pageAction.getId());
                     layoutExecutableUpdateDTO.setName(pageAction.getValidName());
                     layoutExecutableUpdateDTO.setCollectionId(pageAction.getCollectionId());
-                    layoutExecutableUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    layoutExecutableUpdateDTO.setRunBehaviour(pageAction.getRunBehaviour());
                     return layoutExecutableUpdateDTO;
                 })
                 .collect(Collectors.toList());

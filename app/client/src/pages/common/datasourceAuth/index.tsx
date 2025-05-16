@@ -45,7 +45,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
 import { useParentEntityDetailsFromParams } from "ee/entities/Engine/actionHelpers";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsCreatingAgent } from "ee/selectors/aiAgentSelectors";
 
 interface Props {
   datasource: Datasource;
@@ -200,7 +200,7 @@ function DatasourceAuth({
       isInsideReconnectModal,
     );
 
-  const isAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isCreatingAgent = useSelector(getIsCreatingAgent);
 
   useEffect(() => {
     if (
@@ -455,7 +455,7 @@ function DatasourceAuth({
           size="md"
         >
           {createMessage(
-            isAgentFlowEnabled
+            isCreatingAgent
               ? CONNECT_DATASOURCE_BUTTON_TEXT_FOR_AGENTS
               : CONNECT_DATASOURCE_BUTTON_TEXT,
           )}

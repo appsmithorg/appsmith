@@ -66,7 +66,7 @@
 					  }
 				}
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 
@@ -150,7 +150,7 @@
 					  }
 				}
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 
@@ -244,7 +244,7 @@
 					  }
 				}
 			},
-			"executeOnLoad": true,
+			"runBehaviour": "ON_PAGE_LOAD",
 			"isValid": true,
 			"invalids": [
 
@@ -329,7 +329,7 @@
 					  }
 				}
 			},
-			"executeOnLoad": false,
+			"runBehaviour": "MANUAL",
 			"isValid": true,
 			"invalids": [
 

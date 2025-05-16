@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { Flex, Switch, Text } from "@appsmith/ads";
+import {
+  Flex,
+  Option,
+  Select,
+  Text,
+  type SelectOptionProps,
+} from "@appsmith/ads";
 import type { JSAction } from "entities/JSCollection";
 import {
   createMessage,
@@ -8,6 +14,34 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { OnUpdateSettingsProps } from "../types";
+import {
+  RUN_BEHAVIOR_VALUES,
+  type ActionRunBehaviourType,
+} from "PluginActionEditor/types/PluginActionTypes";
+import styled from "styled-components";
+
+const OptionLabel = styled(Text)`
+  color: var(--ads-v2-color-fg);
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const OptionSubText = styled(Text)`
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 12px;
+`;
+
+const StyledSelect = styled(Select)`
+  width: fit-content;
+
+  .rc-select-selector {
+    min-width: 120px;
+  }
+`;
+
+const FunctionName = styled(Text)`
+  word-break: break-all;
+`;
 
 interface Props {
   disabled: boolean;
@@ -20,24 +54,22 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 }
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
-  const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
-    String(props.action.executeOnLoad),
-  );
+  const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
+  const options = RUN_BEHAVIOR_VALUES as SelectOptionProps[];
+  const selectedValue = options.find((opt) => opt.value === runBehaviour);
 
-  const onChange = useCallback(
-    (isSelected: boolean) => {
-      const value = String(isSelected);
-
-      setExecuteOnPageLoad(value);
+  const onSelectOptions = useCallback(
+    (newRunBehaviour: ActionRunBehaviourType) => {
+      setRunBehaviour(newRunBehaviour);
       props.onUpdateSettings?.({
-        value: value === "true",
-        propertyName: "executeOnLoad",
+        value: newRunBehaviour,
+        propertyName: "runBehaviour",
         action: props.action,
       });
 
       AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
         toggleSetting: "ON_PAGE_LOAD",
-        toggleValue: value,
+        toggleValue: newRunBehaviour,
       });
     },
     [props],
@@ -45,21 +77,44 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
 
   return (
     <Flex
-      className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
-      gap="spaces-4"
+      alignItems="center"
+      className={`t--async-js-function-settings ${props.action.name}-run-behavior-setting`}
+      gap="spaces-3"
       id={`${props.action.name}-settings`}
+      justifyContent="space-between"
       key={props.action.id}
       w="100%"
     >
-      <Switch
-        defaultSelected={JSON.parse(executeOnPageLoad)}
-        isDisabled={props.disabled}
-        isSelected={JSON.parse(executeOnPageLoad)}
-        name={`execute-on-page-load-${props.action.id}`}
-        onChange={onChange}
-      >
+      <FunctionName htmlFor={props.action.id} renderAs="label">
         {props.action.name}
-      </Switch>
+      </FunctionName>
+      <StyledSelect
+        data-testid={`t--dropdown-runBehaviour`}
+        defaultValue={selectedValue}
+        id={props.action.id}
+        isDisabled={props.disabled}
+        listHeight={240}
+        onSelect={onSelectOptions}
+        size="sm"
+        value={selectedValue}
+      >
+        {options.map((option) => (
+          <Option
+            aria-label={option.label}
+            disabled={option.disabled}
+            key={option.value}
+            label={option.label}
+            value={option.value}
+          >
+            <Flex flexDirection="column">
+              <OptionLabel data-testid={`t--label-${option.label}`}>
+                {option.label}
+              </OptionLabel>
+              <OptionSubText>{option.subText}</OptionSubText>
+            </Flex>
+          </Option>
+        ))}
+      </StyledSelect>
     </Flex>
   );
 };

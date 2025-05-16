@@ -37,13 +37,11 @@ export const FEATURE_FLAG = {
   release_ide_datasource_selector_enabled:
     "release_ide_datasource_selector_enabled",
   release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
-  ab_request_new_integration_enabled: "ab_request_new_integration_enabled",
   release_evaluation_scope_cache: "release_evaluation_scope_cache",
   release_gs_all_sheets_options_enabled:
     "release_gs_all_sheets_options_enabled",
   release_git_modularisation_enabled: "release_git_modularisation_enabled",
   release_git_api_contracts_enabled: "release_git_api_contracts_enabled",
-  ab_premium_datasources_view_enabled: "ab_premium_datasources_view_enabled",
   kill_session_recordings_enabled: "kill_session_recordings_enabled",
   config_mask_session_recordings_enabled:
     "config_mask_session_recordings_enabled",
@@ -60,6 +58,7 @@ export const FEATURE_FLAG = {
     "license_external_saas_plugins_enabled",
   release_computation_cache_enabled: "release_computation_cache_enabled",
   release_ai_chat_integrations_enabled: "release_ai_chat_integrations_enabled",
+  license_ai_agent_instance_enabled: "license_ai_agent_instance_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -93,12 +92,10 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_ide_animations_enabled: false,
   release_ide_datasource_selector_enabled: false,
   release_custom_widget_ai_builder: false,
-  ab_request_new_integration_enabled: false,
   release_evaluation_scope_cache: false,
   release_gs_all_sheets_options_enabled: false,
   release_git_modularisation_enabled: false,
   release_git_api_contracts_enabled: false,
-  ab_premium_datasources_view_enabled: false,
   kill_session_recordings_enabled: false,
   config_user_session_recordings_enabled: true,
   config_mask_session_recordings_enabled: true,
@@ -110,6 +107,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_external_saas_plugins_enabled: false,
   release_computation_cache_enabled: false,
   release_ai_chat_integrations_enabled: false,
+  license_ai_agent_instance_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

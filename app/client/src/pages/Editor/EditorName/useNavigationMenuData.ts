@@ -24,7 +24,7 @@ import { toast } from "@appsmith/ads";
 import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -108,7 +108,7 @@ export const useNavigationMenuData = ({
     }
   }, [applicationId, dispatch, history]);
 
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
 
   return useMemo(
     () =>
@@ -152,9 +152,7 @@ export const useNavigationMenuData = ({
             {
               text: "Documentation",
               onClick: () =>
-                openExternalLink(
-                  isAiAgentFlowEnabled ? DOCS_AI_BASE_URL : DOCS_BASE_URL,
-                ),
+                openExternalLink(isAgentApp ? DOCS_AI_BASE_URL : DOCS_BASE_URL),
               type: MenuTypes.MENU,
               isVisible: true,
               startIcon: "book-line",
@@ -166,7 +164,7 @@ export const useNavigationMenuData = ({
                   "https://github.com/appsmithorg/appsmith/issues/new/choose",
                 ),
               type: MenuTypes.MENU,
-              isVisible: !isAiAgentFlowEnabled,
+              isVisible: !isAgentApp,
               startIcon: "bug-line",
             },
             {
@@ -191,7 +189,7 @@ export const useNavigationMenuData = ({
       hasExportPermission,
       hasDeletePermission,
       deleteApplication,
-      isAiAgentFlowEnabled,
+      isAgentApp,
       setForkApplicationModalOpen,
       isIntercomConsentGiven,
       dispatch,
