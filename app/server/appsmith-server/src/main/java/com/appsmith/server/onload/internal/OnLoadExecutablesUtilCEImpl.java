@@ -305,142 +305,138 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             List<LayoutExecutableUpdateDTO> executableUpdatesRef,
             List<String> messagesRef,
             CreatorContextType creatorType) {
-        List<Executable> toUpdateExecutables = new ArrayList<>();
 
-        // Fetch all the actions which exist in this page.
-        Flux<Executable> creatorContextExecutablesFlux =
-                this.getAllExecutablesByCreatorIdFlux(creatorId, creatorType).cache();
+        return featureFlagService
+                .check(FeatureFlagEnum.release_reactive_actions_enabled)
+                .flatMap(isReactiveActionsEnabled -> {
+                    Flux<Executable> creatorContextExecutablesFlux = this.getAllExecutablesByCreatorIdFlux(
+                                    creatorId, creatorType)
+                            .cache();
 
-        // Before we update the actions, fetch all the actions which are currently set to execute on load.
-        Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
-                .flatMap(executable -> {
-                    if (RunBehaviourEnum.ON_PAGE_LOAD.equals(executable.getRunBehaviour())) {
-                        return Mono.just(executable);
-                    }
-                    return Mono.empty();
-                })
-                .collectList();
+                    return creatorContextExecutablesFlux.collectList().flatMap(creatorContextExecutables -> {
+                        if (creatorContextExecutables.isEmpty()) {
+                            messagesRef.clear();
+                            executableUpdatesRef.clear();
+                            return Mono.just(FALSE);
+                        }
 
-        return existingOnLoadExecutablesMono
-                .zipWith(creatorContextExecutablesFlux.collectList())
-                .flatMap(tuple -> {
-                    List<Executable> existingOnLoadExecutables = tuple.getT1();
-                    List<Executable> creatorContextExecutables = tuple.getT2();
+                        // Determine existing "on" executables based on the flag, excluding userSetOnLoad=true
+                        Set<String> existingOnLoadExecutableNames = creatorContextExecutables.stream()
+                                .filter(e -> {
+                                    if (Boolean.TRUE.equals(e.getUserSetOnLoad())) return false;
+                                    if (isReactiveActionsEnabled) {
+                                        return RunBehaviourEnum.ON_PAGE_LOAD.equals(e.getRunBehaviour())
+                                                || RunBehaviourEnum.AUTOMATIC.equals(e.getRunBehaviour());
+                                    } else {
+                                        return RunBehaviourEnum.ON_PAGE_LOAD.equals(e.getRunBehaviour());
+                                    }
+                                })
+                                .map(Executable::getUserExecutableName)
+                                .collect(Collectors.toSet());
 
-                    // There are no actions in this page. No need to proceed further since no actions would get updated
-                    if (creatorContextExecutables.isEmpty()) {
-                        return Mono.just(FALSE);
-                    }
+                        // Determine new "on" executables and their target RunBehaviour
+                        // The `onLoadExecutables` parameter contains executables that should be "on".
+                        // Their `runBehaviour` property should ideally already be set to the target state (AUTOMATIC or
+                        // ON_PAGE_LOAD).
+                        // If not explicitly set, we default based on the flag.
+                        Map<String, RunBehaviourEnum> newOnLoadExecutablesWithTargetBehaviour =
+                                onLoadExecutables.stream()
+                                        .collect(Collectors.toMap(
+                                                Executable::getUserExecutableName,
+                                                e -> e.getRunBehaviour() != null
+                                                        ? e.getRunBehaviour()
+                                                        : (isReactiveActionsEnabled
+                                                                ? RunBehaviourEnum.AUTOMATIC
+                                                                : RunBehaviourEnum.ON_PAGE_LOAD)));
+                        Set<String> newOnLoadExecutableNames = newOnLoadExecutablesWithTargetBehaviour.keySet();
 
-                    // No actions require an update if no actions have been found as page load actions as well as
-                    // existing on load page actions are empty
-                    if (existingOnLoadExecutables.isEmpty()
-                            && (onLoadExecutables == null || onLoadExecutables.isEmpty())) {
-                        return Mono.just(FALSE);
-                    }
+                        Set<String> turnedOffDueToLogic = new HashSet<>(existingOnLoadExecutableNames);
+                        turnedOffDueToLogic.removeAll(newOnLoadExecutableNames);
 
-                    // Extract names of existing page load actions and new page load actions for quick lookup.
-                    Set<String> existingOnLoadExecutableNames = existingOnLoadExecutables.stream()
-                            .map(Executable::getUserExecutableName)
-                            .collect(Collectors.toSet());
+                        Set<String> turnedOnDueToLogic = new HashSet<>(newOnLoadExecutableNames);
+                        turnedOnDueToLogic.removeAll(existingOnLoadExecutableNames);
 
-                    Set<String> newOnLoadExecutableNames = onLoadExecutables.stream()
-                            .map(Executable::getUserExecutableName)
-                            .collect(Collectors.toSet());
+                        List<Executable> toUpdateExecutables = new ArrayList<>();
 
-                    // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
-                    Set<String> turnedOffExecutableNames = new HashSet<>();
-                    turnedOffExecutableNames.addAll(existingOnLoadExecutableNames);
-                    turnedOffExecutableNames.removeAll(newOnLoadExecutableNames);
-
-                    // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
-                    Set<String> turnedOnExecutableNames = new HashSet<>();
-                    turnedOnExecutableNames.addAll(newOnLoadExecutableNames);
-                    turnedOnExecutableNames.removeAll(existingOnLoadExecutableNames);
-
-                    for (Executable executable : creatorContextExecutables) {
-
-                        String executableName = executable.getUserExecutableName();
-                        // If a user has ever set execute on load, this field can not be changed automatically. It has
-                        // to be explicitly changed by the user again. Add the executable to update only if this
-                        // condition is false.
-                        if (FALSE.equals(executable.getUserSetOnLoad())) {
-
-                            // If this executable is no longer an onload executable, turn the execute on load to false
-                            if (turnedOffExecutableNames.contains(executableName)) {
-                                executable.setRunBehaviour(RunBehaviourEnum.MANUAL);
-                                toUpdateExecutables.add(executable);
+                        for (Executable executable : creatorContextExecutables) {
+                            String executableName = executable.getUserExecutableName();
+                            // If a user has ever set execute on load, this field can not be changed automatically.
+                            if (Boolean.TRUE.equals(executable.getUserSetOnLoad())) {
+                                continue; // Skip updates for this executable
                             }
 
-                            // If this executable is newly found to be on load, turn execute on load to true
-                            if (turnedOnExecutableNames.contains(executableName)) {
-                                executable.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
-                                toUpdateExecutables.add(executable);
-                            }
-
-                        } else {
-                            // Remove the executable name from either of the lists (if present) because this executable
-                            // should not be updated
-                            turnedOnExecutableNames.remove(executableName);
-                            turnedOffExecutableNames.remove(executableName);
-                        }
-                    }
-
-                    // Add newly turned on page actions to report back to the caller
-                    executableUpdatesRef.addAll(
-                            addExecutableUpdatesForExecutableNames(creatorContextExecutables, turnedOnExecutableNames));
-
-                    // Add newly turned off page actions to report back to the caller
-                    executableUpdatesRef.addAll(addExecutableUpdatesForExecutableNames(
-                            creatorContextExecutables, turnedOffExecutableNames));
-
-                    for (Executable executable : creatorContextExecutables) {
-                        String executableName = executable.getUserExecutableName();
-                        if (Boolean.FALSE.equals(executable.isOnLoadMessageAllowed())) {
-                            turnedOffExecutableNames.remove(executableName);
-                            turnedOnExecutableNames.remove(executableName);
-                        }
-                    }
-
-                    return featureFlagService
-                            .check(FeatureFlagEnum.release_reactive_actions_enabled)
-                            .flatMap(isReactiveActionsEnabled -> {
-                                if (isReactiveActionsEnabled) {
-                                    // Now add messagesRef that would eventually be displayed to the developer user
-                                    // informing them
-                                    // about the action setting change.
-                                    if (!turnedOffExecutableNames.isEmpty()) {
-                                        messagesRef.add(
-                                                turnedOffExecutableNames.toString()
-                                                        + " will no longer run automatically. You can run it manually when needed.");
-                                    }
-
-                                    if (!turnedOnExecutableNames.isEmpty()) {
-                                        messagesRef.add(
-                                                turnedOnExecutableNames.toString()
-                                                        + " will run automatically on page load or when a variable it depends on changes");
-                                    }
-                                } else {
-                                    // Now add messagesRef that would eventually be displayed to the developer user
-                                    // informing them
-                                    // about the action setting change.
-                                    if (!turnedOffExecutableNames.isEmpty()) {
-                                        messagesRef.add(turnedOffExecutableNames.toString()
-                                                + " will no longer be executed on page load");
-                                    }
-
-                                    if (!turnedOnExecutableNames.isEmpty()) {
-                                        messagesRef.add(turnedOnExecutableNames.toString()
-                                                + " will be executed automatically on page load");
-                                    }
+                            if (turnedOffDueToLogic.contains(executableName)) {
+                                if (!RunBehaviourEnum.MANUAL.equals(executable.getRunBehaviour())) {
+                                    executable.setRunBehaviour(RunBehaviourEnum.MANUAL);
+                                    toUpdateExecutables.add(executable);
                                 }
+                            } else if (turnedOnDueToLogic.contains(executableName)) {
+                                RunBehaviourEnum targetBehaviour =
+                                        newOnLoadExecutablesWithTargetBehaviour.get(executableName);
+                                if (!targetBehaviour.equals(executable.getRunBehaviour())) {
+                                    executable.setRunBehaviour(targetBehaviour);
+                                    toUpdateExecutables.add(executable);
+                                }
+                            }
+                        }
 
-                                // Finally update the actions which require an update
-                                return Flux.fromIterable(toUpdateExecutables)
-                                        .flatMap(executable -> this.updateUnpublishedExecutable(
-                                                executable.getId(), executable, creatorType))
-                                        .then(Mono.just(TRUE));
-                            });
+                        // Filter names for messages based on isOnLoadMessageAllowed
+                        Set<String> finalTurnedOffNamesForMessage = new HashSet<>();
+                        Set<String> finalTurnedOnNamesForMessage = new HashSet<>();
+
+                        for (Executable execInContext : creatorContextExecutables) {
+                            String execName = execInContext.getUserExecutableName();
+                            if (Boolean.FALSE.equals(execInContext.isOnLoadMessageAllowed())) {
+                                continue;
+                            }
+                            if (turnedOffDueToLogic.contains(execName)
+                                    && toUpdateExecutables.stream()
+                                            .anyMatch(u -> u.getId().equals(execInContext.getId()))) {
+                                finalTurnedOffNamesForMessage.add(execName);
+                            }
+                            if (turnedOnDueToLogic.contains(execName)
+                                    && toUpdateExecutables.stream()
+                                            .anyMatch(u -> u.getId().equals(execInContext.getId()))) {
+                                finalTurnedOnNamesForMessage.add(execName);
+                            }
+                        }
+
+                        messagesRef.clear();
+                        if (isReactiveActionsEnabled) {
+                            if (!finalTurnedOffNamesForMessage.isEmpty()) {
+                                messagesRef.add(finalTurnedOffNamesForMessage.toString()
+                                        + " will no longer run automatically. You can run it manually when needed.");
+                            }
+                            if (!finalTurnedOnNamesForMessage.isEmpty()) {
+                                messagesRef.add(
+                                        finalTurnedOnNamesForMessage.toString()
+                                                + " will run automatically on page load or when a variable it depends on changes");
+                            }
+                        } else {
+                            if (!finalTurnedOffNamesForMessage.isEmpty()) {
+                                messagesRef.add(finalTurnedOffNamesForMessage.toString()
+                                        + " will no longer be executed on page load");
+                            }
+                            if (!finalTurnedOnNamesForMessage.isEmpty()) {
+                                messagesRef.add(finalTurnedOnNamesForMessage.toString()
+                                        + " will be executed automatically on page load");
+                            }
+                        }
+
+                        executableUpdatesRef.clear();
+                        executableUpdatesRef.addAll(toUpdateExecutables.stream()
+                                .map(Executable::createLayoutExecutableUpdateDTO)
+                                .collect(Collectors.toList()));
+
+                        if (toUpdateExecutables.isEmpty()) {
+                            return Mono.just(FALSE);
+                        } else {
+                            return Flux.fromIterable(toUpdateExecutables)
+                                    .flatMap(execToUpdate -> this.updateUnpublishedExecutable(
+                                            execToUpdate.getId(), execToUpdate, creatorType))
+                                    .then(Mono.just(TRUE));
+                        }
+                    });
                 });
     }
 
