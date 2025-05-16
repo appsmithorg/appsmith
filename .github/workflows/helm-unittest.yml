@@ -24,4 +24,4 @@ jobs:
     
       - name: Unittest
         run: |
-          docker run -ti --rm -v $(pwd):/apps helmunittest/helm-unittest .
+          docker run --rm -v $(pwd):/apps helmunittest/helm-unittest .
