@@ -21,6 +21,7 @@ import {
 import styled from "styled-components";
 import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -50,7 +51,7 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
   const flagValueForReactiveActions = useFeatureFlag(
-    "release_reactive_actions_enabled",
+    FEATURE_FLAG.release_reactive_actions_enabled,
   );
   const options = RUN_BEHAVIOR_VALUES.filter(
     (option) =>

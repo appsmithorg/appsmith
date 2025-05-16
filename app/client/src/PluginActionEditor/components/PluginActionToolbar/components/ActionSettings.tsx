@@ -9,6 +9,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { useSelector, type DefaultRootState } from "react-redux";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { updateRunBehaviourForActionSettings } from "utils/PluginUtils";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited
@@ -45,7 +46,10 @@ const ActionSettingsWrapper = styled.div`
 
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
   const featureFlagEnabled: boolean = useSelector((state: DefaultRootState) =>
-    selectFeatureFlagCheck(state, "release_reactive_actions_enabled"),
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.release_reactive_actions_enabled,
+    ),
   );
 
   const updateSettingsConfig = updateRunBehaviourForActionSettings(
