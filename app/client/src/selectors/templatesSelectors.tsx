@@ -13,7 +13,6 @@ import Fuse from "fuse.js";
 import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
 import { createSelector } from "reselect";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 import type { DefaultRootState } from "react-redux";
 
 const fuzzySearchOptions = {
@@ -27,24 +26,14 @@ const fuzzySearchOptions = {
 const AGENT_TEMPLATES_USE_CASE = "Agent";
 
 export const getTemplatesSelector = (state: DefaultRootState) =>
-  state.ui.templates.templates;
+  state.ui.templates.templates.filter(
+    (template) => !template.useCases.includes(AGENT_TEMPLATES_USE_CASE),
+  );
 
-export const getTemplatesByFlagSelector = createSelector(
-  (state: DefaultRootState) => state.ui.templates.templates,
-  getIsAiAgentFlowEnabled,
-  (templates, isAiAgentFlowEnabled) => {
-    // For agents, we only show the templates that have the use case "Agent".
-    // The "Agent" use case acts as a filter for us to just show the templates
-    // that are relevant to agents.
-    return templates.filter((template) => {
-      if (isAiAgentFlowEnabled) {
-        return template.useCases.includes(AGENT_TEMPLATES_USE_CASE);
-      }
-
-      return template.useCases.includes(AGENT_TEMPLATES_USE_CASE) === false;
-    });
-  },
-);
+export const getAgentTemplatesSelector = (state: DefaultRootState) =>
+  state.ui.templates.templates.filter((template) =>
+    template.useCases.includes(AGENT_TEMPLATES_USE_CASE),
+  );
 
 export const isImportingTemplateSelector = (state: DefaultRootState) =>
   state.ui.templates.isImportingTemplate;
@@ -116,7 +105,7 @@ export const getBuildingBlockExplorerCards = createSelector(
 );
 
 export const getFilteredTemplateList = createSelector(
-  getTemplatesByFlagSelector,
+  getTemplatesSelector,
   getTemplateFilterSelector,
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
@@ -180,7 +169,7 @@ export const getSearchedTemplateList = createSelector(
 
 // Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
-  getTemplatesByFlagSelector,
+  getTemplatesSelector,
   getDefaultPlugins,
   (templates, plugins) => {
     const datasourceFilters: { label: string; value: string }[] = [];
@@ -216,7 +205,7 @@ export const allTemplatesFiltersSelector = (state: DefaultRootState) =>
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
-  getTemplatesByFlagSelector,
+  getTemplatesSelector,
   allTemplatesFiltersSelector,
   (templates, allTemplateFilters) => {
     const FUNCTIONS_FILTER = "functions";

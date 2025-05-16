@@ -121,7 +121,7 @@ import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
 import { findDefaultPage } from "pages/utils";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 
 export let windowReference: Window | null = null;
 
@@ -802,6 +802,7 @@ export function* showReconnectDatasourcesModalSaga(
 
   yield put(setWorkspaceIdForImport({ editorId: application.id, workspaceId }));
   yield put(setPageIdForImport(pageId));
+
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
@@ -1005,8 +1006,7 @@ export function* initDatasourceConnectionDuringImport(
   }>,
 ) {
   const workspaceId = action.payload.workspaceId;
-  const isAgentFlowEnabled: boolean = yield select(getIsAiAgentFlowEnabled);
-
+  const isAgentFlowEnabled: boolean = yield select(getIsAiAgentInstanceEnabled);
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
     [

@@ -1327,6 +1327,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
+          cachedTableData={this.props.cachedTableData}
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
@@ -3073,14 +3074,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("cachedTableData", updatedCachedTableData);
 
       // The check (!!totalRecordsCount && processedTableData.length === totalRecordsCount) is added if the totalRecordsCount property is set then match the length with the processedTableData which has all flatted data from each page in a single array except the current tableData page i.e. [ ...array of page 1 data, ...array of page 2 data ]. Another 'or' check is if (tableData.length < pageSize) when totalRecordsCount is undefined. Table data has a single page data and if the data comes out to be lesser than the pageSize, it is assumed that the data is finished.
-      if (
-        (!!totalRecordsCount &&
-          processedTableData.length + tableData.length === totalRecordsCount) ||
-        (!totalRecordsCount && tableData.length < pageSize)
-      ) {
-        pushBatchMetaUpdates("endOfData", true);
-      } else {
-        pushBatchMetaUpdates("endOfData", false);
+      if (window?.navigator?.onLine) {
+        if (
+          (!!totalRecordsCount &&
+            processedTableData.length + tableData.length ===
+              totalRecordsCount) ||
+          (!totalRecordsCount && tableData.length < pageSize)
+        ) {
+          pushBatchMetaUpdates("endOfData", true);
+        } else {
+          pushBatchMetaUpdates("endOfData", false);
+        }
       }
 
       if (shouldCommitBatchUpdates) {

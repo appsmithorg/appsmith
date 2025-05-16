@@ -140,6 +140,7 @@ describe("TableWidget Actions Component", () => {
     onConnectData: jest.fn(),
     isLoading: false,
     endOfData: false,
+    cachedTableData: [],
   };
 
   const renderWithTableProvider = (props: Partial<TableProviderProps>) => {

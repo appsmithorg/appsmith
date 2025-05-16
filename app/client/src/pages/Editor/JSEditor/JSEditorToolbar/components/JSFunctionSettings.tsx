@@ -36,6 +36,14 @@ const OptionSubText = styled(Text)`
 
 const StyledSelect = styled(Select)`
   width: fit-content;
+
+  .rc-select-selector {
+    min-width: 120px;
+  }
+`;
+
+const FunctionName = styled(Text)`
+  word-break: break-all;
 `;
 
 interface Props {
@@ -81,15 +89,15 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     <Flex
       alignItems="center"
       className={`t--async-js-function-settings ${props.action.name}-run-behavior-setting`}
-      gap="spaces-4"
+      gap="spaces-3"
       id={`${props.action.name}-settings`}
       justifyContent="space-between"
       key={props.action.id}
       w="100%"
     >
-      <Text htmlFor={props.action.id} renderAs="label">
+      <FunctionName htmlFor={props.action.id} renderAs="label">
         {props.action.name}
-      </Text>
+      </FunctionName>
       <StyledSelect
         data-testid={`t--dropdown-runBehaviour`}
         id={props.action.id}

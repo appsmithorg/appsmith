@@ -13,6 +13,7 @@ interface InfiniteScrollBodyProps {
 const InfiniteScrollBodyComponent = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
     const {
+      cachedTableData,
       endOfData,
       height,
       isLoading,
@@ -20,6 +21,7 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       pageSize,
       subPage: rows,
       tableSizes,
+      updatePageNo,
     } = useAppsmithTable();
 
     const { onItemsRendered } = useInfiniteScroll({
@@ -28,6 +30,8 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       loadMore: nextPageClick,
       isLoading,
       endOfData,
+      updatePageNo,
+      cachedTableData,
     });
 
     const itemCount = useMemo(
