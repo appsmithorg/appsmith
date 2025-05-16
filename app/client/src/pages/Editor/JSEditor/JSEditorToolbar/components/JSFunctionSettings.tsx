@@ -18,7 +18,13 @@ import {
   RUN_BEHAVIOR_VALUES,
   type ActionRunBehaviourType,
 } from "PluginActionEditor/types/PluginActionTypes";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+
+const PopoverStyles = createGlobalStyle`
+  .rc-select-dropdown {
+    width: 256px !important;
+  }
+`;
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -35,7 +41,7 @@ const StyledSelect = styled(Select)`
   width: fit-content;
 
   .rc-select-selector {
-    min-width: 120px;
+    min-width: 110px;
   }
 `;
 
@@ -140,6 +146,7 @@ export const JSFunctionSettings = (props: Props) => {
       {props.actions.length === 0 && (
         <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
       )}
+      <PopoverStyles />
     </Flex>
   );
 };
