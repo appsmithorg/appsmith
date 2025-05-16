@@ -24,7 +24,10 @@ import type {
   ModuleInstanceDataState,
 } from "ee/constants/ModuleInstanceConstants";
 import type { Module } from "ee/constants/ModuleConstants";
-import { getAllModules } from "ee/selectors/modulesSelector";
+import {
+  getActionsInCurrentModule,
+  getAllModules,
+} from "ee/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
 import { isDynamicValue } from "@shared/dsl";
 
@@ -173,9 +176,11 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
 
-  const queries = useSelector(getCurrentActions);
+  const pageQueries = useSelector(getCurrentActions);
+  const moduleQueries = useSelector(getActionsInCurrentModule);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
   const plugins = useSelector(getPlugins);
+  const queries = [...pageQueries, ...moduleQueries];
 
   const { pluginImages, widget } = props;
 
