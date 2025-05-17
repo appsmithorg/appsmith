@@ -57,6 +57,7 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
+import KanbanWidget from "./KanbanWidget";
 import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "widgets/wds/WDSCheckboxWidget";
@@ -143,6 +144,7 @@ const LegacyWidgets = [
   CategorySliderWidget,
   CodeScannerWidget,
   ListWidgetV2,
+  KanbanWidget,
   ExternalWidget,
 ];
 
