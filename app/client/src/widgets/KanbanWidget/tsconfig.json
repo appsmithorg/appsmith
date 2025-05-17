@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ESNext",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "outDir": "dist",
+    "paths": {
+      "react": ["./src/shims/react"],
+      "styled-components": ["./src/shims/styled-components"],
+      "react-beautiful-dnd": ["./src/shims/react-beautiful-dnd"]
+    }
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@appsmith/kanban-widget",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.0",
+    "styled-components": "^5.3.11"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
