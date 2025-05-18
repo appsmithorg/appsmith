@@ -24,10 +24,7 @@ import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
-
-export interface UpdateDataTreeMessageData {
-  workerResponse: EvalTreeResponseData;
-}
+import type { UpdateDataTreeMessageData } from "./types";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

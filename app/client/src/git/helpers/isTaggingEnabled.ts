@@ -1,7 +1,7 @@
 import { GitArtifactType } from "git/constants/enums";
 import type { GitArtifactDef } from "git/types";
 
-function isGitTaggingEnabled(artifactDef: GitArtifactDef | null) {
+function isTaggingEnabled(artifactDef: GitArtifactDef | null) {
   if (artifactDef?.artifactType === GitArtifactType.Package) {
     return true;
   }
@@ -9,4 +9,4 @@ function isGitTaggingEnabled(artifactDef: GitArtifactDef | null) {
   return false;
 }
 
-export default isGitTaggingEnabled;
+export default isTaggingEnabled;

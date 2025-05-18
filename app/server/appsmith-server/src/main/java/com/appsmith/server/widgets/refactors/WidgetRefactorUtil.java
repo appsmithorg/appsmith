@@ -213,4 +213,24 @@ public class WidgetRefactorUtil {
             throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR);
         }
     }
+
+    public Set<String> extractWidgetNamesFromDsl(JsonNode dsl) {
+        Set<String> widgetNames = new HashSet<>();
+        extractWidgetNamesRecursive(dsl, widgetNames);
+        return widgetNames;
+    }
+
+    private void extractWidgetNamesRecursive(JsonNode dsl, Set<String> widgetNames) {
+        if (dsl == null) {
+            return;
+        }
+
+        if (dsl.has(FieldName.WIDGET_NAME)) {
+            widgetNames.add(dsl.get(FieldName.WIDGET_NAME).asText());
+        }
+
+        if (dsl.has("children")) {
+            dsl.get("children").forEach(child -> extractWidgetNamesRecursive(child, widgetNames));
+        }
+    }
 }

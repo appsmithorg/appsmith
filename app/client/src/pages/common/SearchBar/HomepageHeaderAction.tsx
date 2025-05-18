@@ -40,7 +40,7 @@ import { IntercomConsent } from "pages/Editor/HelpButton";
 import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
@@ -71,7 +71,7 @@ const HomepageHeaderAction = ({
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   if (!isHomePage || !!isCreateNewAppFlow) return null;
 
@@ -129,7 +129,7 @@ const HomepageHeaderAction = ({
                 <MenuItem
                   className="t--documentation-button"
                   onClick={() => {
-                    if (isAiAgentFlowEnabled) {
+                    if (isAiAgentInstanceEnabled) {
                       window.open(DOCS_AI_BASE_URL, "_blank");
 
                       return;

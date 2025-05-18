@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getAppsmithConfigs } from "ee/configs";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
@@ -17,8 +17,8 @@ import { WORKSPACE_SETTINGS_LICENSE_PAGE_URL } from "constants/routes";
 
 const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 
-const organizationState = (state: AppState) => state.organization;
-const uiState = (state: AppState) => state.ui;
+const organizationState = (state: DefaultRootState) => state.organization;
+const uiState = (state: DefaultRootState) => state.ui;
 
 export const getRampLink = ({
   feature,

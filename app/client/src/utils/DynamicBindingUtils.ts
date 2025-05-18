@@ -160,6 +160,8 @@ export enum EvalErrorTypes {
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
   SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
+  UPDATE_DATA_TREE_ERROR = "UPDATE_DATA_TREE_ERROR",
+  CACHE_ERROR = "CACHE_ERROR",
 }
 
 export interface EvalError {
@@ -426,6 +428,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
   kind?: Partial<PropertyEvaluationErrorKind>;
+  stack?: string;
 }
 
 export interface LintError extends DataTreeError {

@@ -8,7 +8,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Callout } from "@appsmith/ads";
 import {
   createDatasourceFromForm,
@@ -1052,7 +1052,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, props: any) => {
+const mapStateToProps = (state: DefaultRootState, props: any) => {
   const { currentEnvironment, datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 

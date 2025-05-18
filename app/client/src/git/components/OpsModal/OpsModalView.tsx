@@ -15,7 +15,7 @@ import styled from "styled-components";
 // import ReconnectSSHError from "../components/ReconnectSSHError";
 import { GitOpsTab } from "git/constants/enums";
 import noop from "lodash/noop";
-import isGitTaggingEnabled from "git/helpers/isGitTaggingEnabled";
+import isTaggingEnabled from "git/helpers/isTaggingEnabled";
 import type { GitArtifactDef } from "git/types";
 import TabRelease from "./TabRelease";
 import { OPS_MODAL } from "git/ee/constants/messages";
@@ -49,7 +49,7 @@ function OpsModalView({
   repoName = null,
   toggleOpsModal = noop,
 }: OpsModalViewProps) {
-  const isTaggingEnabled = isGitTaggingEnabled(artifactDef);
+  const showReleaseTab = isTaggingEnabled(artifactDef);
 
   useEffect(
     function fetchStatusOnMountEffect() {
@@ -99,7 +99,7 @@ function OpsModalView({
               >
                 {createMessage(MERGE)}
               </Tab>
-              {isTaggingEnabled && (
+              {showReleaseTab && (
                 <Tab
                   data-testid={"t--git-ops-tab-tag"}
                   disabled={isProtectedMode}
@@ -112,7 +112,7 @@ function OpsModalView({
           </Tabs>
           {opsModalTab === GitOpsTab.Deploy && <TabDeploy />}
           {opsModalTab === GitOpsTab.Merge && <TabMerge />}
-          {isTaggingEnabled && opsModalTab === GitOpsTab.Release && (
+          {showReleaseTab && opsModalTab === GitOpsTab.Release && (
             <TabRelease />
           )}
         </StyledModalContent>

@@ -2,7 +2,7 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import TabBranch from ".";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 jest.mock("../../hooks/gitPermissionHooks", () => ({
   useHasManageProtectedBranchesPermission: () => false,
@@ -11,7 +11,7 @@ jest.mock("../../hooks/gitPermissionHooks", () => ({
 
 describe("TabBranch test for git admin disabled", () => {
   it("Branch protection and default branch disabled when no permission", () => {
-    const initialState: Partial<AppState> = {};
+    const initialState: Partial<DefaultRootState> = {};
 
     render(<TabBranch />, { initialState });
     expect(screen.queryByTestId("t--git-protected-branches-select")).toBe(null);

@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import styled from "styled-components";
 
 const StyledWrapper = styled.div`
@@ -11,7 +11,7 @@ const StyledWrapper = styled.div`
 
 function StackTrace() {
   const currentError = useSelector(
-    (state: AppState) => state.ui.errors.currentError,
+    (state: DefaultRootState) => state.ui.errors.currentError,
   );
 
   return (

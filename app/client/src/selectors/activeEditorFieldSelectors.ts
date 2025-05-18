@@ -1,5 +1,5 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export function getActiveEditorField(state: AppState) {
+export function getActiveEditorField(state: DefaultRootState) {
   return state.ui.activeField;
 }

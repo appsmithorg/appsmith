@@ -8,7 +8,7 @@ import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 
@@ -16,7 +16,7 @@ interface Config {
   set: (
     payload: Partial<CanvasDebuggerState>,
   ) => ReduxAction<Partial<CanvasDebuggerState>>;
-  get: (state: AppState) => CanvasDebuggerState;
+  get: (state: DefaultRootState) => CanvasDebuggerState;
 }
 
 const canvasDebuggerConfig: Config = {

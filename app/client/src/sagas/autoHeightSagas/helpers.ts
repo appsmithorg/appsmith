@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -27,7 +27,7 @@ export function* shouldWidgetsCollapse() {
 }
 
 export function* shouldAllInvisibleWidgetsInAutoHeightContainersCollapse() {
-  const flag: boolean = yield select((state: AppState) => {
+  const flag: boolean = yield select((state: DefaultRootState) => {
     return !!state.ui.applications.currentApplication?.collapseInvisibleWidgets;
   });
 

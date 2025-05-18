@@ -5,7 +5,7 @@ import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import log from "loglevel";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
@@ -75,7 +75,7 @@ function* readAndUpdateLayoutElementPositions() {
   // by the time the user stops resizing
   // So, we prevent any computations until we're done resizing
   const isCanvasResizing: boolean = yield select(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isDistributingSpace: boolean = yield select(
     getAnvilSpaceDistributionStatus,

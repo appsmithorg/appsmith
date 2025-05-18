@@ -12,7 +12,10 @@ import { expectSaga, testSaga } from "redux-saga-test-plan";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { select } from "redux-saga/effects";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
-import { getAllActionValidationConfig } from "ee//selectors/entitiesSelector";
+import {
+  getAllActionValidationConfig,
+  getCurrentPageDSLVersion,
+} from "ee//selectors/entitiesSelector";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
@@ -59,6 +62,7 @@ describe("evaluateTreeSaga", () => {
           select(getApplicationLastDeployedAt),
           new Date("11 September 2024").toISOString(),
         ],
+        [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
@@ -67,6 +71,7 @@ describe("evaluateTreeSaga", () => {
           pageId: "pageId",
           appMode: false,
           timestamp: new Date("11 September 2024").toISOString(),
+          dslVersion: 1,
         },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
@@ -105,6 +110,7 @@ describe("evaluateTreeSaga", () => {
           select(getApplicationLastDeployedAt),
           new Date("11 September 2024").toISOString(),
         ],
+        [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
@@ -113,6 +119,7 @@ describe("evaluateTreeSaga", () => {
           pageId: "pageId",
           appMode: false,
           timestamp: new Date("11 September 2024").toISOString(),
+          dslVersion: 1,
         },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
@@ -160,6 +167,7 @@ describe("evaluateTreeSaga", () => {
           select(getApplicationLastDeployedAt),
           new Date("11 September 2024").toISOString(),
         ],
+        [select(getCurrentPageDSLVersion), 1],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
@@ -168,6 +176,7 @@ describe("evaluateTreeSaga", () => {
           pageId: "pageId",
           appMode: false,
           timestamp: new Date("11 September 2024").toISOString(),
+          dslVersion: 1,
         },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,

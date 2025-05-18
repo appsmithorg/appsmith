@@ -18,11 +18,14 @@ import {
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "ee/constants/messages";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import {
+  getIsAiAgentFlowEnabled,
+  getIsAiAgentInstanceEnabled,
+} from "ee/selectors/aiAgentSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { creatingApplicationMap } from "ee/reducers/uiReducers/applicationsReducer";
 import {
   getApplicationList,
@@ -129,12 +132,12 @@ import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/Cr
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import {
   GitRepoLimitErrorModal as NewGitRepoLimitErrorModal,
   GitImportModal as NewGitImportModal,
+  GitImportOverrideModal,
 } from "git";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 
@@ -145,6 +148,7 @@ function GitModals() {
     <>
       <NewGitImportModal />
       <NewGitRepoLimitErrorModal />
+      <GitImportOverrideModal />
     </>
   ) : (
     <>
@@ -551,10 +555,8 @@ export function ApplicationsSection(props: any) {
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
-  // This checks if the Anvil feature flag is enabled and shows different sections in the workspace
-  // for Anvil and Classic applications
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -899,7 +901,7 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
-              {!isAiAgentFlowEnabled && (
+              {!isAiAgentInstanceEnabled && (
                 <ApplicationCardList
                   applications={nonAnvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -916,8 +918,7 @@ export function ApplicationsSection(props: any) {
                   workspaceId={activeWorkspace.id}
                 />
               )}
-              {((isAnvilEnabled && anvilApplications.length > 0) ||
-                isAiAgentFlowEnabled) && (
+              {isAiAgentFlowEnabled && (
                 <ApplicationCardList
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -1180,7 +1181,7 @@ export class Applications<
   }
 }
 
-export const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: DefaultRootState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),

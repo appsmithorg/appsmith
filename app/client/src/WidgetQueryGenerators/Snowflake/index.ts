@@ -1,14 +1,17 @@
-import { BaseQueryGenerator } from "../BaseQueryGenerator";
+import {
+  DatasourceConnectionMode,
+  type DatasourceStorage,
+} from "entities/Datasource";
+import { without } from "lodash";
 import { formatDialect, snowflake } from "sql-formatter";
-import { QUERY_TYPE } from "../types";
+import { removeSpecialChars } from "utils/helpers";
+import { BaseQueryGenerator } from "../BaseQueryGenerator";
 import type {
+  ActionConfigurationSQL,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationSQL,
 } from "../types";
-import { removeSpecialChars } from "utils/helpers";
-import { without } from "lodash";
-import { DatasourceConnectionMode } from "entities/Datasource";
+import { QUERY_TYPE } from "../types";
 
 export default abstract class Snowflake extends BaseQueryGenerator {
   private static buildSelect(
@@ -248,5 +251,14 @@ export default abstract class Snowflake extends BaseQueryGenerator {
 
   static getTotalRecordExpression(binding: string) {
     return `${binding}[0].count`;
+  }
+
+  static getConnectionMode(
+    datasourceConfiguration: DatasourceStorage["datasourceConfiguration"],
+  ) {
+    return (
+      datasourceConfiguration?.connection?.mode ||
+      DatasourceConnectionMode.READ_WRITE
+    );
   }
 }

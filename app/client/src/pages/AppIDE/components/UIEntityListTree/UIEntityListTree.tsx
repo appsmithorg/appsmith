@@ -6,7 +6,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetTreeState } from "./hooks/useWidgetTreeExpandedState";
 import { enhanceItemsTree } from "./utils/enhanceTree";
 import { WidgetTreeItem } from "./WidgetTreeItem";
-
+import OrphanUIModuleInstancesEntityList from "ee/pages/AppIDE/components/UIEntityListTree/OrphanUIModuleInstancesEntityList";
 export const UIEntityListTree = () => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const selectedWidgets = useSelector(getSelectedWidgets);
@@ -19,13 +19,17 @@ export const UIEntityListTree = () => {
     isSelected: selectedWidgets.includes(widget.widgetId),
     isExpanded: expandedWidgets.includes(widget.widgetId),
     type: widget.type,
+    hasError: widget.hasError,
   }));
 
   return (
-    <EntityListTree
-      ItemComponent={WidgetTreeItem}
-      items={items}
-      onItemExpand={handleExpand}
-    />
+    <>
+      <EntityListTree
+        ItemComponent={WidgetTreeItem}
+        items={items}
+        onItemExpand={handleExpand}
+      />
+      <OrphanUIModuleInstancesEntityList />
+    </>
   );
 };

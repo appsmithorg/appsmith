@@ -43,7 +43,7 @@ import { useReflow } from "utils/hooks/useReflow";
 import WidgetFactory from "WidgetProvider/factory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 /**
  * AutoLayoutResizable
@@ -56,7 +56,7 @@ import type { AppState } from "ee/reducers";
 export function AutoLayoutResizable(props: ResizableProps) {
   // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto-layout resize only when the widget does have an app state.
-  const widget = useSelector((state: AppState) =>
+  const widget = useSelector((state: DefaultRootState) =>
     getWidget(state, props.widgetId),
   );
 

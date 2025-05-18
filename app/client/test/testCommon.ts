@@ -7,7 +7,7 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import { getCanvasWidgetsPayload } from "ee/sagas/PageSagas";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsStructureReducer";
@@ -143,7 +143,10 @@ const getChildWidgets = (
   return [];
 };
 
-export const mockGetChildWidgets = (state: AppState, widgetId: string) => {
+export const mockGetChildWidgets = (
+  state: DefaultRootState,
+  widgetId: string,
+) => {
   return getChildWidgets(state.entities.canvasWidgets, widgetId);
 };
 
@@ -160,7 +163,7 @@ export const mockCreateCanvasWidget = (
 };
 
 export const mockGetWidgetEvalValues = (
-  state: AppState,
+  state: DefaultRootState,
   widgetName: string,
 ) => {
   return Object.values(state.entities.canvasWidgets).find(

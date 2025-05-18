@@ -6,6 +6,7 @@ export interface EntityListTreeItem {
   id: string;
   name: string;
   type: string;
+  hasError?: boolean;
 }
 
 export interface EntityListTreeProps {

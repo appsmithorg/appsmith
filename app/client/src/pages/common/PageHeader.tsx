@@ -4,7 +4,7 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { User } from "constants/userConstants";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
@@ -78,7 +78,7 @@ export function PageHeader(props: PageHeaderProps) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   user: getCurrentUser(state),
   hideShadow: state.ui.theme.hideHeaderShadow,
   showSeparator: state.ui.theme.showHeaderSeparator,

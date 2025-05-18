@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import memoize from "micro-memoize";
 import { getAllDetachedWidgetIds, getWidgetsMeta } from "sagas/selectors";
 
@@ -14,7 +14,9 @@ const getCurrentlyOpenWidgets = memoize(
   },
 );
 
-export const getCurrentlyOpenAnvilDetachedWidgets = (state: AppState) => {
+export const getCurrentlyOpenAnvilDetachedWidgets = (
+  state: DefaultRootState,
+) => {
   const allExistingDetachedWidgets = getAllDetachedWidgetIds(
     state.entities.canvasWidgets,
   );

@@ -200,8 +200,10 @@ export default [
           updateCellEditabilityOnInfiniteScrollChange,
           updateSearchSortFilterOnInfiniteScrollChange,
         ]),
-        dependencies: ["primaryColumns"],
-        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
+        dependencies: ["primaryColumns", "serverSidePaginationEnabled"],
+        hidden: (props: TableWidgetProps) =>
+          !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED) ||
+          !props.serverSidePaginationEnabled,
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),

@@ -27,10 +27,15 @@ import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 
 public class AiServerServiceImpl implements AiServerService {
     private final Gson gson = new GsonBuilder().create();
+    private final String aiChatAssistantBaseUrl;
+
+    public AiServerServiceImpl(String aiChatAssistantBaseUrl) {
+        this.aiChatAssistantBaseUrl = aiChatAssistantBaseUrl;
+    }
 
     @Override
     public Mono<Void> associateDatasource(AssociateDTO associateDTO) {
-        URI uri = RequestUtils.getAssociateUri();
+        URI uri = RequestUtils.getAssociateUri(this.aiChatAssistantBaseUrl);
         String jsonBody = gson.toJson(associateDTO);
 
         return RequestUtils.makeRequest(
@@ -45,7 +50,7 @@ public class AiServerServiceImpl implements AiServerService {
 
     @Override
     public Mono<Void> disassociateDatasource(AssociateDTO associateDTO) {
-        URI uri = RequestUtils.getAssociateUri();
+        URI uri = RequestUtils.getAssociateUri(this.aiChatAssistantBaseUrl);
         String jsonBody = gson.toJson(associateDTO);
 
         return RequestUtils.makeRequest(
@@ -67,7 +72,7 @@ public class AiServerServiceImpl implements AiServerService {
 
         return RequestUtils.makeRequest(
                         HttpMethod.POST,
-                        RequestUtils.getFileStatusUri(),
+                        RequestUtils.getFileStatusUri(this.aiChatAssistantBaseUrl),
                         MediaType.APPLICATION_JSON,
                         createSourceDetailsHeader(sourceDetails),
                         BodyInserters.fromValue(jsonBody))
@@ -79,7 +84,7 @@ public class AiServerServiceImpl implements AiServerService {
     public Mono<Object> uploadFiles(List<FilePart> fileParts, SourceDetails sourceDetails) {
         return RequestUtils.makeRequest(
                         HttpMethod.POST,
-                        RequestUtils.getFileUploadUri(),
+                        RequestUtils.getFileUploadUri(this.aiChatAssistantBaseUrl),
                         createSourceDetailsHeader(sourceDetails),
                         fileParts)
                 .flatMap(RequestUtils::handleResponse);
@@ -87,7 +92,7 @@ public class AiServerServiceImpl implements AiServerService {
 
     @Override
     public Mono<Object> executeQuery(AiServerRequestDTO aiServerRequestDTO, SourceDetails sourceDetails) {
-        URI uri = RequestUtils.getQueryUri();
+        URI uri = getUriForFeature(aiServerRequestDTO);
         String jsonBody = gson.toJson(aiServerRequestDTO);
         return RequestUtils.makeRequest(
                         HttpMethod.POST,
@@ -102,5 +107,9 @@ public class AiServerServiceImpl implements AiServerService {
         Map<String, String> headers = new HashMap<>();
         headers.put(SOURCE_DETAILS, HeadersUtil.createSourceDetailsHeader(sourceDetails));
         return headers;
+    }
+
+    private URI getUriForFeature(AiServerRequestDTO aiServerRequestDTO) {
+        return RequestUtils.getQueryUri(this.aiChatAssistantBaseUrl);
     }
 }

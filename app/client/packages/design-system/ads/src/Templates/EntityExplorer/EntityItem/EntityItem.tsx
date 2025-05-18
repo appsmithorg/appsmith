@@ -30,6 +30,7 @@ export const EntityItem = (props: EntityItemProps) => {
     return (
       <EditableEntityName
         canEdit={canEdit}
+        hasError={props.hasError}
         icon={startIcon}
         isEditing={isEditing}
         isFixedWidth
@@ -50,6 +51,7 @@ export const EntityItem = (props: EntityItemProps) => {
     normalizeName,
     onEditComplete,
     onNameSave,
+    props.hasError,
     props.title,
     startIcon,
     validateName,

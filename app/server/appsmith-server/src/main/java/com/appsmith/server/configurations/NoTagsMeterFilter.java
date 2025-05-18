@@ -8,6 +8,8 @@ import io.micrometer.core.instrument.config.MeterFilter;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.spans.LoginSpan.LOGIN_ATTEMPT;
+import static com.appsmith.external.constants.spans.LoginSpan.LOGIN_FAILURE;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.*;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.FS_FETCH_REMOTE;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.FS_RESET;
@@ -28,7 +30,9 @@ public class NoTagsMeterFilter implements MeterFilter {
             Map.entry(FS_RESET, List.of()),
             Map.entry(JGIT_RESET_HARD, List.of()),
             Map.entry(FS_FETCH_REMOTE, List.of()),
-            Map.entry(JGIT_FETCH_REMOTE, List.of()));
+            Map.entry(JGIT_FETCH_REMOTE, List.of()),
+            Map.entry(LOGIN_FAILURE, List.of("source", "message")),
+            Map.entry(LOGIN_ATTEMPT, List.of("source")));
 
     @Override
     public Meter.Id map(Meter.Id id) {

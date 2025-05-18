@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import type { Release } from "./ReleaseComponent";
@@ -24,7 +24,9 @@ interface ProductUpdatesModalProps {
 }
 
 function ProductUpdatesModal(props: ProductUpdatesModalProps) {
-  const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
+  const { releaseItems } = useSelector(
+    (state: DefaultRootState) => state.ui.releases,
+  );
   const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(!!props.isOpen);

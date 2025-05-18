@@ -7,7 +7,7 @@ import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
@@ -62,7 +62,7 @@ export function* logDynamicTriggerExecution({
     pageId,
   }: AppDetails = yield call(getAppDetails);
   const widget: ReturnType<typeof getWidget> | undefined = yield select(
-    (state: AppState) => getWidget(state, triggerMeta.source?.id || ""),
+    (state: DefaultRootState) => getWidget(state, triggerMeta.source?.id || ""),
   );
 
   const dynamicPropertyPathList = widget?.dynamicPropertyPathList;

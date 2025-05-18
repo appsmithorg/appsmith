@@ -46,8 +46,14 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
 import { getAllPageIdentities } from "./selectors";
+import {
+  openCarbonModal,
+  setCreateAgentModalOpen,
+} from "ee/actions/aiAgentActions";
+import { getAgentTemplatesSelector } from "selectors/templatesSelectors";
 
 const isAirgappedInstance = isAirgapped();
+const AI_DATASOURCE_NAME = "AI Datasource";
 
 function* getAllTemplatesSaga() {
   try {
@@ -75,6 +81,12 @@ function* getAllTemplatesSaga() {
 function* importTemplateToWorkspaceSaga(
   action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
+  const agentTemplates: ReturnType<typeof getAgentTemplatesSelector> =
+    yield select(getAgentTemplatesSelector);
+  const isAgentTemplate: boolean = agentTemplates.some(
+    (template) => template.id === action.payload.templateId,
+  );
+
   try {
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
@@ -96,18 +108,41 @@ function* importTemplateToWorkspaceSaga(
         payload: response.data.application,
       });
 
-      if (response.data.isPartialImport) {
+      if (isAgentTemplate) {
+        const isScratchTemplate = agentTemplates.find(
+          (template) => template.title === "AI Agent",
+        );
+
+        if (isScratchTemplate) {
+          yield put(openCarbonModal({ shouldOpen: true }));
+        }
+
+        yield put(setCreateAgentModalOpen({ isOpen: false }));
+      }
+
+      // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+      // so we can avoid showing the AI Datasource in reconnect datasource modal
+      const filteredUnConfiguredDatasourceList = (
+        response.data.unConfiguredDatasourceList || []
+      ).filter((datasource) => datasource.name !== AI_DATASOURCE_NAME);
+
+      if (
+        response.data.isPartialImport &&
+        filteredUnConfiguredDatasourceList.length > 0
+      ) {
         yield put(
           showReconnectDatasourceModal({
             application: response.data.application,
-            unConfiguredDatasourceList:
-              response.data.unConfiguredDatasourceList,
+            unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
             workspaceId: action.payload.workspaceId,
           }),
         );
       } else {
         const pageURL = builderURL({
           basePageId: application.defaultBasePageId,
+          params: {
+            type: isAgentTemplate ? "agent" : undefined,
+          },
         });
 
         history.push(pageURL);

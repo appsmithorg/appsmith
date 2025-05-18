@@ -1,17 +1,17 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "./appSettingsPaneSelectors";
 import { snipingModeSelector } from "./editorSelectors";
 import { getWidgetSelectionBlock } from "./ui";
 import { selectCombinedPreviewMode } from "./gitModSelectors";
 
-export const getIsDragging = (state: AppState) =>
+export const getIsDragging = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isDragging;
 
-export const getIsResizing = (state: AppState) =>
+export const getIsResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing;
 
-export const getIsDraggingDisabledInEditor = (state: AppState) =>
+export const getIsDraggingDisabledInEditor = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isDraggingDisabled;
 
 /**

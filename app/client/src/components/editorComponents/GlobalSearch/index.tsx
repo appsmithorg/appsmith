@@ -9,7 +9,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import SearchModal from "./SearchModal";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
@@ -43,7 +43,7 @@ import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
-import { noop } from "lodash";
+import { keyBy, noop } from "lodash";
 import {
   getCurrentPageId,
   getPagePermissions,
@@ -107,10 +107,11 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   }
 `;
 
-export const isModalOpenSelector = (state: AppState) =>
+export const isModalOpenSelector = (state: DefaultRootState) =>
   state.ui.globalSearch.modalOpen;
 
-const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
+const searchQuerySelector = (state: DefaultRootState) =>
+  state.ui.globalSearch.query;
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   const title = getItemTitle(item) || "";
@@ -176,9 +177,12 @@ function GlobalSearch() {
     [setQueryInState],
   );
   const category = useSelector(
-    (state: AppState) => state.ui.globalSearch.filterContext.category,
+    (state: DefaultRootState) => state.ui.globalSearch.filterContext.category,
   );
   const plugins = useSelector(getPlugins);
+  const pluginById = useMemo(() => {
+    return keyBy(plugins, "id");
+  }, [plugins]);
   const setCategory = useCallback(
     (category: SearchCategory) => {
       dispatch(setGlobalSearchFilterContext({ category: category }));
@@ -220,7 +224,7 @@ function GlobalSearch() {
     setActiveItemIndex(0);
   }, []);
 
-  const reducerDatasources = useSelector((state: AppState) => {
+  const reducerDatasources = useSelector((state: DefaultRootState) => {
     return state.entities.datasources.list.filter(
       (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
     );
@@ -233,10 +237,15 @@ function GlobalSearch() {
   }, [basePageIdToPageIdMap, params?.basePageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
-    if (!query) return datasourcesList;
+    if (!query)
+      return datasourcesList.filter(
+        (datasource) => pluginById[datasource.pluginId]?.id,
+      );
 
-    return datasourcesList.filter((datasource) =>
-      isMatching(datasource.name, query),
+    return datasourcesList.filter(
+      (datasource) =>
+        isMatching(datasource.name, query) &&
+        pluginById[datasource.pluginId]?.id,
     );
   }, [datasourcesList, query]);
   const recentEntities = useRecentEntities();

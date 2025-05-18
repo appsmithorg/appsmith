@@ -7,7 +7,7 @@ import type { DatasourceStructureContext } from "entities/Datasource";
 import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import {
@@ -61,7 +61,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
 
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
 
-  const datasource = useSelector((state: AppState) =>
+  const datasource = useSelector((state: DefaultRootState) =>
     getDatasource(state, props.datasourceId),
   );
 

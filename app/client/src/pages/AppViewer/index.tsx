@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
@@ -15,7 +15,6 @@ import {
 } from "selectors/appViewSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
@@ -88,7 +87,7 @@ function AppViewer(props: Props) {
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getPageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const lightTheme = useSelector((state: AppState) =>
+  const lightTheme = useSelector((state: DefaultRootState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
@@ -261,4 +260,4 @@ function AppViewer(props: Props) {
   return <ThemeProvider theme={lightTheme}>{renderChildren()}</ThemeProvider>;
 }
 
-export default withRouter(Sentry.withProfiler(AppViewer));
+export default withRouter(AppViewer);

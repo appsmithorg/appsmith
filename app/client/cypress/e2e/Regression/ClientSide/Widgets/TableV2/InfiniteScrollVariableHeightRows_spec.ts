@@ -43,6 +43,7 @@ describe(
 
       propPane.EnterJSContext("Table data", JSON.stringify(testData));
 
+      propPane.TogglePropertyState("Server side pagination", "On");
       propPane.TogglePropertyState("Infinite scroll", "On");
     });
 

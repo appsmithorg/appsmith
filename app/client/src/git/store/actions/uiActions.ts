@@ -3,6 +3,7 @@ import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitGlobalReduxState } from "../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { GitArtifactDef } from "git/types";
+import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 
 // connect modal
 export interface ToggleConnectModalPayload {
@@ -31,6 +32,7 @@ export const toggleConnectSuccessModalAction =
     return state;
   });
 
+// import
 export interface ToggleImportModalPayload {
   open: boolean;
 }
@@ -42,6 +44,29 @@ export const toggleImportModalAction = (
   const { open } = action.payload;
 
   state.isImportModalOpen = open;
+
+  return state;
+};
+
+export const resetImportOverrideDetailsAction = (
+  state: GitGlobalReduxState,
+) => {
+  state.importOverrideDetails = null;
+
+  return state;
+};
+
+export interface SetImportOverrideDetailsPayload {
+  params: GitImportRequestParams;
+  oldArtifactName: string;
+  newArtifactName: string;
+}
+
+export const setImportOverrideDetailsAction = (
+  state: GitGlobalReduxState,
+  action: PayloadAction<SetImportOverrideDetailsPayload>,
+) => {
+  state.importOverrideDetails = { ...action.payload };
 
   return state;
 };

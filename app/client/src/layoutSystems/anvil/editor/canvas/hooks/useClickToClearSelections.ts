@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -16,10 +16,10 @@ export const useClickToClearSelections = (widgetId: string) => {
   const showPropertyPane = useShowPropertyPane();
 
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isDistributingSpace: boolean = useSelector(
     getAnvilSpaceDistributionStatus,

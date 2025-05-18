@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import IDE from "./layouts";
 import {
   getCurrentApplicationId,
@@ -20,7 +20,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
-import * as Sentry from "@sentry/react";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import type { Theme } from "constants/DefaultTheme";
@@ -197,7 +196,7 @@ class Editor extends Component<Props> {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
@@ -222,6 +221,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(Editor)),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));

@@ -10,11 +10,11 @@ import {
   selectGitOpsModalOpen as selectGitOpsModalOpenNew,
   selectGitConnectModalOpen as selectGitConnectModalOpenNew,
 } from "git/store/selectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { applicationArtifact } from "git-artifact-helpers/application";
 
 export const selectGitModEnabled = createSelector(
-  (state: AppState) => {
+  (state: DefaultRootState) => {
     return {
       ...state.ui.users.featureFlag.data,
       ...state.ui.users.featureFlag.overriddenFlags,
@@ -24,7 +24,7 @@ export const selectGitModEnabled = createSelector(
 );
 
 export const selectGitApplicationArtifactDef = createSelector(
-  (state: AppState) => state.entities.pageList.baseApplicationId || "",
+  (state: DefaultRootState) => state.entities.pageList.baseApplicationId || "",
   (baseApplicationId) => applicationArtifact(baseApplicationId),
 );
 
@@ -50,7 +50,7 @@ export const selectGitApplicationProtectedMode = createSelector(
 
 export const selectCombinedPreviewMode = createSelector(
   // need to do this to avoid circular dependency
-  (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: DefaultRootState) => state.ui.editor.isPreviewMode,
   selectGitApplicationProtectedMode,
   (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
 );

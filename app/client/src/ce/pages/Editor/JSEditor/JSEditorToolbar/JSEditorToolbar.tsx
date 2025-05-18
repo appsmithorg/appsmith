@@ -75,6 +75,7 @@ export const JSEditorToolbar = (props: Props) => {
             dataTestId={"t--js-settings-trigger"}
             handleOpenChange={setIsOpen}
             isOpen={isOpen}
+            popoverWidth="345px"
             title={createMessage(JS_EDITOR_SETTINGS.TITLE)}
           >
             <JSFunctionSettings

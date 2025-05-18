@@ -16,12 +16,28 @@ export const AvailableFeaturesToOverride: FeatureFlag[] = [
   "release_anvil_enabled",
   "release_layout_conversion_enabled",
   "license_ai_agent_enabled",
+  "release_ai_chat_integrations_enabled",
+  "license_ai_agent_instance_enabled",
 ];
 export type OverriddenFeatureFlags = Partial<Record<FeatureFlag, boolean>>;
 
 export const useFeatureFlagOverride = () => {
   const dispatch = useDispatch();
   const areFeatureFlagsFetched = useSelector(getFeatureFlagsFetched);
+
+  /**
+   * This is for listeninging the message from the feature flag overrrider chrome extension
+   */
+  useEffect(() => {
+    window.addEventListener("message", (event) => {
+      if (event.data.action === "featureFlagOverrideValuesSet") {
+        const featureFlagValues = event.data.values;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).overrideFeatureFlag(featureFlagValues);
+      }
+    });
+  }, []);
 
   /**
    * Fetches the feature flag override values and updates the state.

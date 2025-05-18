@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 
-import * as Sentry from "@sentry/react";
+import { appsmithTelemetry } from "instrumentation";
 import log from "loglevel";
 
 import {
@@ -83,6 +83,7 @@ import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import { objectKeys } from "@appsmith/utils";
+import { handleUIModuleWidgetReplay } from "ee/sagas/moduleInterfaceSaga";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -132,7 +133,9 @@ export function* openPropertyPaneSaga(replay: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    appsmithTelemetry.captureException(e, {
+      errorName: "OpenPropertyPaneError",
+    });
   }
 }
 
@@ -164,7 +167,7 @@ export function* postUndoRedoSaga(replay: any) {
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    appsmithTelemetry.captureException(e, { errorName: "PostUndoRedoError" });
   }
 }
 
@@ -226,6 +229,8 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           timeTaken: endTime - startTime,
         });
 
+        yield call(handleUIModuleWidgetReplay, replay, replayEntity.widgets);
+
         yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
           isRetry: false,
           shouldReplay: false,
@@ -257,7 +262,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     }
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    appsmithTelemetry.captureException(e, { errorName: "UndoRedoSagaError" });
   }
 }
 

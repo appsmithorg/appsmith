@@ -5,7 +5,7 @@ import { DataSidePane } from "./DataSidePane";
 import { datasourceFactory } from "test/factories/DatasourceFactory";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { render } from "test/testUtils";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
@@ -40,7 +40,7 @@ describe("DataSidePane", () => {
     const state = getIDETestState({
       actions: [usersAction1, usersAction2, ordersAction1],
       datasources: [productsDS, usersDS, ordersDS],
-    }) as AppState;
+    }) as DefaultRootState;
 
     const dsUsageMap = getDatasourceUsageCountForApp(state, IDE_TYPE.App);
 

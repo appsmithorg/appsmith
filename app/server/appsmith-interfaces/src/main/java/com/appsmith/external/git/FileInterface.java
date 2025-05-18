@@ -77,8 +77,15 @@ public interface FileInterface {
 
     Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix);
 
+    Mono<Object> reconstructPackageJsonFromGitRepository(Path repoSuffix);
+
     Mono<Object> reconstructPageFromGitRepo(
-            String pageName, String branchName, Path repoSuffixPath, Boolean checkoutRequired);
+            String pageName,
+            String branchName,
+            Path repoSuffixPath,
+            Boolean checkoutRequired,
+            Boolean useFSGitHandler,
+            Boolean keepWorkingDirChanges);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

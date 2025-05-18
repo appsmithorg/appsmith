@@ -18,7 +18,7 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -309,7 +309,7 @@ export interface CustomComponentProps {
  * TODO: Balaji soundararajan - to refactor code to move out selected widget details to platform
  */
 export const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: CustomComponentProps,
 ) => {
   const isPreviewMode = selectCombinedPreviewMode(state);

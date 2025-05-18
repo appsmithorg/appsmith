@@ -11,7 +11,7 @@ import {
   getisFetchingGsheetsSheets,
 } from "selectors/datasourceSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 
@@ -22,9 +22,11 @@ export function useSheets() {
     WidgetQueryGeneratorFormContext,
   );
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state: DefaultRootState) =>
+    getWidget(state, widgetId),
+  );
 
-  const selectedDatasource = useSelector((state: AppState) =>
+  const selectedDatasource = useSelector((state: DefaultRootState) =>
     getDatasource(state, config.datasource),
   );
 

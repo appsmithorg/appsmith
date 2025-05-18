@@ -23,7 +23,7 @@ export interface RedirectUserAfterSignupProps {
   shouldEnableFirstTimeUserOnboarding: string | null;
   validLicense?: boolean;
   dispatch: Dispatch;
-  isAiAgentFlowEnabled: boolean;
+  isAiAgentInstanceEnabled: boolean;
   isOnLoginPage: boolean;
 }
 

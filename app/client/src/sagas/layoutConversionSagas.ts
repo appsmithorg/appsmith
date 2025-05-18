@@ -2,7 +2,7 @@ import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Page } from "entities/Page";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
@@ -16,7 +16,6 @@ import {
   createSnapshotSaga,
   deleteApplicationSnapshotSaga,
 } from "./SnapshotSagas";
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "ee/sagas/PageSagas";
 import { updateApplicationLayout } from "ee/actions/applicationActions";
@@ -27,6 +26,7 @@ import {
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
+import { appsmithTelemetry } from "instrumentation";
 
 /**
  * This method is used to convert from auto-layout to fixed layout
@@ -211,10 +211,12 @@ function* convertFromFixedToAutoSaga() {
 function* logLayoutConversionErrorSaga() {
   try {
     const error: Error = yield select(
-      (state: AppState) => state.ui.layoutConversion.conversionError,
+      (state: DefaultRootState) => state.ui.layoutConversion.conversionError,
     );
 
-    yield call(Sentry.captureException, error);
+    yield call(appsmithTelemetry.captureException, error, {
+      errorName: "LayoutConversionError",
+    });
   } catch (e) {
     throw e;
   }

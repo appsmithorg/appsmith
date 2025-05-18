@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { type Plugin, PluginType } from "entities/Plugin";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
@@ -79,7 +79,7 @@ function CreateAIPlugins(props: CreateAIPluginsProps) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: DefaultRootState) => {
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
   ).toLocaleLowerCase();

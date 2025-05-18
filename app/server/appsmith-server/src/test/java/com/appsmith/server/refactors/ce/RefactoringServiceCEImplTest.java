@@ -20,6 +20,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
+import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -90,6 +91,9 @@ class RefactoringServiceCEImplTest {
     @SpyBean
     private EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
+    @SpyBean
+    private ContextLayoutRefactorResolver contextLayoutRefactorResolver;
+
     @Autowired
     private EntityValidationService entityValidationService;
 
@@ -101,15 +105,14 @@ class RefactoringServiceCEImplTest {
         refactoringServiceCE = new RefactoringServiceCEImpl(
                 newPageService,
                 updateLayoutService,
-                applicationService,
-                pagePermission,
                 analyticsService,
                 sessionUserService,
                 entityValidationService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,
-                widgetEntityRefactoringService);
+                widgetEntityRefactoringService,
+                contextLayoutRefactorResolver);
     }
 
     @Test
@@ -167,7 +170,7 @@ class RefactoringServiceCEImplTest {
                 .thenReturn(Flux.empty());
 
         Mockito.when(updateLayoutService.updateLayout(
-                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
@@ -305,7 +308,7 @@ class RefactoringServiceCEImplTest {
         layout.setLayoutOnLoadActions(new ArrayList<>());
 
         Mockito.when(updateLayoutService.updateLayout(
-                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))

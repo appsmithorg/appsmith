@@ -13,6 +13,7 @@ export interface CanvasStructure {
   widgetId: string;
   type: WidgetType;
   children?: CanvasStructure[];
+  hasError?: boolean;
 }
 
 export interface DSL extends WidgetProps {

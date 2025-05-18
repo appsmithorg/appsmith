@@ -1,5 +1,6 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
 import Snowflake from ".";
+import { SSLType } from "entities/Datasource/RestAPIForm";
 
 describe("Snowflake WidgetQueryGenerator", () => {
   const initialValues = {
@@ -366,5 +367,37 @@ OFFSET
         },
       },
     ]);
+  });
+
+  test("should return provided connection mode when available", () => {
+    const datasourceConfiguration = {
+      connection: {
+        mode: DatasourceConnectionMode.READ_ONLY,
+        ssl: {
+          authType: SSLType.DEFAULT,
+          authTypeControl: false,
+          certificateFile: {
+            name: "",
+            base64Content: "",
+          },
+        },
+      },
+      url: "https://example.com",
+    };
+
+    const connectionMode = Snowflake.getConnectionMode(datasourceConfiguration);
+
+    expect(connectionMode).toEqual(DatasourceConnectionMode.READ_ONLY);
+  });
+
+  test("should return READ_WRITE as default when no connection mode is provided", () => {
+    const datasourceConfiguration = {
+      // No connection mode specified
+      url: "https://example.com",
+    };
+
+    const connectionMode = Snowflake.getConnectionMode(datasourceConfiguration);
+
+    expect(connectionMode).toEqual(DatasourceConnectionMode.READ_WRITE);
   });
 });

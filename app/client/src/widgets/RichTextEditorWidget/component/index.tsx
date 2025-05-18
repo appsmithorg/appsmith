@@ -460,13 +460,13 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             ],
             // Configure text patterns to use space key trigger for markdown-style formatting
             text_patterns: [
-              { start: "#", format: "h1", trigger: "space" },
-              { start: "##", format: "h2", trigger: "space" },
-              { start: "###", format: "h3", trigger: "space" },
-              { start: "1.", cmd: "InsertOrderedList", trigger: "space" },
-              { start: "*", cmd: "InsertUnorderedList", trigger: "space" },
-              { start: "-", cmd: "InsertUnorderedList", trigger: "space" },
-              { start: ">", cmd: "mceBlockQuote", trigger: "space" },
+              { start: "#", format: "h1" },
+              { start: "##", format: "h2" },
+              { start: "###", format: "h3" },
+              { start: "1.", cmd: "InsertOrderedList" },
+              { start: "*", cmd: "InsertUnorderedList" },
+              { start: "-", cmd: "InsertUnorderedList" },
+              { start: ">", cmd: "mceBlockQuote" },
             ],
             contextmenu: "link useBrowserSpellcheck image table",
             setup: function (editor) {

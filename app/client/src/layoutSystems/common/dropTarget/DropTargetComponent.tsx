@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -126,7 +126,7 @@ function useUpdateRows(
   /*
    * If the parent has auto height enabled, or if the current widget is the MAIN_CONTAINER_WIDGET_ID
    */
-  const isParentAutoHeightEnabled = useSelector((state: AppState) => {
+  const isParentAutoHeightEnabled = useSelector((state: DefaultRootState) => {
     return parentId
       ? !isAutoHeightEnabledForWidgetWithLimits(
           state.entities.canvasWidgets[parentId],
@@ -213,11 +213,11 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   // Are we currently resizing?
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
   // Are we currently dragging?
   const isDraggingWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
 
@@ -242,7 +242,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   // All the widgets in this canvas
   const childWidgets: string[] | undefined = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[props.widgetId]?.children,
+    (state: DefaultRootState) =>
+      state.entities.canvasWidgets[props.widgetId]?.children,
   );
 
   // This shows the property pane

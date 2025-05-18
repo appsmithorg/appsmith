@@ -8,6 +8,7 @@ import {
   getActions,
   getAllPageWidgets,
   getJSCollections,
+  getPluginByPackageName,
   getPlugins,
   getRecentDatasourceIds,
 } from "ee/selectors/entitiesSelector";
@@ -24,9 +25,14 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { type Plugin, PluginType, UIComponentTypes } from "entities/Plugin";
+import {
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+  UIComponentTypes,
+} from "entities/Plugin";
 import { integrationEditorURL } from "ee/RouteBuilder";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -41,6 +47,7 @@ import {
   checkIfJSObjectCreationAllowed,
   useWorkflowOptions,
 } from "ee/utils/workflowHelpers";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
@@ -57,6 +64,9 @@ export const useFilteredFileOperations = ({
 }: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
+  const pluginById = useMemo(() => {
+    return keyBy(plugins, "id");
+  }, [plugins]);
   const moduleOptions = useModuleOptions();
   const workflowOptions = useWorkflowOptions();
 
@@ -69,24 +79,39 @@ export const useFilteredFileOperations = ({
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
 
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
+  const AiPlugin = useSelector((state: DefaultRootState) =>
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+  );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
-    isFeatureEnabled,
+    isGACEnabled,
     userWorkspacePermissions,
   );
 
   // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter(
-    (ds) =>
-      getHasCreateDatasourceActionPermission(
-        isFeatureEnabled,
-        ds.userPermissions ?? [],
-      ) && canCreateActions,
-  );
+  const allDatasources = [...appWideDS, ...otherDS]
+    .filter(
+      (ds) =>
+        getHasCreateDatasourceActionPermission(
+          isGACEnabled,
+          ds.userPermissions ?? [],
+        ) && canCreateActions,
+    )
+    .filter((ds) => {
+      // We don't want to show the AI datasource in the
+      // lists if the AI agent flow is enabled
+      if (isAgentApp && AiPlugin) {
+        return AiPlugin.id !== ds.pluginId;
+      }
+
+      return !!pluginById[ds.pluginId]?.id;
+    });
 
   return useFilteredAndSortedFileOperations({
     allDatasources,

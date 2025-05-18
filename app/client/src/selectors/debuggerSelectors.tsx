@@ -2,7 +2,7 @@ import type { Log } from "entities/AppsmithConsole";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
@@ -18,8 +18,10 @@ interface ErrorObject {
   [k: string]: Log;
 }
 
-export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
-export const hideErrors = (state: AppState) => state.ui.debugger.hideErrors;
+export const getDebuggerErrors = (state: DefaultRootState) =>
+  state.ui.debugger.errors;
+export const hideErrors = (state: DefaultRootState) =>
+  state.ui.debugger.hideErrors;
 const emptyErrorObject: ErrorObject = {};
 
 export const getFilteredErrors = createSelector(
@@ -147,25 +149,26 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
 });
 
 // get selected tab in debugger.
-export const getDebuggerSelectedTab = (state: AppState) =>
+export const getDebuggerSelectedTab = (state: DefaultRootState) =>
   state.ui.debugger.context.selectedDebuggerTab;
 
-export const getDebuggerSelectedFilter = (state: AppState) =>
+export const getDebuggerSelectedFilter = (state: DefaultRootState) =>
   state.ui.debugger.context.selectedDebuggerFilter;
 
-export const getResponsePaneHeight = (state: AppState) =>
+export const getResponsePaneHeight = (state: DefaultRootState) =>
   state.ui.debugger.context.responseTabHeight;
 
-export const getErrorCount = (state: AppState) =>
+export const getErrorCount = (state: DefaultRootState) =>
   state.ui.debugger.context.errorCount;
 
-export const getScrollPosition = (state: AppState) =>
+export const getScrollPosition = (state: DefaultRootState) =>
   state.ui.debugger.context.scrollPosition;
 
-export const getDebuggerContext = (state: AppState) =>
+export const getDebuggerContext = (state: DefaultRootState) =>
   state.ui.debugger.context;
 
-export const getDebuggerOpen = (state: AppState) => state.ui.debugger.isOpen;
+export const getDebuggerOpen = (state: DefaultRootState) =>
+  state.ui.debugger.isOpen;
 
 export const showDebuggerFlag = createSelector(
   getDebuggerOpen,

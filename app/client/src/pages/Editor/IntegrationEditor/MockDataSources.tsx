@@ -5,7 +5,7 @@ import { getPluginImages } from "ee/selectors/entitiesSelector";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
@@ -34,7 +34,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   const { datasource, workspaceId } = props;
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
   const currentPlugin = plugins.find(

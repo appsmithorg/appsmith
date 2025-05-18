@@ -123,9 +123,13 @@ export function TemplateContent(props: TemplateContentProps) {
   const isLoading = isFetchingApplications || isFetchingTemplates;
 
   const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
-  const templates = useSelector(getSearchedTemplateList).filter((template) =>
-    filterWithAllowPageImport ? !!template.allowPageImport : true,
-  );
+  const templates = useSelector(getSearchedTemplateList)
+    .filter((template) =>
+      filterWithAllowPageImport ? !!template.allowPageImport : true,
+    )
+    .filter((template) => {
+      return template.title !== "AI Agent";
+    });
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;

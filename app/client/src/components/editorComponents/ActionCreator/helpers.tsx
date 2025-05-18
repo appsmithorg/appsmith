@@ -7,7 +7,7 @@ import {
   setCatchBlockInQuery,
 } from "@shared/ast";
 import { createModalAction } from "actions/widgetActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getEntityNameAndPropertyPath,
   isEntityAction,
@@ -32,6 +32,7 @@ import {
   getCurrentJSCollections,
   getQueryModuleInstances,
   getJSModuleInstancesData,
+  getPluginImages,
 } from "ee/selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -64,8 +65,12 @@ import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstants";
-import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
-import { getAllModules } from "ee/selectors/modulesSelector";
+import { getModuleIcon } from "pages/Editor/utils";
+import {
+  getAllModules,
+  getActionsInCurrentModule,
+  getJSCollectionsInCurrentModule,
+} from "ee/selectors/modulesSelector";
 import type { Module } from "ee/constants/ModuleConstants";
 import {
   createNewJSCollectionFromActionCreator,
@@ -420,6 +425,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   queryModuleInstances: ModuleInstanceDataState,
   jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
   modules: Record<string, Module>,
+  pluginImages: Record<string, string>,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
   getApiAndQueryOptions(
@@ -429,6 +435,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
     handleClose,
     queryModuleInstances,
     modules,
+    pluginImages,
   );
 
   // this function gets a list of all the JS Objects and attaches it to actionList
@@ -446,8 +453,8 @@ function getApiAndQueryOptions(
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
   modules: Record<string, Module>,
+  pluginImages: Record<string, string>,
 ) {
-  const pluginImages = getPluginImagesFromPlugins(plugins);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginGroups: any = keyBy(plugins, "id");
@@ -676,16 +683,21 @@ export function getJSOptions(
 export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const pageId = useSelector(getCurrentPageId) || "";
   const dispatch = useDispatch();
-  const plugins = useSelector((state: AppState) => {
+  const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
-  const actions = useSelector(getCurrentActions);
-  const jsActions = useSelector(getCurrentJSCollections);
+  const pageActions = useSelector(getCurrentActions);
+  const pageJsActions = useSelector(getCurrentJSCollections);
+  const moduleActions = useSelector(getActionsInCurrentModule);
+  const moduleJSCollections = useSelector(getJSCollectionsInCurrentModule);
   const queryModuleInstances = useSelector(
     getQueryModuleInstances,
   ) as unknown as ModuleInstanceDataState;
   const jsModuleInstancesData = useSelector(getJSModuleInstancesData);
   const modules = useSelector(getAllModules);
+  const pluginImages = useSelector(getPluginImages);
+  const actions = [...pageActions, ...moduleActions];
+  const jsActions = [...pageJsActions, ...moduleJSCollections];
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
@@ -698,5 +710,6 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     queryModuleInstances,
     jsModuleInstancesData,
     modules,
+    pluginImages,
   );
 }

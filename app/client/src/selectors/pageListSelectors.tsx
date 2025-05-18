@@ -1,9 +1,9 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-const getPageListState = (state: AppState) => state.entities.pageList;
+const getPageListState = (state: DefaultRootState) => state.entities.pageList;
 
 export const getPageLoadingState = (pageId: string) =>
   createSelector(
@@ -16,22 +16,28 @@ export const getIsGeneratingTemplatePage = createSelector(
   (pageList: PageListReduxState) => pageList.isGeneratingTemplatePage,
 );
 
-export const getIsGeneratePageModalOpen = (state: AppState) =>
+export const getIsGeneratePageModalOpen = (state: DefaultRootState) =>
   state.entities.pageList.generatePage?.modalOpen;
 
-export const getGeneratePageModalParams = (state: AppState) =>
+export const getGeneratePageModalParams = (state: DefaultRootState) =>
   state.entities.pageList.generatePage?.params;
 
-export const convertToPageIdSelector = (state: AppState, basePageId: string) =>
+export const convertToPageIdSelector = (
+  state: DefaultRootState,
+  basePageId: string,
+) =>
   state.entities.pageList.pages?.find((page) => page.basePageId === basePageId)
     ?.pageId;
 
-export const convertToBasePageIdSelector = (state: AppState, pageId: string) =>
+export const convertToBasePageIdSelector = (
+  state: DefaultRootState,
+  pageId: string,
+) =>
   state.entities.pageList.pages?.find((page) => page.pageId === pageId)
     ?.basePageId;
 
 export const convertToBaseParentEntityIdSelector = (
-  state: AppState,
+  state: DefaultRootState,
   parentEntityId: string,
 ) => {
   let baseParentEntityId = convertToBasePageIdSelector(state, parentEntityId);

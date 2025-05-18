@@ -210,7 +210,15 @@ export function saveResolvedFunctionsAndJSUpdates(
         }
       }
     } catch (e) {
-      //if we need to push error as popup in case
+      dataTreeEvalRef.errors.push({
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        message: (e as Error).message,
+        stack: (e as Error).stack,
+        context: {
+          entityType: entity.ENTITY_TYPE,
+          propertyPath: entityName + ".body",
+        },
+      });
     }
   } else {
     const parsedBody = {

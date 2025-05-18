@@ -7,12 +7,9 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -21,6 +18,7 @@ import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
+import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
@@ -53,12 +51,13 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.LayoutSpan.EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL;
 import static com.appsmith.external.constants.spans.LayoutSpan.FIND_ALL_ON_LOAD_EXECUTABLES;
 import static com.appsmith.external.constants.spans.LayoutSpan.FIND_AND_UPDATE_LAYOUT;
-import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_EXECUTABLES_EXECUTE_ONLOAD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_DSL_METHOD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_METHOD;
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_EXECUTABLES_RUN_BEHAVIOUR;
 import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
+import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 import static java.lang.Boolean.FALSE;
 
 @Slf4j
@@ -71,10 +70,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final NewPageService newPageService;
     private final AnalyticsService analyticsService;
     private final PagePermission pagePermission;
-    private final ApplicationService applicationService;
     private final ObjectMapper objectMapper;
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
+    private final ContextLayoutRefactorResolver contextLayoutRefactorResolver;
 
     private final String layoutOnLoadActionErrorToastMessage =
             "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -86,29 +85,22 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             boolean isSuccess,
             Throwable error,
             CreatorContextType creatorType) {
-        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(creatorId))
-                .flatMap(tuple -> {
-                    User t1 = tuple.getT1();
-                    NewPage t2 = tuple.getT2();
-
-                    final Map<String, Object> data = Map.of(
-                            "username",
-                            t1.getUsername(),
-                            "appId",
-                            t2.getApplicationId(),
-                            "creatorId",
-                            creatorId,
-                            "creatorType",
-                            creatorType,
-                            "layoutId",
-                            layoutId,
-                            "isSuccessfulExecution",
-                            isSuccess,
-                            "error",
-                            error == null ? "" : error.getMessage());
+        return contextLayoutRefactorResolver
+                .getContextLayoutRefactorHelper(creatorType)
+                .getContextForAnalytics(creatorId)
+                .flatMap(contextInfo -> {
+                    final Map<String, Object> data = Map.ofEntries(
+                            Map.entry("username", contextInfo.getUsername()),
+                            Map.entry("artifactType", contextInfo.getArtifactType()),
+                            Map.entry("artifactId", contextInfo.getArtifactId()),
+                            Map.entry("creatorId", creatorId),
+                            Map.entry("creatorType", creatorType),
+                            Map.entry("layoutId", layoutId),
+                            Map.entry("isSuccessfulExecution", isSuccess),
+                            Map.entry("error", error == null ? "" : error.getMessage()));
 
                     return analyticsService
-                            .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data)
+                            .sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, contextInfo.getDomain(), data)
                             .thenReturn(isSuccess);
                 })
                 .onErrorResume(e -> {
@@ -117,7 +109,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 });
     }
 
-    private Mono<LayoutDTO> updateLayoutDsl(
+    protected Mono<LayoutDTO> updateLayoutDsl(
             String creatorId,
             String layoutId,
             Layout layout,
@@ -205,12 +197,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         return Mono.just(allOnLoadExecutables);
                     }
                     // Update these executables to be executed on load, unless the user has touched
-                    // the executeOnLoad
+                    // the runBehaviour
                     // setting for this
                     return onLoadExecutablesUtil
-                            .updateExecutablesExecuteOnLoad(
+                            .updateExecutablesRunBehaviour(
                                     flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
-                            .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
+                            .name(UPDATE_EXECUTABLES_RUN_BEHAVIOUR)
                             .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(allOnLoadExecutables);
                 })
@@ -247,20 +239,27 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         return layoutDTOMono;
     }
 
+    // TODO: Add contextType and change all its usage to conform to that so that we can get rid of the overloaded
+    // updateLayout method
     @Override
     public Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout) {
-        return applicationService
-                .findById(applicationId)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMap(application -> {
-                    Integer evaluationVersion = application.getEvaluationVersion();
-                    if (evaluationVersion == null) {
-                        evaluationVersion = EVALUATION_VERSION;
-                    }
+        return contextLayoutRefactorResolver
+                .getContextLayoutRefactorHelper(null)
+                .getEvaluationVersionMono(applicationId)
+                .flatMap(evaluationVersion -> {
                     return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
                             .name(UPDATE_LAYOUT_DSL_METHOD);
                 });
+    }
+
+    @Override
+    public Mono<LayoutDTO> updateLayout(
+            String pageId, String applicationId, String layoutId, Layout layout, CreatorContextType contextType) {
+        if (isPageContext(contextType)) {
+            return updateLayout(pageId, applicationId, layoutId, layout);
+        } else {
+            return updateLayoutDsl(pageId, layoutId, layout, EVALUATION_VERSION, contextType);
+        }
     }
 
     @Override

@@ -25,7 +25,7 @@ import type {
   UploadNavigationLogoRequest,
 } from "ee/api/ApplicationApi";
 import ApplicationApi from "ee/api/ApplicationApi";
-import { all, call, put, select, take } from "redux-saga/effects";
+import { all, call, fork, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import {
@@ -34,7 +34,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   ApplicationVersion,
   deleteApplicationNavigationLogoSuccessAction,
@@ -121,8 +121,11 @@ import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
 import { findDefaultPage } from "pages/utils";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 
 export let windowReference: Window | null = null;
+
+const AI_DATASOURCE_NAME = "AI Datasource";
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -747,12 +750,22 @@ export function* forkApplicationSaga(
         yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
       }
 
-      if (response.data.isPartialImport) {
+      // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+      // so we can avoid showing the AI Datasource in reconnect datasource modal
+      const filteredUnConfiguredDatasourceList = (
+        response?.data?.unConfiguredDatasourceList || []
+      ).filter(
+        (datasource) => datasource.name !== AI_DATASOURCE_NAME,
+      ) as Datasource[];
+
+      if (
+        response.data.isPartialImport &&
+        filteredUnConfiguredDatasourceList.length > 0
+      ) {
         yield put(
           showReconnectDatasourceModal({
             application: response.data?.application,
-            unConfiguredDatasourceList:
-              response?.data.unConfiguredDatasourceList,
+            unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
             workspaceId: action.payload.workspaceId,
           }),
         );
@@ -789,6 +802,7 @@ export function* showReconnectDatasourcesModalSaga(
 
   yield put(setWorkspaceIdForImport({ editorId: application.id, workspaceId }));
   yield put(setPageIdForImport(pageId));
+
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
@@ -796,7 +810,11 @@ export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<{
+      unConfiguredDatasourceList: Datasource[];
+      application: ApplicationResponsePayload;
+      isPartialImport: boolean;
+    }> = yield call(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
@@ -813,28 +831,29 @@ export function* importApplicationSaga(
 
       if (currentWorkspaceId || currentWorkspace.length > 0) {
         const {
-          // @ts-expect-error: response is of type unknown
           application: { pages },
-          // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
 
-        // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
-        if (isPartialImport) {
+        // Temporary fix to remove AI Datasource from the unConfiguredDatasourceList
+        // so we can avoid showing the AI Datasource in reconnect datasource modal
+        const filteredUnConfiguredDatasourceList = (
+          response?.data?.unConfiguredDatasourceList || []
+        ).filter(
+          (datasource) => datasource.name !== AI_DATASOURCE_NAME,
+        ) as Datasource[];
+
+        if (isPartialImport && filteredUnConfiguredDatasourceList.length > 0) {
           yield put(
             showReconnectDatasourceModal({
-              // @ts-expect-error: response is of type unknown
               application: response.data?.application,
-              unConfiguredDatasourceList:
-                // @ts-expect-error: response is of type unknown
-                response?.data.unConfiguredDatasourceList,
+              unConfiguredDatasourceList: filteredUnConfiguredDatasourceList,
               workspaceId: action.payload.workspaceId,
             }),
           );
         } else {
-          // @ts-expect-error: pages is of type any
           // TODO: Update route params here
           const { application } = response.data;
           const defaultPage = findDefaultPage(pages);
@@ -844,6 +863,7 @@ export function* importApplicationSaga(
 
           if (isApplicationUrl) {
             const appId = application.id;
+            // @ts-expect-error: defaultPageId does not exist in the application response object
             const pageId = application.defaultPageId;
 
             yield put({
@@ -986,7 +1006,7 @@ export function* initDatasourceConnectionDuringImport(
   }>,
 ) {
   const workspaceId = action.payload.workspaceId;
-
+  const isAgentFlowEnabled: boolean = yield select(getIsAiAgentInstanceEnabled);
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
     [
@@ -1009,14 +1029,18 @@ export function* initDatasourceConnectionDuringImport(
 
   if (!pluginFormCall) return;
 
-  const datasources: Datasource[] = yield select((state: AppState) => {
+  const datasources: Datasource[] = yield select((state: DefaultRootState) => {
     return state.entities.datasources.list;
   });
 
   yield all(
-    datasources.map((datasource: Datasource) =>
-      call(initializeDatasourceWithDefaultValues, datasource),
-    ),
+    datasources.map((datasource: Datasource) => {
+      if (isAgentFlowEnabled) {
+        return fork(initializeDatasourceWithDefaultValues, datasource);
+      }
+
+      return call(initializeDatasourceWithDefaultValues, datasource);
+    }),
   );
 
   if (!action.payload.isPartialImport) {

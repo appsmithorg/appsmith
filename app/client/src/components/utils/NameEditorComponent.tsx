@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { isNameValid } from "utils/helpers";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import log from "loglevel";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import {
@@ -109,7 +109,7 @@ function NameEditor(props: NameEditorProps) {
   }
 
   const conflictingNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, entityId || ""),
+    (state: DefaultRootState) => getUsedActionNames(state, entityId || ""),
     shallowEqual,
   );
 

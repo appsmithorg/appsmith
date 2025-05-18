@@ -73,6 +73,7 @@ export const excludeList: WidgetType[] = [
   "WDS_MODAL_WIDGET",
   "WDS_BUTTON_WIDGET",
   "WDS_TABLE_WIDGET",
+  "MODULE_CONTAINER_WIDGET",
 ];
 
 function PropertyPaneView(
@@ -286,6 +287,7 @@ function PropertyPaneView(
     >
       <PropertyPaneTitle
         actions={actions}
+        isRenameDisabled={widgetProperties?.isRenameDisabled}
         key={widgetProperties.widgetId}
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}

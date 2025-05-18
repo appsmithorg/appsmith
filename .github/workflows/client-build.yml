@@ -152,7 +152,7 @@ jobs:
               echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
+              echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           fi
 
       # We burn React environment & the Segment analytics key into the build itself.

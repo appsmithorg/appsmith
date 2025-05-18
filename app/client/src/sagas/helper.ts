@@ -37,6 +37,7 @@ import {
 } from "../constants/Datasource";
 import { type Datasource, ToastMessageType } from "../entities/Datasource";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import type { EvalError } from "utils/DynamicBindingUtils";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -52,6 +53,29 @@ export const extractFetchDynamicValueFormConfigs = (
 
   return output;
 };
+
+/**
+ * Reconstructs an EvalError from a serialized error object. This attaches the correct stack trace and error type to the error.
+ * this is used to send the error to faro.
+ *
+ * @param serializedError - The serialized error object to reconstruct.
+ * @returns A reconstructed Error object.
+ */
+export function reconstructErrorFromEvalError(serializedError: EvalError) {
+  const error = new Error(serializedError.message);
+
+  if (serializedError.stack) {
+    error.stack = serializedError.stack;
+  }
+
+  if (serializedError.context) {
+    Object.assign(error, {
+      context: serializedError.context,
+    });
+  }
+
+  return error;
+}
 
 // Function to extract all the objects that have to fetch dynamic values
 export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {

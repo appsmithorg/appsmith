@@ -7,7 +7,7 @@ import { isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import type { Action } from "entities/Action";
@@ -122,7 +122,7 @@ interface ReduxDispatchProps {
 type Props = SegmentedControlProps & ReduxDispatchProps;
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: SegmentedControlProps,
 ): {
   isLoading: boolean;

@@ -8,13 +8,13 @@ import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import "@testing-library/jest-dom";
 import { PageFactory } from "test/factories/PageFactory";
 import { APIFactory } from "test/factories/Actions/API";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { act, within } from "@testing-library/react";
 
 describe("EditorTabs render checks", () => {
   const page = PageFactory.build();
 
-  const renderComponent = (url: string, state: Partial<AppState>) =>
+  const renderComponent = (url: string, state: Partial<DefaultRootState>) =>
     render(
       <Route path={BUILDER_PATH}>
         <EditorTabs />

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
@@ -28,10 +28,11 @@ export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
 };
 
-export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
-  state.ui.propertyPane;
+export const getPropertyPaneState = (
+  state: DefaultRootState,
+): PropertyPaneReduxState => state.ui.propertyPane;
 
-export const getSelectedPropertyPanel = (state: AppState) =>
+export const getSelectedPropertyPanel = (state: DefaultRootState) =>
   state.ui.propertyPane.selectedPropertyPanel;
 
 export const getCurrentWidgetId = createSelector(
@@ -39,7 +40,7 @@ export const getCurrentWidgetId = createSelector(
   (widgetIds: string[]) => widgetIds[0],
 );
 
-const getRecentlyAddedWidgets = (state: AppState) =>
+const getRecentlyAddedWidgets = (state: DefaultRootState) =>
   state.ui.canvasSelection.recentlyAddedWidget;
 
 export const getIsCurrentWidgetRecentlyAdded = createSelector(
@@ -109,7 +110,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
 export const isWidgetSelectedForPropertyPane = createSelector(
   getWidgetPropsForPropertyPane,
   getRenderMode,
-  (_state: AppState, widgetId: string) => widgetId,
+  (_state: DefaultRootState, widgetId: string) => widgetId,
   (widget: WidgetProps | undefined, renderMode: RenderModes, widgetId) => {
     return renderMode === RenderModes.CANVAS && widget?.widgetId === widgetId;
   },
@@ -254,7 +255,7 @@ export const getWidgetPropsForPropertyName = (
   );
 };
 
-const isResizingorDragging = (state: AppState) =>
+const isResizingorDragging = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
 export const getIsPropertyPaneVisible = createSelector(
@@ -293,17 +294,17 @@ export const getIsPropertyPaneVisible = createSelector(
  * @param state
  * @returns
  */
-export const getPropertyPaneWidth = (state: AppState) => {
+export const getPropertyPaneWidth = (state: DefaultRootState) => {
   return state.ui.propertyPane.width;
 };
 
-export const getFocusablePropertyPaneField = (state: AppState) =>
+export const getFocusablePropertyPaneField = (state: DefaultRootState) =>
   state.ui.propertyPane.focusedProperty;
 
 export const getShouldFocusPropertyPath = createSelector(
   [
     getFocusablePropertyPaneField,
-    (_state: AppState, key: string | undefined) => key,
+    (_state: DefaultRootState, key: string | undefined) => key,
   ],
   (focusableField: string | undefined, key: string | undefined): boolean => {
     return !!(key && focusableField === key);
@@ -313,7 +314,7 @@ export const getShouldFocusPropertyPath = createSelector(
 export const getSelectedPropertyPanelIndex = createSelector(
   [
     getSelectedPropertyPanel,
-    (_state: AppState, path: string | undefined) => path,
+    (_state: DefaultRootState, path: string | undefined) => path,
   ],
   (
     selectedPropertyPanel: SelectedPropertyPanel,

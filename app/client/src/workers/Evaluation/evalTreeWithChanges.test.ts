@@ -5,11 +5,13 @@ import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { create } from "mutative";
+import { klona } from "klona/json";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import type { UpdateDataTreeMessageData } from "sagas/types";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import * as evalTreeWithChanges from "./evalTreeWithChanges";
 import { APP_MODE } from "entities/App";
+import { updateEvalProps } from "./helpers";
 export const BASE_WIDGET = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",
@@ -186,6 +188,7 @@ describe("evaluateAndGenerateResponse", () => {
   };
 
   beforeEach(async () => {
+    // we are mimicking the first tree evaluation flow here
     evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
     await evaluator.setupFirstTree(
       unEvalTree,
@@ -197,9 +200,14 @@ describe("evaluateAndGenerateResponse", () => {
         timestamp: "timestamp",
         appMode: APP_MODE.PUBLISHED,
         instanceId: "instanceId",
+        dslVersion: 1,
       },
     );
     evaluator.evalAndValidateFirstTree();
+    const dataTree = updateEvalProps(evaluator) || {};
+
+    // over here we are setting the prevState through a klona but in the first tree we set by parsing the serialised update which is functionally the same
+    evaluator?.setPrevState(klona(dataTree));
   });
 
   test("inital evaluation successful should be successful", () => {
@@ -369,12 +377,12 @@ describe("evaluateAndGenerateResponse", () => {
       expect(parsedUpdates).toEqual(
         expect.arrayContaining([
           {
-            kind: "N",
+            kind: "E",
             path: ["Text1", "text"],
             rhs: "updated Label",
           },
           {
-            kind: "N",
+            kind: "E",
             path: ["Text2", "text"],
             rhs: "updated Label",
           },
@@ -511,6 +519,7 @@ describe("evaluateAndGenerateResponse", () => {
         [],
         [],
       );
+
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
@@ -520,15 +529,11 @@ describe("evaluateAndGenerateResponse", () => {
           payload: { propertyPath: "Text1.text", value: "" },
         },
       ]);
-      expect(parsedUpdates).toEqual(
-        expect.arrayContaining([
-          {
-            kind: "N",
-            path: ["Text1", "text"],
-            rhs: UPDATED_LABEL,
-          },
-        ]),
-      );
+      expect(parsedUpdates).toEqual([
+        { kind: "E", path: ["Text1", "text"], rhs: UPDATED_LABEL },
+        // Text2 is updated because of the binding
+        { kind: "E", path: ["Text2", "text"], rhs: UPDATED_LABEL },
+      ]);
     });
     test("should ignore generating updates when unEvalUpdates is empty", () => {
       // TODO: Fix this the next time the file is edited

@@ -2,7 +2,7 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import TabGeneral from ".";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 jest.mock("../../hooks/gitPermissionHooks", () => ({
   useHasConnectToGitPermission: () => false,
@@ -11,7 +11,7 @@ jest.mock("../../hooks/gitPermissionHooks", () => ({
 
 describe("GitSettings TabGeneral test for git admin disabled", () => {
   it("disconnect disabled when no permission", () => {
-    const initialState: Partial<AppState> = {};
+    const initialState: Partial<DefaultRootState> = {};
 
     render(<TabGeneral />, { initialState });
     expect(screen.queryByTestId("t--git-disconnect-btn")).toBe(null);

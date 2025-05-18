@@ -7,7 +7,7 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import {
@@ -351,7 +351,7 @@ const validate = (values: Record<string, any>) => {
 const selector = formValueSelector(SETTINGS_FORM_NAME);
 
 export default withRouter(
-  connect((state: AppState) => {
+  connect((state: DefaultRootState) => {
     const settingsConfig = getSettings(state);
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

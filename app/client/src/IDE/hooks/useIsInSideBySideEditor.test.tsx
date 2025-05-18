@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import { createMemoryHistory, type MemoryHistory } from "history";
 import { Router } from "react-router";
@@ -20,7 +20,7 @@ const NON_JS_COLLECTION_EDITOR_PATH = "/some-other-path";
 
 const renderUseIsInSideBySideEditor = (
   history: MemoryHistory,
-  store: Store<AppState>,
+  store: Store<DefaultRootState>,
 ) => {
   const wrapper: React.FC = ({ children }) => (
     <Provider store={store}>

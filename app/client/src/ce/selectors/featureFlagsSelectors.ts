@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { FeatureFlag, FeatureFlags } from "ee/entities/FeatureFlag";
 import memoize from "micro-memoize";
 import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
@@ -9,7 +9,7 @@ const combineFeatureFlags = memoize(
   },
 );
 
-export const selectFeatureFlags = (state: AppState) => {
+export const selectFeatureFlags = (state: DefaultRootState) => {
   return combineFeatureFlags(
     state.ui.users.featureFlag.data,
     state.ui.users.featureFlag.overriddenFlags,
@@ -17,7 +17,7 @@ export const selectFeatureFlags = (state: AppState) => {
 };
 
 export const selectFeatureFlagCheck = (
-  state: AppState,
+  state: DefaultRootState,
   flagName: FeatureFlag,
 ): boolean => {
   const flagValues = selectFeatureFlags(state);

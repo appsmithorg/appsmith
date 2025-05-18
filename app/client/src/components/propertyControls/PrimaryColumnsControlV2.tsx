@@ -1,5 +1,5 @@
-import type { AppState } from "ee/reducers";
-import * as Sentry from "@sentry/react";
+import type { DefaultRootState } from "react-redux";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -538,7 +538,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
   };
 }
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   { dataTreePath }: EvaluatedValueProps,
 ): ReduxStateProps => {
   return {
@@ -548,6 +548,6 @@ const mapStateToProps = (
   };
 };
 
-const EvaluatedValuePopupWrapper = Sentry.withProfiler(
-  connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),
+const EvaluatedValuePopupWrapper = connect(mapStateToProps)(
+  EvaluatedValuePopupWrapperClass,
 );

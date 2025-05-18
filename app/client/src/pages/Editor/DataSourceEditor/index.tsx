@@ -7,7 +7,7 @@ import {
   isDirty,
   reset,
 } from "redux-form";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
 import {
   getPluginImages,
@@ -103,6 +103,10 @@ import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import {
+  getIsAiAgentApp,
+  getIsCreatingAgent,
+} from "ee/selectors/aiAgentSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -143,6 +147,8 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isPluginAllowedToPreviewData: boolean;
   isOnboardingFlow?: boolean;
+  isCreatingAgent?: boolean;
+  isAgentApp?: boolean;
 }
 
 const Form = styled.div`
@@ -160,8 +166,13 @@ type Props = ReduxStateProps &
     basePageId: string;
   }>;
 
-export const DSEditorWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+export const DSEditorWrapper = styled.div<{
+  isCreatingAiAgent?: boolean;
+}>`
+  height: ${(props) =>
+    props.isCreatingAiAgent
+      ? `auto`
+      : `calc(100vh - ${props.theme.headerHeight})`};
   overflow: hidden;
   display: flex;
   flex-direction: row;
@@ -1022,6 +1033,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           >
             <DSEditorWrapper
               className={!!isOnboardingFlow ? "onboarding-flow" : ""}
+              isCreatingAiAgent={
+                this.props.isCreatingAgent || this.props.isAgentApp
+              }
             >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
@@ -1105,8 +1119,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 }
 
 // TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props: any,
+): ReduxStateProps => {
   const applicationId = props.applicationId ?? getCurrentApplicationId(state);
   const application = getApplicationByIdFromWorkspaces(state, applicationId);
 
@@ -1155,7 +1172,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const featureFlags = selectFeatureFlags(state);
   const isFeatureEnabled = isGACEnabled(featureFlags);
-
+  const isAgentApp = getIsAiAgentApp(state);
+  const isCreatingAgent = getIsCreatingAgent(state);
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasourcePermissions,
@@ -1223,6 +1241,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    isAgentApp,
+    isCreatingAgent,
   };
 };
 

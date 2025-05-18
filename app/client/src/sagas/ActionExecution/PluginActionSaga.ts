@@ -7,7 +7,6 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -92,7 +91,7 @@ import {
 } from "selectors/editorSelectors";
 import log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
@@ -170,6 +169,8 @@ import {
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
 import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import { appsmithTelemetry } from "instrumentation";
 
 interface FilePickerInstumentationObject {
   numberOfFiles: number;
@@ -179,7 +180,7 @@ interface FilePickerInstumentationObject {
 }
 
 export const getActionTimeout = (
-  state: AppState,
+  state: DefaultRootState,
   actionId: string,
 ): number | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
@@ -989,11 +990,12 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
 
   if (!collection) {
-    Sentry.captureException(
+    appsmithTelemetry.captureException(
       new Error(
         "Collection present in layoutOnLoadActions but no collection exists ",
       ),
       {
+        errorName: "MissingJSCollection",
         extra: {
           collectionId,
           actionId: pageAction.id,
@@ -1552,13 +1554,16 @@ function triggerFileUploadInstrumentation(
   });
 }
 
-// Function to clear the action responses for the actions which are not executeOnLoad.
+// Function to clear the action responses for the actions which are not runBehaviour: ON_PAGE_LOAD.
 function* clearTriggerActionResponse() {
   const currentPageActions: ActionData[] = yield select(getCurrentActions);
 
   for (const action of currentPageActions) {
-    // Clear the action response if the action has data and is not executeOnLoad.
-    if (action.data && !action.config.executeOnLoad) {
+    // Clear the action response if the action has data and is not runBehaviour: ON_PAGE_LOAD.
+    if (
+      action.data &&
+      action.config.runBehaviour !== ActionRunBehaviour.ON_PAGE_LOAD
+    ) {
       yield put(clearActionResponse(action.config.id));
       yield put(
         updateActionData([

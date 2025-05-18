@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
@@ -219,7 +219,7 @@ export function ResetPassword(props: ResetPasswordProps) {
 }
 
 export default connect(
-  (state: AppState, props: ResetPasswordProps) => {
+  (state: DefaultRootState, props: ResetPasswordProps) => {
     const queryParams = new URLSearchParams(props.location.search);
 
     return {

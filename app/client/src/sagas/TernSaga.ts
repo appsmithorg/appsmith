@@ -1,7 +1,7 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import type { Datasource } from "entities/Datasource";
 import { get } from "lodash";
@@ -16,9 +16,11 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
   const actions: ReturnType<typeof getActions> = yield select(getActions);
   const jsActions: ReturnType<typeof getJSCollections> =
     yield select(getJSCollections);
-  const reducerDatasources: Datasource[] = yield select((state: AppState) => {
-    return state.entities.datasources.list;
-  });
+  const reducerDatasources: Datasource[] = yield select(
+    (state: DefaultRootState) => {
+      return state.entities.datasources.list;
+    },
+  );
   const widgetsMap: ReturnType<typeof getWidgets> = yield select(getWidgets);
 
   const recentEntityNames = new Set<string>();

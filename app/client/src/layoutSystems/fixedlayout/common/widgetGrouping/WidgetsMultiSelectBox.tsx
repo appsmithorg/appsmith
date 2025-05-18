@@ -19,7 +19,7 @@ import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "WidgetProvider/factory";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
@@ -191,7 +191,7 @@ function WidgetsMultiSelectBox(props: {
   );
   const { focusWidget } = useWidgetSelection();
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
 
   /**

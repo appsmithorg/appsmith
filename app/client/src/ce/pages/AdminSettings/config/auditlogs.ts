@@ -6,9 +6,9 @@ import {
 } from "ee/pages/AdminSettings/config/types";
 import { AuditLogsUpgradePage } from "../../Upgrade/AuditLogsUpgradePage";
 import store from "store";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 
-const isAIAgentFlowEnabled = getIsAiAgentFlowEnabled(store.getState());
+const isAIAgentInstanceEnabled = getIsAiAgentInstanceEnabled(store.getState());
 
 export const config: AdminConfigType = {
   icon: "file-list-2-line",
@@ -19,5 +19,5 @@ export const config: AdminConfigType = {
   title: "Audit logs",
   canSave: false,
   isFeatureEnabled: false,
-  isEnterprise: isAIAgentFlowEnabled ? true : false,
+  isEnterprise: isAIAgentInstanceEnabled ? true : false,
 } as AdminConfigType;

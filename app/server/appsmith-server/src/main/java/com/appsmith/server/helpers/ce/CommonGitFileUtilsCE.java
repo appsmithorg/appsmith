@@ -95,7 +95,7 @@ public class CommonGitFileUtilsCE {
 
     protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
     protected final GitServiceConfig gitServiceConfig;
-    private final FileInterface fileUtils;
+    protected final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -178,7 +178,7 @@ public class CommonGitFileUtilsCE {
             Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         // this should come from the specific files
-        GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
+        GitResourceMap gitResourceMapFromDB = createGitResourceMap(artifactExchangeJson);
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
@@ -186,7 +186,7 @@ public class CommonGitFileUtilsCE {
         return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
             try {
                 return fileUtils
-                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName, keepWorkingDirChanges)
+                        .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMapFromDB, branchName, keepWorkingDirChanges)
                         .subscribeOn(Schedulers.boundedElastic());
             } catch (IOException | GitAPIException exception) {
                 return Mono.error(exception);
@@ -830,7 +830,7 @@ public class CommonGitFileUtilsCE {
                             "Error while moving repository from temporary storage {} to permanent storage {}",
                             currentGitPath,
                             targetPath,
-                            error.getMessage());
+                            error);
                     return Mono.error(error);
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -933,6 +933,9 @@ public class CommonGitFileUtilsCE {
         String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
         String refName = gitArtifactMetadata.getRefName();
         String repoName = gitArtifactMetadata.getRepoName();
+        Mono<Boolean> useFSGitHandlerMono = featureFlagService.check(FeatureFlagEnum.release_git_api_contracts_enabled);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         if (!hasText(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -957,8 +960,14 @@ public class CommonGitFileUtilsCE {
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, defaultArtifactId, repoName);
 
-        Mono<JSONObject> jsonObjectMono = fileUtils
-                .reconstructPageFromGitRepo(pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired)
+        Mono<JSONObject> jsonObjectMono = Mono.zip(useFSGitHandlerMono, keepWorkingDirChangesMono)
+                .flatMap(tuple -> fileUtils.reconstructPageFromGitRepo(
+                        pageDTO.getName(),
+                        refName,
+                        baseRepoSuffix,
+                        isResetToLastCommitRequired,
+                        tuple.getT1(),
+                        tuple.getT2()))
                 .onErrorResume(error -> Mono.error(
                         new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
                 .map(pageJson -> {

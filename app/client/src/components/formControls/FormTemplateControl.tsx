@@ -8,7 +8,7 @@ import type { ButtonProps } from "@appsmith/ads";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
 import { get, omit } from "lodash";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Action } from "entities/Action";
 
 const StyledButton = styled((props: ButtonProps & { isActive: boolean }) => (
@@ -153,7 +153,7 @@ class FormTemplateControl extends BaseControl<
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: FormTemplateControlProps,
 ): ReduxStateProps => {
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
