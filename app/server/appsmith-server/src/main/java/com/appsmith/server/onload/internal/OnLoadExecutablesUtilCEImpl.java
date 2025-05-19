@@ -331,15 +331,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                             // There are no actions in this page. No need to proceed further since no actions would get
                             // updated
-                            if (creatorContextExecutables.isEmpty()) {
+                            if (creatorContextExecutables.isNullOrEmpty()) {
                                 return Mono.just(FALSE);
                             }
 
                             // No actions require an update if no actions have been found as page load actions as well
                             // as
                             // existing on load page actions are empty
-                            if (existingOnLoadExecutables.isEmpty()
-                                    && (onLoadExecutables == null || onLoadExecutables.isEmpty())) {
+                            if (existingOnLoadExecutables.isNullOrEmpty()
+                                    && (onLoadExecutables == null || onLoadExecutables.isNullOrEmpty())) {
                                 return Mono.just(FALSE);
                             }
 
