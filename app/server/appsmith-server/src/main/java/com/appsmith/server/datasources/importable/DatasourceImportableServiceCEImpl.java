@@ -383,7 +383,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             datasourceStorage.getDatasourceConfiguration().setAuthentication(auth2);
         } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
             BearerTokenAuth auth = new BearerTokenAuth();
-            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            BearerTokenAuth decryptedBearerTokenAuth = decryptedFields.getBearerTokenAuth();
+            if (decryptedBearerTokenAuth != null) {
+                auth.setBearerToken(decryptedBearerTokenAuth.getBearerToken());
+            }
             datasourceStorage.getDatasourceConfiguration().setAuthentication(auth);
         }
     }
