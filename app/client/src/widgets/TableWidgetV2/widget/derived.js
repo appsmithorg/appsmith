@@ -1208,25 +1208,20 @@ export default {
 
         /* General validations */
         if (
-          !validation.isColumnEditableCellRequired &&
-          (value === "" || _.isNil(value))
-        ) {
-          validationMap[editedColumn.alias] = true;
-
-          return;
-        } else if (
-          (!_.isNil(validation.isColumnEditableCellValid) &&
-            !validation.isColumnEditableCellValid) ||
-          (validation.regex && !createRegex(validation.regex).test(value)) ||
-          (validation.isColumnEditableCellRequired &&
-            (value === "" || _.isNil(value)))
+          !_.isNil(validation.isColumnEditableCellValid) &&
+          !validation.isColumnEditableCellValid
         ) {
           validationMap[editedColumn.alias] = false;
 
           return;
         }
 
-        /* Column type related validations */
+        if (validation.regex && !createRegex(validation.regex).test(value)) {
+          validationMap[editedColumn.alias] = false;
+
+          return;
+        }
+
         switch (editedColumn.columnType) {
           case "number":
           case "currency":
@@ -1251,6 +1246,15 @@ export default {
             }
 
             break;
+        }
+
+        if (
+          !validation.isColumnEditableCellRequired &&
+          (value === "" || _.isNil(value))
+        ) {
+          validationMap[editedColumn.alias] = true;
+
+          return;
         }
       }
 
