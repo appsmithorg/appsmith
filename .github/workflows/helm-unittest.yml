@@ -6,7 +6,6 @@ on:
       - release
     paths:
       - "deploy/helm/**"
-
   workflow_dispatch:
 
 jobs:
@@ -21,7 +20,7 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-    
+
       - name: Unittest
         run: |
           docker run --rm -v $(pwd):/apps helmunittest/helm-unittest .
