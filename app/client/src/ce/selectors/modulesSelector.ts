@@ -13,3 +13,6 @@ export const getCurrentModuleId = (state: DefaultRootState) => "";
 export const getCurrentBaseModuleId = (state: DefaultRootState) => "";
 
 export const showUIModulesList = (state: DefaultRootState) => false;
+
+export const getActionsInCurrentModule = (state: DefaultRootState) => [];
+export const getJSCollectionsInCurrentModule = (state: DefaultRootState) => [];
