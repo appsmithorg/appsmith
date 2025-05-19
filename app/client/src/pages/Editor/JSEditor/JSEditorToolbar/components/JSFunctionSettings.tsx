@@ -18,13 +18,7 @@ import {
   RUN_BEHAVIOR_VALUES,
   type ActionRunBehaviourType,
 } from "PluginActionEditor/types/PluginActionTypes";
-import styled, { createGlobalStyle } from "styled-components";
-
-const PopoverStyles = createGlobalStyle`
-  .rc-select-dropdown {
-    width: 256px !important;
-  }
-`;
+import styled from "styled-components";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -95,8 +89,10 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
         {props.action.name}
       </FunctionName>
       <StyledSelect
+        className="js-runBehaviour"
         data-testid={`t--dropdown-runBehaviour`}
         defaultValue={selectedValue}
+        dropdownMatchSelectWidth={256}
         id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}
@@ -146,7 +142,6 @@ export const JSFunctionSettings = (props: Props) => {
       {props.actions.length === 0 && (
         <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
       )}
-      <PopoverStyles />
     </Flex>
   );
 };

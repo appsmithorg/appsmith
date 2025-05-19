@@ -11,6 +11,7 @@ export type SelectProps = RCSelectProps & {
   isDisabled?: boolean;
   isValid?: boolean;
   isLoading?: boolean;
+  dropdownMatchSelectWidth?: boolean | number;
 };
 
 export type SelectOptionProps = OptionProps & {
