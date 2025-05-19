@@ -1,7 +1,7 @@
 templates:
   - deployment.yaml
 tests:
-  - name: runAsUser should be 1000
+  - name: runAsUser should be 9999
     set:
       podSecurityContext:
         sysctls:
