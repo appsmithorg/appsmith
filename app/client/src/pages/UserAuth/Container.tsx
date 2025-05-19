@@ -52,7 +52,7 @@ function Container(props: ContainerProps) {
   const brandingEnabled = isBrandingEnabled(featureFlags);
 
   const shouldShowLeftSideContent =
-    cloudHosting && !isMobileDevice && !multiOrgEnabled && brandingEnabled;
+    cloudHosting && !isMobileDevice && multiOrgEnabled && !brandingEnabled;
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   return (
