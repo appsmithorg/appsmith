@@ -1496,7 +1496,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return onPageLoadCandidates;
     }
 
-    public ExecutableOnLoadService<?> getExecutableOnLoadService(CreatorContextType contextType) {
+    protected ExecutableOnLoadService<?> getExecutableOnLoadService(CreatorContextType contextType) {
         return pageExecutableOnLoadService;
     }
 }

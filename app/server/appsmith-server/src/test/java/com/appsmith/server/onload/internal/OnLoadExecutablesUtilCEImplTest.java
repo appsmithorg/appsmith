@@ -30,7 +30,6 @@ import static java.lang.Boolean.TRUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,9 +75,6 @@ public class OnLoadExecutablesUtilCEImplTest {
                 observationRegistry,
                 observationHelper,
                 featureFlagService));
-        doReturn(executableOnLoadService)
-                .when(onLoadExecutablesUtilCE)
-                .getExecutableOnLoadService(any(CreatorContextType.class));
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
