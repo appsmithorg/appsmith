@@ -16,6 +16,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
@@ -331,15 +332,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                             // There are no actions in this page. No need to proceed further since no actions would get
                             // updated
-                            if (creatorContextExecutables.isNullOrEmpty()) {
+                            if (CollectionUtils.isNullOrEmpty(creatorContextExecutables)) {
                                 return Mono.just(FALSE);
                             }
 
                             // No actions require an update if no actions have been found as page load actions as well
                             // as
                             // existing on load page actions are empty
-                            if (existingOnLoadExecutables.isNullOrEmpty()
-                                    && (onLoadExecutables == null || onLoadExecutables.isNullOrEmpty())) {
+                            if (CollectionUtils.isNullOrEmpty(existingOnLoadExecutables)
+                                    && (onLoadExecutables == null
+                                            || CollectionUtils.isNullOrEmpty(onLoadExecutables))) {
                                 return Mono.just(FALSE);
                             }
 
