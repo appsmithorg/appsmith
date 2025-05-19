@@ -38,7 +38,7 @@ const StyledSelect = styled(Select)`
   width: fit-content;
 
   .rc-select-selector {
-    min-width: 120px;
+    min-width: 110px;
   }
 `;
 
@@ -100,6 +100,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
       </FunctionName>
       <StyledSelect
         data-testid={`t--dropdown-runBehaviour`}
+        dropdownMatchSelectWidth={256}
         id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}
