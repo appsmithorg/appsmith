@@ -24,4 +24,4 @@ tests:
                 value: "80"
       - equal:
           path: spec.template.spec.containers[?(@.name == "appsmith")].env[?(@.name == "LD_PRELOAD")].value
-          value: /usr/local/lib/libnss_wrapper.so
+          value: "/usr/local/lib/libnss_wrapper.so"
