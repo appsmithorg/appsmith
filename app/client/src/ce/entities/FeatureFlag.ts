@@ -58,6 +58,7 @@ export const FEATURE_FLAG = {
     "license_external_saas_plugins_enabled",
   release_computation_cache_enabled: "release_computation_cache_enabled",
   release_ai_chat_integrations_enabled: "release_ai_chat_integrations_enabled",
+  release_reactive_actions_enabled: "release_reactive_actions_enabled",
   license_ai_agent_instance_enabled: "license_ai_agent_instance_enabled",
 } as const;
 
@@ -107,6 +108,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_external_saas_plugins_enabled: false,
   release_computation_cache_enabled: false,
   release_ai_chat_integrations_enabled: false,
+  release_reactive_actions_enabled: false,
   license_ai_agent_instance_enabled: false,
 };
 
