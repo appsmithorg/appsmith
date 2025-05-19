@@ -840,7 +840,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getRepoName());
 
         // Tags and branch checkout with the same mechanism.
-        return fsGitHandler.checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+        return fsGitHandler.resetToLastCommit(repoSuffix).flatMap(bool -> {
+            return fsGitHandler.checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+        });
     }
 
     @Override
