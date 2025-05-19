@@ -13,7 +13,7 @@ import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { isBrandingEnabled, isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 
 interface ContainerProps {
-  title: string;
+  title: string | React.ReactNode;
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;

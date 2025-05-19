@@ -2698,3 +2698,18 @@ export const PASSWORD_INSUFFICIENT_STRENGTH = () =>
 
 export const PLUGIN_NOT_INSTALLED = () =>
   "Upgrade your plan to unlock access to these integrations.";
+
+// Multi-org login footer constants
+export const MULTI_ORG_FOOTER_NOT_RIGHT_ORG_LEFT_TEXT = () =>
+  "Not the right organization?";
+export const MULTI_ORG_FOOTER_NOT_RIGHT_ORG_RIGHT_TEXT = () =>
+  "Enter other URL";
+
+export const MULTI_ORG_FOOTER_NOT_PART_OF_ORG_LEFT_TEXT = () =>
+  "Not part of the organization?";
+export const MULTI_ORG_FOOTER_NOT_PART_OF_ORG_RIGHT_TEXT = () => "Sign up";
+
+export const MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT = () =>
+  "Looking to create one?";
+export const MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT = () =>
+  "Create an organization";
