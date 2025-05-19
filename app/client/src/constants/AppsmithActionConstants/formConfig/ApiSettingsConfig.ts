@@ -7,9 +7,10 @@ import {
   HTTP_PROTOCOL_VERSIONS,
 } from "PluginActionEditor/constants/CommonApiConstants";
 import {
-  RUN_BEHAVIOR,
   RUN_BEHAVIOR_VALUES,
-} from "PluginActionEditor/types/PluginActionTypes";
+  RUN_BEHAVIOR_CONFIG_PROPERTY,
+} from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export default [
   {
@@ -18,9 +19,9 @@ export default [
     children: [
       {
         label: "Run behavior",
-        configProperty: "runBehaviour",
+        configProperty: RUN_BEHAVIOR_CONFIG_PROPERTY,
         controlType: "DROP_DOWN",
-        initialValue: RUN_BEHAVIOR.MANUAL.label,
+        initialValue: ActionRunBehaviour.MANUAL,
         options: RUN_BEHAVIOR_VALUES,
       },
       {
