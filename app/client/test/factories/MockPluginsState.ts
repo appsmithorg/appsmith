@@ -6958,6 +6958,11 @@ export default {
             initialValue: "MANUAL",
             options: [
               {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
@@ -7037,6 +7042,11 @@ export default {
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
               {
                 label: "On page load",
                 subText:
@@ -7118,6 +7128,11 @@ export default {
             initialValue: "MANUAL",
             options: [
               {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
                 label: "On page load",
                 subText:
                   "Query runs when the page loads or when manually triggered",
@@ -7161,6 +7176,11 @@ export default {
             controlType: "DROP_DOWN",
             initialValue: "MANUAL",
             options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
               {
                 label: "On page load",
                 subText:

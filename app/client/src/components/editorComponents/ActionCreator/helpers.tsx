@@ -66,7 +66,11 @@ import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstants";
 import { getModuleIcon } from "pages/Editor/utils";
-import { getAllModules } from "ee/selectors/modulesSelector";
+import {
+  getAllModules,
+  getActionsInCurrentModule,
+  getJSCollectionsInCurrentModule,
+} from "ee/selectors/modulesSelector";
 import type { Module } from "ee/constants/ModuleConstants";
 import {
   createNewJSCollectionFromActionCreator,
@@ -682,14 +686,18 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const plugins = useSelector((state: DefaultRootState) => {
     return state.entities.plugins.list;
   });
-  const actions = useSelector(getCurrentActions);
-  const jsActions = useSelector(getCurrentJSCollections);
+  const pageActions = useSelector(getCurrentActions);
+  const pageJsActions = useSelector(getCurrentJSCollections);
+  const moduleActions = useSelector(getActionsInCurrentModule);
+  const moduleJSCollections = useSelector(getJSCollectionsInCurrentModule);
   const queryModuleInstances = useSelector(
     getQueryModuleInstances,
   ) as unknown as ModuleInstanceDataState;
   const jsModuleInstancesData = useSelector(getJSModuleInstancesData);
   const modules = useSelector(getAllModules);
   const pluginImages = useSelector(getPluginImages);
+  const actions = [...pageActions, ...moduleActions];
+  const jsActions = [...pageJsActions, ...moduleJSCollections];
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(

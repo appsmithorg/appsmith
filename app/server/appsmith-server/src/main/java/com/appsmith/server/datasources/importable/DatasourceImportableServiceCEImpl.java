@@ -364,11 +364,17 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         }
 
         if (StringUtils.equals(authType, DBAuth.class.getName())) {
-            final DBAuth dbAuth = decryptedFields.getDbAuth();
+            DBAuth dbAuth = decryptedFields.getDbAuth();
+            if (dbAuth == null) {
+                dbAuth = new DBAuth();
+            }
             dbAuth.setPassword(decryptedFields.getPassword());
             datasourceStorage.getDatasourceConfiguration().setAuthentication(dbAuth);
         } else if (StringUtils.equals(authType, BasicAuth.class.getName())) {
-            final BasicAuth basicAuth = decryptedFields.getBasicAuth();
+            BasicAuth basicAuth = decryptedFields.getBasicAuth();
+            if (basicAuth == null) {
+                basicAuth = new BasicAuth();
+            }
             basicAuth.setPassword(decryptedFields.getPassword());
             datasourceStorage.getDatasourceConfiguration().setAuthentication(basicAuth);
         } else if (StringUtils.equals(authType, OAuth2.class.getName())) {
@@ -383,7 +389,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             datasourceStorage.getDatasourceConfiguration().setAuthentication(auth2);
         } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
             BearerTokenAuth auth = new BearerTokenAuth();
-            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            BearerTokenAuth decryptedBearerTokenAuth = decryptedFields.getBearerTokenAuth();
+            if (decryptedBearerTokenAuth != null) {
+                auth.setBearerToken(decryptedBearerTokenAuth.getBearerToken());
+            }
             datasourceStorage.getDatasourceConfiguration().setAuthentication(auth);
         }
     }
