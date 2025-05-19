@@ -238,12 +238,6 @@ export function Table(props: TableProps) {
     ],
   );
 
-  props.isVisibleSearch ||
-    props.isVisibleFilters ||
-    props.isVisibleDownload ||
-    props.isVisiblePagination ||
-    props.allowAddNewRow;
-
   /**
    * What this really translates is to fixed height rows:
    * shouldUseVirtual: false -> fixed height row, irrespective of content small or big
