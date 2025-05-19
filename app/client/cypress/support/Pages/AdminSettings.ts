@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { featureFlagIntercept } from "../Objects/FeatureFlags";
+import githubForm from "../../locators/GithubForm.json";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -8,6 +9,7 @@ export class AdminSettings {
   public assertHelper = ObjectsRegistry.AssertHelper;
 
   public _adminSettingsBtn = ".admin-settings-menu-option";
+  public _authenticationTab = ".t--settings-category-authentication";
   public _saveButton = ".t--admin-settings-save-button";
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
@@ -45,6 +47,27 @@ export class AdminSettings {
     this.agHelper.GetNClick(this._adminSettingsBtn);
     this.assertHelper.AssertNetworkStatus("getEnvVariables");
     this.agHelper.AssertElementVisibility(this._settingsList);
+  }
+
+  public NavigateToAuthenticationSettings(toNavigateToHome = true) {
+    this.NavigateToAdminSettings(toNavigateToHome);
+    this.agHelper.GetNClick(this._authenticationTab);
+  }
+
+  public FillAndSaveGithubForm() {
+    this.agHelper.GetNClick(githubForm.githubClientId);
+    this.agHelper.TypeText(
+      githubForm.githubClientId,
+      Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
+    );
+
+    this.agHelper.GetNClick(githubForm.githubClientSecret);
+    this.agHelper.TypeText(
+      githubForm.githubClientSecret,
+      Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"),
+    );
+
+    this.agHelper.GetNClick(githubForm.saveBtn);
   }
 
   public EnableGAC(
