@@ -13795,7 +13795,7 @@ __metadata:
     postcss-at-rules-variables: ^0.3.0
     postcss-each: ^1.1.0
     postcss-flexbugs-fixes: ^5.0.2
-    postcss-import: ^15.1.0
+    postcss-import: ^16.1.0
     postcss-loader: ^6.2.1
     postcss-modules-values: ^4.0.0
     postcss-nesting: ^12.0.1
