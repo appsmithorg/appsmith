@@ -142,7 +142,7 @@ export interface DropDownControlProps extends ControlProps {
     pluginId: string;
     identifier: string;
   };
-  featureFlags: FeatureFlags;
+  featureFlags?: FeatureFlags;
 }
 
 interface ReduxDispatchProps {
