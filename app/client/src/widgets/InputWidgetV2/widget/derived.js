@@ -76,7 +76,7 @@ export default {
          *  https://stackoverflow.com/questions/15017052/understanding-email-validation-using-javascript
          * */
         const emailRegex = new RegExp(
-          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/,
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         );
 
         if (!emailRegex.test(value)) {
