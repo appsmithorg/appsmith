@@ -1199,10 +1199,7 @@ export default {
 
     const validationMap = {};
 
-    editableColumns.forEach((validationObj) => {
-      const editedColumn = validationObj[0];
-      const value = validationObj[1];
-
+    editableColumns.forEach(([editedColumn, value]) => {
       if (editedColumn && editedColumn.validation) {
         const validation = editedColumn.validation;
 
@@ -1249,10 +1246,10 @@ export default {
         }
 
         if (
-          !validation.isColumnEditableCellRequired &&
+          validation.isColumnEditableCellRequired &&
           (value === "" || _.isNil(value))
         ) {
-          validationMap[editedColumn.alias] = true;
+          validationMap[editedColumn.alias] = false;
 
           return;
         }
