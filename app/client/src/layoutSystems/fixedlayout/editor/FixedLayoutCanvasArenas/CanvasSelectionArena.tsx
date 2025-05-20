@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
@@ -63,7 +63,7 @@ export function CanvasSelectionArena({
       : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
-  const parentWidget = useSelector((state: AppState) =>
+  const parentWidget = useSelector((state: DefaultRootState) =>
     getWidget(state, parentId || ""),
   );
   const isDraggableParent = !(
@@ -77,12 +77,12 @@ export function CanvasSelectionArena({
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
-  const mainContainer = useSelector((state: AppState) =>
+  const mainContainer = useSelector((state: DefaultRootState) =>
     getWidget(state, widgetId),
   );
   const currentPageId = useSelector(getCurrentPageId);
@@ -117,10 +117,10 @@ export function CanvasSelectionArena({
     [widgetId, snapColumnSpace, snapRowSpace],
   );
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
-  const isCurrentWidgetDrawing = useSelector((state: AppState) => {
+  const isCurrentWidgetDrawing = useSelector((state: DefaultRootState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });
-  const outOfCanvasStartPositions = useSelector((state: AppState) => {
+  const outOfCanvasStartPositions = useSelector((state: DefaultRootState) => {
     return state.ui.canvasSelection.outOfCanvasStartPositions;
   });
   const defaultDrawOnObj = {

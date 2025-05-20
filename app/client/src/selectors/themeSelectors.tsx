@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { Theme } from "constants/DefaultTheme";
 import { dark, light, theme } from "constants/DefaultTheme";
 
@@ -13,7 +13,7 @@ const darkTheme = { ...theme, colors: { ...theme.colors, ...dark } };
 
 // Only for usage with ThemeProvider
 export const getThemeDetails = (
-  state: AppState,
+  state: DefaultRootState,
   themeMode: ThemeMode,
 ): Theme => (themeMode === ThemeMode.LIGHT ? lightTheme : darkTheme);
 
@@ -24,12 +24,13 @@ export const getTheme = (themeMode: ThemeMode) => {
 };
 
 // Use to get the current theme of the app set via the theme switcher
-export const getCurrentThemeDetails = (state: AppState): Theme =>
+export const getCurrentThemeDetails = (state: DefaultRootState): Theme =>
   state.ui.theme.theme;
 
 // Use to get the current theme mode of the app set via the theme switcher
-export const getCurrentThemeMode = (state: AppState) => state.ui.theme.mode;
+export const getCurrentThemeMode = (state: DefaultRootState) =>
+  state.ui.theme.mode;
 
-export const getAppCardColorPalette = (state: AppState) => {
+export const getAppCardColorPalette = (state: DefaultRootState) => {
   return state.ui.theme.theme.colors.appCardColors;
 };

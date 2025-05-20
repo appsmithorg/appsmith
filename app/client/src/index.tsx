@@ -17,7 +17,7 @@ import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "ee/AppRouter";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
@@ -27,22 +27,18 @@ import GlobalStyles from "globalStyles";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { FaroErrorBoundary } from "@grafana/faro-react";
-import { isTracingEnabled } from "instrumentation/utils";
 
 runSagaMiddleware();
 
 appInitializer();
 
-isTracingEnabled() &&
-  (async () => {
-    try {
-      await import(
-        /* webpackChunkName: "instrumentation" */ "./instrumentation"
-      );
-    } catch (e) {
-      log.error("Error loading telemetry script", e);
-    }
-  })();
+(async () => {
+  try {
+    await import(/* webpackChunkName: "instrumentation" */ "./instrumentation");
+  } catch (e) {
+    log.error("Error loading telemetry script", e);
+  }
+})();
 
 function App() {
   return (
@@ -73,7 +69,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 

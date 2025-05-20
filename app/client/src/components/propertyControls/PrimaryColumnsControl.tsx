@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { connect } from "react-redux";
 import type { Placement } from "popper.js";
-import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -402,11 +401,11 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
     );
   };
 }
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: DefaultRootState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
 });
 
-const EvaluatedValuePopupWrapper = Sentry.withProfiler(
-  connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),
+const EvaluatedValuePopupWrapper = connect(mapStateToProps)(
+  EvaluatedValuePopupWrapperClass,
 );

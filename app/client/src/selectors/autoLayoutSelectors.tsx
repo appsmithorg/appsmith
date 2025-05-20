@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
 import { getCanvasAndMetaWidgets } from "sagas/selectors";
@@ -13,7 +13,7 @@ import type {
   LayerChild,
 } from "layoutSystems/autolayout/utils/types";
 
-export const getIsCurrentlyConvertingLayout = (state: AppState) =>
+export const getIsCurrentlyConvertingLayout = (state: DefaultRootState) =>
   state.ui.layoutConversion.isConverting;
 
 export const getFlexLayers = (parentId: string) => {
@@ -26,7 +26,7 @@ export const getFlexLayers = (parentId: string) => {
   });
 };
 
-export const getSnapshotUpdatedTime = (state: AppState) =>
+export const getSnapshotUpdatedTime = (state: DefaultRootState) =>
   state.ui.layoutConversion.snapshotDetails?.updatedTime;
 
 export const getLayerIndex = (widgetId: string, parentId: string) => {
@@ -50,7 +50,7 @@ export const getLayerIndex = (widgetId: string, parentId: string) => {
 
 export const isCurrentCanvasDragging = (widgetId: string) => {
   return createSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    (state: DefaultRootState) => state.ui.widgetDragResize.dragDetails,
     (dragDetails): boolean => {
       return dragDetails?.draggedOn === widgetId;
     },

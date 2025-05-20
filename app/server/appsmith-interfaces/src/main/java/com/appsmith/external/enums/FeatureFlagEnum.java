@@ -14,7 +14,6 @@ public enum FeatureFlagEnum {
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
     rollout_datasource_test_rate_limit_enabled,
-    release_google_sheets_shared_drive_support_enabled,
     release_gs_all_sheets_options_enabled,
     /**
      * Feature flag to detect if the git reset optimization is enabled
@@ -24,6 +23,7 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if the RTS git reset is enabled
      */
     ab_rts_git_reset_enabled,
+    release_git_api_contracts_enabled,
 
     // Deprecated CE flags over here
     release_git_autocommit_feature_enabled,

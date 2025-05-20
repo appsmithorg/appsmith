@@ -1,7 +1,6 @@
 import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
-import * as Sentry from "@sentry/react";
 import { klonaRegularWithTelemetry, mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
@@ -21,6 +20,7 @@ import * as config from "../config";
 import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
+import { appsmithTelemetry } from "instrumentation";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
@@ -163,7 +163,9 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        Sentry.captureException(e);
+        appsmithTelemetry.captureException(e, {
+          errorName: "WDSPhoneInputWidget",
+        });
       }
     }
   }

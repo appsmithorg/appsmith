@@ -263,11 +263,16 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Colder seeds require a bit more chroma to not seem completely washed out
     if (this.seedChroma > 0.09 && this.seedIsCold) {
-      color.oklch.c = 0.09;
+      color.oklch.c = 0.06;
+    }
+
+    // Teal is quite intense in the perceived chroma, possibly because of the narrow range on both lighntess and chroma
+    if (color.oklch.h >= 160 && color.oklch.h <= 235) {
+      color.oklch.c = 0.04;
     }
 
     if (this.seedChroma > 0.06 && !this.seedIsCold) {
-      color.oklch.c = 0.06;
+      color.oklch.c = 0.03;
     }
 
     if (this.seedIsAchromatic) {
@@ -408,7 +413,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.97;
+      color.oklch.l = 0.975;
     }
 
     if (this.seedChroma > 0.002) {
@@ -780,7 +785,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.12;
+    color.oklch.l += 0.1;
 
     return color;
   }
@@ -806,10 +811,10 @@ export class LightModeTheme implements ColorModeTheme {
     // Negative foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is red.
     const color = this.bgNegative.clone();
 
-    // Red hue interval bgNegativein OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
-    color.oklch.l += 0.1;
+    // Red hue interval in OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
+    color.oklch.l += 0.05;
     color.oklch.c += 0.1;
-    color.oklch.h -= 10;
+    color.oklch.h += 5;
 
     if (
       this.seedIsRed &&
@@ -818,7 +823,7 @@ export class LightModeTheme implements ColorModeTheme {
       this.fgAccent.oklch.h < 27
     ) {
       color.oklch.c += 0.05;
-      color.oklch.h -= 10;
+      color.oklch.h -= 20;
     }
 
     return color;
@@ -1058,7 +1063,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of neutral border, used in outlined buttons
     const color = this.bdNeutral.clone();
 
-    color.oklch.l += 0.47;
+    color.oklch.l += 0.35;
 
     return color;
   }

@@ -12,6 +12,8 @@ import {
 import { createReducer } from "utils/ReducerUtils";
 
 export interface OrganizationReduxState<T> {
+  displayName?: string;
+  slug?: string;
   userPermissions: string[];
   organizationConfiguration: Record<string, T>;
   new: boolean;

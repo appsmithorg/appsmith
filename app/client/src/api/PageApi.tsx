@@ -9,6 +9,7 @@ import type {
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 export interface FetchPageRequest {
   pageId: string;
@@ -69,7 +70,7 @@ export interface SavePageResponseData {
   dsl: Partial<DSLWidget>;
   messages: string[];
   actionUpdates: Array<{
-    executeOnLoad: boolean;
+    runBehaviour: ActionRunBehaviourType;
     id: string;
     name: string;
     collectionId?: string;
@@ -135,10 +136,12 @@ export interface ClonePageRequest {
 }
 
 export interface UpdateWidgetNameRequest {
-  pageId: string;
+  pageId?: string;
   layoutId: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: "MODULE" | "PAGE";
 }
 
 export interface GenerateTemplatePageRequest {

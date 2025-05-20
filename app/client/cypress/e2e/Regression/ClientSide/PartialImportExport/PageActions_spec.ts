@@ -15,7 +15,7 @@ import {
 import PageList from "../../../../support/Pages/PageList";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Check Page Actions Menu", {}, function () {
+describe("Check Page Actions Menu", { tags: ["@tag.IDE"] }, function () {
   it("1. Verify Page Actions when a page is selected", function () {
     homePage.RenameApplication("PageActions");
     PageList.AddNewPage("New blank page");
@@ -32,7 +32,7 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("NewPage Copy"),
-      "data-disabled",
+      "data-subtle",
       "true",
     );
     PageList.DeletePage("NewPage Copy");
@@ -93,7 +93,7 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("Page2 Copy"),
-      "data-disabled",
+      "data-subtle",
       "true",
     );
     PageList.DeletePage("Page2 Copy");
@@ -115,7 +115,7 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("HomePage Copy"),
-      "data-disabled",
+      "data-subtle",
       "true",
     );
     PageList.DeletePage("HomePage Copy");

@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tooltip, ToggleButton } from "@appsmith/ads";
 
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { APP_MODE } from "entities/App";
 
 import { getAppMode } from "ee/selectors/applicationSelectors";
@@ -17,7 +17,9 @@ function ToggleModeButton() {
   const isPreviewMode = useSelector(previewModeSelector);
   const appMode = useSelector(getAppMode);
 
-  const mode = useSelector((state: AppState) => state.entities.app.mode);
+  const mode = useSelector(
+    (state: DefaultRootState) => state.entities.app.mode,
+  );
   const isViewMode = mode === APP_MODE.PUBLISHED;
 
   const onClickPreviewModeButton = useCallback(() => {

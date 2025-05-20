@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   Annotation,
   EditorConfiguration,
@@ -78,7 +78,6 @@ import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
-import * as Sentry from "@sentry/react";
 import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
@@ -123,7 +122,7 @@ import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
@@ -1857,7 +1856,7 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => {
+const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
   const currentPageId: string = getCurrentPageId(state);
   let entitiesForNavigation: EntityNavigationData = {};
 
@@ -1899,6 +1898,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetActiveField: () => dispatch(resetActiveEditorField()),
 });
 
-export default Sentry.withProfiler(
-  connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(CodeEditor);

@@ -84,7 +84,7 @@ import static com.appsmith.git.constants.ce.CommonConstantsCE.DELIMITER_PATH;
 @Import({GitServiceConfig.class})
 public class FileUtilsCEImpl implements FileInterface {
 
-    private final GitServiceConfig gitServiceConfig;
+    protected final GitServiceConfig gitServiceConfig;
     protected final FSGitHandler fsGitHandler;
     private final GitExecutor gitExecutor;
     protected final FileOperations fileOperations;
@@ -98,7 +98,7 @@ public class FileUtilsCEImpl implements FileInterface {
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN =
             Pattern.compile("(.*?)\\.(md|MD|git|gitignore|github|yml|yaml)$");
 
-    private final Scheduler scheduler = Schedulers.boundedElastic();
+    protected final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
 
@@ -251,7 +251,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<Path> saveArtifactToGitRepo(
-            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
+            Path baseRepoSuffix, GitResourceMap gitResourceMapFromDB, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException {
 
         // Repo path will be:
@@ -261,14 +261,18 @@ public class FileUtilsCEImpl implements FileInterface {
                 .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
+                    Mono<GitResourceMap> gitResourceMapFromFSMono = constructGitResourceMapFromGitRepo(
+                                    baseRepoSuffix, branchName)
+                            .name("constructGitResourceMapFromGitRepo");
 
-                    try {
-                        updateEntitiesInRepo(gitResourceMap, baseRepo);
-                    } catch (IOException e) {
-                        return Mono.error(e);
-                    }
-
-                    return Mono.just(baseRepo);
+                    return gitResourceMapFromFSMono.flatMap(gitResourceMapFromFS -> {
+                        try {
+                            updateEntitiesInRepo(gitResourceMapFromDB, baseRepo, gitResourceMapFromFS);
+                        } catch (IOException e) {
+                            return Mono.error(e);
+                        }
+                        return Mono.just(baseRepo);
+                    });
                 })
                 .subscribeOn(scheduler);
     }
@@ -327,19 +331,28 @@ public class FileUtilsCEImpl implements FileInterface {
         }
     }
 
-    protected Set<String> updateEntitiesInRepo(GitResourceMap gitResourceMap, Path baseRepo) throws IOException {
-        ModifiedResources modifiedResources = gitResourceMap.getModifiedResources();
-        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+    protected Set<String> updateEntitiesInRepo(
+            GitResourceMap gitResourceMapFromDB, Path baseRepo, GitResourceMap gitResourceMapFromFS)
+            throws IOException {
+        Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
 
-        Set<String> filesInRepo = getExistingFilesInRepo(baseRepo);
-
-        Set<String> updatedFilesToBeSerialized = resourceMap.keySet().parallelStream()
+        Set<String> filesInRepo = new HashSet<>();
+        Set<String> updatedFiles = new HashSet<>();
+        Set<String> filesInDB = resourceMapFromDB.keySet().parallelStream()
                 .map(gitResourceIdentity -> gitResourceIdentity.getFilePath())
                 .collect(Collectors.toSet());
 
+        Map<String, Object> filesInFS = gitResourceMapFromFS.getGitResourceMap().entrySet().parallelStream()
+                .map(entry -> {
+                    filesInRepo.add(entry.getKey().getFilePath());
+                    return entry;
+                })
+                .collect(Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
         // Remove all files that need to be serialized from the existing files list, as well as the README file
         // What we are left with are all the files to be deleted
-        filesInRepo.removeAll(updatedFilesToBeSerialized);
+
+        filesInRepo.removeAll(filesInDB);
         filesInRepo.remove(README_FILE_NAME);
 
         // Delete all the files because they are no longer needed
@@ -357,20 +370,19 @@ public class FileUtilsCEImpl implements FileInterface {
 
         // Now go through the resource map and based on resource type, check if the resource is modified before
         // serialization
-        // Or simply choose the mechanism for serialization
-        Map<GitResourceType, GitResourceType> modifiedResourcesTypes = getModifiedResourcesTypes();
-        return resourceMap.entrySet().parallelStream()
+        resourceMapFromDB.entrySet().parallelStream()
                 .map(entry -> {
                     GitResourceIdentity key = entry.getKey();
                     boolean resourceUpdated = true;
-                    if (modifiedResourcesTypes.containsKey(key.getResourceType()) && modifiedResources != null) {
-                        GitResourceType comparisonType = modifiedResourcesTypes.get(key.getResourceType());
-
+                    try {
                         resourceUpdated =
-                                modifiedResources.isResourceUpdatedNew(comparisonType, key.getResourceIdentifier());
+                                fileOperations.hasFileChanged(entry.getValue(), filesInFS.get(key.getFilePath()));
+                    } catch (IOException e) {
+                        log.error("Error while checking if file has changed", e);
                     }
 
                     if (resourceUpdated) {
+                        log.info("Resource updated: {}", key.getFilePath());
                         String filePath = key.getFilePath();
                         saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
 
@@ -380,6 +392,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+        return updatedFiles;
     }
 
     protected Set<String> updateEntitiesInRepo(ApplicationGitReference applicationGitReference, Path baseRepo) {
@@ -1251,6 +1264,12 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     @Override
+    public Mono<Object> reconstructPackageJsonFromGitRepository(Path repoSuffix) {
+        return Mono.error(
+                new AppsmithPluginException(AppsmithPluginError.PLUGIN_UNSUPPORTED_OPERATION, "package json creation"));
+    }
+
+    @Override
     public Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix) {
         Mono<Object> metadataMono = Mono.fromCallable(() -> {
             Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix);
@@ -1262,7 +1281,12 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<Object> reconstructPageFromGitRepo(
-            String pageName, String branchName, Path baseRepoSuffixPath, Boolean resetToLastCommitRequired) {
+            String pageName,
+            String branchName,
+            Path baseRepoSuffixPath,
+            Boolean resetToLastCommitRequired,
+            Boolean useFSGitHandler,
+            Boolean keepWorkingDirChanges) {
         Mono<Object> pageObjectMono;
         try {
             Mono<Boolean> resetToLastCommit = Mono.just(Boolean.TRUE);
@@ -1270,7 +1294,12 @@ public class FileUtilsCEImpl implements FileInterface {
             if (Boolean.TRUE.equals(resetToLastCommitRequired)) {
                 // instead of checking out to last branch we are first cleaning the git repo,
                 // then checking out to the desired branch
-                resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName, false);
+                if (Boolean.TRUE.equals(useFSGitHandler)) {
+                    resetToLastCommit =
+                            fsGitHandler.resetToLastCommit(baseRepoSuffixPath, branchName, keepWorkingDirChanges);
+                } else {
+                    resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName, true);
+                }
             }
 
             pageObjectMono = resetToLastCommit.map(isSwitched -> {

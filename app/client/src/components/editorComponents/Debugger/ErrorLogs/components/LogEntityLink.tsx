@@ -4,11 +4,10 @@ import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
 import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
-import { getPlugins } from "ee/selectors/entitiesSelector";
+import { getPluginImages, getPlugins } from "ee/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 import { getIconForEntity } from "ee/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
-import { getPluginImagesFromPlugins } from "pages/Editor/utils";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -50,7 +49,7 @@ const getIcon = (props: LogItemProps, pluginImages: Record<string, string>) => {
 export default function LogEntityLink(props: LogItemProps) {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const pluginImages = getPluginImagesFromPlugins(plugins);
+  const pluginImages = useSelector(getPluginImages);
 
   const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
 

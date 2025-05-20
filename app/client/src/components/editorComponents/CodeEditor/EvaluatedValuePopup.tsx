@@ -14,13 +14,12 @@ import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import copy from "copy-to-clipboard";
 
-import * as Sentry from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
@@ -29,6 +28,7 @@ import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
+import { appsmithTelemetry } from "instrumentation";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -290,10 +290,13 @@ export function PreparedStatementViewer(props: {
   const { parameters, value } = props.evaluatedValue;
 
   if (!value) {
-    Sentry.captureException("Prepared statement got no value", {
-      level: "debug",
-      extra: { props },
-    });
+    appsmithTelemetry.captureException(
+      new Error("Prepared statement got no value"),
+      {
+        errorName: "PreparedStatementError",
+        extra: { props },
+      },
+    );
 
     return <div />;
   }
@@ -484,7 +487,7 @@ const ControlledCurrentValueViewer = memo(
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
   const dispatch = useDispatch();
-  const popupContext = useSelector((state: AppState) =>
+  const popupContext = useSelector((state: DefaultRootState) =>
     getEvaluatedPopupState(state, props.dataTreePath),
   );
   const [openExpectedDataType, setOpenExpectedDataType] = useState(
@@ -503,7 +506,7 @@ function PopoverContent(props: PopoverContentProps) {
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
   const errorWithSource = errors.find(({ kind }) => kind && kind.rootcause);
 
-  const errorNavigationUrl = useSelector((state: AppState) =>
+  const errorNavigationUrl = useSelector((state: DefaultRootState) =>
     getPathNavigationUrl(state, entityName, errorWithSource?.kind?.rootcause),
   );
   const toggleExpectedDataType = () =>

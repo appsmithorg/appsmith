@@ -302,11 +302,21 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    this.allKeys = await appComputationCache.fetchOrCompute({
-      cacheProps,
-      cacheName: EComputationCacheName.ALL_KEYS,
-      computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
-    });
+    try {
+      this.allKeys = await appComputationCache.fetchOrCompute({
+        cacheProps,
+        cacheName: EComputationCacheName.ALL_KEYS,
+        computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
+      });
+    } catch (error) {
+      this.errors.push({
+        type: EvalErrorTypes.CACHE_ERROR,
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+
+      this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
+    }
 
     const allKeysGenerationEndTime = performance.now();
 
@@ -1205,6 +1215,7 @@ export default class DataTreeEvaluator {
               context: {
                 propertyPath: fullPropertyPath,
               },
+              stack: (error as Error).stack,
             });
             evalPropertyValue = undefined;
           }
@@ -1408,6 +1419,7 @@ export default class DataTreeEvaluator {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
+        stack: (error as Error).stack,
       });
     } finally {
       // Restore the dataStore since it was a part of contextTree and prone to mutation.

@@ -20,6 +20,7 @@ import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHK
 import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
 import type { GitArtifactDef } from "git/types";
 import type { PretagResponseData } from "git/requests/pretagRequest.types";
+import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -98,6 +99,11 @@ export interface GitGlobalReduxState {
   globalSSHKey: GitAsyncState<FetchGlobalSSHKeyResponseData>;
   // ui
   isImportModalOpen: boolean;
+  importOverrideDetails: {
+    params: GitImportRequestParams;
+    oldArtifactName: string;
+    newArtifactName: string;
+  } | null;
   repoLimitErrorModalOpen: boolean;
 }
 

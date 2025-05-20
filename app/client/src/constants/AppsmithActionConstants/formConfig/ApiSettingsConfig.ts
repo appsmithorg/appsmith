@@ -6,6 +6,11 @@ import {
   HTTP_PROTOCOL,
   HTTP_PROTOCOL_VERSIONS,
 } from "PluginActionEditor/constants/CommonApiConstants";
+import {
+  RUN_BEHAVIOR_VALUES,
+  RUN_BEHAVIOR_CONFIG_PROPERTY,
+} from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export default [
   {
@@ -13,9 +18,11 @@ export default [
     id: 1,
     children: [
       {
-        label: "Run the API on page load",
-        configProperty: "executeOnLoad",
-        controlType: "SWITCH",
+        label: "Run behavior",
+        configProperty: RUN_BEHAVIOR_CONFIG_PROPERTY,
+        controlType: "DROP_DOWN",
+        initialValue: ActionRunBehaviour.MANUAL,
+        options: RUN_BEHAVIOR_VALUES,
       },
       {
         label: "Request confirmation before running this API",

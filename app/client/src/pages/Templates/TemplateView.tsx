@@ -14,7 +14,7 @@ import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
@@ -142,7 +142,7 @@ export function TemplateView({
 }: TemplateViewProps) {
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
-    (state: AppState) => state.ui.templates.similarTemplates,
+    (state: DefaultRootState) => state.ui.templates.similarTemplates,
   );
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
   const workspaceList = useSelector(getForkableWorkspaces);

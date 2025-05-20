@@ -5,7 +5,7 @@ import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
 import { change, Field, formValueSelector } from "redux-form";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { connect } from "react-redux";
 import { get, merge } from "lodash";
 import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
@@ -613,7 +613,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 }
 
 const mapStateToProps = (
-  state: AppState,
+  state: DefaultRootState,
   ownProps: {
     pluginId: string;
     actionName: string;

@@ -22,27 +22,42 @@ const IconContainer = styled.div`
   align-items: center;
 `;
 
-const Label = styled.div`
+const LabelContainer = styled.div`
   width: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const Label = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
+const SubText = styled.span`
+  font-size: 12px;
+  color: var(--ads-v2-color-fg-muted);
+`;
+
 interface Props {
+  className?: string;
   label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
-  className?: string;
+  subText?: string;
 }
 
 export function DropdownOption(props: Props) {
-  const { className, label, leftIcon, rightIcon } = props;
+  const { className, label, leftIcon, rightIcon, subText } = props;
 
   return (
     <Container className={className}>
       <LeftSection>
         {leftIcon && <IconContainer>{leftIcon}</IconContainer>}
-        <Label>{label}</Label>
+        <LabelContainer>
+          <Label>{label}</Label>
+          {subText && <SubText>{subText}</SubText>}
+        </LabelContainer>
       </LeftSection>
       {rightIcon && <IconContainer>{rightIcon}</IconContainer>}
     </Container>

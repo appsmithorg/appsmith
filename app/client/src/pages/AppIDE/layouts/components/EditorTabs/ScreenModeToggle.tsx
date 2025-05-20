@@ -11,7 +11,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { setIdeEditorViewMode } from "actions/ideActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Nudge } from "IDE/Components/Nudge";
@@ -25,7 +25,7 @@ export const ScreenModeToggle = (props: Props) => {
   const { dismissNudge, showNudge = false } = props;
   const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
-  const isAnimatedIDEEnabled = useSelector((state: AppState) => {
+  const isAnimatedIDEEnabled = useSelector((state: DefaultRootState) => {
     return selectFeatureFlagCheck(
       state,
       FEATURE_FLAG.release_ide_animations_enabled,

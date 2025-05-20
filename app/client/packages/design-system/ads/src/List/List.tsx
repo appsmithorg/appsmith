@@ -127,6 +127,7 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      data-subtle={props.isSubtle || false}
       data-testid={props.dataTestId}
       id={props.id}
       onClick={handleOnClick}

@@ -197,6 +197,7 @@ const Header = () => {
           <ToggleModeButton />
           {applicationId && <EditorShareButton setShowModal={setShowModal} />}
           <Modal
+            key={showModal ? "modal-open" : "modal-closed"}
             onOpenChange={(isOpen) => setShowModal(isOpen)}
             open={showModal}
           >

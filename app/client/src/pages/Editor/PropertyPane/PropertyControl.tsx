@@ -29,7 +29,7 @@ import {
 } from "ee/constants/messages";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
@@ -120,7 +120,7 @@ const PropertyControl = memo((props: Props) => {
   // which might lead to another rerender and reset the component
   const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
-    (state: AppState) =>
+    (state: DefaultRootState) =>
       getShouldFocusPropertyPath(
         state,
         dataTreePath,

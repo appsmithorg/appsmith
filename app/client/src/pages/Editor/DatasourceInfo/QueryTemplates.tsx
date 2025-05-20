@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
@@ -57,11 +57,13 @@ const TemplateMenuItem = styled(MenuItem)`
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
-  const actions = useSelector((state: AppState) => state.entities.actions);
+  const actions = useSelector(
+    (state: DefaultRootState) => state.entities.actions,
+  );
   const basePageId = useSelector(getCurrentBasePageId);
   const pageId = useSelector(getCurrentPageId);
-  const dataSource: Datasource | undefined = useSelector((state: AppState) =>
-    getDatasource(state, props.datasourceId),
+  const dataSource: Datasource | undefined = useSelector(
+    (state: DefaultRootState) => getDatasource(state, props.datasourceId),
   );
 
   const currentAction = useSelector((state) =>
@@ -71,7 +73,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
   const formValues = useSelector((state) => getFormValues(formName)(state));
 
-  const plugin: Plugin | undefined = useSelector((state: AppState) =>
+  const plugin: Plugin | undefined = useSelector((state: DefaultRootState) =>
     getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
   );
   const createQueryAction = useCallback(

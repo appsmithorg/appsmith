@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import { memoize } from "lodash";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type {
   ApplicationsReduxState,
   creatingApplicationMap,
@@ -39,22 +39,23 @@ const fuzzySearchOptions = {
  *  }
  */
 
-export const getApplicationsState = (state: AppState) => state.ui.applications;
-export const getApplications = (state: AppState) =>
+export const getApplicationsState = (state: DefaultRootState) =>
+  state.ui.applications;
+export const getApplications = (state: DefaultRootState) =>
   state.ui.applications.applicationList;
 export const getCurrentApplication = (
-  state: AppState,
+  state: DefaultRootState,
 ): ApplicationPayload | undefined => {
   return state.ui.applications.currentApplication;
 };
-export const getApplicationSearchKeyword = (state: AppState) =>
+export const getApplicationSearchKeyword = (state: DefaultRootState) =>
   state.ui.applications.searchKeyword;
-export const getAppMode = (state: AppState) => state.entities.app.mode;
-export const getIsDeletingApplication = (state: AppState) =>
+export const getAppMode = (state: DefaultRootState) => state.entities.app.mode;
+export const getIsDeletingApplication = (state: DefaultRootState) =>
   state.ui.applications.deletingApplication;
-export const getIsSavingAppName = (state: AppState) =>
+export const getIsSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isSavingAppName;
-export const getIsErroredSavingAppName = (state: AppState) =>
+export const getIsErroredSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isErrorSavingAppName;
 
 export const getApplicationList = createSelector(
@@ -121,60 +122,63 @@ export const getCurrentAppGitMetaData = createSelector(
     currentApplication?.gitApplicationMetadata,
 );
 
-export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
-  state.ui.applications.isDatasourceConfigForImportFetched;
+export const getIsDatasourceConfigForImportFetched = (
+  state: DefaultRootState,
+) => state.ui.applications.isDatasourceConfigForImportFetched;
 
-export const getIsImportingApplication = (state: AppState) =>
+export const getIsImportingApplication = (state: DefaultRootState) =>
   state.ui.applications.importingApplication;
 
-export const getIsImportingPartialApplication = (state: AppState) =>
+export const getIsImportingPartialApplication = (state: DefaultRootState) =>
   state.ui.applications.partialImportExport.isImporting;
 
-export const getWorkspaceIdForImport = (state: AppState) =>
+export const getWorkspaceIdForImport = (state: DefaultRootState) =>
   state.ui.applications.workspaceIdForImport;
 
-export const getPageIdForImport = (state: AppState) =>
+export const getPageIdForImport = (state: DefaultRootState) =>
   state.ui.applications.pageIdForImport;
 
-export const getImportedApplication = (state: AppState) =>
+export const getImportedApplication = (state: DefaultRootState) =>
   state.ui.applications.importedApplication;
 
-export const getAppSidebarPinned = (state: AppState) => {
+export const getAppSidebarPinned = (state: DefaultRootState) => {
   return state.ui.applications.isAppSidebarPinned;
 };
 
-export const getIsUploadingNavigationLogo = (state: AppState) => {
+export const getIsUploadingNavigationLogo = (state: DefaultRootState) => {
   return state.ui.applications.isUploadingNavigationLogo;
 };
 
-export const getIsDeletingNavigationLogo = (state: AppState) => {
+export const getIsDeletingNavigationLogo = (state: DefaultRootState) => {
   return state.ui.applications.isDeletingNavigationLogo;
 };
 
-export const selectEvaluationVersion = (state: AppState) =>
+export const selectEvaluationVersion = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.evaluationVersion ||
   DEFAULT_EVALUATION_VERSION;
 
-export const getApplicationLoadingStates = (state: AppState) => {
+export const getApplicationLoadingStates = (state: DefaultRootState) => {
   return state.ui.applications?.loadingStates;
 };
 
 export const getAllAppUsers = () => [];
 
-export const getCurrentApplicationIdForCreateNewApp = (state: AppState) => {
+export const getCurrentApplicationIdForCreateNewApp = (
+  state: DefaultRootState,
+) => {
   return state.ui.applications.currentApplicationIdForCreateNewApp;
 };
 
-export const getPartialImportExportLoadingState = (state: AppState) =>
+export const getPartialImportExportLoadingState = (state: DefaultRootState) =>
   state.ui.applications.partialImportExport;
 
-export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
+export const getCurrentPluginIdForCreateNewApp = (state: DefaultRootState) => {
   return state.ui.applications.currentPluginIdForCreateNewApp;
 };
 
 export const getApplicationByIdFromWorkspaces = createSelector(
   getApplicationsOfWorkspace,
-  (_: AppState, applicationId: string) => applicationId,
+  (_: DefaultRootState, applicationId: string) => applicationId,
   (applications, applicationId) => {
     const application: ApplicationPayload | undefined = applications.find(
       (app) => app.id === applicationId,
@@ -193,7 +197,7 @@ const getMemoizedThemeObj = memoize(
   },
 );
 
-export const getAppThemeSettings = (state: AppState) => {
+export const getAppThemeSettings = (state: DefaultRootState) => {
   return getMemoizedThemeObj(
     state.ui.applications.currentApplication?.applicationDetail?.themeSetting,
   );

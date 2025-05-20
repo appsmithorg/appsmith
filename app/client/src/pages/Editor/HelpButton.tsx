@@ -37,7 +37,7 @@ import { showSignpostingModal } from "actions/onboardingActions";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
@@ -190,9 +190,9 @@ function HelpButton() {
       }
     : {};
 
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAgentApp = useSelector(getIsAiAgentApp);
 
-  if (isAiAgentFlowEnabled) {
+  if (isAgentApp) {
     const docItem = HELP_MENU_ITEMS.find(
       (item) => item.label === "Documentation",
     );

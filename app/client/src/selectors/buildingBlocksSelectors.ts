@@ -1,7 +1,7 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
-export const isDraggingBuildingBlockToCanvas = (state: AppState) =>
+export const isDraggingBuildingBlockToCanvas = (state: DefaultRootState) =>
   state.ui.buildingBlocks.isDraggingBuildingBlocksToCanvas;
 
-export const getBuildingBlockDragStartTimestamp = (state: AppState) =>
+export const getBuildingBlockDragStartTimestamp = (state: DefaultRootState) =>
   state.ui.buildingBlocks.buildingBlockDragStartTimestamp;

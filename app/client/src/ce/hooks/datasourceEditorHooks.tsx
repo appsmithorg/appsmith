@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
@@ -47,9 +47,10 @@ export const useHeaderActions = (
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const pagePermissions = useSelector((state: AppState) =>
+  const pagePermissions = useSelector((state: DefaultRootState) =>
     getPagePermissions(state),
   );
   const showGenerateButton = useShowPageGenerationOnHeader(
@@ -61,7 +62,7 @@ export const useHeaderActions = (
   // for Anvil, we're removing the button that generates the page for users in Anvil
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
-  const plugin = useSelector((state: AppState) =>
+  const plugin = useSelector((state: DefaultRootState) =>
     getPlugin(state, datasource?.pluginId || ""),
   );
 

@@ -30,7 +30,7 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { JSLibrary } from "workers/common/JSLibrary";
@@ -439,7 +439,7 @@ function LibraryCard({
   isLastCard: boolean;
 }) {
   const status = useSelector(selectStatusForURL(lib.url));
-  const isInstalled = useSelector((state: AppState) =>
+  const isInstalled = useSelector((state: DefaultRootState) =>
     selectIsLibraryInstalled(state, lib.url),
   );
 

@@ -100,6 +100,7 @@ const mockTableProviderProps = {
   onConnectData: jest.fn(),
   isInfiniteScrollEnabled: false,
   endOfData: false,
+  cachedTableData: [],
 };
 
 // Test components
@@ -208,6 +209,7 @@ describe("TableContext", () => {
         "onConnectData",
         "isInfiniteScrollEnabled",
         "endOfData",
+        "cachedTableData",
       ].sort();
 
       const result = Object.keys(

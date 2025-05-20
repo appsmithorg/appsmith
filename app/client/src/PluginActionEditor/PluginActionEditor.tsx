@@ -15,6 +15,8 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Text } from "@appsmith/ads";
 import { useIsEditorInitialised } from "IDE/hooks";
 import { useActionSettingsConfig } from "./hooks";
+import { createMessage, PLUGIN_NOT_INSTALLED } from "ee/constants/messages";
+import { ShowUpgradeMenuItem } from "ee/utils/licenseHelpers";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
@@ -54,10 +56,11 @@ const PluginActionEditor = (props: ChildrenProps) => {
 
   if (!plugin) {
     return (
-      <CenteredWrapper>
+      <CenteredWrapper className="flex-col">
         <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
-          Plugin not installed!
+          {createMessage(PLUGIN_NOT_INSTALLED)}
         </Text>
+        <ShowUpgradeMenuItem />
       </CenteredWrapper>
     );
   }

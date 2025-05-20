@@ -1,8 +1,3 @@
-import {
-  UI_ELEMENT_PANEL_SEARCH_TEXT,
-  WIDGET_PANEL_EMPTY_MESSAGE,
-  createMessage,
-} from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
@@ -23,14 +18,18 @@ interface UIEntitySidebarProps {
   cards: WidgetCardProps[];
   entityLoading?: Partial<Record<WidgetTags, boolean>>;
   groupedCards: WidgetCardsGroupedByTags;
+  searchPlaceholderText?: string;
+  emptyMessage?: string;
 }
 
 function UIEntitySidebar({
   cards,
+  emptyMessage,
   entityLoading,
   focusSearchInput,
   groupedCards,
   isActive,
+  searchPlaceholderText,
 }: UIEntitySidebarProps) {
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -115,7 +114,7 @@ function UIEntitySidebar({
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
+          placeholder={searchPlaceholderText}
           ref={searchInputRef}
           type="text"
         />
@@ -132,8 +131,7 @@ function UIEntitySidebar({
             renderAs="p"
             style={{ marginBottom: "15px" }}
           >
-            {createMessage(WIDGET_PANEL_EMPTY_MESSAGE)} `
-            {searchInputRef.current?.value}`
+            {emptyMessage} `{searchInputRef.current?.value}`
           </Text>
         )}
         <div>

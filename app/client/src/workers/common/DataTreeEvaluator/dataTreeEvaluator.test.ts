@@ -290,6 +290,7 @@ describe("DataTreeEvaluator", () => {
           timestamp: "timestamp",
           appMode: APP_MODE.PUBLISHED,
           instanceId: "instanceId",
+          dslVersion: 1,
         },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
@@ -391,6 +392,7 @@ describe("DataTreeEvaluator", () => {
           timestamp: "timestamp",
           appMode: APP_MODE.PUBLISHED,
           instanceId: "instanceId",
+          dslVersion: 1,
         },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
@@ -454,6 +456,7 @@ describe("DataTreeEvaluator", () => {
           timestamp: new Date().toISOString(),
           appMode: APP_MODE.PUBLISHED,
           instanceId: "instanceId",
+          dslVersion: 1,
         },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { ExplorerPinnedState } from "ee/reducers/uiReducers/explorerReducer";
 
 /**
@@ -7,7 +7,7 @@ import { ExplorerPinnedState } from "ee/reducers/uiReducers/explorerReducer";
  * @param state
  * @returns
  */
-export const getExplorerPinned = (state: AppState) => {
+export const getExplorerPinned = (state: DefaultRootState) => {
   return state.ui.explorer.pinnedState === ExplorerPinnedState.PINNED;
 };
 
@@ -17,7 +17,7 @@ export const getExplorerPinned = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getExplorerWidth = (state: AppState) => {
+export const getExplorerWidth = (state: DefaultRootState) => {
   return state.ui.explorer.width;
 };
 
@@ -27,12 +27,12 @@ export const getExplorerWidth = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getExplorerActive = (state: AppState) => {
+export const getExplorerActive = (state: DefaultRootState) => {
   return state.ui.explorer.active;
 };
 
-export const getUpdatingEntity = (state: AppState) => {
+export const getUpdatingEntity = (state: DefaultRootState) => {
   return state.ui.explorer.entity.updatingEntity;
 };
-export const getEditingEntityName = (state: AppState) =>
+export const getEditingEntityName = (state: DefaultRootState) =>
   state.ui.explorer.entity.editingEntityName;

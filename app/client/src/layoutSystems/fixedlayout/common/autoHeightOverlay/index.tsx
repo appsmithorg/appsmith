@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { CSSProperties } from "react";
 import React, { memo } from "react";
 import { useSelector } from "react-redux";
@@ -29,7 +29,7 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
       isResizing,
       lastSelectedWidget: selectedWidget,
       selectedWidgets,
-    } = useSelector((state: AppState) => state.ui.widgetDragResize);
+    } = useSelector((state: DefaultRootState) => state.ui.widgetDragResize);
 
     const isPreviewMode = useSelector(selectCombinedPreviewMode);
     const isAppSettingsPaneWithNavigationTabOpen = useSelector(

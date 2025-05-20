@@ -2,11 +2,18 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
-import { EComputationCacheName, type ICacheProps } from "./types";
+import {
+  EComputationCacheName,
+  type IValidatedCacheProps,
+  type ICacheProps,
+} from "./types";
 import debounce from "lodash/debounce";
+import { isFinite, isNumber, isString } from "lodash";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 
 interface ICachedData<T> {
   value: T;
+  dslVersion?: number;
 }
 
 interface ICacheLog {
@@ -52,25 +59,52 @@ export class AppComputationCache {
     return AppComputationCache.instance;
   }
 
+  isAppModeValid(appMode: unknown) {
+    return appMode === APP_MODE.PUBLISHED || appMode === APP_MODE.EDIT;
+  }
+
+  isTimestampValid(timestamp: unknown) {
+    const isoStringRegex =
+      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+
+    if (isString(timestamp) && !!timestamp.trim()) {
+      return isoStringRegex.test(timestamp);
+    }
+
+    return false;
+  }
+
+  isDSLVersionValid(dslVersion: unknown) {
+    return isNumber(dslVersion) && isFinite(dslVersion) && dslVersion > 0;
+  }
+
   debouncedDeleteInvalidCacheEntries = debounce(
     this.deleteInvalidCacheEntries,
     5000,
   );
 
+  isComputationCacheFeatureEnabled() {
+    const featureFlags = WorkerEnv.getFeatureFlags();
+
+    return featureFlags["release_computation_cache_enabled"] || false;
+  }
+
   /**
    * Check if the computation result should be cached based on the app mode configuration
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
    */
-  isComputationCached({
-    cacheName,
-    cacheProps,
-  }: {
-    cacheName: EComputationCacheName;
-    cacheProps: ICacheProps;
-  }) {
-    const { appMode, timestamp } = cacheProps;
+  shouldComputationBeCached(
+    cacheName: EComputationCacheName,
+    cacheProps: ICacheProps,
+  ): cacheProps is IValidatedCacheProps {
+    const { appMode, dslVersion, timestamp } = cacheProps;
 
-    if (!appMode || !timestamp) {
+    if (
+      !this.isAppModeValid(appMode) ||
+      !this.isTimestampValid(timestamp) ||
+      !this.isDSLVersionValid(dslVersion) ||
+      !this.isComputationCacheFeatureEnabled()
+    ) {
       return false;
     }
 
@@ -81,6 +115,7 @@ export class AppComputationCache {
    * Checks if the value should be cached based on the app mode configuration and
    * caches the computation result if it should be cached. It also tracks the cache usage
    * @returns - A promise that resolves when the computation result is cached
+   * @throws - Logs an error if the computation result cannot be cached and throws the error
    */
   async cacheComputationResult<T>({
     cacheName,
@@ -91,31 +126,31 @@ export class AppComputationCache {
     cacheName: EComputationCacheName;
     computationResult: T;
   }) {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
-
-    if (!shouldCache) {
-      return;
-    }
-
-    const cacheKey = this.generateCacheKey({ cacheProps, cacheName });
-
     try {
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
+
+      if (!isCacheable) {
+        return;
+      }
+
+      const cacheKey = this.generateCacheKey({ cacheProps, cacheName });
+
       await this.store.setItem<ICachedData<T>>(cacheKey, {
         value: computationResult,
+        dslVersion: cacheProps.dslVersion,
       });
 
       await this.trackCacheUsage(cacheKey);
     } catch (error) {
-      loglevel.debug("Error caching computation result:", error);
+      loglevel.error(error);
+      throw error;
     }
   }
 
   /**
    * Gets the cached computation result if it exists and is valid
    * @returns - A promise that resolves with the cached computation result or null if it does not exist
+   * @throws - Logs an error if the computation result cannot be fetched and throws the error
    */
   async getCachedComputationResult<T>({
     cacheName,
@@ -124,24 +159,21 @@ export class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }): Promise<T | null> {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
-
-    if (!shouldCache) {
-      return null;
-    }
-
-    const cacheKey = this.generateCacheKey({
-      cacheProps,
-      cacheName,
-    });
-
     try {
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
+
+      if (!isCacheable) {
+        return null;
+      }
+
+      const cacheKey = this.generateCacheKey({
+        cacheProps,
+        cacheName,
+      });
+
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
 
-      if (isNull(cached)) {
+      if (!this.isCacheValid(cached, cacheProps)) {
         // Cache miss
         // Delete invalid cache entries when thread is idle
         setTimeout(async () => {
@@ -155,10 +187,28 @@ export class AppComputationCache {
 
       return cached.value;
     } catch (error) {
-      loglevel.error("Error getting cache result:", error);
-
-      return null;
+      loglevel.error(error);
+      throw error;
     }
+  }
+
+  /**
+   * Checks if the cached value is valid
+   * @returns - A boolean indicating whether the cached value is valid
+   */
+  isCacheValid<T>(
+    cachedValue: ICachedData<T> | null,
+    cacheProps: IValidatedCacheProps,
+  ): cachedValue is ICachedData<T> {
+    if (isNull(cachedValue)) {
+      return false;
+    }
+
+    if (!cachedValue.dslVersion) {
+      return false;
+    }
+
+    return cachedValue.dslVersion === cacheProps.dslVersion;
   }
 
   /**
@@ -169,7 +219,7 @@ export class AppComputationCache {
     cacheName,
     cacheProps,
   }: {
-    cacheProps: ICacheProps;
+    cacheProps: IValidatedCacheProps;
     cacheName: EComputationCacheName;
   }) {
     const { appId, appMode, instanceId, pageId, timestamp } = cacheProps;
@@ -201,16 +251,13 @@ export class AppComputationCache {
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
-    const shouldCache = this.isComputationCached({
-      cacheName,
-      cacheProps,
-    });
-
-    if (!shouldCache) {
-      return computeFn();
-    }
-
     try {
+      const isCacheable = this.shouldComputationBeCached(cacheName, cacheProps);
+
+      if (!isCacheable) {
+        return computeFn();
+      }
+
       const cachedResult = await this.getCachedComputationResult<T>({
         cacheProps,
         cacheName,
@@ -230,10 +277,8 @@ export class AppComputationCache {
 
       return computationResult;
     } catch (error) {
-      loglevel.error("Error getting cache result:", error);
-      const fallbackResult = await computeFn();
-
-      return fallbackResult;
+      loglevel.error(error);
+      throw error;
     }
   }
 
@@ -259,6 +304,7 @@ export class AppComputationCache {
   /**
    * Delete invalid cache entries
    * @returns - A promise that resolves when the invalid cache entries are deleted
+   * @throws - Logs an error if the invalid cache entries cannot be deleted
    */
 
   async deleteInvalidCacheEntries(cacheProps: ICacheProps) {
@@ -270,6 +316,10 @@ export class AppComputationCache {
       const invalidCacheKeys = cacheKeys.filter((key) => {
         const keyParts = key.split(AppComputationCache.CACHE_KEY_DELIMITER);
         const cacheKeyTimestamp = parseInt(keyParts[4], 10);
+
+        if (!cacheProps.timestamp) {
+          return false;
+        }
 
         return (
           keyParts[0] === cacheProps.instanceId &&
@@ -295,6 +345,9 @@ export class AppComputationCache {
     }
   }
 
+  /**
+   * Resets the singleton instance
+   */
   static resetInstance() {
     AppComputationCache.instance = null;
   }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   Button,
@@ -183,7 +183,7 @@ function GenCRUDSuccessModal(props: Props) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: DefaultRootState) => ({
   crudInfoModalOpen: getCrudInfoModalData(state).crudInfoModalOpen,
   generateCRUDSuccessInfo: getCrudInfoModalData(state).generateCRUDSuccessInfo,
 });

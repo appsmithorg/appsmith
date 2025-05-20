@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
@@ -12,33 +12,35 @@ import { getDependenciesFromInverseDependencies } from "components/editorCompone
 
 // Signposting selectors
 
-export const getFirstTimeUserOnboardingApplicationIds = (state: AppState) => {
+export const getFirstTimeUserOnboardingApplicationIds = (
+  state: DefaultRootState,
+) => {
   return state.ui.onBoarding.firstTimeUserOnboardingApplicationIds;
 };
 
-export const getFirstTimeUserOnboardingComplete = (state: AppState) => {
+export const getFirstTimeUserOnboardingComplete = (state: DefaultRootState) => {
   return state.ui.onBoarding.firstTimeUserOnboardingComplete;
 };
 
-export const getFirstTimeUserOnboardingModal = (state: AppState) =>
+export const getFirstTimeUserOnboardingModal = (state: DefaultRootState) =>
   state.ui.onBoarding.showFirstTimeUserOnboardingModal;
 
 export const getIsFirstTimeUserOnboardingEnabled = createSelector(
-  (state: AppState) => state.entities.pageList.applicationId,
+  (state: DefaultRootState) => state.entities.pageList.applicationId,
   getFirstTimeUserOnboardingApplicationIds,
   (currentApplicationId, applicationIds) => {
     return applicationIds.includes(currentApplicationId);
   },
 );
 
-export const getInOnboardingWidgetSelection = (state: AppState) =>
+export const getInOnboardingWidgetSelection = (state: DefaultRootState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
-export const getSignpostingStepState = (state: AppState) =>
+export const getSignpostingStepState = (state: DefaultRootState) =>
   state.ui.onBoarding.stepState;
 export const getSignpostingStepStateByStep = createSelector(
   getSignpostingStepState,
-  (_state: AppState, step: SIGNPOSTING_STEP) => step,
+  (_state: DefaultRootState, step: SIGNPOSTING_STEP) => step,
   (stepState, step) => {
     return stepState.find((state) => state.step === step);
   },
@@ -51,11 +53,11 @@ export const getSignpostingUnreadSteps = createSelector(
     return stepState.filter((state) => isBoolean(state.read) && !state.read);
   },
 );
-export const getSignpostingSetOverlay = (state: AppState) =>
+export const getSignpostingSetOverlay = (state: DefaultRootState) =>
   state.ui.onBoarding.setOverlay;
-export const getSignpostingTooltipVisible = (state: AppState) =>
+export const getSignpostingTooltipVisible = (state: DefaultRootState) =>
   state.ui.onBoarding.showSignpostingTooltip;
-export const getIsAnonymousDataPopupVisible = (state: AppState) =>
+export const getIsAnonymousDataPopupVisible = (state: DefaultRootState) =>
   state.ui.onBoarding.showAnonymousDataPopup;
 export const isWidgetActionConnectionPresent = createSelector(
   getCanvasWidgets,

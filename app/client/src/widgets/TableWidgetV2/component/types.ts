@@ -81,6 +81,7 @@ export interface TableProps {
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
   endOfData: boolean;
+  cachedTableData: Array<Record<string, unknown>>;
 }
 
 export interface TableProviderProps extends TableProps {

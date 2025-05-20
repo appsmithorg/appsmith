@@ -1,5 +1,4 @@
 import React from "react";
-import * as Sentry from "@sentry/react";
 import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
@@ -57,4 +56,4 @@ function MultiSelectPropertyPane() {
 
 MultiSelectPropertyPane.displayName = "MultiSelectPropertyPane";
 
-export default Sentry.withProfiler(MultiSelectPropertyPane);
+export default MultiSelectPropertyPane;

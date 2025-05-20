@@ -1366,4 +1366,23 @@ public class MigrationHelperMethods {
             actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
         }
     }
+
+    public static void addRunBehaviourToApplicationJson(ApplicationJson applicationJson) {
+        List<NewAction> actionList = applicationJson.getActionList();
+        if (CollectionUtils.isNullOrEmpty(actionList)) {
+            return;
+        }
+
+        for (NewAction action : actionList) {
+            if (action.getUnpublishedAction() != null) {
+                ActionDTO actionDTO = action.getUnpublishedAction();
+                actionDTO.setRunBehaviour(actionDTO.getRunBehaviour());
+            }
+
+            if (action.getPublishedAction() != null) {
+                ActionDTO actionDTO = action.getPublishedAction();
+                actionDTO.setRunBehaviour(actionDTO.getRunBehaviour());
+            }
+        }
+    }
 }

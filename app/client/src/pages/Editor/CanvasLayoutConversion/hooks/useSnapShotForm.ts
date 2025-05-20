@@ -22,7 +22,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import type { ReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 
@@ -105,7 +105,7 @@ export const snapShotFlow = (
 
 export const useSnapShotForm = () => {
   const conversionState = useSelector(
-    (state: AppState) => state.ui.layoutConversion.conversionState,
+    (state: DefaultRootState) => state.ui.layoutConversion.conversionState,
   );
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);

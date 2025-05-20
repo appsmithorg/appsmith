@@ -1837,7 +1837,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                 status -> commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
                                         workspaceId, baseArtifactId, repoName, branchName, artifactType));
 
-                        return Mono.zip(pullStatusMono, artifactExchangeJsonMono);
+                        return pullStatusMono.zipWhen(mergeStatusDTO -> artifactExchangeJsonMono);
 
                     } catch (IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));

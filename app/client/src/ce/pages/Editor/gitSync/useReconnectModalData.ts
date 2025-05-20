@@ -2,9 +2,12 @@ import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { builderURL } from "ee/RouteBuilder";
 import {
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+  RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION_FOR_AGENTS,
   SKIP_TO_APPLICATION,
+  SKIP_TO_APPLICATION_FOR_AGENTS,
   createMessage,
 } from "ee/constants/messages";
+import { getIsCreatingAgent } from "ee/selectors/aiAgentSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 
@@ -14,6 +17,7 @@ interface UseReconnectModalDataProps {
 }
 
 function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
+  const isCreatingAgent = useSelector(getIsCreatingAgent);
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(state, appId ?? ""),
   );
@@ -26,12 +30,19 @@ function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
     builderURL({
       basePageId,
       branch,
+      params: {
+        type: isCreatingAgent ? "agent" : undefined,
+      },
     });
 
   return {
-    skipMessage: createMessage(SKIP_TO_APPLICATION),
+    skipMessage: createMessage(
+      isCreatingAgent ? SKIP_TO_APPLICATION_FOR_AGENTS : SKIP_TO_APPLICATION,
+    ),
     missingDsCredentialsDescription: createMessage(
-      RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+      isCreatingAgent
+        ? RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION_FOR_AGENTS
+        : RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
     ),
     editorURL,
     editorId: appId,

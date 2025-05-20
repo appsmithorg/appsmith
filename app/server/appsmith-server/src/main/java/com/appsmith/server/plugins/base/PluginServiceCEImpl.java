@@ -2,6 +2,7 @@ package com.appsmith.server.plugins.base;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -12,10 +13,13 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.LoadShifter;
+import com.appsmith.server.plugins.solutions.PluginTransformationSolution;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,6 +50,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +70,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
+    private final CloudServicesConfig cloudServicesConfig;
+
+    private final PluginTransformationSolution pluginTransformationSolution;
 
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
@@ -86,6 +94,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String KEY_COMMENT = "_comment";
     public static final String KEY_FILES = "files";
 
+    private final ConfigService configService;
+
     @Autowired
     public PluginServiceCEImpl(
             Validator validator,
@@ -95,13 +105,19 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            CloudServicesConfig cloudServicesConfig,
+            ConfigService configService,
+            PluginTransformationSolution pluginTransformationSolution) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
+        this.cloudServicesConfig = cloudServicesConfig;
+        this.configService = configService;
+        this.pluginTransformationSolution = pluginTransformationSolution;
     }
 
     @Override
@@ -331,7 +347,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             formCache.put(pluginId, resourceMono);
         }
 
-        return formCache.get(pluginId);
+        return formCache.get(pluginId).flatMap(input -> pluginTransformationSolution.transform(pluginId, input));
     }
 
     @Override
@@ -656,7 +672,66 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     .filter(Objects::nonNull)
                     .collect(Collectors.toUnmodifiableSet());
 
-            return repository.findAllById(pluginIds);
+            return repository.findAllById(pluginIds).flatMap(plugin -> {
+                if (Objects.nonNull(plugin.getActionUiConfig())) {
+                    return pluginTransformationSolution
+                            .transform(plugin.getId(), plugin.getActionUiConfig())
+                            .flatMap(transformedActionUiConfig -> {
+                                plugin.setActionUiConfig(transformedActionUiConfig);
+                                return Mono.just(plugin);
+                            });
+                }
+                return Mono.just(plugin);
+            });
+        });
+    }
+
+    @Override
+    public Mono<List<Map<String, String>>> getUpcomingIntegrations() {
+        log.debug("Fetching upcoming integrations from external API");
+
+        return configService.getInstanceId().flatMap(instanceId -> {
+            String apiUrl = cloudServicesConfig.getBaseUrl()
+                    + "/api/v1/config/external-saas/upcoming-integrations?instanceId=" + instanceId;
+            return WebClientUtils.create()
+                    .get()
+                    .uri(apiUrl)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .flatMap(response -> {
+                        // Extract the integrations list from the response
+                        if (response.containsKey("data")) {
+                            List<Map<String, String>> integrations = new ArrayList<>();
+                            List<?> data = (List<?>) response.get("data");
+                            for (Object item : data) {
+                                if (item instanceof Map) {
+                                    integrations.add((Map<String, String>) item);
+                                }
+                            }
+                            return Mono.just(integrations);
+                        } else if (response.containsKey("responseMeta")) {
+                            Map<String, Object> responseMeta = (Map<String, Object>) response.get("responseMeta");
+                            if (responseMeta.containsKey("error")) {
+                                Map<String, Object> error = (Map<String, Object>) responseMeta.get("error");
+                                if (error.containsKey("message")) {
+                                    String errorMessage = (String) error.get("message");
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INSTANCE_REGISTRATION_FAILURE, errorMessage));
+                                }
+                            }
+                            return Mono.error(new RuntimeException("Unknown error in response metadata"));
+                        }
+                        return Mono.just(List.<Map<String, String>>of());
+                    })
+                    .onErrorResume(error -> {
+                        if (error instanceof AppsmithException) {
+                            return Mono.error(error);
+                        }
+                        log.warn(
+                                "Error retrieving upcoming integrations from external service: {}", error.getMessage());
+                        return Mono.error(
+                                new RuntimeException("Error retrieving upcoming integrations: " + error.getMessage()));
+                    });
         });
     }
 

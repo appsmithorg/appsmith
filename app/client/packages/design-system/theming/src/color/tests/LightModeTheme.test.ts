@@ -154,7 +154,7 @@ describe("bgAccentSubtle color", () => {
       "oklch(0.95 0.09 231)",
     ).getColors();
 
-    expect(bgAccentSubtle).toBe("rgb(80.68% 97.025% 100%)");
+    expect(bgAccentSubtle).toBe("rgb(84.002% 96.389% 100%)");
   });
 
   it("should return correct color when seedLightness < 0.93", () => {
@@ -162,7 +162,7 @@ describe("bgAccentSubtle color", () => {
       "oklch(0.92 0.09 231)",
     ).getColors();
 
-    expect(bgAccentSubtle).toBe("rgb(73.159% 94.494% 100%)");
+    expect(bgAccentSubtle).toBe("rgb(80.804% 93.121% 99.673%)");
   });
 
   it("should return correct color when seedChroma >  0.09 and hue is between 116 and 165", () => {
@@ -170,7 +170,7 @@ describe("bgAccentSubtle color", () => {
       "oklch(0.95 0.10 120)",
     ).getColors();
 
-    expect(bgAccentSubtle).toBe("rgb(90.964% 97.964% 71.119%)");
+    expect(bgAccentSubtle).toBe("rgb(91.961% 96.786% 79.187%)");
   });
 
   it("should return correct color when seedChroma >  0.06 and hue is not between 116 and 165", () => {
@@ -178,7 +178,7 @@ describe("bgAccentSubtle color", () => {
       "oklch(0.95 0.07 170)",
     ).getColors();
 
-    expect(bgAccentSubtle).toBe("rgb(75.944% 100% 91.359%)");
+    expect(bgAccentSubtle).toBe("rgb(84.267% 97.811% 92.543%)");
   });
 
   it("should return correct color when seedChroma < 0.04", () => {
@@ -196,7 +196,7 @@ describe("bgAccentSubtleHover color", () => {
       "oklch(0.35 0.09 70)",
     ).getColors();
 
-    expect(bgAccentSubtleHover).toBe("rgb(100% 91.101% 76.695%)");
+    expect(bgAccentSubtleHover).toBe("rgb(98.845% 92.363% 85.26%)");
   });
 });
 
@@ -206,7 +206,7 @@ describe("bgAccentSubtleActive color", () => {
       "oklch(0.35 0.09 70)",
     ).getColors();
 
-    expect(bgAccentSubtleActive).toBe("rgb(100% 87.217% 72.911%)");
+    expect(bgAccentSubtleActive).toBe("rgb(94.908% 88.479% 81.43%)");
   });
 });
 
@@ -358,7 +358,7 @@ describe("bgNeutralSubtle color", () => {
       "oklch(0.92 0.03 170)",
     ).getColors();
 
-    expect(bgNeutralSubtle).toEqual("rgb(95.592% 96.251% 95.981%)");
+    expect(bgNeutralSubtle).toEqual("rgb(96.247% 96.906% 96.636%)");
   });
 
   it("should return correct color when seedChroma >  0.01", () => {
@@ -366,7 +366,7 @@ describe("bgNeutralSubtle color", () => {
       "oklch(0.92 0.1 170)",
     ).getColors();
 
-    expect(bgNeutralSubtle).toEqual("rgb(95.592% 96.251% 95.981%)");
+    expect(bgNeutralSubtle).toEqual("rgb(96.247% 96.906% 96.636%)");
   });
 
   it("should return correct color when chroma < 0.04", () => {
@@ -374,7 +374,7 @@ describe("bgNeutralSubtle color", () => {
       "oklch(0.92 0.03 170)",
     ).getColors();
 
-    expect(bgNeutralSubtle).toEqual("rgb(95.592% 96.251% 95.981%)");
+    expect(bgNeutralSubtle).toEqual("rgb(96.247% 96.906% 96.636%)");
   });
 });
 
@@ -384,7 +384,7 @@ describe("bgNeutralSubtleHover color", () => {
       "oklch(0.92 0.1 170)",
     ).getColors();
 
-    expect(bgNeutralSubtleHover).toEqual("rgb(97.164% 97.825% 97.554%)");
+    expect(bgNeutralSubtleHover).toEqual("rgb(97.82% 98.482% 98.21%)");
   });
 });
 
@@ -394,7 +394,7 @@ describe("bgNeutralSubtleActive color", () => {
       "oklch(0.92 0.1 170)",
     ).getColors();
 
-    expect(bgNeutralSubtleActive).toEqual("rgb(94.286% 94.944% 94.674%)");
+    expect(bgNeutralSubtleActive).toEqual("rgb(94.939% 95.597% 95.327%)");
   });
 });
 
@@ -692,7 +692,7 @@ describe("fgNeutralSubtle color", () => {
       "oklch(0.45 0.03 60)",
     ).getColors();
 
-    expect(fgNeutralSubtle).toEqual("rgb(43.337% 43.337% 43.337%)");
+    expect(fgNeutralSubtle).toEqual("rgb(41.086% 41.086% 41.086%)");
   });
 });
 
@@ -732,19 +732,19 @@ describe("fgNegative color", () => {
       "oklch(0.45 0.03 60)",
     ).getColors();
 
-    expect(fgNegative).toEqual("rgb(100% 0% 31.57%)");
+    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
   });
 
   it("should return correct color when chroma >  0.04", () => {
     const { fgNegative } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fgNegative).toEqual("rgb(100% 0% 31.57%)");
+    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
   });
 
   it("should return correct color hue is between 5 and 49", () => {
     const { fgNegative } = new LightModeTheme("oklch(0.45 0.1 30)").getColors();
 
-    expect(fgNegative).toEqual("rgb(100% 0% 31.57%)");
+    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
   });
 
   it("should return correct color hue is not between 5 and 49", () => {
@@ -752,7 +752,7 @@ describe("fgNegative color", () => {
       "oklch(0.45 0.1 120)",
     ).getColors();
 
-    expect(fgNegative).toEqual("rgb(100% 0% 31.57%)");
+    expect(fgNegative).toEqual("rgb(96.363% 0% 0%)");
   });
 });
 

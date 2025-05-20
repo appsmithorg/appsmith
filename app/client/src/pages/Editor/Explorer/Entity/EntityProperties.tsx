@@ -2,8 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 
 import { useDispatch, useSelector } from "react-redux";
-import * as Sentry from "@sentry/react";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import classNames from "classnames";
 import styled from "styled-components";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -31,7 +30,8 @@ const EntityInfoContainer = styled.div`
   box-shadow: var(--ads-v2-shadow-popovers);
 `;
 
-const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
+const selectEntityInfo = (state: DefaultRootState) =>
+  state.ui.explorer.entityInfo;
 
 export function EntityProperties() {
   const ref = React.createRef<HTMLDivElement>();
@@ -43,7 +43,7 @@ export function EntityProperties() {
   );
 
   const selectedWidgetId = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+    (state: DefaultRootState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
   const ideViewMode = useSelector(getIDEViewMode);
@@ -177,4 +177,4 @@ export function EntityProperties() {
   );
 }
 
-export default Sentry.withProfiler(EntityProperties);
+export default EntityProperties;

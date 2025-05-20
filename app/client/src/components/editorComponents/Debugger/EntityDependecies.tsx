@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import styled from "styled-components";
 import { Classes, getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
 import InspectElement from "assets/images/InspectElement.svg";
@@ -251,7 +251,9 @@ function EntityDeps(props: ConnectionsProps) {
 }
 
 function InspectEntity() {
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const deps = useSelector(
+    (state: DefaultRootState) => state.evaluations.dependencies,
+  );
   const selectedEntity = useSelectedEntity();
   const entityDependencies = useMemo(
     () =>

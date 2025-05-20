@@ -41,6 +41,9 @@ public interface GitHandlingServiceCE {
 
     Mono<ArtifactType> obtainArtifactTypeFromGitRepository(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
+    Mono<Tuple2<ArtifactType, String>> obtainArtifactTypeAndIdentifierFromGitRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO);
+
     Mono<String> fetchRemoteRepository(
             GitConnectDTO gitConnectDTO, GitAuth gitAuth, ArtifactJsonTransformationDTO jsonTransformationDTO);
 
@@ -52,6 +55,9 @@ public interface GitHandlingServiceCE {
 
     void setRepositoryDetailsInGitArtifactMetadata(
             GitConnectDTO gitConnectDTO, GitArtifactMetadata gitArtifactMetadata);
+
+    Mono<Boolean> removeRepository(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean isArtifactTypeUnknown);
 
     Mono<Boolean> removeRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 

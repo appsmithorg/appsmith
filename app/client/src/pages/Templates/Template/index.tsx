@@ -75,11 +75,13 @@ const TemplateDatasources = styled.div`
 `;
 
 export interface TemplateProps {
-  hideForkTemplateButton: boolean;
+  hideForkTemplateButton?: boolean;
   template: TemplateInterface;
   size?: string;
   onClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
+  hideFooter?: boolean;
+  hideDescription?: boolean;
 }
 
 const Template = (props: TemplateProps) => {
@@ -152,42 +154,46 @@ export function TemplateLayout(props: TemplateLayoutProps) {
           <Text className="categories" kind="heading-s" renderAs="h4">
             {functions.join(" • ")}
           </Text>
-          <Text className="description" kind="body-m">
-            {description}
-          </Text>
+          {!props.hideDescription && (
+            <Text className="description" kind="body-m">
+              {description}
+            </Text>
+          )}
         </TemplateContent>
 
-        <TemplateContentFooter>
-          <TemplateDatasources>
-            {datasources.map((pluginPackageName) => {
-              return (
-                <DatasourceChip
-                  key={pluginPackageName}
-                  pluginPackageName={pluginPackageName}
+        {!props.hideFooter && (
+          <TemplateContentFooter>
+            <TemplateDatasources>
+              {datasources.map((pluginPackageName) => {
+                return (
+                  <DatasourceChip
+                    key={pluginPackageName}
+                    pluginPackageName={pluginPackageName}
+                  />
+                );
+              })}
+            </TemplateDatasources>
+            {!props.hideForkTemplateButton && (
+              <Tooltip
+                content={createMessage(FORK_THIS_TEMPLATE)}
+                placement={Position.BOTTOM}
+              >
+                <Button
+                  className="t--fork-template fork-button"
+                  data-testid="t--fork-template-button"
+                  isDisabled={isImportingTemplateToApp || !!loadingTemplateId}
+                  isIconButton
+                  isLoading={
+                    props.onForkTemplateClick && loadingTemplateId === id
+                  }
+                  onClick={onForkButtonTrigger}
+                  size="sm"
+                  startIcon="plus"
                 />
-              );
-            })}
-          </TemplateDatasources>
-          {!props.hideForkTemplateButton && (
-            <Tooltip
-              content={createMessage(FORK_THIS_TEMPLATE)}
-              placement={Position.BOTTOM}
-            >
-              <Button
-                className="t--fork-template fork-button"
-                data-testid="t--fork-template-button"
-                isDisabled={isImportingTemplateToApp || !!loadingTemplateId}
-                isIconButton
-                isLoading={
-                  props.onForkTemplateClick && loadingTemplateId === id
-                }
-                onClick={onForkButtonTrigger}
-                size="sm"
-                startIcon="plus"
-              />
-            </Tooltip>
-          )}
-        </TemplateContentFooter>
+              </Tooltip>
+            )}
+          </TemplateContentFooter>
+        )}
       </TemplateWrapper>
     </>
   );

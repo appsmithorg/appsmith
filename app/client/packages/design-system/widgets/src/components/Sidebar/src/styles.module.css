@@ -40,7 +40,6 @@
   height: 100%;
   width: var(--sidebar-width);
   background-color: transparent;
-  transition: width 300ms ease-in-out;
 }
 
 .mainSidebar[data-side="right"] .fakeSidebar {

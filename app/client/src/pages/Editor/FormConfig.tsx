@@ -16,7 +16,7 @@ import { ToggleComponentToJsonHandler } from "components/editorComponents/form/T
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -97,11 +97,12 @@ export default function FormConfig(props: FormConfigProps) {
     }
   };
 
-  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getIsInputFieldFocused(
-      state,
-      `${entityInfo.id}.${props.config.configProperty}`,
-    ),
+  const shouldFocusPropertyPath: boolean = useSelector(
+    (state: DefaultRootState) =>
+      getIsInputFieldFocused(
+        state,
+        `${entityInfo.id}.${props.config.configProperty}`,
+      ),
   );
 
   useEffect(() => {

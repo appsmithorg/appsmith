@@ -22,7 +22,7 @@ import {
   createMessage,
   NO_CONNECTABLE_WIDGET_FOUND,
 } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
@@ -58,7 +58,9 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   const { config, propertyName, updateConfig, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state: DefaultRootState) =>
+    getWidget(state, widgetId),
+  );
   const { disabled, options: columns } = useColumns("", false);
 
   const configName = `otherFields.${name}`;

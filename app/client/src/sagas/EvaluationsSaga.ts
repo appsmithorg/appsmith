@@ -30,7 +30,6 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { WidgetProps } from "widgets/BaseWidget";
-import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
   EVAL_AND_LINT_REDUX_ACTIONS,
@@ -78,6 +77,7 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
+  getCurrentPageDSLVersion,
 } from "ee/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
@@ -123,6 +123,7 @@ import type {
   AffectedJSObjects,
   EvaluationReduxAction,
 } from "actions/EvaluationReduxActionTypes";
+import { appsmithTelemetry } from "instrumentation";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -269,6 +270,7 @@ export function* evaluateTreeSaga(
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
+  const dslVersion: number | null = yield select(getCurrentPageDSLVersion);
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
@@ -279,6 +281,7 @@ export function* evaluateTreeSaga(
       pageId,
       timestamp: lastDeployedAt,
       instanceId,
+      dslVersion,
     },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
@@ -932,7 +935,7 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    appsmithTelemetry.captureException(e, { errorName: "EvaluationError" });
   }
 }
 
@@ -1003,7 +1006,7 @@ export default function* evaluationSagaListeners() {
       yield call(evaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      appsmithTelemetry.captureException(e, { errorName: "EvaluationError" });
     }
   }
 }

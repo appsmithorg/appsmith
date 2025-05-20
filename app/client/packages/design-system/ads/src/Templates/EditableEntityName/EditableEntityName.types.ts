@@ -27,4 +27,6 @@ export interface EditableEntityNameProps {
   normalizeName?: boolean;
   /** Used for showing ellipsis for longer names */
   showEllipsis?: boolean;
+  /** Whether to show the entity is in error state */
+  hasError?: boolean;
 }

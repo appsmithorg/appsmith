@@ -23,7 +23,7 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import Canvas from "pages/Editor/Canvas";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
@@ -144,7 +144,7 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
 
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isAutoCanvasResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
 
   let node: ReactNode;

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { LayoutComponentTypes, type LayoutProps } from "../utils/anvilTypes";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -6,7 +6,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { createSelector } from "reselect";
 
-export const getIsAnvilLayoutEnabled = (state: AppState) => {
+export const getIsAnvilLayoutEnabled = (state: DefaultRootState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
 };
 
@@ -23,14 +23,17 @@ export const getIsAnvilEnabledInCurrentApplication = createSelector(
   },
 );
 
-export const getIsAnvilLayout = (state: AppState) => {
+export const getIsAnvilLayout = (state: DefaultRootState) => {
   const layoutSystemType = getLayoutSystemType(state);
 
   return layoutSystemType === LayoutSystemTypes.ANVIL;
 };
 
 // ToDo: This is a placeholder implementation this is bound to change
-export function getDropTargetLayoutId(state: AppState, canvasId: string) {
+export function getDropTargetLayoutId(
+  state: DefaultRootState,
+  canvasId: string,
+) {
   const layout: LayoutProps[] = state.entities.canvasWidgets[canvasId].layout;
 
   return layout[0].layoutId;
@@ -39,18 +42,18 @@ export function getDropTargetLayoutId(state: AppState, canvasId: string) {
 /**
  * Returns a boolean indicating if space distribution is in progress
  */
-export function getAnvilSpaceDistributionStatus(state: AppState) {
+export function getAnvilSpaceDistributionStatus(state: DefaultRootState) {
   return state.ui.widgetDragResize.anvil.spaceDistribution.isDistributingSpace;
 }
 
-export function getWidgetsDistributingSpace(state: AppState) {
+export function getWidgetsDistributingSpace(state: DefaultRootState) {
   return state.ui.widgetDragResize.anvil.spaceDistribution.widgetsEffected;
 }
 
 /**
  * Returns the highlight info for the current drag
  */
-export function getAnvilHighlightShown(state: AppState) {
+export function getAnvilHighlightShown(state: DefaultRootState) {
   return state.ui.widgetDragResize.anvil.highlightShown;
 }
 const layoutTypesWithWidgets = [
@@ -62,7 +65,7 @@ const layoutTypesWithWidgets = [
  * Determines whether a cell should be highlighted based on certain conditions.
  */
 export function getShouldHighLightCellSelector(
-  state: AppState,
+  state: DefaultRootState,
   cellLayoutId: string,
   cellLayoutType: LayoutComponentTypes,
 ) {

@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useDispatch, useSelector } from "react-redux";
 import { useAutoToFixedLayoutFlow } from "./useAutoToFixedLayoutFlow";
 import { useFixedToAutoLayoutFlow } from "./useFixedToAutoLayoutFlow";
@@ -10,7 +10,7 @@ export const useConversionForm = (hookProps?: {
 }): ConversionProps => {
   const dispatch = useDispatch();
   const conversionState = useSelector(
-    (state: AppState) => state.ui.layoutConversion.conversionState,
+    (state: DefaultRootState) => state.ui.layoutConversion.conversionState,
   );
 
   const autoToFixedWorkflow = useAutoToFixedLayoutFlow(dispatch);

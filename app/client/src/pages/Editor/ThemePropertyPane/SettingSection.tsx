@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import type { ComponentPropsWithoutRef } from "react";
 import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
@@ -56,4 +55,4 @@ export function SettingSection(props: SettingSectionProps) {
 
 SettingSection.displayName = "SettingSection";
 
-export default Sentry.withProfiler(SettingSection);
+export default SettingSection;

@@ -1,10 +1,13 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
+import com.appsmith.server.plugins.solutions.PluginTransformationSolution;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
@@ -53,9 +56,14 @@ public class PluginServiceCEImplTest {
     @MockBean
     ChannelTopic topic;
 
+    @MockBean
+    PluginTransformationSolution pluginTransformationSolution;
+
     ObjectMapper objectMapper;
 
     PluginServiceCE pluginService;
+    CloudServicesConfig cloudServicesConfig;
+    ConfigService configService;
 
     @BeforeEach
     public void setUp() {
@@ -68,7 +76,10 @@ public class PluginServiceCEImplTest {
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper);
+                objectMapper,
+                cloudServicesConfig,
+                configService,
+                pluginTransformationSolution);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.ce.LayoutContainer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -26,7 +27,7 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @FieldNameConstants
-public class PageDTO {
+public class PageDTO implements LayoutContainer {
 
     @Transient
     @JsonView({Views.Public.class})

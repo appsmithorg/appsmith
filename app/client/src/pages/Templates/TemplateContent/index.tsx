@@ -83,8 +83,8 @@ function TemplateList(props: TemplateListProps) {
           </TemplateGrid>
         </>
       )}
-      {showHorizontalLine && <HorizontalLine />}
-      {showBuildingBlocksSection && (
+      {showHorizontalLine && buildingBlocks.length > 0 && <HorizontalLine />}
+      {showBuildingBlocksSection && buildingBlocks.length > 0 && (
         <>
           <SubheadingText kind="heading-m">
             {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.buildingBlocksTitle)}
@@ -127,10 +127,9 @@ export function TemplateContent(props: TemplateContentProps) {
     .filter((template) =>
       filterWithAllowPageImport ? !!template.allowPageImport : true,
     )
-    // We are using AI Agent template for creating ai agent app,
-    // so we are not showing it in the templates list.
-    // TODO: Once we have a new entity for ai agent, we need to remove this filter.
-    .filter((template) => template.title !== "AI Agent");
+    .filter((template) => {
+      return template.title !== "AI Agent";
+    });
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;

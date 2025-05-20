@@ -41,7 +41,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "ee/constants/forms";
 import { getAppsmithConfigs } from "ee/configs";
@@ -60,11 +60,11 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
-import * as Sentry from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 import { useIsCloudBillingEnabled } from "hooks";
 import { isLoginHostname } from "utils/cloudBillingUtils";
-import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
+import { appsmithTelemetry } from "instrumentation";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
 
 declare global {
@@ -103,10 +103,10 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
+  const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
 
   useEffect(() => {
-    if (!isFormLoginEnabled && !isAiAgentFlowEnabled) {
+    if (!isFormLoginEnabled && !isAiAgentInstanceEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
 
       history.replace({
@@ -145,11 +145,8 @@ export function SignUp(props: SignUpFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
-    Sentry.captureException("Sign up failed", {
-      level: "error",
-      extra: {
-        error: new Error(errorMessage),
-      },
+    appsmithTelemetry.captureException(new Error(errorMessage), {
+      errorName: "SignUp",
     });
   }
 
@@ -230,7 +227,7 @@ export function SignUp(props: SignUpFormProps) {
           </Link>
         </div>
       )}
-      {cloudHosting && !isAiAgentFlowEnabled && (
+      {cloudHosting && !isAiAgentInstanceEnabled && (
         <>
           <OrWithLines>or</OrWithLines>
           <div className="px-2 text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
@@ -254,7 +251,7 @@ export function SignUp(props: SignUpFormProps) {
     <Container
       footer={footerSection}
       title={createMessage(
-        isAiAgentFlowEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
+        isAiAgentInstanceEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
       )}
     >
       <Helmet>
@@ -322,7 +319,7 @@ export function SignUp(props: SignUpFormProps) {
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
 
-export default connect((state: AppState, props: SignUpFormProps) => {
+export default connect((state: DefaultRootState, props: SignUpFormProps) => {
   const queryParams = new URLSearchParams(props.location.search);
 
   return {

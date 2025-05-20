@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -8,7 +8,8 @@ export const useAutoHeightUIState = () => {
 
   return {
     isAutoHeightWithLimitsChanging: useSelector(
-      (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
+      (state: DefaultRootState) =>
+        state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
     ),
     setIsAutoHeightWithLimitsChanging: useCallback(
       (isAutoHeightWithLimitsChanging: boolean) => {
@@ -22,5 +23,5 @@ export const useAutoHeightUIState = () => {
   };
 };
 
-export const getIsAutoHeightWithLimitsChanging = (state: AppState) =>
+export const getIsAutoHeightWithLimitsChanging = (state: DefaultRootState) =>
   state.ui.autoHeightUI.isAutoHeightWithLimitsChanging;

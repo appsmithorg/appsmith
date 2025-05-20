@@ -6952,9 +6952,29 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run the API on page load",
-            configProperty: "executeOnLoad",
-            controlType: "SWITCH",
+            label: "Run behavior",
+            configProperty: "runBehaviour",
+            controlType: "DROP_DOWN",
+            initialValue: "MANUAL",
+            options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
+                label: "On page load",
+                subText:
+                  "Query runs when the page loads or when manually triggered",
+                value: "ON_PAGE_LOAD",
+              },
+              {
+                label: "Manual",
+                subText:
+                  "Query only runs when called in an event or JS with .run()",
+                value: "MANUAL",
+              },
+            ],
           },
           {
             label: "Request confirmation before running this API",
@@ -7017,9 +7037,29 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run the API on page load",
-            configProperty: "executeOnLoad",
-            controlType: "SWITCH",
+            label: "Run behavior",
+            configProperty: "runBehaviour",
+            controlType: "DROP_DOWN",
+            initialValue: "MANUAL",
+            options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
+                label: "On page load",
+                subText:
+                  "Query runs when the page loads or when manually triggered",
+                value: "ON_PAGE_LOAD",
+              },
+              {
+                label: "Manual",
+                subText:
+                  "Query only runs when called in an event or JS with .run()",
+                value: "MANUAL",
+              },
+            ],
           },
           {
             label: "Request confirmation before running this API",
@@ -7082,9 +7122,29 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run the query on page load",
-            configProperty: "executeOnLoad",
-            controlType: "SWITCH",
+            label: "Run behavior",
+            configProperty: "runBehaviour",
+            controlType: "DROP_DOWN",
+            initialValue: "MANUAL",
+            options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
+                label: "On page load",
+                subText:
+                  "Query runs when the page loads or when manually triggered",
+                value: "ON_PAGE_LOAD",
+              },
+              {
+                label: "Manual",
+                subText:
+                  "Query only runs when called in an event or JS with .run()",
+                value: "MANUAL",
+              },
+            ],
           },
           {
             label: "Request confirmation before running this query",
@@ -7111,9 +7171,29 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run the query on page load",
-            configProperty: "executeOnLoad",
-            controlType: "SWITCH",
+            label: "Run behavior",
+            configProperty: "runBehaviour",
+            controlType: "DROP_DOWN",
+            initialValue: "MANUAL",
+            options: [
+              {
+                label: "Automatic",
+                subText: "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC"
+              },
+              {
+                label: "On page load",
+                subText:
+                  "Query runs when the page loads or when manually triggered",
+                value: "ON_PAGE_LOAD",
+              },
+              {
+                label: "Manual",
+                subText:
+                  "Query only runs when called in an event or JS with .run()",
+                value: "MANUAL",
+              },
+            ],
           },
           {
             label: "Request confirmation before running this query",

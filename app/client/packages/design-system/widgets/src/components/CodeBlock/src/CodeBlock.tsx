@@ -12,7 +12,7 @@ export const CodeBlock = (props: SyntaxHighlighterProps) => {
 
   return (
     <SyntaxHighlighter
-      className={getTypographyClassName("caption")}
+      className={getTypographyClassName("body") + " wds-codeblock"}
       {...props}
       style={theme.colorMode === "dark" ? darkTheme : lightTheme}
       useInlineStyles

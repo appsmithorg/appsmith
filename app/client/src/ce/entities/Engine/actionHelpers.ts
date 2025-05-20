@@ -8,7 +8,7 @@ import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import type { DependentFeatureFlags } from "ee/selectors/engineSelectors";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
-import { fetchPlugins } from "actions/pluginActions";
+import { fetchPlugins, fetchUpcomingPlugins } from "actions/pluginActions";
 import type { Plugin } from "entities/Plugin";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -37,6 +37,7 @@ export const getPageDependencyActions = (
     fetchPlugins({ plugins }),
     fetchDatasources({ datasources }),
     fetchPageDSLs({ pagesWithMigratedDsl }),
+    fetchUpcomingPlugins(), // Not adding success and error actions for this as it's not a blocker for the app to load
   ] as Array<ReduxAction<unknown>>;
 
   const successActions = [

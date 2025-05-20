@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 
 /**
  * selects the organization permissions
@@ -6,7 +6,7 @@ import type { AppState } from "ee/reducers";
  * @param state
  * @returns
  */
-export const getOrganizationPermissions = (state: AppState) => {
+export const getOrganizationPermissions = (state: DefaultRootState) => {
   return state.organization?.userPermissions;
 };
 
@@ -16,7 +16,7 @@ export const getOrganizationPermissions = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getOrganizationConfig = (state: AppState) => {
+export const getOrganizationConfig = (state: DefaultRootState) => {
   return state.organization?.organizationConfiguration;
 };
 
@@ -33,35 +33,37 @@ export const isValidLicense = () => {
   return true;
 };
 
-export const isOrganizationLoading = (state: AppState) => {
+export const isOrganizationLoading = (state: DefaultRootState) => {
   return state.organization?.isLoading;
 };
 
-export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
+export const getGoogleMapsApiKey = (
+  state: DefaultRootState,
+): string | undefined =>
   state.organization?.organizationConfiguration?.googleMapsKey as
     | string
     | undefined;
 
-export const getThirdPartyAuths = (state: AppState): string[] =>
+export const getThirdPartyAuths = (state: DefaultRootState): string[] =>
   state.organization?.organizationConfiguration?.thirdPartyAuths ?? [];
 
-export const getIsFormLoginEnabled = (state: AppState): boolean =>
+export const getIsFormLoginEnabled = (state: DefaultRootState): boolean =>
   state.organization?.organizationConfiguration?.isFormLoginEnabled ?? true;
 
-export const getIsSignupDisabled = (state: AppState): boolean =>
+export const getIsSignupDisabled = (state: DefaultRootState): boolean =>
   state.organization?.organizationConfiguration?.isSignupDisabled ?? false;
 
-export const getInstanceId = (state: AppState): string =>
+export const getInstanceId = (state: DefaultRootState): string =>
   state.organization?.instanceId;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const shouldShowLicenseBanner = (state: AppState) => false;
+export const shouldShowLicenseBanner = (state: DefaultRootState) => false;
 
-export const getHideWatermark = (state: AppState): boolean =>
+export const getHideWatermark = (state: DefaultRootState): boolean =>
   state.organization?.organizationConfiguration?.hideWatermark;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const isFreePlan = (state: AppState) => true;
+export const isFreePlan = (state: DefaultRootState) => true;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const isWithinAnOrganization = (state: AppState) => true;
+export const isWithinAnOrganization = (state: DefaultRootState) => true;

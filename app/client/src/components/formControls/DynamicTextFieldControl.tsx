@@ -11,7 +11,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import styled from "styled-components";
 import {
   getPluginResponseTypes,
@@ -97,7 +97,10 @@ export interface DynamicTextFieldProps extends ControlProps {
   pluginName: string;
 }
 
-const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
+const mapStateToProps = (
+  state: DefaultRootState,
+  props: DynamicTextFieldProps,
+) => {
   const valueSelector = formValueSelector(
     props.formName || QUERY_EDITOR_FORM_NAME,
   );

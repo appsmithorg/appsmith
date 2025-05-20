@@ -29,7 +29,7 @@ import type {
 } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -65,7 +65,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     getDatasourceStructureById(state, props.datasource.id),
   );
 
-  const isDatasourceStructureLoading = useSelector((state: AppState) =>
+  const isDatasourceStructureLoading = useSelector((state: DefaultRootState) =>
     getIsFetchingDatasourceStructure(state, props.datasource.id),
   );
 
@@ -73,7 +73,8 @@ const DatasourceViewModeSchema = (props: Props) => {
   const datasourcePermissions = props.datasource?.userPermissions || [];
 
   const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+    (state: DefaultRootState) =>
+      getCurrentApplication(state)?.userPermissions ?? [],
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);

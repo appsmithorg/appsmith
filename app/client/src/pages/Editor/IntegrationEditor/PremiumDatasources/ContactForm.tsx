@@ -1,6 +1,6 @@
 import { Button, ModalFooter, ModalHeader, Text, toast } from "@appsmith/ads";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import React, { useCallback } from "react";
 import { connect, useSelector } from "react-redux";
 import {
@@ -146,7 +146,7 @@ const validate = (values: PremiumDatasourceContactFormValues) => {
   return errors;
 };
 
-export default connect((state: AppState) => {
+export default connect((state: DefaultRootState) => {
   const currentUser = getCurrentUser(state);
 
   return {

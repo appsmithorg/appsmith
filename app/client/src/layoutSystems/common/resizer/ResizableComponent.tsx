@@ -1,4 +1,4 @@
-import type { AppState } from "ee/reducers";
+import type { DefaultRootState } from "react-redux";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -103,10 +103,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
 
   const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   );
   const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   );
   const parentWidgetToSelect = useSelector(
     getParentToOpenSelector(props.widgetId),
@@ -326,7 +326,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     return omit(allHandles, handlesToOmit);
   }, [props]);
   const isAutoCanvasResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    (state: DefaultRootState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
 
   const isEnabled =

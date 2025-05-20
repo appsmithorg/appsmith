@@ -16,8 +16,18 @@ import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
  */
 
 const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
-  const renderMode = useSelector(getRenderMode);
+  let renderMode = useSelector(getRenderMode);
   const themeSetting = useSelector(getAppThemeSettings);
+
+  // This is primarily used by UI modules in app editor where it wants to load all the underlying
+  // widgets in page mode as they are not editable and mimics the behavior of view mode.
+  // Since in app's edit mode the default render mode is canvas and due to this some widgets do not behave
+  // properly.
+  // Ideally the renderMode from props should be used instead of the one from the selector but that needs
+  // to be handled properly as it needs a bigger change and more testing.
+  if (props.overrideRenderMode) {
+    renderMode = props.overrideRenderMode;
+  }
 
   const layoutSystemType = useSelector(getLayoutSystemType);
   const { canvasSystem } = useMemo(
