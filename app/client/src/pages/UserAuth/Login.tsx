@@ -23,6 +23,12 @@ import {
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
+  MULTI_ORG_FOOTER_NOT_RIGHT_ORG_LEFT_TEXT,
+  MULTI_ORG_FOOTER_NOT_RIGHT_ORG_RIGHT_TEXT,
+  MULTI_ORG_FOOTER_NOT_PART_OF_ORG_LEFT_TEXT,
+  MULTI_ORG_FOOTER_NOT_PART_OF_ORG_RIGHT_TEXT,
+  MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT,
+  MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT,
   createMessage,
 } from "ee/constants/messages";
 import { FormGroup } from "@appsmith/ads-old";
@@ -46,6 +52,7 @@ import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
   getOrganizationConfig,
+  isWithinAnOrganization,
 } from "ee/selectors/organizationSelectors";
 import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -99,8 +106,12 @@ export function Login(props: LoginFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
+  const isMultiOrgEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_multi_org_enabled,
+  );
   const organizationConfig = useSelector(getOrganizationConfig);
-  const { instanceName } = organizationConfig;
+  const withinOrg = useSelector(isWithinAnOrganization);
+  const { displayName, instanceName, slug } = organizationConfig;
   const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
@@ -138,6 +149,33 @@ export function Login(props: LoginFormProps) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
 
+  const getPrimaryLoginURL = () => {
+    const hostnameParts = window.location.hostname.split(".");
+
+    hostnameParts[0] = "login";
+    const orgChangeURL = `https://${hostnameParts.join(".")}`;
+
+    return orgChangeURL;
+  };
+
+  const multiOrgFooterContent = [
+    {
+      leftText: createMessage(MULTI_ORG_FOOTER_NOT_RIGHT_ORG_LEFT_TEXT),
+      rightText: createMessage(MULTI_ORG_FOOTER_NOT_RIGHT_ORG_RIGHT_TEXT),
+      rightTextLink: getPrimaryLoginURL() + "/org",
+    },
+    {
+      leftText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_LEFT_TEXT),
+      rightText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_RIGHT_TEXT),
+      rightTextLink: getPrimaryLoginURL(),
+    },
+    {
+      leftText: createMessage(MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT),
+      rightText: createMessage(MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT),
+      rightTextLink: getPrimaryLoginURL(),
+    },
+  ];
+
   const footerSection = isFormLoginEnabled && (
     <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
       {createMessage(NEW_TO_APPSMITH)}&nbsp;
@@ -152,8 +190,57 @@ export function Login(props: LoginFormProps) {
     </div>
   );
 
+  const multiOrgFooterSection = (
+    <div className="px-2 flex flex-col gap-3 align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      {multiOrgFooterContent.map((item) => (
+        <div className="flex align-center justify-center" key={item.leftText}>
+          {item.leftText}&nbsp;
+          <Link
+            className="t--sign-up t--signup-link"
+            kind="primary"
+            target="_self"
+            to={item.rightTextLink}
+          >
+            {item.rightText}
+          </Link>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTitle = () => {
+    if (isMultiOrgEnabled && withinOrg && displayName) {
+      return (
+        <>
+          Sign in to{" "}
+          <span style={{ color: "var(--ads-v2-color-fg-brand)" }}>
+            {displayName}
+          </span>
+        </>
+      );
+    }
+
+    return createMessage(LOGIN_PAGE_TITLE);
+  };
+
+  const renderSubtitle = () => {
+    if (isMultiOrgEnabled && withinOrg && slug) {
+      const lowercaseInstanceName = slug.toLowerCase();
+
+      return `${lowercaseInstanceName}.appsmith.com`;
+    }
+
+    return undefined;
+  };
+
   return (
-    <Container footer={footerSection} title={createMessage(LOGIN_PAGE_TITLE)}>
+    <Container
+      footer={
+        isMultiOrgEnabled && withinOrg ? multiOrgFooterSection : footerSection
+      }
+      subtitle={renderSubtitle()}
+      title={renderTitle()}
+    >
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>
