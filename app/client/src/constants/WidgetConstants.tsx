@@ -165,6 +165,7 @@ export const WIDGET_STATIC_PROPS = {
   height: false,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
+  isTemplate: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
@@ -179,6 +180,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   type: true,
   widgetId: true,
   layout: true,
+  isTemplate: true,
 };
 
 export type TextSize = keyof typeof TextSizes;
