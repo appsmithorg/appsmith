@@ -61,13 +61,19 @@ class MixpanelSingleton {
   }
 
   public startRecording() {
-    if (this.mixpanel) {
+    if (
+      this.mixpanel &&
+      typeof this.mixpanel.start_session_recording === "function"
+    ) {
       this.mixpanel.start_session_recording();
     }
   }
 
   public stopRecording() {
-    if (this.mixpanel) {
+    if (
+      this.mixpanel &&
+      typeof this.mixpanel.stop_session_recording === "function"
+    ) {
       this.mixpanel.stop_session_recording();
     }
   }
