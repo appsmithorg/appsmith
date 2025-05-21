@@ -150,6 +150,10 @@ import {
 } from "selectors/gitModSelectors";
 import { appsmithTelemetry } from "instrumentation";
 import { getLayoutSavePayload } from "ee/sagas/helpers";
+import { apiFailureResponseInterceptor } from "api/interceptors/response";
+import type { AxiosError } from "axios";
+import { handleFetchApplicationError } from "./ApplicationSagas";
+import { getCurrentUser } from "actions/authActions";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -421,13 +425,30 @@ export function* fetchPublishedPageResourcesSaga(
       // We need to recall consolidated view API in order to fetch actions when page is switched
       // As in the first call only actions of the current page are fetched
       // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
-      const { publishedActions } = response;
+      const { pageWithMigratedDsl, publishedActions, userProfile } = response;
 
-      yield call(
-        postFetchedPublishedPage,
-        response.pageWithMigratedDsl,
-        pageId,
-      );
+      // Update the current user in the redux store. If the session has expired between page switch, the user profile will be updated
+      yield put(getCurrentUser(userProfile));
+
+      // If the pageWithMigratedDsl has an error, we need to intercept the error and return
+      // This makes sure that the user is navigated to the login page if page is not found
+      if (pageWithMigratedDsl?.responseMeta?.error) {
+        const { responseMeta } = pageWithMigratedDsl;
+        const { status } = responseMeta;
+
+        // apiFailureResponseInterceptor throws an error if the response is not valid
+        // this error needs to be caught and handled by handleFetchApplicationError
+        yield apiFailureResponseInterceptor({
+          response: {
+            data: {
+              responseMeta,
+            },
+            status,
+          },
+        } as AxiosError<ApiResponse>);
+      }
+
+      yield call(postFetchedPublishedPage, pageWithMigratedDsl, pageId);
 
       // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
@@ -437,6 +458,8 @@ export function* fetchPublishedPageResourcesSaga(
       });
     }
   } catch (error) {
+    // Handle the error thrown by apiFailureResponseInterceptor
+    yield call(handleFetchApplicationError, error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_RESOURCES_ERROR,
       payload: {
