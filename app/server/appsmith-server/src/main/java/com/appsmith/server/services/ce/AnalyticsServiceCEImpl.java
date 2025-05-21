@@ -147,7 +147,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                                     "instanceId",
                                     instanceId,
                                     "organizationId",
-                                    organizationId,
+                                    ObjectUtils.defaultIfNull(organizationId, ""),
                                     "mostRecentlyUsedWorkspaceId",
                                     tuple.getT4(),
                                     "role",
@@ -348,7 +348,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);
                     analyticsProperties.put("oid", ((Identifiable) object).getId());
-                    analyticsProperties.put("organizationId", organizationId);
+                    analyticsProperties.put("organizationId", ObjectUtils.defaultIfNull(organizationId, ""));
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                         // To avoid sending extra event data to analytics
