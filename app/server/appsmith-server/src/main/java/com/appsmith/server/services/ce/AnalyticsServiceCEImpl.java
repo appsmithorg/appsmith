@@ -341,11 +341,14 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         return Mono.just(object);
                     }
 
+                    String organizationId = user.getOrganizationId();
+
                     final String username = (object instanceof User objectAsUser ? objectAsUser : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);
                     analyticsProperties.put("oid", ((Identifiable) object).getId());
+                    analyticsProperties.put("organizationId", organizationId);
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                         // To avoid sending extra event data to analytics
