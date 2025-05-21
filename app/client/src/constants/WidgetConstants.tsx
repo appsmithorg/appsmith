@@ -165,7 +165,6 @@ export const WIDGET_STATIC_PROPS = {
   height: false,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
-  isTemplate: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
