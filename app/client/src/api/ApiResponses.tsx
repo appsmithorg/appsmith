@@ -1,5 +1,5 @@
 export interface APIResponseError {
-  code: string | number;
+  code: string;
   message: string;
   errorType?: string;
 }
