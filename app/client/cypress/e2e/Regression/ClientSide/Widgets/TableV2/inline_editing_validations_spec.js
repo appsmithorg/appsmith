@@ -87,8 +87,7 @@ describe(
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.UpdatePropertyFieldValue("Regex", "^#1$");
           cy.editTableCell(0, 0);
-          cy.wait(500);
-          cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
+          cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "22");
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "#1");
@@ -104,8 +103,7 @@ describe(
             "{{editedValue === '#1'}}",
           );
           cy.editTableCell(0, 0);
-          cy.wait(500);
-          cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
+          cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "22");
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "#1");
@@ -118,7 +116,6 @@ describe(
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.TogglePropertyState("Required", "On");
           cy.editTableCell(0, 0);
-          cy.wait(500);
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "22");
           cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
@@ -146,8 +143,7 @@ describe(
           _.propPane.UpdatePropertyFieldValue("Min", "5");
 
           cy.editTableCell(0, 0);
-          cy.wait(500);
-          cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
+          cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.enterTableCellValue(0, 0, "6");
           cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
           cy.enterTableCellValue(0, 0, "7");
@@ -172,7 +168,6 @@ describe(
           _.propPane.UpdatePropertyFieldValue("Max", "5");
 
           cy.editTableCell(0, 0);
-          cy.wait(500);
           cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
           cy.enterTableCellValue(0, 0, "6");
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
@@ -198,7 +193,6 @@ describe(
         "You got error mate!!",
       );
       cy.editTableCell(0, 0);
-      cy.wait(1000);
       cy.enterTableCellValue(0, 0, "123");
       cy.get(".bp3-overlay.error-tooltip .bp3-popover-content").should(
         "contain",
@@ -224,12 +218,12 @@ describe(
           cy.get(`.t--inlined-cell-editor`).should("exist");
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.saveTableCellValue(0, 0);
-          cy.wait(500);
           cy.get(`.t--inlined-cell-editor`).should("exist");
           cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
           cy.get(widgetsPage.toastAction).should("not.exist");
           cy.enterTableCellValue(0, 0, "#1");
           cy.saveTableCellValue(0, 0);
+          cy.wait(500);
           cy.get(`.t--inlined-cell-editor`).should("not.exist");
           cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
           cy.get(widgetsPage.toastAction).should("be.visible");
@@ -276,7 +270,7 @@ describe(
       },
     );
 
-    it("should check that save/discard button is disabled when there is a validation error", () => {
+    it("9. should check that save/discard button is disabled when there is a validation error", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
