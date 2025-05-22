@@ -52,8 +52,9 @@ const StyledFormTextField = styled(FormTextField)`
 `;
 
 const InputSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[10]}px;
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
   margin-top: ${(props) => props.theme.spaces[10]}px;
+  max-width: 505px;
 `;
 
 interface UserFormProps {
