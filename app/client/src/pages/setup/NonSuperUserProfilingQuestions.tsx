@@ -33,7 +33,6 @@ const StyledButton = styled(Button)`
   width: 160px;
 `;
 
-// Styled Input to match the radio button group styling
 const StyledFormTextField = styled(FormTextField)`
   .ads-v2-input {
     width: 100%;
@@ -57,7 +56,6 @@ const StyledFormTextField = styled(FormTextField)`
   }
 `;
 
-// Input section container for consistent spacing
 const InputSection = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[10]}px;
 `;
