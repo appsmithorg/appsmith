@@ -71,6 +71,10 @@ interface NonSuperUserFormData {
   useCase?: string;
 }
 
+export const Space = styled.div`
+  height: 40px;
+`;
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (values: any) => {
@@ -110,6 +114,7 @@ function NonSuperUserProfilingQuestions(
           />
         </InputSection>
       )}
+      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}
@@ -118,6 +123,7 @@ function NonSuperUserProfilingQuestions(
         showSubtitle
         testid="t--user-proficiency"
       />
+      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
