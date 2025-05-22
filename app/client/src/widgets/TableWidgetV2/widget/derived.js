@@ -1199,62 +1199,60 @@ export default {
 
     const validationMap = {};
 
-    editableColumns.forEach((validationObj) => {
-      const editedColumn = validationObj[0];
-      const value = validationObj[1];
+    editableColumns.forEach(([editedColumn, value]) => {
+      let isValid = true;
 
       if (editedColumn && editedColumn.validation) {
         const validation = editedColumn.validation;
 
-        /* General validations */
+        /**
+         * General validations
+         * 1. isColumnEditableCellValid
+         * 2. regex
+         * 3. isColumnEditableCellRequired
+         * 4. number/currency min/max
+         */
         if (
-          !validation.isColumnEditableCellRequired &&
+          !_.isNil(validation.isColumnEditableCellValid) &&
+          !validation.isColumnEditableCellValid
+        ) {
+          isValid = false;
+        } else if (
+          validation.regex &&
+          !createRegex(validation.regex).test(value)
+        ) {
+          isValid = false;
+        } else if (
+          validation.isColumnEditableCellRequired &&
           (value === "" || _.isNil(value))
         ) {
-          validationMap[editedColumn.alias] = true;
+          isValid = false;
+        } else {
+          switch (editedColumn.columnType) {
+            case "number":
+            case "currency":
+              if (
+                !_.isNil(validation.min) &&
+                validation.min !== "" &&
+                validation.min > value
+              ) {
+                isValid = false;
+              }
 
-          return;
-        } else if (
-          (!_.isNil(validation.isColumnEditableCellValid) &&
-            !validation.isColumnEditableCellValid) ||
-          (validation.regex && !createRegex(validation.regex).test(value)) ||
-          (validation.isColumnEditableCellRequired &&
-            (value === "" || _.isNil(value)))
-        ) {
-          validationMap[editedColumn.alias] = false;
+              if (
+                !_.isNil(validation.max) &&
+                validation.max !== "" &&
+                validation.max < value
+              ) {
+                isValid = false;
+              }
 
-          return;
-        }
-
-        /* Column type related validations */
-        switch (editedColumn.columnType) {
-          case "number":
-          case "currency":
-            if (
-              !_.isNil(validation.min) &&
-              validation.min !== "" &&
-              validation.min > value
-            ) {
-              validationMap[editedColumn.alias] = false;
-
-              return;
-            }
-
-            if (
-              !_.isNil(validation.max) &&
-              validation.max !== "" &&
-              validation.max < value
-            ) {
-              validationMap[editedColumn.alias] = false;
-
-              return;
-            }
-
-            break;
+              break;
+          }
         }
       }
 
-      validationMap[editedColumn.alias] = true;
+      validationMap[editedColumn.alias] = isValid;
     });
 
     return validationMap;

@@ -26,6 +26,7 @@ function Select(props: SelectProps) {
     children,
     className,
     dropdownClassName,
+    dropdownMatchSelectWidth = true,
     isDisabled = false,
     isLoading = false,
     isMultiSelect,
@@ -88,6 +89,7 @@ function Select(props: SelectProps) {
         SelectDropdownClassName + `--${size}`,
         dropdownClassName,
       )}
+      dropdownMatchSelectWidth={dropdownMatchSelectWidth}
       dropdownRender={(menu: any) => {
         return (
           <div>
