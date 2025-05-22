@@ -34,11 +34,6 @@ const StyledButton = styled(Button)`
 `;
 
 const StyledFormTextField = styled(FormTextField)`
-  .ads-v2-input {
-    width: 100%;
-    max-width: none;
-  }
-
   .ads-v2-input__input {
     height: 36px;
     border-radius: var(--ads-v2-border-radius);
@@ -58,6 +53,7 @@ const StyledFormTextField = styled(FormTextField)`
 
 const InputSection = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[10]}px;
+  margin-top: ${(props) => props.theme.spaces[10]}px;
 `;
 
 interface UserFormProps {
@@ -112,7 +108,6 @@ function NonSuperUserProfilingQuestions(
           />
         </InputSection>
       )}
-      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}
@@ -121,7 +116,6 @@ function NonSuperUserProfilingQuestions(
         showSubtitle
         testid="t--user-proficiency"
       />
-      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
