@@ -13,6 +13,7 @@ export const fetchStatusInitAction =
   createArtifactAction<FetchStatusInitPayload>((state) => {
     state.apiResponses.status.loading = true;
     state.apiResponses.status.error = null;
+    state.apiResponses.status.value = null;
 
     return state;
   });
@@ -25,6 +26,15 @@ export const fetchStatusSuccessAction = createArtifactAction<
 
   return state;
 });
+
+export const resetGitStatusAction =
+  createArtifactAction<FetchStatusRequestParams>((state) => {
+    state.apiResponses.status.loading = false;
+    state.apiResponses.status.error = null;
+    state.apiResponses.status.value = null;
+
+    return state;
+  });
 
 export const fetchStatusErrorAction =
   createArtifactAction<GitAsyncErrorPayload>((state, action) => {
