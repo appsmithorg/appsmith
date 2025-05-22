@@ -33,6 +33,35 @@ const StyledButton = styled(Button)`
   width: 160px;
 `;
 
+// Styled Input to match the radio button group styling
+const StyledFormTextField = styled(FormTextField)`
+  .ads-v2-input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .ads-v2-input__input {
+    height: 36px;
+    border-radius: var(--ads-v2-border-radius);
+    padding: var(--ads-v2-spaces-3);
+    font-size: var(--ads-font-size-4);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ads-v2-input__label {
+    font-size: var(--ads-font-size-4);
+    font-weight: var(--ads-font-weight-bold-xl);
+    color: var(--ads-v2-color-gray-700);
+    margin-bottom: 0.5rem;
+  }
+`;
+
+// Input section container for consistent spacing
+const InputSection = styled.div`
+  margin-bottom: ${(props) => props.theme.spaces[10]}px;
+`;
+
 interface UserFormProps {
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
 }
@@ -76,16 +105,14 @@ function NonSuperUserProfilingQuestions(
   return (
     <form onSubmit={props.handleSubmit(onSubmit)}>
       {isCloudBillingEnabled && (
-        <>
-          <Space />
-          <FormTextField
+        <InputSection>
+          <StyledFormTextField
             data-testid="t--user-full-name"
             label={createMessage(WELCOME_FORM_FULL_NAME)}
             name="fullName"
             placeholder="Enter your full name"
           />
-          <Space />
-        </>
+        </InputSection>
       )}
       <Field
         component={RadioButtonGroup}
@@ -95,7 +122,6 @@ function NonSuperUserProfilingQuestions(
         showSubtitle
         testid="t--user-proficiency"
       />
-      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
