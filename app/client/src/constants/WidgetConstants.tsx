@@ -179,6 +179,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   type: true,
   widgetId: true,
   layout: true,
+  isTemplate: true,
 };
 
 export type TextSize = keyof typeof TextSizes;
