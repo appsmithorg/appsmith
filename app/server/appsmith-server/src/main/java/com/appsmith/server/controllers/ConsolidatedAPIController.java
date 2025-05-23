@@ -8,6 +8,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConsolidatedAPIService;
+import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +36,15 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class ConsolidatedAPIController {
     private final ConsolidatedAPIService consolidatedAPIService;
     private final ObservationRegistry observationRegistry;
+    private final SessionUserService sessionUserService;
 
     public ConsolidatedAPIController(
-            ConsolidatedAPIService consolidatedAPIService, ObservationRegistry observationRegistry) {
+            ConsolidatedAPIService consolidatedAPIService,
+            ObservationRegistry observationRegistry,
+            SessionUserService sessionUserService) {
         this.consolidatedAPIService = consolidatedAPIService;
         this.observationRegistry = observationRegistry;
+        this.sessionUserService = sessionUserService;
     }
 
     /**
@@ -100,40 +105,69 @@ public class ConsolidatedAPIController {
                 refName,
                 ApplicationMode.PUBLISHED);
 
-        return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(
-                        defaultPageId, applicationId, refType, refName, ApplicationMode.PUBLISHED)
-                .map(consolidatedAPIResponseDTO -> {
-                    long startTime = System.currentTimeMillis();
+        Mono<Boolean> isAuthenticatedMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> true)
+                .defaultIfEmpty(false);
 
-                    String responseHash = consolidatedAPIService.computeConsolidatedAPIResponseEtag(
-                            consolidatedAPIResponseDTO, defaultPageId, applicationId);
-                    long endTime = System.currentTimeMillis();
-                    long duration = endTime - startTime;
-                    log.debug("Time taken to compute ETag: {} ms", duration);
+        return isAuthenticatedMono
+                .flatMap(
+                        isAuthenticated -> {
+                            if (StringUtils.hasLength(defaultPageId) && !isAuthenticated) {
+                                ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                        new ResponseDTO<>(HttpStatus.UNAUTHORIZED, null);
+                                return Mono.just(
+                                        new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED));
+                            }
 
-                    // if defaultPageId and applicationId are both null, then don't compute ETag
-                    if (isBlank(responseHash)) {
-                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                                new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO);
-                        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-                    }
+                            return consolidatedAPIService
+                                    .getConsolidatedInfoForPageLoad(
+                                            defaultPageId,
+                                            applicationId,
+                                            refType,
+                                            refName,
+                                            ApplicationMode.PUBLISHED)
+                                    .map(
+                                            consolidatedAPIResponseDTO -> {
+                                                long startTime = System.currentTimeMillis();
 
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.add("ETag", responseHash);
-                    headers.add("Cache-Control", "private, must-revalidate");
+                                                String responseHash =
+                                                        consolidatedAPIService.computeConsolidatedAPIResponseEtag(
+                                                                consolidatedAPIResponseDTO,
+                                                                defaultPageId,
+                                                                applicationId);
+                                                long endTime = System.currentTimeMillis();
+                                                long duration = endTime - startTime;
+                                                log.debug(
+                                                        "Time taken to compute ETag: {} ms",
+                                                        duration);
 
-                    if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
-                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED, null);
-                        return new ResponseEntity<>(responseDTO, headers, HttpStatus.NOT_MODIFIED);
-                    }
+                                                // if defaultPageId and applicationId are both null, then don't compute ETag
+                                                if (isBlank(responseHash)) {
+                                                    ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                                            new ResponseDTO<>(
+                                                                    HttpStatus.OK,
+                                                                    consolidatedAPIResponseDTO);
+                                                    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+                                                }
 
-                    ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                            new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO);
+                                                HttpHeaders headers = new HttpHeaders();
+                                                headers.add("ETag", responseHash);
+                                                headers.add("Cache-Control", "private, must-revalidate");
 
-                    return new ResponseEntity<>(responseDTO, headers, HttpStatus.OK);
-                })
+                                                if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
+                                                    ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                                            new ResponseDTO<>(HttpStatus.NOT_MODIFIED, null);
+                                                    return new ResponseEntity<>(
+                                                            responseDTO, headers, HttpStatus.NOT_MODIFIED);
+                                                }
+
+                                                ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                                        new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO);
+
+                                                return new ResponseEntity<>(responseDTO, headers, HttpStatus.OK);
+                                            });
+                        })
                 .tag("pageId", Objects.toString(defaultPageId))
                 .tag("applicationId", Objects.toString(applicationId))
                 .tag("refType", Objects.toString(refType))
