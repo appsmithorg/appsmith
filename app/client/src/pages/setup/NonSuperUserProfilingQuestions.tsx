@@ -13,6 +13,7 @@ import {
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
   WELCOME_FORM_FULL_NAME,
+  WELCOME_FORM_FULL_NAME_ERROR_MESSAGE,
 } from "ee/constants/messages";
 import { connect } from "react-redux";
 import type { DefaultRootState } from "react-redux";
@@ -33,6 +34,30 @@ const StyledButton = styled(Button)`
   width: 160px;
 `;
 
+const StyledFormTextField = styled(FormTextField)`
+  .ads-v2-input__input {
+    height: 36px;
+    border-radius: var(--ads-v2-border-radius);
+    padding: var(--ads-v2-spaces-3);
+    font-size: var(--ads-font-size-4);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ads-v2-input__label {
+    font-size: var(--ads-font-size-4);
+    font-weight: var(--ads-font-weight-bold-xl);
+    color: var(--ads-v2-color-gray-700);
+    margin-bottom: 0.5rem;
+  }
+`;
+
+const InputSection = styled.div`
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
+  margin-top: ${(props) => props.theme.spaces[10]}px;
+  max-width: 505px;
+`;
+
 interface UserFormProps {
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
 }
@@ -40,18 +65,15 @@ interface UserFormProps {
 interface NonSuperUserFormData {
   proficiency?: string;
   useCase?: string;
+  fullName?: string;
 }
 
 export const Space = styled.div`
-  height: 40px;
+  height: 20px;
 `;
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const validate = (values: any) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors: any = {};
+const validate = (values: NonSuperUserFormData) => {
+  const errors: Partial<NonSuperUserFormData> = {};
 
   if (!values.proficiency) {
     errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
@@ -59,6 +81,10 @@ const validate = (values: any) => {
 
   if (!values.useCase) {
     errors.useCase = createMessage(WELCOME_FORM_USE_CASE_ERROR_MESSAGE);
+  }
+
+  if (!values.fullName) {
+    errors.fullName = createMessage(WELCOME_FORM_FULL_NAME_ERROR_MESSAGE);
   }
 
   return errors;
@@ -76,17 +102,16 @@ function NonSuperUserProfilingQuestions(
   return (
     <form onSubmit={props.handleSubmit(onSubmit)}>
       {isCloudBillingEnabled && (
-        <>
-          <Space />
-          <FormTextField
+        <InputSection>
+          <StyledFormTextField
             data-testid="t--user-full-name"
             label={createMessage(WELCOME_FORM_FULL_NAME)}
             name="fullName"
             placeholder="Enter your full name"
           />
-          <Space />
-        </>
+        </InputSection>
       )}
+      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}

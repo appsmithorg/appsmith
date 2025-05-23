@@ -1596,6 +1596,8 @@ export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
   "Please select an use case";
+export const WELCOME_FORM_FULL_NAME_ERROR_MESSAGE = () =>
+  "Please enter your full name";
 
 export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
   "Enter a valid email address.";
