@@ -336,18 +336,16 @@ public class FileUtilsCEImpl implements FileInterface {
             throws IOException {
         Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
 
-        Set<String> filesInRepo = new HashSet<>();
         Set<String> updatedFiles = new HashSet<>();
         Set<String> filesInDB = resourceMapFromDB.keySet().parallelStream()
                 .map(gitResourceIdentity -> gitResourceIdentity.getFilePath())
                 .collect(Collectors.toSet());
 
         Map<String, Object> filesInFS = gitResourceMapFromFS.getGitResourceMap().entrySet().parallelStream()
-                .map(entry -> {
-                    filesInRepo.add(entry.getKey().getFilePath());
-                    return entry;
-                })
+                .map(gitResourceIdentity -> gitResourceIdentity)
                 .collect(Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
+        Set<String> filesInRepo = filesInFS.keySet();
 
         // Remove all files that need to be serialized from the existing files list, as well as the README file
         // What we are left with are all the files to be deleted
