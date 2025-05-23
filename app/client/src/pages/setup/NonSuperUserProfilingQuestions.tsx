@@ -13,6 +13,7 @@ import {
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
   WELCOME_FORM_FULL_NAME,
+  WELCOME_FORM_FULL_NAME_ERROR_MESSAGE,
 } from "ee/constants/messages";
 import { connect } from "react-redux";
 import type { DefaultRootState } from "react-redux";
@@ -64,18 +65,15 @@ interface UserFormProps {
 interface NonSuperUserFormData {
   proficiency?: string;
   useCase?: string;
+  fullName?: string;
 }
 
 export const Space = styled.div`
-  height: 40px;
+  height: 20px;
 `;
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const validate = (values: any) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors: any = {};
+const validate = (values: NonSuperUserFormData) => {
+  const errors: Partial<NonSuperUserFormData> = {};
 
   if (!values.proficiency) {
     errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
@@ -83,6 +81,10 @@ const validate = (values: any) => {
 
   if (!values.useCase) {
     errors.useCase = createMessage(WELCOME_FORM_USE_CASE_ERROR_MESSAGE);
+  }
+
+  if (!values.fullName) {
+    errors.fullName = createMessage(WELCOME_FORM_FULL_NAME_ERROR_MESSAGE);
   }
 
   return errors;
@@ -109,6 +111,7 @@ function NonSuperUserProfilingQuestions(
           />
         </InputSection>
       )}
+      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}
@@ -117,6 +120,7 @@ function NonSuperUserProfilingQuestions(
         showSubtitle
         testid="t--user-proficiency"
       />
+      <Space />
       <Field
         component={RadioButtonGroup}
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
