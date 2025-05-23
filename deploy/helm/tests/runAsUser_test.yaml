@@ -1,0 +1,27 @@
+templates:
+  - deployment.yaml
+tests:
+  - name: runAsUser should be 9999
+    set:
+      podSecurityContext:
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 9999
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].securityContext
+          value:
+            runAsUser: 9999
+            runAsNonRoot: true
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            sysctls:
+              - name: net.ipv4.ip_unprivileged_port_start
+                value: "80"
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].env[?(@.name == "LD_PRELOAD")].value
+          value: "/usr/local/lib/libnss_wrapper.so"
