@@ -21,6 +21,7 @@ import {
   fetchStatusErrorAction,
   fetchStatusInitAction,
   fetchStatusSuccessAction,
+  resetGitStatusAction,
 } from "./actions/fetchStatusActions";
 import {
   clearCommitErrorAction,
@@ -200,6 +201,7 @@ export const gitArtifactSlice = createSlice({
     clearDiscardError: clearDiscardErrorAction,
     fetchStatusInit: fetchStatusInitAction,
     fetchStatusSuccess: fetchStatusSuccessAction,
+    resetGitStatus: resetGitStatusAction,
     fetchStatusError: fetchStatusErrorAction,
     fetchMergeStatusInit: fetchMergeStatusInitAction,
     fetchMergeStatusSuccess: fetchMergeStatusSuccessAction,
