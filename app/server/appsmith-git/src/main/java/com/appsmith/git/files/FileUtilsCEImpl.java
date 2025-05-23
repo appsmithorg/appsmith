@@ -342,7 +342,6 @@ public class FileUtilsCEImpl implements FileInterface {
                 .collect(Collectors.toSet());
 
         Map<String, Object> filesInFS = gitResourceMapFromFS.getGitResourceMap().entrySet().parallelStream()
-                .map(gitResourceIdentity -> gitResourceIdentity)
                 .collect(Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
 
         Set<String> filesInRepo = filesInFS.keySet();
