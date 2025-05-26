@@ -1,6 +1,8 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { featureFlagIntercept } from "../Objects/FeatureFlags";
 import githubForm from "../../locators/GithubForm.json";
+import { adminSettings } from "../Objects/ObjectsCore";
+import AdminsSettings from "../../locators/AdminsSettings";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -68,6 +70,65 @@ export class AdminSettings {
     );
 
     this.agHelper.GetNClick(githubForm.saveBtn);
+  }
+
+  public fillSaveAndAssertGithubForm() {
+    this.FillAndSaveGithubForm();
+    this.agHelper.WaitUntilEleAppear(AdminsSettings.restartNotice);
+    this.agHelper.AssertElementAbsence(AdminsSettings.restartNotice, 200000);
+  }
+
+  public checkAndDisableGithub() {
+    // Check if GitHub is connected and disconnect if needed
+    this.agHelper.GetNClick(AdminsSettings.githubButton);
+    cy.get("body").then(($body) => {
+      if ($body.find(AdminsSettings.disconnectBtn).length > 0) {
+        // GitHub is connected, need to disconnect
+        this.agHelper.GetNClick(AdminsSettings.disconnectBtn);
+        this.agHelper
+          .GetElement(AdminsSettings.disconnectBtn)
+          .should("contain.text", "Are you sure?");
+        this.agHelper.GetNClick(AdminsSettings.disconnectBtn);
+        this.agHelper.WaitUntilEleAppear(AdminsSettings.restartNotice);
+        this.agHelper.AssertElementAbsence(
+          AdminsSettings.restartNotice,
+          200000,
+        );
+        this.agHelper.WaitForCondition(() =>
+          this.agHelper.AssertContains("GitHub authentication", "exist"),
+        );
+      } else {
+        // GitHub is already disconnected, go back to auth settings
+        this.agHelper.GetNClick(AdminsSettings.authenticationTab);
+      }
+    });
+  }
+
+  public toggleFormSignupLoginAndSave(enable = true, type = "signup") {
+    const selector =
+      type === "signup"
+        ? AdminsSettings.formSignupDisabled
+        : AdminsSettings.formLoginEnabled;
+    this.agHelper.GetNClick(AdminsSettings.formloginButton);
+    this.agHelper.WaitUntilEleAppear(selector);
+
+    if (enable) {
+      cy.get(selector).then(($el) => {
+        if (!$el.prop("checked")) {
+          this.agHelper.GetNClick(selector);
+        }
+      });
+    } else {
+      cy.get(selector).then(($el) => {
+        if ($el.prop("checked")) {
+          this.agHelper.GetNClick(selector);
+        }
+      });
+    }
+
+    this.agHelper.AssertElementVisibility(AdminsSettings.saveButton);
+    this.agHelper.GetNClick(AdminsSettings.saveButton);
+    this.agHelper.WaitUntilToastDisappear("Successfully saved");
   }
 
   public EnableGAC(
