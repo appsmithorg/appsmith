@@ -24,6 +24,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
@@ -165,28 +166,21 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
 
                     // -----------------------------------------------------------------------------
-                    //  Start with editable copies of the originals
-                    // -----------------------------------------------------------------------------
-                    Set<String> finalWidgetNames = new HashSet<>(widgetNames);
-
-                    // -----------------------------------------------------------------------------
                     //  If we have synthetic widgets, filter them out and scrub the DSL
                     // -----------------------------------------------------------------------------
                     if (syntheticWidgetNamesOpt.isPresent()) {
-                        Set<String> syntheticNames = syntheticWidgetNamesOpt.get();
+                        Set<String> syntheticWidgetNames = syntheticWidgetNamesOpt.get();
 
-                        // Remove synthetic widget names from the list we’ll persist
-                        finalWidgetNames.removeAll(syntheticNames);
+                        Set<String> widgetNamesToPersist = Sets.difference(widgetNames, syntheticWidgetNames);
 
-                        // Strip synthetic widgets out of the DSL, then escape any special chars
                         processedDsl = stripSyntheticWidgets(processedDsl, syntheticWidgetNamesOpt);
                         removeSpecialCharactersFromKeys(processedDsl, escapedWidgetNames);
+
+                        layout.setWidgetNames(widgetNamesToPersist);
+                    } else {
+                        layout.setWidgetNames(widgetNames);
                     }
 
-                    // -----------------------------------------------------------------------------
-                    // Persist the results (single exit point)
-                    // -----------------------------------------------------------------------------
-                    layout.setWidgetNames(finalWidgetNames);
                     layout.setDsl(processedDsl);
 
                     // We always attach escaped names when we have them
@@ -289,27 +283,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 });
     }
 
-    /**
-     * Remove wrapper / input widgets that were injected for UI-module instances
-     * before persisting the DSL to DB.
-     */
-    private JSONObject stripSyntheticWidgets(JSONObject dsl, Optional<Set<String>> syntheticNamesOpt) {
-        if (syntheticNamesOpt.isEmpty() || syntheticNamesOpt.get().isEmpty()) {
-            return dsl;
-        }
-        Set<String> syntheticNames = syntheticNamesOpt.get();
-        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
-        if (children == null) {
-            return dsl;
-        }
-
-        children.removeIf(child -> {
-            if (child instanceof Map m) {
-                Object name = m.get(FieldName.WIDGET_NAME);
-                return name != null && syntheticNames.contains(name.toString());
-            }
-            return false;
-        });
+    protected JSONObject stripSyntheticWidgets(JSONObject dsl, Optional<Set<String>> syntheticNamesOpt) {
         return dsl;
     }
 
