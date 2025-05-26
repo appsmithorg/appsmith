@@ -17,38 +17,6 @@ describe("Form Login test functionality", function () {
     agHelper.AssertContains("Edit", "exist", adminSettings.formloginButton);
   };
 
-  after(function () {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    // Enable form signup if disabled
-    objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-    agHelper.GetNClick(adminSettings.formloginButton);
-    if (
-      !agHelper.AssertElementEnabledDisabled(
-        adminSettings.formSignupDisabled,
-        undefined,
-        false,
-      )
-    ) {
-      objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "signup");
-    }
-
-    // Enable form login if disabled
-    objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-    agHelper.GetNClick(adminSettings.formloginButton);
-    if (
-      !agHelper.AssertElementEnabledDisabled(
-        adminSettings.formLoginEnabled,
-        undefined,
-        false,
-      )
-    ) {
-      objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "login");
-    }
-    // Check and disable GitHub if connected
-    objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-    objectsCoreAdminSettings.checkAndDisableGithub();
-  });
-
   it(
     "1. Go to admin settings and disable Form Signup",
     { tags: ["@tag.Authentication", "@tag.Settings"] },
@@ -76,6 +44,7 @@ describe("Form Login test functionality", function () {
           ".ads-v2-callout__children",
         );
 
+        // Cleanup: Restore form signup to enabled state
         cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
         objectsCoreAdminSettings.NavigateToAuthenticationSettings();
         objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "signup");
@@ -104,7 +73,7 @@ describe("Form Login test functionality", function () {
       logoutFromApp();
 
       // validate login is disabled
-      agHelper.AssertElementAbsence("form");
+      agHelper.AssertElementAbsence(loginPage.loginForm);
       agHelper.AssertElementAbsence(loginPage.signupLink);
 
       // restore settings
@@ -127,7 +96,7 @@ describe("Form Login test functionality", function () {
       agHelper.AssertElementAbsence(adminSettings.restartNotice, 200000);
       logoutFromApp();
       agHelper.AssertElementAbsence(adminSettings.loginWithGithub);
-      agHelper.AssertElementExist("form");
+      agHelper.AssertElementExist(loginPage.loginForm);
       agHelper.AssertElementExist(loginPage.signupLink);
     },
   );
