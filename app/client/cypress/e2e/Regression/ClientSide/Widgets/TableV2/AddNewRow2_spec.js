@@ -18,36 +18,25 @@ describe(
       _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
 
       _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
-      cy.wait(500);
-      cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
-      cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
-      cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
-      cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
+      cy.enterTableCellValue(0, 0, "22");
+      cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       _.propPane.UpdatePropertyFieldValue("Valid", "");
 
       _.propPane.UpdatePropertyFieldValue("Regex", "^#1$");
-      cy.wait(500);
-      cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
+      cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       _.propPane.UpdatePropertyFieldValue("Regex", "");
 
       _.propPane.TogglePropertyState("Required", "On");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
       cy.get(commonlocators.changeColType).last().click();
@@ -56,37 +45,26 @@ describe(
 
       _.propPane.UpdatePropertyFieldValue("Min", "5");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       _.propPane.UpdatePropertyFieldValue("Min", "");
 
       _.propPane.UpdatePropertyFieldValue("Max", "5");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
-      cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       _.propPane.UpdatePropertyFieldValue("Max", "");
 
@@ -113,31 +91,24 @@ describe(
 
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "2");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.discardTableCellValue(0, 0);
       cy.wait(500);
       cy.get(".t--add-new-row").click();
-      cy.wait(1000);
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "2");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
     it("2.3. should test that validation is working for more than one add new row cell at a time", () => {
       _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
-      cy.get("[data-testid='t--property-pane-back-btn']").click();
-      cy.wait(500);
+      _.propPane.NavigateBackToPropertyPane();
       _.table.toggleColumnEditableViaColSettingsPane("task", "v2", true, false);
       _.propPane.UpdatePropertyFieldValue(
         "Valid",

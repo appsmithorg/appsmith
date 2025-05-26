@@ -38,7 +38,7 @@ const StyledSelect = styled(Select)`
   width: fit-content;
 
   .rc-select-selector {
-    min-width: 120px;
+    min-width: 110px;
   }
 `;
 
@@ -58,15 +58,24 @@ interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const [runBehaviour, setRunBehaviour] = useState(props.action.runBehaviour);
-  const flagValueForReactiveActions = useFeatureFlag(
+  const isReactiveActionsEnabled = useFeatureFlag(
     FEATURE_FLAG.release_reactive_actions_enabled,
   );
   const options = RUN_BEHAVIOR_VALUES.filter(
     (option) =>
-      flagValueForReactiveActions ||
-      option.value !== ActionRunBehaviour.AUTOMATIC,
+      isReactiveActionsEnabled || option.value !== ActionRunBehaviour.AUTOMATIC,
   ) as SelectOptionProps[];
-  const selectedValue = options.find((opt) => opt.value === runBehaviour);
+  let selectedValue = options.find((opt) => opt.value === runBehaviour);
+
+  /* temporary check added to switch from automatic to page load as the run behaviour when feature flag is turned off */
+  if (
+    runBehaviour === ActionRunBehaviour.AUTOMATIC &&
+    !isReactiveActionsEnabled
+  ) {
+    selectedValue = options.find(
+      (opt) => opt.value === ActionRunBehaviour.ON_PAGE_LOAD,
+    );
+  }
 
   const onSelectOptions = useCallback(
     (newRunBehaviour: ActionRunBehaviourType) => {
@@ -100,6 +109,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
       </FunctionName>
       <StyledSelect
         data-testid={`t--dropdown-runBehaviour`}
+        dropdownMatchSelectWidth={256}
         id={props.action.id}
         isDisabled={props.disabled}
         listHeight={240}

@@ -125,6 +125,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     String name = savedUser.getName();
                     String email = savedUser.getEmail();
                     final String emailDomainHash = getEmailDomainHash(email);
+                    String organizationId = savedUser.getOrganizationId();
 
                     if (!commonConfig.isCloudHosting()) {
                         username = hash(username);
@@ -135,15 +136,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(ObjectUtils.defaultIfNull(username, ""))
                             .traits(Map.of(
-                                    "name", ObjectUtils.defaultIfNull(name, ""),
-                                    "email", ObjectUtils.defaultIfNull(email, ""),
-                                    "emailDomainHash", emailDomainHash,
-                                    "isSuperUser", isSuperUser,
-                                    "instanceId", instanceId,
-                                    "mostRecentlyUsedWorkspaceId", tuple.getT4(),
-                                    "role", "",
-                                    "proficiency", ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
-                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
+                                    "name",
+                                    ObjectUtils.defaultIfNull(name, ""),
+                                    "email",
+                                    ObjectUtils.defaultIfNull(email, ""),
+                                    "emailDomainHash",
+                                    emailDomainHash,
+                                    "isSuperUser",
+                                    isSuperUser,
+                                    "instanceId",
+                                    instanceId,
+                                    "organizationId",
+                                    ObjectUtils.defaultIfNull(organizationId, ""),
+                                    "mostRecentlyUsedWorkspaceId",
+                                    tuple.getT4(),
+                                    "role",
+                                    "",
+                                    "proficiency",
+                                    ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
+                                    "goal",
+                                    ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
                     analytics.flush();
                     return savedUser;
                 });
@@ -329,11 +341,14 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         return Mono.just(object);
                     }
 
+                    String organizationId = user.getOrganizationId();
+
                     final String username = (object instanceof User objectAsUser ? objectAsUser : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);
                     analyticsProperties.put("oid", ((Identifiable) object).getId());
+                    analyticsProperties.put("organizationId", ObjectUtils.defaultIfNull(organizationId, ""));
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                         // To avoid sending extra event data to analytics

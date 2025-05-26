@@ -24,8 +24,9 @@ const StyledPopoverHeader = styled(PopoverHeader)`
 `;
 
 const StyledPopoverContent = styled(PopoverContent)<{ popoverWidth?: string }>`
-  --popover-width: ${({ popoverWidth }) =>
-    popoverWidth ? popoverWidth : "280px"};
+  min-width: 280px;
+  max-width: ${({ popoverWidth }) => (popoverWidth ? popoverWidth : "280px")};
+  width: fit-content;
 `;
 
 export const ToolbarSettingsPopover = (props: Props) => {
