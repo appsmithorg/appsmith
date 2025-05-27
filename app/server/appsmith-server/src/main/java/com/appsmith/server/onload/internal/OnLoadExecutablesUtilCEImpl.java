@@ -316,13 +316,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return featureFlagService
                 .check(FeatureFlagEnum.release_reactive_actions_enabled)
                 .flatMap(isReactiveActionsEnabled -> {
-                    RunBehaviourEnum runBehaviourToCheck =
-                            isReactiveActionsEnabled ? RunBehaviourEnum.AUTOMATIC : RunBehaviourEnum.ON_PAGE_LOAD;
-
                     // Before we update the actions, fetch all the actions which are currently set to execute on load.
                     Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
                             .flatMap(executable -> {
-                                if (runBehaviourToCheck.equals(executable.getRunBehaviour())) {
+                                if (RunBehaviourEnum.AUTOMATIC.equals(executable.getRunBehaviour())
+                                        || RunBehaviourEnum.ON_PAGE_LOAD.equals(executable.getRunBehaviour())) {
                                     return Mono.just(executable);
                                 }
                                 return Mono.empty();

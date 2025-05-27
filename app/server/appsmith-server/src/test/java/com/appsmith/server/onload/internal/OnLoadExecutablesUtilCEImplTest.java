@@ -476,6 +476,44 @@ public class OnLoadExecutablesUtilCEImplTest {
         assert executableUpdates.isEmpty();
     }
 
+    @Test
+    public void testUpdateExecutablesRunBehaviour_WhenExistingIsOnPageLoadAndFlagEnabled_ShouldNotUpdateToAutomatic() {
+        // Setup
+        String creatorId = "testCreatorId";
+        CreatorContextType creatorType = CreatorContextType.PAGE;
+        List<LayoutExecutableUpdateDTO> executableUpdatesRef = new ArrayList<>();
+        List<String> messagesRef = new ArrayList<>();
+
+        // Existing action is ON_PAGE_LOAD
+        ActionDTO existingAction = createTestExecutable("Api1", RunBehaviourEnum.ON_PAGE_LOAD);
+        existingAction.setId("api1Id");
+        existingAction.setUserSetOnLoad(FALSE);
+
+        // Updated action comes in onLoadExecutables (should not trigger AUTOMATIC)
+        ActionDTO updatedAction = createTestExecutable("Api1", RunBehaviourEnum.ON_PAGE_LOAD);
+        updatedAction.setId("api1Id");
+        updatedAction.setUserSetOnLoad(FALSE);
+
+        List<Executable> onLoadExecutables = List.of(updatedAction);
+        List<Executable> allExecutables = List.of(existingAction);
+
+        // Mock behavior
+        when(featureFlagService.check(FeatureFlagEnum.release_reactive_actions_enabled))
+                .thenReturn(Mono.just(TRUE));
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(anyString()))
+                .thenReturn(Flux.fromIterable(allExecutables));
+        // Should not call updateUnpublishedExecutable at all
+
+        // Execute
+        Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                onLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType);
+
+        // Verify
+        StepVerifier.create(result).expectNext(true).verifyComplete();
+        // Should not update run behaviour to AUTOMATIC
+        verify(executableOnLoadService, times(0)).updateUnpublishedExecutable(anyString(), any(ActionDTO.class));
+    }
+
     // Helper methods to create test executables
     private List<Executable> createTestExecutables(String... names) {
         List<Executable> executables = new ArrayList<>();
