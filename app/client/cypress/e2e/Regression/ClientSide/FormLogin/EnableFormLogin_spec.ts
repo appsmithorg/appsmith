@@ -7,30 +7,20 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Form Login test functionality", function () {
-  const logoutFromApp = () => {
-    agHelper.GetNClick(homePage.profileMenu);
-    agHelper.GetNClick(homePage.signOutIcon);
-  };
-
-  const verifyFormLogin = (enable = true) => {
-    agHelper.AssertElementVisibility(adminSettings.formloginButton);
-    agHelper.AssertContains("Edit", "exist", adminSettings.formloginButton);
-  };
-
   it(
     "1. Go to admin settings and disable Form Signup",
     { tags: ["@tag.Authentication", "@tag.Settings"] },
     function () {
       objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-      verifyFormLogin();
+      objectsCoreAdminSettings.verifyFormLogin();
 
       // disable form signup
       objectsCoreAdminSettings.toggleFormSignupLoginAndSave(false, "signup");
-      logoutFromApp();
+      objectsCoreAdminSettings.logoutFromApp();
 
       agHelper.GetNClick(loginPage.signupLink);
       agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
+      agHelper.GetElement("@guid").then((uid) => {
         const email = uid.toString() + "@appsmith.com";
         const password = uid.toString();
 
@@ -57,7 +47,7 @@ describe("Form Login test functionality", function () {
     { tags: ["@tag.excludeForAirgap"] },
     function () {
       objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-      verifyFormLogin();
+      objectsCoreAdminSettings.verifyFormLogin();
 
       // enable github login
       agHelper.GetNClick(adminSettings.githubButton);
@@ -68,9 +58,9 @@ describe("Form Login test functionality", function () {
 
       // Disable form login
       objectsCoreAdminSettings.NavigateToAuthenticationSettings();
-      verifyFormLogin();
+      objectsCoreAdminSettings.verifyFormLogin();
       objectsCoreAdminSettings.toggleFormSignupLoginAndSave(false, "login");
-      logoutFromApp();
+      objectsCoreAdminSettings.logoutFromApp();
 
       // validate login is disabled
       agHelper.AssertElementAbsence(loginPage.loginForm);
@@ -94,7 +84,7 @@ describe("Form Login test functionality", function () {
       agHelper.GetNClick(adminSettings.disconnectBtn);
       agHelper.WaitUntilEleAppear(adminSettings.restartNotice);
       agHelper.AssertElementAbsence(adminSettings.restartNotice, 200000);
-      logoutFromApp();
+      objectsCoreAdminSettings.logoutFromApp();
       agHelper.AssertElementAbsence(adminSettings.loginWithGithub);
       agHelper.AssertElementExist(loginPage.loginForm);
       agHelper.AssertElementExist(loginPage.signupLink);

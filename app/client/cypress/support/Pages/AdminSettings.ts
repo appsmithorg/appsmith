@@ -1,8 +1,8 @@
-import { ObjectsRegistry } from "../Objects/Registry";
-import { featureFlagIntercept } from "../Objects/FeatureFlags";
-import githubForm from "../../locators/GithubForm.json";
-import { adminSettings } from "../Objects/ObjectsCore";
 import AdminsSettings from "../../locators/AdminsSettings";
+import githubForm from "../../locators/GithubForm.json";
+import HomePage from "../../locators/HomePage";
+import { featureFlagIntercept } from "../Objects/FeatureFlags";
+import { ObjectsRegistry } from "../Objects/Registry";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -130,6 +130,20 @@ export class AdminSettings {
       default:
         break;
     }
+  }
+
+  public logoutFromApp() {
+    this.agHelper.GetNClick(HomePage.profileMenu);
+    this.agHelper.GetNClick(HomePage.signOutIcon);
+  }
+
+  public verifyFormLogin() {
+    this.agHelper.AssertElementVisibility(AdminsSettings.formloginButton);
+    this.agHelper.AssertContains(
+      "Edit",
+      "exist",
+      AdminsSettings.formloginButton,
+    );
   }
 
   private enableGACFeatureFlag() {
