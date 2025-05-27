@@ -185,7 +185,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         // First condition: new runBehaviour = ON_PAGE_LOAD or AUTOMATIC
                         Bridge.<NewAction>in(
                                 NewAction.Fields.unpublishedAction_runBehaviour,
-                                List.of(RunBehaviourEnum.ON_PAGE_LOAD, RunBehaviourEnum.AUTOMATIC)),
+                                List.of(RunBehaviourEnum.ON_PAGE_LOAD.name(), RunBehaviourEnum.AUTOMATIC.name())),
                         // Second condition: legacy executeOnLoad = true
                         Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad))
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
