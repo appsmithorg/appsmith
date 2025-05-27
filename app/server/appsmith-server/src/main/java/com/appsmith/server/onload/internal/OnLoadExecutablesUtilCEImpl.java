@@ -319,10 +319,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     // Before we update the actions, fetch all the actions which are currently set to execute on load.
                     Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
                             .flatMap(executable -> {
-                                if (executable.getRunBehaviour() != null
-                                        && (RunBehaviourEnum.AUTOMATIC.equals(executable.getRunBehaviour())
-                                                || RunBehaviourEnum.ON_PAGE_LOAD.equals(
-                                                        executable.getRunBehaviour()))) {
+                                if (RunBehaviourEnum.AUTOMATIC.equals(executable.getRunBehaviour())
+                                        || RunBehaviourEnum.ON_PAGE_LOAD.equals(executable.getRunBehaviour())) {
                                     return Mono.just(executable);
                                 }
                                 return Mono.empty();
