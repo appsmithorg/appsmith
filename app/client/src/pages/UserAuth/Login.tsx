@@ -167,7 +167,7 @@ export function Login(props: LoginFormProps) {
     {
       leftText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_LEFT_TEXT),
       rightText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_RIGHT_TEXT),
-      rightTextLink: getPrimaryLoginURL(),
+      rightTextLink: signupURL,
     },
     {
       leftText: createMessage(MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT),

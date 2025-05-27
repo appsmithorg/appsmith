@@ -49,6 +49,7 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 const getIsDraggingOrResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -299,6 +300,45 @@ export const getMainCanvasProps = (state: DefaultRootState) =>
 
 export const getMetaWidgets = (state: DefaultRootState) =>
   state.entities.metaWidgets;
+
+/**
+ * What are template meta widgets?
+ *
+ * A template meta widget is as meta widget which can be used as a template widget.
+ * At the time of writing this, the use of template widget is with the List widget, where
+ * a template widget is any widget that is dropped inside the List widget first row canvas.
+ *
+ * Why do we need a template meta widget?
+ *
+ * A list widget take the template widgets and clones it multiple times and renders it as rows.
+ * These template widgets in an app of a list widget reside in canvasWidget reducer and is part of the
+ * DSL. But when a list widget is part of a UI module and this UI module is used in an app, all the widget
+ * under this module widget are meta widget inlcuding the list widget itself. Since all the widget are meta
+ * widgets and the list widget also genereates meta widgets, we need to have a way to identify these template
+ * widgets and feed it to the List widget so that it can replicate and behave natively.
+ *
+ * How do we identify a template meta widget?
+ *
+ * A template meta widget is any meta widget which has the property `isTemplate` set to true.
+ * The usage of this property is upon the widget to decide how to use it and currently only the List widget
+ * uses this property.
+ *
+ */
+
+export const getTemplateMetaWidgets = createSelector(
+  getMetaWidgets,
+  (metaWidgets) => {
+    const templateMetaWidgets: MetaWidgetsReduxState = {};
+
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.isTemplate) {
+        templateMetaWidgets[metaWidget.widgetId] = metaWidget;
+      }
+    });
+
+    return templateMetaWidgets;
+  },
+);
 
 export const getMetaWidget = (metaWidgetId: string) =>
   createSelector(getMetaWidgets, (metaWidgets) => {

@@ -236,6 +236,246 @@ public class OnLoadExecutablesUtilCEImplTest {
         verify(executableOnLoadService, times(0)).updateUnpublishedExecutable(anyString(), any(ActionDTO.class));
     }
 
+    @Test
+    public void whenFeatureFlagOn_andExecutableTurnedOn_shouldShowReactiveMessage() {
+        // Setup
+        ActionDTO existingAction = new ActionDTO();
+        existingAction.setName("TestApi");
+        existingAction.setUserSetOnLoad(false);
+        existingAction.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        existingAction.setId("1");
+
+        ActionDTO updatedAction = new ActionDTO();
+        updatedAction.setName("TestApi");
+        updatedAction.setUserSetOnLoad(false);
+        updatedAction.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        updatedAction.setId("1");
+
+        List<Executable> onLoadExecutables = List.of(updatedAction);
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any())).thenReturn(Flux.just(existingAction));
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
+                .thenReturn(Mono.just(updatedAction));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Assert
+        assert messages.size() == 1;
+        assert messages.get(0).contains("TestApi");
+        assert messages.get(0).contains("will run automatically on page load or when a variable it depends on changes");
+    }
+
+    @Test
+    public void whenFeatureFlagOff_andExecutableTurnedOn_shouldShowPageLoadMessage() {
+        // Setup
+        ActionDTO existingAction = new ActionDTO();
+        existingAction.setName("TestApi");
+        existingAction.setUserSetOnLoad(false);
+        existingAction.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        existingAction.setId("1");
+
+        ActionDTO updatedAction = new ActionDTO();
+        updatedAction.setName("TestApi");
+        updatedAction.setUserSetOnLoad(false);
+        updatedAction.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
+        updatedAction.setId("1");
+
+        List<Executable> onLoadExecutables = List.of(updatedAction);
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any())).thenReturn(Flux.just(existingAction));
+        when(featureFlagService.check(any())).thenReturn(Mono.just(false));
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
+                .thenReturn(Mono.just(updatedAction));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Assert
+        assert messages.size() == 1;
+        assert messages.get(0).contains("TestApi");
+        assert messages.get(0).contains("will be executed automatically on page load");
+    }
+
+    @Test
+    public void whenFeatureFlagOn_andExecutableTurnedOff_shouldShowManualMessage() {
+        // Setup
+        ActionDTO existingAction = new ActionDTO();
+        existingAction.setName("TestApi");
+        existingAction.setUserSetOnLoad(false);
+        existingAction.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        existingAction.setId("1");
+
+        ActionDTO updatedAction = new ActionDTO();
+        updatedAction.setName("TestApi");
+        updatedAction.setUserSetOnLoad(false);
+        updatedAction.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        updatedAction.setId("1");
+
+        List<Executable> onLoadExecutables = new ArrayList<>(); // Empty list means turning off
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any())).thenReturn(Flux.just(existingAction));
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
+                .thenReturn(Mono.just(updatedAction));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Assert
+        assert messages.size() == 1;
+        assert messages.get(0).contains("TestApi");
+        assert messages.get(0).contains("will no longer run automatically");
+    }
+
+    @Test
+    public void whenOnlyOneActionChange_shouldShowOnlyThatEntityInToastMessage() {
+        // Setup
+        ActionDTO existingAction1 = new ActionDTO();
+        existingAction1.setName("Api1");
+        existingAction1.setUserSetOnLoad(false);
+        existingAction1.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        existingAction1.setId("1");
+
+        ActionDTO existingAction2 = new ActionDTO();
+        existingAction2.setName("Api2");
+        existingAction2.setUserSetOnLoad(false);
+        existingAction2.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        existingAction2.setId("2");
+
+        ActionDTO unchangedAction1 = new ActionDTO();
+        unchangedAction1.setName("Api1");
+        unchangedAction1.setUserSetOnLoad(false);
+        unchangedAction1.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        unchangedAction1.setId("1");
+
+        ActionDTO updatedAction2 = new ActionDTO();
+        updatedAction2.setName("Api2");
+        updatedAction2.setUserSetOnLoad(false);
+        updatedAction2.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        updatedAction2.setId("2");
+
+        List<Executable> onLoadExecutables =
+                List.of(updatedAction2, unchangedAction1); // Only Api2 is in the onLoad list
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any()))
+                .thenReturn(Flux.just(existingAction1, existingAction2));
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+
+        // Mock different behaviors for different executable IDs
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("2"), any()))
+                .thenReturn(Mono.just(updatedAction2));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Assert
+        assert messages.size() == 1;
+        assert messages.stream()
+                .anyMatch(msg -> msg.contains("Api2")
+                        && msg.contains("will run automatically on page load or when a variable it depends on changes")
+                        && !msg.contains("Api1"));
+    }
+
+    @Test
+    public void whenMultipleExecutablesChange_shouldShowAllMessages() {
+        // Setup
+        ActionDTO existingAction1 = new ActionDTO();
+        existingAction1.setName("Api1");
+        existingAction1.setUserSetOnLoad(false);
+        existingAction1.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        existingAction1.setId("1");
+
+        ActionDTO existingAction2 = new ActionDTO();
+        existingAction2.setName("Api2");
+        existingAction2.setUserSetOnLoad(false);
+        existingAction2.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        existingAction2.setId("2");
+
+        ActionDTO updatedAction1 = new ActionDTO();
+        updatedAction1.setName("Api1");
+        updatedAction1.setUserSetOnLoad(false);
+        updatedAction1.setRunBehaviour(RunBehaviourEnum.MANUAL);
+        updatedAction1.setId("1");
+
+        ActionDTO updatedAction2 = new ActionDTO();
+        updatedAction2.setName("Api2");
+        updatedAction2.setUserSetOnLoad(false);
+        updatedAction2.setRunBehaviour(RunBehaviourEnum.AUTOMATIC);
+        updatedAction2.setId("2");
+
+        List<Executable> onLoadExecutables = List.of(updatedAction2); // Only Api2 is in the onLoad list
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any()))
+                .thenReturn(Flux.just(existingAction1, existingAction2));
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+
+        // Mock different behaviors for different executable IDs
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
+                .thenReturn(Mono.just(updatedAction1));
+        when(executableOnLoadService.updateUnpublishedExecutable(eq("2"), any()))
+                .thenReturn(Mono.just(updatedAction2));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Assert
+        assert messages.size() == 2;
+        assert messages.stream()
+                .anyMatch(msg -> msg.contains("Api1") && msg.contains("will no longer run automatically"));
+        assert messages.stream()
+                .anyMatch(msg -> msg.contains("Api2")
+                        && msg.contains(
+                                "will run automatically on page load or when a variable it depends on changes"));
+    }
+
+    @Test
+    public void whenNoExecutables_shouldReturnFalse() {
+        // Setup
+        List<Executable> onLoadExecutables = new ArrayList<>();
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
+
+        when(executableOnLoadService.getAllExecutablesByCreatorIdFlux(any())).thenReturn(Flux.empty());
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+
+        // Execute and verify
+        StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
+                        onLoadExecutables, "creatorId", executableUpdates, messages, CreatorContextType.PAGE))
+                .expectNext(false)
+                .verifyComplete();
+
+        // Assert
+        assert messages.isEmpty();
+        assert executableUpdates.isEmpty();
+    }
+
     // Helper methods to create test executables
     private List<Executable> createTestExecutables(String... names) {
         List<Executable> executables = new ArrayList<>();
