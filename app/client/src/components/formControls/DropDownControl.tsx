@@ -30,6 +30,9 @@ import type {
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import NoSearchCommandFound from "./CustomActionsConfigControl/NoSearchCommandFound";
 import styled from "styled-components";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -139,6 +142,7 @@ export interface DropDownControlProps extends ControlProps {
     pluginId: string;
     identifier: string;
   };
+  featureFlags?: FeatureFlags;
 }
 
 interface ReduxDispatchProps {
@@ -296,6 +300,15 @@ function renderDropdown(
     // If your items have stable 'value' keys, use `uniqBy(...)`.
     // For pure strings you can do `uniq([...selectedValue])`.
     selectedValue = uniqBy(selectedValue, (v) => v);
+  }
+
+  /* temporary check added to switch from automatic to page load as the run behaviour when feature flag is turned off */
+  if (
+    selectedValue === ActionRunBehaviour.AUTOMATIC &&
+    input?.name === "runBehaviour" &&
+    !props.featureFlags?.release_reactive_actions_enabled
+  ) {
+    selectedValue = ActionRunBehaviour.ON_PAGE_LOAD;
   }
 
   // Use memoized grouping
@@ -558,11 +571,13 @@ const mapStateToProps = (
     pluginId: string;
     identifier: string;
   };
+  featureFlags: FeatureFlags;
 } => {
   let isLoading = false;
   // Start with the user-provided options if not fetching conditionally
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
+  const featureFlags = selectFeatureFlags(state);
 
   let nextPageNeeded = false;
   let paginationPayload;
@@ -631,6 +646,7 @@ const mapStateToProps = (
     formValues,
     nextPageNeeded,
     paginationPayload,
+    featureFlags,
   };
 };
 

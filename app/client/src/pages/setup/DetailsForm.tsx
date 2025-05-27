@@ -23,7 +23,6 @@ import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
 import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
-import { Space } from "./NonSuperUserProfilingQuestions";
 import CsrfTokenInput from "../UserAuth/CsrfTokenInput";
 
 export interface DetailsFormValues {
@@ -76,6 +75,10 @@ const ButtonWrapper = styled.div`
   display: flex;
   margin-top: ${(props) => props.theme.spaces[11]}px;
   gap: ${(props) => props.theme.spaces[4]}px;
+`;
+
+const Space = styled.div`
+  height: 40px;
 `;
 
 export default function DetailsForm(

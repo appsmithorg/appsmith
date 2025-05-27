@@ -1,6 +1,5 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
@@ -47,7 +46,7 @@ public class TenantConfigurationCE implements Serializable {
     // the feature flags. This can happen for 2 reasons:
     // 1. The license plan changes
     // 2. Because of grandfathering via cron where tenant level feature flags are fetched
-    Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
+    Map<String, FeatureMigrationType> featuresWithPendingMigration;
 
     // This variable is used to indicate if the server needs to be restarted after the migration based on feature flags
     // is complete.

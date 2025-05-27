@@ -488,6 +488,7 @@ export interface WidgetBaseProps {
   hasAutoHeight?: boolean;
   hasAutoWidth?: boolean;
   widgetSize?: { [key: string]: Record<string, string> };
+  originalWidgetName?: string; // When a widget is a meta widget, this prop stores the original widget name
 }
 
 export interface WidgetRowCols {
