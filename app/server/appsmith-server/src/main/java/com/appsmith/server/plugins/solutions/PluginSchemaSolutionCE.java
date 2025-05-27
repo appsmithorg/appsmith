@@ -1,8 +1,9 @@
 package com.appsmith.server.plugins.solutions;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface PluginSchemaSolutionCE {
-    Mono<JsonNode> getPluginSchema(String pluginId);
+    Mono<List<Object>> getPluginSchema(String pluginId);
 }

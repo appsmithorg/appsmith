@@ -403,7 +403,14 @@ class FormWidget extends ContainerWidget {
     if (formWidget.children)
       formWidget.children.forEach((widgetData) => {
         if (!_.isNil(widgetData.value)) {
-          formData[widgetData.widgetName] = widgetData.value;
+          // In case of meta widget the widgetName may not be the original widgetName but something
+          // like _moduleInstanceName$_widgetName to maintain uniqueness in the page's context for eval.
+          // In this case we use the originalWidgetName may be present in the widgetData (if added by the creator of meta widget)
+          // to get the correct widgetName
+          const widgetName =
+            widgetData.originalWidgetName || widgetData.widgetName;
+
+          formData[widgetName] = widgetData.value;
         }
       });
 

@@ -33,7 +33,7 @@ Organizations build custom applications like dashboards, admin panels, customer 
 ## Installation
 There are two ways to start using Appsmith:
 
-- Signup on [Appsmith Cloud](https://app.appsmith.com/?utm_source=github&utm_medium=organic&utm_campaign=readme).
+- Signup on [Appsmith Cloud](https://login.appsmith.com/?utm_source=github&utm_medium=organic&utm_campaign=readme).
 - Install Appsmith on your machine. See the installation guides below. 
 
 | Installation Methods                                                                                                            | Documentation                                                                                                                                                    |

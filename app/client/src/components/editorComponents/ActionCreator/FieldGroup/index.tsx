@@ -5,10 +5,15 @@ import { getCodeFromMoustache, isValueValidURL } from "../utils";
 import { getFieldFromValue } from "../helpers";
 import { useSelector } from "react-redux";
 import { getDataTreeForActionCreator } from "sagas/selectors";
+import { useLocation } from "react-router";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 function FieldGroup(props: FieldGroupProps) {
   const { isChainedAction = false, ...otherProps } = props;
   const dataTree = useSelector(getDataTreeForActionCreator);
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
 
   const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
     {
@@ -42,9 +47,18 @@ function FieldGroup(props: FieldGroupProps) {
     },
   ];
 
-  const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
-    NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
-  );
+  const defaultNavigateToTab =
+    ideType === IDE_TYPE.UIPackage
+      ? NAVIGATE_TO_TAB_SWITCHER[1]
+      : NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0];
+
+  const navigateToSwitches =
+    ideType === IDE_TYPE.UIPackage
+      ? [NAVIGATE_TO_TAB_SWITCHER[1]]
+      : NAVIGATE_TO_TAB_SWITCHER;
+
+  const [activeTabNavigateTo, setActiveTabNavigateTo] =
+    useState(defaultNavigateToTab);
   const [activeTabApiAndQueryCallback, setActiveTabApiAndQueryCallback] =
     useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
 
@@ -69,7 +83,7 @@ function FieldGroup(props: FieldGroupProps) {
         activeNavigateToTab: activeTabNavigateTo,
         activeTabApiAndQueryCallback: activeTabApiAndQueryCallback,
         apiAndQueryCallbackTabSwitches: apiAndQueryCallbackTabSwitches,
-        navigateToSwitches: NAVIGATE_TO_TAB_SWITCHER,
+        navigateToSwitches,
       })}
 
       <ul className="flex flex-col mt-2 gap-2">
@@ -119,7 +133,7 @@ function FieldGroup(props: FieldGroupProps) {
                   activeTabApiAndQueryCallback: activeTabApiAndQueryCallback,
                   apiAndQueryCallbackTabSwitches:
                     apiAndQueryCallbackTabSwitches,
-                  navigateToSwitches: NAVIGATE_TO_TAB_SWITCHER,
+                  navigateToSwitches,
                 })}
               </li>
             );

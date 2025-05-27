@@ -779,6 +779,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         actionViewDTO.setName(actionDTO.getValidName());
         actionViewDTO.setPageId(actionDTO.getPageId());
         actionViewDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
+        actionViewDTO.setRunBehaviour(actionDTO.getRunBehaviour());
 
         if (actionDTO.getJsonPathKeys() != null && !actionDTO.getJsonPathKeys().isEmpty()) {
             Set<String> jsonPathKeys;
