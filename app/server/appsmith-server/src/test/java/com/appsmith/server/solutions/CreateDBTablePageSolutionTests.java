@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -40,6 +41,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceStructureService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +52,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
@@ -67,6 +70,7 @@ import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 @Slf4j
@@ -175,6 +179,9 @@ public class CreateDBTablePageSolutionTests {
     private PluginExecutor spyMockPluginExecutor = spy(new MockPluginExecutor());
 
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
+
+    @SpyBean
+    private FeatureFlagService featureFlagService;
 
     @BeforeEach
     public void setup() {
@@ -690,6 +697,134 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase(pluginName);
                     assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase("TABLE");
                     assertThat(crudPageResponseDTO.getSuccessImageUrl()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithValidPageIdForMySqlDS_FeatureFlagEnabled() {
+        doReturn(Mono.just(true)).when(featureFlagService).check(FeatureFlagEnum.release_reactive_actions_enabled);
+
+        resource.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-mysql-ff-enabled");
+        StringBuilder pluginName = new StringBuilder();
+
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("MySQL").flatMap(plugin -> {
+            pluginName.append(plugin.getName());
+            Datasource datasource = new Datasource();
+            datasource.setPluginId(plugin.getId());
+            datasource.setWorkspaceId(testWorkspace.getId());
+            datasource.setName("MySql-CRUD-Page-Table-DS-FF-Enabled");
+
+            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
+            datasource.setDatasourceStorages(storages);
+
+            return datasourceService.create(datasource).flatMap(datasource1 -> {
+                DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
+                datasourceStorageStructure.setDatasourceId(datasource1.getId());
+                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
+                datasourceStorageStructure.setStructure(structure);
+
+                return datasourceStructureService
+                        .save(datasourceStorageStructure)
+                        .thenReturn(datasource1);
+            });
+        });
+
+        Mono<CRUDPageResponseDTO> resultMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    resource.setDatasourceId(datasource1.getId());
+                    return applicationPageService.createPage(newPage);
+                })
+                .flatMap(savedPage ->
+                        solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId));
+
+        StepVerifier.create(resultMono.zipWhen(crudPageResponseDTO ->
+                        getActions(crudPageResponseDTO.getPage().getId())))
+                .assertNext(tuple -> {
+                    CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    for (NewAction action : actions) {
+                        String name = action.getUnpublishedAction().getName();
+                        if (SELECT_QUERY.equals(name) || FIND_QUERY.equals(name) || LIST_QUERY.equals(name)) {
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.AUTOMATIC);
+                        } else {
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
+                        }
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithValidPageIdForMySqlDS_FeatureFlagDisabled() {
+        //        doReturn(Mono.just(false))
+        //            .when(featureFlagService)
+        //            .check(FeatureFlagEnum.release_reactive_actions_enabled);
+
+        resource.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-mysql-ff-disabled");
+        StringBuilder pluginName = new StringBuilder();
+
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("MySQL").flatMap(plugin -> {
+            pluginName.append(plugin.getName());
+            Datasource datasource = new Datasource();
+            datasource.setPluginId(plugin.getId());
+            datasource.setWorkspaceId(testWorkspace.getId());
+            datasource.setName("MySql-CRUD-Page-Table-DS-FF-Disabled");
+
+            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
+            datasource.setDatasourceStorages(storages);
+
+            return datasourceService.create(datasource).flatMap(datasource1 -> {
+                DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
+                datasourceStorageStructure.setDatasourceId(datasource1.getId());
+                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
+                datasourceStorageStructure.setStructure(structure);
+
+                return datasourceStructureService
+                        .save(datasourceStorageStructure)
+                        .thenReturn(datasource1);
+            });
+        });
+
+        Mono<CRUDPageResponseDTO> resultMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    resource.setDatasourceId(datasource1.getId());
+                    return applicationPageService.createPage(newPage);
+                })
+                .flatMap(savedPage ->
+                        solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId));
+
+        StepVerifier.create(resultMono.zipWhen(crudPageResponseDTO ->
+                        getActions(crudPageResponseDTO.getPage().getId())))
+                .assertNext(tuple -> {
+                    CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    for (NewAction action : actions) {
+                        String name = action.getUnpublishedAction().getName();
+                        if (SELECT_QUERY.equals(name) || FIND_QUERY.equals(name) || LIST_QUERY.equals(name)) {
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                        } else {
+                            assertThat(action.getUnpublishedAction().getRunBehaviour())
+                                    .isEqualTo(RunBehaviourEnum.MANUAL);
+                        }
+                    }
                 })
                 .verifyComplete();
     }
