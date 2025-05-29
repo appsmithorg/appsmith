@@ -1308,7 +1308,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     private boolean hasUserSetExecutableToNotRunOnPageLoad(Executable executable) {
-        if (TRUE.equals(executable.getUserSetOnLoad()) && executable.getRunBehaviour() == RunBehaviourEnum.MANUAL) {
+        if (TRUE.equals(executable.getUserSetOnLoad())
+                && (executable.getRunBehaviour() == null
+                        || RunBehaviourEnum.MANUAL.equals(executable.getRunBehaviour()))) {
             return true;
         }
 
