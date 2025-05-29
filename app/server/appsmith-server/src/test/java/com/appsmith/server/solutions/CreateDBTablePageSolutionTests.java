@@ -767,9 +767,7 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithValidPageIdForMySqlDS_FeatureFlagDisabled() {
-        //        doReturn(Mono.just(false))
-        //            .when(featureFlagService)
-        //            .check(FeatureFlagEnum.release_reactive_actions_enabled);
+        doReturn(Mono.just(false)).when(featureFlagService).check(FeatureFlagEnum.release_reactive_actions_enabled);
 
         resource.setApplicationId(testApp.getId());
         PageDTO newPage = new PageDTO();
