@@ -21,7 +21,6 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -42,14 +42,35 @@ import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATUR
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
-@RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
+
+    // Dedicated WebClient for Cloud Services calls with optimized connection pool
+    private final WebClient cloudServicesWebClient;
+
     private final OrganizationRepository organizationRepository;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
     private final CommonConfig commonConfig;
     private final UserIdentifierService userIdentifierService;
     private final ReleaseNotesService releaseNotesService;
+
+    public CacheableFeatureFlagHelperCEImpl(
+            OrganizationRepository organizationRepository,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            UserIdentifierService userIdentifierService,
+            ReleaseNotesService releaseNotesService) {
+        this.organizationRepository = organizationRepository;
+        this.configService = configService;
+        this.cloudServicesConfig = cloudServicesConfig;
+        this.commonConfig = commonConfig;
+        this.userIdentifierService = userIdentifierService;
+        this.releaseNotesService = releaseNotesService;
+
+        // Initialize dedicated WebClient for Cloud Services with optimized connection pool
+        this.cloudServicesWebClient = WebClientUtils.createForCloudServices();
+    }
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     @Override
@@ -131,9 +152,9 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(
             FeatureFlagIdentityTraits featureFlagIdentityTraits) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
+        return cloudServicesWebClient
                 .post()
-                .uri("/api/v1/feature-flags")
+                .uri(cloudServicesConfig.getBaseUrlWithSignatureVerification() + "/api/v1/feature-flags")
                 .body(BodyInserters.fromValue(featureFlagIdentityTraits))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
@@ -149,6 +170,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     }
                 })
                 .map(ResponseDTO::getData)
+                .timeout(WebClientUtils.CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
@@ -231,10 +253,9 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     @Override
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForOrganization(FeaturesRequestDTO featuresRequestDTO) {
-        Mono<ResponseEntity<ResponseDTO<FeaturesResponseDTO>>> responseEntityMono = WebClientUtils.create(
-                        cloudServicesConfig.getBaseUrlWithSignatureVerification())
+        Mono<ResponseEntity<ResponseDTO<FeaturesResponseDTO>>> responseEntityMono = cloudServicesWebClient
                 .post()
-                .uri("/api/v1/business-features")
+                .uri(cloudServicesConfig.getBaseUrlWithSignatureVerification() + "/api/v1/business-features")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(featuresRequestDTO))
@@ -251,6 +272,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return Mono.just(Objects.requireNonNull(entity.getBody()));
                 })
                 .map(ResponseDTO::getData)
+                .timeout(WebClientUtils.CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
