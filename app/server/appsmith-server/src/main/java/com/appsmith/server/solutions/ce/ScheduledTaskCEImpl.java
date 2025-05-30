@@ -267,6 +267,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
         log.info("Fetching features for organizations");
         organizationService
                 .retrieveAll()
+                .delayElements(DELAY_BETWEEN_PINGS)
                 .flatMap(organization -> featureFlagService
                         .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(organization)
                         .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
