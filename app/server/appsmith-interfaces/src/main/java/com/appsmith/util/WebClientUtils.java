@@ -24,6 +24,7 @@ import reactor.netty.resources.ConnectionProvider;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +44,19 @@ public class WebClientUtils {
 
     public static final ExchangeFilterFunction IP_CHECK_FILTER =
             ExchangeFilterFunction.ofRequestProcessor(WebClientUtils::requestFilterFn);
+
+    // Cloud Services specific configuration
+    public static final Duration CLOUD_SERVICES_API_TIMEOUT = Duration.ofSeconds(60);
+
+    // Dedicated connection pool for Cloud Services API calls to prevent connection exhaustion
+    public static final ConnectionProvider CLOUD_SERVICES_CONNECTION_PROVIDER = ConnectionProvider.builder(
+                    "cloud-services")
+            .maxConnections(50) // Sufficient for concurrent CS calls
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(60))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
+            .evictInBackground(Duration.ofSeconds(120))
+            .build();
 
     private WebClientUtils() {}
 
@@ -72,6 +86,29 @@ public class WebClientUtils {
 
     public static WebClient create(String baseUrl, ConnectionProvider provider) {
         return builder(provider).baseUrl(baseUrl).build();
+    }
+
+    /**
+     * Creates a WebClient specifically optimized for Cloud Services API calls.
+     * This WebClient includes:
+     * - Dedicated connection pool to prevent connection exhaustion
+     * - Optimized timeouts for CS API patterns
+     * - Standard IP filtering and memory limits
+     *
+     * @return WebClient configured for Cloud Services calls
+     */
+    public static WebClient createForCloudServices() {
+        return builder(CLOUD_SERVICES_CONNECTION_PROVIDER).build();
+    }
+
+    /**
+     * Creates a WebClient specifically optimized for Cloud Services API calls with a base URL.
+     *
+     * @param baseUrl The base URL for Cloud Services
+     * @return WebClient configured for Cloud Services calls
+     */
+    public static WebClient createForCloudServices(String baseUrl) {
+        return builder(CLOUD_SERVICES_CONNECTION_PROVIDER).baseUrl(baseUrl).build();
     }
 
     private static boolean shouldUseSystemProxy() {

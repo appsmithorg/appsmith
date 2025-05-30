@@ -27,15 +27,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.resources.ConnectionProvider;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -48,20 +43,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
-
-    private static final Duration CLOUD_SERVICES_API_TIMEOUT = Duration.ofSeconds(60);
-
-    // Dedicated connection pool for Cloud Services API calls to prevent connection exhaustion
-    private static final ConnectionProvider CLOUD_SERVICES_CONNECTION_PROVIDER = ConnectionProvider.builder(
-                    "cloud-services")
-            .maxConnections(50) // Sufficient for concurrent CS calls
-            .maxIdleTime(Duration.ofSeconds(30))
-            .maxLifeTime(Duration.ofSeconds(60))
-            .pendingAcquireTimeout(Duration.ofSeconds(10))
-            .evictInBackground(Duration.ofSeconds(120))
-            .build();
-
-    private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
     // Dedicated WebClient for Cloud Services calls with optimized connection pool
     private final WebClient cloudServicesWebClient;
@@ -88,13 +69,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         this.releaseNotesService = releaseNotesService;
 
         // Initialize dedicated WebClient for Cloud Services with optimized connection pool
-        this.cloudServicesWebClient = WebClient.builder()
-                .filter(WebClientUtils.IP_CHECK_FILTER)
-                .exchangeStrategies(ExchangeStrategies.builder()
-                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE_IN_BYTES))
-                        .build())
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(CLOUD_SERVICES_CONNECTION_PROVIDER)))
-                .build();
+        this.cloudServicesWebClient = WebClientUtils.createForCloudServices();
     }
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
@@ -195,7 +170,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     }
                 })
                 .map(ResponseDTO::getData)
-                .timeout(CLOUD_SERVICES_API_TIMEOUT)
+                .timeout(WebClientUtils.CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
@@ -297,7 +272,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return Mono.just(Objects.requireNonNull(entity.getBody()));
                 })
                 .map(ResponseDTO::getData)
-                .timeout(CLOUD_SERVICES_API_TIMEOUT)
+                .timeout(WebClientUtils.CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
