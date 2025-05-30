@@ -107,7 +107,7 @@
     "acorn": "8.10.0",
     "acorn-walk": "8.2.0",
     "appsmith-icons": "workspace:^",
-    "assert-never": "^1.2.1",
+    "assert-never": "^1.4.0",
     "astring": "^1.7.5",
     "async-mutex": "^0.5.0",
     "axios": "^1.8.3",
