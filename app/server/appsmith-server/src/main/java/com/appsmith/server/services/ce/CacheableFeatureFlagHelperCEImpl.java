@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -44,6 +45,9 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 @Slf4j
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
+
+    private static final Duration CLOUD_SERVICES_API_TIMEOUT = Duration.ofSeconds(60);
+
     private final OrganizationRepository organizationRepository;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
@@ -149,6 +153,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     }
                 })
                 .map(ResponseDTO::getData)
+                .timeout(CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
@@ -251,6 +256,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return Mono.just(Objects.requireNonNull(entity.getBody()));
                 })
                 .map(ResponseDTO::getData)
+                .timeout(CLOUD_SERVICES_API_TIMEOUT)
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
