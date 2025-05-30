@@ -115,20 +115,6 @@ public class WebClientUtils {
     }
 
     /**
-     * Creates a WebClient specifically optimized for Cloud Services API calls with a base URL.
-     *
-     * Note: This method creates a new WebClient instance each time since base URLs may vary.
-     * If you need a singleton for a specific base URL, consider using createForCloudServices()
-     * and setting the URI in your request chain.
-     *
-     * @param baseUrl The base URL for Cloud Services
-     * @return WebClient configured for Cloud Services calls
-     */
-    public static WebClient createForCloudServices(String baseUrl) {
-        return builder(CLOUD_SERVICES_CONNECTION_PROVIDER).baseUrl(baseUrl).build();
-    }
-
-    /**
      * Gets the singleton WebClient instance for Cloud Services.
      * This is an alias for createForCloudServices() but makes the singleton nature more explicit.
      *
