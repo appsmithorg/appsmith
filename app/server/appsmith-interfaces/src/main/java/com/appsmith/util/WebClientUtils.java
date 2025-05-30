@@ -58,6 +58,9 @@ public class WebClientUtils {
             .evictInBackground(Duration.ofSeconds(120))
             .build();
 
+    // Singleton WebClient instance for Cloud Services to avoid creating multiple instances
+    private static volatile WebClient cloudServicesWebClient;
+
     private WebClientUtils() {}
 
     private static Set<String> computeDisallowedHosts() {
@@ -95,20 +98,57 @@ public class WebClientUtils {
      * - Optimized timeouts for CS API patterns
      * - Standard IP filtering and memory limits
      *
-     * @return WebClient configured for Cloud Services calls
+     * Returns a singleton instance to avoid creating multiple WebClient instances.
+     *
+     * @return Singleton WebClient configured for Cloud Services calls
      */
     public static WebClient createForCloudServices() {
-        return builder(CLOUD_SERVICES_CONNECTION_PROVIDER).build();
+        if (cloudServicesWebClient == null) {
+            synchronized (WebClientUtils.class) {
+                if (cloudServicesWebClient == null) {
+                    cloudServicesWebClient =
+                            builder(CLOUD_SERVICES_CONNECTION_PROVIDER).build();
+                }
+            }
+        }
+        return cloudServicesWebClient;
     }
 
     /**
      * Creates a WebClient specifically optimized for Cloud Services API calls with a base URL.
+     *
+     * Note: This method creates a new WebClient instance each time since base URLs may vary.
+     * If you need a singleton for a specific base URL, consider using createForCloudServices()
+     * and setting the URI in your request chain.
      *
      * @param baseUrl The base URL for Cloud Services
      * @return WebClient configured for Cloud Services calls
      */
     public static WebClient createForCloudServices(String baseUrl) {
         return builder(CLOUD_SERVICES_CONNECTION_PROVIDER).baseUrl(baseUrl).build();
+    }
+
+    /**
+     * Gets the singleton WebClient instance for Cloud Services.
+     * This is an alias for createForCloudServices() but makes the singleton nature more explicit.
+     *
+     * @return Singleton WebClient configured for Cloud Services calls
+     */
+    public static WebClient getCloudServicesWebClient() {
+        return createForCloudServices();
+    }
+
+    /**
+     * Resets the singleton Cloud Services WebClient instance.
+     * This method is primarily intended for testing purposes.
+     *
+     * @deprecated This method should only be used in tests
+     */
+    @Deprecated
+    static void resetCloudServicesWebClient() {
+        synchronized (WebClientUtils.class) {
+            cloudServicesWebClient = null;
+        }
     }
 
     private static boolean shouldUseSystemProxy() {
