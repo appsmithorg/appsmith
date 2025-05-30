@@ -51,7 +51,7 @@ public class WebClientUtils {
     // Dedicated connection pool for Cloud Services API calls to prevent connection exhaustion
     public static final ConnectionProvider CLOUD_SERVICES_CONNECTION_PROVIDER = ConnectionProvider.builder(
                     "cloud-services")
-            .maxConnections(50) // Sufficient for concurrent CS calls
+            .maxConnections(100) // Increased to handle higher concurrent CS calls
             .maxIdleTime(Duration.ofSeconds(30))
             .maxLifeTime(Duration.ofSeconds(60))
             .pendingAcquireTimeout(Duration.ofSeconds(10))
