@@ -27,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 import reactor.util.function.Tuple7;
@@ -71,15 +70,6 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
 
     // Delay to avoid 429 between the analytics call.
     protected static final Duration DELAY_BETWEEN_PINGS = Duration.ofMillis(200);
-
-    // Dedicated scheduler with limited threads for Cloud Services calls to prevent overwhelming CS
-    private static final Scheduler CLOUD_SERVICES_SCHEDULER = Schedulers.newBoundedElastic(
-            5, // Maximum 5 threads for CS calls
-            1000, // Queue up to 1000 tasks per thread
-            "cloud-services-scheduler",
-            60, // TTL 60 seconds for idle threads
-            true // Daemon threads
-            );
 
     enum UserTrackingType {
         DAU,
@@ -286,7 +276,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                             return Mono.empty();
                         })
                         .contextWrite(Context.of(ORGANIZATION_ID, organization.getId())))
-                .subscribeOn(CLOUD_SERVICES_SCHEDULER)
+                .subscribeOn(Schedulers.single())
                 .subscribe();
     }
 }
