@@ -1,0 +1,9 @@
+# snapshot tests to capture expected changes to defaults
+
+# exclude dependent charts from the snapshot
+excludeTemplates:
+  - charts/*
+tests:
+  - name: manifest should match snapshot from default values
+    asserts:
+      - matchSnapshot: {}

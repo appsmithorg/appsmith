@@ -144,6 +144,11 @@ spec:
               value: kubernetes.KUBE_PING
             - name: APPSMITH_HEADLESS_SVC
               value: {{ include "appsmith.fullname" . }}-headless
+            {{- if .Values.securityContext.runAsUser | default nil }}
+            # ensure the interactive shell when connected via kubectl exec is set
+            - name: LD_PRELOAD
+              value: /usr/local/lib/libnss_wrapper.so
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}

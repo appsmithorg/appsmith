@@ -1,0 +1,26 @@
+name: Helm Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - release
+    paths:
+      - "deploy/helm/**"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: deploy/helm
+        shell: bash
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Unittest
+        run: |
+          docker run --rm -v $(pwd):/apps helmunittest/helm-unittest .
