@@ -71,9 +71,6 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     // Delay to avoid 429 between the analytics call.
     protected static final Duration DELAY_BETWEEN_PINGS = Duration.ofMillis(200);
 
-    // Delay for Cloud Services calls (can be smaller since we use single scheduler)
-    protected static final Duration DELAY_BETWEEN_CS_CALLS = Duration.ofMillis(100);
-
     enum UserTrackingType {
         DAU,
         WAU,
@@ -270,7 +267,6 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
         log.info("Fetching features for organizations");
         organizationService
                 .retrieveAll()
-                .delayElements(DELAY_BETWEEN_CS_CALLS)
                 .flatMap(organization -> featureFlagService
                         .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(organization)
                         .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
