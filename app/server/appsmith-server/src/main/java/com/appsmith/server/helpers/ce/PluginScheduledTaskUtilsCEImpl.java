@@ -48,8 +48,6 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                 .map(listResponseDTO -> {
                     if (listResponseDTO.getData() == null) {
                         String errorMessage = listResponseDTO.getErrorDisplay();
-                        log.error("Error fetching plugins from cloud-services. Error: {}", errorMessage);
-
                         // If there's an actual error message, propagate it as an error
                         if (errorMessage != null && !errorMessage.isEmpty()) {
                             throw new RuntimeException("Cloud Services error: " + errorMessage);
