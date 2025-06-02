@@ -24,6 +24,7 @@ import reactor.netty.resources.ConnectionProvider;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +44,22 @@ public class WebClientUtils {
 
     public static final ExchangeFilterFunction IP_CHECK_FILTER =
             ExchangeFilterFunction.ofRequestProcessor(WebClientUtils::requestFilterFn);
+
+    // Cloud Services specific configuration
+    public static final Duration CLOUD_SERVICES_API_TIMEOUT = Duration.ofSeconds(60);
+
+    // Dedicated connection pool for Cloud Services API calls to prevent connection exhaustion
+    public static final ConnectionProvider CLOUD_SERVICES_CONNECTION_PROVIDER = ConnectionProvider.builder(
+                    "cloud-services")
+            .maxConnections(100)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(120))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
+            .evictInBackground(Duration.ofSeconds(150))
+            .build();
+
+    // Singleton WebClient instance for Cloud Services to avoid creating multiple instances
+    private static volatile WebClient cloudServicesWebClient;
 
     private WebClientUtils() {}
 
@@ -72,6 +89,52 @@ public class WebClientUtils {
 
     public static WebClient create(String baseUrl, ConnectionProvider provider) {
         return builder(provider).baseUrl(baseUrl).build();
+    }
+
+    /**
+     * Creates a WebClient specifically optimized for Cloud Services API calls.
+     * This WebClient includes:
+     * - Dedicated connection pool to prevent connection exhaustion
+     * - Optimized timeouts for CS API patterns
+     * - Standard IP filtering and memory limits
+     *
+     * Returns a singleton instance to avoid creating multiple WebClient instances.
+     *
+     * @return Singleton WebClient configured for Cloud Services calls
+     */
+    public static WebClient createForCloudServices() {
+        if (cloudServicesWebClient == null) {
+            synchronized (WebClientUtils.class) {
+                if (cloudServicesWebClient == null) {
+                    cloudServicesWebClient =
+                            builder(CLOUD_SERVICES_CONNECTION_PROVIDER).build();
+                }
+            }
+        }
+        return cloudServicesWebClient;
+    }
+
+    /**
+     * Gets the singleton WebClient instance for Cloud Services.
+     * This is an alias for createForCloudServices() but makes the singleton nature more explicit.
+     *
+     * @return Singleton WebClient configured for Cloud Services calls
+     */
+    public static WebClient getCloudServicesWebClient() {
+        return createForCloudServices();
+    }
+
+    /**
+     * Resets the singleton Cloud Services WebClient instance.
+     * This method is primarily intended for testing purposes.
+     *
+     * @deprecated This method should only be used in tests
+     */
+    @Deprecated
+    static void resetCloudServicesWebClient() {
+        synchronized (WebClientUtils.class) {
+            cloudServicesWebClient = null;
+        }
     }
 
     private static boolean shouldUseSystemProxy() {
