@@ -47,15 +47,20 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                         clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {}))
                 .map(listResponseDTO -> {
                     if (listResponseDTO.getData() == null) {
-                        log.error(
-                                "Error fetching plugins from cloud-services. Error: {}",
-                                listResponseDTO.getErrorDisplay());
+                        String errorMessage = listResponseDTO.getErrorDisplay();
+                        log.error("Error fetching plugins from cloud-services. Error: {}", errorMessage);
+
+                        // If there's an actual error message, propagate it as an error
+                        if (errorMessage != null && !errorMessage.isEmpty()) {
+                            throw new RuntimeException("Cloud Services error: " + errorMessage);
+                        }
+
+                        // Otherwise, return empty list (no plugins found)
                         return Collections.<Plugin>emptyList();
                     }
                     return listResponseDTO.getData();
                 })
                 .map(plugins -> {
-
                     // Parse plugins into map for easier manipulation
                     return plugins.stream()
                             .collect(Collectors.toMap(
