@@ -95,7 +95,7 @@ import { migrateTableComputeValueBinding } from "./migrations/090-migrate-table-
 import { migrateAIChatWidget } from "./migrations/092-update-ai-chat-widget";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 93;
+export const LATEST_DSL_VERSION = 94;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -636,6 +636,18 @@ const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 92) {
     currentDSL = migrateAIChatWidget(currentDSL);
+    currentDSL.version = 93;
+  }
+
+  if (currentDSL.version === 93) {
+    /**
+     * We are repeating migration(90->91) here. Why?
+     * Although we updated the computed value logic in the property pane control files, we did not update the default values that the widget assumes upon instantiation.
+     * While this would not have caused any functional bugs, it results in the DSL saving an older version of the computed value, which the property control does not process or filter correctly for display.
+     * Consequently, anyone who dropped a table between version 90 and today will see unnecessary computations in their computed value field that should not be visible.
+     * This migration will update all those values to the latest computed value, ensuring they are displayed correctly by the control.
+     */
+    currentDSL = migrateTableComputeValueBinding(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
