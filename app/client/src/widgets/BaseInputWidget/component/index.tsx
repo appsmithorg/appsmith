@@ -450,11 +450,19 @@ class BaseInputComponent extends React.Component<
         );
       }
     }
+  }
 
-    this.setState({ inputValue: this.props.value || "" });
+  componentDidUpdate(prevProps: BaseInputComponentProps) {
+    if (prevProps.value !== this.props.value) {
+      this.setState({ inputValue: this.props.value || "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
   }
 
   componentWillUnmount() {
+    this.debouncedOnValueChange.cancel();
+
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
