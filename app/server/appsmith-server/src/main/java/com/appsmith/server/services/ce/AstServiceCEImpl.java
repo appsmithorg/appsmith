@@ -169,7 +169,14 @@ public class AstServiceCEImpl implements AstServiceCE {
                         // - Old name: foo.bar
                         // - New name: foo.baz
                         // - Binding: "foo['bar']"
-                        return Mono.just(Tuples.of(bindingValue, bindingValue.getValue()));
+                        // Of course! Here’s a natural, concise rewrite:
+                        //
+                        // ---
+                        //
+                        // If the binding value doesn’t contain the old name, we should send an empty response. That
+                        // way, the caller doesn’t need to make any replacements, and it helps avoid unnecessary DB
+                        // calls.
+                        return Mono.empty();
                     }
                     EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(
                             bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
