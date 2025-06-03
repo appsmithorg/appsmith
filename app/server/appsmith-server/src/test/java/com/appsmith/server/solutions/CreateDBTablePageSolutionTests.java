@@ -459,6 +459,37 @@ public class CreateDBTablePageSolutionTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createPageWithDynamicBindingPathListForPostgresqlDS() {
+        resource.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-dynamic-binding-list");
+
+        Mono<PageDTO> resultMono = applicationPageService
+                .createPage(newPage)
+                .flatMap(savedPage ->
+                        solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId))
+                .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
+
+        StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
+                .assertNext(tuple -> {
+                    PageDTO page = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+                    assertThat(page.getName()).isEqualTo(newPage.getName());
+                    assertThat(actions).hasSize(4);
+                    for (NewAction action : actions) {
+                        ActionDTO unpublishedAction = action.getUnpublishedAction();
+                        assertThat(unpublishedAction.getDynamicBindingPathList())
+                                .isNotNull();
+                        assertThat(unpublishedAction.getDynamicBindingPathList())
+                                .isNotEmpty();
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createPageWithLessColumnsComparedToTemplateForPostgres() {
 
         CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
