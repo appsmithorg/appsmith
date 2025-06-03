@@ -16,3 +16,6 @@ export const showUIModulesList = (state: DefaultRootState) => false;
 
 export const getActionsInCurrentModule = (state: DefaultRootState) => [];
 export const getJSCollectionsInCurrentModule = (state: DefaultRootState) => [];
+
+export const getModuleInstanceActions = (state: DefaultRootState) => [];
+export const getModuleInstanceJSCollections = (state: DefaultRootState) => [];

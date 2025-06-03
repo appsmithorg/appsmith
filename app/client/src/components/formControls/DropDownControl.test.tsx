@@ -9,6 +9,10 @@ import type { SelectOptionProps } from "@appsmith/ads";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { PluginType } from "entities/Plugin";
 
+jest.mock("ee/selectors/featureFlagsSelectors", () => ({
+  selectFeatureFlags: jest.fn(() => {}),
+}));
+
 const mockStore = configureStore([]);
 
 const initialValues = {

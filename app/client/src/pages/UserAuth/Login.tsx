@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
 import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
@@ -120,6 +120,20 @@ export function Login(props: LoginFormProps) {
   let errorMessage = "";
   const currentUser = useSelector(getCurrentUser);
 
+  // This is mainly used to send an message to the agents extension to
+  //  show the screen when the user is not logged in
+  useEffect(function sendLoginToExtension() {
+    const loginURL = new URL(window.location.href);
+
+    window.parent.postMessage(
+      {
+        type: "APPSMITH_AUTH_REQUIRED",
+        loginURL: `${loginURL.origin}${loginURL.pathname}`,
+      },
+      "*",
+    );
+  }, []);
+
   if (currentUser?.emptyInstance) {
     return <Redirect to={SETUP} />;
   }
@@ -167,7 +181,7 @@ export function Login(props: LoginFormProps) {
     {
       leftText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_LEFT_TEXT),
       rightText: createMessage(MULTI_ORG_FOOTER_NOT_PART_OF_ORG_RIGHT_TEXT),
-      rightTextLink: getPrimaryLoginURL(),
+      rightTextLink: signupURL,
     },
     {
       leftText: createMessage(MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT),
