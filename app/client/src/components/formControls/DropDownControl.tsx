@@ -334,7 +334,11 @@ function renderDropdown(
   });
 
   // Re-sync multi-select if stale
-  if (isMultiSelect && Array.isArray(selectedValue)) {
+  if (
+    isMultiSelect &&
+    Array.isArray(selectedValue) &&
+    selectedOptions.length > 0
+  ) {
     const validValues = selectedOptions.map((so) => so.value);
 
     if (
