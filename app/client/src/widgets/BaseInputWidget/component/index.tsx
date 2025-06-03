@@ -487,7 +487,7 @@ class BaseInputComponent extends React.Component<
 
   debouncedOnValueChange = debounce((value: string) => {
     this.props.onValueChange(value);
-  }, 500);
+  }, 300);
 
   onTextChange = (
     event:
