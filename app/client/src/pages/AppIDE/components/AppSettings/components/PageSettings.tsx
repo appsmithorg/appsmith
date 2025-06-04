@@ -30,13 +30,14 @@ import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
-import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../utils";
+import { filterAccentedAndSpecialCharacters } from "../utils";
 import type { DefaultRootState } from "react-redux";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useUrlPreview } from "../hooks";
 
 const UrlPreviewWrapper = styled.div`
   height: 52px;
@@ -82,13 +83,13 @@ function PageSettings(props: { page: Page }) {
   const [isDefault, setIsDefault] = useState(page.isDefault);
   const [isDefaultSaving, setIsDefaultSaving] = useState(false);
 
-  const pathPreview = useCallback(getUrlPreview, [
-    page.pageId,
+  const pathPreview = useUrlPreview(
+    page.basePageId,
     pageName,
     page.pageName,
     customSlug,
     page.customSlug,
-  ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
+  );
 
   const conflictingNames = useSelector(
     (state: DefaultRootState) => getUsedActionNames(state, ""),
