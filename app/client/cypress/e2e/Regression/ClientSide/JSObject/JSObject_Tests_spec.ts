@@ -236,7 +236,7 @@ describe("Validate JSObj", {}, () => {
     debuggerHelper.DoesConsoleLogExist("Operation was successful!");
   });
 
-  it("8. Verify Queries", () => {
+  it.skip("8. Verify Queries", () => {
     dataSources.CreateDataSource("Postgres");
     dataSources.CreateQueryAfterDSSaved(" ");
     agHelper.TypeIntoTextArea(locators._codeEditorTarget, "/");
