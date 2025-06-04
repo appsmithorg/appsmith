@@ -269,6 +269,7 @@ interface State {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
+  changeStarted: boolean;
   ctrlPressed: boolean;
   peekOverlayProps:
     | (PeekOverlayStateProps & {
@@ -312,6 +313,7 @@ class CodeEditor extends Component<Props, State> {
       isOpened: false,
       autoCompleteVisible: false,
       hinterOpen: false,
+      changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
       showAIWindow: false,
@@ -1311,12 +1313,17 @@ class CodeEditor extends Component<Props, State> {
 
     if (
       this.props.input.onChange &&
-      value !== inputValue &&
-      this.state.isFocused
+      ((value !== inputValue && this.state.isFocused) ||
+        this.state.changeStarted)
     ) {
-      /* This action updates the status of the savingEntity to true so that any
-      shortcut commands do not execute before updating the entity in the store */
-      this.props.startingEntityUpdate();
+      this.setState({
+        changeStarted: false,
+      });
+
+      if (value !== inputValue && this.state.isFocused) {
+        this.props.startingEntityUpdate();
+      }
+
       this.props.input.onChange(value);
     }
 
@@ -1367,6 +1374,22 @@ class CodeEditor extends Component<Props, State> {
     instance: CodeMirror.Editor,
     changeObj: CodeMirror.EditorChangeLinkedList,
   ) => {
+    /* This action updates the status of the savingEntity to true so that any
+      shortcut commands do not execute before updating the entity in the store */
+    const value = this.editor.getValue() || "";
+    const inputValue = this.props.input.value || "";
+
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused &&
+      !this.state.changeStarted
+    ) {
+      this.setState({
+        changeStarted: true,
+      });
+    }
+
     this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
   };
