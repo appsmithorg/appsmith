@@ -21,11 +21,21 @@ import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
 import { appsmithTelemetry } from "instrumentation";
+import { debounce } from "lodash";
+
+interface WDSPhoneInputWidgetState extends WidgetState {
+  inputValue: string;
+}
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
-  WidgetState
+  WDSPhoneInputWidgetState
 > {
+  constructor(props: PhoneInputWidgetProps) {
+    super(props);
+    this.state = { inputValue: props.text ?? "" };
+  }
+
   static type = "WDS_PHONE_INPUT_WIDGET";
 
   static getConfig() {
@@ -171,6 +181,12 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
+    if (prevProps.text !== this.props.text) {
+      this.setState({ inputValue: this.props.text ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
@@ -205,6 +221,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
   }
 
+  componentWillUnmount(): void {
+    this.debouncedOnValueChange.cancel();
+  }
+
   onISDCodeChange = (dialCode?: string) => {
     const countryCode = getCountryCode(dialCode);
 
@@ -218,21 +238,12 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
   };
 
-  onValueChange = (value: string) => {
-    let formattedValue;
-
-    // Don't format, as value is typed, when user is deleting
-    if (value && value.length > this.props.text?.length) {
-      formattedValue = this.getFormattedPhoneNumber(value);
-    } else {
-      formattedValue = value;
-    }
-
+  debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty(
       "rawText",
-      parseIncompletePhoneNumber(formattedValue),
+      parseIncompletePhoneNumber(value),
     );
-    this.props.updateWidgetMetaProperty("text", formattedValue, {
+    this.props.updateWidgetMetaProperty("text", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -243,6 +254,20 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  }, 300);
+
+  onValueChange = (value: string) => {
+    let formattedValue;
+
+    // Don't format, as value is typed, when user is deleting
+    if (value && value.length > this.props.text?.length) {
+      formattedValue = this.getFormattedPhoneNumber(value);
+    } else {
+      formattedValue = value;
+    }
+
+    this.setState({ inputValue: formattedValue });
+    this.debouncedOnValueChange(formattedValue);
   };
 
   onFocusChange = (focusState: boolean) => {
@@ -300,7 +325,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   };
 
   getWidgetView() {
-    const rawText = this.props.text ?? "";
+    const rawText = this.state.inputValue;
 
     const validation = validateInput(this.props);
 

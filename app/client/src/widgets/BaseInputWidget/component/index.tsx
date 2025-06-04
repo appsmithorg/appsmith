@@ -9,7 +9,7 @@ import {
   ControlGroup,
   Tag,
 } from "@blueprintjs/core";
-import _, { debounce, isNil } from "lodash";
+import _, { isNil } from "lodash";
 
 import type { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
@@ -430,7 +430,7 @@ class BaseInputComponent extends React.Component<
 > {
   constructor(props: BaseInputComponentProps) {
     super(props);
-    this.state = { showPassword: false, inputValue: this.props.value || "" };
+    this.state = { showPassword: false };
   }
 
   componentDidMount() {
@@ -452,17 +452,7 @@ class BaseInputComponent extends React.Component<
     }
   }
 
-  componentDidUpdate(prevProps: BaseInputComponentProps) {
-    if (prevProps.value !== this.props.value) {
-      this.setState({ inputValue: this.props.value || "" });
-      // Cancel any pending debounced calls when value is updated externally
-      this.debouncedOnValueChange.cancel();
-    }
-  }
-
   componentWillUnmount() {
-    this.debouncedOnValueChange.cancel();
-
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
@@ -485,22 +475,16 @@ class BaseInputComponent extends React.Component<
     this.props.onFocusChange(isFocused);
   };
 
-  debouncedOnValueChange = debounce((value: string) => {
-    this.props.onValueChange(value);
-  }, 300);
-
   onTextChange = (
     event:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
-    this.setState({ inputValue: event.target.value });
-    this.debouncedOnValueChange(event.target.value);
+    this.props.onValueChange(event.target.value);
   };
 
   onNumberChange = (valueAsNum: number, valueAsString: string) => {
-    this.setState({ inputValue: valueAsString });
-    this.debouncedOnValueChange(valueAsString);
+    this.props.onValueChange(valueAsString);
   };
 
   getType(inputType: InputHTMLType = "TEXT") {
@@ -584,7 +568,7 @@ class BaseInputComponent extends React.Component<
         placeholder={this.props.placeholder}
         rightElement={this.getRightIcon()}
         stepSize={this.props.stepSize}
-        value={this.state.inputValue}
+        value={this.props.value}
         {...conditionalProps}
       />
     );
@@ -606,7 +590,7 @@ class BaseInputComponent extends React.Component<
       placeholder={this.props.placeholder}
       ref={this.props.inputRef as IRef<HTMLTextAreaElement>}
       style={{ resize: "none" }}
-      value={this.state.inputValue}
+      value={this.props.value}
     />
   );
 
@@ -635,7 +619,7 @@ class BaseInputComponent extends React.Component<
         rightElement={this.getRightIcon()}
         spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputHTMLType)}
-        value={this.state.inputValue}
+        value={this.props.value}
       />
     );
 
@@ -783,7 +767,6 @@ class BaseInputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
-  inputValue?: string;
 }
 
 export interface BaseInputComponentProps extends ComponentProps {

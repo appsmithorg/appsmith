@@ -18,7 +18,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { isNil, isNumber, merge, toString } from "lodash";
+import { debounce, isNil, isNumber, merge, toString } from "lodash";
 import React from "react";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -299,11 +299,16 @@ function InputTypeUpdateHook(
   return updates;
 }
 
-class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+interface InputWidgetState extends WidgetState {
+  inputValue: string;
+}
+
+class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
   constructor(props: InputWidgetProps) {
     super(props);
     this.state = {
       isFocused: false,
+      inputValue: props.inputText ?? "",
     };
   }
 
@@ -706,6 +711,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
+    if (prevProps.inputText !== this.props.inputText) {
+      this.setState({ inputValue: this.props.inputText ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
@@ -732,7 +743,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
   };
 
-  onValueChange = (value: string) => {
+  componentWillUnmount() {
+    this.debouncedOnValueChange.cancel();
+  }
+
+  debouncedOnValueChange = debounce((value: string) => {
     /*
      * Ideally text property should be derived property. But widgets
      * with derived properties won't work as expected inside a List
@@ -755,6 +770,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  }, 300);
+
+  onValueChange = (value: string) => {
+    this.setState({ inputValue: value });
+    this.debouncedOnValueChange(value);
   };
 
   static getSetterConfig(): SetterConfig {
@@ -790,7 +810,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   getWidgetView() {
-    const value = this.props.inputText ?? "";
+    const value = this.state.inputValue ?? "";
     let isInvalid = false;
 
     if (this.props.isDirty) {
