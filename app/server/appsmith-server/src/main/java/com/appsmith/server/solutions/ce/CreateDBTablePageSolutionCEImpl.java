@@ -637,6 +637,11 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             actionDTO.setRefType(templateAction.getRefType());
             actionDTO.setRefName(templateAction.getRefName());
 
+            if (templateAction.getUnpublishedAction() != null) {
+                actionDTO.setDynamicBindingPathList(
+                        templateAction.getUnpublishedAction().getDynamicBindingPathList());
+            }
+
             // Indicates that source of action creation is generate-crud-page
             actionDTO.setSource(ActionCreationSourceTypeEnum.GENERATE_PAGE);
 
