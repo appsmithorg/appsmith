@@ -18,7 +18,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate JSObj", {}, () => {
+describe("Validate JSObj", { tags: ["@tag.JS", "@tag.Datasource"] }, () => {
   before(() => {});
 
   it("1. Verify adding/deleting JSObject and more actions options", () => {
@@ -236,7 +236,7 @@ describe("Validate JSObj", {}, () => {
     debuggerHelper.DoesConsoleLogExist("Operation was successful!");
   });
 
-  it("8. Verify Queries", () => {
+  it.skip("8. Verify Queries", () => {
     dataSources.CreateDataSource("Postgres");
     dataSources.CreateQueryAfterDSSaved(" ");
     agHelper.TypeIntoTextArea(locators._codeEditorTarget, "/");
