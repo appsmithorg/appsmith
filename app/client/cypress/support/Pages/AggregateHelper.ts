@@ -295,6 +295,7 @@ export class AggregateHelper {
   }
 
   public AssertAutoSave() {
+    this.Sleep(600);
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)
