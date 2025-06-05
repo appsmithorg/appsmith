@@ -161,6 +161,7 @@ import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinition
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { executeCommandAction } from "actions/pluginActionActions";
 import { PEEK_OVERLAY_DELAY } from "./PeekOverlayPopup/constants";
+import { DEBOUNCE_TIMER } from "./debounceConstants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1361,7 +1362,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleDebouncedChange = _.debounce(this.handleChange, 600);
+  handleDebouncedChange = _.debounce(this.handleChange, DEBOUNCE_TIMER);
 
   startChange = (
     instance: CodeMirror.Editor,
