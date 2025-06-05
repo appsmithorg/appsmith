@@ -76,7 +76,7 @@ describe(
       cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
         cy.wrap($inputWidget)
           .find("input")
-          .type(index + 1);
+          .type(index + 1, { delay: 300 });
       });
 
       // Verify the typed value
@@ -101,7 +101,7 @@ describe(
       cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
         cy.wrap($inputWidget)
           .find("input")
-          .type(index + 4);
+          .type(index + 4, { delay: 300 });
       });
 
       // Verify the typed value
