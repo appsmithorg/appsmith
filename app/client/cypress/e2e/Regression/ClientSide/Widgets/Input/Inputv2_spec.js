@@ -385,7 +385,9 @@ describe(
       cy.get(widgetInput).clear();
       cy.wait(300);
       // Input text and hit enter key
-      cy.get(widgetInput).type("test{enter}");
+      cy.get(widgetInput).type("test{enter}", {
+        delay: 300,
+      });
       // Assert if the Text widget contains the whole value, test
       cy.get(".t--widget-textwidget").should("have.text", "test");
     });
