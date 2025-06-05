@@ -973,7 +973,10 @@ export class AggregateHelper {
     force = false,
   ) {
     this.ClearTextField(selector, force, index);
-    return this.TypeText(selector, totype, index);
+    return this.TypeText(selector, totype, {
+      index,
+      delay: 200,
+    });
   }
 
   public TypeText(
