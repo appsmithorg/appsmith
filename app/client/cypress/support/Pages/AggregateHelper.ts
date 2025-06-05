@@ -945,10 +945,13 @@ export class AggregateHelper {
         .focus()
         .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
         .wait(50)
-        .type(totype);
+        .type(totype, { delay: 300 });
     else {
       if (charCount == -1) this.GetElement(selector).eq(index).clear();
-      this.TypeText(selector, totype, index);
+      this.TypeText(selector, totype, {
+        index,
+        delay: 300,
+      });
     }
   }
 
