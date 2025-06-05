@@ -8,7 +8,7 @@ import EditorNavigator from "./EditorNavigation";
 import { EntityType } from "./EditorNavigation";
 import ClickOptions = Cypress.ClickOptions;
 const {
-  DEBOUNCE_TIMER,
+  SAVE_TRIGGER_DELAY_MS,
 } = require("../../../src/components/editorComponents/CodeEditor/debounceConstants");
 
 type ElementType = string | JQuery<HTMLElement>;
@@ -302,7 +302,7 @@ export class AggregateHelper {
     // We will need to wait for the debounced time before we make any assertions on save state, otherwise
     // we might run into situation where absence of save is asserted but save actually hasn't happened
     // Additional 100ms added to avoid flaky issues that might be caused by race condition.
-    this.Sleep(DEBOUNCE_TIMER + 100);
+    this.Sleep(SAVE_TRIGGER_DELAY_MS + 100);
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)

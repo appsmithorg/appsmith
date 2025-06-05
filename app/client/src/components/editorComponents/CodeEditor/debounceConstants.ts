@@ -1,1 +1,1 @@
-export const DEBOUNCE_TIMER = 600;
+export const SAVE_TRIGGER_DELAY_MS = 600;
