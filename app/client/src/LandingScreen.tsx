@@ -15,8 +15,8 @@ interface Props {
 }
 
 function LandingScreen(props: Props) {
-  if (props.user && window.location.pathname === BASE_URL) {
-    if (props.user.email === ANONYMOUS_USERNAME) {
+  if (window.location.pathname === BASE_URL) {
+    if (!props.user || props.user.email === ANONYMOUS_USERNAME) {
       return <Redirect to={AUTH_LOGIN_URL} />;
     } else {
       return <Redirect to={APPLICATIONS_URL} />;

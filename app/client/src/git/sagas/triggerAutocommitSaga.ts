@@ -11,7 +11,10 @@ import type {
 } from "git/requests/triggerAutocommitRequest.types";
 import type { TriggerAutocommitInitPayload } from "git/store/actions/triggerAutocommitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectAutocommitEnabled } from "git/store/selectors/gitArtifactSelectors";
+import {
+  selectAutocommitEnabled,
+  selectProtectedMode,
+} from "git/store/selectors/gitArtifactSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import {
   call,
@@ -142,8 +145,13 @@ export default function* triggerAutocommitSaga(
     selectAutocommitEnabled,
     artifactDef,
   );
+  const isCurrentBranchProtected: boolean = yield select(
+    selectProtectedMode,
+    artifactDef,
+  );
+  const shouldAutocommit = isAutocommitEnabled && !isCurrentBranchProtected;
 
-  if (isAutocommitEnabled) {
+  if (shouldAutocommit) {
     const params = { artifactDef, artifactId };
     const pollTask: Task = yield fork(pollAutocommitProgressSaga, params);
 
