@@ -1,5 +1,5 @@
 import React from "react";
-import { isNumber, merge, toString } from "lodash";
+import { debounce, isNumber, merge, toString } from "lodash";
 import * as config from "../config";
 import InputComponent from "../component";
 import type { InputWidgetProps } from "./types";
@@ -14,8 +14,21 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
 
-class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
+interface WDSInputWidgetState extends WidgetState {
+  inputValue: string;
+}
+
+class WDSInputWidget extends WDSBaseInputWidget<
+  InputWidgetProps,
+  WDSInputWidgetState
+> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = { inputValue: props.rawText ?? "" };
+  }
+
   static type = "WDS_INPUT_WIDGET";
 
   static getConfig(): WidgetBaseConfiguration {
@@ -155,6 +168,12 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
+    if (prevProps.rawText !== this.props.rawText) {
+      this.setState({ inputValue: this.props.rawText ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (
       prevProps.rawText !== this.props.rawText &&
       this.props.rawText !== toString(this.props.text)
@@ -183,7 +202,12 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  onValueChange = (value: string) => {
+  componentWillUnmount(): void {
+    this.debouncedOnValueChange.cancel();
+  }
+
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
+  debouncedOnValueChange = debounce((value: string) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     // Ideally text property should be derived property. But widgets with
@@ -205,6 +229,11 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     commitBatchMetaUpdates();
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
+
+  onValueChange = (value: string) => {
+    this.setState({ inputValue: value });
+    this.debouncedOnValueChange(value);
   };
 
   resetWidgetText = () => {
@@ -226,9 +255,9 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   getWidgetView() {
-    const { inputType, rawText } = this.props;
+    const { inputType } = this.props;
 
-    const value = rawText ?? "";
+    const value = this.state.inputValue;
     const { errorMessage, validationStatus } = validateInput(this.props);
 
     return (

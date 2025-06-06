@@ -44,7 +44,7 @@ class MixpanelSingleton {
       if (mixpanel.enabled) {
         this.mixpanel = loadedMixpanel;
         this.mixpanel.init(mixpanel.apiKey, {
-          record_sessions_percent: 100,
+          record_sessions_percent: 50,
           record_block_selector: mask ? ".mp-block" : "",
           record_mask_text_selector: mask ? ".as-mask" : "",
         });

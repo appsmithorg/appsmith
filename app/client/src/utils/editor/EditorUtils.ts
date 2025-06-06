@@ -1,4 +1,3 @@
-import PropertyControlRegistry from "../PropertyControlRegistry";
 // import WidgetFactory from "WidgetProvider/factory";
 // import Widgets from "widgets";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
@@ -11,7 +10,6 @@ export const registerEditorWidgets = () => {
 
 export const editorInitializer = async () => {
   registerEditorWidgets();
-  PropertyControlRegistry.registerPropertyControlBuilders();
   // TODO: do this only for anvil.
   registerLayoutComponents();
 };

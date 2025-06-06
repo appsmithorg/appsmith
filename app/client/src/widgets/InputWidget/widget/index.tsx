@@ -18,6 +18,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize } from "constants/WidgetConstants";
 import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
   GridDefaults,
   RenderModes,
   WIDGET_TAGS,
@@ -47,6 +48,7 @@ import {
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
 import IconSVG from "../icon.svg";
+import { debounce } from "lodash";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -141,12 +143,29 @@ export function defaultValueValidation(
   };
 }
 
-class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+interface InputWidgetState extends WidgetState {
+  inputValue: string;
+}
+
+class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
   constructor(props: InputWidgetProps) {
     super(props);
     this.state = {
       text: props.text,
+      inputValue: props.text ?? "",
     };
+  }
+
+  componentDidUpdate(prevProps: InputWidgetProps) {
+    if (prevProps.text !== this.props.text) {
+      this.setState({ inputValue: this.props.text ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+  }
+
+  componentWillUnmount() {
+    this.debouncedOnValueChange.cancel();
   }
 
   static type = "INPUT_WIDGET";
@@ -877,7 +896,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  onValueChange = (value: string) => {
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
+  debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
@@ -889,6 +909,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
+
+  onValueChange = (value: string) => {
+    this.setState({ inputValue: value });
+    this.debouncedOnValueChange(value);
   };
 
   onCurrencyTypeChange = (code?: string) => {
@@ -967,12 +992,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   getFormattedText = () => {
     if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
-      return this.props.text !== undefined ? this.props.text : "";
+      return this.state.inputValue !== undefined ? this.state.inputValue : "";
     }
 
-    if (this.props.text === "" || this.props.text === undefined) return "";
+    if (this.state.inputValue === "" || this.state.inputValue === undefined)
+      return "";
 
-    const valueToFormat = String(this.props.text);
+    const valueToFormat = String(this.state.inputValue);
 
     const locale = getLocale();
     const decimalSeparator = getDecimalSeparator(locale);
