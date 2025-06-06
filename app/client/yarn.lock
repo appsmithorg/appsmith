@@ -12014,10 +12014,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/web@npm:^0.0.99":
-  version: 0.0.99
-  resolution: "@types/web@npm:0.0.99"
-  checksum: 5298e64fc9db63f7da840dff77cd770c0568d3162eac406aa74e3a251c58377d370398a1d9402feb4fc49afa615808ac85be966e59fa96677a23dfd1df89ef9a
+"@types/web@npm:^0.0.235":
+  version: 0.0.235
+  resolution: "@types/web@npm:0.0.235"
+  checksum: 36806d2ebe87b1ad87ddc9747b732467ac651cc91e6900a205b98548e7a31620dab561547c85e07f373f9f3ec435c99709eb43f350373918a8a900a1d82c00c4
   languageName: node
   linkType: hard
 
@@ -13655,7 +13655,7 @@ __metadata:
     "@types/tinycolor2": ^1.4.2
     "@types/toposort": ^2.0.3
     "@types/uuid": ^9.0.5
-    "@types/web": ^0.0.99
+    "@types/web": ^0.0.235
     "@types/zipcelx": ^1.5.0
     "@typescript-eslint/eslint-plugin": ^6.7.4
     "@typescript-eslint/parser": ^6.7.4
