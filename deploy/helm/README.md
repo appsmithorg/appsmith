@@ -1,4 +1,3 @@
-
 # Appsmith
 Appsmith is a JS-based internal tool development platform. Internal tools take a lot of time to build even though they involve the same UI components, data integrations, and user access management. Developers love Appsmith because it saves them hundreds of hours.
 
@@ -228,3 +227,7 @@ helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
 If at any time you encounter an error during the installation process, reach out to support@appsmith.com or join our Discord Server
 
 If you know the error and would like to reinstall Appsmith, simply delete the installation folder and the templates folder and execute the script again
+
+## Testing
+
+Review tests/README.md for details on how the chart is tested.

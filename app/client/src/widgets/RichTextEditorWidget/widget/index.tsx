@@ -34,7 +34,11 @@ import type {
   SnipingModeProperty,
   PropertyUpdates,
 } from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
+import { debounce } from "lodash";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -48,10 +52,21 @@ const RichTextEditorComponent = lazy(async () =>
 
 const converter = new showdown.Converter();
 
+interface RichTextEditorWidgetState extends WidgetState {
+  inputValue: string;
+}
+
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
-  WidgetState
+  RichTextEditorWidgetState
 > {
+  constructor(props: RichTextEditorWidgetProps) {
+    super(props);
+    this.state = {
+      inputValue: props.text ?? "",
+    };
+  }
+
   static type = "RICH_TEXT_EDITOR_WIDGET";
 
   static getConfig() {
@@ -491,6 +506,12 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    if (prevProps.text !== this.props.text) {
+      this.setState({ inputValue: this.props.text ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
@@ -498,7 +519,12 @@ class RichTextEditorWidget extends BaseWidget<
     }
   }
 
-  onValueChange = (text: string) => {
+  componentWillUnmount() {
+    this.debouncedOnValueChange.cancel();
+  }
+
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
+  debouncedOnValueChange = debounce((text: string) => {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -510,6 +536,11 @@ class RichTextEditorWidget extends BaseWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
+
+  onValueChange = (text: string) => {
+    this.setState({ inputValue: text });
+    this.debouncedOnValueChange(text);
   };
 
   static getSetterConfig(): SetterConfig {
@@ -532,7 +563,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    let value = this.props.text ?? "";
+    let value = this.state.inputValue;
 
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);
