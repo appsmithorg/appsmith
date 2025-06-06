@@ -37,7 +37,10 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
@@ -424,6 +427,7 @@ class PhoneInputWidget extends BaseInputWidget<
     }
   };
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty(
       "value",
@@ -440,7 +444,7 @@ class PhoneInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     let formattedValue;

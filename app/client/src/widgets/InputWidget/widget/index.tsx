@@ -18,6 +18,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize } from "constants/WidgetConstants";
 import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
   GridDefaults,
   RenderModes,
   WIDGET_TAGS,
@@ -895,6 +896,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     };
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
       triggerPropertyName: "onTextChanged",
@@ -907,7 +909,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     this.setState({ inputValue: value });

@@ -42,7 +42,10 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
@@ -525,6 +528,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     }
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     // text is stored as what user has typed
     this.props.updateWidgetMetaProperty("text", String(value), {
@@ -538,7 +542,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     let formattedValue = "";

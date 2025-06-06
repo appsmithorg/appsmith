@@ -22,6 +22,7 @@ import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
 import { appsmithTelemetry } from "instrumentation";
 import { debounce } from "lodash";
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
 
 interface WDSPhoneInputWidgetState extends WidgetState {
   inputValue: string;
@@ -238,6 +239,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
   };
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty(
       "rawText",
@@ -254,7 +256,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     let formattedValue;

@@ -34,7 +34,10 @@ import type {
   SnipingModeProperty,
   PropertyUpdates,
 } from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { debounce } from "lodash";
 
 export enum RTEFormats {
@@ -520,6 +523,7 @@ class RichTextEditorWidget extends BaseWidget<
     this.debouncedOnValueChange.cancel();
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((text: string) => {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
@@ -532,7 +536,7 @@ class RichTextEditorWidget extends BaseWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (text: string) => {
     this.setState({ inputValue: text });

@@ -48,7 +48,10 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
@@ -747,6 +750,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
     this.debouncedOnValueChange.cancel();
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     /*
      * Ideally text property should be derived property. But widgets
@@ -770,7 +774,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     this.setState({ inputValue: value });

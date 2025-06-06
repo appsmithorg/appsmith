@@ -30,6 +30,7 @@ import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import { appsmithTelemetry } from "instrumentation";
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
 
 interface WDSCurrencyInputWidgetState extends WidgetState {
   inputValue: string;
@@ -194,6 +195,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     this.debouncedOnValueChange.cancel();
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string, formattedValue: string) => {
     this.props.updateWidgetMetaProperty("text", String(formattedValue));
 
@@ -208,7 +210,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     let formattedValue = "";

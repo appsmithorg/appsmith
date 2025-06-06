@@ -14,6 +14,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
 
 interface WDSInputWidgetState extends WidgetState {
   inputValue: string;
@@ -205,6 +206,7 @@ class WDSInputWidget extends WDSBaseInputWidget<
     this.debouncedOnValueChange.cancel();
   }
 
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
   debouncedOnValueChange = debounce((value: string) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
@@ -227,7 +229,7 @@ class WDSInputWidget extends WDSBaseInputWidget<
     }
 
     commitBatchMetaUpdates();
-  }, 300);
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
 
   onValueChange = (value: string) => {
     this.setState({ inputValue: value });
