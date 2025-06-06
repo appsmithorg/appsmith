@@ -161,6 +161,7 @@ import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinition
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { executeCommandAction } from "actions/pluginActionActions";
 import { PEEK_OVERLAY_DELAY } from "./PeekOverlayPopup/constants";
+import { SAVE_TRIGGER_DELAY_MS } from "./debounceConstants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -269,8 +270,6 @@ interface State {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
-  // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
-  changeStarted: boolean;
   ctrlPressed: boolean;
   peekOverlayProps:
     | (PeekOverlayStateProps & {
@@ -314,7 +313,6 @@ class CodeEditor extends Component<Props, State> {
       isOpened: false,
       autoCompleteVisible: false,
       hinterOpen: false,
-      changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
       showAIWindow: false,
@@ -1309,17 +1307,17 @@ class CodeEditor extends Component<Props, State> {
     instance?: CodeMirror.Editor,
     changeObj?: CodeMirror.EditorChangeLinkedList,
   ) => {
-    const value = this.editor?.getValue() || "";
+    const value = this.editor.getValue() || "";
     const inputValue = this.props.input.value || "";
 
     if (
       this.props.input.onChange &&
-      ((value !== inputValue && this.state.isFocused) ||
-        this.state.changeStarted)
+      value !== inputValue &&
+      this.state.isFocused
     ) {
-      this.setState({
-        changeStarted: false,
-      });
+      /* This action updates the status of the savingEntity to true so that any
+      shortcut commands do not execute before updating the entity in the store */
+      this.props.startingEntityUpdate();
       this.props.input.onChange(value);
     }
 
@@ -1364,29 +1362,12 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleDebouncedChange = _.debounce(this.handleChange, 600);
+  handleDebouncedChange = _.debounce(this.handleChange, SAVE_TRIGGER_DELAY_MS);
 
   startChange = (
     instance: CodeMirror.Editor,
     changeObj: CodeMirror.EditorChangeLinkedList,
   ) => {
-    /* This action updates the status of the savingEntity to true so that any
-      shortcut commands do not execute before updating the entity in the store */
-    const value = this.editor.getValue() || "";
-    const inputValue = this.props.input.value || "";
-
-    if (
-      this.props.input.onChange &&
-      value !== inputValue &&
-      this.state.isFocused &&
-      !this.state.changeStarted
-    ) {
-      this.setState({
-        changeStarted: true,
-      });
-      this.props.startingEntityUpdate();
-    }
-
     this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
   };
