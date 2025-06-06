@@ -297,6 +297,7 @@ Let's build great software together.
 [![ari-hacks](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/36749814?v=4&w=50&h=50&mask=circle)](https://github.com/ari-hacks)
 [![arunstar](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/21214162?v=4&w=50&h=50&mask=circle)](https://github.com/arunstar)
 [![ashwanisindhu1](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/549817?v=4&w=50&h=50&mask=circle)](https://github.com/ashwanisindhu1)
+[![minakshibiradar](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/144032480?v=4&w=50&h=50&mask=circle)](https://github.com/minakshibiradar)
 [![ayushkumarbhadani](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/73775939?v=4&w=50&h=50&mask=circle)](https://github.com/ayushkumarbhadani)
 [![Caitlin-Fotheringham](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/49273562?v=4&w=50&h=50&mask=circle)](https://github.com/Caitlin-Fotheringham)
 [![Chiradeep-Banik](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/76490903?v=4&w=50&h=50&mask=circle)](https://github.com/Chiradeep-Banik)
