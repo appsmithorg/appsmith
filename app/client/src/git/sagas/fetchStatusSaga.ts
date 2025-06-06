@@ -7,7 +7,6 @@ import type { GitArtifactPayloadAction } from "git/store/types";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import handleApiErrors from "./helpers/handleApiErrors";
-import { selectProtectedMode } from "git/store/selectors/gitArtifactSelectors";
 
 export default function* fetchStatusSaga(
   action: GitArtifactPayloadAction<FetchStatusInitPayload>,
@@ -20,22 +19,6 @@ export default function* fetchStatusSaga(
     const isGitApiContractsEnabled: boolean = yield select(
       selectGitApiContractsEnabled,
     );
-
-    const isCurrentBranchProtected: boolean = yield select(
-      selectProtectedMode,
-      artifactDef,
-    );
-
-    if (isCurrentBranchProtected) {
-      // Skip status check for protected branches and set empty status
-      yield put(
-        gitArtifactActions.resetGitStatus({
-          artifactDef,
-        }),
-      );
-
-      return;
-    }
 
     response = yield call(
       fetchStatusRequest,
