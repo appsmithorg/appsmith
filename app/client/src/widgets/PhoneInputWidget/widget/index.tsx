@@ -12,7 +12,7 @@ import {
   ISDCodeDropdownOptions,
 } from "../component/ISDCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import derivedProperties from "./parsedDerivedProperties";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
@@ -37,7 +37,10 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
@@ -84,10 +87,21 @@ export function defaultValueValidation(
   };
 }
 
+interface PhoneWidgetState extends WidgetState {
+  inputValue: string;
+}
+
 class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
-  WidgetState
+  PhoneWidgetState
 > {
+  constructor(props: PhoneInputWidgetProps) {
+    super(props);
+    this.state = {
+      inputValue: props.text ?? "",
+    };
+  }
+
   static type = "PHONE_INPUT_WIDGET";
 
   static getConfig() {
@@ -356,6 +370,12 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
+    if (prevProps.text !== this.props.text) {
+      this.setState({ inputValue: this.props.text ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
@@ -390,6 +410,10 @@ class PhoneInputWidget extends BaseInputWidget<
     }
   }
 
+  componentWillUnmount() {
+    this.debouncedOnValueChange.cancel();
+  }
+
   onISDCodeChange = (dialCode?: string) => {
     const countryCode = getCountryCode(dialCode);
 
@@ -403,21 +427,13 @@ class PhoneInputWidget extends BaseInputWidget<
     }
   };
 
-  onValueChange = (value: string) => {
-    let formattedValue;
-
-    // Don't format, as value is typed, when user is deleting
-    if (value && value.length > this.props.text?.length) {
-      formattedValue = this.getFormattedPhoneNumber(value);
-    } else {
-      formattedValue = value;
-    }
-
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
+  debouncedOnValueChange = debounce((value: string) => {
     this.props.updateWidgetMetaProperty(
       "value",
-      parseIncompletePhoneNumber(formattedValue),
+      parseIncompletePhoneNumber(value),
     );
-    this.props.updateWidgetMetaProperty("text", formattedValue, {
+    this.props.updateWidgetMetaProperty("text", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -428,6 +444,20 @@ class PhoneInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
+
+  onValueChange = (value: string) => {
+    let formattedValue;
+
+    // Don't format, as value is typed, when user is deleting
+    if (value && value.length > this.props.text?.length) {
+      formattedValue = this.getFormattedPhoneNumber(value);
+    } else {
+      formattedValue = value;
+    }
+
+    this.setState({ inputValue: formattedValue });
+    this.debouncedOnValueChange(formattedValue);
   };
 
   handleFocusChange = (focusState: boolean) => {
@@ -487,7 +517,7 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   getWidgetView() {
-    const value = this.props.text ?? "";
+    const value = this.state.inputValue;
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const countryCode = this.props.countryCode;

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import React from "react";
 import log from "loglevel";
 import type { WidgetState } from "widgets/BaseWidget";
@@ -30,11 +30,20 @@ import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import { appsmithTelemetry } from "instrumentation";
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
 
+interface WDSCurrencyInputWidgetState extends WidgetState {
+  inputValue: string;
+}
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
-  WidgetState
+  WDSCurrencyInputWidgetState
 > {
+  constructor(props: CurrencyInputWidgetProps) {
+    super(props);
+    this.state = { inputValue: props.rawText ?? "" };
+  }
+
   static type = "WDS_CURRENCY_INPUT_WIDGET";
 
   static getConfig() {
@@ -152,6 +161,12 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
+    if (prevProps.rawText !== this.props.rawText) {
+      this.setState({ inputValue: this.props.rawText ?? "" });
+      // Cancel any pending debounced calls when value is updated externally
+      this.debouncedOnValueChange.cancel();
+    }
+
     if (
       prevProps.text !== this.props.text &&
       !this.props.isFocused &&
@@ -176,6 +191,27 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     }
   }
 
+  componentWillUnmount(): void {
+    this.debouncedOnValueChange.cancel();
+  }
+
+  // debouncing the input change to avoid multiple Execute calls in reactive flow
+  debouncedOnValueChange = debounce((value: string, formattedValue: string) => {
+    this.props.updateWidgetMetaProperty("text", String(formattedValue));
+
+    this.props.updateWidgetMetaProperty("rawText", value, {
+      triggerPropertyName: "onTextChanged",
+      dynamicString: this.props.onTextChanged,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
+
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
+
   onValueChange = (value: string) => {
     let formattedValue = "";
     const decimalSeperator = getLocaleDecimalSeperator();
@@ -194,19 +230,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       });
     }
 
-    this.props.updateWidgetMetaProperty("text", String(formattedValue));
-
-    this.props.updateWidgetMetaProperty("rawText", value, {
-      triggerPropertyName: "onTextChanged",
-      dynamicString: this.props.onTextChanged,
-      event: {
-        type: EventType.ON_TEXT_CHANGE,
-      },
-    });
-
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
+    this.setState({ inputValue: formattedValue });
+    this.debouncedOnValueChange(value, formattedValue);
   };
 
   onFocusChange = (isFocused?: boolean) => {
@@ -323,7 +348,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   getWidgetView() {
-    const value = this.props.rawText ?? "";
+    const value = this.state.inputValue;
     const validation = validateInput(this.props);
 
     return (
