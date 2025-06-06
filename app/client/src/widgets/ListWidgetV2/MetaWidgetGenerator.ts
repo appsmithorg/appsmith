@@ -469,6 +469,120 @@ class MetaWidgetGenerator {
   private generateMetaWidgetId = () =>
     `${this.prefixMetaWidgetId}_${generateReactKey()}`;
 
+  /**
+   * Generates empty meta widgets when data is empty to prevent currentItem binding errors.
+   * Creates meta widgets with same IDs as template widgets and adds currentItem property.
+   */
+  generateEmptyMetaWidgets = () => {
+    const metaWidgets: MetaWidgets = {};
+
+    if (!this.currTemplateWidgets) return { metaWidgets, propertyUpdates: [] };
+
+    // Iterate through all template widgets and create meta widgets with same IDs
+    Object.entries(this.currTemplateWidgets).forEach(
+      ([templateWidgetId, templateWidget]) => {
+        // Create a copy of the template widget as meta widget
+        const metaWidget = klonaRegularWithTelemetry(
+          templateWidget,
+          "MetaWidgetGenerator.generateEmptyMetaWidgets",
+        ) as MetaWidget;
+
+        // Keep the same widget ID and name as template
+        metaWidget.widgetId = templateWidgetId;
+        metaWidget.widgetName = templateWidget.widgetName;
+
+        // Add currentItem property with empty object for empty data state
+        this.addEmptyCurrentItemProperty(metaWidget);
+
+        // Process dynamic paths like normal flow but for empty data
+        this.addDynamicPathsPropertiesForEmptyData(metaWidget, {
+          metaWidgetId: templateWidgetId,
+          metaWidgetName: templateWidget.widgetName,
+          templateWidgetName: templateWidget.widgetName,
+        });
+
+        // Set currentIndex to -1 to indicate no data
+        metaWidget.currentIndex = -1;
+
+        // Add to meta widgets collection
+        metaWidgets[templateWidgetId] = metaWidget;
+      },
+    );
+
+    return { metaWidgets, propertyUpdates: [] };
+  };
+
+  /**
+   * Add currentItem property for empty data state
+   * This mimics addCurrentItemProperty but sets currentItem to empty object
+   */
+  private addEmptyCurrentItemProperty = (metaWidget: MetaWidget) => {
+    if (metaWidget.currentItem) return;
+
+    // Set currentItem to empty object for empty data state
+    metaWidget.currentItem = "{{{}}}";
+    metaWidget.dynamicBindingPathList = [
+      ...(metaWidget.dynamicBindingPathList || []),
+      { key: "currentItem" },
+    ];
+  };
+
+  /**
+   * Process dynamic paths for empty data state
+   * This is similar to addDynamicPathsProperties but handles empty data scenario
+   */
+  private addDynamicPathsPropertiesForEmptyData = (
+    metaWidget: MetaWidget,
+    metaWidgetCacheProps: {
+      metaWidgetId: string;
+      metaWidgetName: string;
+      templateWidgetName: string;
+    },
+  ) => {
+    const { metaWidgetName, templateWidgetName } = metaWidgetCacheProps;
+    const dynamicPaths = this.getDynamicPaths(metaWidget);
+
+    if (!dynamicPaths.length) return;
+
+    dynamicPaths.forEach(({ isTriggerPath, key: path }) => {
+      let propertyValue = get(metaWidget, path);
+
+      propertyValue = this.updateWidgetNameInDynamicBinding(
+        propertyValue,
+        metaWidgetName,
+        templateWidgetName,
+      );
+
+      const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
+      const js = combineDynamicBindings(jsSnippets, stringSegments);
+      const pathTypes = new Set();
+
+      // For empty data, we mainly need to handle currentItem references
+      if (hasCurrentItem(propertyValue)) {
+        pathTypes.add(DynamicPathType.CURRENT_ITEM);
+      }
+
+      if (hasCurrentIndex(propertyValue)) {
+        pathTypes.add(DynamicPathType.CURRENT_INDEX);
+      }
+
+      if (pathTypes.size) {
+        const prefix = [...pathTypes].join(", ");
+        const suffix = [...pathTypes]
+          .map((type) => `${metaWidgetName}.${type}`)
+          .join(", ");
+        const bindingPrefix = `{{((${prefix}) =>`;
+        const bindingSuffix = `)(${suffix})}}`;
+
+        const propertyBinding = isTriggerPath
+          ? `${bindingPrefix} { ${js} } ${bindingSuffix}`
+          : `${bindingPrefix} ${js} ${bindingSuffix}`;
+
+        set(metaWidget, path, propertyBinding);
+      }
+    });
+  };
+
   private getMetaWidgetIdsInCachedItems = () => {
     const currCachedMetaWidgetIds: string[] = [];
     const prevCachedMetaWidgetIds: string[] = [];
@@ -1854,7 +1968,7 @@ class MetaWidgetGenerator {
     })?.metaWidgetName;
   };
 
-  private resetCache = () => {
+  resetCache = () => {
     this.setWidgetCache({});
   };
 

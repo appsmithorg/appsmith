@@ -152,6 +152,7 @@ class ListWidget extends BaseWidget<
   pageChangeEventTriggerFromSelectedKey: boolean;
   pageSizeUpdated: boolean;
   primaryKeys: string[];
+  previouslyHadEmptyData: boolean;
 
   static type = "LIST_WIDGET_V2";
 
@@ -334,6 +335,8 @@ class ListWidget extends BaseWidget<
     this.pageSize = this.getPageSize();
     this.primaryKeys = this.generatePrimaryKeys();
     this.pageChangeEventTriggerFromSelectedKey = false;
+    this.previouslyHadEmptyData =
+      !props.listData || props.listData.length === 0;
     /**
      * To prevent an infinite loop, we use a flag to avoid recursively updating the pageSize property.
      * This is necessary because the updateWidgetProperty function does not immediately update the property,
@@ -602,6 +605,25 @@ class ListWidget extends BaseWidget<
   };
 
   generateMetaWidgets = () => {
+    const { listData } = this.props;
+    const hasEmptyData = !listData || listData.length === 0;
+
+    // Check if data is empty and generate empty meta widgets to prevent currentItem binding errors
+    if (hasEmptyData) {
+      this.previouslyHadEmptyData = true;
+      this.generateEmptyMetaWidgets();
+
+      return;
+    }
+
+    // Check if we're transitioning from empty data to non-empty data
+    // In this case, we need to flush existing meta widgets to prevent conflicts
+    if (this.previouslyHadEmptyData) {
+      this.previouslyHadEmptyData = false;
+      // Clear the meta widget cache to ensure fresh generation
+      this.metaWidgetGenerator.resetCache();
+    }
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
 
     const { metaWidgets, propertyUpdates, removedMetaWidgetIds } =
@@ -665,6 +687,27 @@ class ListWidget extends BaseWidget<
       updates.deleteIds.length ||
       updates.propertyUpdates?.length
     ) {
+      this.modifyMetaWidgets(updates);
+    }
+  };
+
+  /**
+   * Generates empty meta widgets when data is empty to prevent currentItem binding errors.
+   * This creates meta widgets with the same IDs as template widgets and provides safe currentItem bindings.
+   */
+  generateEmptyMetaWidgets = () => {
+    const generatorOptions = this.metaWidgetGeneratorOptions();
+    const { metaWidgets } = this.metaWidgetGenerator
+      .withOptions(generatorOptions)
+      .generateEmptyMetaWidgets();
+
+    const updates: ModifyMetaWidgetPayload = {
+      addOrUpdate: metaWidgets,
+      deleteIds: [],
+      propertyUpdates: [],
+    };
+
+    if (!isEmpty(updates.addOrUpdate)) {
       this.modifyMetaWidgets(updates);
     }
   };
@@ -1458,8 +1501,7 @@ class ListWidget extends BaseWidget<
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
-      this.props.renderMode === RenderModes.PAGE
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0
     ) {
       return (
         <>
