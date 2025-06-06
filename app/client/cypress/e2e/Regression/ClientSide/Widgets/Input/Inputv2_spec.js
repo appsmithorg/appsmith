@@ -1,3 +1,4 @@
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "../../../../../../src/constants/WidgetConstants";
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "inputwidgetv2";
@@ -385,7 +386,9 @@ describe(
       cy.get(widgetInput).clear();
       cy.wait(300);
       // Input text and hit enter key
-      cy.get(widgetInput).type("test{enter}");
+      cy.get(widgetInput).type("test{enter}", {
+        delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+      });
       // Assert if the Text widget contains the whole value, test
       cy.get(".t--widget-textwidget").should("have.text", "test");
     });

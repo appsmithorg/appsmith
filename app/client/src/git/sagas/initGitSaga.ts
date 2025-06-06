@@ -36,19 +36,21 @@ export default function* initGitForEditorSaga(
       yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);
 
-      if (isAutocommitEnabled(artifactDef)) {
-        yield put(
-          gitArtifactActions.triggerAutocommitInit({ artifactDef, artifactId }),
-        );
-      }
-
       yield put(
         gitArtifactActions.fetchBranchesInit({ artifactDef, artifactId }),
       );
 
+      // We skip the auto-commit and status check for protected branches
+      // Hence we need to check if the current branch is protected before triggering auto-commit and status check
       if (isProtectedBranchesEnabled(artifactDef)) {
         yield put(
           gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }),
+        );
+      }
+
+      if (isAutocommitEnabled(artifactDef)) {
+        yield put(
+          gitArtifactActions.triggerAutocommitInit({ artifactDef, artifactId }),
         );
       }
 

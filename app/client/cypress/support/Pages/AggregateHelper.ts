@@ -7,6 +7,7 @@ import { EntityItems } from "./AssertHelper";
 import EditorNavigator from "./EditorNavigation";
 import { EntityType } from "./EditorNavigation";
 import ClickOptions = Cypress.ClickOptions;
+import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "../../../src/constants/WidgetConstants";
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -945,10 +946,13 @@ export class AggregateHelper {
         .focus()
         .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
         .wait(50)
-        .type(totype);
+        .type(totype, { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
     else {
       if (charCount == -1) this.GetElement(selector).eq(index).clear();
-      this.TypeText(selector, totype, index);
+      this.TypeText(selector, totype, {
+        index,
+        delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+      });
     }
   }
 
@@ -973,7 +977,10 @@ export class AggregateHelper {
     force = false,
   ) {
     this.ClearTextField(selector, force, index);
-    return this.TypeText(selector, totype, index);
+    return this.TypeText(selector, totype, {
+      index,
+      delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+    });
   }
 
   public TypeText(
@@ -1323,7 +1330,10 @@ export class AggregateHelper {
     toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .trigger("click")
-      .type(input, { parseSpecialCharSequences: false });
+      .type(input, {
+        parseSpecialCharSequences: false,
+        delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
+      });
   }
 
   public ClearInputText(name: string, isInput = true) {
