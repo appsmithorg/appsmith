@@ -13846,7 +13846,7 @@ __metadata:
     react-timer-hook: ^3.0.4
     react-use-gesture: ^7.0.4
     react-virtuoso: ^4.5.0
-    react-webcam: ^7.0.1
+    react-webcam: ^7.2.0
     react-window: ^1.8.6
     react-window-infinite-loader: ^1.0.10
     react-zoom-pan-pinch: ^1.6.1
@@ -30251,13 +30251,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-webcam@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "react-webcam@npm:7.0.1"
+"react-webcam@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "react-webcam@npm:7.2.0"
   peerDependencies:
     react: ">=16.2.0"
     react-dom: ">=16.2.0"
-  checksum: b1df32c3bfe3fafdb291b06266b30aa2ba88df2a51e04121fb09509feb88fb25fe3291733a9fb9674b56b964b6e69fe801f99e4fd20418520cd2e7641c46c647
+  checksum: 55aecc9e33ea711525f9b68a7c14c9cf4089777b9edd6d9c93813568d701a101f3da09ffd7df04b64eca8c9783a37830522376049589699c6015555ec8d7ccd8
   languageName: node
   linkType: hard
 
