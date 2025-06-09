@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.models.GitResourceIdentity;
@@ -187,6 +188,22 @@ public class CommonGitFileUtilsCE {
             try {
                 return fileUtils
                         .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMapFromDB, branchName, keepWorkingDirChanges)
+                        .subscribeOn(Schedulers.boundedElastic());
+            } catch (IOException | GitAPIException exception) {
+                return Mono.error(exception);
+            }
+        });
+    }
+
+    public Mono<GitStatusDTO> computeGitStatus(
+            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
+        GitResourceMap gitResourceMapFromDB = createGitResourceMap(artifactExchangeJson);
+        Mono<Boolean> keepWorkingDirChangesMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            try {
+                return fileUtils
+                        .computeGitStatus(baseRepoSuffix, gitResourceMapFromDB, branchName, keepWorkingDirChanges)
                         .subscribeOn(Schedulers.boundedElastic());
             } catch (IOException | GitAPIException exception) {
                 return Mono.error(exception);

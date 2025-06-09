@@ -1,5 +1,6 @@
 package com.appsmith.git.files;
 
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -288,6 +289,64 @@ public class FileUtilsCEImpl implements FileInterface {
                             });
                 })
                 .subscribeOn(scheduler);
+    }
+
+    public Mono<GitStatusDTO> computeGitStatus(
+            Path baseRepoSuffix, GitResourceMap gitResourceMapFromDB, String branchName, boolean keepWorkingDirChanges)
+            throws GitAPIException, IOException {
+        return fsGitHandler
+                .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
+                .flatMap(__ -> constructGitResourceMapFromGitRepo(baseRepoSuffix, branchName))
+                .flatMap(gitResourceMapFromFS -> {
+                    Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
+                    Map<GitResourceIdentity, Object> resourceMapFromFS = gitResourceMapFromFS.getGitResourceMap();
+
+                    Map<String, Object> filePathObjectsMapFromFS = resourceMapFromFS.entrySet().parallelStream()
+                            .collect(
+                                    Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
+                    Map<String, Object> filePathToObjectsFromDB = resourceMapFromDB.entrySet().parallelStream()
+                            .collect(
+                                    Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
+                    Set<String> filePathsInDb = new HashSet<>(filePathToObjectsFromDB.keySet());
+                    Set<String> filePathsInFS = new HashSet<>(filePathObjectsMapFromFS.keySet());
+
+                    // added files
+                    Set<String> addedFiles = new HashSet<>(filePathsInDb);
+                    addedFiles.removeAll(filePathsInFS);
+
+                    // removed files
+                    Set<String> removedFiles = new HashSet<>(filePathsInFS);
+                    removedFiles.removeAll(filePathsInDb);
+                    removedFiles.remove(README_FILE_NAME);
+
+                    // common files
+                    Set<String> commonFiles = new HashSet<>(filePathsInDb);
+                    commonFiles.retainAll(filePathsInFS);
+
+                    // modified files
+                    Set<String> modifiedFiles = commonFiles.stream()
+                            .filter(filePath -> {
+                                Object fileInDB = filePathToObjectsFromDB.get(filePath);
+                                Object fileInFS = filePathObjectsMapFromFS.get(filePath);
+                                try {
+                                    return fileOperations.hasFileChanged(fileInDB, fileInFS);
+                                } catch (IOException e) {
+                                    log.error("Error while checking if file has changed", e);
+                                    return false;
+                                }
+                            })
+                            .collect(Collectors.toSet());
+
+                    GitStatusDTO localRepoStatus = new GitStatusDTO();
+                    localRepoStatus.setAdded(addedFiles);
+                    localRepoStatus.setModified(modifiedFiles);
+                    localRepoStatus.setRemoved(removedFiles);
+
+                    fsGitHandler.populateModifiedEntities(localRepoStatus);
+                    return Mono.just(localRepoStatus);
+                });
     }
 
     protected Set<String> getWhitelistedPaths() {

@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -84,6 +85,11 @@ public interface GitHandlingServiceCE {
 
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<GitStatusDTO> computeGitStatus(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<BranchTrackingStatus> getBranchTrackingStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
     Mono<Tuple2<? extends Artifact, String>> commitArtifact(
             Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
