@@ -343,6 +343,8 @@ public class FileUtilsCEImpl implements FileInterface {
                     localRepoStatus.setAdded(addedFiles);
                     localRepoStatus.setModified(modifiedFiles);
                     localRepoStatus.setRemoved(removedFiles);
+                    boolean isClean = addedFiles.isEmpty() && modifiedFiles.isEmpty() && removedFiles.isEmpty();
+                    localRepoStatus.setIsClean(isClean);
 
                     fsGitHandler.populateModifiedEntities(localRepoStatus);
                     return Mono.just(localRepoStatus);
