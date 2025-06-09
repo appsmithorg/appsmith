@@ -1675,8 +1675,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitStatusDTO> lockHandledStatusMono = Mono.usingWhen(
                 exportedArtifactJsonMono,
                 artifactExchangeJson -> {
-                    Mono<Boolean> prepareForStatus =
-                            gitHandlingService.prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson);
+                    Mono<GitStatusDTO> statusMono =
+                            gitHandlingService.computeGitStatus(jsonTransformationDTO, artifactExchangeJson);
 
                     Mono<String> fetchRemoteMono = Mono.just("ignored");
 
@@ -1694,8 +1694,31 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         error.getMessage()))));
                     }
 
-                    return Mono.zip(prepareForStatus, fetchRemoteMono)
-                            .then(Mono.defer(() -> gitHandlingService.getStatus(jsonTransformationDTO)))
+                    return Mono.zip(statusMono, fetchRemoteMono)
+                            .flatMap(tuple -> {
+                                return gitHandlingService
+                                        .getBranchTrackingStatus(jsonTransformationDTO)
+                                        .map(branchTrackingStatus -> {
+                                            GitStatusDTO status = tuple.getT1();
+
+                                            if (branchTrackingStatus != null) {
+                                                status.setAheadCount(branchTrackingStatus.getAheadCount());
+                                                status.setBehindCount(branchTrackingStatus.getBehindCount());
+                                                status.setRemoteBranch(branchTrackingStatus.getRemoteTrackingBranch());
+
+                                            } else {
+                                                log.debug(
+                                                        "Remote tracking details not present for branch: {}, repo: {}",
+                                                        finalBranchName,
+                                                        repoName);
+                                                status.setAheadCount(0);
+                                                status.setBehindCount(0);
+                                                status.setRemoteBranch("untracked");
+                                            }
+
+                                            return status;
+                                        });
+                            })
                             .onErrorResume(throwable -> {
                                 /*
                                  in case of any error, the global exception handler will release the lock
