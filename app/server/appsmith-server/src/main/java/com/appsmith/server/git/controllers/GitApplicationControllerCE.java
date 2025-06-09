@@ -28,6 +28,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -142,7 +143,7 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{referencedApplicationId}/fetch/remote")
-    public Mono<ResponseDTO<String>> fetchRemoteChanges(
+    public Mono<ResponseDTO<BranchTrackingStatus>> fetchRemoteChanges(
             @PathVariable String referencedApplicationId,
             @RequestHeader(required = false, defaultValue = "branch") RefType refType) {
         log.info("Going to compare with remote for default referencedApplicationId {}", referencedApplicationId);

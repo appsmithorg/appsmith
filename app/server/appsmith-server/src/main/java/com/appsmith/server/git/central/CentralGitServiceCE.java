@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -39,12 +40,25 @@ public interface CentralGitServiceCE {
     Mono<List<GitRefDTO>> listBranchForArtifact(
             String branchedArtifactId, ArtifactType artifactType, Boolean pruneBranches, GitType gitType);
 
-    Mono<String> fetchRemoteChanges(
+    Mono<BranchTrackingStatus> fetchRemoteChanges(
             String referenceArtifactId,
             ArtifactType artifactType,
             boolean isFileLock,
             GitType gitType,
             RefType refType);
+
+    /**
+     * Fetches remote changes from remote git repository.
+     * This overloaded method is directly used for autocommit purpose
+     * @param baseArtifact : base artifact on which the repository was connected
+     * @param refArtifact : the reference/branch artifact for which remote changes are to be fetched
+     * @param isFileLock : would this require a redis file lock
+     * @param gitType : GitType of this operation
+     * @param refType : RefType for this operation
+     * @return : branchTrackingStatus, i.e., How many commits is local ahead and behind of remote
+     */
+    Mono<BranchTrackingStatus> fetchRemoteChanges(
+            Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType);
 
     Mono<MergeStatusDTO> mergeBranch(
             String branchedArtifactId, ArtifactType artifactType, GitMergeDTO gitMergeDTO, GitType gitType);
