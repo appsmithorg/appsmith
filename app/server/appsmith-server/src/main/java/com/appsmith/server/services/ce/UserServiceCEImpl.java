@@ -1004,7 +1004,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         Authentication authentication =
                                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         securityContext.setAuthentication(authentication);
-                        // Save the security updated context in the session
+                        // Save the security context in the session
                         ServerSecurityContextRepository contextRepository =
                                 new WebSessionServerSecurityContextRepository();
                         return contextRepository.save(exchange, securityContext).then(repository.save(user));
