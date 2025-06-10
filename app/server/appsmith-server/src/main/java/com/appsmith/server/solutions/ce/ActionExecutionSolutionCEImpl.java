@@ -1128,20 +1128,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             : ApplicationMode.EDIT.toString();
 
                     final Map<String, Object> data = new HashMap<>();
-                    data.put("username", ObjectUtils.defaultIfNull(user.getUsername(), "anonymous"));
-                    data.put("type", ObjectUtils.defaultIfNull(pluginType, "UNKNOWN_PLUGIN_TYPE"));
-                    data.put("pluginName", ObjectUtils.defaultIfNull(plugin.getName(), "unknown"));
-                    data.put("name", ObjectUtils.defaultIfNull(actionDTO.getName(), "unknown"));
+                    data.put("username", user.getUsername());
+                    data.put("type", pluginType);
+                    data.put("pluginName", plugin.getName());
+                    data.put("name", actionDTO.getName());
 
                     Map<String, Object> datasourceInfo = new HashMap<>();
-                    datasourceInfo.put("name", ObjectUtils.defaultIfNull(datasourceStorage.getName(), "unknown"));
+                    datasourceInfo.put("name", datasourceStorage.getName());
                     data.put("datasource", datasourceInfo);
 
-                    data.put("workspaceId", ObjectUtils.defaultIfNull(application.getWorkspaceId(), "unknown"));
-                    data.put("appId", ObjectUtils.defaultIfNull(actionDTO.getApplicationId(), "unknown"));
-                    data.put(FieldName.APP_MODE, ObjectUtils.defaultIfNull(appMode, "UNKNOWN_MODE"));
-                    data.put("appName", ObjectUtils.defaultIfNull(application.getName(), "unknown"));
-                    data.put("isExampleApp", ObjectUtils.defaultIfNull(application.isAppIsExample(), false));
+                    data.put("workspaceId", application.getWorkspaceId());
+                    data.put("appId", actionDTO.getApplicationId());
+                    data.put(FieldName.APP_MODE, appMode);
+                    data.put("appName", application.getName());
+                    data.put("isExampleApp", application.isAppIsExample());
 
                     String dsCreatedAt = "";
                     if (datasourceStorage.getCreatedAt() != null) {
@@ -1155,10 +1155,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.put("request", request);
-                    data.put(
-                            "isSuccessfulExecution",
-                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false));
-                    data.put("statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""));
+                    data.put("isSuccessfulExecution", actionExecutionResult.getIsExecutionSuccess());
+                    data.put("statusCode", actionExecutionResult.getStatusCode());
                     data.put("timeElapsed", timeElapsed);
                     data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
                     data.put("actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), ""));
