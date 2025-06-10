@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { getQuerySegmentItems } from "ee/selectors/entitiesSelector";
-import type { GetGroupHookType } from "../types";
+import type { GetGroupHookType } from "components/editorComponents/Debugger/StateInspector/types";
 
 export const useGetQueryItemsForStateInspector: GetGroupHookType = () => {
   const queries = useSelector(getQuerySegmentItems);

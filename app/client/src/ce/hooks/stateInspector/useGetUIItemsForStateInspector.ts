@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { getUISegmentItems } from "ee/selectors/entitiesSelector";
-import type { GetGroupHookType } from "../types";
+import type { GetGroupHookType } from "components/editorComponents/Debugger/StateInspector/types";
 
 export const useGetUIItemsForStateInspector: GetGroupHookType = () => {
   const widgets = useSelector(getUISegmentItems);

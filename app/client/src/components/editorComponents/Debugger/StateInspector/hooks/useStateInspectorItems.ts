@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
 import { useStateInspectorState } from "./useStateInspectorState";
 import { useGetGlobalItemsForStateInspector } from "./useGetGlobalItemsForStateInspector";
-import { useGetQueryItemsForStateInspector } from "./useGetQueryItemsForStateInspector";
-import { useGetJSItemsForStateInspector } from "./useGetJSItemsForStateInspector";
-import { useGetUIItemsForStateInspector } from "./useGetUIItemsForStateInspector";
+import { useGetQueryItemsForStateInspector } from "ee/hooks/stateInspector/useGetQueryItemsForStateInspector";
+import { useGetJSItemsForStateInspector } from "ee/hooks/stateInspector/useGetJSItemsForStateInspector";
+import { useGetUIItemsForStateInspector } from "ee/hooks/stateInspector/useGetUIItemsForStateInspector";
+import { useGetInputItemsForStateInspector } from "ee/hooks/stateInspector/useGetInputItemsForStateInspector";
 import type { GroupedItems } from "../types";
 import { enhanceItemForListItem } from "../utils";
 import type { GenericEntityItem } from "ee/IDE/Interfaces/EntityItem";
@@ -17,10 +18,11 @@ export const useStateInspectorItems: () => [
   const queries = useGetQueryItemsForStateInspector();
   const jsItems = useGetJSItemsForStateInspector();
   const uiItems = useGetUIItemsForStateInspector();
+  const inputItems = useGetInputItemsForStateInspector();
   const globalItems = useGetGlobalItemsForStateInspector();
 
   const [groups, selectedItem] = useMemo(() => {
-    const allGroups = [queries, jsItems, uiItems, globalItems];
+    const allGroups = [queries, jsItems, uiItems, inputItems, globalItems];
 
     const processedGroups = allGroups
       .filter((groupedItems) => groupedItems.items.length > 0)
@@ -35,18 +37,32 @@ export const useStateInspectorItems: () => [
       .flatMap((group) => group.items)
       .find((item) => item.id === selectedItemId);
 
-    const selectedItem: GenericEntityItem | undefined = {
-      key: selectedItemFromGroups?.id || "",
-      title: selectedItemFromGroups?.title || "",
-      icon: selectedItemFromGroups?.startIcon,
-    };
+    const selectedItem: GenericEntityItem | undefined = selectedItemFromGroups
+      ? {
+          key: selectedItemFromGroups.id || "",
+          title: selectedItemFromGroups.title || "",
+          icon: selectedItemFromGroups.startIcon,
+        }
+      : undefined;
 
     return [processedGroups, selectedItem];
-  }, [globalItems, jsItems, queries, selectedItemId, setSelectedItem, uiItems]);
+  }, [
+    globalItems,
+    inputItems,
+    jsItems,
+    queries,
+    selectedItemId,
+    setSelectedItem,
+    uiItems,
+  ]);
 
   useEffect(
     function handleNoItemSelected() {
-      if (!selectedItemId) {
+      if (
+        !selectedItemId &&
+        groups.length > 0 &&
+        groups[0]?.items?.length > 0
+      ) {
         const firstItem = groups[0].items[0];
 
         setSelectedItem(firstItem.id as string);

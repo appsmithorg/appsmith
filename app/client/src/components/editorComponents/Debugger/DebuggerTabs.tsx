@@ -79,7 +79,7 @@ function DebuggerTabs() {
       },
     ];
 
-    if (ideType === IDE_TYPE.App) {
+    if (ideType === IDE_TYPE.App || ideType === IDE_TYPE.UIPackage) {
       tabs.push({
         key: DEBUGGER_TAB_KEYS.STATE_TAB,
         title: createMessage(DEBUGGER_STATE),
