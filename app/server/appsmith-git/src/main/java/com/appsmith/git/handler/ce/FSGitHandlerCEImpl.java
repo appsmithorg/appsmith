@@ -1563,9 +1563,9 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     }
 
     @Override
-    public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
+    public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoSuffix, String branchName) {
         return Mono.using(
-                        () -> Git.open(createRepoPath(repoPath).toFile()),
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     Span jgitBranchTrackingSpan =
                                             observationHelper.createSpan(GitSpan.JGIT_BRANCH_TRACK);

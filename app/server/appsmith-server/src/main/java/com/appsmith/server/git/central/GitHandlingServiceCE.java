@@ -100,6 +100,8 @@ public interface GitHandlingServiceCE {
     Mono<String> fetchRemoteReferences(
             ArtifactJsonTransformationDTO jsonTransformationDTO, FetchRemoteDTO fetchRemoteDTO, GitAuth gitAuth);
 
+    Mono<BranchTrackingStatus> getBranchTrackingStatus(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
     Mono<String> mergeBranches(ArtifactJsonTransformationDTO jsonTransformationDTO, GitMergeDTO gitMergeDTO);
 
     Mono<MergeStatusDTO> isBranchMergable(ArtifactJsonTransformationDTO JsonTransformationDTO, GitMergeDTO gitMergeDTO);

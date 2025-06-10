@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -660,14 +661,12 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Span computeEtagSpan = observationHelper.createSpan(ETAG_SPAN).start();
 
         try {
-            String lastDeployedAt = consolidatedAPIResponseDTO.getPages() != null
-                    ? consolidatedAPIResponseDTO
-                            .getPages()
-                            .getData()
-                            .getApplication()
-                            .getLastDeployedAt()
-                            .toString()
-                    : null;
+            String lastDeployedAt = Optional.ofNullable(consolidatedAPIResponseDTO.getPages())
+                    .map(pages -> pages.getData())
+                    .map(data -> data.getApplication())
+                    .map(application -> application.getLastDeployedAt())
+                    .map(lastDeployed -> lastDeployed.toString())
+                    .orElse(null);
 
             if (lastDeployedAt == null) {
                 log.debug(
