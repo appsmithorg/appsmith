@@ -1155,8 +1155,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.put("request", request);
-                    data.put("isSuccessfulExecution", actionExecutionResult.getIsExecutionSuccess());
-                    data.put("statusCode", actionExecutionResult.getStatusCode());
+                    data.put(
+                            "isSuccessfulExecution",
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false));
+                    data.put("statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""));
                     data.put("timeElapsed", timeElapsed);
                     data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
                     data.put("actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), ""));
