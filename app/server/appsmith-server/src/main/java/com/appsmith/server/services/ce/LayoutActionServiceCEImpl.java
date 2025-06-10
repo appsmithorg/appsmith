@@ -327,8 +327,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     newAction.setUnpublishedAction(action);
 
                     return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
-                            .updatePageLayoutsByPageId(
-                                    savedAction.getUnpublishedAction().getPageId())
+                            .updateLayoutByContextTypeAndContextId(action.getContextType(), action.getContextId())
                             .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
                             .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
