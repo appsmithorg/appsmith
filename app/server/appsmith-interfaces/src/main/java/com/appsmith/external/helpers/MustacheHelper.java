@@ -341,7 +341,9 @@ public class MustacheHelper {
                 // text
                 // and hence reflecting the value in the rendered string as is.
                 // Example: {{Input.text}} = "This whole string is the value of Input1.text. Even this {{one}}."
-                String tokenSubstring = token.getValue().trim();
+                String tokenSubstring = token.getValue()
+                        .substring(2, token.getValue().length() - 2)
+                        .trim();
                 String bindingValue = keyValueMap.get(tokenSubstring);
                 if (!keyValueMap.containsKey(tokenSubstring)) {
                     rendered.append(token.getValue());
