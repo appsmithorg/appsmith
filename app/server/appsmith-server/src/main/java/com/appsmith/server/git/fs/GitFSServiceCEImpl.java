@@ -777,18 +777,6 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         return commonGitFileUtils.computeGitStatus(repoSuffix, artifactExchangeJson, branchName);
     }
 
-    public Mono<BranchTrackingStatus> getBranchTrackingStatus(ArtifactJsonTransformationDTO jsonTransformationDTO) {
-        String workspaceId = jsonTransformationDTO.getWorkspaceId();
-        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
-        String repoName = jsonTransformationDTO.getRepoName();
-        String refName = jsonTransformationDTO.getRefName();
-
-        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
-        return fsGitHandler.getBranchTrackingStatus(repoSuffix, refName);
-    }
-
     @Override
     public Mono<String> createGitReference(
             ArtifactJsonTransformationDTO baseRefJsonTransformationDTO,
