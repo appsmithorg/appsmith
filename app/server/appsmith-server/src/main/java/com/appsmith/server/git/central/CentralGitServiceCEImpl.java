@@ -1675,8 +1675,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitStatusDTO> lockHandledStatusMono = Mono.usingWhen(
                 exportedArtifactJsonMono,
                 artifactExchangeJson -> {
-                    Mono<GitStatusDTO> statusMono =
-                            gitHandlingService.computeGitStatus(jsonTransformationDTO, artifactExchangeJson);
+                    Mono<GitStatusDTO> statusMono = gitHandlingService
+                            .computeGitStatus(jsonTransformationDTO, artifactExchangeJson)
+                            .name("in-memory-status-computation")
+                            .tap(Micrometer.observation(observationRegistry));
 
                     Mono<String> fetchRemoteMono = Mono.just("ignored");
 
