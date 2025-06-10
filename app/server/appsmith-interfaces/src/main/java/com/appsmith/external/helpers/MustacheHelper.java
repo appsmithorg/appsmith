@@ -341,13 +341,16 @@ public class MustacheHelper {
                 // text
                 // and hence reflecting the value in the rendered string as is.
                 // Example: {{Input.text}} = "This whole string is the value of Input1.text. Even this {{one}}."
-                String bindingValue = keyValueMap.get(token.getValue()
-                        .substring(2, token.getValue().length() - 2)
-                        .trim());
-                if (bindingValue != null) {
-                    rendered.append(bindingValue);
-                } else {
+                String tokenSubstring = token.getValue().trim();
+                String bindingValue = keyValueMap.get(tokenSubstring);
+                if (!keyValueMap.containsKey(tokenSubstring)) {
                     rendered.append(token.getValue());
+                } else if (bindingValue != null) {
+                    // If the binding value is not null, then append the binding value to the rendered string.
+                    // We are using the token.getValue() here to get the original value of the binding.
+                    // This is because we want to preserve the original formatting of the binding.
+                    // For example, if the binding is {{Input.text}}, we want to preserve the {{}} around it.
+                    rendered.append(bindingValue);
                 }
             } else {
                 rendered.append(token.getValue());

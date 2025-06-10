@@ -489,14 +489,25 @@ function* evaluateActionParams(
         evaluatedParams[key] = "blob";
       }
 
-      value = JSON.stringify(value);
-      evaluatedParams[key] = value;
+      // Handle null values separately to avoid stringifying them
+      if (value === null) {
+        value = null;
+        evaluatedParams[key] = null;
+      } else {
+        value = JSON.stringify(value);
+        evaluatedParams[key] = value;
+      }
     }
 
     // If there are no blob urls in the value, we can directly add it to the formData
     // If there are blob urls, we need to add them to the blobDataMap
     if (!useBlobMaps) {
-      value = new Blob([value], { type: "text/plain" });
+      // Handle null values separately to avoid creating a Blob with "null" string
+      if (value === null) {
+        value = null;
+      } else {
+        value = new Blob([value], { type: "text/plain" });
+      }
     }
 
     bindingsMap[key] = `k${i}`;
