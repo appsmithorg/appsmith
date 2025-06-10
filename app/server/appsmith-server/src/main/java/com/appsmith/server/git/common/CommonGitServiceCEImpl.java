@@ -450,8 +450,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                         baseArtifactId,
                                         finalBranchName,
                                         throwable);
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
+                                return releaseFileLock(baseArtifactId, isFileLock)
+                                        .then(Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage())));
                             });
                 })
                 .elapsed()
