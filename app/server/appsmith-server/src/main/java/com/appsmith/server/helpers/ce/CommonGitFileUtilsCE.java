@@ -198,17 +198,13 @@ public class CommonGitFileUtilsCE {
     public Mono<GitStatusDTO> computeGitStatus(
             Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
         GitResourceMap gitResourceMapFromDB = createGitResourceMap(artifactExchangeJson);
-        Mono<Boolean> keepWorkingDirChangesMono =
-                featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
-        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
-            try {
-                return fileUtils
-                        .computeGitStatus(baseRepoSuffix, gitResourceMapFromDB, branchName, keepWorkingDirChanges)
-                        .subscribeOn(Schedulers.boundedElastic());
-            } catch (IOException | GitAPIException exception) {
-                return Mono.error(exception);
-            }
-        });
+        try {
+            return fileUtils
+                    .computeGitStatus(baseRepoSuffix, gitResourceMapFromDB, branchName, true)
+                    .subscribeOn(Schedulers.boundedElastic());
+        } catch (IOException | GitAPIException exception) {
+            return Mono.error(exception);
+        }
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
