@@ -20,6 +20,7 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.helpers.DSLTransformerHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -91,7 +93,7 @@ public class FileUtilsCEImpl implements FileInterface {
     protected final FileOperations fileOperations;
     private final ObservationHelper observationHelper;
     protected final ObjectMapper objectMapper;
-
+    private final ObservationRegistry observationRegistry;
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
@@ -109,13 +111,15 @@ public class FileUtilsCEImpl implements FileInterface {
             GitExecutor gitExecutor,
             FileOperations fileOperations,
             ObservationHelper observationHelper,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ObservationRegistry observationRegistry) {
         this.gitServiceConfig = gitServiceConfig;
         this.fsGitHandler = fsGitHandler;
         this.gitExecutor = gitExecutor;
         this.fileOperations = fileOperations;
         this.observationHelper = observationHelper;
         this.objectMapper = objectMapper;
+        this.observationRegistry = observationRegistry;
     }
 
     protected Map<GitResourceType, GitResourceType> getModifiedResourcesTypes() {
@@ -863,7 +867,10 @@ public class FileUtilsCEImpl implements FileInterface {
     @Override
     public Mono<GitResourceMap> constructGitResourceMapFromGitRepo(Path repositorySuffix, String refName) {
         Path repositoryPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
-        return Mono.fromCallable(() -> fetchGitResourceMap(repositoryPath)).subscribeOn(scheduler);
+        return Mono.fromCallable(() -> fetchGitResourceMap(repositoryPath))
+                .subscribeOn(scheduler)
+                .name("construct-git-resource-map")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
