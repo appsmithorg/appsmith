@@ -1545,14 +1545,24 @@ function* executePageUnloadActionsSaga(
         ),
       );
     }
+
+    // Publish success event after all actions are executed
+    yield put({
+      type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS,
+    });
   } catch (e) {
     log.error(e);
     AppsmithConsole.error({
       text: "Failed to execute actions during page unload",
     });
+    // Publish error event if something goes wrong
+    yield put({
+      type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR,
+    });
   }
   endSpan(span);
 }
+// End of Selection
 
 interface ExecutePluginActionResponse {
   payload: ActionResponse;

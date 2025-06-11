@@ -1,19 +1,21 @@
-import React from "react";
-import type { Page } from "entities/Page";
+import { executePageUnloadActions } from "actions/pluginActionActions";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { APP_MODE } from "entities/App";
-import { get } from "lodash";
-import { useHref } from "pages/Editor/utils";
-import { useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
+import { get } from "lodash";
+import { useHref } from "pages/Editor/utils";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";
-import MenuText from "./MenuText";
-import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
+import { waitForPageUnloadActionsToComplete } from "utils/pageUnloadHelper";
+import { StyledMenuItem } from "./MenuItem.styled";
+import MenuText from "./MenuText";
 
 interface MenuItemProps {
   page: Page;
@@ -23,6 +25,7 @@ interface MenuItemProps {
 }
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
@@ -54,6 +57,8 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
 
     try {
       // Execute custom function before navigation if provided
+      dispatch(executePageUnloadActions());
+      await waitForPageUnloadActionsToComplete();
 
       // Perform programmatic navigation
       history.push({

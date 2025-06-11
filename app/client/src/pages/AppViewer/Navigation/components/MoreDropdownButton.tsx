@@ -18,6 +18,8 @@ import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { NavigationMethod } from "utils/history";
+import { waitForPageUnloadActionsToComplete } from "utils/pageUnloadHelper";
+import { executePageUnloadActions } from "actions/pluginActionActions";
 
 interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;
@@ -105,6 +107,10 @@ const MoreDropdownButton = ({
             if (onBeforeNavigate) {
               await onBeforeNavigate(page, pageURL);
             }
+
+            // Execute custom function before navigation if provided
+            executePageUnloadActions();
+            await waitForPageUnloadActionsToComplete();
 
             // Perform programmatic navigation
             history.push({
