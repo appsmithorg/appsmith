@@ -339,7 +339,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
                                     .tap(Micrometer.observation(observationRegistry))
                                     .thenReturn(newActionService.generateActionByViewMode(savedAction, false)))
-                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour));
+                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour))
+                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour)
+                                    .onErrorResume(e -> {
+                                        log.warn("Run behaviour analytics failed, continuing", e);
+                                        return Mono.just(updatedAction);
+                                    }));
                 });
     }
 

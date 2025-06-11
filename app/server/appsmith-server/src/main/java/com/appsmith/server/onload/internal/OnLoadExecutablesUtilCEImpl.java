@@ -468,7 +468,14 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                             return this.updateUnpublishedExecutable(
                                                             executable.getId(), executable, creatorType)
                                                     .flatMap(updatedExecutable -> sendRunBehaviourChangedAnalytics(
-                                                            updatedExecutable, oldRunBehaviour));
+                                                                    updatedExecutable, oldRunBehaviour)
+                                                            .onErrorResume(err -> {
+                                                                log.warn(
+                                                                        "Analytics publish failed for action {}: {}",
+                                                                        updatedExecutable.getId(),
+                                                                        err.getMessage());
+                                                                return Mono.just(updatedExecutable);
+                                                            }));
                                         })
                                         .then(Mono.just(TRUE));
                             });
