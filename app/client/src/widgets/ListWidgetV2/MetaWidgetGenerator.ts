@@ -1865,10 +1865,6 @@ class MetaWidgetGenerator {
     })?.metaWidgetName;
   };
 
-  resetCache = () => {
-    this.setWidgetCache({});
-  };
-
   private initVirtualizer = () => {
     const options = this.virtualizerOptions();
 
