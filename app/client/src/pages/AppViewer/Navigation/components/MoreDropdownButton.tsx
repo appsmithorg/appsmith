@@ -3,6 +3,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
@@ -22,13 +23,16 @@ interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;
   pages: Page[];
   query: string;
+  onBeforeNavigate?: (page: Page, url: string) => void | Promise<void>;
 }
 
 const MoreDropdownButton = ({
   navigationSetting,
+  onBeforeNavigate,
   pages,
   query,
 }: MoreDropdownButtonProps) => {
+  const history = useHistory();
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
     navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
@@ -92,18 +96,34 @@ const MoreDropdownButton = ({
                 basePageId: page.basePageId,
               });
 
-        return (
-          <StyledMenuItemInDropdown
-            activeClassName="is-active"
-            borderRadius={borderRadius}
-            className="t--app-viewer-navigation-top-inline-more-dropdown-item"
-            key={page.pageId}
-            primaryColor={primaryColor}
-            to={{
+        const handleDropdownItemClick = async (e: React.MouseEvent) => {
+          e.preventDefault();
+          setIsOpen(false); // Close dropdown
+
+          try {
+            // Execute custom function before navigation if provided
+            if (onBeforeNavigate) {
+              await onBeforeNavigate(page, pageURL);
+            }
+
+            // Perform programmatic navigation
+            history.push({
               pathname: trimQueryString(pageURL),
               search: query,
               state: { invokedBy: NavigationMethod.AppNavigation },
-            }}
+            });
+          } catch (error) {}
+        };
+
+        return (
+          <StyledMenuItemInDropdown
+            as="div"
+            borderRadius={borderRadius}
+            className="t--app-viewer-navigation-top-inline-more-dropdown-item"
+            key={page.pageId}
+            onClick={handleDropdownItemClick}
+            primaryColor={primaryColor}
+            style={{ cursor: "pointer" }}
           >
             <MenuText
               name={page.pageName}
