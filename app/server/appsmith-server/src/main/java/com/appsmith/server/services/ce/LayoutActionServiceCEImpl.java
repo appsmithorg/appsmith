@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -36,7 +37,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
@@ -321,17 +324,42 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
 
+                    RunBehaviourEnum oldRunBehaviour = action.getRunBehaviour();
+
                     action.setUserSetOnLoad(true);
                     action.setRunBehaviour(behaviour);
 
                     newAction.setUnpublishedAction(action);
 
-                    return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
-                            .updateLayoutByContextTypeAndContextId(action.getContextType(), action.getContextId())
-                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
-                            .tap(Micrometer.observation(observationRegistry))
-                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
+                    return newActionService
+                            .save(newAction)
+                            .flatMap(savedAction -> updateLayoutService
+                                    .updateLayoutByContextTypeAndContextId(
+                                            action.getContextType(), action.getContextId())
+                                    .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .thenReturn(newActionService.generateActionByViewMode(savedAction, false)))
+                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour));
                 });
+    }
+
+    private Mono<ActionDTO> sendRunBehaviourChangedAnalytics(ActionDTO actionDTO, RunBehaviourEnum oldRunBehaviour) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", actionDTO.getId());
+        data.put("name", actionDTO.getName());
+        data.put("pageId", actionDTO.getPageId());
+        data.put("applicationId", actionDTO.getApplicationId());
+        data.put("pluginId", actionDTO.getPluginId());
+        data.put("createdAt", actionDTO.getCreatedAt());
+        data.put("oldRunBehaviour", oldRunBehaviour);
+        data.put("newRunBehaviour", actionDTO.getRunBehaviour());
+        data.put("pluginType", actionDTO.getPluginType());
+        data.put("actionConfiguration", actionDTO.getActionConfiguration());
+        data.put("wasChangedBy", "user"); // This is a user-initiated change
+
+        return analyticsService
+                .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
+                .thenReturn(actionDTO);
     }
 
     /**

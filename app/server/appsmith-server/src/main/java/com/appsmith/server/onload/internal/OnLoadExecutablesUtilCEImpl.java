@@ -1,5 +1,6 @@
 package com.appsmith.server.onload.internal;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
@@ -19,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -94,6 +96,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
     private final FeatureFlagService featureFlagService;
+    private final AnalyticsService analyticsService;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -307,6 +310,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             List<String> messagesRef,
             CreatorContextType creatorType) {
         List<Executable> toUpdateExecutables = new ArrayList<>();
+        Map<String, RunBehaviourEnum> oldRunBehaviourMap = new HashMap<>();
 
         // Fetch all the actions which exist in this page.
         Flux<Executable> creatorContextExecutablesFlux =
@@ -373,7 +377,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 turnedOnExecutableNames.removeAll(existingOnLoadExecutableNames);
 
                                 for (Executable executable : creatorContextExecutables) {
-
                                     String executableName = executable.getUserExecutableName();
                                     // If a user has ever set execute on load, this field can not be changed
                                     // automatically.
@@ -382,6 +385,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     // this
                                     // condition is false.
                                     if (FALSE.equals(executable.getUserSetOnLoad())) {
+                                        // Store old run behaviour before updating
+                                        oldRunBehaviourMap.put(executableName, executable.getRunBehaviour());
 
                                         // If this executable is no longer an onload executable, turn the execute on
                                         // load to
@@ -457,11 +462,41 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                                 // Finally update the actions which require an update
                                 return Flux.fromIterable(toUpdateExecutables)
-                                        .flatMap(executable -> this.updateUnpublishedExecutable(
-                                                executable.getId(), executable, creatorType))
+                                        .flatMap(executable -> {
+                                            RunBehaviourEnum oldRunBehaviour = oldRunBehaviourMap.getOrDefault(
+                                                    executable.getUserExecutableName(), null);
+                                            return this.updateUnpublishedExecutable(
+                                                            executable.getId(), executable, creatorType)
+                                                    .flatMap(updatedExecutable -> sendRunBehaviourChangedAnalytics(
+                                                            updatedExecutable, oldRunBehaviour));
+                                        })
                                         .then(Mono.just(TRUE));
                             });
                 });
+    }
+
+    private Mono<Executable> sendRunBehaviourChangedAnalytics(Executable executable, RunBehaviourEnum oldRunBehaviour) {
+        if (!(executable instanceof ActionDTO actionDTO)) {
+            return Mono.just(executable);
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", actionDTO.getId());
+        data.put("name", actionDTO.getName());
+        data.put("pageId", actionDTO.getPageId());
+        data.put("applicationId", actionDTO.getApplicationId());
+        data.put("pluginId", actionDTO.getPluginId());
+        data.put("createdAt", actionDTO.getCreatedAt());
+        data.put("oldRunBehaviour", oldRunBehaviour);
+        data.put("newRunBehaviour", actionDTO.getRunBehaviour());
+        data.put("pluginType", actionDTO.getPluginType());
+        data.put("actionConfiguration", actionDTO.getActionConfiguration());
+        data.put(
+                "wasChangedBy",
+                "system"); // This is a change that automatically happens during update layout, so we set it to "system"
+
+        return analyticsService
+                .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
+                .thenReturn(executable);
     }
 
     @Override
