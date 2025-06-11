@@ -1,5 +1,6 @@
 package com.appsmith.server.git.autocommit.helpers;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
@@ -10,7 +11,8 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
-import com.appsmith.server.git.common.CommonGitService;
+import com.appsmith.server.git.central.CentralGitService;
+import com.appsmith.server.git.central.GitType;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.UserDataService;
@@ -48,7 +50,7 @@ public class GitAutoCommitHelperImplTest {
     ApplicationService applicationService;
 
     @MockBean
-    CommonGitService commonGitService;
+    CentralGitService centralGitService;
 
     @MockBean
     UserDataService userDataService;
@@ -168,7 +170,12 @@ public class GitAutoCommitHelperImplTest {
                 .when(applicationService)
                 .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
+        Mockito.when(centralGitService.fetchRemoteChanges(
+                        any(Application.class),
+                        any(Application.class),
+                        anyBoolean(),
+                        any(GitType.class),
+                        any(RefType.class)))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
@@ -266,7 +273,12 @@ public class GitAutoCommitHelperImplTest {
         Mockito.doReturn(Mono.just(application))
                 .when(applicationService)
                 .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
-        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
+        Mockito.when(centralGitService.fetchRemoteChanges(
+                        any(Application.class),
+                        any(Application.class),
+                        anyBoolean(),
+                        any(GitType.class),
+                        any(RefType.class)))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(1);
@@ -304,7 +316,12 @@ public class GitAutoCommitHelperImplTest {
                 .when(applicationService)
                 .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
+        Mockito.when(centralGitService.fetchRemoteChanges(
+                        any(Application.class),
+                        any(Application.class),
+                        anyBoolean(),
+                        any(GitType.class),
+                        any(RefType.class)))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);

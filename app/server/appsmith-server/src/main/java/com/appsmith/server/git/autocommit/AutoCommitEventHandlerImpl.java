@@ -1,8 +1,9 @@
 package com.appsmith.server.git.autocommit;
 
-import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.RedisUtils;
@@ -18,8 +19,9 @@ public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl imp
             GitRedisUtils gitRedisUtils,
             RedisUtils redisUtils,
             DSLMigrationUtils dslMigrationUtils,
+            GitArtifactHelperResolver gitArtifactHelperResolver,
             CommonGitFileUtils commonGitFileUtils,
-            GitExecutor gitExecutor,
+            FSGitHandler fsGitHandler,
             ProjectProperties projectProperties,
             AnalyticsService analyticsService) {
         super(
@@ -27,8 +29,9 @@ public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl imp
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
+                gitArtifactHelperResolver,
                 commonGitFileUtils,
-                gitExecutor,
+                fsGitHandler,
                 projectProperties,
                 analyticsService);
     }
