@@ -50,6 +50,7 @@ export const handlers = {
       currentApplicationId: undefined,
       pageWidgetId: undefined,
       pageActions: undefined,
+      pageUnloadActions: undefined,
       layoutOnLoadActionErrors: undefined,
       loadingStates: {
         ...state.loadingStates,
@@ -308,6 +309,7 @@ export interface EditorReduxState {
   currentPageId?: string;
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
+  pageUnloadActions?: PageAction[][];
   isSnipingMode: boolean;
   snipModeBindTo?: string;
   isPreviewMode: boolean;

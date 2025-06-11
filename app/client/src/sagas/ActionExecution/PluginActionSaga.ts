@@ -87,6 +87,7 @@ import {
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
+  getLayoutOnUnloadActions,
   getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
 import log from "loglevel";
@@ -1055,7 +1056,8 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       action: jsAction,
       collection,
       isExecuteJSFunc: true,
-      onPageLoad: true,
+      onPageLoad: !!jsAction.onPageLoad,
+      onPageUnload: !!jsAction.onPageUnload,
     };
 
     yield call(handleExecuteJSFunctionSaga, data);
@@ -1101,7 +1103,8 @@ function* executePageLoadAction(
       pageId: pageId,
       appMode: appMode,
       appId: currentApp.id,
-      onPageLoad: true,
+      onPageLoad: !!pageAction.onPageLoad,
+      onPageUnload: !!pageAction.onPageUnload,
       appName: currentApp.name,
       environmentId: currentEnvDetails.id,
       environmentName: currentEnvDetails.name,
@@ -1206,7 +1209,8 @@ function* executePageLoadAction(
         pageId: pageId,
         appMode: appMode,
         appId: currentApp.id,
-        onPageLoad: true,
+        onPageLoad: !!pageAction.onPageLoad,
+        onPageUnload: !!pageAction.onPageUnload,
         appName: currentApp.name,
         environmentId: currentEnvDetails.id,
         environmentName: currentEnvDetails.name,
@@ -1228,7 +1232,8 @@ function* executePageLoadAction(
         pageId: pageId,
         appMode: appMode,
         appId: currentApp.id,
-        onPageLoad: true,
+        onPageLoad: !!pageAction.onPageLoad,
+        onPageUnload: !!pageAction.onPageUnload,
         appName: currentApp.name,
         environmentId: currentEnvDetails.id,
         environmentName: currentEnvDetails.name,
@@ -1289,6 +1294,261 @@ function* executePageLoadActionsSaga(
     log.error(e);
     AppsmithConsole.error({
       text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
+    });
+  }
+  endSpan(span);
+}
+
+// This gets called for "onPageUnload" JS actions
+function* executeOnPageUnloadJSAction(pageAction: PageAction) {
+  const collectionId: string = pageAction.collectionId || "";
+  const pageId: string | undefined = yield select(getCurrentPageId);
+
+  if (!collectionId) return;
+
+  const collection: JSCollection = yield select(
+    getJSCollectionFromAllEntities,
+    collectionId,
+  );
+
+  if (!collection) {
+    appsmithTelemetry.captureException(
+      new Error(
+        "Collection present in layoutOnUnloadActions but no collection exists ",
+      ),
+      {
+        errorName: "MissingJSCollection",
+        extra: {
+          collectionId,
+          actionId: pageAction.id,
+          pageId,
+        },
+      },
+    );
+
+    return;
+  }
+
+  const jsAction = collection.actions.find(
+    (action: JSAction) => action.id === pageAction.id,
+  );
+
+  if (!!jsAction) {
+    const data = {
+      action: jsAction,
+      collection,
+      isExecuteJSFunc: true,
+      onPageLoad: !!jsAction.onPageLoad,
+      onPageUnload: !!jsAction.onPageUnload,
+    };
+
+    yield call(handleExecuteJSFunctionSaga, data);
+  }
+}
+
+function* executePageUnloadAction(
+  pageAction: PageAction,
+  span?: Span,
+  actionExecutionContext?: ActionExecutionContext,
+) {
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
+
+  if (pageAction.hasOwnProperty("collectionId")) {
+    yield call(executeOnPageUnloadJSAction, pageAction);
+  } else {
+    const pageId: string | undefined = yield select(getCurrentPageId);
+    let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+
+    currentApp = currentApp || {};
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+
+    // action is required to fetch the pluginId and pluginType.
+    const action = shouldBeDefined<Action>(
+      yield select(getAction, pageAction.id),
+      `action not found for id - ${pageAction.id}`,
+    );
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const datasourceId: string = (action?.datasource as any)?.id;
+    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const plugin: Plugin = yield select(getPlugin, action?.pluginId);
+
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: pageAction.pluginType,
+      name: pageAction.name,
+      pageId: pageId,
+      appMode: appMode,
+      appId: currentApp.id,
+      onPageLoad: !!pageAction.onPageLoad,
+      onPageUnload: !!pageAction.onPageUnload,
+      appName: currentApp.name,
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
+      isExampleApp: currentApp.appIsExample,
+      pluginName: plugin?.name,
+      datasourceId: datasourceId,
+      isMock: !!datasource?.isMock,
+      actionId: pageAction?.id,
+      inputParams: 0,
+      source: !!actionExecutionContext
+        ? actionExecutionContext
+        : ActionExecutionContext.PAGE_UNLOAD,
+    });
+
+    const actionName = getPluginActionNameToDisplay(
+      pageAction as unknown as Action,
+    );
+
+    let payload = EMPTY_RESPONSE;
+    let isError = true;
+    let error = {
+      name: "PluginExecutionError",
+      message: createMessage(ACTION_EXECUTION_FAILED, actionName),
+    };
+
+    try {
+      const executePluginActionResponse: ExecutePluginActionResponse =
+        yield call(
+          executePluginActionSaga,
+          action,
+          undefined,
+          undefined,
+          undefined,
+          span,
+        );
+
+      payload = executePluginActionResponse.payload;
+      isError = executePluginActionResponse.isError;
+    } catch (e) {
+      log.error(e);
+
+      if (e instanceof UserCancelledActionExecutionError) {
+        error = {
+          name: "PluginExecutionError",
+          message: createMessage(ACTION_EXECUTION_CANCELLED, actionName),
+        };
+      }
+    }
+
+    if (isError) {
+      AppsmithConsole.addErrors([
+        {
+          payload: {
+            id: pageAction.id,
+            iconId: action.pluginId,
+            logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            environmentName: currentEnvDetails.name,
+            text: `Failed execution in ${payload.duration}(ms)`,
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: actionName,
+              id: pageAction.id,
+              httpMethod: action?.actionConfiguration?.httpMethod,
+              pluginType: action.pluginType,
+            },
+            state: {
+              error:
+                payload.pluginErrorDetails?.downstreamErrorMessage ||
+                error.message,
+              request: payload.request,
+            },
+            pluginErrorDetails: payload.pluginErrorDetails,
+          },
+        },
+      ]);
+
+      yield put(
+        executePluginActionError({
+          actionId: pageAction.id,
+          isPageLoad: !!pageAction.onPageLoad,
+          error: { message: error.message },
+          data: payload,
+        }),
+      );
+
+      AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
+        type: pageAction.pluginType,
+        name: actionName,
+        pageId: pageId,
+        appMode: appMode,
+        appId: currentApp.id,
+        onPageLoad: !!pageAction.onPageLoad,
+        onPageUnload: !!pageAction.onPageUnload,
+        appName: currentApp.name,
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
+        isExampleApp: currentApp.appIsExample,
+        pluginName: plugin?.name,
+        datasourceId: datasourceId,
+        isMock: !!datasource?.isMock,
+        actionId: pageAction?.id,
+        inputParams: 0,
+        ...payload.pluginErrorDetails,
+        source: !!actionExecutionContext
+          ? actionExecutionContext
+          : ActionExecutionContext.PAGE_UNLOAD,
+      });
+    } else {
+      AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
+        type: pageAction.pluginType,
+        name: actionName,
+        pageId: pageId,
+        appMode: appMode,
+        appId: currentApp.id,
+        onPageLoad: !!pageAction.onPageLoad,
+        onPageUnload: !!pageAction.onPageUnload,
+        appName: currentApp.name,
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
+        isExampleApp: currentApp.appIsExample,
+        pluginName: plugin?.name,
+        datasourceId: datasourceId,
+        isMock: !!datasource?.isMock,
+        actionId: pageAction?.id,
+        inputParams: 0,
+        source: !!actionExecutionContext
+          ? actionExecutionContext
+          : ActionExecutionContext.PAGE_UNLOAD,
+      });
+    }
+  }
+}
+
+function* executePageUnloadActionsSaga(
+  actionPayload: ReduxAction<{
+    actionExecutionContext?: ActionExecutionContext;
+  }>,
+) {
+  const span = startRootSpan("executePageUnloadActionsSaga");
+
+  try {
+    const pageActions: PageAction[][] = yield select(getLayoutOnUnloadActions);
+    const actionCount = flatten(pageActions).length;
+
+    setAttributesToSpan(span, { numActions: actionCount });
+
+    // Execute unload actions in parallel batches
+    for (const actionSet of pageActions) {
+      // Load all sets in parallel
+      // @ts-expect-error: no idea how to type this
+      yield* yield all(
+        actionSet.map((apiAction) =>
+          call(
+            executePageUnloadAction,
+            apiAction,
+            span,
+            actionPayload.payload.actionExecutionContext,
+          ),
+        ),
+      );
+    }
+  } catch (e) {
+    log.error(e);
+    AppsmithConsole.error({
+      text: "Failed to execute actions during page unload",
     });
   }
   endSpan(span);
@@ -1645,6 +1905,10 @@ export function* watchPluginActionExecutionSagas() {
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
+      executePageUnloadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
   ]);

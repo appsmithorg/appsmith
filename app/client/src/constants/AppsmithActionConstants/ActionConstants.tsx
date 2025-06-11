@@ -135,6 +135,8 @@ export interface PageAction {
   timeoutInMillisecond: number;
   clientSideExecution?: boolean;
   collectionId?: string;
+  onPageLoad?: boolean;
+  onPageUnload?: boolean;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {

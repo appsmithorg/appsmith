@@ -37,6 +37,7 @@ export enum ActionExecutionContext {
   CLONE_PAGE = "CLONE_PAGE",
   FORK_TEMPLATE_PAGE = "FORK_TEMPLATE_PAGE",
   PAGE_LOAD = "PAGE_LOAD",
+  PAGE_UNLOAD = "PAGE_UNLOAD",
   EVALUATION_ACTION_TRIGGER = "EVALUATION_ACTION_TRIGGER",
   REFRESH_ACTIONS_ON_ENV_CHANGE = "REFRESH_ACTIONS_ON_ENV_CHANGE",
 }
@@ -170,6 +171,8 @@ export interface BaseAction {
   isDirtyMap?: {
     SCHEMA_GENERATION: boolean;
   };
+  onPageLoad?: boolean;
+  onPageUnload?: boolean;
 }
 
 interface BaseApiAction extends BaseAction {
