@@ -279,6 +279,3 @@ export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
   existingWidgets?: unknown;
 } & EitherMouseLocationORGridPosition;
-
-// Constant for debouncing the input change to avoid multiple Execute calls in reactive flow
-export const DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE = 300;

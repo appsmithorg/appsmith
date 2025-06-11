@@ -21,22 +21,11 @@ import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
 import { appsmithTelemetry } from "instrumentation";
-import { debounce } from "lodash";
-import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "constants/WidgetConstants";
-
-interface WDSPhoneInputWidgetState extends WidgetState {
-  inputValue: string;
-}
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
-  WDSPhoneInputWidgetState
+  WidgetState
 > {
-  constructor(props: PhoneInputWidgetProps) {
-    super(props);
-    this.state = { inputValue: props.text ?? "" };
-  }
-
   static type = "WDS_PHONE_INPUT_WIDGET";
 
   static getConfig() {
@@ -182,12 +171,6 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
-    if (prevProps.text !== this.props.text) {
-      this.setState({ inputValue: this.props.text ?? "" });
-      // Cancel any pending debounced calls when value is updated externally
-      this.debouncedOnValueChange.cancel();
-    }
-
     if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
@@ -222,10 +205,6 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
   }
 
-  componentWillUnmount(): void {
-    this.debouncedOnValueChange.cancel();
-  }
-
   onISDCodeChange = (dialCode?: string) => {
     const countryCode = getCountryCode(dialCode);
 
@@ -239,25 +218,6 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
   };
 
-  // debouncing the input change to avoid multiple Execute calls in reactive flow
-  debouncedOnValueChange = debounce((value: string) => {
-    this.props.updateWidgetMetaProperty(
-      "rawText",
-      parseIncompletePhoneNumber(value),
-    );
-    this.props.updateWidgetMetaProperty("text", value, {
-      triggerPropertyName: "onTextChanged",
-      dynamicString: this.props.onTextChanged,
-      event: {
-        type: EventType.ON_TEXT_CHANGE,
-      },
-    });
-
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
-
   onValueChange = (value: string) => {
     let formattedValue;
 
@@ -268,8 +228,21 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
       formattedValue = value;
     }
 
-    this.setState({ inputValue: formattedValue });
-    this.debouncedOnValueChange(formattedValue);
+    this.props.updateWidgetMetaProperty(
+      "rawText",
+      parseIncompletePhoneNumber(formattedValue),
+    );
+    this.props.updateWidgetMetaProperty("text", formattedValue, {
+      triggerPropertyName: "onTextChanged",
+      dynamicString: this.props.onTextChanged,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
+
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   onFocusChange = (focusState: boolean) => {
@@ -327,7 +300,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   };
 
   getWidgetView() {
-    const rawText = this.state.inputValue;
+    const rawText = this.props.text ?? "";
 
     const validation = validateInput(this.props);
 
