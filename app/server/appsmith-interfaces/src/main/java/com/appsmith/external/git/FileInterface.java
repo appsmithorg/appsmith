@@ -84,7 +84,6 @@ public interface FileInterface {
             String branchName,
             Path repoSuffixPath,
             Boolean checkoutRequired,
-            Boolean useFSGitHandler,
             Boolean keepWorkingDirChanges);
 
     /**

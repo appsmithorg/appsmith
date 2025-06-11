@@ -1477,7 +1477,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     /**
      * reset to last commit on the current branch itself but doesn't checkout to any specific branch
      * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
-     * @return a boolean whether the operation was successfull or not
+     * @return a boolean whether the operation was successful or not
      */
     public Mono<Boolean> resetToLastCommit(Path repoSuffix) {
         return Mono.using(

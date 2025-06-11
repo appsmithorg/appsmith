@@ -2,8 +2,9 @@ package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
-import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
+import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
@@ -11,17 +12,21 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
+import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.GitArtifactHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,8 +56,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitRedisUtils gitRedisUtils;
     private final RedisUtils redisUtils;
     private final DSLMigrationUtils dslMigrationUtils;
+    private final GitArtifactHelperResolver gitArtifactHelperResolver;
     private final CommonGitFileUtils commonGitFileUtils;
-    private final GitExecutor gitExecutor;
+    private final FSGitHandler fsGitHandler;
     private final ProjectProperties projectProperties;
     private final AnalyticsService analyticsService;
 
@@ -94,7 +100,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
         try {
-            return gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), false);
+            return fsGitHandler.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName(), true);
         } catch (Exception e) {
             log.error(
                     "failed to reset to last commit before auto commit. application {} branch {}",
@@ -103,6 +109,19 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                     e);
             return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset", e.getMessage()));
         }
+    }
+
+    private Mono<Path> saveArtifactJsonToFileSystem(
+            ArtifactExchangeJson artifactExchangeJson, AutoCommitEvent autoCommitEvent) {
+        String workspaceId = autoCommitEvent.getWorkspaceId();
+        String baseArtifactId = autoCommitEvent.getApplicationId();
+        String repoName = autoCommitEvent.getRepoName();
+        String refName = autoCommitEvent.getBranchName();
+        ArtifactType artifactType = artifactExchangeJson.getArtifactJsonType();
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path artifactRepoSuffixPath = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+        return commonGitFileUtils.saveArtifactToLocalRepoNew(artifactRepoSuffixPath, artifactExchangeJson, refName);
     }
 
     private Mono<Path> saveApplicationJsonToFileSystem(
@@ -122,6 +141,17 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     }
 
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
+        String defaultApplicationId = autoCommitEvent.getApplicationId();
+        String branchName = autoCommitEvent.getBranchName();
+        String workspaceId = autoCommitEvent.getWorkspaceId();
+        String repoName = autoCommitEvent.getRepoName();
+
+        ArtifactJsonTransformationDTO jsonTransformationDTO =
+                new ArtifactJsonTransformationDTO(workspaceId, defaultApplicationId, repoName);
+        jsonTransformationDTO.setRefName(branchName);
+        jsonTransformationDTO.setRefType(RefType.branch);
+        jsonTransformationDTO.setArtifactType(ArtifactType.APPLICATION);
+
         return gitRedisUtils
                 .addFileLock(autoCommitEvent.getApplicationId(), GitCommandConstants.AUTO_COMMIT)
                 .flatMap(fileLocked ->
@@ -129,17 +159,12 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .flatMap(autoCommitLocked -> dslMigrationUtils.getLatestDslVersion())
                 .flatMap(latestSchemaVersion -> resetUncommittedChanges(autoCommitEvent)
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 10))
-                        .then(commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepo(
-                                autoCommitEvent.getWorkspaceId(),
-                                autoCommitEvent.getApplicationId(),
-                                autoCommitEvent.getRepoName(),
-                                autoCommitEvent.getBranchName(),
-                                ArtifactType.APPLICATION))
+                        .then(commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 30))
                         .flatMap(applicationJson -> migrateUnpublishedPageDSLs(
                                 (ApplicationJson) applicationJson, latestSchemaVersion, autoCommitEvent))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 50))
-                        .flatMap(applicationJson -> saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent))
+                        .flatMap(applicationJson -> saveArtifactJsonToFileSystem(applicationJson, autoCommitEvent))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 70))
                         .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
                         .defaultIfEmpty(Boolean.FALSE))
@@ -288,6 +313,12 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         String workspaceId = autoCommitEvent.getWorkspaceId();
         String repoName = autoCommitEvent.getRepoName();
 
+        ArtifactJsonTransformationDTO jsonTransformationDTO =
+                new ArtifactJsonTransformationDTO(workspaceId, defaultApplicationId, repoName);
+        jsonTransformationDTO.setRefName(branchName);
+        jsonTransformationDTO.setRefType(RefType.branch);
+        jsonTransformationDTO.setArtifactType(ArtifactType.APPLICATION);
+
         // add file lock
         // reset the file_system. while resetting the branch is implicitly checked out.
         // retrieve and create application json from the file system
@@ -302,15 +333,15 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .flatMap(r -> setProgress(r, defaultApplicationId, 10))
                 .flatMap(autoCommitLocked -> resetUncommittedChanges(autoCommitEvent))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 20))
-                .flatMap(isBranchCheckedOut -> commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepo(
-                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION))
+                .flatMap(isBranchCheckedOut ->
+                        commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 30))
                 .flatMap(applicationJson -> {
                     ModifiedResources modifiedResources = new ModifiedResources();
                     // setting all modified would help in serialisation of all the files, unoptimised
                     modifiedResources.setAllModified(true);
                     applicationJson.setModifiedResources(modifiedResources);
-                    return saveApplicationJsonToFileSystem((ApplicationJson) applicationJson, autoCommitEvent);
+                    return saveArtifactJsonToFileSystem(applicationJson, autoCommitEvent);
                 })
                 .flatMap(r -> setProgress(r, defaultApplicationId, 50))
                 .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
@@ -335,7 +366,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
 
     protected Mono<Boolean> commitAndPush(AutoCommitEvent autoCommitEvent, Path baseRepoPath) {
         // commit the application
-        return gitExecutor
+        return fsGitHandler
                 .commitArtifact(
                         baseRepoPath,
                         String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
@@ -351,8 +382,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             autoCommitEvent.getApplicationId(),
                             autoCommitEvent.getRepoName());
 
-                    return gitExecutor
-                            .pushApplication(
+                    return fsGitHandler
+                            .pushArtifact(
                                     baseRepoSuffix,
                                     autoCommitEvent.getRepoUrl(),
                                     autoCommitEvent.getPublicKey(),
