@@ -38,6 +38,20 @@ describe("Form Login test functionality", function () {
         cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
         objectsCoreAdminSettings.NavigateToAuthenticationSettings();
         objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "signup");
+        objectsCoreAdminSettings.logoutFromApp();
+
+        agHelper.GetNClick(loginPage.signupLink);
+        agHelper.GenerateUUID();
+        agHelper.GetElement("@guid").then((uid) => {
+          const email = uid.toString() + "@appsmith.com";
+          const password = uid.toString();
+
+          agHelper.TypeText("[type='email']", email);
+          agHelper.TypeText("[type='password']", password);
+          agHelper.GetNClick("[type='submit']");
+
+          agHelper.AssertElementAbsence(".ads-v2-callout__children");
+        });
       });
     },
   );
@@ -46,6 +60,7 @@ describe("Form Login test functionality", function () {
     "2. Go to admin settings and disable Form Login",
     { tags: ["@tag.excludeForAirgap"] },
     function () {
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       objectsCoreAdminSettings.NavigateToAuthenticationSettings();
       objectsCoreAdminSettings.verifyFormLogin();
 
@@ -69,13 +84,10 @@ describe("Form Login test functionality", function () {
       // restore settings
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
 
-      agHelper.AssertElementVisibility(homePage.homeIcon);
-      agHelper.GetNClick(homePage.homeIcon, 0, true, 2500);
-      objectsCoreAdminSettings.NavigateToAuthenticationSettings(false);
+      agHelper.Sleep(5000);
+      objectsCoreAdminSettings.NavigateToAuthenticationSettings(true);
       objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "login");
-      agHelper.AssertElementVisibility(homePage.homeIcon);
-      agHelper.GetNClick(homePage.homeIcon, 0, true, 2500);
-      objectsCoreAdminSettings.NavigateToAuthenticationSettings(false);
+      objectsCoreAdminSettings.NavigateToAuthenticationSettings(true);
       agHelper.GetNClick(adminSettings.githubButton);
       agHelper.GetNClick(adminSettings.disconnectBtn);
       agHelper
