@@ -482,7 +482,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
-    private Mono<Executable> sendRunBehaviourChangedAnalytics(Executable executable, RunBehaviourEnum oldRunBehaviour) {
+    protected Mono<Executable> sendRunBehaviourChangedAnalytics(
+            Executable executable, RunBehaviourEnum oldRunBehaviour) {
         if (!(executable instanceof ActionDTO actionDTO)) {
             return Mono.just(executable);
         }
