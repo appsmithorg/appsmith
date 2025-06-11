@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import generate from "nanoid/generate";
+import { customAlphabet } from "nanoid";
 import type { DSLWidget, WidgetProps } from "./types";
 import { isString } from "lodash";
 
@@ -11,7 +11,7 @@ const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
 export const generateReactKey = ({
   prefix = "",
 }: { prefix?: string } = {}): string => {
-  return prefix + generate(ALPHANUMERIC, 10);
+  return prefix + customAlphabet(ALPHANUMERIC, 10)();
 };
 
 export const removeSpecialChars = (value: string, limit?: number) => {

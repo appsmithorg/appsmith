@@ -1,7 +1,7 @@
 import { isEditorPath } from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
 import { isNil } from "lodash";
-import nanoid from "nanoid";
+import { nanoid } from "nanoid";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import store from "store";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -72,7 +72,7 @@ export const getUsagePulsePayload = (
       let fallback = localStorage.getItem(FALLBACK_KEY);
 
       if (!fallback) {
-        fallback = nanoid() as string;
+        fallback = nanoid();
         localStorage.setItem(FALLBACK_KEY, fallback);
       }
 
