@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { PanelStack, Classes } from "@blueprintjs/core";
@@ -6,6 +6,7 @@ import { PanelStack, Classes } from "@blueprintjs/core";
 import { get } from "lodash";
 import { getSelectedWidgets } from "selectors/ui";
 import PropertyPaneView from "./PropertyPaneView";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const StyledPanelStack = styled(PanelStack)`
   height: 100%;
@@ -28,8 +29,29 @@ function PropertyPane() {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const panelWrapperRef = useRef<HTMLDivElement>(null);
 
+  // Track registration state
+  const [controlsRegistered, setControlsRegistered] = useState(false);
+
+  useEffect(() => {
+    const loadPropertyControlBuilders = async () => {
+      const module = await retryPromise(
+        async () =>
+          import(
+            /* webpackChunkName: "PropertyControlRegistry" */ "utils/PropertyControlRegistry"
+          ),
+      );
+
+      module.default.registerPropertyControlBuilders();
+
+      setControlsRegistered(true);
+    };
+
+    loadPropertyControlBuilders();
+  }, []);
+
   // TODO: add analytics code
   if (
+    !controlsRegistered ||
     selectedWidgets.length === 0 ||
     get(selectedWidgets, "0.disablePropertyPane")
   ) {

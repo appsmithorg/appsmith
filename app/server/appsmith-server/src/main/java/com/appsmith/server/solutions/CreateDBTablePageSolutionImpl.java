@@ -10,6 +10,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ce.CreateDBTablePageSolutionCEImpl;
@@ -37,7 +38,8 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
             PagePermission pagePermission,
             DatasourceStructureSolution datasourceStructureSolution,
             EnvironmentPermission environmentPermission,
-            JsonSchemaMigration jsonSchemaMigration) {
+            JsonSchemaMigration jsonSchemaMigration,
+            FeatureFlagService featureFlagService) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -55,6 +57,7 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                 pagePermission,
                 datasourceStructureSolution,
                 environmentPermission,
-                jsonSchemaMigration);
+                jsonSchemaMigration,
+                featureFlagService);
     }
 }

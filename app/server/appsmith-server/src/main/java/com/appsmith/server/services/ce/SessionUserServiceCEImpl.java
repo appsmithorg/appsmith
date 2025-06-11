@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -105,7 +106,7 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
      */
     public Flux<Tuple2<String, User>> getSessionKeysWithUserSessions() {
         return redisOperations
-                .keys(SPRING_SESSION_PATTERN)
+                .scan(ScanOptions.scanOptions().match(SPRING_SESSION_PATTERN).build())
                 .flatMap(key -> Mono.zip(
                         Mono.just(key),
                         // The values are maps, containing various pieces of session related information.

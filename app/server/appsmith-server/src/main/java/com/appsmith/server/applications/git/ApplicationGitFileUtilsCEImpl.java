@@ -61,6 +61,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
@@ -724,6 +725,15 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
 
         // widgets
         pageList.parallelStream().forEach(newPage -> {
+            String pathToReplace = Pattern.quote(PAGE_DIRECTORY
+                    + DELIMITER_PATH
+                    + newPage.getUnpublishedPage().getName()
+                    + DELIMITER_PATH
+                    + WIDGETS
+                    + DELIMITER_PATH);
+            String replacementString = MAIN_CONTAINER + DELIMITER_PATH;
+            Pattern replacementPattern = Pattern.compile(pathToReplace);
+
             Map<String, org.json.JSONObject> widgetsData = resourceMap.entrySet().stream()
                     .filter(entry -> {
                         GitResourceIdentity key = entry.getKey();
@@ -731,17 +741,9 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                                 && key.getResourceIdentifier().startsWith(newPage.getGitSyncId() + "-");
                     })
                     .collect(Collectors.toMap(
-                            entry -> entry.getKey()
-                                    .getFilePath()
-                                    .replaceFirst(
-                                            PAGE_DIRECTORY
-                                                    + DELIMITER_PATH
-                                                    + newPage.getUnpublishedPage()
-                                                            .getName()
-                                                    + DELIMITER_PATH
-                                                    + WIDGETS
-                                                    + DELIMITER_PATH,
-                                            MAIN_CONTAINER + DELIMITER_PATH),
+                            entry -> replacementPattern
+                                    .matcher(entry.getKey().getFilePath())
+                                    .replaceFirst(replacementString),
                             entry -> {
                                 try {
                                     return new org.json.JSONObject(objectMapper.writeValueAsString(entry.getValue()));

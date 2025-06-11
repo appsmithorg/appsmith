@@ -2,7 +2,6 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
@@ -48,15 +47,18 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                         clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {}))
                 .map(listResponseDTO -> {
                     if (listResponseDTO.getData() == null) {
-                        log.error(
-                                "Error fetching plugins from cloud-services. Error: {}",
-                                listResponseDTO.getErrorDisplay());
+                        String errorMessage = listResponseDTO.getErrorDisplay();
+                        // If there's an actual error message, propagate it as an error
+                        if (errorMessage != null && !errorMessage.isEmpty()) {
+                            throw new RuntimeException("Cloud Services error: " + errorMessage);
+                        }
+
+                        // Otherwise, return empty list (no plugins found)
                         return Collections.<Plugin>emptyList();
                     }
                     return listResponseDTO.getData();
                 })
                 .map(plugins -> {
-
                     // Parse plugins into map for easier manipulation
                     return plugins.stream()
                             .collect(Collectors.toMap(
@@ -86,23 +88,23 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
 
             // Save new data for this plugin,
             // then make sure to install to workspaces in case the default installation flag changed
-            final Mono<List<Workspace>> updatedPluginsWorkspaceFlux = pluginService
+            final Mono<Void> updatePluginsStep = pluginService
                     .saveAll(updatablePlugins)
                     .filter(Plugin::getDefaultInstall)
                     .collectList()
                     .flatMapMany(pluginService::installDefaultPlugins)
-                    .collectList();
+                    .then();
 
             // Create plugin,
             // then install to all workspaces if default installation is turned on
-            final Mono<List<Workspace>> workspaceFlux = Flux.fromIterable(insertablePlugins)
+            final Mono<Void> insertPluginsStep = Flux.fromIterable(insertablePlugins)
                     .flatMap(pluginService::create)
                     .filter(Plugin::getDefaultInstall)
                     .collectList()
                     .flatMapMany(pluginService::installDefaultPlugins)
-                    .collectList();
+                    .then();
 
-            return updatedPluginsWorkspaceFlux.zipWith(workspaceFlux).then();
+            return updatePluginsStep.then(insertPluginsStep).then();
         });
     }
 

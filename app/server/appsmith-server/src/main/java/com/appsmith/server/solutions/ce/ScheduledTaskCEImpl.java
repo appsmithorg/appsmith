@@ -7,7 +7,6 @@ import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -258,10 +257,10 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                         UserTrackingType.MAU.name(), tuple.getT3()));
     }
 
-    @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
+    @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
     @DistributedLock(
             key = "fetchFeatures",
-            ttl = 20 * 60, // 20 minutes
+            ttl = 45 * 60, // 45 minutes
             shouldReleaseLock = false) // Ensure only one pod executes this
     @Observed(name = "fetchFeatures")
     public void fetchFeatures() {
@@ -277,7 +276,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                             return Mono.empty();
                         })
                         .contextWrite(Context.of(ORGANIZATION_ID, organization.getId())))
-                .subscribeOn(LoadShifter.elasticScheduler)
+                .subscribeOn(Schedulers.single())
                 .subscribe();
     }
 }

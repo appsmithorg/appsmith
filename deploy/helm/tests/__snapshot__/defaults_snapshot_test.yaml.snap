@@ -1,0 +1,210 @@
+"":
+  1: |
+    raw: |
+      1. Get the application URL by running these commands:
+        export POD_NAME=$(kubectl get pods --namespace NAMESPACE -l "app.kubernetes.io/name=appsmith,app.kubernetes.io/instance=RELEASE-NAME" -o jsonpath="{.items[0].metadata.name}")
+        export CONTAINER_PORT=$(kubectl get pod --namespace NAMESPACE $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+        echo "Visit http://127.0.0.1:8080 to use your application"
+        kubectl --namespace NAMESPACE port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+      To expose your Appsmith service to be accessible from the Internet, please refer to our docs here https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes/publish-appsmith-online.
+  2: |
+    apiVersion: v1
+    data:
+      APPSMITH_DB_URL: |
+        mongodb+srv://root:password@appsmith-mongodb.NAMESPACE.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
+      APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+      APPSMITH_KEYCLOAK_DB_DRIVER: postgresql
+      APPSMITH_KEYCLOAK_DB_PASSWORD: password
+      APPSMITH_KEYCLOAK_DB_URL: RELEASE-NAME-postgresql.NAMESPACE.svc.cluster.local:5432/keycloak
+      APPSMITH_KEYCLOAK_DB_USERNAME: root
+      APPSMITH_REDIS_URL: redis://RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local:6379
+    kind: ConfigMap
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: appsmith
+        appsmith.sh/chart: appsmith-3.6.3
+      name: RELEASE-NAME-appsmith
+      namespace: NAMESPACE
+  3: |
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: appsmith
+        appsmith.sh/chart: appsmith-3.6.3
+      name: RELEASE-NAME-appsmith
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: appsmith
+      serviceName: RELEASE-NAME-appsmith
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: appsmith
+        spec:
+          containers:
+            - env:
+                - name: APPSMITH_ENABLE_EMBEDDED_DB
+                  value: "0"
+                - name: JGROUPS_DISCOVERY_PROTOCOL
+                  value: kubernetes.KUBE_PING
+                - name: APPSMITH_HEADLESS_SVC
+                  value: RELEASE-NAME-appsmith-headless
+              envFrom:
+                - configMapRef:
+                    name: RELEASE-NAME-appsmith
+              image: index.docker.io/appsmith/appsmith-ee:latest
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /api/v1/health
+                  port: 80
+                periodSeconds: 60
+              name: appsmith
+              ports:
+                - containerPort: 80
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+                - containerPort: 2019
+                  name: metrics
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /api/v1/health
+                  port: 80
+                periodSeconds: 60
+              resources:
+                limits: {}
+                requests:
+                  cpu: 500m
+                  memory: 3000Mi
+              securityContext: {}
+              startupProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /api/v1/health
+                  port: 80
+                periodSeconds: 60
+              volumeMounts:
+                - mountPath: /appsmith-stacks
+                  name: data
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - until redis-cli -h RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done
+              image: docker.io/redis:7.0.15
+              name: redis-init-container
+            - command:
+                - sh
+                - -c
+                - until mongosh --host appsmith-mongodb.NAMESPACE.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done
+              image: docker.io/bitnami/mongodb:6.0.13
+              name: mongo-init-container
+            - command:
+                - sh
+                - -c
+                - until pg_isready -U $postgresuser -d $postgresdb -h RELEASE-NAME-postgresql.NAMESPACE.svc.cluster.local; do echo waiting for postgresql; sleep 2; done
+              image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+              name: psql-init-container
+          securityContext: {}
+          serviceAccountName: RELEASE-NAME-appsmith
+          volumes: null
+      updateStrategy: null
+      volumeClaimTemplates:
+        - metadata:
+            name: data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+  4: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: appsmith
+        appsmith.sh/chart: appsmith-3.6.3
+      name: RELEASE-NAME-appsmith-headless
+      namespace: NAMESPACE
+    spec:
+      clusterIP: None
+      clusterIPs:
+        - None
+      internalTrafficPolicy: Cluster
+      ipFamilies:
+        - IPv4
+      ipFamilyPolicy: SingleStack
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+      selector:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: appsmith
+      type: ClusterIP
+  5: |
+    apiVersion: policy/v1beta1
+    kind: PodDisruptionBudget
+    metadata:
+      name: RELEASE-NAME-appsmith-pdb
+      namespace: NAMESPACE
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: appsmith
+  6: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: appsmith
+        appsmith.sh/chart: appsmith-3.6.3
+      name: RELEASE-NAME-appsmith
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: appsmith
+          nodePort: null
+          port: 80
+          targetPort: http
+      selector:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: appsmith
+      type: ClusterIP
+  7: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: appsmith
+        appsmith.sh/chart: appsmith-3.6.3
+      name: RELEASE-NAME-appsmith
+      namespace: NAMESPACE
+    secrets:
+      - name: RELEASE-NAME-appsmith

@@ -74,6 +74,8 @@ export const handlers = {
         ...action.payload.organizationConfiguration.brandColors,
       },
     },
+    displayName: action.payload.displayName,
+    slug: action.payload.slug,
     isLoading: false,
     instanceId: action.payload.instanceId,
     tenantId: action.payload.tenantId,

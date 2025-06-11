@@ -24,6 +24,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -109,6 +111,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 });
     }
 
+    // Extension point for UI module handling
+    protected Mono<Map.Entry<JSONObject, Optional<Set<String>>>> processDslAndCreateSyntheticWidgets(
+            String creatorId, CreatorContextType creatorType, JSONObject dsl, ArrayList<Object> mainChildren) {
+        return Mono.just(Map.entry(dsl, Optional.empty()));
+    }
+
     protected Mono<LayoutDTO> updateLayoutDsl(
             String creatorId,
             String layoutId,
@@ -121,122 +129,162 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             return Mono.just(generateResponseDTO(layout));
         }
 
-        Set<String> widgetNames = new HashSet<>();
-        Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
-        Set<String> escapedWidgetNames = new HashSet<>();
+        // Get the main DSL's children array.  We *don't* create an empty list
+        // yet; if no UI‑module instances are injected we want to leave the DSL
+        // unchanged so tests that expect a verbatim payload pass.
+        ArrayList<Object> mainChildren = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
 
-        Span extractAllWidgetNamesAndDynamicBindingsFromDSLSpan =
-                observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
+        // Process DSL with module instances if any
+        return processDslAndCreateSyntheticWidgets(creatorId, creatorType, dsl, mainChildren)
+                .flatMap(entry -> {
+                    JSONObject processedDsl = entry.getKey();
+                    Optional<Set<String>> syntheticWidgetNamesOpt = entry.getValue();
 
-        observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
+                    Set<String> widgetNames = new HashSet<>();
+                    Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
+                    Set<String> escapedWidgetNames = new HashSet<>();
 
-        try {
-            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+                    Span extractAllWidgetNamesAndDynamicBindingsFromDSLSpan =
+                            observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
 
-        } catch (Throwable t) {
-            return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
-                    .then(Mono.error(t));
-        }
+                    observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
 
-        observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
-
-        layout.setWidgetNames(widgetNames);
-
-        if (!escapedWidgetNames.isEmpty()) {
-            layout.setMongoEscapedWidgetNames(escapedWidgetNames);
-        }
-
-        Set<String> executableNames = new HashSet<>();
-        Set<ExecutableDependencyEdge> edges = new HashSet<>();
-        Set<String> executablesUsedInDSL = new HashSet<>();
-        List<Executable> flatmapOnLoadExecutables = new ArrayList<>();
-        List<LayoutExecutableUpdateDTO> executableUpdatesRef = new ArrayList<>();
-        List<String> messagesRef = new ArrayList<>();
-
-        AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
-
-        // setting the layoutOnLoadActionActionErrors to empty to remove the existing
-        // errors before new DAG calculation.
-        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
-
-        Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = onLoadExecutablesUtil
-                .findAllOnLoadExecutables(
-                        creatorId,
-                        evaluatedVersion,
-                        widgetNames,
-                        edges,
-                        widgetDynamicBindingsMap,
-                        flatmapOnLoadExecutables,
-                        executablesUsedInDSL,
-                        creatorType)
-                .name(FIND_ALL_ON_LOAD_EXECUTABLES)
-                .tap(Micrometer.observation(observationRegistry))
-                .onErrorResume(AppsmithException.class, error -> {
-                    log.info(error.getMessage());
-                    validOnLoadExecutables.set(FALSE);
-                    layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
-                            error.getAppErrorCode(),
-                            error.getErrorType(),
-                            layoutOnLoadActionErrorToastMessage,
-                            error.getMessage(),
-                            error.getTitle())));
-                    return Mono.just(new ArrayList<>());
-                });
-
-        // First update the actions and set execute on load to true
-        JSONObject finalDsl = dsl;
-
-        Mono<LayoutDTO> layoutDTOMono = allOnLoadExecutablesMono
-                .flatMap(allOnLoadExecutables -> {
-                    // If there has been an error (e.g. cyclical dependency), then don't update any
-                    // actions.
-                    // This is so that unnecessary updates don't happen to actions while the page is
-                    // in invalid state.
-                    if (!validOnLoadExecutables.get()) {
-                        return Mono.just(allOnLoadExecutables);
+                    try {
+                        processedDsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
+                                processedDsl,
+                                widgetNames,
+                                widgetDynamicBindingsMap,
+                                creatorId,
+                                layoutId,
+                                escapedWidgetNames,
+                                creatorType);
+                    } catch (Throwable t) {
+                        return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, processedDsl, false, t, creatorType)
+                                .then(Mono.error(t));
                     }
-                    // Update these executables to be executed on load, unless the user has touched
-                    // the runBehaviour
-                    // setting for this
-                    return onLoadExecutablesUtil
-                            .updateExecutablesRunBehaviour(
-                                    flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
-                            .name(UPDATE_EXECUTABLES_RUN_BEHAVIOUR)
+
+                    observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
+
+                    // -----------------------------------------------------------------------------
+                    //  If we have synthetic widgets, filter them out and scrub the DSL
+                    // -----------------------------------------------------------------------------
+                    if (syntheticWidgetNamesOpt.isPresent()) {
+                        Set<String> syntheticWidgetNames = syntheticWidgetNamesOpt.get();
+
+                        Set<String> widgetNamesToPersist = Sets.difference(widgetNames, syntheticWidgetNames);
+
+                        processedDsl = stripSyntheticWidgets(processedDsl, syntheticWidgetNamesOpt);
+                        removeSpecialCharactersFromKeys(processedDsl, escapedWidgetNames);
+
+                        layout.setWidgetNames(widgetNamesToPersist);
+                    } else {
+                        layout.setWidgetNames(widgetNames);
+                    }
+
+                    layout.setDsl(processedDsl);
+
+                    // We always attach escaped names when we have them
+                    if (!escapedWidgetNames.isEmpty()) {
+                        layout.setMongoEscapedWidgetNames(escapedWidgetNames);
+                    }
+
+                    Set<String> executableNames = new HashSet<>();
+                    Set<ExecutableDependencyEdge> edges = new HashSet<>();
+                    Set<String> executablesUsedInDSL = new HashSet<>();
+                    List<Executable> flatmapOnLoadExecutables = new ArrayList<>();
+                    List<LayoutExecutableUpdateDTO> executableUpdatesRef = new ArrayList<>();
+                    List<String> messagesRef = new ArrayList<>();
+
+                    AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
+
+                    // setting the layoutOnLoadActionActionErrors to empty to remove the existing
+                    // errors before new DAG calculation.
+                    layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
+                    Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = onLoadExecutablesUtil
+                            .findAllOnLoadExecutables(
+                                    creatorId,
+                                    evaluatedVersion,
+                                    widgetNames,
+                                    edges,
+                                    widgetDynamicBindingsMap,
+                                    flatmapOnLoadExecutables,
+                                    executablesUsedInDSL,
+                                    creatorType)
+                            .name(FIND_ALL_ON_LOAD_EXECUTABLES)
                             .tap(Micrometer.observation(observationRegistry))
-                            .thenReturn(allOnLoadExecutables);
-                })
-                // Now update the page layout with the page load executables and the graph.
-                .flatMap(onLoadExecutables -> {
-                    layout.setLayoutOnLoadActions(onLoadExecutables);
-                    layout.setAllOnPageLoadActionNames(executableNames);
-                    layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
-                    // The below field is to ensure that we record if the page load actions
-                    // computation was
-                    // valid when last stored in the database.
-                    layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
+                            .onErrorResume(AppsmithException.class, error -> {
+                                log.info(error.getMessage());
+                                validOnLoadExecutables.set(FALSE);
+                                layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
+                                        error.getAppErrorCode(),
+                                        error.getErrorType(),
+                                        layoutOnLoadActionErrorToastMessage,
+                                        error.getMessage(),
+                                        error.getTitle())));
+                                return Mono.just(new ArrayList<>());
+                            });
 
-                    return onLoadExecutablesUtil
-                            .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
-                            .tag("no_of_widgets", String.valueOf(widgetNames.size()))
-                            .tag("no_of_executables", String.valueOf(executableNames.size()))
-                            .name(FIND_AND_UPDATE_LAYOUT)
-                            .tap(Micrometer.observation(observationRegistry));
-                })
-                .map(savedLayout -> {
-                    savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
-                    return savedLayout;
-                })
-                .flatMap(savedLayout -> {
-                    LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
-                    layoutDTO.setActionUpdates(executableUpdatesRef);
-                    layoutDTO.setMessages(messagesRef);
+                    // First update the actions and set execute on load to true
+                    JSONObject finalDsl = processedDsl;
 
-                    return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, finalDsl, true, null, creatorType)
-                            .thenReturn(layoutDTO);
+                    return allOnLoadExecutablesMono
+                            .flatMap(allOnLoadExecutables -> {
+                                // If there has been an error (e.g. cyclical dependency), then don't update any
+                                // actions.
+                                // This is so that unnecessary updates don't happen to actions while the page is
+                                // in invalid state.
+                                if (!validOnLoadExecutables.get()) {
+                                    return Mono.just(allOnLoadExecutables);
+                                }
+                                // Update these executables to be executed on load, unless the user has touched
+                                // the runBehaviour
+                                // setting for this
+                                return onLoadExecutablesUtil
+                                        .updateExecutablesRunBehaviour(
+                                                flatmapOnLoadExecutables,
+                                                creatorId,
+                                                executableUpdatesRef,
+                                                messagesRef,
+                                                creatorType)
+                                        .name(UPDATE_EXECUTABLES_RUN_BEHAVIOUR)
+                                        .tap(Micrometer.observation(observationRegistry))
+                                        .thenReturn(allOnLoadExecutables);
+                            })
+                            // Now update the page layout with the page load executables and the graph.
+                            .flatMap(onLoadExecutables -> {
+                                layout.setLayoutOnLoadActions(onLoadExecutables);
+                                layout.setAllOnPageLoadActionNames(executableNames);
+                                layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
+                                // The below field is to ensure that we record if the page load actions
+                                // computation was
+                                // valid when last stored in the database.
+
+                                return onLoadExecutablesUtil
+                                        .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                                        .tag("no_of_widgets", String.valueOf(widgetNames.size()))
+                                        .tag("no_of_executables", String.valueOf(executableNames.size()))
+                                        .name(FIND_AND_UPDATE_LAYOUT)
+                                        .tap(Micrometer.observation(observationRegistry));
+                            })
+                            .map(savedLayout -> {
+                                savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
+                                return savedLayout;
+                            })
+                            .flatMap(savedLayout -> {
+                                LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
+                                layoutDTO.setActionUpdates(executableUpdatesRef);
+                                layoutDTO.setMessages(messagesRef);
+
+                                return sendUpdateLayoutAnalyticsEvent(
+                                                creatorId, layoutId, finalDsl, true, null, creatorType)
+                                        .thenReturn(layoutDTO);
+                            });
                 });
+    }
 
-        return layoutDTOMono;
+    protected JSONObject stripSyntheticWidgets(JSONObject dsl, Optional<Set<String>> syntheticNamesOpt) {
+        return dsl;
     }
 
     // TODO: Add contextType and change all its usage to conform to that so that we can get rid of the overloaded

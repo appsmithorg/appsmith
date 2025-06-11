@@ -955,6 +955,15 @@ const migrations: Migration[] = [
     ],
     version: 92,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: m90,
+        functionName: "migrateTableComputeValueBinding",
+      },
+    ],
+    version: 93,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
