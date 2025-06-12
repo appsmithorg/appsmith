@@ -134,7 +134,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     debouncedTriggerEvalOnMetaUpdate = debounce(
       this.handleTriggerEvalOnMetaUpdate,
-      300,
+      200,
     );
 
     updateWidgetMetaProperty = (
