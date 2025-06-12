@@ -89,7 +89,7 @@ function* executeBatchSaga() {
 
 export default function* root() {
   yield all([
-    debounce(500, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
+    debounce(20, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
     takeEvery(ReduxActionTypes.BATCHED_UPDATE, storeUpdatesSaga),
   ]);
 }
