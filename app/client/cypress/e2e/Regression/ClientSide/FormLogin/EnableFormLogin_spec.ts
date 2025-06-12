@@ -1,5 +1,4 @@
 import adminSettings from "../../../../locators/AdminsSettings";
-import homePage from "../../../../locators/HomePage";
 import loginPage from "../../../../locators/LoginPage.json";
 import {
   agHelper,
@@ -61,7 +60,8 @@ describe("Form Login test functionality", function () {
     { tags: ["@tag.excludeForAirgap"] },
     function () {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      objectsCoreAdminSettings.NavigateToAuthenticationSettings();
+      // agHelper.Sleep(10000);
+      objectsCoreAdminSettings.NavigateToAuthenticationSettings(false);
       objectsCoreAdminSettings.verifyFormLogin();
 
       // enable github login
@@ -84,8 +84,7 @@ describe("Form Login test functionality", function () {
       // restore settings
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
 
-      agHelper.Sleep(5000);
-      objectsCoreAdminSettings.NavigateToAuthenticationSettings(true);
+      objectsCoreAdminSettings.NavigateToAuthenticationSettings(false);
       objectsCoreAdminSettings.toggleFormSignupLoginAndSave(true, "login");
       objectsCoreAdminSettings.NavigateToAuthenticationSettings(true);
       agHelper.GetNClick(adminSettings.githubButton);
