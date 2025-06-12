@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.RunBehaviourEnum;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AnalyticsService;
@@ -63,6 +64,9 @@ public class OnLoadExecutablesUtilCEImplTest {
     @Mock
     private AnalyticsService analyticsService;
 
+    @Mock
+    private ApplicationService applicationService;
+
     @BeforeEach
     public void setUp() {
         onLoadExecutablesUtilCE = spy(new OnLoadExecutablesUtilCEImpl(
@@ -72,7 +76,8 @@ public class OnLoadExecutablesUtilCEImplTest {
                 observationRegistry,
                 observationHelper,
                 featureFlagService,
-                analyticsService));
+                analyticsService,
+                applicationService));
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
