@@ -1,5 +1,6 @@
 package com.appsmith.server.onload.internal;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
@@ -22,7 +23,8 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
             ObservationRegistry observationRegistry,
             ObservationHelperImpl observationHelper,
             FeatureFlagService featureFlagService,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            ApplicationService applicationService) {
         super(
                 astService,
                 objectMapper,
@@ -30,6 +32,7 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
                 observationRegistry,
                 observationHelper,
                 featureFlagService,
-                analyticsService);
+                analyticsService,
+                applicationService);
     }
 }

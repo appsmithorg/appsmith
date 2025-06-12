@@ -9,8 +9,11 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -19,6 +22,7 @@ import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -50,6 +54,7 @@ import static com.appsmith.external.constants.spans.DatasourceSpan.FIND_DATASOUR
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_PAGE_LAYOUT_BY_PAGE_ID;
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
 import static com.appsmith.external.constants.spans.PageSpan.IS_NAME_ALLOWED;
+import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -67,6 +72,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
+    private final ApplicationService applicationService;
 
     /**
      * Called by Action controller to create Action
@@ -339,7 +345,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
                                     .tap(Micrometer.observation(observationRegistry))
                                     .thenReturn(newActionService.generateActionByViewMode(savedAction, false)))
-                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour))
                             .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour)
                                     .onErrorResume(e -> {
                                         log.warn("Run behaviour analytics failed, continuing", e);
@@ -349,22 +354,47 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     private Mono<ActionDTO> sendRunBehaviourChangedAnalytics(ActionDTO actionDTO, RunBehaviourEnum oldRunBehaviour) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", actionDTO.getId());
-        data.put("name", actionDTO.getName());
-        data.put("pageId", actionDTO.getPageId());
-        data.put("applicationId", actionDTO.getApplicationId());
-        data.put("pluginId", actionDTO.getPluginId());
-        data.put("createdAt", actionDTO.getCreatedAt());
-        data.put("oldRunBehaviour", oldRunBehaviour);
-        data.put("newRunBehaviour", actionDTO.getRunBehaviour());
-        data.put("pluginType", actionDTO.getPluginType());
-        data.put("actionConfiguration", actionDTO.getActionConfiguration());
-        data.put("wasChangedBy", "user"); // This is a user-initiated change
+        return Mono.justOrEmpty(actionDTO.getApplicationId())
+                .flatMap(applicationService::findById)
+                .defaultIfEmpty(new Application())
+                .flatMap(application -> {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("actionId", actionDTO.getId());
+                    data.put("name", actionDTO.getName());
+                    data.put("pageId", actionDTO.getPageId());
+                    data.put("applicationId", actionDTO.getApplicationId());
+                    data.put("pluginId", actionDTO.getPluginId());
+                    data.put("pluginName", actionDTO.getPluginName());
+                    data.put("createdAt", actionDTO.getCreatedAt());
+                    data.put("oldRunBehaviour", oldRunBehaviour);
+                    data.put("newRunBehaviour", actionDTO.getRunBehaviour());
+                    data.put("pluginType", actionDTO.getPluginType());
+                    data.put("actionConfiguration", actionDTO.getActionConfiguration());
+                    data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
 
-        return analyticsService
-                .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
-                .thenReturn(actionDTO);
+                    final String appMode = TRUE.equals(application.getViewMode())
+                            ? ApplicationMode.PUBLISHED.toString()
+                            : ApplicationMode.EDIT.toString();
+
+                    data.put("workspaceId", application.getWorkspaceId());
+                    data.put("appId", actionDTO.getApplicationId());
+                    data.put(FieldName.APP_MODE, appMode);
+                    data.put("appName", application.getName());
+                    data.put("isExampleApp", application.isAppIsExample());
+
+                    Map<String, Object> datasourceInfo = new HashMap<>();
+                    datasourceInfo.put("name", actionDTO.getDatasource().getName());
+                    datasourceInfo.put("dsIsMock", actionDTO.getDatasource().getIsMock());
+                    datasourceInfo.put("dsIsTemplate", actionDTO.getDatasource().getIsTemplate());
+                    datasourceInfo.put("dsId", actionDTO.getDatasource().getId());
+                    data.put("datasource", datasourceInfo);
+
+                    data.put("wasChangedBy", "user"); // // This is a user-initiated change
+
+                    return analyticsService
+                            .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
+                            .thenReturn(actionDTO);
+                });
     }
 
     /**

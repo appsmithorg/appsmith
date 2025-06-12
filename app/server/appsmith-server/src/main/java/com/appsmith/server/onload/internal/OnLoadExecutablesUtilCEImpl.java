@@ -12,12 +12,17 @@ import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RunBehaviourEnum;
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AnalyticsService;
@@ -97,6 +102,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final ObservationHelperImpl observationHelper;
     private final FeatureFlagService featureFlagService;
     private final AnalyticsService analyticsService;
+    private final ApplicationService applicationService;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -487,24 +493,51 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         if (!(executable instanceof ActionDTO actionDTO)) {
             return Mono.just(executable);
         }
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", actionDTO.getId());
-        data.put("name", actionDTO.getName());
-        data.put("pageId", actionDTO.getPageId());
-        data.put("applicationId", actionDTO.getApplicationId());
-        data.put("pluginId", actionDTO.getPluginId());
-        data.put("createdAt", actionDTO.getCreatedAt());
-        data.put("oldRunBehaviour", oldRunBehaviour);
-        data.put("newRunBehaviour", actionDTO.getRunBehaviour());
-        data.put("pluginType", actionDTO.getPluginType());
-        data.put("actionConfiguration", actionDTO.getActionConfiguration());
-        data.put(
-                "wasChangedBy",
-                "system"); // This is a change that automatically happens during update layout, so we set it to "system"
 
-        return analyticsService
-                .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
-                .thenReturn(executable);
+        return Mono.justOrEmpty(actionDTO.getApplicationId())
+                .flatMap(applicationService::findById)
+                .defaultIfEmpty(new Application())
+                .flatMap(application -> {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("actionId", actionDTO.getId());
+                    data.put("name", actionDTO.getName());
+                    data.put("pageId", actionDTO.getPageId());
+                    data.put("applicationId", actionDTO.getApplicationId());
+                    data.put("pluginId", actionDTO.getPluginId());
+                    data.put("pluginName", actionDTO.getPluginName());
+                    data.put("createdAt", actionDTO.getCreatedAt());
+                    data.put("oldRunBehaviour", oldRunBehaviour);
+                    data.put("newRunBehaviour", actionDTO.getRunBehaviour());
+                    data.put("pluginType", actionDTO.getPluginType());
+                    data.put("actionConfiguration", actionDTO.getActionConfiguration());
+                    data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
+
+                    final String appMode = TRUE.equals(application.getViewMode())
+                            ? ApplicationMode.PUBLISHED.toString()
+                            : ApplicationMode.EDIT.toString();
+
+                    data.put("workspaceId", application.getWorkspaceId());
+                    data.put("appId", actionDTO.getApplicationId());
+                    data.put(FieldName.APP_MODE, appMode);
+                    data.put("appName", application.getName());
+                    data.put("isExampleApp", application.isAppIsExample());
+
+                    Map<String, Object> datasourceInfo = new HashMap<>();
+                    datasourceInfo.put("name", actionDTO.getDatasource().getName());
+                    datasourceInfo.put("dsIsMock", actionDTO.getDatasource().getIsMock());
+                    datasourceInfo.put("dsIsTemplate", actionDTO.getDatasource().getIsTemplate());
+                    datasourceInfo.put("dsId", actionDTO.getDatasource().getId());
+                    data.put("datasource", datasourceInfo);
+
+                    data.put(
+                            "wasChangedBy",
+                            "system"); // This is a change that automatically happens during update layout, so we set it
+                    // to "system"
+
+                    return analyticsService
+                            .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
+                            .thenReturn(executable);
+                });
     }
 
     @Override
