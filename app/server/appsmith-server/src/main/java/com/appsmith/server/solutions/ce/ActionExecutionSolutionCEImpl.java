@@ -63,6 +63,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -341,8 +342,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     @Override
     public Mono<ActionExecutionResult> executeAction(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        // 1. Validate input parameters which are required for mustache replacements
-        replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
+
+        // Earlier, here we were replacing null with quotes for param values.
 
         AtomicReference<String> actionName = new AtomicReference<>();
         actionName.set("");
@@ -505,6 +506,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     protected Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount) {
         final Param param = new Param();
         param.setPseudoBindingName(part.name());
+
+        if (part instanceof FormFieldPart) {
+            FormFieldPart formFieldPart = (FormFieldPart) part;
+            if ("null".equals(formFieldPart.value())) {
+                param.setValue(null);
+            } else if (formFieldPart.value().isEmpty()) {
+                param.setValue(formFieldPart.value());
+            }
+            return Mono.just(param);
+        }
         return DataBufferUtils.join(part.content()).map(dataBuffer -> {
             byte[] bytes = new byte[dataBuffer.readableByteCount()];
             totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
