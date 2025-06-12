@@ -9,6 +9,7 @@ import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.git.files.operations.FileOperationsImpl;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
@@ -51,7 +52,8 @@ public class FileUtilsImplTest {
                 gitExecutor,
                 fileOperations,
                 ObservationHelper.NOOP,
-                new ObjectMapper());
+                new ObjectMapper(),
+                ObservationRegistry.NOOP);
     }
 
     @AfterEach
