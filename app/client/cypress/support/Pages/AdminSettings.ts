@@ -1,5 +1,8 @@
-import { ObjectsRegistry } from "../Objects/Registry";
+import AdminsSettings from "../../locators/AdminsSettings";
+import githubForm from "../../locators/GithubForm.json";
+import HomePage from "../../locators/HomePage";
 import { featureFlagIntercept } from "../Objects/FeatureFlags";
+import { ObjectsRegistry } from "../Objects/Registry";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -8,6 +11,7 @@ export class AdminSettings {
   public assertHelper = ObjectsRegistry.AssertHelper;
 
   public _adminSettingsBtn = ".admin-settings-menu-option";
+  public _authenticationTab = ".t--settings-category-authentication";
   public _saveButton = ".t--admin-settings-save-button";
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
@@ -47,6 +51,60 @@ export class AdminSettings {
     this.agHelper.AssertElementVisibility(this._settingsList);
   }
 
+  public NavigateToAuthenticationSettings(toNavigateToHome = true) {
+    this.NavigateToAdminSettings(toNavigateToHome);
+    this.agHelper.GetNClick(this._authenticationTab);
+  }
+
+  public FillAndSaveGithubForm() {
+    this.agHelper.GetNClick(githubForm.githubClientId);
+    this.agHelper.TypeText(
+      githubForm.githubClientId,
+      Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
+    );
+
+    this.agHelper.GetNClick(githubForm.githubClientSecret);
+    this.agHelper.TypeText(
+      githubForm.githubClientSecret,
+      Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"),
+    );
+
+    this.agHelper.GetNClick(githubForm.saveBtn);
+  }
+
+  public fillSaveAndAssertGithubForm() {
+    this.FillAndSaveGithubForm();
+    this.agHelper.WaitUntilEleAppear(AdminsSettings.restartNotice);
+    this.agHelper.AssertElementAbsence(AdminsSettings.restartNotice, 200000);
+  }
+
+  public toggleFormSignupLoginAndSave(enable = true, type = "signup") {
+    const selector =
+      type === "signup"
+        ? AdminsSettings.formSignupDisabled
+        : AdminsSettings.formLoginEnabled;
+    this.agHelper.GetNClick(AdminsSettings.formloginButton);
+    this.agHelper.WaitUntilEleAppear(selector);
+
+    if (enable) {
+      this.agHelper.GetElement(selector).then(($el) => {
+        if (!$el.prop("checked")) {
+          this.agHelper.GetNClick(selector);
+        }
+      });
+    } else {
+      this.agHelper.GetElement(selector).then(($el) => {
+        if ($el.prop("checked")) {
+          this.agHelper.GetNClick(selector);
+        }
+      });
+    }
+
+    this.agHelper.AssertElementVisibility(AdminsSettings.saveButton);
+    this.agHelper.GetNClick(AdminsSettings.saveButton);
+    this.agHelper.WaitUntilToastDisappear("Successfully saved");
+  }
+
   public EnableGAC(
     toNavigateToHome = true,
     toNavigateBackToHome = true,
@@ -72,6 +130,20 @@ export class AdminSettings {
       default:
         break;
     }
+  }
+
+  public logoutFromApp() {
+    this.agHelper.GetNClick(HomePage.profileMenu);
+    this.agHelper.GetNClick(HomePage.signOutIcon);
+  }
+
+  public verifyFormLogin() {
+    this.agHelper.AssertElementVisibility(AdminsSettings.formloginButton);
+    this.agHelper.AssertContains(
+      "Edit",
+      "exist",
+      AdminsSettings.formloginButton,
+    );
   }
 
   private enableGACFeatureFlag() {
