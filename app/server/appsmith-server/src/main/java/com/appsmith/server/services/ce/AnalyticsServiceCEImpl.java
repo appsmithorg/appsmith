@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
@@ -15,6 +16,7 @@ import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
@@ -24,6 +26,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -48,6 +51,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
     private final ConfigService configService;
+    private final FeatureFlagService featureFlagService;
 
     private final UserUtils userUtils;
 
@@ -65,11 +69,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             UserUtils userUtils,
             ProjectProperties projectProperties,
             DeploymentProperties deploymentProperties,
-            UserDataRepository userDataRepository) {
+            UserDataRepository userDataRepository,
+            @Lazy FeatureFlagService featureFlagService) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
+        this.featureFlagService = featureFlagService;
         this.userUtils = userUtils;
         this.projectProperties = projectProperties;
         this.deploymentProperties = deploymentProperties;
@@ -319,7 +325,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         Mono<User> userMono = sessionUserService.getCurrentUser().switchIfEmpty(Mono.just(anonymousUser));
 
-        return userMono.flatMap(user -> Mono.zip(
+        return userMono.flatMap(user -> {
+                    // if the user is anonymous, check if the feature flag disable_anonymous_user_for_analytics is
+                    // enabled.
+                    // if yes, then do not send the analytics event.
+                    if (user.isAnonymous()) {
+                        return featureFlagService
+                                .check(FeatureFlagEnum.disable_anonymous_user_for_analytics)
+                                .flatMap(isDisabled -> {
+                                    if (isDisabled) {
+                                        log.debug("Analytics event {} is not sent for anonymous user", eventTag);
+                                        return Mono.empty();
+                                    } else {
+                                        return Mono.just(user);
+                                    }
+                                });
+                    }
+
+                    return Mono.just(user);
+                })
+                .flatMap(user -> Mono.zip(
                         user.isAnonymous()
                                 ? ExchangeUtils.getAnonymousUserIdFromCurrentRequest()
                                 : Mono.just(user.getUsername()),
