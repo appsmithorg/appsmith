@@ -1106,9 +1106,16 @@ class MetaWidgetGenerator {
   ) => {
     if (metaWidget.currentItem) return;
 
-    // Check if we're in the empty data case (when original listData was empty, we add [{}])
+    /**
+     * Check if we're in the empty data case (when original listData was empty, we add [{}])
+     * The page condition is included because there may be instances when a user uses navigation controls and lands on a specific page number,
+     * such as page 3, which returns an empty response.
+     * In this case, the list data will be empty, and we want to avoid generating empty meta widgets for that scenario.
+     */
     const isEmptyDataCase =
-      this.data.length === 1 && Object.keys(this.data[0] || {}).length === 0;
+      this.data.length === 1 &&
+      Object.keys(this.data[0] || {}).length === 0 &&
+      this.pageNo === 1;
 
     let dataBinding: string;
 

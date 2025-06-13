@@ -43,7 +43,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import {
+  getMetaFlexLayers,
+  isListFullyEmpty,
+  isTargetElementClickable,
+} from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -559,7 +563,7 @@ class ListWidget extends BaseWidget<
     } = this.props;
     const pageSize = this.pageSize;
 
-    if (listData.length === 0) {
+    if (isListFullyEmpty(listData, pageNo)) {
       listData.push({});
     }
 
@@ -1465,7 +1469,8 @@ class ListWidget extends BaseWidget<
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.filter((item) => !isEmpty(item)).length === 0
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
+      isListFullyEmpty(this.props.listData, this.props.pageNo)
     ) {
       return (
         <>
