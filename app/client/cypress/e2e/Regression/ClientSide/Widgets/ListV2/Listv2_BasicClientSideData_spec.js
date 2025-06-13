@@ -164,18 +164,14 @@ describe(
     });
 
     it("7. For the empty list, there should be no errors in appsmith console(as empty meta widgets are generated)", () => {
-      // Select the List widget
       cy.openPropertyPane("listwidgetv2");
 
-      // Set empty data in the property pane
       _.propPane.UpdatePropertyFieldValue("Items", "[]");
 
-      // Verify "No data to display" message is shown
       _.agHelper.AssertElementVisibility(
         _.locators._visibleTextDiv("No data to display"),
       );
 
-      // Check for console errors
       _.debuggerHelper.AssertErrorCount(0);
     });
   },
