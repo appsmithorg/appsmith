@@ -1469,8 +1469,7 @@ class ListWidget extends BaseWidget<
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
-      isListFullyEmpty(this.props.listData, this.props.pageNo)
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0
     ) {
       return (
         <>
