@@ -162,5 +162,17 @@ describe(
         false,
       );
     });
+
+    it("7. For the empty list, there should be no errors in appsmith console(as empty meta widgets are generated)", () => {
+      cy.openPropertyPane("listwidgetv2");
+
+      _.propPane.UpdatePropertyFieldValue("Items", "[]");
+
+      _.agHelper.AssertElementVisibility(
+        _.locators._visibleTextDiv("No data to display"),
+      );
+
+      _.debuggerHelper.AssertErrorCount(0);
+    });
   },
 );

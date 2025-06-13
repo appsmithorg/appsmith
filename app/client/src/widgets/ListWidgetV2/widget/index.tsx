@@ -43,7 +43,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import {
+  getMetaFlexLayers,
+  isListFullyEmpty,
+  isTargetElementClickable,
+} from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -559,6 +563,10 @@ class ListWidget extends BaseWidget<
     } = this.props;
     const pageSize = this.pageSize;
 
+    if (isListFullyEmpty(listData, pageNo)) {
+      listData.push({});
+    }
+
     return {
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
@@ -602,6 +610,9 @@ class ListWidget extends BaseWidget<
   };
 
   generateMetaWidgets = () => {
+    // The metaWidgetGeneratorOptions method already handles empty data
+    // by providing [{}] when listData is empty, so we can use normal generation flow
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
 
     const { metaWidgets, propertyUpdates, removedMetaWidgetIds } =
@@ -1458,8 +1469,7 @@ class ListWidget extends BaseWidget<
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
-      this.props.renderMode === RenderModes.PAGE
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0
     ) {
       return (
         <>

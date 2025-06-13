@@ -1106,14 +1106,32 @@ class MetaWidgetGenerator {
   ) => {
     if (metaWidget.currentItem) return;
 
-    const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
-      metaWidgetId,
-      key,
-    );
+    /**
+     * Check if we're in the empty data case (when original listData was empty, we add [{}])
+     * The page condition is included because there may be instances when a user uses navigation controls and lands on a specific page number,
+     * such as page 3, which returns an empty response.
+     * In this case, the list data will be empty, and we want to avoid generating empty meta widgets for that scenario.
+     */
+    const isEmptyDataCase =
+      this.data.length === 1 &&
+      Object.keys(this.data[0] || {}).length === 0 &&
+      this.pageNo === 1;
 
-    const dataBinding = shouldAddDataCacheToBinding
-      ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
-      : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    let dataBinding: string;
+
+    if (isEmptyDataCase) {
+      // For empty data case, set currentItem to empty object
+      dataBinding = "{{{}}}";
+    } else {
+      const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
+        metaWidgetId,
+        key,
+      );
+
+      dataBinding = shouldAddDataCacheToBinding
+        ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
+        : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    }
 
     metaWidget.currentItem = dataBinding;
     metaWidget.dynamicBindingPathList = [
@@ -1852,10 +1870,6 @@ class MetaWidgetGenerator {
     return this.getRowTemplateCache(key, this.containerWidgetId, {
       keepMetaWidgetData: true,
     })?.metaWidgetName;
-  };
-
-  private resetCache = () => {
-    this.setWidgetCache({});
   };
 
   private initVirtualizer = () => {
