@@ -15,6 +15,7 @@ public enum FeatureFlagEnum {
     release_embed_hide_share_settings_enabled,
     rollout_datasource_test_rate_limit_enabled,
     release_gs_all_sheets_options_enabled,
+    disable_anonymous_user_for_analytics,
     /**
      * Feature flag to detect if the git reset optimization is enabled
      */
