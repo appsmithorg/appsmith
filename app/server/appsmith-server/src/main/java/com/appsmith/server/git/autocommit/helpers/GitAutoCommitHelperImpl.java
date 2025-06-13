@@ -1,5 +1,6 @@
 package com.appsmith.server.git.autocommit.helpers;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -8,7 +9,8 @@ import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
-import com.appsmith.server.git.common.CommonGitService;
+import com.appsmith.server.git.central.CentralGitService;
+import com.appsmith.server.git.central.GitType;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
@@ -33,7 +35,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final RedisUtils redisUtils;
-    private final CommonGitService commonGitService;
+    private final CentralGitService centralGitService;
 
     public GitAutoCommitHelperImpl(
             GitPrivateRepoHelper gitPrivateRepoHelper,
@@ -42,14 +44,14 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             RedisUtils redisUtils,
-            @Lazy CommonGitService commonGitService) {
+            @Lazy CentralGitService centralGitService) {
         this.gitPrivateRepoHelper = gitPrivateRepoHelper;
         this.autoCommitEventHandler = autoCommitEventHandler;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.redisUtils = redisUtils;
-        this.commonGitService = commonGitService;
+        this.centralGitService = centralGitService;
     }
 
     @Override
@@ -178,8 +180,9 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                             "Auto commit for application {}, and branch name {} is fetching remote changes",
                             defaultApplication.getId(),
                             branchName);
-                    return commonGitService
-                            .fetchRemoteChanges(defaultApplication, branchedApplication, true)
+                    return centralGitService
+                            .fetchRemoteChanges(
+                                    defaultApplication, branchedApplication, true, GitType.FILE_SYSTEM, RefType.branch)
                             .flatMap(branchTrackingStatus -> {
                                 if (branchTrackingStatus.getBehindCount() > 0) {
                                     log.info(

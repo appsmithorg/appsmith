@@ -79,6 +79,7 @@ import static com.appsmith.git.constants.CommonConstants.METADATA;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.TEXT_FILE_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.THEME;
+import static com.appsmith.git.constants.ce.CommonConstantsCE.fileFormatVersion;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.DATASOURCE_DIRECTORY;
@@ -328,6 +329,25 @@ public class CommonGitFileUtilsCE {
 
         // action collections
         setActionCollectionsInResourceMap(artifactExchangeJson, resourceMap);
+
+        // metadata
+        setMetadataInResourceMap(artifactExchangeJson, resourceMap);
+    }
+
+    protected void setMetadataInResourceMap(
+            ArtifactExchangeJson artifactExchangeJson, Map<GitResourceIdentity, Object> resourceMap) {
+
+        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
+        final Map<String, Object> metadataMap = new HashMap<>();
+
+        metadataMap.put(ARTIFACT_JSON_TYPE, artifactExchangeJson.getArtifactJsonType());
+        metadataMap.put(SERVER_SCHEMA_VERSION, artifactExchangeJson.getServerSchemaVersion());
+        metadataMap.put(CLIENT_SCHEMA_VERSION, artifactExchangeJson.getClientSchemaVersion());
+        metadataMap.put(FILE_FORMAT_VERSION, fileFormatVersion);
+
+        GitResourceIdentity metadataResourceIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
+        resourceMap.put(metadataResourceIdentity, metadataMap);
     }
 
     protected String getContextDirectoryByType(CreatorContextType contextType) {
@@ -933,7 +953,6 @@ public class CommonGitFileUtilsCE {
         String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
         String refName = gitArtifactMetadata.getRefName();
         String repoName = gitArtifactMetadata.getRepoName();
-        Mono<Boolean> useFSGitHandlerMono = featureFlagService.check(FeatureFlagEnum.release_git_api_contracts_enabled);
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
@@ -960,14 +979,9 @@ public class CommonGitFileUtilsCE {
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, defaultArtifactId, repoName);
 
-        Mono<JSONObject> jsonObjectMono = Mono.zip(useFSGitHandlerMono, keepWorkingDirChangesMono)
-                .flatMap(tuple -> fileUtils.reconstructPageFromGitRepo(
-                        pageDTO.getName(),
-                        refName,
-                        baseRepoSuffix,
-                        isResetToLastCommitRequired,
-                        tuple.getT1(),
-                        tuple.getT2()))
+        Mono<JSONObject> jsonObjectMono = keepWorkingDirChangesMono
+                .flatMap(keepWorkingDirChanges -> fileUtils.reconstructPageFromGitRepo(
+                        pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired, keepWorkingDirChanges))
                 .onErrorResume(error -> Mono.error(
                         new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
                 .map(pageJson -> {

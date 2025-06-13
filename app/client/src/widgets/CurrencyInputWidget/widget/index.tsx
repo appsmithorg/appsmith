@@ -12,7 +12,7 @@ import {
   getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import _, { debounce } from "lodash";
+import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
@@ -42,10 +42,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import {
-  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-  WIDGET_TAGS,
-} from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { appsmithTelemetry } from "instrumentation";
 
 export function defaultValueValidation(
@@ -157,19 +154,10 @@ export function defaultValueValidation(
   };
 }
 
-interface CurrencyInputWidgetState extends WidgetState {
-  inputValue: string;
-}
-
 class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
-  CurrencyInputWidgetState
+  WidgetState
 > {
-  constructor(props: CurrencyInputWidgetProps) {
-    super(props);
-    this.state = { inputValue: props.text ?? "" };
-  }
-
   static type = "CURRENCY_INPUT_WIDGET";
 
   static getConfig() {
@@ -469,12 +457,6 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
-    if (prevProps.text !== this.props.text) {
-      this.setState({ inputValue: this.props.text ?? "" });
-      // Cancel any pending debounced calls when value is updated externally
-      this.debouncedOnValueChange.cancel();
-    }
-
     if (
       prevProps.text !== this.props.text &&
       !this.props.isFocused &&
@@ -497,10 +479,6 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.onCurrencyTypeChange(this.props.currencyCode);
     }
-  }
-
-  componentWillUnmount() {
-    this.debouncedOnValueChange.cancel();
   }
 
   formatText() {
@@ -528,22 +506,6 @@ class CurrencyInputWidget extends BaseInputWidget<
     }
   }
 
-  // debouncing the input change to avoid multiple Execute calls in reactive flow
-  debouncedOnValueChange = debounce((value: string) => {
-    // text is stored as what user has typed
-    this.props.updateWidgetMetaProperty("text", String(value), {
-      triggerPropertyName: "onTextChanged",
-      dynamicString: this.props.onTextChanged,
-      event: {
-        type: EventType.ON_TEXT_CHANGE,
-      },
-    });
-
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
-
   onValueChange = (value: string) => {
     let formattedValue = "";
     const decimalSeperator = getLocaleDecimalSeperator();
@@ -562,8 +524,18 @@ class CurrencyInputWidget extends BaseInputWidget<
       });
     }
 
-    this.setState({ inputValue: formattedValue });
-    this.debouncedOnValueChange(formattedValue);
+    // text is stored as what user has typed
+    this.props.updateWidgetMetaProperty("text", String(formattedValue), {
+      triggerPropertyName: "onTextChanged",
+      dynamicString: this.props.onTextChanged,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
+
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   isTextFormatted = () => {
@@ -651,7 +623,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   };
 
   getWidgetView() {
-    const value = this.state.inputValue ?? "";
+    const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCode = this.props.currencyCode;

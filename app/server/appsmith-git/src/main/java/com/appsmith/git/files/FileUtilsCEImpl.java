@@ -1316,7 +1316,7 @@ public class FileUtilsCEImpl implements FileInterface {
             if (Boolean.TRUE.equals(isResetToLastCommitRequired)) {
                 // instead of checking out to last branch we are first cleaning the git repo,
                 // then checking out to the desired branch
-                gitResetMono = gitExecutor.resetToLastCommit(baseRepoSuffix, branchName, false);
+                gitResetMono = fsGitHandler.resetToLastCommit(baseRepoSuffix, branchName, false);
             }
 
             metadataMono = gitResetMono.map(isSwitched -> {
@@ -1354,7 +1354,6 @@ public class FileUtilsCEImpl implements FileInterface {
             String branchName,
             Path baseRepoSuffixPath,
             Boolean resetToLastCommitRequired,
-            Boolean useFSGitHandler,
             Boolean keepWorkingDirChanges) {
         Mono<Object> pageObjectMono;
         try {
@@ -1363,12 +1362,8 @@ public class FileUtilsCEImpl implements FileInterface {
             if (Boolean.TRUE.equals(resetToLastCommitRequired)) {
                 // instead of checking out to last branch we are first cleaning the git repo,
                 // then checking out to the desired branch
-                if (Boolean.TRUE.equals(useFSGitHandler)) {
-                    resetToLastCommit =
-                            fsGitHandler.resetToLastCommit(baseRepoSuffixPath, branchName, keepWorkingDirChanges);
-                } else {
-                    resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName, true);
-                }
+                resetToLastCommit =
+                        fsGitHandler.resetToLastCommit(baseRepoSuffixPath, branchName, keepWorkingDirChanges);
             }
 
             pageObjectMono = resetToLastCommit.map(isSwitched -> {
