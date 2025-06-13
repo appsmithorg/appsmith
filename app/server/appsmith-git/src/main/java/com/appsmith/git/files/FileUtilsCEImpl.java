@@ -1,5 +1,6 @@
 package com.appsmith.git.files;
 
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -19,6 +20,7 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.helpers.DSLTransformerHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -90,7 +93,7 @@ public class FileUtilsCEImpl implements FileInterface {
     protected final FileOperations fileOperations;
     private final ObservationHelper observationHelper;
     protected final ObjectMapper objectMapper;
-
+    private final ObservationRegistry observationRegistry;
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
@@ -108,13 +111,15 @@ public class FileUtilsCEImpl implements FileInterface {
             GitExecutor gitExecutor,
             FileOperations fileOperations,
             ObservationHelper observationHelper,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ObservationRegistry observationRegistry) {
         this.gitServiceConfig = gitServiceConfig;
         this.fsGitHandler = fsGitHandler;
         this.gitExecutor = gitExecutor;
         this.fileOperations = fileOperations;
         this.observationHelper = observationHelper;
         this.objectMapper = objectMapper;
+        this.observationRegistry = observationRegistry;
     }
 
     protected Map<GitResourceType, GitResourceType> getModifiedResourcesTypes() {
@@ -288,6 +293,66 @@ public class FileUtilsCEImpl implements FileInterface {
                             });
                 })
                 .subscribeOn(scheduler);
+    }
+
+    public Mono<GitStatusDTO> computeGitStatus(
+            Path baseRepoSuffix, GitResourceMap gitResourceMapFromDB, String branchName, boolean keepWorkingDirChanges)
+            throws GitAPIException, IOException {
+        return fsGitHandler
+                .resetToLastCommit(baseRepoSuffix, branchName, keepWorkingDirChanges)
+                .flatMap(__ -> constructGitResourceMapFromGitRepo(baseRepoSuffix, branchName))
+                .flatMap(gitResourceMapFromFS -> {
+                    Map<GitResourceIdentity, Object> resourceMapFromDB = gitResourceMapFromDB.getGitResourceMap();
+                    Map<GitResourceIdentity, Object> resourceMapFromFS = gitResourceMapFromFS.getGitResourceMap();
+
+                    Map<String, Object> filePathObjectsMapFromFS = resourceMapFromFS.entrySet().parallelStream()
+                            .collect(
+                                    Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
+                    Map<String, Object> filePathToObjectsFromDB = resourceMapFromDB.entrySet().parallelStream()
+                            .collect(
+                                    Collectors.toMap(entry -> entry.getKey().getFilePath(), entry -> entry.getValue()));
+
+                    Set<String> filePathsInDb = new HashSet<>(filePathToObjectsFromDB.keySet());
+                    Set<String> filePathsInFS = new HashSet<>(filePathObjectsMapFromFS.keySet());
+
+                    // added files
+                    Set<String> addedFiles = new HashSet<>(filePathsInDb);
+                    addedFiles.removeAll(filePathsInFS);
+
+                    // removed files
+                    Set<String> removedFiles = new HashSet<>(filePathsInFS);
+                    removedFiles.removeAll(filePathsInDb);
+                    removedFiles.remove(README_FILE_NAME);
+
+                    // common files
+                    Set<String> commonFiles = new HashSet<>(filePathsInDb);
+                    commonFiles.retainAll(filePathsInFS);
+
+                    // modified files
+                    Set<String> modifiedFiles = commonFiles.stream()
+                            .filter(filePath -> {
+                                Object fileInDB = filePathToObjectsFromDB.get(filePath);
+                                Object fileInFS = filePathObjectsMapFromFS.get(filePath);
+                                try {
+                                    return fileOperations.hasFileChanged(fileInDB, fileInFS);
+                                } catch (IOException e) {
+                                    log.error("Error while checking if file has changed", e);
+                                    return false;
+                                }
+                            })
+                            .collect(Collectors.toSet());
+
+                    GitStatusDTO localRepoStatus = new GitStatusDTO();
+                    localRepoStatus.setAdded(addedFiles);
+                    localRepoStatus.setModified(modifiedFiles);
+                    localRepoStatus.setRemoved(removedFiles);
+                    boolean isClean = addedFiles.isEmpty() && modifiedFiles.isEmpty() && removedFiles.isEmpty();
+                    localRepoStatus.setIsClean(isClean);
+
+                    fsGitHandler.populateModifiedEntities(localRepoStatus);
+                    return Mono.just(localRepoStatus);
+                });
     }
 
     protected Set<String> getWhitelistedPaths() {
@@ -802,7 +867,10 @@ public class FileUtilsCEImpl implements FileInterface {
     @Override
     public Mono<GitResourceMap> constructGitResourceMapFromGitRepo(Path repositorySuffix, String refName) {
         Path repositoryPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
-        return Mono.fromCallable(() -> fetchGitResourceMap(repositoryPath)).subscribeOn(scheduler);
+        return Mono.fromCallable(() -> fetchGitResourceMap(repositoryPath))
+                .subscribeOn(scheduler)
+                .name("construct-git-resource-map")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
