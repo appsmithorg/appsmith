@@ -1244,6 +1244,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
                     data.put(FieldName.ACTION_CONFIGURATION, rawActionConfiguration);
                     data.put(FieldName.EVENT_DATA, eventData);
+                    data.put(FieldName.ACTION_CONFIGURATION_RUN_BEHAVIOUR, actionDTO.getRunBehaviour());
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
                             .thenReturn(request);
