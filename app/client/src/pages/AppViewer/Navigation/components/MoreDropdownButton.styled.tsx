@@ -7,7 +7,6 @@ import {
 } from "pages/AppViewer/utils";
 import styled from "styled-components";
 import Button from "pages/AppViewer/AppViewerButton";
-import { NavLink } from "react-router-dom";
 import { Menu } from "@appsmith/ads-old";
 
 export const StyleMoreDropdownButton = styled(Button)<{
@@ -56,7 +55,7 @@ export const StyledMenuDropdownContainer = styled(Menu)<{
   }
 `;
 
-export const StyledMenuItemInDropdown = styled(NavLink)<{
+export const StyledMenuItemInDropdown = styled.div<{
   borderRadius: string;
   primaryColor: string;
 }>`
