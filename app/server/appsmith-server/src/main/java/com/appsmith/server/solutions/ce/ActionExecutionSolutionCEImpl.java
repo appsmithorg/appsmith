@@ -63,6 +63,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -341,8 +342,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     @Override
     public Mono<ActionExecutionResult> executeAction(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        // 1. Validate input parameters which are required for mustache replacements
-        replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
+
+        // Earlier, here we were replacing null with quotes for param values.
 
         AtomicReference<String> actionName = new AtomicReference<>();
         actionName.set("");
@@ -505,6 +506,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     protected Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount) {
         final Param param = new Param();
         param.setPseudoBindingName(part.name());
+
+        if (part instanceof FormFieldPart) {
+            FormFieldPart formFieldPart = (FormFieldPart) part;
+            if ("null".equals(formFieldPart.value())) {
+                param.setValue(null);
+            } else if (formFieldPart.value().isEmpty()) {
+                param.setValue(formFieldPart.value());
+            }
+            return Mono.just(param);
+        }
         return DataBufferUtils.join(part.content()).map(dataBuffer -> {
             byte[] bytes = new byte[dataBuffer.readableByteCount()];
             totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
@@ -1127,27 +1138,21 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             ? ApplicationMode.PUBLISHED.toString()
                             : ApplicationMode.EDIT.toString();
 
-                    final Map<String, Object> data = new HashMap<>(Map.of(
-                            "username",
-                            user.getUsername(),
-                            "type",
-                            pluginType,
-                            "pluginName",
-                            plugin.getName(),
-                            "name",
-                            actionDTO.getName(),
-                            "datasource",
-                            Map.of("name", datasourceStorage.getName()),
-                            "workspaceId",
-                            application.getWorkspaceId(),
-                            "appId",
-                            actionDTO.getApplicationId(),
-                            FieldName.APP_MODE,
-                            appMode,
-                            "appName",
-                            application.getName(),
-                            "isExampleApp",
-                            application.isAppIsExample()));
+                    final Map<String, Object> data = new HashMap<>();
+                    data.put("username", user.getUsername());
+                    data.put("type", pluginType);
+                    data.put("pluginName", plugin.getName());
+                    data.put("name", actionDTO.getName());
+
+                    Map<String, Object> datasourceInfo = new HashMap<>();
+                    datasourceInfo.put("name", datasourceStorage.getName());
+                    data.put("datasource", datasourceInfo);
+
+                    data.put("workspaceId", application.getWorkspaceId());
+                    data.put("appId", actionDTO.getApplicationId());
+                    data.put(FieldName.APP_MODE, appMode);
+                    data.put("appName", application.getName());
+                    data.put("isExampleApp", application.isAppIsExample());
 
                     String dsCreatedAt = "";
                     if (datasourceStorage.getCreatedAt() != null) {
@@ -1160,37 +1165,28 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     List<String> executionParams =
                             paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
-                    data.putAll(Map.of(
-                            "request",
-                            request,
+                    data.put("request", request);
+                    data.put(
                             "isSuccessfulExecution",
-                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
-                            "statusCode",
-                            ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
-                            "timeElapsed",
-                            timeElapsed,
-                            "actionCreated",
-                            DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
-                            "actionId",
-                            ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
-                    data.putAll(Map.of(
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false));
+                    data.put("statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""));
+                    data.put("timeElapsed", timeElapsed);
+                    data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
+                    data.put("actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), ""));
+                    data.put(
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE,
-                            executeActionDto.getTotalReadableByteCount(),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT,
-                            executionParams.size()));
+                            executeActionDto.getTotalReadableByteCount());
+                    data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size());
 
                     setContextSpecificProperties(data, actionDTO, pageName);
 
                     ActionExecutionResult.PluginErrorDetails pluginErrorDetails =
                             actionExecutionResult.getPluginErrorDetails();
-
-                    data.putAll(Map.of("pluginErrorDetails", ObjectUtils.defaultIfNull(pluginErrorDetails, "")));
-
+                    data.put("pluginErrorDetails", ObjectUtils.defaultIfNull(pluginErrorDetails, ""));
                     if (pluginErrorDetails != null) {
-                        data.putAll(Map.of(
-                                "appsmithErrorCode", pluginErrorDetails.getAppsmithErrorCode(),
-                                "appsmithErrorMessage", pluginErrorDetails.getAppsmithErrorMessage(),
-                                "errorType", pluginErrorDetails.getErrorType()));
+                        data.put("appsmithErrorCode", pluginErrorDetails.getAppsmithErrorCode());
+                        data.put("appsmithErrorMessage", pluginErrorDetails.getAppsmithErrorMessage());
+                        data.put("errorType", pluginErrorDetails.getErrorType());
                     }
 
                     data.putAll(DatasourceAnalyticsUtils.getAnalyticsPropertiesWithStorageOnActionExecution(
@@ -1219,15 +1215,15 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 actionExecutionResult.getRequest().getQuery();
                     }
 
-                    final Map<String, Object> eventData = new HashMap<>(Map.of(
-                            FieldName.ACTION, actionDTO,
-                            FieldName.DATASOURCE, datasourceStorage,
-                            FieldName.APP_MODE, appMode,
-                            FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
-                            FieldName.ACTION_EXECUTION_TIME, timeElapsed,
-                            FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
-                            FieldName.APPLICATION, application,
-                            FieldName.PLUGIN, plugin));
+                    final Map<String, Object> eventData = new HashMap<>();
+                    eventData.put(FieldName.ACTION, actionDTO);
+                    eventData.put(FieldName.DATASOURCE, datasourceStorage);
+                    eventData.put(FieldName.APP_MODE, appMode);
+                    eventData.put(FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult);
+                    eventData.put(FieldName.ACTION_EXECUTION_TIME, timeElapsed);
+                    eventData.put(FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery);
+                    eventData.put(FieldName.APPLICATION, application);
+                    eventData.put(FieldName.PLUGIN, plugin);
 
                     if (executeActionDto.getTotalReadableByteCount() <= Constraint.MAX_ANALYTICS_SIZE_BYTES) {
                         // Only send params info if total size is less than 5 MB
@@ -1259,7 +1255,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     protected void setContextSpecificProperties(Map<String, Object> data, ActionDTO actionDTO, String contextName) {
-        data.putAll(Map.of("pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""), "pageName", contextName));
+        data.put("pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""));
+        data.put("pageName", ObjectUtils.defaultIfNull(contextName, ""));
     }
 
     protected Mono<ActionDTO> setAutoGeneratedHeaders(Plugin plugin, ActionDTO actionDTO, HttpHeaders httpHeaders) {

@@ -1,4 +1,3 @@
-import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "../../../../../../src/constants/WidgetConstants";
 const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -23,14 +22,10 @@ describe(
         "{{showAlert(`${level_1.currentView.Text1.text} _ ${level_1.currentItem.id} _ ${level_1.currentIndex} _ ${level_1.currentView.Input1.text} _ ${currentView.Input2.text}`)}}",
       );
       // Enter text in the parent list widget's text input
-      cy.get(widgetSelector("Input1"))
-        .find("input")
-        .type("outer input", { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
+      cy.get(widgetSelector("Input1")).find("input").type("outer input");
 
       // Enter text in the child list widget's text input in first row
-      cy.get(widgetSelector("Input2"))
-        .find("input")
-        .type("inner input", { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
+      cy.get(widgetSelector("Input2")).find("input").type("inner input");
 
       // click the button on inner list 1st row.
       cy.get(widgetSelector("Button3")).find("button").click({ force: true });
@@ -45,17 +40,13 @@ describe(
       cy.get(widgetSelector("Input1"))
         .find("input")
         .clear()
-        .type("outer input updated", {
-          delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-        });
+        .type("outer input updated");
 
       // Enter text in the child list widget's text input in first row
       cy.get(widgetSelector("Input2"))
         .find("input")
         .clear()
-        .type("inner input updated", {
-          delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-        });
+        .type("inner input updated");
 
       // click the button on inner list 1st row.
       cy.get(widgetSelector("Button3")).find("button").click({ force: true });

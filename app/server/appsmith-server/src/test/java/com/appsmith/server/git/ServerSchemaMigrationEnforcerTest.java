@@ -3,7 +3,7 @@ package com.appsmith.server.git;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.ModifiedResources;
-import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
@@ -14,6 +14,7 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandlerImpl;
+import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -115,7 +116,10 @@ public class ServerSchemaMigrationEnforcerTest {
     GitFileSystemTestHelper gitFileSystemTestHelper;
 
     @SpyBean
-    GitExecutor gitExecutor;
+    FSGitHandler fsGitHandler;
+
+    @Autowired
+    GitArtifactHelperResolver gitArtifactHelperResolver;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -318,7 +322,7 @@ public class ServerSchemaMigrationEnforcerTest {
                 WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
 
         Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
-        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
+        Path gitCompletePath = fsGitHandler.createRepoPath(suffixPath);
 
         commonGitFileUtils
                 .saveArtifactToLocalRepo(suffixPath, applicationJson, BRANCH_NAME)
@@ -370,7 +374,7 @@ public class ServerSchemaMigrationEnforcerTest {
                 .block();
 
         Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
-        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
+        Path gitCompletePath = fsGitHandler.createRepoPath(suffixPath);
 
         // save back to the repository in order to compare the diff.
         commonGitFileUtils
@@ -396,8 +400,9 @@ public class ServerSchemaMigrationEnforcerTest {
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
+                gitArtifactHelperResolver,
                 commonGitFileUtils,
-                gitExecutor,
+                fsGitHandler,
                 projectProperties,
                 analyticsService);
 
@@ -410,8 +415,8 @@ public class ServerSchemaMigrationEnforcerTest {
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
         Mockito.doReturn(Mono.just("success"))
-                .when(gitExecutor)
-                .pushApplication(
+                .when(fsGitHandler)
+                .pushArtifact(
                         baseRepoSuffix,
                         autoCommitEvent.getRepoUrl(),
                         autoCommitEvent.getPublicKey(),
@@ -429,7 +434,7 @@ public class ServerSchemaMigrationEnforcerTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(gitExecutor.getCommitHistory(baseRepoSuffix))
+        StepVerifier.create(fsGitHandler.getCommitHistory(baseRepoSuffix))
                 .assertNext(gitLogDTOs -> {
                     assertThat(gitLogDTOs).isNotEmpty();
                     assertThat(gitLogDTOs.size()).isEqualTo(3);

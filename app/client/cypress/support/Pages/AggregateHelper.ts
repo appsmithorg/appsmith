@@ -7,7 +7,9 @@ import { EntityItems } from "./AssertHelper";
 import EditorNavigator from "./EditorNavigation";
 import { EntityType } from "./EditorNavigation";
 import ClickOptions = Cypress.ClickOptions;
-import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "../../../src/constants/WidgetConstants";
+const {
+  SAVE_TRIGGER_DELAY_MS,
+} = require("../../../src/components/editorComponents/CodeEditor/debounceConstants");
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -296,6 +298,11 @@ export class AggregateHelper {
   }
 
   public AssertAutoSave() {
+    // After fix made in https://github.com/appsmithorg/appsmith/pull/40239 to make save state and nw call in sync
+    // We will need to wait for the debounced time before we make any assertions on save state, otherwise
+    // we might run into situation where absence of save is asserted but save actually hasn't happened
+    // Additional 100ms added to avoid flaky issues that might be caused by race condition.
+    this.Sleep(SAVE_TRIGGER_DELAY_MS + 100);
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)
@@ -946,13 +953,10 @@ export class AggregateHelper {
         .focus()
         .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
         .wait(50)
-        .type(totype, { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
+        .type(totype);
     else {
       if (charCount == -1) this.GetElement(selector).eq(index).clear();
-      this.TypeText(selector, totype, {
-        index,
-        delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-      });
+      this.TypeText(selector, totype, index);
     }
   }
 
@@ -977,10 +981,7 @@ export class AggregateHelper {
     force = false,
   ) {
     this.ClearTextField(selector, force, index);
-    return this.TypeText(selector, totype, {
-      index,
-      delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-    });
+    return this.TypeText(selector, totype, index);
   }
 
   public TypeText(
@@ -1332,7 +1333,6 @@ export class AggregateHelper {
       .trigger("click")
       .type(input, {
         parseSpecialCharSequences: false,
-        delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
       });
   }
 

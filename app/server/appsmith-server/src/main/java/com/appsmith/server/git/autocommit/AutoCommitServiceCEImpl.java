@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
-import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelperImpl;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -41,7 +41,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
     private final PagePermission pagePermission;
 
     private final AutoCommitEligibilityHelper autoCommitEligibilityHelper;
-    private final GitAutoCommitHelperImpl gitAutoCommitHelper;
+    private final GitAutoCommitHelper gitAutoCommitHelper;
 
     @Override
     public Mono<AutoCommitResponseDTO> autoCommitApplication(String branchedApplicationId) {
@@ -65,8 +65,10 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                         .findByApplicationIdAndApplicationMode(
                                 application.getId(), pagePermission.getEditPermission(), ApplicationMode.PUBLISHED)
                         .next())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, branchedApplicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.PAGE,
+                        String.format(" by %s : %s", FieldName.APPLICATION_ID, branchedApplicationId))));
 
         return applicationMonoCached.zipWith(pageDTOMono).flatMap(tuple2 -> {
             Application branchedApplication = tuple2.getT1();

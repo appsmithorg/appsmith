@@ -53,6 +53,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -85,7 +87,6 @@ import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LEN
 import static com.appsmith.server.helpers.ValidationUtils.validateUserPassword;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
@@ -999,16 +1000,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
                         }
 
+                        user.setEmailVerified(TRUE);
                         Authentication authentication =
                                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         securityContext.setAuthentication(authentication);
-                        session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
-
-                        user.setEmailVerified(TRUE);
-                        Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
-                                webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
-                        return repository.save(user).then(redirectionMono);
-                    });
+                        // Save the security context in the session
+                        ServerSecurityContextRepository contextRepository =
+                                new WebSessionServerSecurityContextRepository();
+                        return contextRepository.save(exchange, securityContext).then(repository.save(user));
+                    })
+                    .then(redirectStrategy.sendRedirect(
+                            webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl)));
         });
     }
 }
