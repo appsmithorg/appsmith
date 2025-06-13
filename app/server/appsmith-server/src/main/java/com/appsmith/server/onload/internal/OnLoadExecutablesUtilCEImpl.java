@@ -474,7 +474,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                             return this.updateUnpublishedExecutable(
                                                             executable.getId(), executable, creatorType)
                                                     .flatMap(updatedExecutable -> sendRunBehaviourChangedAnalytics(
-                                                                    updatedExecutable, oldRunBehaviour)
+                                                                    updatedExecutable, oldRunBehaviour, creatorType)
                                                             .onErrorResume(err -> {
                                                                 log.warn(
                                                                         "Analytics publish failed for action {}: {}",
@@ -489,7 +489,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Mono<Executable> sendRunBehaviourChangedAnalytics(
-            Executable executable, RunBehaviourEnum oldRunBehaviour) {
+            Executable executable, RunBehaviourEnum oldRunBehaviour, CreatorContextType creatorType) {
         if (!(executable instanceof ActionDTO actionDTO)) {
             return Mono.just(executable);
         }
@@ -534,6 +534,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             "system"); // This is a change that automatically happens during update layout, so we set it
                     // to "system"
 
+                    data.put("creatorContextType", creatorType != null ? creatorType : CreatorContextType.PAGE);
+                    data.put("isModuleInstance", getIsModuleInstance(actionDTO));
+
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
                             .thenReturn(executable);
@@ -544,6 +547,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     public Mono<Layout> findAndUpdateLayout(
             String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
         return getExecutableOnLoadService(creatorType).findAndUpdateLayout(creatorId, layoutId, layout);
+    }
+
+    protected boolean getIsModuleInstance(ActionDTO actionDTO) {
+        return false;
     }
 
     private Mono<Executable> updateUnpublishedExecutable(

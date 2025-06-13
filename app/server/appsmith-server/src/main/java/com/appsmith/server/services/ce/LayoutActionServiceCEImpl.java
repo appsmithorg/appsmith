@@ -345,7 +345,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
                                     .tap(Micrometer.observation(observationRegistry))
                                     .thenReturn(newActionService.generateActionByViewMode(savedAction, false)))
-                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(updatedAction, oldRunBehaviour)
+                            .flatMap(updatedAction -> sendRunBehaviourChangedAnalytics(
+                                            updatedAction, oldRunBehaviour, action.getContextType())
                                     .onErrorResume(e -> {
                                         log.warn("Run behaviour analytics failed, continuing", e);
                                         return Mono.just(updatedAction);
@@ -353,7 +354,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 });
     }
 
-    private Mono<ActionDTO> sendRunBehaviourChangedAnalytics(ActionDTO actionDTO, RunBehaviourEnum oldRunBehaviour) {
+    private Mono<ActionDTO> sendRunBehaviourChangedAnalytics(
+            ActionDTO actionDTO, RunBehaviourEnum oldRunBehaviour, CreatorContextType contextType) {
         return Mono.justOrEmpty(actionDTO.getApplicationId())
                 .flatMap(applicationService::findById)
                 .defaultIfEmpty(new Application())
@@ -390,6 +392,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     data.put("datasource", datasourceInfo);
 
                     data.put("wasChangedBy", "user"); // // This is a user-initiated change
+                    data.put("creatorContextType", contextType != null ? contextType : CreatorContextType.PAGE);
+                    data.put("isModuleInstance", getIsModuleInstance(actionDTO));
 
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
@@ -508,6 +512,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
                             .thenReturn(zippedActions.getT1());
                 });
+    }
+
+    protected boolean getIsModuleInstance(ActionDTO actionDTO) {
+        return false;
     }
 
     protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(

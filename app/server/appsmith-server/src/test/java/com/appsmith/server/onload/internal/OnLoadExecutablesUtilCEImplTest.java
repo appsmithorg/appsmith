@@ -112,7 +112,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -156,7 +157,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -203,7 +205,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -277,7 +280,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -317,7 +321,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -357,7 +362,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -413,7 +419,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -472,7 +479,8 @@ public class OnLoadExecutablesUtilCEImplTest {
 
         doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(any(Executable.class), any(RunBehaviourEnum.class));
+                .sendRunBehaviourChangedAnalytics(
+                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
