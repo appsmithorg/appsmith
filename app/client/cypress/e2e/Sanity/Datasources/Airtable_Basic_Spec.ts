@@ -403,6 +403,7 @@ describe(
       table.WaitForTableEmpty("v2");
       deployMode.NavigateBacktoEditor();
       dataSources.DeleteDatasourceFromWithinDS(dsName);
+
     });
   },
 );
