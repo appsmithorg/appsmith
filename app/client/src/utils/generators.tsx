@@ -1,5 +1,5 @@
 import type { WidgetType } from "constants/WidgetConstants";
-import generate from "nanoid/generate";
+import { customAlphabet } from "nanoid";
 import { getBaseWidgetClassName } from "../constants/componentClassNameConstants";
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
@@ -8,7 +8,7 @@ const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
 export const generateReactKey = ({
   prefix = "",
 }: { prefix?: string } = {}): string => {
-  return prefix + generate(ALPHANUMERIC, 10);
+  return prefix + customAlphabet(ALPHANUMERIC, 10)();
 };
 
 // Before you change how this works

@@ -5,7 +5,7 @@ import {
   osName,
   osVersion,
 } from "react-device-detect";
-import nanoid from "nanoid";
+import { nanoid } from "nanoid";
 import memoizeOne from "memoize-one";
 import { getApplicationParamsFromUrl } from "ee/utils/serviceWorkerUtils";
 import { getAppsmithConfigs } from "ee/configs";
