@@ -140,6 +140,7 @@ import {
   GitImportOverrideModal,
 } from "git";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+import { trackCurrentDomain } from "utils/multiOrgDomains";
 
 function GitModals() {
   const isGitModEnabled = useGitModEnabled();
@@ -1149,6 +1150,9 @@ export class Applications<
     // Whenever we go back to home page from application page,
     // we should reset current workspace, as this workspace is not in context anymore
     this.props.resetCurrentWorkspace();
+
+    // Track the current domain for multi-org functionality
+    trackCurrentDomain();
   }
 
   componentWillUnmount() {
