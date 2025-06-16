@@ -31,9 +31,9 @@ import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import {
+  getAppsmithAgentPlugin,
   getAppsmithAIPlugin,
   getGraphQLPlugin,
-  getAppsmithAgentPlugin,
 } from "entities/Action";
 import {
   type DefaultPlugin,
