@@ -20,6 +20,11 @@ import {
   getEventExtraProperties,
 } from "ee/utils/Analytics/getEventExtraProperties";
 
+import store from "store";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+
 export enum AnalyticsEventType {
   error = "error",
 }
@@ -50,6 +55,20 @@ function logEvent(
   eventData?: EventProperties,
   eventType?: AnalyticsEventType,
 ) {
+  // Block tracking for anonymous users when the feature flag is enabled
+  const state = store.getState();
+  const currentUser = getCurrentUser(state);
+  const isAnonymous =
+    currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
+  const blockAnonymousEvents = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+  );
+
+  if (isAnonymous && blockAnonymousEvents) {
+    return;
+  }
+
   if (blockErrorLogs && eventType === AnalyticsEventType.error) {
     return;
   }
