@@ -97,12 +97,12 @@ const validate = (values: SignupFormValues) => {
 };
 
 const recentDomainsSection = recentDomains.length > 0 && (
-  <div className="mt-3">
+  <div className="mt-12">
     <div className="mb-2">
       <Text kind="body-m">{createMessage(YOU_VE_ALREADY_SIGNED_INTO)}</Text>
     </div>
 
-    <div className="max-h-48 overflow-y-auto space-y-1 border border-gray-200 rounded-md">
+    <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md py-4 px-3">
       {recentDomains.map((domain, index) => {
         const orgName = domain
           .split(".")[0]
@@ -113,13 +113,16 @@ const recentDomainsSection = recentDomains.length > 0 && (
         const avatarLetter = String.fromCharCode(65 + (index % 26));
 
         return (
-          <div className="flex items-center justify-between p-3" key={domain}>
+          <div
+            className="flex items-center justify-between p-1 mb-3"
+            key={domain}
+          >
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-[color:var(--ads-color-background-secondary)] rounded-full flex items-center justify-center text-gray-600 font-light text-sm">
                 {avatarLetter}
               </div>
               <div className="flex flex-col">
-                <span className="text-md font-semibold text-gray-900">
+                <span className="text-md font-semibold text-gray-700">
                   {orgName}
                 </span>
                 <span className="text-xs font-light text-gray-500">
@@ -135,7 +138,7 @@ const recentDomainsSection = recentDomains.length > 0 && (
                   window.location.href = `https://${domain}/user/login`;
                 }
               }}
-              size="sm"
+              size="md"
             >
               Open
             </Button>
