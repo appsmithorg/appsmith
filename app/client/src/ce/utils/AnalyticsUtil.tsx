@@ -20,7 +20,6 @@ import {
   getEventExtraProperties,
 } from "ee/utils/Analytics/getEventExtraProperties";
 
-import store from "store";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -55,18 +54,27 @@ function logEvent(
   eventData?: EventProperties,
   eventType?: AnalyticsEventType,
 ) {
-  // Block tracking for anonymous users when the feature flag is enabled
-  const state = store.getState();
-  const currentUser = getCurrentUser(state);
-  const isAnonymous =
-    currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
-  const blockAnonymousEvents = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-  );
+  // Block tracking for anonymous users when the feature flag is enabled.
+  // We resolve store & selectors lazily to avoid circular dependencies.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires -- dynamic require to break cycles
+    const { default: appStore } = require("store");
+    const state = appStore.getState();
+    const currentUser = getCurrentUser(state);
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
 
-  if (isAnonymous && blockAnonymousEvents) {
-    return;
+    const blockAnonymousEvents = selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+    );
+
+    if (isAnonymous && blockAnonymousEvents) {
+      return;
+    }
+  } catch (_err) {
+    // If anything goes wrong (e.g., during tests when the store isn't ready),
+    // fall back to tracking to avoid breaking app logic.
   }
 
   if (blockErrorLogs && eventType === AnalyticsEventType.error) {
