@@ -66,7 +66,7 @@ import { isLoginHostname } from "utils/cloudBillingUtils";
 import { appsmithTelemetry } from "instrumentation";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
-import { getRecentDomains } from "utils/multiOrgDomains";
+import { getRecentDomains, isValidAppsmithDomain } from "utils/multiOrgDomains";
 
 declare global {
   interface Window {
@@ -131,7 +131,10 @@ const recentDomainsSection = recentDomains.length > 0 && (
               className="px-4 py-2 text-sm"
               kind="secondary"
               onClick={() => {
-                window.location.href = `https://${domain}/user/login`;
+                // Additional security check before redirect
+                if (isValidAppsmithDomain(domain)) {
+                  window.location.href = `https://${domain}/user/login`;
+                }
               }}
               size="sm"
             >

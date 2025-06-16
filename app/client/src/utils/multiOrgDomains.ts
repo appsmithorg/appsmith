@@ -11,15 +11,20 @@ function getCurrentDomain(): string {
   return window.location.hostname;
 }
 
+function isValidAppsmithDomain(domain: string): boolean {
+  return (
+    domain.endsWith(".appsmith.com") &&
+    !domain.startsWith("login.") &&
+    !domain.startsWith("release.") &&
+    !domain.startsWith("dev.") &&
+    /^[a-z0-9-]+\.appsmith\.com$/i.test(domain)
+  );
+}
+
 function isMultiOrgDomain(): boolean {
   const hostname = getCurrentDomain();
 
-  return (
-    hostname.endsWith(".appsmith.com") &&
-    !hostname.startsWith("login.") &&
-    !hostname.startsWith("release.") &&
-    !hostname.startsWith("dev.")
-  );
+  return isValidAppsmithDomain(hostname);
 }
 
 function getStoredDomains(): DomainEntry[] {
@@ -89,9 +94,12 @@ export function getRecentDomains(): string[] {
   return domains
     .filter((entry) => entry.timestamp > thirtyDaysAgo)
     .map((entry) => entry.domain)
-    .filter((domain) => domain !== getCurrentDomain());
+    .filter((domain) => domain !== getCurrentDomain())
+    .filter((domain) => isValidAppsmithDomain(domain));
 }
 
 export function clearRecentDomains(): void {
   document.cookie = `${COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.appsmith.com; path=/;`;
 }
+
+export { isValidAppsmithDomain };
