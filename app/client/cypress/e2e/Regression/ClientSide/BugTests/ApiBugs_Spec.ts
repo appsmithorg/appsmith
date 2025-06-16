@@ -66,24 +66,7 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
-    it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
-      apiPage.CreateAndFillApi(
-        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
-        "FirstAPI",
-        10000,
-        "POST",
-      );
-      apiPage.SelectPaneTab("Authentication");
-      cy.get(apiPage._saveAsDS).last().click({ force: true });
-      cy.go("back");
-      cy.get(dataSources._datasourceModalSave).click();
-      // ensures app does not crash and datasource is saved.
-      cy.contains("Edit datasource to access authentication settings").should(
-        "exist",
-      );
-    });
-
-    it("4. Bug 16683, When Api url has dynamic binding expressions, ensures the query params is not truncated", function () {
+    it("3. Bug 16683, When Api url has dynamic binding expressions, ensures the query params is not truncated", function () {
       const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
 
       apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
@@ -91,9 +74,15 @@ describe(
         key: "records",
         value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
       });
+
+      // Delete the action
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Api,
+      });
     });
 
-    it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
+    it("4. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
 
       // Case where api returns array response
@@ -127,6 +116,23 @@ describe(
       propPane.ValidatePropertyFieldValue(
         "Table data",
         "{{OBJECT_RESPONSE.data.users}}",
+      );
+    });
+
+    it("5. Bug 18876 Ensures application does not crash when saving datasource", () => {
+      apiPage.CreateAndFillApi(
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+        "FirstAPI",
+        10000,
+        "POST",
+      );
+      apiPage.SelectPaneTab("Authentication");
+      cy.get(apiPage._saveAsDS).last().click({ force: true });
+      cy.go("back");
+      cy.get(dataSources._datasourceModalSave).click();
+      // ensures app does not crash and datasource is saved.
+      cy.contains("Edit datasource to access authentication settings").should(
+        "exist",
       );
     });
   },

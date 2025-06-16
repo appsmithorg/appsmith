@@ -1,6 +1,7 @@
 module.exports = {
   Tag: [
     "@tag.AccessControl",
+    "@tag.Airtable",
     "@tag.Anvil",
     "@tag.Audio",
     "@tag.Auditlogs",

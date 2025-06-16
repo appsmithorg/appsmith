@@ -7,6 +7,7 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -26,7 +27,15 @@ public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
             GitExecutor gitExecutor,
             FileOperations fileOperations,
             ObservationHelper observationHelper,
-            ObjectMapper objectMapper) {
-        super(gitServiceConfig, fsGitHandler, gitExecutor, fileOperations, observationHelper, objectMapper);
+            ObjectMapper objectMapper,
+            ObservationRegistry observationRegistry) {
+        super(
+                gitServiceConfig,
+                fsGitHandler,
+                gitExecutor,
+                fileOperations,
+                observationHelper,
+                objectMapper,
+                observationRegistry);
     }
 }
