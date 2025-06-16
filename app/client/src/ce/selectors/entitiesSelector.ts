@@ -1709,35 +1709,41 @@ export const getQuerySegmentItems = createSelector(
   selectDatasourceIdToNameMap,
   (actions, plugins, datasourceIdToNameMap) => {
     const pluginGroups = keyBy(plugins, "id");
-    const items: EntityItem[] = actions.map((action) => {
-      let group;
-      const iconUrl = getAssetUrl(
-        pluginGroups[action.config.pluginId]?.iconLocation ?? ImageAlt,
-      );
+    const items: EntityItem[] = actions
+      .filter((action) => {
+        // We don't want to show system generated actions in the query explorer
+        return Boolean(action.config.systemGenerated) === false;
+      })
+      .map((action) => {
+        let group;
+        const iconUrl = getAssetUrl(
+          pluginGroups[action.config.pluginId]?.iconLocation ?? ImageAlt,
+        );
 
-      if (action.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(action.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
-      } else if (action.config.pluginType === PluginType.AI) {
-        group = isEmbeddedAIDataSource(action.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
-      } else {
-        group =
-          datasourceIdToNameMap[action.config.datasource?.id] ??
-          action.config.datasource?.name;
-      }
+        if (action.config.pluginType === PluginType.API) {
+          group = isEmbeddedRestDatasource(action.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+        } else if (action.config.pluginType === PluginType.AI) {
+          group = isEmbeddedAIDataSource(action.config.datasource)
+            ? "AI Queries"
+            : datasourceIdToNameMap[action.config.datasource.id] ??
+              "AI Queries";
+        } else {
+          group =
+            datasourceIdToNameMap[action.config.datasource?.id] ??
+            action.config.datasource?.name;
+        }
 
-      return {
-        icon: ActionUrlIcon(iconUrl, "16", "16"),
-        title: action.config.name,
-        key: action.config.baseId,
-        type: action.config.pluginType,
-        group,
-        userPermissions: action.config.userPermissions,
-      };
-    });
+        return {
+          icon: ActionUrlIcon(iconUrl, "16", "16"),
+          title: action.config.name,
+          key: action.config.baseId,
+          type: action.config.pluginType,
+          group,
+          userPermissions: action.config.userPermissions,
+        };
+      });
 
     return items;
   },

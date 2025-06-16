@@ -17,7 +17,9 @@ import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActi
 
 export interface ActionData {
   isLoading: boolean;
-  config: Action;
+  config: Action & {
+    systemGenerated?: boolean;
+  };
   data?: ActionResponse;
 }
 
