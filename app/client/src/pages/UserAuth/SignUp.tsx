@@ -131,7 +131,6 @@ const recentDomainsSection = recentDomains.length > 0 && (
               className="px-4 py-2 text-sm"
               kind="secondary"
               onClick={() => {
-                // Additional security check before redirect
                 if (isValidAppsmithDomain(domain)) {
                   window.location.href = `https://${domain}/user/login`;
                 }
