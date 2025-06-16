@@ -326,12 +326,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         Mono<User> userMono = sessionUserService.getCurrentUser().switchIfEmpty(Mono.just(anonymousUser));
 
         return userMono.flatMap(user -> {
-                    // if the user is anonymous, check if the feature flag disable_anonymous_user_for_analytics is
-                    // enabled.
-                    // if yes, then do not send the analytics event.
+                    // if the user is anonymous, check if the feature flag
+                    // configure_block_event_tracking_for_anonymous_users is enabled.  If yes, then do not send the
+                    // analytics event.
                     if (user.isAnonymous()) {
                         return featureFlagService
-                                .check(FeatureFlagEnum.disable_anonymous_user_for_analytics)
+                                .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
                                 .flatMap(isDisabled -> {
                                     if (isDisabled) {
                                         log.debug("Analytics event {} is not sent for anonymous user", eventTag);
@@ -388,8 +388,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.remove(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
                     }
 
-                    return sendEvent(eventTag, username, analyticsProperties).thenReturn(object);
-                });
+                    return sendEvent(eventTag, username, analyticsProperties);
+                })
+                // Return the original object after sending the event
+                .then(Mono.just(object));
     }
 
     /**
