@@ -21,7 +21,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { find, isArray, isEmpty } from "lodash";
-import generate from "nanoid/generate";
+import { customAlphabet } from "nanoid";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -117,7 +117,7 @@ const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
 export const generateReactKey = ({
   prefix = "",
 }: { prefix?: string } = {}): string => {
-  return prefix + generate(ALPHANUMERIC, 10);
+  return prefix + customAlphabet(ALPHANUMERIC, 10)();
 };
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
