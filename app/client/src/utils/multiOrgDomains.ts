@@ -24,6 +24,7 @@ function isMultiOrgDomain(): boolean {
 
 function getStoredDomains(): DomainEntry[] {
   const cookieValue = getCookie(COOKIE_NAME);
+
   if (!cookieValue) return [];
 
   try {
@@ -35,6 +36,7 @@ function getStoredDomains(): DomainEntry[] {
 
 function storeDomains(domains: DomainEntry[]): void {
   const expires = new Date();
+
   expires.setDate(expires.getDate() + EXPIRY_DAYS);
 
   const cookieValue = encodeURIComponent(JSON.stringify(domains));
@@ -49,6 +51,7 @@ function getCookie(name: string): string | null {
   if (parts.length === 2) {
     return parts.pop()?.split(";").shift() || null;
   }
+
   return null;
 }
 
@@ -72,6 +75,7 @@ export function trackCurrentDomain(): void {
   domains = domains.slice(0, MAX_DOMAINS);
 
   const thirtyDaysAgo = currentTime - 30 * 24 * 60 * 60 * 1000;
+
   domains = domains.filter((entry) => entry.timestamp > thirtyDaysAgo);
 
   storeDomains(domains);
