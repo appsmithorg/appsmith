@@ -1,17 +1,10 @@
 import React from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
-import {
-  createDatasourceFromForm,
-  createTempDatasourceFromForm,
-} from "actions/datasourceActions";
+import { connect } from "react-redux";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
+import { type Plugin, PluginType } from "entities/Plugin";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
-import type { Datasource } from "entities/Datasource";
-import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
-import { getInitialDatasourcePayload } from "sagas/helper";
-import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import {
   DatasourceContainer,
   DatasourceSection,
@@ -20,14 +13,12 @@ import {
 } from "./IntegrationStyledComponents";
 import DatasourceItem from "./DatasourceItem";
 import {
-  AI_DATASOURCE,
   CREATE_NEW_AI_SECTION_HEADER,
   createMessage,
 } from "ee/constants/messages";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import { getDatasources, getPlugins } from "ee/selectors/entitiesSelector";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import { filterSearch } from "./util";
-import { Spinner } from "@appsmith/ads";
 
 interface CreateAIPluginsProps {
   pageId: string;
@@ -39,11 +30,7 @@ interface CreateAIPluginsProps {
 }
 
 function AIDataSources(props: CreateAIPluginsProps) {
-  const { isCreating, plugins } = props;
-  const [creatingId, setCreatingId] = React.useState<string | null>(null);
-  const dispatch = useDispatch();
-  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
-  const dsList: Datasource[] = useSelector(getDatasources);
+  const { plugins } = props;
 
   const handleOnClick = (plugin: Plugin) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -51,28 +38,10 @@ function AIDataSources(props: CreateAIPluginsProps) {
       pluginPackageName: plugin.packageName,
     });
 
-    if (
-      isAnvilEnabled &&
-      plugin.packageName === PluginPackageName.APPSMITH_AGENT
-    ) {
-      if (isCreating) return;
-
-      setCreatingId(plugin.id);
-
-      const datasourceInitialPayload = getInitialDatasourcePayload(
-        plugin.id,
-        dsList,
-        plugin.type,
-        createMessage(AI_DATASOURCE),
-      );
-
-      dispatch(createDatasourceFromForm(datasourceInitialPayload));
-    } else {
-      props.createTempDatasourceFromForm({
-        pluginId: plugin.id,
-        type: plugin.type,
-      });
-    }
+    props.createTempDatasourceFromForm({
+      pluginId: plugin.id,
+      type: plugin.type,
+    });
   };
 
   return (
@@ -86,10 +55,6 @@ function AIDataSources(props: CreateAIPluginsProps) {
           icon={getAssetUrl(plugin.iconLocation)}
           key={plugin.id}
           name={plugin.name}
-          rightSibling={
-            isCreating &&
-            creatingId === plugin.id && <Spinner className="cta" size={"sm"} />
-          }
         />
       ))}
     </DatasourceContainer>
@@ -114,12 +79,7 @@ function CreateAIPlugins(props: CreateAIPluginsProps) {
   );
 }
 
-const mapStateToProps = (
-  state: DefaultRootState,
-  props: {
-    isCreating?: boolean;
-  },
-) => {
+const mapStateToProps = (state: DefaultRootState) => {
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
   ).toLocaleLowerCase();
@@ -139,7 +99,6 @@ const mapStateToProps = (
 
   return {
     plugins,
-    isCreating: props.isCreating || getDatasourcesLoadingState(state),
   };
 };
 
