@@ -1802,7 +1802,7 @@ export const getIsSavingEntityName = (
 export const getActionSchemaDirtyState = createSelector(
   getAction,
   (state: DefaultRootState) =>
-    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AGENT),
   (action, agentPlugin) => {
     if (!action) return false;
 
