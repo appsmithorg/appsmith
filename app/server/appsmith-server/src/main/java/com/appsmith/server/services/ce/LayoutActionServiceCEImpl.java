@@ -8,7 +8,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Layout;
@@ -68,7 +67,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
-    private final ApplicationService applicationService;
     private final RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     /**

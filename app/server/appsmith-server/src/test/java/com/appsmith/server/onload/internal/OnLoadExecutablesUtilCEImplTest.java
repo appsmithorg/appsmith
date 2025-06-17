@@ -6,11 +6,9 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.RunBehaviourEnum;
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,12 +61,6 @@ public class OnLoadExecutablesUtilCEImplTest {
     private OnLoadExecutablesUtilCEImpl onLoadExecutablesUtilCE;
 
     @Mock
-    private AnalyticsService analyticsService;
-
-    @Mock
-    private ApplicationService applicationService;
-
-    @Mock
     private RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     @BeforeEach
@@ -80,8 +72,6 @@ public class OnLoadExecutablesUtilCEImplTest {
                 observationRegistry,
                 observationHelper,
                 featureFlagService,
-                analyticsService,
-                applicationService,
                 runBehaviourAnalyticsUtils));
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
