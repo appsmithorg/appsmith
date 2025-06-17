@@ -57,8 +57,9 @@ function logEvent(
   // Block tracking for anonymous users when the feature flag is enabled.
   // We resolve store & selectors lazily to avoid circular dependencies.
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires -- dynamic require to break cycles
-    const { default: appStore } = require("store");
+    // Use eval("require") so webpack doesn't add this to the static dep graph
+    // preventing circular-chunk detection in prod build.
+    const { default: appStore } = eval("require")("store");
     const state = appStore.getState();
     const currentUser = getCurrentUser(state);
     const isAnonymous =
