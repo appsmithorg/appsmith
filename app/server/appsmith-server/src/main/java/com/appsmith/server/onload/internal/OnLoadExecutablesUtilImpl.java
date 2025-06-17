@@ -1,11 +1,9 @@
 package com.appsmith.server.onload.internal;
 
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +22,6 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
             ObservationRegistry observationRegistry,
             ObservationHelperImpl observationHelper,
             FeatureFlagService featureFlagService,
-            AnalyticsService analyticsService,
-            ApplicationService applicationService,
             RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils) {
         super(
                 astService,
@@ -34,8 +30,6 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
                 observationRegistry,
                 observationHelper,
                 featureFlagService,
-                analyticsService,
-                applicationService,
                 runBehaviourAnalyticsUtils);
     }
 }
