@@ -160,6 +160,8 @@ public interface FSGitHandler {
      */
     Mono<GitStatusDTO> getStatus(Path repoPath, String branchName, boolean keepWorkingDirChanges);
 
+    void populateModifiedEntities(GitStatusDTO response);
+
     /**
      * This method merges source branch into destination branch for a git repository which is present on the partial
      * path provided. <B> This assumes that the branch on which the merge will happen is already checked out </B>

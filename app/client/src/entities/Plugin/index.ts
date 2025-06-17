@@ -23,6 +23,7 @@ export enum PluginPackageName {
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
   APPSMITH_AI = "appsmithai-plugin",
+  APPSMITH_AGENT = "appsmith-agent-plugin",
   WORKFLOW = "workflow-plugin",
 }
 
@@ -48,6 +49,7 @@ export enum PluginName {
   GRAPHQL = "Authenticated GraphQL API",
   OPEN_AI = "Open AI",
   APPSMITH_AI = "Appsmith AI",
+  APPSMITH_AGENT = "Appsmith Agent",
 }
 
 export type PluginId = string;

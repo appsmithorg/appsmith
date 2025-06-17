@@ -86,7 +86,7 @@ export const useFilteredFileOperations = ({
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAgentApp = useSelector(getIsAiAgentApp);
   const AiPlugin = useSelector((state: DefaultRootState) =>
-    getPluginByPackageName(state, PluginPackageName.APPSMITH_AI),
+    getPluginByPackageName(state, PluginPackageName.APPSMITH_AGENT),
   );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(

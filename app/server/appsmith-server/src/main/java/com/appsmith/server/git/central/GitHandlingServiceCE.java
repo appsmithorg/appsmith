@@ -86,6 +86,9 @@ public interface GitHandlingServiceCE {
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 
+    Mono<GitStatusDTO> computeGitStatus(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
+
     Mono<Tuple2<? extends Artifact, String>> commitArtifact(
             Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 

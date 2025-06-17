@@ -87,6 +87,8 @@ export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 export const LOOKING_TO_SELF_HOST = () => "Looking to self-host Appsmith?";
 export const VISIT_OUR_DOCS = () => "Visit our docs";
 export const ALREADY_USING_APPSMITH = () => `Already using Appsmith?`;
+export const USING_APPSMITH = () => `Using Appsmith?`;
+export const YOU_VE_ALREADY_SIGNED_INTO = () => `You've already signed into`;
 export const SIGN_IN_TO_AN_EXISTING_ORGANISATION = () =>
   `Sign in to an existing organisation`;
 
