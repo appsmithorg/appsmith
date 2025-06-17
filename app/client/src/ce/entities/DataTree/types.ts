@@ -19,6 +19,7 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "ee/constants/ModuleConstants";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +74,8 @@ export interface ActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
+  dynamicTriggerPathList: DynamicPath[];
+  runBehaviour: ActionRunBehaviourType;
 }
 
 // JSAction (JSObject) entity Types
@@ -80,6 +83,7 @@ export interface ActionEntityConfig extends EntityConfig {
 export interface MetaArgs {
   arguments: Variable[];
   confirmBeforeExecute: boolean;
+  runBehaviour: ActionRunBehaviourType;
 }
 
 export interface JSActionEntityConfig extends EntityConfig {
@@ -97,6 +101,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleInstanceId?: string;
   isPublic?: boolean;
   actionNames: Set<string>;
+  dynamicTriggerPathList: DynamicPath[];
 }
 
 export interface JSActionEntity {

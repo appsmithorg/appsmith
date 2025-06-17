@@ -147,6 +147,7 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    executeReactiveActions,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
@@ -228,6 +229,17 @@ export function* updateDataTreeHandler(
 
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
+  }
+
+  if (executeReactiveActions && executeReactiveActions.length) {
+    yield put({
+      type: ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
+      payload: {
+        executeReactiveActions,
+        dataTree: updatedDataTree,
+        configTree,
+      },
+    });
   }
 
   yield call(logJSVarCreatedEvent, jsVarsCreatedEvent);

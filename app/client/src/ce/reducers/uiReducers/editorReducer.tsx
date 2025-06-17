@@ -51,6 +51,7 @@ export const handlers = {
       pageWidgetId: undefined,
       pageActions: undefined,
       layoutOnLoadActionErrors: undefined,
+      onLoadActionExecution: undefined,
       loadingStates: {
         ...state.loadingStates,
         saving: false,
@@ -156,6 +157,12 @@ export const handlers = {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
 
+    const newMap: Record<string, boolean> = {};
+
+    pageActions?.forEach((action) => {
+      newMap[action[0].id] = false;
+    });
+
     return {
       ...state,
       currentPageName,
@@ -165,6 +172,7 @@ export const handlers = {
       currentPageId,
       pageActions,
       layoutOnLoadActionErrors,
+      onLoadActionExecution: newMap,
     };
   },
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -295,6 +303,18 @@ export const handlers = {
       loadingStates: { ...state.loadingStates, isSettingUpPage: false },
     };
   },
+  [ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ id: string; isExecuted: boolean }>,
+  ) => {
+    return {
+      ...state,
+      onLoadActionExecution: {
+        ...state.onLoadActionExecution,
+        [action.payload.id]: action.payload.isExecuted,
+      },
+    };
+  },
 };
 
 const editorReducer = createReducer(initialState, handlers);
@@ -314,6 +334,7 @@ export interface EditorReduxState {
   isProtectedMode: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+  onLoadActionExecution?: Record<string, boolean>;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

@@ -25,6 +25,7 @@ import {
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -94,6 +95,9 @@ export const updateJSCollectionInUnEvalTree = (
         meta[action.name] = {
           arguments: action.arguments,
           confirmBeforeExecute: false,
+          runBehaviour:
+            jsEntityConfig.meta[action.name]?.runBehaviour ||
+            ActionRunBehaviour.MANUAL,
         };
 
         const data = get(

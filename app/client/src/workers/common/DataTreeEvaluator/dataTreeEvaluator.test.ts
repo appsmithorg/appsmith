@@ -27,6 +27,7 @@ import {
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
 import { APP_MODE } from "entities/App";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const widgetConfigMap: Record<
   string,
@@ -306,6 +307,8 @@ describe("DataTreeEvaluator", () => {
         evalOrder,
         configTree as unknown as ConfigTree,
         unEvalUpdates,
+        [],
+        dataTreeEvaluator.evalTree,
       );
 
       expect(dataTreeEvaluator.dependencies).toStrictEqual({
@@ -477,6 +480,8 @@ describe("DataTreeEvaluator", () => {
             evalOrder,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
+            [],
+            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
             "Api1.data",
@@ -502,6 +507,8 @@ describe("DataTreeEvaluator", () => {
             order,
             arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
+            [],
+            dataTreeEvaluator.evalTree,
           );
 
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
@@ -530,6 +537,8 @@ describe("DataTreeEvaluator", () => {
           order1,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
+          [],
+          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [{...}, {...}]
@@ -543,6 +552,8 @@ describe("DataTreeEvaluator", () => {
           order2,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
+          [],
+          dataTreeEvaluator.evalTree,
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
@@ -572,6 +583,8 @@ describe("DataTreeEvaluator", () => {
             order,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
+            [],
+            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
             "Api1.data",
@@ -600,6 +613,8 @@ describe("DataTreeEvaluator", () => {
             order1,
             nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
+            [],
+            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
             "Api1.data",
@@ -630,6 +645,8 @@ describe("DataTreeEvaluator", () => {
           order,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
+          [],
+          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -643,6 +660,8 @@ describe("DataTreeEvaluator", () => {
           order1,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
+          [],
+          dataTreeEvaluator.evalTree,
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
@@ -671,6 +690,8 @@ describe("DataTreeEvaluator", () => {
           order,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
+          [],
+          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
@@ -684,6 +705,8 @@ describe("DataTreeEvaluator", () => {
           order1,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
           unEvalUpdates2,
+          [],
+          dataTreeEvaluator.evalTree,
         );
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
           "Api1.data",
@@ -788,10 +811,12 @@ describe("isDataField", () => {
         myFun2: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: ActionRunBehaviour.MANUAL,
         },
         myFun1: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: ActionRunBehaviour.MANUAL,
         },
       },
       name: "JSObject1",
@@ -833,19 +858,27 @@ describe("isDataField", () => {
         body: ["myFun2", "myFun1"],
       },
       actionNames: new Set(["myFun1", "myFun2"]),
+      dynamicTriggerPathList: [
+        {
+          key: "myFun1",
+        },
+        {
+          key: "myFun2",
+        },
+      ],
     },
     JSObject2: {
       actionId: "644242aeadc0936a9b0e71cc",
       meta: {
         myFun2: {
           arguments: [],
-
           confirmBeforeExecute: false,
+          runBehaviour: ActionRunBehaviour.MANUAL,
         },
         myFun1: {
           arguments: [],
-
           confirmBeforeExecute: false,
+          runBehaviour: ActionRunBehaviour.MANUAL,
         },
       },
       name: "JSObject2",
@@ -887,6 +920,14 @@ describe("isDataField", () => {
         body: ["myFun2", "myFun1"],
       },
       actionNames: new Set(["myFun1", "myFun2"]),
+      dynamicTriggerPathList: [
+        {
+          key: "myFun1",
+        },
+        {
+          key: "myFun2",
+        },
+      ],
     },
     MainContainer: {
       defaultProps: {},

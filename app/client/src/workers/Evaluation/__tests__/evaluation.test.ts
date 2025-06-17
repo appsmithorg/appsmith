@@ -19,6 +19,7 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import klona from "klona";
 import { APP_MODE } from "entities/App";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const klonaFullSpy = jest.fn();
 
@@ -299,6 +300,8 @@ export const BASE_ACTION_CONFIG: ActionEntityConfig = {
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
+  dynamicTriggerPathList: [],
+  runBehaviour: ActionRunBehaviour.MANUAL,
 };
 
 const metaMock = jest.spyOn(WidgetFactory, "getWidgetMetaPropertiesMap");
@@ -632,6 +635,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -670,6 +675,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
 
     const dataTree = evaluator.evalTree;
@@ -716,6 +723,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -779,6 +788,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -822,6 +833,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -887,6 +900,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -959,6 +974,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree1,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
@@ -993,6 +1010,8 @@ describe("DataTreeEvaluator", () => {
       newEvalOrder,
       updatedConfigTree2,
       unEvalUpdates2,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -1034,6 +1053,8 @@ describe("DataTreeEvaluator", () => {
       newEvalOrder2,
       updatedConfigTree3,
       unEvalUpdates3,
+      [],
+      evaluator.evalTree,
     );
     const dataTree3 = evaluator.evalTree;
 
@@ -1075,6 +1096,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -1113,6 +1136,8 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       updatedConfigTree,
       unEvalUpdates,
+      [],
+      evaluator.evalTree,
     );
     // Hard check to not regress on the number of clone operations. Try to improve this number.
     // Not a good assertion because in one piece of code im cloning multiple times, however the value im cloning is very small.

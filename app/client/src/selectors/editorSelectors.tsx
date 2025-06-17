@@ -130,6 +130,19 @@ export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
 };
 
+export const getOnLoadActionsWithExecutionStatus = createSelector(
+  getLayoutOnLoadActions,
+  (state: DefaultRootState) => state.ui.editor.onLoadActionExecution,
+  (onLoadActions, onLoadActionExecution) => {
+    // onLoadActions is PageAction[][]
+    // Flatten and map to { id, isExecuted }
+    return (onLoadActions.flat() || []).map((action) => ({
+      id: action.id,
+      isExecuted: !!onLoadActionExecution?.[action.id] || false,
+    }));
+  },
+);
+
 export const getIsPublishingApplication = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishing;
 

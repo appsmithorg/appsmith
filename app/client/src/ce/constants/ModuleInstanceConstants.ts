@@ -1,4 +1,4 @@
-import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type { MODULE_TYPE, ModuleInput } from "ee/constants/ModuleConstants";
 import type { ActionResponse } from "api/ActionAPI";
 
 export type ModuleId = string;
@@ -16,6 +16,8 @@ export interface ModuleInstance {
     [key: string]: string;
   };
   sourceModuleId: ModuleId;
+  moduleInputs?: Record<string, ModuleInput>;
+  // Ankita: check
 }
 
 export interface ModuleInstanceData {

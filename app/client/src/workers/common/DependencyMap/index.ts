@@ -365,6 +365,7 @@ export const updateDependencyMap = ({
     dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
       dependencyMap,
       translatedDiffs,
+      configTree,
     );
   }
 

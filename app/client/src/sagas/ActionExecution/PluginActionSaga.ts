@@ -3,6 +3,7 @@ import {
   call,
   delay,
   put,
+  race,
   select,
   take,
   takeLatest,
@@ -870,7 +871,7 @@ export function* runActionSaga(
   };
 
   const allowedActionAnalyticsKeys = getAllowedActionAnalyticsKeys(
-    plugin.packageName,
+    plugin?.packageName,
   );
   const actionAnalyticsPayload = getActionProperties(
     actionObject,
@@ -1161,6 +1162,11 @@ function* executePageLoadAction(
         };
       }
     }
+
+    yield put({
+      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
+      payload: { id: pageAction.id, isExecuted: true },
+    });
 
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
@@ -1644,6 +1650,15 @@ function* softRefreshActionsSaga() {
     kind: "success",
   });
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
+}
+
+export function* runSingleAction(actionId: string) {
+  yield put(runAction(actionId));
+  yield race([
+    take(ReduxActionTypes.RUN_ACTION_SUCCESS),
+    take(ReduxActionTypes.RUN_ACTION_CANCELLED),
+    take(ReduxActionErrorTypes.RUN_ACTION_ERROR),
+  ]);
 }
 
 export function* watchPluginActionExecutionSagas() {

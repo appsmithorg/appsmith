@@ -9,6 +9,7 @@ import type {
   ActionEntity,
   ActionEntityConfig,
 } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 
 export const generateDataTreeAction = (
   action: ActionData,
@@ -55,6 +56,30 @@ export const generateDataTreeAction = (
     dynamicBindingPathList,
   );
 
+  //this is for view mode
+  if (action.config.jsonPathKeys && !action.config?.datasource) {
+    dependencyMap["config.body"] = action.config.jsonPathKeys;
+    const result = action.config.jsonPathKeys
+      .map((item) => `{{${item}}}`)
+      .join(" ");
+
+    action.config.actionConfiguration = {
+      ...action.config.actionConfiguration,
+      body: result,
+    };
+    dynamicBindingPathList.push({
+      key: "config.body",
+    });
+    bindingPaths["config.body"] = EvaluationSubstitutionType.TEMPLATE;
+    reactivePaths["config.body"] = EvaluationSubstitutionType.TEMPLATE;
+  }
+
+  dependencyMap["run"] = dynamicBindingPathList.map(
+    (path: { key: string }) => path.key,
+  );
+
+  const dynamicTriggerPathList = [{ key: "run" }, { key: "clear" }];
+
   return {
     unEvalEntity: {
       actionId: action.config.id,
@@ -84,6 +109,8 @@ export const generateDataTreeAction = (
       reactivePaths,
       dependencyMap,
       logBlackList: {},
+      dynamicTriggerPathList,
+      runBehaviour: action.config.runBehaviour,
     },
   };
 };

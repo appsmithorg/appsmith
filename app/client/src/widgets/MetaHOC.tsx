@@ -91,6 +91,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       const { executeAction } = this.context;
       const batchActionsToRun = Object.entries(this.actionsToExecute);
 
+      if (batchActionsToRun.length === 0) return;
+
       batchActionsToRun.map(([propertyName, actionExecution]) => {
         if (actionExecution && actionExecution.dynamicString && executeAction) {
           executeAction({

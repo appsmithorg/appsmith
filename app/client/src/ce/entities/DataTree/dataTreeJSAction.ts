@@ -19,6 +19,7 @@ export const generateDataTreeJSAction = (
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  const reactivePaths: Record<string, EvaluationSubstitutionType> = {};
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variableList: Record<string, any> = {};
@@ -50,6 +51,7 @@ export const generateDataTreeJSAction = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
+  const dynamicTriggerPathList = [];
 
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
@@ -58,6 +60,7 @@ export const generateDataTreeJSAction = (
       meta[action.name] = {
         arguments: action.actionConfiguration?.jsArguments || [],
         confirmBeforeExecute: !!action.confirmBeforeExecute,
+        runBehaviour: action.runBehaviour,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
@@ -67,6 +70,9 @@ export const generateDataTreeJSAction = (
         // Action data is updated directly to the dataTree (see updateActionData.ts)
         data: {},
       };
+      dynamicTriggerPathList.push({ key: action.name });
+      reactivePaths[`${action.name}.data`] =
+        EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
 
@@ -85,11 +91,12 @@ export const generateDataTreeJSAction = (
       pluginType: js.config.pluginType,
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
-      reactivePaths: { ...bindingPaths },
+      reactivePaths: { ...reactivePaths, ...bindingPaths },
       dynamicBindingPathList: dynamicBindingPathList,
       variables: listVariables,
       dependencyMap: dependencyMap,
       actionNames: new Set(actions.map((action) => action.name)),
+      dynamicTriggerPathList: dynamicTriggerPathList,
     },
   };
 };

@@ -48,6 +48,7 @@ export const getBindingAndReactivePathsOfAction = (
     data: EvaluationSubstitutionType.TEMPLATE,
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+    run: EvaluationSubstitutionType.TEMPLATE,
   };
   const bindingPaths: BindingPaths = {};
 
