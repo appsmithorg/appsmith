@@ -12,7 +12,7 @@ import BaseWidget from "../../BaseWidget";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
@@ -24,7 +24,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const VideoComponent = lazy(async () =>

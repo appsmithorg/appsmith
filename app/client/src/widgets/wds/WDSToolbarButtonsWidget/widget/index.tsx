@@ -7,7 +7,7 @@ import type { ToolbarButtonsWidgetProps } from "./types";
 import { ToolbarButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSToolbarButtonsWidget extends BaseWidget<
   ToolbarButtonsWidgetProps,

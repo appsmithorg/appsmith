@@ -6,7 +6,7 @@ import type {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
-import type { WidgetType } from ".";
+import type { WidgetType } from "./types";
 import WidgetFactory from ".";
 import type {
   RegisteredWidgetFeatures,
@@ -18,7 +18,7 @@ import {
 } from "../../utils/WidgetFeatures";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/wds/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",

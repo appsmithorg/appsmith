@@ -2,7 +2,7 @@ import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
   type WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";

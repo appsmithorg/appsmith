@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -14,7 +14,7 @@ import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";

@@ -1,5 +1,5 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
 
 export const baseConfig: WidgetBaseConfiguration = {
   name: "Section",

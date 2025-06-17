@@ -16,7 +16,7 @@ import {
   INPUT_TYPE_TO_WIDGET_TYPE_MAP,
   INPUT_TYPES,
 } from "widgets/wds/WDSBaseInputWidget";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import { getDefaultISDCode } from "widgets/wds/WDSPhoneInputWidget/constants";
 import { getDefaultCurrency } from "widgets/wds/WDSCurrencyInputWidget/constants";
 

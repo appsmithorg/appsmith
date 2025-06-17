@@ -1,4 +1,4 @@
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { generateReactKey } from "utils/generators";
 import { LayoutComponentTypes } from "./anvilTypes";
 

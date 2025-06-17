@@ -1,4 +1,4 @@
-import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
+import type { AnvilConfig, SizeConfig } from "WidgetProvider/types";
 import { RenderModes } from "constants/WidgetConstants";
 import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
 import type { WidgetProps } from "widgets/BaseWidget";

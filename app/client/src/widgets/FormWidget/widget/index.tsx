@@ -17,7 +17,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
@@ -26,11 +26,11 @@ import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";

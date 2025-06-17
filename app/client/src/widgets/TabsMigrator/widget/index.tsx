@@ -10,7 +10,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { appsmithTelemetry } from "instrumentation";
 

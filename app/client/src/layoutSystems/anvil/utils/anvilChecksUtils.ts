@@ -1,7 +1,7 @@
 import { call, put, select } from "redux-saga/effects";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { anvilWidgets } from "widgets/wds/constants";

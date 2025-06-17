@@ -1,4 +1,4 @@
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 import { FONT_SIZE_TO_WIDGET_TYPE_MAP } from "./constants";
