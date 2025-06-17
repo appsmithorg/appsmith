@@ -20,8 +20,22 @@ export interface UpdateOrganizationConfigRequest {
   apiConfig?: AxiosRequestConfig;
 }
 
+export type FetchMyOrganizationsResponse = ApiResponse<{
+  organizations: Organization[];
+}>;
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  website?: string;
+  email?: string;
+  logoUrl?: string;
+}
+
 export class OrganizationApi extends Api {
   static tenantsUrl = "v1/tenants";
+  static meUrl = "v1/me";
 
   static async fetchCurrentOrganizationConfig(): Promise<
     AxiosPromise<FetchCurrentOrganizationConfigResponse>
@@ -40,6 +54,12 @@ export class OrganizationApi extends Api {
         ...(request.apiConfig || {}),
       },
     );
+  }
+
+  static async fetchMyOrganizations(): Promise<
+    AxiosPromise<FetchMyOrganizationsResponse>
+  > {
+    return Api.get(`${OrganizationApi.meUrl}/organizations`);
   }
 }
 

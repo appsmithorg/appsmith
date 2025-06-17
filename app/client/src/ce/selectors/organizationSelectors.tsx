@@ -67,3 +67,11 @@ export const isFreePlan = (state: DefaultRootState) => true;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const isWithinAnOrganization = (state: DefaultRootState) => true;
+
+export const getMyOrganizations = (state: DefaultRootState) => {
+  return state.organization?.myOrganizations || [];
+};
+
+export const getIsFetchingMyOrganizations = (state: DefaultRootState) => {
+  return state.organization?.isFetchingMyOrganizations || false;
+};
