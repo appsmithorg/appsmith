@@ -3,6 +3,7 @@ package com.appsmith.server.onload.internal;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.helpers.ObservationHelperImpl;
+import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
@@ -24,7 +25,8 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
             ObservationHelperImpl observationHelper,
             FeatureFlagService featureFlagService,
             AnalyticsService analyticsService,
-            ApplicationService applicationService) {
+            ApplicationService applicationService,
+            RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils) {
         super(
                 astService,
                 objectMapper,
@@ -33,6 +35,7 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
                 observationHelper,
                 featureFlagService,
                 analyticsService,
-                applicationService);
+                applicationService,
+                runBehaviourAnalyticsUtils);
     }
 }

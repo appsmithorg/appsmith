@@ -8,6 +8,7 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ObservationHelperImpl;
+import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
@@ -67,6 +68,9 @@ public class OnLoadExecutablesUtilCEImplTest {
     @Mock
     private ApplicationService applicationService;
 
+    @Mock
+    private RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
+
     @BeforeEach
     public void setUp() {
         onLoadExecutablesUtilCE = spy(new OnLoadExecutablesUtilCEImpl(
@@ -77,7 +81,8 @@ public class OnLoadExecutablesUtilCEImplTest {
                 observationHelper,
                 featureFlagService,
                 analyticsService,
-                applicationService));
+                applicationService,
+                runBehaviourAnalyticsUtils));
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -110,10 +115,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(anyString(), any(ActionDTO.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(1)));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -155,10 +158,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(anyString(), any(ActionDTO.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(1)));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -203,10 +204,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(anyString(), any(ActionDTO.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(1)));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute
         Mono<Boolean> result = onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -278,10 +277,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
                 .thenReturn(Mono.just(updatedAction));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -319,10 +316,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
                 .thenReturn(Mono.just(updatedAction));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -360,10 +355,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(eq("1"), any()))
                 .thenReturn(Mono.just(updatedAction));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -417,10 +410,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(eq("2"), any()))
                 .thenReturn(Mono.just(updatedAction2));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(
@@ -477,10 +468,8 @@ public class OnLoadExecutablesUtilCEImplTest {
         when(executableOnLoadService.updateUnpublishedExecutable(eq("2"), any()))
                 .thenReturn(Mono.just(updatedAction2));
 
-        doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
-                .when(onLoadExecutablesUtilCE)
-                .sendRunBehaviourChangedAnalytics(
-                        any(Executable.class), any(RunBehaviourEnum.class), any(CreatorContextType.class));
+        // mock runBehaviourAnalyticsUtils to return mono of void
+        doAnswer(invocation -> Mono.empty()).when(runBehaviourAnalyticsUtils).sendRunBehaviourChangedAnalytics(any());
 
         // Execute and verify
         StepVerifier.create(onLoadExecutablesUtilCE.updateExecutablesRunBehaviour(

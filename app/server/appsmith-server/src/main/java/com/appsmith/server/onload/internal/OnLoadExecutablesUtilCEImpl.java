@@ -1,6 +1,5 @@
 package com.appsmith.server.onload.internal;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
@@ -13,17 +12,16 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.RunBehaviourAnalyticsMetadata;
+import com.appsmith.server.enums.RunBehaviourUpdateSource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
+import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
@@ -103,6 +101,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final FeatureFlagService featureFlagService;
     private final AnalyticsService analyticsService;
     private final ApplicationService applicationService;
+    private final RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -473,73 +472,33 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executable.getUserExecutableName(), null);
                                             return this.updateUnpublishedExecutable(
                                                             executable.getId(), executable, creatorType)
-                                                    .flatMap(updatedExecutable -> sendRunBehaviourChangedAnalytics(
-                                                                    updatedExecutable, oldRunBehaviour, creatorType)
-                                                            .onErrorResume(err -> {
-                                                                log.warn(
-                                                                        "Analytics publish failed for action {}: {}",
-                                                                        updatedExecutable.getId(),
-                                                                        err.getMessage());
-                                                                return Mono.just(updatedExecutable);
-                                                            }));
+                                                    .flatMap(updatedExecutable -> {
+                                                        if (!(updatedExecutable instanceof ActionDTO actionDTO)) {
+                                                            return Mono.empty();
+                                                        }
+                                                        return runBehaviourAnalyticsUtils
+                                                                .sendRunBehaviourChangedAnalytics(
+                                                                        RunBehaviourAnalyticsMetadata.builder()
+                                                                                .actionDTO(actionDTO)
+                                                                                .oldRunBehaviour(oldRunBehaviour)
+                                                                                .creatorContextType(creatorType)
+                                                                                .wasChangedBy(
+                                                                                        RunBehaviourUpdateSource.SYSTEM)
+                                                                                .isActionPartOfModuleInstance(
+                                                                                        !isRegularAction(actionDTO))
+                                                                                .build())
+                                                                .onErrorResume(e -> {
+                                                                    log.warn(
+                                                                            "Analytics publish failed for action {}: {}",
+                                                                            actionDTO.getId(),
+                                                                            e.getMessage());
+                                                                    return Mono.empty();
+                                                                });
+                                                    })
+                                                    .then();
                                         })
                                         .then(Mono.just(TRUE));
                             });
-                });
-    }
-
-    protected Mono<Executable> sendRunBehaviourChangedAnalytics(
-            Executable executable, RunBehaviourEnum oldRunBehaviour, CreatorContextType creatorType) {
-        if (!(executable instanceof ActionDTO actionDTO)) {
-            return Mono.just(executable);
-        }
-
-        return Mono.justOrEmpty(actionDTO.getApplicationId())
-                .flatMap(applicationService::findById)
-                .defaultIfEmpty(new Application())
-                .flatMap(application -> {
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("actionId", actionDTO.getId());
-                    data.put("name", actionDTO.getName());
-                    data.put("pageId", actionDTO.getPageId());
-                    data.put("applicationId", actionDTO.getApplicationId());
-                    data.put("pluginId", actionDTO.getPluginId());
-                    data.put("pluginName", actionDTO.getPluginName());
-                    data.put("createdAt", actionDTO.getCreatedAt());
-                    data.put("oldRunBehaviour", oldRunBehaviour);
-                    data.put("newRunBehaviour", actionDTO.getRunBehaviour());
-                    data.put("pluginType", actionDTO.getPluginType());
-                    data.put("actionConfiguration", actionDTO.getActionConfiguration());
-                    data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
-
-                    final String appMode = TRUE.equals(application.getViewMode())
-                            ? ApplicationMode.PUBLISHED.toString()
-                            : ApplicationMode.EDIT.toString();
-
-                    data.put("workspaceId", application.getWorkspaceId());
-                    data.put("appId", actionDTO.getApplicationId());
-                    data.put(FieldName.APP_MODE, appMode);
-                    data.put("appName", application.getName());
-                    data.put("isExampleApp", application.isAppIsExample());
-
-                    Map<String, Object> datasourceInfo = new HashMap<>();
-                    datasourceInfo.put("name", actionDTO.getDatasource().getName());
-                    datasourceInfo.put("dsIsMock", actionDTO.getDatasource().getIsMock());
-                    datasourceInfo.put("dsIsTemplate", actionDTO.getDatasource().getIsTemplate());
-                    datasourceInfo.put("dsId", actionDTO.getDatasource().getId());
-                    data.put("datasource", datasourceInfo);
-
-                    data.put(
-                            "wasChangedBy",
-                            "system"); // This is a change that automatically happens during update layout, so we set it
-                    // to "system"
-
-                    data.put("creatorContextType", creatorType != null ? creatorType : CreatorContextType.PAGE);
-                    data.put("isModuleInstance", getIsModuleInstance(actionDTO));
-
-                    return analyticsService
-                            .sendObjectEvent(AnalyticsEvents.ACTION_RUN_BEHAVIOUR_CHANGED, actionDTO, data)
-                            .thenReturn(executable);
                 });
     }
 
@@ -549,8 +508,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return getExecutableOnLoadService(creatorType).findAndUpdateLayout(creatorId, layoutId, layout);
     }
 
-    protected boolean getIsModuleInstance(ActionDTO actionDTO) {
-        return false;
+    // Regular action here means action created as part of application editor
+    protected boolean isRegularAction(ActionDTO actionDTO) {
+        return true;
     }
 
     private Mono<Executable> updateUnpublishedExecutable(
