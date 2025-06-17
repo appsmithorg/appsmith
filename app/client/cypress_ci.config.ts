@@ -35,7 +35,6 @@ export default defineConfig({
     excludeSpecPattern: [
       "cypress/e2e/**/spec_utility.ts",
       "cypress/e2e/GSheet/**/**/*",
-      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
       "cypress/e2e/Regression/ClientSide/CommunityTemplate/*",
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],

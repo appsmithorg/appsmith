@@ -935,7 +935,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .subscribeOn(scheduler);
     }
 
-    protected void populateModifiedEntities(GitStatusDTO response) {
+    @Override
+    public void populateModifiedEntities(GitStatusDTO response) {
         populatePageChanges(response);
         populateQueryChanges(response);
         populateJsObjectChanges(response);

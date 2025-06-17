@@ -682,7 +682,7 @@ export function* updateDatasourceSaga(
           pluginPackageName !== PluginPackageName.GOOGLE_SHEETS &&
           !(
             isAnvilEnabled &&
-            pluginPackageName === PluginPackageName.APPSMITH_AI
+            pluginPackageName === PluginPackageName.APPSMITH_AGENT
           )
         ) {
           yield put(
