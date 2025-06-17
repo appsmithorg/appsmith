@@ -1,4 +1,5 @@
 import { Avatar, Icon } from "@appsmith/ads";
+import type { Organization } from "ce/api/OrganizationApi";
 import { createMessage, PENDING_INVITATIONS } from "ce/constants/messages";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
@@ -24,16 +25,6 @@ const DropdownTrigger = styled.button`
   color: var(--ads-v2-color-fg);
   transition: all 0.2s ease;
   min-height: 40px;
-
-  &:hover {
-    border-color: var(--ads-v2-color-border-emphasis);
-    background: var(--ads-v2-color-bg-subtle);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: var(--ads-v2-shadow-outline);
-  }
 `;
 
 const TriggerContent = styled.div`
@@ -119,8 +110,11 @@ const MenuItemIcon = styled(Icon)`
 
 const MenuItemText = styled.span`
   flex: 1;
-  truncate: true;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
+  min-width: 0;
 `;
 
 const SectionDivider = styled.div`
@@ -136,12 +130,6 @@ const SectionHeader = styled.div`
   color: var(--ads-v2-color-fg-muted);
 `;
 
-export interface Organization {
-  id: string;
-  name: string;
-  isCurrent?: boolean;
-}
-
 export interface PendingInvitation {
   id: string;
   organizationName: string;
@@ -150,39 +138,41 @@ export interface PendingInvitation {
 export interface OrganizationDropdownProps {
   selectedOrganization: Organization;
   organizations: Organization[];
-  pendingInvitations?: PendingInvitation[];
-  onOrganizationSelect: (organization: Organization) => void;
   "data-testid"?: string;
 }
 
 const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
   selectedOrganization,
   organizations = [],
-  pendingInvitations = [],
-  onOrganizationSelect,
   "data-testid": testId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const activeOrganizations = organizations.filter(
+    (org) => org.state === "ACTIVE",
+  );
+  const pendingInvitations = organizations.filter(
+    (org) => org.state === "INVITED",
+  );
 
-  const generateInitials = (username: string): string => {
-    if (!username) return "A";
-    return username.charAt(0).toUpperCase();
+  const generateInitials = (name: string): string => {
+    if (!name) return "";
+    return name.charAt(0).toUpperCase();
   };
 
   const handleToggle = useCallback(() => {
     setIsOpen((prev) => !prev);
   }, []);
 
-  const handleSelect = useCallback(
-    (organization: Organization) => {
-      onOrganizationSelect(organization);
-      setIsOpen(false);
-      triggerRef.current?.focus();
-    },
-    [onOrganizationSelect],
-  );
+  const handleSelect = useCallback((organization: Organization) => {
+    if (organization.organizationUrl) {
+      const url = `https://${organization.organizationUrl}`;
+
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+    setIsOpen(false);
+  }, []);
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -208,7 +198,7 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
     }
   }, [isOpen]);
 
-  const displayText = selectedOrganization?.name;
+  const displayText = selectedOrganization?.organizationName;
 
   const renderOrgAvatar = (orgName: string) => {
     return (
@@ -239,49 +229,68 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
       </DropdownTrigger>
 
       <DropdownMenu isOpen={isOpen} role="listbox" aria-label="Organizations">
-        {organizations.map((org) => {
-          const isSelected = org.id === selectedOrganization?.id;
-          return (
-            <MenuItem
-              key={org.id}
-              role="option"
-              tabIndex={0}
-              isSelected={isSelected}
-              onClick={!isSelected ? () => handleSelect(org) : undefined}
-              onKeyDown={
-                !isSelected
-                  ? (e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleSelect(org);
-                      }
-                    }
-                  : undefined
-              }
-              aria-selected={isSelected}
-            >
-              {renderOrgAvatar(org.name)}
-              <MenuItemText>
-                {org.name} {org.isCurrent && "(current)"}
-              </MenuItemText>
+        {activeOrganizations
+          .slice()
+          .sort((a, b) => {
+            const aIsSelected =
+              a.organizationId === selectedOrganization?.organizationId;
+            const bIsSelected =
+              b.organizationId === selectedOrganization?.organizationId;
 
-              {!isSelected && (
-                <MenuItemIcon
-                  name="share-box-line"
-                  size="md"
-                  className="hover-icon color-fg-muted"
-                />
-              )}
-            </MenuItem>
-          );
-        })}
+            if (aIsSelected && !bIsSelected) return -1;
+            if (!aIsSelected && bIsSelected) return 1;
+            return 0;
+          })
+          .map((org) => {
+            const isSelected =
+              org.organizationId === selectedOrganization?.organizationId;
+            return (
+              <MenuItem
+                key={org.organizationId}
+                role="option"
+                tabIndex={0}
+                isSelected={isSelected}
+                onClick={!isSelected ? () => handleSelect(org) : undefined}
+                onKeyDown={
+                  !isSelected
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleSelect(org);
+                        }
+                      }
+                    : undefined
+                }
+                aria-selected={isSelected}
+              >
+                {renderOrgAvatar(org.organizationName)}
+                <MenuItemText>
+                  {org.organizationName}{" "}
+                  {org.organizationId ===
+                    selectedOrganization?.organizationId && "(current)"}
+                </MenuItemText>
+
+                {!isSelected && (
+                  <MenuItemIcon
+                    name="share-box-line"
+                    size="md"
+                    className="hover-icon color-fg-muted"
+                  />
+                )}
+              </MenuItem>
+            );
+          })}
 
         {pendingInvitations.length > 0 && (
           <>
             <SectionDivider />
             <SectionHeader>{createMessage(PENDING_INVITATIONS)}</SectionHeader>
             {pendingInvitations.map((invitation) => (
-              <MenuItem key={invitation.id} role="option">
+              <MenuItem
+                key={invitation.organizationId}
+                onClick={() => handleSelect(invitation)}
+                role="option"
+              >
                 {renderOrgAvatar(invitation.organizationName)}
                 <MenuItemText>{invitation.organizationName}</MenuItemText>
 

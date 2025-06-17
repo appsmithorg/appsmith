@@ -172,7 +172,7 @@ export function* fetchMyOrganizationsSaga() {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_MY_ORGANIZATIONS_SUCCESS,
-        payload: response.data.organizations,
+        payload: response.data,
       });
     }
   } catch (error) {

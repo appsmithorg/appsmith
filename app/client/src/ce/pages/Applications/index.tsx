@@ -99,7 +99,10 @@ import {
   getIsFetchingApplications,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import {
+  getIsFetchingMyOrganizations,
+  getMyOrganizations,
   getOrganizationPermissions,
+  activeOrganisationId,
   shouldShowLicenseBanner,
 } from "ee/selectors/organizationSelectors";
 import { getWorkflowsList } from "ee/selectors/workflowSelectors";
@@ -141,6 +144,10 @@ import {
 } from "git";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { trackCurrentDomain } from "utils/multiOrgDomains";
+import OrganizationDropdown from "components/OrganizationDropdown";
+import { fetchMyOrganizations } from "ce/actions/organizationActions";
+import type { Organization } from "ce/api/OrganizationApi";
+import { useIsCloudBillingEnabled } from "hooks";
 
 function GitModals() {
   const isGitModEnabled = useGitModEnabled();
@@ -434,10 +441,13 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
 };
 
 export interface LeftPaneProps {
-  isBannerVisible?: boolean;
-  isFetchingWorkspaces: boolean;
-  workspaces: Workspace[];
+  activeOrganizationId?: string;
   activeWorkspaceId?: string;
+  isBannerVisible?: boolean;
+  isFetchingOrganizations: boolean;
+  isFetchingWorkspaces: boolean;
+  organizations: Organization[];
+  workspaces: Workspace[];
 }
 
 export function LeftPane(props: LeftPaneProps) {
@@ -445,14 +455,29 @@ export function LeftPane(props: LeftPaneProps) {
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingWorkspaces,
+    isFetchingOrganizations,
+    activeOrganizationId,
     workspaces = [],
+    organizations = [],
   } = props;
   const isMobile = useIsMobileDevice();
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
 
   if (isMobile) return null;
 
   return (
     <LeftPaneWrapper isBannerVisible={isBannerVisible}>
+      {isCloudBillingEnabled && !isFetchingOrganizations && (
+        <OrganizationDropdown
+          organizations={organizations}
+          selectedOrganization={
+            organizations.find(
+              (organization) =>
+                organization.organizationId === activeOrganizationId,
+            ) || organizations[0]
+          }
+        />
+      )}
       <LeftPaneSection
         heading={createMessage(WORKSPACES_HEADING)}
         isBannerVisible={isBannerVisible}
@@ -992,6 +1017,9 @@ export const ApplictionsMainPage = (props: any) => {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
   const isBannerVisible = showBanner && (isHomePage || isLicensePage);
+  const organizations = useSelector(getMyOrganizations);
+  const isFetchingOrganizations = useSelector(getIsFetchingMyOrganizations);
+  const currentOrganizationId = useSelector(activeOrganisationId);
 
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1012,6 +1040,10 @@ export const ApplictionsMainPage = (props: any) => {
   >(
     workspaceIdFromQueryParams ? workspaceIdFromQueryParams : workspaces[0]?.id,
   );
+
+  useEffect(() => {
+    dispatch(fetchMyOrganizations());
+  }, []);
 
   useEffect(() => {
     setActiveWorkspaceId(
@@ -1057,8 +1089,11 @@ export const ApplictionsMainPage = (props: any) => {
     <PageWrapper displayName="Applications">
       <LeftPane
         activeWorkspaceId={activeWorkspaceId}
+        activeOrganizationId={currentOrganizationId}
         isBannerVisible={isBannerVisible}
+        isFetchingOrganizations={isFetchingOrganizations}
         isFetchingWorkspaces={isFetchingWorkspaces}
+        organizations={organizations}
         workspaces={workspaces}
       />
       <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>

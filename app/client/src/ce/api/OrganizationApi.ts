@@ -25,17 +25,15 @@ export type FetchMyOrganizationsResponse = ApiResponse<{
 }>;
 
 export interface Organization {
-  id: string;
-  name: string;
-  slug: string;
-  website?: string;
-  email?: string;
-  logoUrl?: string;
+  organizationId: string;
+  organizationName: string;
+  organizationUrl: string;
+  state: string;
 }
 
 export class OrganizationApi extends Api {
   static tenantsUrl = "v1/tenants";
-  static meUrl = "v1/me";
+  static meUrl = "v1/users/me";
 
   static async fetchCurrentOrganizationConfig(): Promise<
     AxiosPromise<FetchCurrentOrganizationConfigResponse>

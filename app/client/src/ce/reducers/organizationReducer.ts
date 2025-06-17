@@ -122,25 +122,28 @@ export const handlers = {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: OrganizationReduxState<any>,
-  ) => {
-    state.isFetchingMyOrganizations = true;
-  },
+  ) => ({
+    ...state,
+    isFetchingMyOrganizations: true,
+  }),
   [ReduxActionTypes.FETCH_MY_ORGANIZATIONS_SUCCESS]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: OrganizationReduxState<any>,
     action: ReduxAction<Organization[]>,
-  ) => {
-    state.myOrganizations = action.payload;
-    state.isFetchingMyOrganizations = false;
-  },
+  ) => ({
+    ...state,
+    myOrganizations: action.payload,
+    isFetchingMyOrganizations: false,
+  }),
   [ReduxActionErrorTypes.FETCH_MY_ORGANIZATIONS_ERROR]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: OrganizationReduxState<any>,
-  ) => {
-    state.isFetchingMyOrganizations = false;
-  },
+  ) => ({
+    ...state,
+    isFetchingMyOrganizations: false,
+  }),
 };
 
 export default createReducer(initialState, handlers);
