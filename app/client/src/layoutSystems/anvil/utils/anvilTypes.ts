@@ -1,4 +1,4 @@
-import type { WidgetType } from "WidgetProvider/factory";
+import type { WidgetType } from "WidgetProvider/factory/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
   FlexLayerAlignment,

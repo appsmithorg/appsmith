@@ -11,7 +11,7 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,

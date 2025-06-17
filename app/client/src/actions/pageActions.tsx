@@ -20,7 +20,7 @@ import type { APP_MODE } from "entities/App";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import type { DSLWidget } from "../WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,

@@ -10,7 +10,7 @@ import {
   FRONT_CAMERA_LABEL,
   createMessage,
 } from "ee/constants/messages";
-import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
+import { DefaultMobileCameraTypes } from "WidgetProvider/types";
 export default [
   {
     sectionName: "Basic",

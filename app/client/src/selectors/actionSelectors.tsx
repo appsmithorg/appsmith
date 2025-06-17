@@ -1,7 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createSelector } from "reselect";
 import WidgetFactory from "WidgetProvider/factory";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { getDataTree } from "./dataTreeSelectors";
 import {

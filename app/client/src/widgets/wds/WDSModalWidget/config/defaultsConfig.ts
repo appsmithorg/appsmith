@@ -1,8 +1,8 @@
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { LayoutSystemTypes } from "layoutSystems/types";

@@ -1,7 +1,7 @@
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import {
   FlexVerticalAlignment,
   Positioning,
@@ -11,7 +11,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
@@ -22,8 +22,8 @@ import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicHeight } from "utils/WidgetFeatures";

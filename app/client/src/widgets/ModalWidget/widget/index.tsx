@@ -29,8 +29,8 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type {
   AutocompletionDefinitions,
   FlattenedWidgetProps,
-} from "WidgetProvider/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+} from "WidgetProvider/types";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";

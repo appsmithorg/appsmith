@@ -1,4 +1,4 @@
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 import React from "react";
 import styled from "styled-components";
 import type { WidgetProps, WidgetState } from "./BaseWidget";

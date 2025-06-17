@@ -6,7 +6,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
@@ -44,8 +44,8 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+} from "WidgetProvider/types";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
