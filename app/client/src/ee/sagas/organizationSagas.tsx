@@ -2,10 +2,9 @@ export * from "ce/sagas/organizationSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchCurrentOrganizationConfigSaga,
-  fetchMyOrganizationsSaga,
   updateOrganizationConfigSaga,
 } from "ce/sagas/organizationSagas";
-import { all, takeEvery, takeLatest } from "redux-saga/effects";
+import { all, takeLatest } from "redux-saga/effects";
 
 export default function* organizationSagas() {
   yield all([
@@ -16,10 +15,6 @@ export default function* organizationSagas() {
     takeLatest(
       ReduxActionTypes.UPDATE_ORGANIZATION_CONFIG,
       updateOrganizationConfigSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.FETCH_MY_ORGANIZATIONS_INIT,
-      fetchMyOrganizationsSaga,
     ),
   ]);
 }
