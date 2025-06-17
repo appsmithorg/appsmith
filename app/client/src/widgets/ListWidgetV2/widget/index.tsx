@@ -562,9 +562,10 @@ class ListWidget extends BaseWidget<
       serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
+    const data = this.props.listData;
 
-    if (isListFullyEmpty(listData, pageNo)) {
-      listData.push({});
+    if (data && isListFullyEmpty(data, pageNo)) {
+      data.push({});
     }
 
     return {
