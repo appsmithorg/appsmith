@@ -850,7 +850,6 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
-      Api1: ["Api1.data"],
       ...initialdependencies,
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
@@ -919,7 +918,6 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
 
     expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
-      Api1: ["Api1.data"],
       ...initialdependencies,
       "Table1.selectedRow": [],
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -1065,6 +1063,7 @@ describe("DataTreeEvaluator", () => {
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
+
   it("Prevents data mutation in eval cycle", () => {
     const { configEntity, unEvalEntity } = generateDataTreeWidget(
       {
@@ -1104,6 +1103,7 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("TextX.text", 123);
     expect(dataTree).toHaveProperty("Text1.text", "Label");
   });
+
   it("Checks the number of clone operations performed in update tree flow", () => {
     const { configEntity, unEvalEntity } = generateDataTreeWidget(
       {
