@@ -1,4 +1,4 @@
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { type TriggerMeta } from "ee/entities/AppsmithConsole/utils";
 import type {
   EventType,
   TriggerSource,

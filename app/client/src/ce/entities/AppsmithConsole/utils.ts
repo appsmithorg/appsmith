@@ -1,7 +1,17 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeEntityConfig } from "../DataTree/types";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import type { SourceEntity } from "entities/AppsmithConsole";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
+
+export interface TriggerMeta {
+  source?: TriggerSource;
+  triggerPropertyName?: string;
+  triggerKind?: TriggerKind;
+  onPageLoad: boolean;
+}
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
