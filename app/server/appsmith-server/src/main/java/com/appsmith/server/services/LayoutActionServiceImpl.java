@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -29,7 +28,6 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             PagePermission pagePermission,
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
-            ApplicationService applicationService,
             RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils) {
 
         super(
@@ -43,7 +41,6 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                 pagePermission,
                 actionPermission,
                 observationRegistry,
-                applicationService,
                 runBehaviourAnalyticsUtils);
     }
 }

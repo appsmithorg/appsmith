@@ -11,7 +11,6 @@ import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RunBehaviourEnum;
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -23,7 +22,6 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -99,8 +97,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
     private final FeatureFlagService featureFlagService;
-    private final AnalyticsService analyticsService;
-    private final ApplicationService applicationService;
     private final RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     /**
