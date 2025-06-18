@@ -457,8 +457,8 @@ export function LeftPane(props: LeftPaneProps) {
     isBannerVisible = false,
     isFetchingOrganizations,
     isFetchingWorkspaces,
-    workspaces = [],
     organizations = [],
+    workspaces = [],
   } = props;
   const isMobile = useIsMobileDevice();
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
