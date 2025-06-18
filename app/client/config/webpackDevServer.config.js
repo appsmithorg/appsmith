@@ -79,6 +79,15 @@ module.exports = function (proxy, allowedHost) {
       overlay: {
         warnings: false,
         errors: false,
+        runtimeErrors: (error) => {
+          const ignoreErrors = [
+            "ResizeObserver loop completed with undelivered notifications.",
+          ];
+          if (ignoreErrors.includes(error.message)) {
+            return false;
+          }
+          return true;
+        },
       },
     },
     devMiddleware: {
