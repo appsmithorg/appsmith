@@ -2,7 +2,7 @@ import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
   type WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";

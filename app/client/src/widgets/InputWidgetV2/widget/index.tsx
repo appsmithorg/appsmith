@@ -1,9 +1,9 @@
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ICON_NAMES } from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -47,7 +47,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type {
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";

@@ -5,8 +5,8 @@ import type {
   FlattenedWidgetProps,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
-} from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+} from "WidgetProvider/types";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import {

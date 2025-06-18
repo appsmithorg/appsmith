@@ -1,5 +1,5 @@
 import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import { objectKeys } from "@appsmith/utils";
 
 export const defaultsConfig = {

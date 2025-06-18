@@ -5,7 +5,7 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 import { Icon } from "@appsmith/ads";
 
 export enum ButtonBorderRadiusTypes {

@@ -5,8 +5,8 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
   WidgetCallout,
-} from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+} from "WidgetProvider/types";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";

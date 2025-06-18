@@ -5,7 +5,7 @@ import React from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import BaseWidget from "widgets/BaseWidget";
 import isArray from "lodash/isArray";
 import type { Selection } from "@react-types/shared";

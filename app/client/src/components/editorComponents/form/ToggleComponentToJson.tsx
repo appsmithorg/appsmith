@@ -28,7 +28,7 @@ interface Props {
   children?: JSX.Element;
   formName: string;
   disabled: boolean | undefined;
-  renderCompFunction: (config?: ControlProps) => JSX.Element;
+  renderCompFunction: (config?: ControlProps) => JSX.Element | null;
 }
 
 interface HandlerProps {

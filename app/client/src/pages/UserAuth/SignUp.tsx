@@ -26,14 +26,14 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   LOOKING_TO_SELF_HOST,
   VISIT_OUR_DOCS,
-  ALREADY_USING_APPSMITH,
   SIGN_IN_TO_AN_EXISTING_ORGANISATION,
-  LOGIN_PAGE_TITLE,
+  USING_APPSMITH,
+  YOU_VE_ALREADY_SIGNED_INTO,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
 import { FormGroup } from "@appsmith/ads-old";
-import { Button, Link, Callout } from "@appsmith/ads";
+import { Button, Link, Callout, Text } from "@appsmith/ads";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import type { SignupFormValues } from "pages/UserAuth/helpers";
@@ -66,6 +66,7 @@ import { isLoginHostname } from "utils/cloudBillingUtils";
 import { appsmithTelemetry } from "instrumentation";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import { getSafeErrorMessage } from "ee/constants/approvedErrorMessages";
+import { getRecentDomains, isValidAppsmithDomain } from "utils/multiOrgDomains";
 
 declare global {
   interface Window {
@@ -75,6 +76,7 @@ declare global {
   }
 }
 const { cloudHosting, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const recentDomains = getRecentDomains();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -93,6 +95,59 @@ const validate = (values: SignupFormValues) => {
 
   return errors;
 };
+
+const recentDomainsSection = recentDomains.length > 0 && (
+  <div className="mt-12">
+    <div className="mb-2">
+      <Text kind="body-m">{createMessage(YOU_VE_ALREADY_SIGNED_INTO)}</Text>
+    </div>
+
+    <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md py-4 px-3">
+      {recentDomains.map((domain, index) => {
+        const orgName = domain
+          .split(".")[0]
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+
+        const avatarLetter = String.fromCharCode(65 + (index % 26));
+
+        return (
+          <div
+            className="flex items-center justify-between p-1 mb-3"
+            key={domain}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-[color:var(--ads-color-background-secondary)] rounded-full flex items-center justify-center text-gray-600 font-light text-sm">
+                {avatarLetter}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-md font-semibold text-gray-700">
+                  {orgName}
+                </span>
+                <span className="text-xs font-light text-gray-500">
+                  {domain}
+                </span>
+              </div>
+            </div>
+            <Button
+              className="px-4 py-2 text-sm"
+              kind="secondary"
+              onClick={() => {
+                if (isValidAppsmithDomain(domain)) {
+                  window.location.href = `https://${domain}/user/login`;
+                }
+              }}
+              size="md"
+            >
+              Open
+            </Button>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
 
 type SignUpFormProps = InjectedFormProps<
   SignupFormValues,
@@ -200,33 +255,34 @@ export function SignUp(props: SignUpFormProps) {
     }
   };
 
+  const cloudBillingSignIn = (
+    <div className="flex flex-row text-[color:var(--ads-v2\-color-fg)] text-[14px] gap-1">
+      <Text kind="body-m">{createMessage(USING_APPSMITH)}</Text>
+      <Link
+        className="t--sign-up t--signup-link"
+        kind="primary"
+        target="_self"
+        to={ORG_LOGIN_PATH}
+      >
+        {createMessage(SIGN_IN_TO_AN_EXISTING_ORGANISATION)}
+      </Link>
+    </div>
+  );
+
   const footerSection = (
     <>
-      {isCloudBillingEnabled && isHostnameEqualtoLogin ? (
-        <div className="px-2 flex flex-col items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-          {createMessage(ALREADY_USING_APPSMITH)}
-          <Link
-            className="t--sign-up t--signup-link"
-            kind="primary"
-            target="_self"
-            to={ORG_LOGIN_PATH}
-          >
-            {createMessage(SIGN_IN_TO_AN_EXISTING_ORGANISATION)}
-          </Link>
-        </div>
-      ) : (
-        <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-          {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
-          <Link
-            className="t--sign-up t--signup-link"
-            kind="primary"
-            target="_self"
-            to={AUTH_LOGIN_URL}
-          >
-            {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-          </Link>
-        </div>
-      )}
+      <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
+        <Link
+          className="t--sign-up t--signup-link"
+          kind="primary"
+          target="_self"
+          to={AUTH_LOGIN_URL}
+        >
+          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
+        </Link>
+      </div>
+
       {cloudHosting && !isAiAgentInstanceEnabled && (
         <>
           <OrWithLines>or</OrWithLines>
@@ -249,10 +305,8 @@ export function SignUp(props: SignUpFormProps) {
 
   return (
     <Container
-      footer={footerSection}
-      title={createMessage(
-        isAiAgentInstanceEnabled ? SIGNUP_PAGE_TITLE : LOGIN_PAGE_TITLE,
-      )}
+      footer={!isCloudBillingEnabled && footerSection}
+      title={createMessage(SIGNUP_PAGE_TITLE)}
     >
       <Helmet>
         <title>{htmlPageTitle}</title>
@@ -313,6 +367,8 @@ export function SignUp(props: SignUpFormProps) {
           </FormActions>
         </SpacedSubmitForm>
       )}
+      {isCloudBillingEnabled && isHostnameEqualtoLogin && cloudBillingSignIn}
+      {isCloudBillingEnabled && isHostnameEqualtoLogin && recentDomainsSection}
     </Container>
   );
 }

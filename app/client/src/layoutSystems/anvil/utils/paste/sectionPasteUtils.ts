@@ -5,7 +5,7 @@ import type {
   PastePayload,
 } from "./types";
 import { getDestinedParent } from "./destinationUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { anvilWidgets } from "widgets/wds/constants";
 import type { LayoutProps } from "../anvilTypes";
 import { all, call } from "redux-saga/effects";

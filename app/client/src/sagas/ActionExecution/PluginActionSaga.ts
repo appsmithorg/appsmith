@@ -108,7 +108,7 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { APP_MODE } from "entities/App";
-import { FileDataTypes } from "WidgetProvider/constants";
+import { FileDataTypes } from "WidgetProvider/types";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import {
   ActionValidationError,

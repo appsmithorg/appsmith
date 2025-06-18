@@ -1,4 +1,4 @@
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { cloneDeep } from "lodash";
 import type {

@@ -52,7 +52,7 @@ import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasRedu
 import type { SettingsReduxState } from "ee/reducers/settingsReducer";
 import SettingsReducer from "ee/reducers/settingsReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import type { OrganizationReduxState } from "ee/reducers/organizationReducer";
 import organizationReducer from "ee/reducers/organizationReducer";

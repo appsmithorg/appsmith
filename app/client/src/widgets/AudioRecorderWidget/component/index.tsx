@@ -7,7 +7,7 @@ import { useStopwatch } from "react-timer-hook";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 import { importSvg } from "@appsmith/ads-old";
 
 const RecorderDefaultIcon = importSvg(
