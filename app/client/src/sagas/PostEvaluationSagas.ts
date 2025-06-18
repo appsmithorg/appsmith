@@ -1,8 +1,6 @@
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type {
   JSActionEntityConfig,
-  JSModuleInstanceEntityConfig,
-  ModuleInstanceEntity,
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
@@ -18,7 +16,6 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
-  isJSModuleInstance,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -59,14 +56,11 @@ import { startExecutingJSFunction } from "actions/jsPaneActions";
 import { getJSCollection } from "ee/selectors/entitiesSelector";
 import store from "store";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  getModuleInstanceJSCollectionById,
-  getModuleInstancePublicEntity,
-} from "ee/selectors/moduleInstanceSelectors";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { getModuleInstanceJSCollectionById } from "ee/selectors/moduleInstanceSelectors";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import { getOnLoadActionsWithExecutionStatus } from "selectors/editorSelectors";
 import { runSingleAction } from "./ActionExecution/PluginActionSaga";
+import { executionForJSModuleInstance } from "ee/sagas/moduleInstanceSagaUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -436,38 +430,13 @@ export function* executeReactiveQueries(
       }
     }
 
-    if (isJSModuleInstance(entity)) {
-      const moduleEntity = dataTree[entityName] as ModuleInstanceEntity;
-      const publicJSCollection: JSCollection = yield select(
-        getModuleInstancePublicEntity,
-        moduleEntity.moduleInstanceId,
-        MODULE_TYPE.JS,
-      );
-
-      const action = publicJSCollection.actions.find(
-        (action) => action.name === propertyPath,
-      );
-
-      if (!action) return;
-
-      const entityConfig = configTree[
-        entityName
-      ] as JSModuleInstanceEntityConfig;
-
-      const runBehaviour =
-        entityConfig?.meta && entityConfig.meta[action.name]?.runBehaviour;
-
-      if (runBehaviour === ActionRunBehaviour.AUTOMATIC) {
-        yield put(
-          startExecutingJSFunction({
-            action,
-            collection: publicJSCollection,
-            from: "KEYBOARD_SHORTCUT",
-            openDebugger: true,
-          }),
-        );
-      }
-    }
+    executionForJSModuleInstance({
+      entity,
+      entityName,
+      dataTree,
+      configTree,
+      propertyPath,
+    });
   }
 }
 

@@ -116,5 +116,3 @@ export const sagas = [
   gitApplicationSagas,
   PostEvaluationSagas,
 ];
-
-// Ankita: check

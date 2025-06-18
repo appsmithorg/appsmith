@@ -1,9 +1,11 @@
 import toposort from "toposort";
 import type DependencyMap from ".";
-import { IMMEDIATE_PARENT_REGEX } from "ee/workers/Evaluation/evaluationUtils";
+import {
+  entityTypeCheckForPathDynamicTrigger,
+  IMMEDIATE_PARENT_REGEX,
+} from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 
 type SortDependencies =
   | {
@@ -163,14 +165,7 @@ export class DependencyMapUtils {
       return false;
     }
 
-    if (
-      "ENTITY_TYPE" in entityConfig &&
-      (entityConfig.ENTITY_TYPE === "ACTION" ||
-        entityConfig.ENTITY_TYPE === "JSACTION" ||
-        (entityConfig.ENTITY_TYPE === "MODULE_INSTANCE" &&
-          (entityConfig.type === MODULE_TYPE.QUERY ||
-            entityConfig.type === MODULE_TYPE.JS)))
-    ) {
+    if (entityTypeCheckForPathDynamicTrigger(entityConfig)) {
       return isPathDynamicTrigger(entityConfig, propertyPath);
     }
 

@@ -1212,4 +1212,12 @@ export function isJSModuleInstance(entity: DataTreeEntity) {
   return false;
 }
 
-// Ankita: check
+export const entityTypeCheckForPathDynamicTrigger = (
+  entityConfig: DataTreeEntityConfig,
+) => {
+  return (
+    "ENTITY_TYPE" in entityConfig &&
+    (entityConfig.ENTITY_TYPE === "ACTION" ||
+      entityConfig.ENTITY_TYPE === "JSACTION")
+  );
+};
