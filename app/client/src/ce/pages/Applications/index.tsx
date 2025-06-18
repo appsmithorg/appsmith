@@ -452,11 +452,11 @@ export interface LeftPaneProps {
 
 export function LeftPane(props: LeftPaneProps) {
   const {
+    activeOrganizationId,
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingOrganizations,
     isFetchingWorkspaces,
-    activeOrganizationId,
     workspaces = [],
     organizations = [],
   } = props;

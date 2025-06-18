@@ -254,6 +254,7 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
           .map((org) => {
             const isSelected =
               org.organizationId === selectedOrganization?.organizationId;
+
             return (
               <MenuItem
                 aria-selected={isSelected}
