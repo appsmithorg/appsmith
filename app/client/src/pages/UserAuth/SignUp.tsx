@@ -112,10 +112,12 @@ const recentDomainsSection = recentDomains.length > 0 && (
 
         const avatarLetter = String.fromCharCode(65 + (index % 26));
 
+        const isLastItem = index === recentDomains.length - 1;
+
         return (
           <div
             className={`flex items-center justify-between p-1 ${
-              index === recentDomains.length - 1 ? "mb-0" : "mb-3"
+              isLastItem ? "mb-0" : "mb-3"
             }`}
             key={domain}
           >
