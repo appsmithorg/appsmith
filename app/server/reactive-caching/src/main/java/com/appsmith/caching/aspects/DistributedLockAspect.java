@@ -1,7 +1,7 @@
 package com.appsmith.caching.aspects;
 
 import com.appsmith.caching.annotations.DistributedLock;
-import com.appsmith.server.services.ConfigService;
+import com.appsmith.caching.components.InstanceIdProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -24,13 +24,14 @@ import java.time.temporal.ChronoUnit;
 public class DistributedLockAspect {
 
     private final ReactiveRedisOperations<String, String> redisOperations;
-    private final ConfigService configService;
+    private final InstanceIdProvider instanceIdProvider;
 
-    private static final String LOCK_PREFIX = "lock:";
+    private static final String LOCK_PREFIX = "lock";
 
-    public DistributedLockAspect(ReactiveRedisOperations<String, String> redisOperations, ConfigService configService) {
+    public DistributedLockAspect(
+            ReactiveRedisOperations<String, String> redisOperations, InstanceIdProvider instanceIdProvider) {
         this.redisOperations = redisOperations;
-        this.configService = configService;
+        this.instanceIdProvider = instanceIdProvider;
     }
 
     // Method to acquire a distributed lock before executing the annotated method.
@@ -61,7 +62,7 @@ public class DistributedLockAspect {
     }
 
     private Mono<LockDetails> createLockDetails(DistributedLock lock) {
-        return configService.getInstanceId().map(instanceId -> {
+        return instanceIdProvider.getInstanceId().defaultIfEmpty("unknown").map(instanceId -> {
             String lockKey = LOCK_PREFIX + ":" + instanceId + ":" + lock.key();
             long ttl = lock.ttl();
             String value = "locked until "

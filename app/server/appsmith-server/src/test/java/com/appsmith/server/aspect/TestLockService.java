@@ -42,8 +42,9 @@ public class TestLockService {
     }
 
     // Method to manually release the lock (for testing cleanup)
-    public Mono<Long> releaseLock(String lockKey, ReactiveRedisOperations<String, String> redisOperations) {
-        return redisOperations.delete("lock:" + lockKey);
+    public Mono<Long> releaseLock(
+            String lockKey, ReactiveRedisOperations<String, String> redisOperations, String instanceId) {
+        return redisOperations.delete("lock:" + instanceId + ":" + lockKey);
     }
 
     @DistributedLock(key = "error-lock", shouldReleaseLock = false)
