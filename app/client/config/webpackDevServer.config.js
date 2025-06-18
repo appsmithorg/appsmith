@@ -79,11 +79,14 @@ module.exports = function (proxy, allowedHost) {
       overlay: {
         warnings: false,
         errors: false,
+        // Suppress known noisy runtime error(s) without hiding legitimate ones
         runtimeErrors: (error) => {
-          const ignoreErrors = [
-            "ResizeObserver loop completed with undelivered notifications.",
+          const message =
+            typeof error?.message === "string" ? error.message : "";
+          const IGNORE_ERRORS = [
+            "ResizeObserver loop completed with undelivered notifications",
           ];
-          if (ignoreErrors.includes(error.message)) {
+          if (IGNORE_ERRORS.some((m) => message.includes(m))) {
             return false;
           }
           return true;
