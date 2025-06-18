@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.models.GitResourceIdentity;
@@ -194,18 +193,6 @@ public class CommonGitFileUtilsCE {
                 return Mono.error(exception);
             }
         });
-    }
-
-    public Mono<GitStatusDTO> computeGitStatus(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
-        GitResourceMap gitResourceMapFromDB = createGitResourceMap(artifactExchangeJson);
-        try {
-            return fileUtils
-                    .computeGitStatus(baseRepoSuffix, gitResourceMapFromDB, branchName, true)
-                    .subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException | GitAPIException exception) {
-            return Mono.error(exception);
-        }
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(

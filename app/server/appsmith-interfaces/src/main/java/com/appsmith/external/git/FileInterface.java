@@ -1,6 +1,5 @@
 package com.appsmith.external.git;
 
-import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
@@ -40,10 +39,6 @@ public interface FileInterface {
             throws IOException, GitAPIException;
 
     Mono<Path> saveArtifactToGitRepo(
-            Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
-            throws GitAPIException, IOException;
-
-    Mono<GitStatusDTO> computeGitStatus(
             Path baseRepoSuffix, GitResourceMap gitResourceMap, String branchName, boolean keepWorkingDirChanges)
             throws GitAPIException, IOException;
 
