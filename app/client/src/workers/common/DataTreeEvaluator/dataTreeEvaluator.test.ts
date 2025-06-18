@@ -27,7 +27,6 @@ import {
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
 import { APP_MODE } from "entities/App";
-import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const widgetConfigMap: Record<
   string,
@@ -483,15 +482,13 @@ describe("DataTreeEvaluator", () => {
             [],
             dataTreeEvaluator.evalTree,
           );
-          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.data",
-          ]);
-          expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
-            "Api1.data[2]",
-          ]);
-          expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual([
-            "Api1.data[2].id",
-          ]);
+          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
+            undefined,
+          );
+          expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
+          expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
+            undefined,
+          );
           expect(dataTreeEvaluator.dependencies["Text1.text"]).toStrictEqual([
             "Api1.data[2].id",
           ]);
@@ -511,9 +508,9 @@ describe("DataTreeEvaluator", () => {
             dataTreeEvaluator.evalTree,
           );
 
-          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.data",
-          ]);
+          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
+            undefined,
+          );
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
           expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
             undefined,
@@ -556,9 +553,7 @@ describe("DataTreeEvaluator", () => {
           dataTreeEvaluator.evalTree,
         );
 
-        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.data",
-        ]);
+        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
         expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
           undefined,
@@ -586,18 +581,16 @@ describe("DataTreeEvaluator", () => {
             [],
             dataTreeEvaluator.evalTree,
           );
-          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.data",
-          ]);
-          expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
-            "Api1.data[2]",
-          ]);
-          expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual([
-            "Api1.data[2][2]",
-          ]);
+          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
+            undefined,
+          );
+          expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
+          expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
+            undefined,
+          );
           expect(
             dataTreeEvaluator.dependencies["Api1.data[2][2]"],
-          ).toStrictEqual(["Api1.data[2][2].id"]);
+          ).toStrictEqual(undefined);
           expect(dataTreeEvaluator.dependencies["Text1.text"]).toStrictEqual([
             "Api1.data[2][2].id",
           ]);
@@ -616,9 +609,9 @@ describe("DataTreeEvaluator", () => {
             [],
             dataTreeEvaluator.evalTree,
           );
-          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.data",
-          ]);
+          expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
+            undefined,
+          );
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
           expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
             undefined,
@@ -664,9 +657,7 @@ describe("DataTreeEvaluator", () => {
           dataTreeEvaluator.evalTree,
         );
 
-        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.data",
-        ]);
+        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
         expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
           undefined,
@@ -708,14 +699,10 @@ describe("DataTreeEvaluator", () => {
           [],
           dataTreeEvaluator.evalTree,
         );
-        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.data",
-        ]);
-        expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
-          "Api1.data[2]",
-        ]);
+        expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
+        expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
         expect(dataTreeEvaluator.dependencies["Api1.data[2]"]).toStrictEqual(
-          [],
+          undefined,
         );
         expect(dataTreeEvaluator.dependencies["Api1.data[2][2]"]).toStrictEqual(
           undefined,
@@ -811,12 +798,12 @@ describe("isDataField", () => {
         myFun2: {
           arguments: [],
           confirmBeforeExecute: false,
-          runBehaviour: ActionRunBehaviour.MANUAL,
+          runBehaviour: "MANUAL",
         },
         myFun1: {
           arguments: [],
           confirmBeforeExecute: false,
-          runBehaviour: ActionRunBehaviour.MANUAL,
+          runBehaviour: "MANUAL",
         },
       },
       name: "JSObject1",
@@ -873,12 +860,12 @@ describe("isDataField", () => {
         myFun2: {
           arguments: [],
           confirmBeforeExecute: false,
-          runBehaviour: ActionRunBehaviour.MANUAL,
+          runBehaviour: "MANUAL",
         },
         myFun1: {
           arguments: [],
           confirmBeforeExecute: false,
-          runBehaviour: ActionRunBehaviour.MANUAL,
+          runBehaviour: "MANUAL",
         },
       },
       name: "JSObject2",
