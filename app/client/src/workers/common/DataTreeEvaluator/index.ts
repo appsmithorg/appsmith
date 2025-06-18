@@ -344,7 +344,6 @@ export default class DataTreeEvaluator {
 
     const sortDependenciesStartTime = performance.now();
 
-    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
     this.sortedDependencies = this.sortDependencies(
       this.dependencyMap,
       [],
@@ -1152,6 +1151,7 @@ export default class DataTreeEvaluator {
      * SafeTree is free of mutations because we make sure to only set evaluated values into it.
      */
     const contextTree = unEvalTree;
+
     const valuechanged: Record<string, boolean> = {};
 
     errorModifier.updateAsyncFunctions(
@@ -1194,6 +1194,7 @@ export default class DataTreeEvaluator {
           valuechanged[fullPropertyPath] = true;
           continue;
         }
+        // Skip evaluations for actions in JSObjects
 
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1484,7 +1485,6 @@ export default class DataTreeEvaluator {
                   evalValue,
                   fullPropertyPath,
                 );
-
                 JSObjectCollection.setPrevUnEvalState({
                   fullPath: fullPropertyPath,
                   unEvalValue: unEvalPropertyValue,
