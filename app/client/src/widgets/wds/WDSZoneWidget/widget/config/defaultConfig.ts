@@ -2,7 +2,7 @@ import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
   type WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { zonePreset } from "layoutSystems/anvil/layoutComponents/presets/zonePreset";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import {

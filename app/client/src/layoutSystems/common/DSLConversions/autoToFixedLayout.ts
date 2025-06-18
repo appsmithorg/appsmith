@@ -18,7 +18,7 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 
 const deletedResponsiveProperties = [
   "mobileLeftColumn",

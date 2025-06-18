@@ -25,7 +25,7 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,

@@ -5,7 +5,7 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
   WidgetCallout,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   ButtonBorderRadius,
   ButtonVariant,

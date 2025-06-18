@@ -15,7 +15,7 @@ import type {
 } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import _, { difference, get, has, isEmpty, isNil, set } from "lodash";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import { PluginType } from "entities/Plugin";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";

@@ -1,9 +1,9 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import ContainerWidget from "widgets/ContainerWidget/widget";
-import type { WidgetDefaultProps } from "../WidgetProvider/constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 
 /**

@@ -15,7 +15,7 @@ import { updateDependencyMap } from "workers/common/DependencyMap";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
-import type { WidgetConfiguration } from "WidgetProvider/constants";
+import type { WidgetConfiguration } from "WidgetProvider/types";
 import {
   EvaluationSubstitutionType,
   type WidgetEntity,

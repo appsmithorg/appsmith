@@ -24,7 +24,7 @@ import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { getWidgets, getWidgetsMeta } from "../selectors";
 
 import { builderURL } from "ee/RouteBuilder";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";

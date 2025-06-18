@@ -10,7 +10,7 @@ import type {
   EVAL_WORKER_SYNC_ACTION,
 } from "ee/workers/Evaluation/evalWorkerActions";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "ee/workers/common/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";

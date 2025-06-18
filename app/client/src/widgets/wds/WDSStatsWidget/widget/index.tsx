@@ -6,7 +6,7 @@ import BaseWidget from "widgets/BaseWidget";
 import * as config from "../config";
 import { StatsComponent } from "../component";
 import type { StatsWidgetProps } from "./types";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 import { Elevations } from "widgets/wds/constants";
 import { ContainerComponent } from "widgets/wds/Container";
 

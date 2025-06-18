@@ -3,7 +3,7 @@ import {
   WDSBaseInputWidget,
 } from "widgets/wds/WDSBaseInputWidget";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 import { getDefaultISDCode } from "../constants";
 

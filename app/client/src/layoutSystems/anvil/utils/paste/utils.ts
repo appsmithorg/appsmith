@@ -1,4 +1,4 @@
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { cloneDeep } from "lodash";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";

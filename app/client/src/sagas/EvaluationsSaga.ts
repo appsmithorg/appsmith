@@ -22,7 +22,7 @@ import {
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { evalWorker } from "utils/workerInstances";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";

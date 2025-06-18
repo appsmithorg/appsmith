@@ -10,7 +10,7 @@ import { Alignment } from "@blueprintjs/core";
 import type {
   AutocompletionDefinitions,
   WidgetCallout,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { Layers } from "constants/Layers";

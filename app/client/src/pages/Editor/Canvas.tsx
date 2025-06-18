@@ -2,7 +2,7 @@ import log from "loglevel";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";

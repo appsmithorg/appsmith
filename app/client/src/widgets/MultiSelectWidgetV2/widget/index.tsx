@@ -24,7 +24,7 @@ import derivedProperties from "./parseDerivedProperties";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,

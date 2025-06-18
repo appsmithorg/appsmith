@@ -9,7 +9,7 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "ee/entities/DataTree/types";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Plugin";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
