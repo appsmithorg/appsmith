@@ -54,15 +54,26 @@ import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { startExecutingJSFunction } from "actions/jsPaneActions";
 import { getJSCollection } from "ee/selectors/entitiesSelector";
-import store from "store";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import { getModuleInstanceJSCollectionById } from "ee/selectors/moduleInstanceSelectors";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import { getOnLoadActionsWithExecutionStatus } from "selectors/editorSelectors";
-import { runSingleAction } from "./ActionExecution/PluginActionSaga";
 import { executionForJSModuleInstance } from "ee/sagas/moduleInstanceSagaUtils";
+import { runAction } from "actions/pluginActionActions";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
+
+export function* runSingleAction(actionId: string) {
+  yield put(runAction(actionId));
+  yield race([
+    take(ReduxActionTypes.RUN_ACTION_SUCCESS),
+    take(ReduxActionTypes.RUN_ACTION_CANCELLED),
+    take(ReduxActionErrorTypes.RUN_ACTION_ERROR),
+  ]);
+}
 
 export function* logJSVarCreatedEvent(
   jsVarsCreatedEvent: EvalTreeResponseData["jsVarsCreatedEvent"],
@@ -376,11 +387,14 @@ export function* executeReactiveQueries(
 
     if (isJSAction(entity)) {
       const entityConfig = configTree[entityName] as JSActionEntityConfig;
-      let collection = getJSCollection(store.getState(), entity.actionId);
+      let collection: JSCollection = yield select(
+        getJSCollection,
+        entity.actionId,
+      );
 
       if (!!entityConfig.moduleInstanceId) {
-        collection = getModuleInstanceJSCollectionById(
-          store.getState(),
+        collection = yield select(
+          getModuleInstanceJSCollectionById,
           entity.actionId,
         );
       }

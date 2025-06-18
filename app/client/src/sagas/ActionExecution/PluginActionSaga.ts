@@ -3,7 +3,6 @@ import {
   call,
   delay,
   put,
-  race,
   select,
   take,
   takeLatest,
@@ -1650,15 +1649,6 @@ function* softRefreshActionsSaga() {
     kind: "success",
   });
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
-}
-
-export function* runSingleAction(actionId: string) {
-  yield put(runAction(actionId));
-  yield race([
-    take(ReduxActionTypes.RUN_ACTION_SUCCESS),
-    take(ReduxActionTypes.RUN_ACTION_CANCELLED),
-    take(ReduxActionErrorTypes.RUN_ACTION_ERROR),
-  ]);
 }
 
 export function* watchPluginActionExecutionSagas() {
