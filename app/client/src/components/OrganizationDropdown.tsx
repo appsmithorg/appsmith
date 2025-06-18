@@ -1,6 +1,6 @@
 import { Avatar, Icon } from "@appsmith/ads";
-import type { Organization } from "ce/api/OrganizationApi";
-import { createMessage, PENDING_INVITATIONS } from "ce/constants/messages";
+import type { Organization } from "ee/api/OrganizationApi";
+import { createMessage, PENDING_INVITATIONS } from "ee/constants/messages";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
@@ -36,7 +36,9 @@ const TriggerContent = styled.div`
 `;
 
 const TriggerText = styled.span`
-  truncate: true;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 400;
 `;
 
@@ -136,28 +138,30 @@ export interface PendingInvitation {
 }
 
 export interface OrganizationDropdownProps {
-  selectedOrganization: Organization;
-  organizations: Organization[];
   "data-testid"?: string;
+  organizations: Organization[];
+  selectedOrganization: Organization;
 }
 
 const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
-  selectedOrganization,
-  organizations = [],
   "data-testid": testId,
+  organizations = [],
+  selectedOrganization,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const activeOrganizations = organizations.filter(
+  const safeOrganizations = organizations || [];
+  const activeOrganizations = safeOrganizations.filter(
     (org) => org.state === "ACTIVE",
   );
-  const pendingInvitations = organizations.filter(
+  const pendingInvitations = safeOrganizations.filter(
     (org) => org.state === "INVITED",
   );
 
   const generateInitials = (name: string): string => {
     if (!name) return "";
+
     return name.charAt(0).toUpperCase();
   };
 
@@ -171,6 +175,7 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
 
       window.open(url, "_blank", "noopener,noreferrer");
     }
+
     setIsOpen(false);
   }, []);
 
@@ -193,8 +198,10 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
+
+      return () => {
         document.removeEventListener("mousedown", handleClickOutside);
+      };
     }
   }, [isOpen]);
 
@@ -203,23 +210,23 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
   const renderOrgAvatar = (orgName: string) => {
     return (
       <Avatar
-        label={generateInitials(orgName)}
         firstLetter={generateInitials(orgName)}
+        label={generateInitials(orgName)}
         size="sm"
       />
     );
   };
 
   return (
-    <DropdownContainer ref={dropdownRef} data-testid={testId}>
+    <DropdownContainer data-testid={testId} ref={dropdownRef}>
       <DropdownTrigger
-        ref={triggerRef}
-        type="button"
-        onClick={handleToggle}
-        onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`Current organization: ${displayText}`}
+        onClick={handleToggle}
+        onKeyDown={handleKeyDown}
+        ref={triggerRef}
+        type="button"
       >
         <TriggerContent>
           {renderOrgAvatar(displayText)}
@@ -228,17 +235,20 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
         <Icon name="dropdown" size="md" />
       </DropdownTrigger>
 
-      <DropdownMenu isOpen={isOpen} role="listbox" aria-label="Organizations">
+      <DropdownMenu aria-label="Organizations" isOpen={isOpen} role="listbox">
         {activeOrganizations
           .slice()
           .sort((a, b) => {
             const aIsSelected =
               a.organizationId === selectedOrganization?.organizationId;
+
             const bIsSelected =
               b.organizationId === selectedOrganization?.organizationId;
 
             if (aIsSelected && !bIsSelected) return -1;
+
             if (!aIsSelected && bIsSelected) return 1;
+
             return 0;
           })
           .map((org) => {
@@ -246,10 +256,9 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
               org.organizationId === selectedOrganization?.organizationId;
             return (
               <MenuItem
-                key={org.organizationId}
-                role="option"
-                tabIndex={0}
+                aria-selected={isSelected}
                 isSelected={isSelected}
+                key={org.organizationId}
                 onClick={!isSelected ? () => handleSelect(org) : undefined}
                 onKeyDown={
                   !isSelected
@@ -261,7 +270,8 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
                       }
                     : undefined
                 }
-                aria-selected={isSelected}
+                role="option"
+                tabIndex={0}
               >
                 {renderOrgAvatar(org.organizationName)}
                 <MenuItemText>
@@ -272,9 +282,9 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
 
                 {!isSelected && (
                   <MenuItemIcon
+                    className="hover-icon color-fg-muted"
                     name="share-box-line"
                     size="md"
-                    className="hover-icon color-fg-muted"
                   />
                 )}
               </MenuItem>
@@ -295,9 +305,9 @@ const OrganizationDropdown: React.FC<OrganizationDropdownProps> = ({
                 <MenuItemText>{invitation.organizationName}</MenuItemText>
 
                 <MenuItemIcon
+                  className="hover-icon color-fg-muted"
                   name="share-box-line"
                   size="md"
-                  className="hover-icon color-fg-muted"
                 />
               </MenuItem>
             ))}

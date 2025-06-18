@@ -76,6 +76,6 @@ export const getIsFetchingMyOrganizations = (state: DefaultRootState) => {
   return state.organization?.isFetchingMyOrganizations || false;
 };
 
-export const activeOrganisationId = (state: DefaultRootState) => {
+export const activeOrganizationId = (state: DefaultRootState) => {
   return state.organization?.tenantId;
 };
