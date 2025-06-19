@@ -19,30 +19,7 @@ import type {
   DependencyMap,
   FormEditorConfigs,
 } from "utils/DynamicBindingUtils";
-import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { AppTheme } from "entities/AppTheming";
-
-export interface DataTreeSeed {
-  actions: ActionDataState;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editorConfigs: Record<string, any[]>;
-  pluginDependencyConfig: Record<string, DependencyMap>;
-  widgets: CanvasWidgetsReduxState;
-  widgetsMeta: MetaState;
-  appData: AppDataState;
-  jsActions: JSCollectionDataState;
-  theme: AppTheme["properties"];
-  metaWidgets: MetaWidgetsReduxState;
-  isMobile: boolean;
-  moduleInputs: Module["inputsForm"];
-  moduleInstances: Record<string, ModuleInstance> | null;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  moduleInstanceEntities: any;
-  layoutSystemType: LayoutSystemTypes;
-  loadingEntities: LoadingEntitiesState;
-}
+import type { DataTreeSeed } from "ee/entities/DataTree/types/DataTreeSeed";
 
 export class DataTreeFactory {
   public static metaWidgets(
