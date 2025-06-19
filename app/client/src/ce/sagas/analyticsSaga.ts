@@ -2,7 +2,7 @@ import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { type TriggerMeta } from "ee/entities/AppsmithConsole/utils";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

@@ -3,6 +3,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   EventType,
   ExecuteTriggerPayload,
+  TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
@@ -43,11 +44,15 @@ import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { DefaultRootState } from "react-redux";
 import { getAction } from "ee/selectors/entitiesSelector";
-import {
-  getSourceFromTriggerMeta,
-  type TriggerMeta,
-} from "ee/entities/AppsmithConsole/utils";
+import { getSourceFromTriggerMeta } from "ee/entities/AppsmithConsole/utils";
 import { globalFunctionLogoutUser } from "../userSagas";
+
+export interface TriggerMeta {
+  source?: TriggerSource;
+  triggerPropertyName?: string;
+  triggerKind?: TriggerKind;
+  onPageLoad: boolean;
+}
 
 /**
  * The controller saga that routes different trigger effects to its executor sagas
