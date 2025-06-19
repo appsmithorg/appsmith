@@ -359,12 +359,11 @@ setup-custom-ca-certificates() (
   local stacks_ca_certs_path="$stacks_path/ca-certs"
   local store="$TMP/cacerts"
   local opts_file="$TMP/java-cacerts-opts"
+  local temp_cert_dir="$TMP/ca-certs-temp"
 
   rm -f "$store" "$opts_file"
-
-  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    tlog "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
-  fi
+  rm -rf "$temp_cert_dir"
+  mkdir -p "$temp_cert_dir"
 
   if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt' | wc -l)" -gt 0 ]]; then
     tlog "No custom CA certificates found."
@@ -378,15 +377,30 @@ setup-custom-ca-certificates() (
     -srcstorepass changeit \
     -deststorepass changeit
 
-  # Add the custom CA certificates to the store, following symlinks
-  find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt' \
-    -print \
-    -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+  # Process each certificate file
+  find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt' | while read -r cert_file; do
+    # For ca_bundle.crt, split into individual certificates
+    if [[ "$(basename "$cert_file")" == "ca_bundle.crt" ]]; then
+      # Split the bundle into individual certificates
+      awk 'split_after==1{n++;split_after=0} /-----END CERTIFICATE-----/ {split_after=1} {print > ("'"$temp_cert_dir"'/cert" n ".crt")}' "$cert_file"
+    else
+      # For individual .crt files, just copy them
+      cp "$cert_file" "$temp_cert_dir/cert$(basename "$cert_file")"
+    fi
+  done
+
+  # Import all certificates from the temp directory
+  find "$temp_cert_dir" -type f -name '*.crt' | while read -r cert_file; do
+    keytool -import -alias "$(basename "$cert_file")" -noprompt -keystore "$store" -file "$cert_file" -storepass changeit
+  done
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
   } > "$opts_file"
+
+  # Cleanup
+  rm -rf "$temp_cert_dir"
 )
 
 configure_supervisord() {
