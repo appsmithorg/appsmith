@@ -59,6 +59,7 @@ function useGridLayoutTemplate(): ReturnValue {
 
           break;
         case EditorState.SETTINGS:
+        case EditorState.TRIGGER_SETTINGS:
           if (isPreviewMode || isProtectedMode) {
             setColumns(["0px", "0px", `${windowWidth}px`, "0px"]);
           } else {
