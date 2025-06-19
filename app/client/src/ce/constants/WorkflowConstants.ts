@@ -20,6 +20,7 @@ export interface Workflow {
   // PR for reference: https://github.com/appsmithorg/appsmith/pull/8796
   evaluationVersion: EvaluationVersion;
   token?: string;
+  connectedApplicationId?: string;
 }
 
 export type WorkflowMetadata = Workflow;
