@@ -964,6 +964,7 @@ export function* runActionSaga(
     isMock: !!datasource?.isMock,
     actionConfig: actionAnalyticsPayload,
     source: reduxAction.payload.actionExecutionContext,
+    runBehaviour: actionObject?.runBehaviour,
   });
 
   yield put({
@@ -1125,6 +1126,7 @@ function* executePageLoadAction(
       source: !!actionExecutionContext
         ? actionExecutionContext
         : ActionExecutionContext.PAGE_LOAD,
+      runBehaviour: action?.runBehaviour,
     });
 
     const actionName = getPluginActionNameToDisplay(
