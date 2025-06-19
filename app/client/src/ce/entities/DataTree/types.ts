@@ -28,12 +28,6 @@ export const ACTION_TYPE = ENTITY_TYPE.ACTION;
 type ValueOf<T> = T[keyof T];
 export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
 
-export enum EvaluationSubstitutionType {
-  TEMPLATE = "TEMPLATE",
-  PARAMETER = "PARAMETER",
-  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
-}
-
 // Action entity types
 export interface ActionEntity {
   actionId: string;
