@@ -3,7 +3,6 @@ import type {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
@@ -11,6 +10,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "actions/ReduxActionTypes";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { EvaluationSubstitutionType } from "./EvaluationConstants";
 
 const ControlTypes = getPropertyControlTypes();
 
