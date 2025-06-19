@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
-import type {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 
-interface ParamsForJSModuleInstance {
+export interface ParamsForJSModuleInstance {
   configTree: ConfigTree;
   dataTree: DataTree;
   entity: DataTreeEntityObject;
