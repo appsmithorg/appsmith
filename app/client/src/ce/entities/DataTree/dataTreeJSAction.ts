@@ -1,6 +1,6 @@
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type {
   JSActionEntity,

@@ -1,6 +1,6 @@
 import type { Action } from "entities/Action/index";
 import _ from "lodash";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import {
   alternateViewTypeInputConfig,
   isHidden,

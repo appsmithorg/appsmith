@@ -10,7 +10,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "actions/ReduxActionTypes";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { EvaluationSubstitutionType } from "./EvaluationConstants";
+import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 const ControlTypes = getPropertyControlTypes();
 

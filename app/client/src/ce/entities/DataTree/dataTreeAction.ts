@@ -9,7 +9,7 @@ import type {
   ActionEntity,
   ActionEntityConfig,
 } from "ee/entities/DataTree/types";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 export const generateDataTreeAction = (
   action: ActionData,

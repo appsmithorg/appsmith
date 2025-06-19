@@ -32,10 +32,7 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import {
-  EvaluationSubstitutionType,
-  ENTITY_TYPE,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
@@ -158,6 +155,7 @@ import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
