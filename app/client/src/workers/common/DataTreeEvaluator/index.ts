@@ -1206,10 +1206,7 @@ export default class DataTreeEvaluator {
           propertyPath,
         );
 
-        const isATriggerPath = isPathDynamicTrigger(
-          entityConfig as WidgetEntityConfig,
-          propertyPath,
-        );
+        const isATriggerPath = isPathDynamicTrigger(entityConfig, propertyPath);
 
         if (isATriggerPath && !isFirstTree) {
           if (isJSAction(entity)) {

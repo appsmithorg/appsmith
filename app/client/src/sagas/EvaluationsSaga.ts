@@ -160,6 +160,10 @@ export function* updateDataTreeHandler(
     updates,
   } = evalTreeResponse;
 
+  const featureFlags: Record<string, boolean> =
+    yield select(selectFeatureFlags);
+  const isReactiveActionsEnabled =
+    featureFlags.release_reactive_actions_enabled;
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   if (!isEmpty(staleMetaIds)) {
@@ -231,7 +235,11 @@ export function* updateDataTreeHandler(
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
 
-  if (executeReactiveActions && executeReactiveActions.length) {
+  if (
+    executeReactiveActions &&
+    executeReactiveActions.length &&
+    isReactiveActionsEnabled
+  ) {
     yield put({
       type: ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
       payload: {
