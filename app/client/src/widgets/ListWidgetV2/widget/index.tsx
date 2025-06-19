@@ -564,15 +564,14 @@ class ListWidget extends BaseWidget<
     const pageSize = this.pageSize;
     const data = this.props.listData;
 
-    if (data && isListFullyEmpty(data, pageNo)) {
-      data.push({});
-    }
+    const isEmptyListWidgetCase =
+      (data && isListFullyEmpty(data, pageNo)) ?? false;
 
     return {
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: this.currFlattenedChildCanvasWidgets,
-      data: listData,
+      data: isEmptyListWidgetCase ? [{}] : listData,
       itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
       level: this.props.level ?? 1,
@@ -589,6 +588,7 @@ class ListWidget extends BaseWidget<
       hooks: {
         afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
       },
+      isEmptyListWidgetCase,
     };
   };
 

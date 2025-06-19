@@ -92,6 +92,7 @@ export interface GeneratorOptions {
   serverSidePagination: boolean;
   templateHeight: number;
   widgetName: string;
+  isEmptyListWidgetCase: boolean;
 }
 
 export interface ConstructorProps {
@@ -252,6 +253,7 @@ class MetaWidgetGenerator {
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
+  private isEmptyListWidgetCase: boolean;
 
   constructor(props: ConstructorProps) {
     this.siblings = {};
@@ -296,6 +298,7 @@ class MetaWidgetGenerator {
       unchanged: new Set(),
     };
     this.widgetName = "";
+    this.isEmptyListWidgetCase = false;
   }
 
   withOptions = (options: GeneratorOptions) => {
@@ -325,6 +328,7 @@ class MetaWidgetGenerator {
     this.level = options.level ?? 1;
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
+    this.isEmptyListWidgetCase = options.isEmptyListWidgetCase;
 
     this.updateModificationsQueue(this.prevOptions);
 
@@ -1112,14 +1116,10 @@ class MetaWidgetGenerator {
      * such as page 3, which returns an empty response.
      * In this case, the list data will be empty, and we want to avoid generating empty meta widgets for that scenario.
      */
-    const isEmptyDataCase =
-      this.data.length === 1 &&
-      Object.keys(this.data[0] || {}).length === 0 &&
-      this.pageNo === 1;
 
     let dataBinding: string;
 
-    if (isEmptyDataCase) {
+    if (this.isEmptyListWidgetCase) {
       // For empty data case, set currentItem to empty object
       dataBinding = "{{{}}}";
     } else {
