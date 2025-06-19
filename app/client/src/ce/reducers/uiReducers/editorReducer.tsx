@@ -38,6 +38,7 @@ export const initialState: EditorReduxState = {
   isPreviewMode: false,
   isProtectedMode: true,
   zoomLevel: 1,
+  onLoadActionExecution: {},
 };
 
 export const handlers = {
