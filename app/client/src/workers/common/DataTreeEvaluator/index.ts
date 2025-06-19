@@ -16,7 +16,7 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import type {
   WidgetEntity,
   WidgetEntityConfig,

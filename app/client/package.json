@@ -425,6 +425,10 @@
     "postcss": "8.4.31",
     "axios": "^1.8.3",
     "esbuild": "^0.25.1",
-    "path-to-regexp@^1.7.0": "1.9.0"
+    "path-to-regexp@^1.7.0": "1.9.0",
+    "prismjs": "1.30.0",
+    "undici": "6.21.2",
+    "formidable": "2.1.3",
+    "brace-expansion": "1.1.12"
   }
 }

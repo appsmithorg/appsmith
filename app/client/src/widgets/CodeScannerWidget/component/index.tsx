@@ -25,7 +25,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { ScannerLayout } from "../constants";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "widgets/utils";

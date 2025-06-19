@@ -24,7 +24,7 @@ import type {
   FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   PropertyPaneContentConfig,

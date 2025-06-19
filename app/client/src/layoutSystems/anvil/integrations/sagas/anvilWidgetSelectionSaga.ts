@@ -1,5 +1,5 @@
 import type { DefaultRootState } from "react-redux";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import get from "lodash/get";

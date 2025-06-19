@@ -59,7 +59,7 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { getExpectedValue } from "utils/validation/common";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";

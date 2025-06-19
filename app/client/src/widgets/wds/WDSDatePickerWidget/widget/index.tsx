@@ -5,7 +5,7 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { parseDateTime } from "@internationalized/date";
 import { DatePicker, type DateValue } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

@@ -1,5 +1,5 @@
-import type { WidgetCallout } from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { WidgetCallout } from "WidgetProvider/types";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";

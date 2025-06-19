@@ -19,8 +19,8 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
+import { AlignWidgetTypes } from "WidgetProvider/types";
 
 export interface InputContainerProps {
   inline?: boolean;

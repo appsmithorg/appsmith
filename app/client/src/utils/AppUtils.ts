@@ -1,12 +1,10 @@
 import { getAppsmithConfigs } from "ee/configs";
-import FormControlRegistry from "./formControl/FormControlRegistry";
 import type { LogLevelDesc } from "loglevel";
 import localStorage from "utils/localStorage";
 import * as log from "loglevel";
 import Modal from "react-modal";
 
 export const appInitializer = () => {
-  FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
