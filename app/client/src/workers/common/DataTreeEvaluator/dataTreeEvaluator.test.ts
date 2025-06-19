@@ -16,10 +16,7 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/types";
-import {
-  EvaluationSubstitutionType,
-  type WidgetEntity,
-} from "ee/entities/DataTree/types";
+import { type WidgetEntity } from "ee/entities/DataTree/types";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -27,6 +24,7 @@ import {
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
 import { APP_MODE } from "entities/App";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 const widgetConfigMap: Record<
   string,

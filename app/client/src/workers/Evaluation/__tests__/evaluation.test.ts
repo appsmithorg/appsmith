@@ -5,10 +5,7 @@ import type {
   ActionEntity,
 } from "ee/entities/DataTree/types";
 import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Plugin";
@@ -20,6 +17,7 @@ import { sortObjectWithArray } from "../../../utils/treeUtils";
 import klona from "klona";
 import { APP_MODE } from "entities/App";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 const klonaFullSpy = jest.fn();
 

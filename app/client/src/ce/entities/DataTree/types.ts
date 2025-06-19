@@ -11,6 +11,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
 import type { AppTheme } from "entities/AppTheming";
 import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
+import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
