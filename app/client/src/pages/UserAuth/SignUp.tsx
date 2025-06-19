@@ -97,7 +97,7 @@ const validate = (values: SignupFormValues) => {
 };
 
 const recentDomainsSection = recentDomains.length > 0 && (
-  <div className="mt-12">
+  <div className="mt-8">
     <div className="mb-2">
       <Text kind="body-m">{createMessage(YOU_VE_ALREADY_SIGNED_INTO)}</Text>
     </div>
@@ -112,9 +112,13 @@ const recentDomainsSection = recentDomains.length > 0 && (
 
         const avatarLetter = String.fromCharCode(65 + (index % 26));
 
+        const isLastItem = index === recentDomains.length - 1;
+
         return (
           <div
-            className="flex items-center justify-between p-1 mb-3"
+            className={`flex items-center justify-between p-1 ${
+              isLastItem ? "mb-0" : "mb-3"
+            }`}
             key={domain}
           >
             <div className="flex items-center space-x-3">
@@ -122,10 +126,10 @@ const recentDomainsSection = recentDomains.length > 0 && (
                 {avatarLetter}
               </div>
               <div className="flex flex-col">
-                <span className="text-md font-semibold text-gray-700">
+                <span className="text-md font-semibold text-gray-700 max-w-[180px] line-clamp-1">
                   {orgName}
                 </span>
-                <span className="text-xs font-light text-gray-500">
+                <span className="text-xs font-light text-gray-500 max-w-[180px] line-clamp-1">
                   {domain}
                 </span>
               </div>
