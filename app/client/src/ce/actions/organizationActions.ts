@@ -19,3 +19,9 @@ export const updateOrganizationConfig = (
   type: ReduxActionTypes.UPDATE_ORGANIZATION_CONFIG,
   payload,
 });
+
+export const fetchMyOrganizations = () => {
+  return {
+    type: ReduxActionTypes.FETCH_MY_ORGANIZATIONS_INIT,
+  };
+};
