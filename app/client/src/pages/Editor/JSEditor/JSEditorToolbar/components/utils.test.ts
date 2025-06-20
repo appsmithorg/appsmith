@@ -11,35 +11,47 @@ import type { SelectOptionProps } from "@appsmith/ads";
 
 describe("getRunBehaviorOptions", () => {
   it("should return the correct options", () => {
-    const flagsOutputMatrix: [boolean, boolean, SelectOptionProps[]][] = [
-      [true, true, RUN_BEHAVIOR_VALUES],
-      [
-        false,
-        true,
-        RUN_BEHAVIOR_VALUES.filter(
+    const flagsOutputMatrix: {
+      isReactiveActionsEnabled: boolean;
+      isOnPageUnloadEnabled: boolean;
+      expectedOptions: SelectOptionProps[];
+    }[] = [
+      {
+        isReactiveActionsEnabled: true,
+        isOnPageUnloadEnabled: true,
+        expectedOptions: RUN_BEHAVIOR_VALUES,
+      },
+      {
+        isReactiveActionsEnabled: false,
+        isOnPageUnloadEnabled: true,
+        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
           (option) => option.value !== ActionRunBehaviour.AUTOMATIC,
         ),
-      ],
-      [
-        true,
-        false,
-        RUN_BEHAVIOR_VALUES.filter(
+      },
+      {
+        isReactiveActionsEnabled: true,
+        isOnPageUnloadEnabled: false,
+        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
           (option) => option.value !== ActionRunBehaviour.ON_PAGE_UNLOAD,
         ),
-      ],
-      [
-        false,
-        false,
-        RUN_BEHAVIOR_VALUES.filter(
+      },
+      {
+        isReactiveActionsEnabled: false,
+        isOnPageUnloadEnabled: false,
+        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
           (option) =>
             option.value !== ActionRunBehaviour.AUTOMATIC &&
             option.value !== ActionRunBehaviour.ON_PAGE_UNLOAD,
         ),
-      ],
+      },
     ];
 
     flagsOutputMatrix.forEach(
-      ([isReactiveActionsEnabled, isOnPageUnloadEnabled, expectedOptions]) => {
+      ({
+        expectedOptions,
+        isOnPageUnloadEnabled,
+        isReactiveActionsEnabled,
+      }) => {
         const options = getRunBehaviorOptionsBasedOnFeatureFlags(
           isReactiveActionsEnabled,
           isOnPageUnloadEnabled,
