@@ -146,7 +146,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>6.6.1.202309021850-r</version>
+            <version>6.10.1.202505221210-r</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

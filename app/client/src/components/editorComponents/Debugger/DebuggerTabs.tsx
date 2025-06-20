@@ -27,6 +27,8 @@ import { StateInspector } from "./StateInspector";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import { RunHistoryTab } from "ee/pages/WorkflowIDE/layouts/components/BottomBar/WorkflowRunHistory/RunHistoryTab";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
@@ -42,6 +44,7 @@ function DebuggerTabs() {
     },
     [dispatch],
   );
+  const isAiAgentApp = useSelector(getIsAiAgentApp);
 
   const setSelectedTab = useCallback(
     (tabKey: string) => {
@@ -87,8 +90,16 @@ function DebuggerTabs() {
       });
     }
 
+    if (isAiAgentApp) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.RUN_HISTORY_TAB,
+        title: "Run History",
+        panelComponent: <RunHistoryTab />,
+      });
+    }
+
     return tabs;
-  }, [errorCount, ideType]);
+  }, [errorCount, ideType, isAiAgentApp]);
 
   // Do not render if response, header or schema tab is selected in the bottom bar.
   const shouldRender = !(

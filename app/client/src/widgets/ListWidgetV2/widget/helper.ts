@@ -129,3 +129,17 @@ export const isTargetElementClickable = (e: React.MouseEvent<HTMLElement>) => {
 
   return isInput || hasControl || parentHasControl || hasLink || hasOnClick;
 };
+
+export const isListFullyEmpty = (
+  listData: unknown[] | undefined,
+  pageNo: number,
+) => {
+  if (!listData) return false;
+
+  /**
+   * This empty check is included because there may be instances when a user uses navigation controls and lands on a specific page number,
+   * such as page 3, which returns an empty response.
+   * In this case, the list data will be empty, and we want to avoid generating empty meta widgets for that scenario.
+   */
+  return listData.length === 0 && pageNo === 1;
+};

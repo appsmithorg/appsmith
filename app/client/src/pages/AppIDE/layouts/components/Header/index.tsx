@@ -100,6 +100,8 @@ const HeaderTitleComponent = ({ appState }: HeaderTitleProps) => {
       );
     case EditorState.LIBRARIES:
       return <IDEHeaderTitle key={appState} title={libraryHeaderTitle} />;
+    case EditorState.TRIGGER_SETTINGS:
+      return <IDEHeaderTitle key={appState} title="Trigger Settings" />;
     default:
       return <EditorTitle key={appState} />;
   }

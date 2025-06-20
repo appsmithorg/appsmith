@@ -69,6 +69,7 @@ export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
 export const APP_PACKAGES_EDITOR_PATH = `/packages`;
 export const APP_SETTINGS_EDITOR_PATH = `/settings`;
+export const APP_TRIGGER_SETTINGS_EDITOR_PATH = `/trigger-settings`;
 export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";

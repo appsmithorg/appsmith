@@ -2717,3 +2717,5 @@ export const MULTI_ORG_FOOTER_CREATE_ORG_LEFT_TEXT = () =>
   "Looking to create one?";
 export const MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT = () =>
   "Create an organization";
+
+export const PENDING_INVITATIONS = () => "Pending invitations";
