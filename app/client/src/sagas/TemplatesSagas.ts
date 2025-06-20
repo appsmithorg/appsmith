@@ -89,7 +89,9 @@ function* importTemplateToWorkspaceSaga(
 
   try {
     const response: ImportTemplateResponse = yield call(
-      TemplatesAPI.importTemplate,
+      isAgentTemplate
+        ? TemplatesAPI.importAgentTemplate
+        : TemplatesAPI.importTemplate,
       action.payload.templateId,
       action.payload.workspaceId,
     );

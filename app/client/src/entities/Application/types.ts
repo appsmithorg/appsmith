@@ -45,4 +45,5 @@ export interface ApplicationPayload {
   isCommunityTemplate?: boolean;
   publishedAppToCommunityTemplate?: boolean;
   forkedFromTemplateTitle?: string;
+  connectedWorkflowId?: string;
 }

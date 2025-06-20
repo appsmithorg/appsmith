@@ -64,6 +64,7 @@ export interface ApplicationResponsePayload {
   slug: string;
   applicationVersion: ApplicationVersion;
   isPublic?: boolean;
+  connectedWorkflowId?: string;
 }
 
 export interface FetchApplicationPayload {

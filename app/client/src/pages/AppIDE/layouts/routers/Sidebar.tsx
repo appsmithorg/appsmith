@@ -12,6 +12,7 @@ import {
   BottomButtons,
   TopButtons,
 } from "ee/pages/AppIDE/constants/SidebarButtons";
+import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
 function Sidebar() {
   const dispatch = useDispatch();
@@ -20,11 +21,12 @@ function Sidebar() {
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
+  const isAgentApp = useSelector(getIsAiAgentApp);
 
   // Updates the bottom button config based on datasource existence
   const bottomButtons = React.useMemo(() => {
-    return BottomButtons(datasourcesExist);
-  }, [datasourcesExist]);
+    return BottomButtons(datasourcesExist, isAgentApp);
+  }, [datasourcesExist, isAgentApp]);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
