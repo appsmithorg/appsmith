@@ -167,6 +167,7 @@ const init = ({
   const options = klona({
     ...DEFAULT_OPTIONS,
     ...optionsProps,
+    isEmptyListWidgetCase: false,
   });
   const cache = passedCache || new Cache();
 
@@ -850,6 +851,7 @@ describe("#generate", () => {
         levelData,
         pageSize: 3,
         widgetName: "List6",
+        isEmptyListWidgetCase: false,
       })
       .generate();
 
@@ -897,6 +899,7 @@ describe("#generate", () => {
         levelData,
         pageSize: 3,
         widgetName: "List6",
+        isEmptyListWidgetCase: false,
       })
       .generate();
 
@@ -957,6 +960,7 @@ describe("#generate", () => {
         levelData,
         pageSize: 3,
         widgetName: listWidgetName,
+        isEmptyListWidgetCase: false,
       })
       .generate();
 
