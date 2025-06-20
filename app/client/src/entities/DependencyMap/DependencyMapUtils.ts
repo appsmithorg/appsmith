@@ -2,6 +2,7 @@ import toposort from "toposort";
 import type DependencyMap from ".";
 import {
   entityTypeCheckForPathDynamicTrigger,
+  getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
@@ -13,26 +14,6 @@ type SortDependencies =
       sortedDependencies: string[];
     }
   | { success: false; cyclicNode: string; error: unknown };
-
-function getEntityNameAndPropertyPath(fullPath: string): {
-  entityName: string;
-  propertyPath: string;
-} {
-  const indexOfFirstDot = fullPath.indexOf(".");
-
-  if (indexOfFirstDot === -1) {
-    // No dot was found so path is the entity name itself
-    return {
-      entityName: fullPath,
-      propertyPath: "",
-    };
-  }
-
-  const entityName = fullPath.substring(0, indexOfFirstDot);
-  const propertyPath = fullPath.substring(indexOfFirstDot + 1);
-
-  return { entityName, propertyPath };
-}
 
 export class DependencyMapUtils {
   // inspired by https://www.npmjs.com/package/toposort#sorting-dependencies

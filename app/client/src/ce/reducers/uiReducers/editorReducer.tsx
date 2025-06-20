@@ -161,7 +161,9 @@ export const handlers = {
     const newMap: Record<string, boolean> = {};
 
     pageActions?.forEach((action) => {
-      newMap[action[0].id] = false;
+      if (action.length > 0) {
+        newMap[action[0].id] = false;
+      }
     });
 
     return {

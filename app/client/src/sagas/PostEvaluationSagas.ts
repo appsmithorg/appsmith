@@ -378,7 +378,7 @@ export function* executeReactiveQueries(
     // Skip if entity doesn't exist
     if (!entity) {
       //eslint-disable-next-line no-console
-      console.warn(`Entity ${entityName} not found in dataTree`);
+      log.warn(`Entity ${entityName} not found in dataTree`);
       continue;
     }
 
