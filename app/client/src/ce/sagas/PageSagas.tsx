@@ -154,6 +154,7 @@ import { apiFailureResponseInterceptor } from "api/interceptors/response";
 import type { AxiosError } from "axios";
 import { handleFetchApplicationError } from "./ApplicationSagas";
 import { getCurrentUser } from "actions/authActions";
+import { getIsFirstPageLoad } from "selectors/evaluationSelectors";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -365,8 +366,14 @@ export function* postFetchedPublishedPage(
       response.data.userPermissions,
     ),
   );
-  // Clear any existing caches
-  yield call(clearEvalCache);
+  const isFirstLoad: boolean = yield select(getIsFirstPageLoad);
+
+  // Only the first page load we defer the clearing of caches
+  if (!isFirstLoad) {
+    // Clear any existing caches
+    yield call(clearEvalCache);
+  }
+
   // Set url params
   yield call(setDataUrl);
 

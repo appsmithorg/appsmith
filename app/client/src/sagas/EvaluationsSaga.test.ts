@@ -34,8 +34,13 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { updateActionData } from "actions/pluginActionActions";
+import watchInitSagas from "./InitSagas";
+import { registerAllWidgets } from "utils/editor/EditorUtils";
 
 jest.mock("loglevel");
+jest.mock("utils/editor/EditorUtils", () => ({
+  registerEditorWidgets: jest.fn(),
+}));
 
 describe("evaluateTreeSaga", () => {
   afterAll(() => {
@@ -64,29 +69,34 @@ describe("evaluateTreeSaga", () => {
         ],
         [select(getCurrentPageDSLVersion), 1],
       ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          cacheProps: {
+            instanceId: "instanceId",
+            appId: "applicationId",
+            pageId: "pageId",
+            appMode: false,
+            timestamp: new Date("11 September 2024").toISOString(),
+            dslVersion: 1,
+          },
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
           appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
+          widgetsMeta: {},
+          shouldRespondWithLogs: true,
+          affectedJSObjects: { ids: [], isAllAffected: false },
+          actionDataPayloadConsolidated: undefined,
         },
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: true,
-        affectedJSObjects: { ids: [], isAllAffected: false },
-        actionDataPayloadConsolidated: undefined,
-      })
+        false,
+      )
       .run();
   });
   test("should set 'shouldRespondWithLogs' to false when the log level is not debug", async () => {
@@ -112,29 +122,34 @@ describe("evaluateTreeSaga", () => {
         ],
         [select(getCurrentPageDSLVersion), 1],
       ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          cacheProps: {
+            instanceId: "instanceId",
+            appId: "applicationId",
+            pageId: "pageId",
+            appMode: false,
+            timestamp: new Date("11 September 2024").toISOString(),
+            dslVersion: 1,
+          },
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
           appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+          affectedJSObjects: { ids: [], isAllAffected: false },
+          actionDataPayloadConsolidated: undefined,
         },
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: false,
-        affectedJSObjects: { ids: [], isAllAffected: false },
-        actionDataPayloadConsolidated: undefined,
-      })
+        false,
+      )
       .run();
   });
   test("should propagate affectedJSObjects property to evaluation action", async () => {
@@ -169,29 +184,95 @@ describe("evaluateTreeSaga", () => {
         ],
         [select(getCurrentPageDSLVersion), 1],
       ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        cacheProps: {
-          instanceId: "instanceId",
-          appId: "applicationId",
-          pageId: "pageId",
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          cacheProps: {
+            instanceId: "instanceId",
+            appId: "applicationId",
+            pageId: "pageId",
+            appMode: false,
+            timestamp: new Date("11 September 2024").toISOString(),
+            dslVersion: 1,
+          },
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
           appMode: false,
-          timestamp: new Date("11 September 2024").toISOString(),
-          dslVersion: 1,
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+          affectedJSObjects,
+          actionDataPayloadConsolidated: undefined,
         },
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: false,
-        affectedJSObjects,
-        actionDataPayloadConsolidated: undefined,
-      })
+        false,
+      )
+      .run();
+  });
+  test("should call evalWorker.request with isFirstEvaluation as true when isFirstEvaluation is set as true in evaluateTreeSaga", async () => {
+    const unEvalAndConfigTree = { unEvalTree: {}, configTree: {} };
+    const isFirstEvaluation = true;
+
+    return expectSaga(
+      evaluateTreeSaga,
+      unEvalAndConfigTree,
+      [],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      isFirstEvaluation,
+    )
+      .provide([
+        [select(getAllActionValidationConfig), {}],
+        [select(getWidgets), {}],
+        [select(getMetaWidgets), {}],
+        [select(getSelectedAppTheme), {}],
+        [select(getAppMode), false],
+        [select(getWidgetsMeta), {}],
+        [select(getInstanceId), "instanceId"],
+        [select(getCurrentApplicationId), "applicationId"],
+        [select(getCurrentPageId), "pageId"],
+        [
+          select(getApplicationLastDeployedAt),
+          new Date("11 September 2024").toISOString(),
+        ],
+        [select(getCurrentPageDSLVersion), 1],
+      ])
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          cacheProps: {
+            instanceId: "instanceId",
+            appId: "applicationId",
+            pageId: "pageId",
+            appMode: false,
+            timestamp: new Date("11 September 2024").toISOString(),
+            dslVersion: 1,
+          },
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
+          appMode: false,
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+          affectedJSObjects: { ids: [], isAllAffected: false },
+          actionDataPayloadConsolidated: undefined,
+        },
+        true,
+      )
       .run();
   });
 });
@@ -532,5 +613,17 @@ describe("evaluationLoopWithDebounce", () => {
           .take(mockChannel)
       );
     });
+  });
+});
+
+describe("first evaluation integration", () => {
+  it("should call registerEditorWidgets when HAS_DISPATCHED_FIRST_EVALUATION_MESSAGE is dispatched", async () => {
+    return expectSaga(watchInitSagas)
+      .dispatch({
+        type: ReduxActionTypes.HAS_DISPATCHED_FIRST_EVALUATION_MESSAGE,
+      })
+      .call(registerAllWidgets)
+      .put({ type: ReduxActionTypes.RENDER_PAGE })
+      .silentRun();
   });
 });

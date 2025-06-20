@@ -14,7 +14,7 @@ import {
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
-import widgets from "widgets";
+import { loadAllWidgets } from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/types";
 import {
   EvaluationSubstitutionType,
@@ -37,14 +37,18 @@ const widgetConfigMap: Record<
   }
 > = {};
 
-widgets.map((widget) => {
-  if (widget.type) {
-    widgetConfigMap[widget.type] = {
-      defaultProperties: widget.getDefaultPropertiesMap(),
-      derivedProperties: widget.getDerivedPropertiesMap(),
-      metaProperties: widget.getMetaPropertiesMap(),
-    };
-  }
+beforeAll(async () => {
+  const loadedWidgets = await loadAllWidgets();
+
+  loadedWidgets.forEach((widget) => {
+    if (widget.type) {
+      widgetConfigMap[widget.type] = {
+        defaultProperties: widget.getDefaultPropertiesMap(),
+        derivedProperties: widget.getDerivedPropertiesMap(),
+        metaProperties: widget.getMetaPropertiesMap(),
+      };
+    }
+  });
 });
 
 jest.mock("ee/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
