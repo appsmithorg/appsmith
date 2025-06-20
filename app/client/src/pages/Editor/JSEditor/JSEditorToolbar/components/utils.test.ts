@@ -6,7 +6,7 @@ import {
   getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled,
   getRunBehaviorOptionsBasedOnFeatureFlags,
 } from "./utils";
-import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { JS_OBJECT_RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 import type { SelectOptionProps } from "@appsmith/ads";
 
 describe("getRunBehaviorOptions", () => {
@@ -19,26 +19,26 @@ describe("getRunBehaviorOptions", () => {
       {
         isReactiveActionsEnabled: true,
         isOnPageUnloadEnabled: true,
-        expectedOptions: RUN_BEHAVIOR_VALUES,
+        expectedOptions: JS_OBJECT_RUN_BEHAVIOR_VALUES,
       },
       {
         isReactiveActionsEnabled: false,
         isOnPageUnloadEnabled: true,
-        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
+        expectedOptions: JS_OBJECT_RUN_BEHAVIOR_VALUES.filter(
           (option) => option.value !== ActionRunBehaviour.AUTOMATIC,
         ),
       },
       {
         isReactiveActionsEnabled: true,
         isOnPageUnloadEnabled: false,
-        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
+        expectedOptions: JS_OBJECT_RUN_BEHAVIOR_VALUES.filter(
           (option) => option.value !== ActionRunBehaviour.ON_PAGE_UNLOAD,
         ),
       },
       {
         isReactiveActionsEnabled: false,
         isOnPageUnloadEnabled: false,
-        expectedOptions: RUN_BEHAVIOR_VALUES.filter(
+        expectedOptions: JS_OBJECT_RUN_BEHAVIOR_VALUES.filter(
           (option) =>
             option.value !== ActionRunBehaviour.AUTOMATIC &&
             option.value !== ActionRunBehaviour.ON_PAGE_UNLOAD,
@@ -65,11 +65,11 @@ describe("getRunBehaviorOptions", () => {
 
 describe("getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled", () => {
   const onPageLoadOption =
-    RUN_BEHAVIOR_VALUES.find(
+    JS_OBJECT_RUN_BEHAVIOR_VALUES.find(
       (option) => option.value === ActionRunBehaviour.ON_PAGE_LOAD,
     ) ?? null;
   const manualOption =
-    RUN_BEHAVIOR_VALUES.find(
+    JS_OBJECT_RUN_BEHAVIOR_VALUES.find(
       (option) => option.value === ActionRunBehaviour.MANUAL,
     ) ?? null;
 
@@ -141,7 +141,7 @@ describe("getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled", () => {
           runBehaviour,
           isReactiveActionsEnabled,
           isOnPageUnloadEnabled,
-          RUN_BEHAVIOR_VALUES,
+          JS_OBJECT_RUN_BEHAVIOR_VALUES,
         );
 
         expect(option).toEqual(expectedOption);

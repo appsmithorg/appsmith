@@ -21,6 +21,10 @@ export const RUN_BEHAVIOR_VALUES = [
     value: ActionRunBehaviour.MANUAL,
     children: "Manual",
   },
+];
+
+export const JS_OBJECT_RUN_BEHAVIOR_VALUES = [
+  ...RUN_BEHAVIOR_VALUES,
   {
     label: "On page unload",
     subText: "Query runs when the page unloads or when manually triggered",

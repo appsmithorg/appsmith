@@ -2,7 +2,7 @@ import {
   ActionRunBehaviour,
   type ActionRunBehaviourType,
 } from "PluginActionEditor/types/PluginActionTypes";
-import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
+import { JS_OBJECT_RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 
 import { type SelectOptionProps } from "@appsmith/ads";
 /**
@@ -14,7 +14,7 @@ export const getRunBehaviorOptionsBasedOnFeatureFlags = (
   isReactiveActionsEnabled: boolean,
   isOnPageUnloadEnabled: boolean,
 ) =>
-  RUN_BEHAVIOR_VALUES.filter(
+  JS_OBJECT_RUN_BEHAVIOR_VALUES.filter(
     (option) =>
       (isReactiveActionsEnabled ||
         option.value !== ActionRunBehaviour.AUTOMATIC) &&
