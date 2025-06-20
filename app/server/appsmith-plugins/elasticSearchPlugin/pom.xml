@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>8.5.3</version>
+            <version>9.0.2</version>
         </dependency>
 
         <dependency>
