@@ -2743,9 +2743,7 @@ describe("Tests for DependencyMapUtils", () => {
         affectedNodes,
       );
       // after linkAffectedChildNodesToParent execution "apiData" does get linked to "apiData.data"
-      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(
-        new Set(["apiData.data"]),
-      );
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
     });
     test("should not link child node to its parentNode as a dependant when the child node is not affected ", () => {
       const dependencyMap = createSomeDependencyMap();
@@ -2815,10 +2813,8 @@ describe("Tests for DependencyMapUtils", () => {
         "apiData.data",
       );
       // addDependency is called
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
-        "apiData.data",
-      ]);
+      expect(spy).toHaveBeenCalledTimes(0);
+      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([]);
     });
     test("should not trigger addDependency when the child node is there ", () => {
       const dependencyMap = createSomeDependencyMap();

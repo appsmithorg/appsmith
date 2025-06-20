@@ -1,6 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import type { MenuButtonWidgetProps } from "../../constants";

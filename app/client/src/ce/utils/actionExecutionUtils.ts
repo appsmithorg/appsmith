@@ -72,6 +72,7 @@ export function getActionExecutionAnalytics(
     actionId: action?.id,
     inputParams: objectKeys(params).length,
     source: ActionExecutionContext.EVALUATION_ACTION_TRIGGER, // Used in analytic events to understand who triggered action execution
+    runBehaviour: action?.runBehaviour,
   };
 
   if (!!currentApp) {

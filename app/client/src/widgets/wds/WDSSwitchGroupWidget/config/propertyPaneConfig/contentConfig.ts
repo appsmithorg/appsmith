@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 export const propertyPaneContentConfig = [
   {

@@ -5,7 +5,7 @@ import {
   contentConfig,
   styleConfig,
 } from "widgets/ChartWidget/widget/propertyConfig";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {

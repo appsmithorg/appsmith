@@ -236,8 +236,7 @@ function getNextLayer(currWidgets: DSLWidget[]): {
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;
     const flexVerticalAlignment = getWidgetVerticalAlignment(currWidget);
 
-    const modifiedCurrentWidget =
-      removeNullValuesFromObject<DSLWidget>(currWidget);
+    const modifiedCurrentWidget = removeNullValuesFromObject(currWidget);
 
     modifiedWidgetsInLayer.push(
       verifyDynamicPathBindingList(
@@ -810,12 +809,8 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
  * @param object
  * @returns
  */
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function removeNullValuesFromObject<T extends { [key: string]: any }>(
-  object: T,
-): T {
-  const copiedObject: T = { ...object };
+function removeNullValuesFromObject(object: DSLWidget): DSLWidget {
+  const copiedObject: DSLWidget = { ...object };
 
   //remove null values and dynamic trigger paths which have "null" values
   Object.keys(copiedObject).forEach(

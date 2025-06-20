@@ -1,6 +1,6 @@
 import React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WDSSelectWidgetProps } from "../../widget/types";
 import { defaultOptionValueValidation } from "./validations";

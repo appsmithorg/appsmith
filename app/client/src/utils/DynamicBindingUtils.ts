@@ -240,15 +240,16 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
+export const isPathDynamicTrigger = (
+  entity: DataTreeEntityConfig | WidgetProps,
+  path: string,
+): boolean => {
   if (
-    widget &&
-    widget.dynamicTriggerPathList &&
-    Array.isArray(widget.dynamicTriggerPathList)
+    entity &&
+    entity.dynamicTriggerPathList &&
+    Array.isArray(entity.dynamicTriggerPathList)
   ) {
-    return _.find(widget.dynamicTriggerPathList, { key: path }) !== undefined;
+    return _.find(entity.dynamicTriggerPathList, { key: path }) !== undefined;
   }
 
   return false;

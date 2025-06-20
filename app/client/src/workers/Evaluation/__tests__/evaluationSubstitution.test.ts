@@ -1,5 +1,5 @@
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 describe("substituteDynamicBindingWithValues", () => {
   describe("template substitution", () => {

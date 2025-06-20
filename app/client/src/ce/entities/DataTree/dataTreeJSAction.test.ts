@@ -150,10 +150,12 @@ describe("generateDataTreeJSAction", () => {
         myFun2: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: "MANUAL",
         },
         myFun1: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: "MANUAL",
         },
       },
       bindingPaths: {
@@ -184,10 +186,20 @@ describe("generateDataTreeJSAction", () => {
       dependencyMap: {
         body: ["myFun2", "myFun1"],
       },
+      dynamicTriggerPathList: [
+        {
+          key: "myFun2",
+        },
+        {
+          key: "myFun1",
+        },
+      ],
       reactivePaths: {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        "myFun1.data": "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        "myFun2.data": "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
@@ -347,10 +359,12 @@ describe("generateDataTreeJSAction", () => {
         myFun2: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: "MANUAL",
         },
         myFun1: {
           arguments: [],
           confirmBeforeExecute: false,
+          runBehaviour: "MANUAL",
         },
       },
       bindingPaths: {
@@ -381,12 +395,22 @@ describe("generateDataTreeJSAction", () => {
       dependencyMap: {
         body: ["myFun2", "myFun1"],
       },
+      dynamicTriggerPathList: [
+        {
+          key: "myFun2",
+        },
+        {
+          key: "myFun1",
+        },
+      ],
       name: "JSObject2",
       pluginType: "JS",
       reactivePaths: {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        "myFun1.data": "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        "myFun2.data": "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },

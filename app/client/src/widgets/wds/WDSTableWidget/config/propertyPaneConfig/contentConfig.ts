@@ -1,6 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { InlineEditingSaveOptions } from "widgets/wds/WDSTableWidget/constants";

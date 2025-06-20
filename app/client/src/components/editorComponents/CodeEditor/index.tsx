@@ -34,7 +34,6 @@ import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
-import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -162,6 +161,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { executeCommandAction } from "actions/pluginActionActions";
 import { PEEK_OVERLAY_DELAY } from "./PeekOverlayPopup/constants";
 import { SAVE_TRIGGER_DELAY_MS } from "./debounceConstants";
+import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;

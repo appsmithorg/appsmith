@@ -4,7 +4,7 @@ import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "ee/constants/messages";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {

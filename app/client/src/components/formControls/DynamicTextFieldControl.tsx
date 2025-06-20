@@ -18,9 +18,9 @@ import {
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
-import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 import { Flex } from "@appsmith/ads";
+import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 const Wrapper = styled.div`
   min-width: 260px;

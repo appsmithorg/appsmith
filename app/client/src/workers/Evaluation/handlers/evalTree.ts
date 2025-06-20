@@ -33,6 +33,7 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
+import { klona as klonaJSON } from "klona/json";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,6 +68,7 @@ export async function evalTree(
   let staleMetaIds: string[] = [];
   let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
+  let executeReactiveActions: string[] = [];
 
   const {
     actionDataPayloadConsolidated,
@@ -135,6 +137,7 @@ export async function evalTree(
       dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
       staleMetaIds = dataTreeResponse.staleMetaIds;
+      executeReactiveActions = dataTreeResponse.executeReactiveActions;
       isNewTree = true;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -187,9 +190,11 @@ export async function evalTree(
       dataTree = updateEvalProps(dataTreeEvaluator) || {};
 
       staleMetaIds = dataTreeResponse.staleMetaIds;
+      executeReactiveActions = dataTreeResponse.executeReactiveActions;
       isNewTree = true;
     } else {
       const tree = dataTreeEvaluator.getEvalTree();
+      const oldDataTree = klonaJSON(tree);
 
       // during update cycles update actions to the dataTree directly
       // this is useful in cases where we have debounced updateActionData and a regular evaluation
@@ -238,6 +243,7 @@ export async function evalTree(
             configTree,
             unEvalUpdates,
             Object.keys(metaWidgets),
+            oldDataTree,
           ),
       );
 
@@ -247,6 +253,7 @@ export async function evalTree(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
       staleMetaIds = updateResponse.staleMetaIds;
+      executeReactiveActions = updateResponse.executeReactiveActions;
       isNewTree = false;
     }
 
@@ -356,6 +363,7 @@ export async function evalTree(
     isNewWidgetAdded,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent,
+    executeReactiveActions,
   };
 
   webworkerTelemetry["transferDataToMainThread"] = newWebWorkerSpanData(
