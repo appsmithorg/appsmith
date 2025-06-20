@@ -20,6 +20,10 @@ import {
   getEventExtraProperties,
 } from "ee/utils/Analytics/getEventExtraProperties";
 
+import { getCurrentUser } from "selectors/usersSelectors";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+
 export enum AnalyticsEventType {
   error = "error",
 }
@@ -50,6 +54,30 @@ function logEvent(
   eventData?: EventProperties,
   eventType?: AnalyticsEventType,
 ) {
+  // Block tracking for anonymous users when the feature flag is enabled.
+  // We resolve store & selectors lazily to avoid circular dependencies.
+  try {
+    // Use eval("require") so webpack doesn't add this to the static dep graph
+    // preventing circular-chunk detection in prod build.
+    const { default: appStore } = eval("require")("store");
+    const state = appStore.getState();
+    const currentUser = getCurrentUser(state);
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
+
+    const blockAnonymousEvents = selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+    );
+
+    if (isAnonymous && blockAnonymousEvents) {
+      return;
+    }
+  } catch (_err) {
+    // If anything goes wrong (e.g., during tests when the store isn't ready),
+    // fall back to tracking to avoid breaking app logic.
+  }
+
   if (blockErrorLogs && eventType === AnalyticsEventType.error) {
     return;
   }
