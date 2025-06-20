@@ -444,7 +444,7 @@ export function* executeReactiveQueries(
       }
     }
 
-    executionForJSModuleInstance({
+    yield call(executionForJSModuleInstance, {
       entity,
       entityName,
       dataTree,
