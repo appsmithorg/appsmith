@@ -138,7 +138,7 @@ export const getOnLoadActionsWithExecutionStatus = createSelector(
     // Flatten and map to { id, isExecuted }
     return (onLoadActions.flat() || []).map((action) => ({
       id: action.id,
-      isExecuted: !!onLoadActionExecution?.[action.id] || false,
+      isExecuted: !!onLoadActionExecution?.[action.id],
     }));
   },
 );
