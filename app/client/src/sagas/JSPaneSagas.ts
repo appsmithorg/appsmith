@@ -459,9 +459,16 @@ export function* handleExecuteJSFunctionSaga(data: {
   collection: JSCollection;
   isExecuteJSFunc: boolean;
   onPageLoad: boolean;
+  onPageUnload?: boolean;
   openDebugger?: boolean;
 }) {
-  const { action, collection, onPageLoad, openDebugger = false } = data;
+  const {
+    action,
+    collection,
+    onPageLoad,
+    onPageUnload = false,
+    openDebugger = false,
+  } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
 
@@ -514,7 +521,7 @@ export function* handleExecuteJSFunctionSaga(data: {
         executeJSFunction,
         action,
         collection,
-        onPageLoad,
+        onPageLoad || onPageUnload, // Pass true if either onPageLoad or onPageUnload is true
       );
 
       result = response.result;
@@ -657,6 +664,7 @@ export function* handleStartExecuteJSFunctionSaga(
     collection,
     isExecuteJSFunc: false,
     onPageLoad: false,
+    onPageUnload: false,
     openDebugger,
   });
 }

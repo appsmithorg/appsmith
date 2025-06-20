@@ -126,6 +126,11 @@ export const getPageSavingError = (state: DefaultRootState) => {
 export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
 
+export const getLayoutOnUnloadActions = (state: DefaultRootState) =>
+  state.ui.editor.pageUnloadActions || [];
+export const getIsExecutingPageUnloadActions = (state: DefaultRootState) =>
+  state.ui.editor.isExecutingPageUnloadActions;
+
 export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
 };
