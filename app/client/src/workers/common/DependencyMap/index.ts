@@ -328,6 +328,30 @@ export const updateDependencyMap = ({
             const entityConfig = configTree[entityName];
             const fullPropertyPath = dataTreeDiff.payload.propertyPath;
 
+            const entityDependencyMap = getEntityDependencies(
+              entity,
+              configTree[entityName],
+              allKeys,
+            );
+
+            if (!isEmpty(entityDependencyMap)) {
+              // The entity might already have some dependencies,
+              // so we just want to update those
+              Object.entries(entityDependencyMap).forEach(
+                ([path, pathDependencies]) => {
+                  const { errors: extractDependencyErrors, references } =
+                    extractInfoFromBindings(pathDependencies, allKeys);
+
+                  setDependenciesToDepedencyMapFn(path, references);
+
+                  didUpdateDependencyMap = true;
+                  dataTreeEvalErrors = dataTreeEvalErrors.concat(
+                    extractDependencyErrors,
+                  );
+                },
+              );
+            }
+
             const entityPathDependencies = getEntityPathDependencies(
               entity,
               entityConfig,
