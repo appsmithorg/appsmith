@@ -1,4 +1,5 @@
 import { getPropertyControlTypes } from "components/propertyControls";
+
 import type {
   ValidationResponse,
   ValidationTypes,
@@ -11,7 +12,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "actions/ReduxActionTypes";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import type { WidgetProps } from "widgets/BaseWidget";
-
 const ControlTypes = getPropertyControlTypes();
 
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];

@@ -290,75 +290,64 @@ export async function loadLibraries(
   const libStore: Record<string, unknown> = {};
 
   try {
-    for (const lib of libs) {
-      const url = lib.url as string;
-      const accessors = lib.accessor;
-      const keysBefore = Object.keys(self);
-      let module = null;
+    await Promise.all(
+      libs.map(async (lib) => {
+        const url = lib.url as string;
+        const accessors = lib.accessor;
+        const keysBefore = Object.keys(self);
+        let module = null;
 
-      try {
-        self.importScripts(url);
-        const keysAfter = Object.keys(self);
-        let defaultAccessors = difference(keysAfter, keysBefore);
+        try {
+          self.importScripts(url);
+          const keysAfter = Object.keys(self);
+          let defaultAccessors = difference(keysAfter, keysBefore);
 
-        // Changing default export to library accessors name which was saved when it was installed, if default export present
-        movetheDefaultExportedLibraryToAccessorKey(
-          defaultAccessors,
-          accessors[0],
-        );
+          movetheDefaultExportedLibraryToAccessorKey(
+            defaultAccessors,
+            accessors[0],
+          );
 
-        // Following the same process which was happening earlier
-        const keysAfterDefaultOperation = Object.keys(self);
+          const keysAfterDefaultOperation = Object.keys(self);
 
-        defaultAccessors = difference(keysAfterDefaultOperation, keysBefore);
+          defaultAccessors = difference(keysAfterDefaultOperation, keysBefore);
 
-        /**
-         * Installing 2 different version of lodash tries to add the same accessor on the self object. Let take version a & b for example.
-         * Installation of version a, will add _ to the self object and can be detected by looking at the differences in the previous step.
-         * Now when version b is installed, differences will be [], since _ already exists in the self object.
-         * We add all the installations to the libStore and see if the reference it points to in the self object changes.
-         * If the references changes it means that it a valid accessor.
-         */
-        defaultAccessors.push(
-          ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
-        );
+          defaultAccessors.push(
+            ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
+          );
 
-        /**
-         * Sort the accessor list from backend and installed accessor list using the same rule to apply all modifications.
-         * This is required only for UMD builds, since we always generate unique names for ESM.
-         */
-        accessors.sort();
-        defaultAccessors.sort();
+          accessors.sort();
+          defaultAccessors.sort();
 
-        for (let i = 0; i < defaultAccessors.length; i++) {
-          self[accessors[i]] = self[defaultAccessors[i]];
-          libStore[defaultAccessors[i]] = self[defaultAccessors[i]];
-          libraryReservedIdentifiers[accessors[i]] = true;
-          invalidEntityIdentifiers[accessors[i]] = true;
+          for (let i = 0; i < defaultAccessors.length; i++) {
+            self[accessors[i]] = self[defaultAccessors[i]];
+            libStore[defaultAccessors[i]] = self[defaultAccessors[i]];
+            libraryReservedIdentifiers[accessors[i]] = true;
+            invalidEntityIdentifiers[accessors[i]] = true;
+          }
+
+          return;
+        } catch (e) {
+          log.debug(e);
         }
 
-        continue;
-      } catch (e) {
-        log.debug(e);
-      }
+        try {
+          module = await import(/* webpackIgnore: true */ url);
 
-      try {
-        module = await import(/* webpackIgnore: true */ url);
+          if (!module || typeof module !== "object") throw "Not an ESM module";
 
-        if (!module || typeof module !== "object") throw "Not an ESM module";
+          const key = accessors[0];
+          const flattenedModule = flattenModule(module);
 
-        const key = accessors[0];
-        const flattenedModule = flattenModule(module);
-
-        libStore[key] = flattenedModule;
-        self[key] = flattenedModule;
-        libraryReservedIdentifiers[key] = true;
-        invalidEntityIdentifiers[key] = true;
-      } catch (e) {
-        log.debug(e);
-        throw new ImportError(url);
-      }
-    }
+          libStore[key] = flattenedModule;
+          self[key] = flattenedModule;
+          libraryReservedIdentifiers[key] = true;
+          invalidEntityIdentifiers[key] = true;
+        } catch (e) {
+          log.debug(e);
+          throw new ImportError(url);
+        }
+      }),
+    );
 
     JSLibraries.push(...libs);
     JSLibraryAccessor.regenerateSet();

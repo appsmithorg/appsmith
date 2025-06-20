@@ -10,9 +10,12 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
 import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 
-export const widgetInitialisationSuccess = () => {
+export const widgetInitialisationSuccess = (
+  shouldInitialiseWidgetsPartially = false,
+) => {
   return {
     type: ReduxActionTypes.WIDGET_INIT_SUCCESS,
+    shouldInitialiseWidgetsPartially,
   };
 };
 

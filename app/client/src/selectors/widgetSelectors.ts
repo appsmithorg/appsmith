@@ -267,3 +267,19 @@ export const isResizingOrDragging = createSelector(
   (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   (isResizing, isDragging) => !!isResizing || !!isDragging,
 );
+
+export const getUsedWidgetTypes = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets) => {
+    const widgetTypes = new Set<string>();
+
+    // Iterate through all widgets in the state
+    Object.values(canvasWidgets).forEach((widget) => {
+      if (widget.type) {
+        widgetTypes.add(widget.type);
+      }
+    });
+
+    return Array.from(widgetTypes);
+  },
+);
