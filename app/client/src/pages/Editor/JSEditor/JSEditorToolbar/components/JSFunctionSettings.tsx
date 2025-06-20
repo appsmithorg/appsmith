@@ -1,27 +1,21 @@
-import React, { useCallback, useState } from "react";
-import {
-  Flex,
-  Option,
-  Select,
-  Text,
-  type SelectOptionProps,
-} from "@appsmith/ads";
-import type { JSAction } from "entities/JSCollection";
+import { Flex, Option, Select, Text } from "@appsmith/ads";
 import {
   createMessage,
   JS_EDITOR_SETTINGS,
   NO_JS_FUNCTIONS,
 } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { JSAction } from "entities/JSCollection";
+import { type ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
+import React, { useCallback, useMemo, useState } from "react";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import type { OnUpdateSettingsProps } from "../types";
 import {
-  ActionRunBehaviour,
-  type ActionRunBehaviourType,
-} from "PluginActionEditor/types/PluginActionTypes";
-import styled from "styled-components";
-import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+  getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled,
+  getRunBehaviorOptionsBasedOnFeatureFlags,
+} from "./utils";
 
 const OptionLabel = styled(Text)`
   color: var(--ads-v2-color-fg);
@@ -61,20 +55,31 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   const isReactiveActionsEnabled = useFeatureFlag(
     FEATURE_FLAG.release_reactive_actions_enabled,
   );
-  const options = RUN_BEHAVIOR_VALUES.filter(
-    (option) =>
-      isReactiveActionsEnabled || option.value !== ActionRunBehaviour.AUTOMATIC,
-  ) as SelectOptionProps[];
+  const isOnPageUnloadEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_jsobjects_onpageunloadctions_enabled,
+  );
+
+  const options = useMemo(
+    () =>
+      getRunBehaviorOptionsBasedOnFeatureFlags(
+        isReactiveActionsEnabled,
+        isOnPageUnloadEnabled,
+      ),
+    [isReactiveActionsEnabled, isOnPageUnloadEnabled],
+  );
+
   let selectedValue = options.find((opt) => opt.value === runBehaviour);
 
-  /* temporary check added to switch from automatic to page load as the run behaviour when feature flag is turned off */
-  if (
-    runBehaviour === ActionRunBehaviour.AUTOMATIC &&
-    !isReactiveActionsEnabled
-  ) {
-    selectedValue = options.find(
-      (opt) => opt.value === ActionRunBehaviour.ON_PAGE_LOAD,
+  const defaultRunBehaviourOption =
+    getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled(
+      runBehaviour,
+      isReactiveActionsEnabled,
+      isOnPageUnloadEnabled,
+      options,
     );
+
+  if (defaultRunBehaviourOption) {
+    selectedValue = defaultRunBehaviourOption;
   }
 
   const onSelectOptions = useCallback(
