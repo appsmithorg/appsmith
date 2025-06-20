@@ -1,4 +1,9 @@
-import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
+import type {
+  ActionPattern,
+  CallEffect,
+  Effect,
+  ForkEffect,
+} from "redux-saga/effects";
 import {
   actionChannel,
   all,
@@ -9,6 +14,7 @@ import {
   select,
   spawn,
   take,
+  join,
 } from "redux-saga/effects";
 
 import type {
@@ -16,7 +22,10 @@ import type {
   ReduxActionType,
   AnyReduxAction,
 } from "actions/ReduxActionTypes";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
@@ -39,6 +48,7 @@ import {
 import {
   setDependencyMap,
   setEvaluatedTree,
+  setIsFirstPageLoad,
   shouldForceEval,
   shouldLog,
   shouldProcessAction,
@@ -99,7 +109,7 @@ import {
 } from "actions/pluginActionActions";
 import { executeJSUpdates } from "actions/jsPaneActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
-import { waitForWidgetConfigBuild } from "./InitSagas";
+
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
@@ -124,10 +134,86 @@ import type {
   EvaluationReduxAction,
 } from "actions/EvaluationReduxActionTypes";
 import { appsmithTelemetry } from "instrumentation";
+import { getUsedWidgetTypes } from "selectors/widgetSelectors";
+import type BaseWidget from "widgets/BaseWidget";
+import { loadWidget } from "widgets";
+import { registerWidget } from "WidgetProvider/factory/registrationHelper";
+import { failFastApiCalls } from "./InitSagas";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import type { Task } from "redux-saga";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
+
+// Common worker setup logic
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* setupWorkers(clearCache = false): any {
+  // Explicitly shutdown old worker if present
+  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
+  const [evalWorkerListenerChannel] = yield all([
+    call(evalWorker.start),
+    call(lintWorker.start),
+  ]);
+
+  if (clearCache) {
+    yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
+  }
+
+  const isFFFetched = yield select(getFeatureFlagsFetched);
+
+  if (!isFFFetched) {
+    yield call(fetchFeatureFlagsInit);
+    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+  }
+
+  const featureFlags: Record<string, boolean> =
+    yield select(selectFeatureFlags);
+
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    featureFlags: featureFlags,
+  });
+
+  return evalWorkerListenerChannel;
+}
+
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* webWorkerSetupSaga(): any {
+  const evalWorkerListenerChannel = yield call(setupWorkers);
+
+  yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
+}
+
+function* webWorkerSetupSagaWithJSLibraries(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initializeJSLibrariesChannel: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+  const evalWorkerListenerChannel = yield call(setupWorkers, true);
+
+  // Take the action from the appVi
+  const jsLibrariesAction = yield take(initializeJSLibrariesChannel);
+  const { applicationId, customJSLibraries } = jsLibrariesAction.payload;
+
+  yield put(setIsFirstPageLoad());
+
+  // Use failFastApiCalls to execute fetchJSLibraries
+  const resultOfJSLibrariesCall: boolean = yield call(
+    failFastApiCalls,
+    [fetchJSLibraries(applicationId, customJSLibraries)],
+    [ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED],
+  );
+
+  if (!resultOfJSLibrariesCall) {
+    throw new Error("Failed to load JS libraries");
+  }
+
+  yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
+}
 
 export function* updateDataTreeHandler(
   data: {
@@ -251,6 +337,7 @@ export function* evaluateTreeSaga(
   requiresLogging = false,
   affectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects,
   actionDataPayloadConsolidated?: actionDataPayload,
+  isFirstEvaluation = false,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
@@ -302,6 +389,7 @@ export function* evaluateTreeSaga(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
+    isFirstEvaluation,
   );
 
   yield call(
@@ -686,6 +774,9 @@ export function* evalAndLintingHandler(
     requiresLogging: boolean;
     affectedJSObjects: AffectedJSObjects;
     actionDataPayloadConsolidated: actionDataPayload[];
+    isFirstEvaluation?: boolean;
+    initialiseRelevantWidgets: boolean;
+    jsLibrariesTask?: Task;
   }>,
 ) {
   const span = startRootSpan("evalAndLintingHandler");
@@ -693,6 +784,9 @@ export function* evalAndLintingHandler(
     actionDataPayloadConsolidated,
     affectedJSObjects,
     forceEvaluation,
+    initialiseRelevantWidgets,
+    isFirstEvaluation = false,
+    jsLibrariesTask,
     requiresLogging,
     shouldReplay,
   } = options;
@@ -713,13 +807,26 @@ export function* evalAndLintingHandler(
     return;
   }
 
-  const rootSpan = startRootSpan("DataTreeFactory.create");
+  let unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>;
 
-  // Generate all the data needed for both eval and linting
-  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
-    yield select(getUnevaluatedDataTree);
+  // in the appViewer during page load we should not register all widgets, only the relevant ones for the first evaluation
+  if (initialiseRelevantWidgets) {
+    unEvalAndConfigTree = yield call(getUnEvalAndConfigTreeAndRegisterWidgets);
+  } else {
+    const rootSpan = startRootSpan("DataTreeFactory.create");
 
-  endSpan(rootSpan);
+    widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+
+    // Generate all the data needed for both eval and linting
+    unEvalAndConfigTree = yield select(getUnevaluatedDataTree);
+
+    endSpan(rootSpan);
+  }
+
+  // wait for the webworker to complete its setup before starting the evaluation
+  if (jsLibrariesTask) {
+    yield join(jsLibrariesTask);
+  }
 
   const postEvalActions = getPostEvalActions(action);
   const fn: (...args: unknown[]) => CallEffect<unknown> | ForkEffect<unknown> =
@@ -738,6 +845,7 @@ export function* evalAndLintingHandler(
         requiresLogging,
         affectedJSObjects,
         actionDataPayloadConsolidated,
+        isFirstEvaluation,
       ),
     );
   }
@@ -749,34 +857,78 @@ export function* evalAndLintingHandler(
   yield all(effects);
   endSpan(span);
 }
+export function* loadAndRegisterOnlyCanvasWidgets(): Generator<
+  Effect,
+  (typeof BaseWidget)[],
+  unknown
+> {
+  try {
+    const widgetTypes = (yield select(getUsedWidgetTypes)) as string[];
+
+    // Filter out already registered widget types
+    const unregisteredWidgetTypes = [...widgetTypes, "SKELETON_WIDGET"].filter(
+      (type: string) => !WidgetFactory.widgetsMap.has(type),
+    );
+
+    // Load only unregistered widgets in parallel
+    const loadedWidgets = (yield all(
+      unregisteredWidgetTypes.map((type: string) => call(loadWidget, type)),
+    )) as (typeof BaseWidget)[];
+
+    // Register only the newly loaded widgets
+    loadedWidgets.forEach((widget: typeof BaseWidget) => {
+      registerWidget(widget);
+    });
+
+    return loadedWidgets;
+  } catch (error) {
+    log.error("Error loading and registering widgets:", error);
+    throw error;
+  }
+}
+
+function* getUnEvalAndConfigTreeAndRegisterWidgets() {
+  yield call(loadAndRegisterOnlyCanvasWidgets);
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  // only after the widgets are registered, we can get the unevaluated data tree
+
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+
+  endSpan(rootSpan);
+
+  return unEvalAndConfigTree;
+}
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* evaluationChangeListenerSaga(): any {
   const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
+  const widgetInitSuccessChannel = yield actionChannel(
+    ReduxActionTypes.WIDGET_INIT_SUCCESS,
+  );
+  const initializeJSLibrariesChannel = yield actionChannel(
+    ReduxActionTypes.DEFER_LOADING_JS_LIBRARIES,
+  );
+  const appMode = yield select(getAppMode);
 
-  // Explicitly shutdown old worker if present
-  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
-  const [evalWorkerListenerChannel] = yield all([
-    call(evalWorker.start),
-    call(lintWorker.start),
-  ]);
+  let jsLibrariesTask: Task | undefined;
 
-  const isFFFetched = yield select(getFeatureFlagsFetched);
-
-  if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
-    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+  // for all published apps, we need to reset the data tree and setup the worker as an independent process
+  // after the process is forked we can allow the main thread to continue its execution since the main thread's tasks would be independent
+  // we just need to ensure that the webworker setup is completed before the first evaluation is triggered
+  if (appMode === APP_MODE.PUBLISHED) {
+    yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
+    jsLibrariesTask = yield fork(
+      webWorkerSetupSagaWithJSLibraries,
+      initializeJSLibrariesChannel,
+    );
+  } else {
+    // for all other modes, just call the webworker
+    yield call(webWorkerSetupSaga);
   }
-
-  const featureFlags: Record<string, boolean> =
-    yield select(selectFeatureFlags);
-
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
-    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
-    featureFlags: featureFlags,
-  });
-  yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
     firstEvalActionChannel,
@@ -789,11 +941,14 @@ function* evaluationChangeListenerSaga(): any {
     getIsCurrentEditorWorkflowType,
   );
 
+  let initialiseRelevantWidgets = false;
+
   if (!isCurrentEditorWorkflowType) {
-    yield call(waitForWidgetConfigBuild);
+    const action = yield take(widgetInitSuccessChannel);
+
+    initialiseRelevantWidgets = action.shouldInitialiseWidgetsPartially;
   }
 
-  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
     forceEvaluation: false,
@@ -802,6 +957,9 @@ function* evaluationChangeListenerSaga(): any {
       ids: [],
       isAllAffected: true,
     },
+    isFirstEvaluation: true,
+    initialiseRelevantWidgets: initialiseRelevantWidgets,
+    jsLibrariesTask: jsLibrariesTask,
   });
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
