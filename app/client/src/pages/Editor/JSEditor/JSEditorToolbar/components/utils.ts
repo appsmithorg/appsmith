@@ -5,7 +5,11 @@ import {
 import { RUN_BEHAVIOR_VALUES } from "constants/AppsmithActionConstants/formConfig/PluginSettings";
 
 import { type SelectOptionProps } from "@appsmith/ads";
-
+/**
+ * Returns the list of run behavior options based on the current feature flags.
+ * - If reactive actions are disabled, removes AUTOMATIC.
+ * - If onPageUnload is disabled, removes ON_PAGE_UNLOAD.
+ */
 export const getRunBehaviorOptionsBasedOnFeatureFlags = (
   isReactiveActionsEnabled: boolean,
   isOnPageUnloadEnabled: boolean,
@@ -18,6 +22,11 @@ export const getRunBehaviorOptionsBasedOnFeatureFlags = (
         option.value !== ActionRunBehaviour.ON_PAGE_UNLOAD),
   ) as SelectOptionProps[];
 
+/**
+ * Returns the default run behavior option if the current one is no longer available due to feature flag changes.
+ * - AUTOMATIC falls back to ON_PAGE_LOAD if reactive actions are disabled.
+ * - ON_PAGE_UNLOAD falls back to MANUAL if onPageUnload is disabled.
+ */
 export const getDefaultRunBehaviorOptionWhenFeatureFlagIsDisabled = (
   runBehaviour: ActionRunBehaviourType,
   isReactiveActionsEnabled: boolean,
