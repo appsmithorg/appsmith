@@ -56,7 +56,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     FEATURE_FLAG.release_reactive_actions_enabled,
   );
   const isOnPageUnloadEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_jsobjects_onpageunloadctions_enabled,
+    FEATURE_FLAG.release_jsobjects_onpageunloadactions_enabled,
   );
 
   const options = useMemo(
