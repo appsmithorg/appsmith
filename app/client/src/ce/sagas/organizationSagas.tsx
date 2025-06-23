@@ -5,7 +5,10 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { call, put } from "redux-saga/effects";
 import type { APIResponseError, ApiResponse } from "api/ApiResponses";
-import type { UpdateOrganizationConfigRequest } from "ee/api/OrganizationApi";
+import type {
+  FetchMyOrganizationsResponse,
+  UpdateOrganizationConfigRequest,
+} from "ee/api/OrganizationApi";
 import { OrganizationApi } from "ee/api/OrganizationApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
@@ -154,6 +157,29 @@ export function* updateOrganizationConfigSaga(
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: errorObj?.code ?? ERROR_CODES.SERVER_ERROR,
+      },
+    });
+  }
+}
+
+export function* fetchMyOrganizationsSaga() {
+  try {
+    const response: FetchMyOrganizationsResponse = yield call(
+      OrganizationApi.fetchMyOrganizations,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_MY_ORGANIZATIONS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_MY_ORGANIZATIONS_ERROR,
+      payload: {
+        error,
       },
     });
   }

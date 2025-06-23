@@ -18,7 +18,12 @@ let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe(
   "Validate Airtable Ds",
   {
-    tags: ["@tag.Airtable", "@tag.Datasource", "@tag.Sanity"],
+    tags: [
+      "@tag.Airtable",
+      "@tag.Datasource",
+      "@tag.Sanity",
+      "@tag.excludeForAirgap",
+    ],
   },
   () => {
     before("Create a new Airtable DS", () => {

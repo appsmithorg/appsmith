@@ -6,6 +6,7 @@ export enum ActionRunBehaviour {
   ON_PAGE_LOAD = "ON_PAGE_LOAD",
   MANUAL = "MANUAL",
   AUTOMATIC = "AUTOMATIC",
+  ON_PAGE_UNLOAD = "ON_PAGE_UNLOAD",
 }
 
 export type ActionRunBehaviourType = `${ActionRunBehaviour}`;

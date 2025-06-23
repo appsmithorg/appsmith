@@ -1213,6 +1213,10 @@ const AIChatIcon = importSvg(
   async () => import("../__assets__/icons/ads/ai-chat.svg"),
 );
 
+const LightningLineIcon = importSvg(
+  async () => import("../__assets__/icons/ads/lightning-line.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1636,6 +1640,7 @@ const ICON_LOOKUP = {
   intercom: IntercomIcon,
   onedrive: OnedriveIcon,
   sharepoint: SharepointIcon,
+  "lightning-line": LightningLineIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
