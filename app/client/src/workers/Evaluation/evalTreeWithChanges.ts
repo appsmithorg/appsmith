@@ -21,7 +21,7 @@ import {
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { klona } from "klona";
+import { klona as klonaJson } from "klona/json";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",
@@ -74,7 +74,7 @@ export function evalTreeWithChanges(
   let oldEvalTree: DataTree = {};
 
   if (dataTreeEvaluator) {
-    oldEvalTree = klona(dataTreeEvaluator.getEvalTree());
+    oldEvalTree = klonaJson(dataTreeEvaluator.getEvalTree());
     setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTreeWithDifferences(
       updatedValuePaths,
       pathsToSkipFromEval,
