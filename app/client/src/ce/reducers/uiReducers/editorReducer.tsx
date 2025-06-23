@@ -9,8 +9,9 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { UpdatePageResponse } from "api/PageApi";
+import type { SavePageResponse, UpdatePageResponse } from "api/PageApi";
 import type { UpdateCanvasPayload } from "actions/pageActions";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,
@@ -124,8 +125,33 @@ export const handlers = {
 
     return { ...state };
   },
-  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<SavePageResponse>,
+  ) => {
+    const layoutOnLoadActions = action.payload.data.layoutOnLoadActions;
+    const actionUpdates = action.payload.data.actionUpdates;
+    const actionUpdatesById = Object.fromEntries(
+      actionUpdates.map((a) => [a.id, a]),
+    );
+    const newlyBindedActions: Record<string, boolean> = {};
+
+    layoutOnLoadActions.forEach((actionsPerPage) => {
+      actionsPerPage.forEach((action) => {
+        const actionUpdate = actionUpdatesById[action.id];
+
+        if (actionUpdate?.runBehaviour === ActionRunBehaviour.AUTOMATIC) {
+          newlyBindedActions[action.id] = true;
+        }
+      });
+    });
+
     state.loadingStates.saving = false;
+    state.pageActions = layoutOnLoadActions;
+    state.onLoadActionExecution = {
+      ...state.onLoadActionExecution,
+      ...newlyBindedActions,
+    };
 
     return { ...state };
   },
