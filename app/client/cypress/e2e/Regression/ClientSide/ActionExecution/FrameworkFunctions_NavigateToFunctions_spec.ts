@@ -119,9 +119,7 @@ describe(
     it("2. To verify add a widget navigation using URL containing widgetID", () => {
       EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
-      cy.url().then((url) => {
-        pageTwoUrl = url;
-      });
+
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
