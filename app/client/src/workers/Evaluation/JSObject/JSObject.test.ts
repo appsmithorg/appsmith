@@ -9,6 +9,7 @@ import type {
   JSActionEntityConfig,
 } from "ee/entities/DataTree/types";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 describe("updateJSCollectionInUnEvalTree", function () {
   it("updates async value of jsAction", () => {
@@ -95,6 +96,14 @@ describe("updateJSCollectionInUnEvalTree", function () {
         dependencyMap: {
           body: ["myFun1", "myFun2"],
         },
+        dynamicTriggerPathList: [
+          {
+            key: "myFun1",
+          },
+          {
+            key: "myFun2",
+          },
+        ],
       },
     };
     const JSObject1 = {
@@ -170,10 +179,12 @@ describe("saveResolvedFunctionsAndJSUpdates", function () {
           myFun1: {
             arguments: [],
             confirmBeforeExecute: false,
+            runBehaviour: ActionRunBehaviour.MANUAL,
           },
           myFun2: {
             arguments: [],
             confirmBeforeExecute: false,
+            runBehaviour: ActionRunBehaviour.MANUAL,
           },
         },
         dependencyMap: {
@@ -214,6 +225,14 @@ describe("saveResolvedFunctionsAndJSUpdates", function () {
         name: "JSObject1",
         actionId: "64013546b956c26882acc587",
         actionNames: new Set(["myFun1", "myFun2"]),
+        dynamicTriggerPathList: [
+          {
+            key: "myFun1",
+          },
+          {
+            key: "myFun2",
+          },
+        ],
       } as JSActionEntityConfig,
     };
     const entityName = "JSObject1";

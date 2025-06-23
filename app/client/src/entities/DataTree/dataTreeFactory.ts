@@ -19,7 +19,7 @@ import type {
   DependencyMap,
   FormEditorConfigs,
 } from "utils/DynamicBindingUtils";
-import type { DataTreeSeed } from "ee/entities/DataTree/types";
+import type { DataTreeSeed } from "ee/entities/DataTree/types/DataTreeSeed";
 
 export class DataTreeFactory {
   public static metaWidgets(

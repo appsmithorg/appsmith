@@ -870,7 +870,7 @@ export function* runActionSaga(
   };
 
   const allowedActionAnalyticsKeys = getAllowedActionAnalyticsKeys(
-    plugin.packageName,
+    plugin?.packageName,
   );
   const actionAnalyticsPayload = getActionProperties(
     actionObject,
@@ -964,6 +964,7 @@ export function* runActionSaga(
     isMock: !!datasource?.isMock,
     actionConfig: actionAnalyticsPayload,
     source: reduxAction.payload.actionExecutionContext,
+    runBehaviour: actionObject?.runBehaviour,
   });
 
   yield put({
@@ -1125,6 +1126,7 @@ function* executePageLoadAction(
       source: !!actionExecutionContext
         ? actionExecutionContext
         : ActionExecutionContext.PAGE_LOAD,
+      runBehaviour: action?.runBehaviour,
     });
 
     const actionName = getPluginActionNameToDisplay(
@@ -1161,6 +1163,11 @@ function* executePageLoadAction(
         };
       }
     }
+
+    yield put({
+      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
+      payload: { id: pageAction.id, isExecuted: true },
+    });
 
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
