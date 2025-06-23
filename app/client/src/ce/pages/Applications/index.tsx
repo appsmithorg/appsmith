@@ -1022,6 +1022,7 @@ export const ApplictionsMainPage = (props: any) => {
   const organizations = useSelector(getMyOrganizations);
   const isFetchingOrganizations = useSelector(getIsFetchingMyOrganizations);
   const currentOrganizationId = useSelector(activeOrganizationId);
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
 
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1044,8 +1045,10 @@ export const ApplictionsMainPage = (props: any) => {
   );
 
   useEffect(() => {
-    dispatch(fetchMyOrganizations());
-  }, []);
+    if (isCloudBillingEnabled) {
+      dispatch(fetchMyOrganizations());
+    }
+  }, [isCloudBillingEnabled]);
 
   useEffect(() => {
     setActiveWorkspaceId(
