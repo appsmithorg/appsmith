@@ -265,15 +265,14 @@ describe(
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.ToggleJSMode("onClick", false);
-      propPane.SelectPlatformFunction("onClick", "Navigate to");
-      propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-      agHelper.GetNClick(propPane._navigateToType("URL"));
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Enter URL"),
-        pageTwoUrl,
+
+      propPane.ToggleJSMode("onClick", true);
+      propPane.EnterJSContext(
+        "onClick",
+        `{{navigateTo('${pageTwoUrl}', {}, 'SAME_WINDOW');}}`,
+        true,
+        false,
       );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
