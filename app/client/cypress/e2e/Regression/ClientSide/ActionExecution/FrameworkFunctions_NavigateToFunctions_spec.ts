@@ -253,7 +253,6 @@ describe(
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     });
-
     it("4. To verify navigation to a hidden page in same as well a new window", () => {
       agHelper.RefreshPage();
       PageList.AddNewPage();
