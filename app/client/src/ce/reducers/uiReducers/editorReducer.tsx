@@ -11,7 +11,6 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SavePageResponse, UpdatePageResponse } from "api/PageApi";
 import type { UpdateCanvasPayload } from "actions/pageActions";
-import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,
@@ -130,19 +129,11 @@ export const handlers = {
     action: ReduxAction<SavePageResponse>,
   ) => {
     const layoutOnLoadActions = action.payload.data.layoutOnLoadActions;
-    const actionUpdates = action.payload.data.actionUpdates;
-    const actionUpdatesById = Object.fromEntries(
-      actionUpdates.map((a) => [a.id, a]),
-    );
     const newlyBindedActions: Record<string, boolean> = {};
 
     layoutOnLoadActions.forEach((actionsPerPage) => {
       actionsPerPage.forEach((action) => {
-        const actionUpdate = actionUpdatesById[action.id];
-
-        if (actionUpdate?.runBehaviour === ActionRunBehaviour.AUTOMATIC) {
-          newlyBindedActions[action.id] = true;
-        }
+        newlyBindedActions[action.id] = true;
       });
     });
 
