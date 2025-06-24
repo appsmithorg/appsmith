@@ -116,6 +116,18 @@ class TemplatesAPI extends Api {
       body,
     );
   }
+
+  // This endpoint imports the application from a template and creates a workflow,
+  // and attaches the workflow to the application.
+  static async importAgentTemplate(
+    templateId: string,
+    workspaceId: string,
+  ): Promise<AxiosPromise<ImportTemplateResponse>> {
+    return Api.post(TemplatesAPI.baseUrl + `/applications/agents`, {
+      templateId,
+      workspaceId,
+    });
+  }
 }
 
 export default TemplatesAPI;

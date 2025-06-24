@@ -4,7 +4,7 @@ import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
+import { AlignWidgetTypes } from "WidgetProvider/types";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { darkenColor } from "widgets/WidgetUtils";

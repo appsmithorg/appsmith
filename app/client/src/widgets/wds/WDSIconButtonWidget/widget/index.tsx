@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "./../config";

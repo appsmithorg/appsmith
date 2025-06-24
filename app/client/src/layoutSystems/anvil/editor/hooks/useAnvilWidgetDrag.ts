@@ -1,4 +1,4 @@
-import type { WidgetType } from "WidgetProvider/factory";
+import type { WidgetType } from "WidgetProvider/factory/types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";

@@ -35,7 +35,7 @@ import {
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { buildChildWidgetTree } from "utils/widgetRenderUtils";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
@@ -129,6 +129,19 @@ export const getLayoutOnLoadActions = (state: DefaultRootState) =>
 export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
 };
+
+export const getOnLoadActionsWithExecutionStatus = createSelector(
+  getLayoutOnLoadActions,
+  (state: DefaultRootState) => state.ui.editor.onLoadActionExecution,
+  (onLoadActions, onLoadActionExecution) => {
+    // onLoadActions is PageAction[][]
+    // Flatten and map to { id, isExecuted }
+    return (onLoadActions.flat() || []).map((action) => ({
+      id: action.id,
+      isExecuted: !!onLoadActionExecution?.[action.id],
+    }));
+  },
+);
 
 export const getIsPublishingApplication = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishing;

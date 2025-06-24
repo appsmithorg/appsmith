@@ -22,7 +22,7 @@ import {
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { evalWorker } from "utils/workerInstances";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
@@ -147,6 +147,7 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    executeReactiveActions,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
@@ -159,6 +160,10 @@ export function* updateDataTreeHandler(
     updates,
   } = evalTreeResponse;
 
+  const featureFlags: Record<string, boolean> =
+    yield select(selectFeatureFlags);
+  const isReactiveActionsEnabled =
+    featureFlags.release_reactive_actions_enabled;
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   if (!isEmpty(staleMetaIds)) {
@@ -228,6 +233,21 @@ export function* updateDataTreeHandler(
 
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
+  }
+
+  if (
+    executeReactiveActions &&
+    executeReactiveActions.length &&
+    isReactiveActionsEnabled
+  ) {
+    yield put({
+      type: ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
+      payload: {
+        executeReactiveActions,
+        dataTree: updatedDataTree,
+        configTree,
+      },
+    });
   }
 
   yield call(logJSVarCreatedEvent, jsVarsCreatedEvent);

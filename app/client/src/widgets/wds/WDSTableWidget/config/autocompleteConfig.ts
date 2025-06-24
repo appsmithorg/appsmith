@@ -6,7 +6,7 @@ import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   type TableWidgetProps,
 } from "../constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { WDSTableWidget } from "../widget";
 

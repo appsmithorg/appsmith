@@ -48,7 +48,7 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
@@ -987,7 +987,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     //check if necessary we are batching now updates
     // Check if tableData is modifed
-    const isTableDataModified = this.props.tableData !== prevProps.tableData;
+    // const isTableDataModified = this.props.tableData !== prevProps.tableData;
+    const isTableDataModified = !equal(
+      this.props.tableData,
+      prevProps.tableData,
+    );
 
     // If the user has changed the tableData OR
     // The binding has returned a new value

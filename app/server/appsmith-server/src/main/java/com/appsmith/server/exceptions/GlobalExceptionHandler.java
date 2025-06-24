@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.exceptions.util.SentryLogger.doLog;
+import static com.appsmith.server.exceptions.util.ObservabilityLogger.doLog;
 
 /**
  * This class catches all the Exceptions and formats them into a proper ResponseDTO<ErrorDTO> object before

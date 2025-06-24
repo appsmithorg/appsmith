@@ -13,7 +13,7 @@ import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetCo
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 import { compact, sortBy } from "lodash";
 import { Positioning } from "layoutSystems/common/utils/constants";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { AnalyticsWrapper } from "../../common/AnalyticsWrapper";
 
 export type CanvasProps = DSLWidget;

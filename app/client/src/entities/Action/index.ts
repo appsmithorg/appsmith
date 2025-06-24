@@ -288,6 +288,12 @@ export function getAppsmithAIPlugin(plugins: Plugin[]): Plugin | undefined {
   return plugins.find((p) => p.packageName === PluginPackageName.APPSMITH_AI);
 }
 
+export function getAppsmithAgentPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find(
+    (p) => p.packageName === PluginPackageName.APPSMITH_AGENT,
+  );
+}
+
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
 }

@@ -7,7 +7,7 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { AlignWidget } from "WidgetProvider/constants";
+import type { AlignWidget } from "WidgetProvider/types";
 import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));

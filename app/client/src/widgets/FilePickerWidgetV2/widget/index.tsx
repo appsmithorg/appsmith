@@ -5,14 +5,14 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
 
 import React from "react";
 import shallowequal from "shallowequal";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -22,7 +22,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";

@@ -1,5 +1,5 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
+import type { WidgetConfigProps } from "WidgetProvider/types";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
@@ -12,8 +12,8 @@ import { snapToGrid } from "./helpers";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetType } from "../WidgetProvider/factory";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { WidgetType } from "WidgetProvider/factory/types";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";

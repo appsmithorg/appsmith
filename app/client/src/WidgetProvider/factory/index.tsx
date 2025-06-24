@@ -14,7 +14,7 @@ import type {
   WidgetConfigProps,
   WidgetDefaultProps,
   WidgetMethods,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -42,19 +42,14 @@ import type {
   PasteDestinationInfo,
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
-import type { DerivedPropertiesMap } from "./types";
+import type {
+  DerivedPropertiesMap,
+  WidgetCreationException,
+  WidgetType,
+  WidgetTypeConfigMap,
+} from "./types";
 
-// exporting it as well so that existing imports are not affected
-// TODO: remove this once all imports are updated
-export type { DerivedPropertiesMap };
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type WidgetDerivedPropertyType = any;
-
-export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
-
-class WidgetFactory {
+export class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
 
   static widgetConfigMap: Map<
@@ -675,21 +670,6 @@ class WidgetFactory {
 
     return res;
   }
-}
-
-export type WidgetTypeConfigMap = Record<
-  string,
-  {
-    defaultProperties: Record<string, string>;
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    metaProperties: Record<string, any>;
-    derivedProperties: WidgetDerivedPropertyType;
-  }
->;
-
-export interface WidgetCreationException {
-  message: string;
 }
 
 export default WidgetFactory;

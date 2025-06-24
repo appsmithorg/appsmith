@@ -3,7 +3,7 @@ import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 
 export const migrateIncorrectDynamicBindingPathLists = (
   currentDSL: Readonly<DSLWidget>,

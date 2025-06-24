@@ -1,6 +1,6 @@
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { all, call } from "redux-saga/effects";
 import { addPastedWidgets } from "./utils";
 import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";

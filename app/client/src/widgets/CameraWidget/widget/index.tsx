@@ -4,13 +4,10 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  FileDataTypes,
-  DefaultMobileCameraTypes,
-} from "WidgetProvider/constants";
+import { FileDataTypes, DefaultMobileCameraTypes } from "WidgetProvider/types";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
@@ -19,7 +16,7 @@ import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   BACK_CAMERA_LABEL,
   createMessage,

@@ -9,10 +9,10 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import derivedProperties from "./parsedDerivedProperties";
 import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
 import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {

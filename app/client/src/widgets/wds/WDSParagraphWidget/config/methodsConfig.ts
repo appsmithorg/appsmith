@@ -1,7 +1,7 @@
 import type {
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ParagraphIcon, ParagraphThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {

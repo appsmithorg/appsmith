@@ -9,7 +9,7 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { isLargeWidget } from "../../widgetUtils";
 import { anvilWidgets } from "widgets/wds/constants";
 import {

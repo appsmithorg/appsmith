@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { flattenDSL } from "@shared/dsl";
 import type { WidgetProps } from "@shared/dsl/src/migrate/types";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { ApiResponse } from "api/ApiResponses";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { Action } from "entities/Action";
