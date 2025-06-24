@@ -135,6 +135,12 @@ public enum AppsmithErrorCode {
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
     INSUFFICIENT_PASSWORD_STRENGTH("AE-PSW-4002", "Insufficient password strength"),
+    // Git route related error codes
+    GIT_ROUTE_HANDLER_NOT_FOUND("AE-GIT-5005", "Git route handler not found"),
+    GIT_ROUTE_INVALID_FIELD_VALUE("AE-GIT-5006", "Git route invalid field value"),
+    GIT_ROUTE_CONTEXT_BUILD_ERROR("AE-GIT-5007", "Git route context build error"),
+    GIT_ROUTE_ARTIFACT_NOT_FOUND("AE-GIT-5008", "Git route artifact not found"),
+    GIT_ROUTE_INVALID_PRIVATE_KEY("AE-GIT-5009", "Git route invalid private key"),
     ;
     private final String code;
     private final String description;

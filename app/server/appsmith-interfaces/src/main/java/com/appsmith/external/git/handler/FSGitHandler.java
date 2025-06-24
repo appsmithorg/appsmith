@@ -168,8 +168,7 @@ public interface FSGitHandler {
      * @param destinationBranch Merge operation is performed on this branch
      * @return Merge status
      */
-    Mono<String> mergeBranch(
-            Path repoSuffix, String sourceBranch, String destinationBranch, boolean keepWorkingDirChanges);
+    Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch);
 
     /**
      * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName

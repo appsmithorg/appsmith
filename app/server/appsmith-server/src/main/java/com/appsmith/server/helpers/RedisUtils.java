@@ -84,51 +84,18 @@ public class RedisUtils {
         return redisOperations.opsForValue().get(key).map(Integer::valueOf);
     }
 
+    @Deprecated
     public Mono<Boolean> finishAutoCommit(String defaultApplicationId) {
-        String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
-        return redisOperations.opsForValue().delete(key);
+        return Mono.just(true);
     }
 
+    @Deprecated
     public Mono<String> getRunningAutoCommitBranchName(String defaultApplicationId) {
-        String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
-        return redisOperations.hasKey(key).flatMap(hasKey -> {
-            if (hasKey) {
-                return redisOperations.opsForValue().get(key);
-            } else {
-                return Mono.empty();
-            }
-        });
+        return Mono.empty();
     }
 
-    /**
-     * Expect to use this method when you want to delete all the sessions in this Appsmith instance.
-     * This would be required for whenever any attribute related to sessions becomes invalid at a systemic level.
-     * Use with caution, every user will be logged out.
-     */
+    @Deprecated
     public Mono<Void> deleteAllSessionsIncludingCurrentUser() {
-        AtomicInteger deletedKeysCount = new AtomicInteger(0);
-
-        return redisOperations
-                .execute(connection -> {
-                    Flux<ByteBuffer> scanFlux = connection
-                            .keyCommands()
-                            .scan(ScanOptions.scanOptions()
-                                    .match(SPRING_SESSION_PATTERN)
-                                    .count(1000)
-                                    .build());
-
-                    return scanFlux.flatMap(scannedKey -> {
-                                return connection.keyCommands().del(scannedKey).doOnSuccess(result -> {
-                                    int count = deletedKeysCount.incrementAndGet();
-                                    if (count % 10000 == 0) {
-                                        log.info("Processed {} Redis keys", count);
-                                    }
-                                });
-                            })
-                            .then()
-                            .doOnSuccess(v -> log.info("Total Redis keys processed: {}", deletedKeysCount.get()))
-                            .doOnError(error -> log.error("Redis key deletion error: {}", error.getMessage()));
-                })
-                .then();
+        return Mono.empty();
     }
 }
