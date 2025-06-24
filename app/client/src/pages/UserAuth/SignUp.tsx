@@ -28,7 +28,6 @@ import {
   VISIT_OUR_DOCS,
   SIGN_IN_TO_AN_EXISTING_ORGANISATION,
   USING_APPSMITH,
-  YOU_VE_ALREADY_SIGNED_INTO,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
