@@ -15,8 +15,7 @@ export cluster_name=uatx-cluster
 
 echo "[default]
 region = $region
-output = json
-"
+output = json"
 
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
