@@ -5,14 +5,12 @@ import {
   type UserTraits,
   AnalyticsBrowser,
 } from "@segment/analytics-next";
-import { FEATURE_FLAG } from "ce/entities/FeatureFlag";
-import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "ce/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 import { getCurrentUser } from "selectors/usersSelectors";
+import store from "store";
 
 enum InitializationStatus {
   WAITING = "waiting",
@@ -57,31 +55,20 @@ class SegmentSingleton {
 
   private shouldCreateAnonymousUsers(): boolean {
     try {
-      // Use eval("require") to avoid circular dependencies (same pattern as in logEvent)
-      const { default: appStore } = eval("require")("store");
-      const state = appStore.getState();
-
+      const state = store.getState();
       const currentUser = getCurrentUser(state);
+      const isLicenceActive =
+        state.organization?.organizationConfiguration?.license?.active == true;
 
-      // Your criteria
-      const usageBased = true; // this.isUsageBased(); // implement this method
-      const billingModelIsNull = true; // this.isBillingModelNull(); // implement this method
       const telemetryOn = currentUser?.enableTelemetry ?? false;
+
       const featureFlagOff = !selectFeatureFlagCheck(
         state,
         FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
       );
 
-      // Your conditional logic: allow if criteria are met
-      return (
-        usageBased || billingModelIsNull || (telemetryOn && featureFlagOff)
-      );
+      return isLicenceActive || (telemetryOn && featureFlagOff);
     } catch (error) {
-      // Fallback to allowing anonymous users if we can't determine criteria
-      log.warn(
-        "Could not determine anonymous user criteria, defaulting to allow",
-        error,
-      );
       return true;
     }
   }
