@@ -1,0 +1,15 @@
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: instance_name
+              operator: In
+              values:
+                - uatx-shared
+
+tolerations:
+  - key: instance_name
+    operator: Equal
+    value: uatx-shared
+    effect: NoSchedule

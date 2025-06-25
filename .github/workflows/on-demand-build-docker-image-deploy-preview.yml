@@ -261,7 +261,6 @@ jobs:
 
       - name: Deploy Helm chart
         env:
-          AWS_ROLE_ARN: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           IMAGE_HASH: ${{ needs.push-image.outputs.imageHash }}
