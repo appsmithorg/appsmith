@@ -16,22 +16,22 @@ export cluster_name=uatx-cluster
 echo "[default]
 region = $region
 output = json
-[profile eksci]
-role_arn = $AWS_ROLE_ARN
-output = json
-region = $region
-source_profile = default" > ~/.aws/config
+# [profile eksci]
+# role_arn = $AWS_ROLE_ARN
+# output = json
+# region = $region
+# source_profile = default" > ~/.aws/config
 
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
 echo "DP_EFS_ID: $DP_EFS_ID"
 
-sts_output="$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name ekscisession)"
+# sts_output="$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name ekscisession)"
 
-export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r .Credentials.AccessKeyId)"
-export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r .Credentials.SecretAccessKey)"
-export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r .Credentials.SessionToken)"
+# export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r .Credentials.AccessKeyId)"
+# export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r .Credentials.SecretAccessKey)"
+# export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r .Credentials.SessionToken)"
 
 export NAMESPACE="$edition$PULL_REQUEST_NUMBER"
 export CHARTNAME="$edition$PULL_REQUEST_NUMBER"
