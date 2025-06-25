@@ -1,4 +1,4 @@
-import { call, put, select } from "redux-saga/effects";
+import { call, put, select, take } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -16,6 +16,9 @@ import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 import type { SourceEntity } from "entities/AppsmithConsole";
+import type { LocationState } from "history";
+import { trimQueryString } from "utils/helpers";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 
 export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",
@@ -48,19 +51,17 @@ export default function* navigateActionSaga(
     });
 
     const appMode: APP_MODE = yield select(getAppMode);
-    const path =
-      appMode === APP_MODE.EDIT
-        ? builderURL({
-            basePageId: page.basePageId,
-            params,
-          })
-        : viewerURL({
-            basePageId: page.basePageId,
-            params,
-          });
+    const urlBuilder = appMode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const path = urlBuilder({
+      basePageId: page.basePageId,
+      params,
+    });
 
     if (target === NavigationTargetType.SAME_WINDOW) {
-      history.push(path);
+      yield call(pushToHistory, {
+        pageURL: path,
+        query: getQueryStringfromObject(params),
+      });
 
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
@@ -113,4 +114,31 @@ export default function* navigateActionSaga(
       navUrl: pageNameOrUrl,
     });
   }
+}
+
+export interface NavigateToAnotherPagePayload {
+  pageURL: string;
+  query: string;
+  state?: LocationState;
+}
+export function* navigateToAnyPageInApplication(
+  action: ReduxAction<NavigateToAnotherPagePayload>,
+) {
+  yield call(pushToHistory, action.payload);
+}
+
+export function* pushToHistory(payload: NavigateToAnotherPagePayload) {
+  yield put({
+    type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
+  });
+
+  yield take([
+    ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS,
+    ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR,
+  ]);
+  history.push({
+    pathname: trimQueryString(payload.pageURL),
+    search: payload.query,
+    ...(!!payload.state && { state: payload.state }),
+  });
 }

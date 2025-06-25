@@ -352,12 +352,6 @@ export const executePageLoadActions = (
   };
 };
 
-export const executePageUnloadActions = () => {
-  return {
-    type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
-  };
-};
-
 export const setActionsRunBehaviour = (
   actions: Array<{
     runBehaviour: ActionRunBehaviourType;
