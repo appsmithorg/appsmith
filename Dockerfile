@@ -13,7 +13,7 @@ COPY deploy/docker/fs /
 
 # Install git
 RUN apt-get update && \
-    apt-get install -y git && \
+    apt-get install -y git vim && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
