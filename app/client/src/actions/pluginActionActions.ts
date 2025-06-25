@@ -352,14 +352,9 @@ export const executePageLoadActions = (
   };
 };
 
-export const executePageUnloadActions = (
-  actionExecutionContext?: ActionExecutionContext,
-) => {
+export const executePageUnloadActions = () => {
   return {
     type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
-    payload: {
-      actionExecutionContext,
-    },
   };
 };
 
