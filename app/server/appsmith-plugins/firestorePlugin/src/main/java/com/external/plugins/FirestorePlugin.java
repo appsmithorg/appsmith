@@ -933,6 +933,10 @@ public class FirestorePlugin extends BasePlugin {
                     .onErrorMap(Exceptions::unwrap)
                     .map(options -> {
                         try {
+                            if(options != null) {
+                                return FirebaseApp.initializeApp(options, projectId);
+
+                            }
                             return FirebaseApp.getInstance(projectId);
                         } catch (IllegalStateException e) {
                             return FirebaseApp.initializeApp(options, projectId);
