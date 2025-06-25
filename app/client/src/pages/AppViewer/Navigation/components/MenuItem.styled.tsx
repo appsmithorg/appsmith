@@ -5,10 +5,9 @@ import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
-import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-export const StyledMenuItem = styled(NavLink)<{
+export const StyledMenuItem = styled.div<{
   borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];

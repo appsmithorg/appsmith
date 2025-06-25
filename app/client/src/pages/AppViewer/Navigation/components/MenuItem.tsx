@@ -5,14 +5,16 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { trimQueryString } from "utils/helpers";
 import MenuText from "./MenuText";
 import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
+import { navigateToAnotherPage } from "actions/pageActions";
+import { isPageActive } from "utils/navigationUtils";
 
 interface MenuItemProps {
   page: Page;
@@ -22,6 +24,9 @@ interface MenuItemProps {
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
   const appMode = useSelector(getAppMode);
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { pathname } = location;
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
     { basePageId: page.basePageId },
@@ -40,18 +45,25 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "inherit",
   );
 
+  const isActive = isPageActive(pathname, page.pageId);
+
+  const handleClick = () => {
+    dispatch(
+      navigateToAnotherPage({
+        pageURL: pageURL,
+        query: query,
+        state: { invokedBy: NavigationMethod.AppNavigation },
+      }),
+    );
+  };
+
   return (
     <StyledMenuItem
-      activeClassName="is-active"
       borderRadius={borderRadius}
-      className="t--page-switch-tab"
+      className={`t--page-switch-tab ${isActive ? "is-active" : ""}`}
       navColorStyle={navColorStyle}
+      onClick={handleClick}
       primaryColor={primaryColor}
-      to={{
-        pathname: trimQueryString(pageURL),
-        search: query,
-        state: { invokedBy: NavigationMethod.AppNavigation },
-      }}
     >
       <MenuText
         name={page.pageName}
