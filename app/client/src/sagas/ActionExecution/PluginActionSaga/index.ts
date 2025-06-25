@@ -126,15 +126,15 @@ import {
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
 import { type Plugin, PluginType } from "entities/Plugin";
-import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
-import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import { getIsAnvilEnabledInCurrentApplication } from "../../../layoutSystems/anvil/integrations/selectors";
+import { setDefaultActionDisplayFormat } from "../PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import { handleStoreOperations } from "./StoreActionSaga";
+import { handleStoreOperations } from "../StoreActionSaga";
 import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
@@ -168,7 +168,7 @@ import {
   selectGitConnectModalOpen,
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
-import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import { createActionExecutionResponse } from "../PluginActionSagaUtils";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import { appsmithTelemetry } from "instrumentation";
 
