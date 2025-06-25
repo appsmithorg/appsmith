@@ -10,7 +10,6 @@ import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 import { getCurrentUser } from "selectors/usersSelectors";
-import store from "store";
 
 enum InitializationStatus {
   WAITING = "waiting",
@@ -53,15 +52,17 @@ class SegmentSingleton {
     }
   }
 
-  private shouldCreateAnonymousUsers(): boolean {
+  private async shouldCreateAnonymousUsers(): Promise<boolean> {
     try {
-      const state = store.getState();
+      // Use dynamic import to avoid circular dependencies
+      const storeModule = await import("store");
+      const appStore = storeModule.default;
+      const state = appStore.getState();
       const currentUser = getCurrentUser(state);
       const isLicenceActive =
         state.organization?.organizationConfiguration?.license?.active == true;
 
       const telemetryOn = currentUser?.enableTelemetry ?? false;
-
       const featureFlagOff = !selectFeatureFlagCheck(
         state,
         FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
@@ -82,7 +83,7 @@ class SegmentSingleton {
       return true;
     }
 
-    if (!this.shouldCreateAnonymousUsers()) {
+    if (!(await this.shouldCreateAnonymousUsers())) {
       this.avoidTracking();
 
       return true;
