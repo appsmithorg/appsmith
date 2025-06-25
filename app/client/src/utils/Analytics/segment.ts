@@ -5,11 +5,8 @@ import {
   type UserTraits,
   AnalyticsBrowser,
 } from "@segment/analytics-next";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
-import { getCurrentUser } from "selectors/usersSelectors";
 
 enum InitializationStatus {
   WAITING = "waiting",
@@ -54,8 +51,19 @@ class SegmentSingleton {
 
   private async shouldCreateAnonymousUsers(): Promise<boolean> {
     try {
-      // Use dynamic import to avoid circular dependencies
-      const storeModule = await import("store");
+      // Use dynamic imports to avoid circular dependencies
+      const [
+        storeModule,
+        { getCurrentUser },
+        { selectFeatureFlagCheck },
+        { FEATURE_FLAG },
+      ] = await Promise.all([
+        import("store"),
+        import("selectors/usersSelectors"),
+        import("ee/selectors/featureFlagsSelectors"),
+        import("ee/entities/FeatureFlag"),
+      ]);
+
       const appStore = storeModule.default;
       const state = appStore.getState();
       const currentUser = getCurrentUser(state);
