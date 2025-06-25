@@ -9,7 +9,7 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { UpdatePageResponse } from "api/PageApi";
+import type { SavePageResponse, UpdatePageResponse } from "api/PageApi";
 import type { UpdateCanvasPayload } from "actions/pageActions";
 
 export const initialState: EditorReduxState = {
@@ -38,6 +38,7 @@ export const initialState: EditorReduxState = {
   isPreviewMode: false,
   isProtectedMode: true,
   zoomLevel: 1,
+  onLoadActionExecution: false,
 };
 
 export const handlers = {
@@ -122,8 +123,14 @@ export const handlers = {
 
     return { ...state };
   },
-  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<SavePageResponse>,
+  ) => {
+    const layoutOnLoadActions = action.payload.data.layoutOnLoadActions;
+
     state.loadingStates.saving = false;
+    state.pageActions = layoutOnLoadActions;
 
     return { ...state };
   },
@@ -295,6 +302,15 @@ export const handlers = {
       loadingStates: { ...state.loadingStates, isSettingUpPage: false },
     };
   },
+  [ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      onLoadActionExecution: action.payload,
+    };
+  },
 };
 
 const editorReducer = createReducer(initialState, handlers);
@@ -314,6 +330,7 @@ export interface EditorReduxState {
   isProtectedMode: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+  onLoadActionExecution?: boolean;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

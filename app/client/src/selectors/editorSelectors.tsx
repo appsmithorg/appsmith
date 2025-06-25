@@ -130,6 +130,9 @@ export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
 };
 
+export const getOnLoadActionsWithExecutionStatus = (state: DefaultRootState) =>
+  state.ui.editor.onLoadActionExecution;
+
 export const getIsPublishingApplication = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishing;
 

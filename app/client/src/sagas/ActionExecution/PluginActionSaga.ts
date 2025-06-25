@@ -870,7 +870,7 @@ export function* runActionSaga(
   };
 
   const allowedActionAnalyticsKeys = getAllowedActionAnalyticsKeys(
-    plugin.packageName,
+    plugin?.packageName,
   );
   const actionAnalyticsPayload = getActionProperties(
     actionObject,
@@ -964,6 +964,7 @@ export function* runActionSaga(
     isMock: !!datasource?.isMock,
     actionConfig: actionAnalyticsPayload,
     source: reduxAction.payload.actionExecutionContext,
+    runBehaviour: actionObject?.runBehaviour,
   });
 
   yield put({
@@ -1125,6 +1126,7 @@ function* executePageLoadAction(
       source: !!actionExecutionContext
         ? actionExecutionContext
         : ActionExecutionContext.PAGE_LOAD,
+      runBehaviour: action?.runBehaviour,
     });
 
     const actionName = getPluginActionNameToDisplay(
@@ -1291,6 +1293,11 @@ function* executePageLoadActionsSaga(
         ),
       );
     }
+
+    yield put({
+      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
+      payload: true,
+    });
 
     // We show errors in the debugger once onPageLoad actions
     // are executed

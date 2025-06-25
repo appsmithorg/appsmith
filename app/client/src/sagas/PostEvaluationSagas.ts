@@ -1,5 +1,6 @@
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type {
+  JSActionEntityConfig,
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
@@ -14,14 +15,23 @@ import {
   getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
+  isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "actions/ReduxActionTypes";
+import {
+  call,
+  put,
+  select,
+  take,
+  race,
+  all,
+  debounce,
+} from "redux-saga/effects";
+import type { AnyReduxAction, ReduxAction } from "actions/ReduxActionTypes";
 import AppsmithConsole from "utils/AppsmithConsole";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";
@@ -42,8 +52,28 @@ import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { getJSActionPathNameToDisplay } from "ee/utils/actionExecutionUtils";
 import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import { startExecutingJSFunction } from "actions/jsPaneActions";
+import { getJSCollection } from "ee/selectors/entitiesSelector";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { getModuleInstanceJSCollectionById } from "ee/selectors/moduleInstanceSelectors";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import { getOnLoadActionsWithExecutionStatus } from "selectors/editorSelectors";
+import { executionForJSModuleInstance } from "ee/sagas/moduleInstanceSagaUtils";
+import { runAction } from "actions/pluginActionActions";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
+
+export function* runSingleAction(actionId: string) {
+  yield put(runAction(actionId));
+  yield race([
+    take(ReduxActionTypes.RUN_ACTION_SUCCESS),
+    take(ReduxActionTypes.RUN_ACTION_CANCELLED),
+    take(ReduxActionErrorTypes.RUN_ACTION_ERROR),
+  ]);
+}
 
 export function* logJSVarCreatedEvent(
   jsVarsCreatedEvent: EvalTreeResponseData["jsVarsCreatedEvent"],
@@ -313,4 +343,121 @@ export function* handleJSFunctionExecutionErrorLog(
         },
       ])
     : AppsmithConsole.deleteErrors([{ id: `${collectionId}-${action.id}` }]);
+}
+
+export function* executeReactiveQueries(
+  action: ReduxAction<{
+    executeReactiveActions: string[];
+    dataTree: DataTree;
+    configTree: ConfigTree;
+  }>,
+) {
+  const { configTree, dataTree, executeReactiveActions } = action.payload;
+
+  // Track executed actions to prevent infinite loops
+  const executedActions = new Set<string>();
+  const pendingActions = new Set(executeReactiveActions);
+
+  const onLoadActionExecutions: boolean = yield select(
+    getOnLoadActionsWithExecutionStatus,
+  );
+
+  while (pendingActions.size > 0) {
+    // Get next action to execute
+    const action = Array.from(pendingActions)[0];
+
+    pendingActions.delete(action);
+
+    // Skip if already executed in this cycle
+    if (executedActions.has(action)) {
+      continue;
+    }
+
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(action);
+    const entity = dataTree[entityName];
+
+    // Skip if entity doesn't exist
+    if (!entity) {
+      //eslint-disable-next-line no-console
+      log.warn(`Entity ${entityName} not found in dataTree`);
+      continue;
+    }
+
+    // Mark action as executed
+    executedActions.add(action);
+
+    if (isJSAction(entity)) {
+      const entityConfig = configTree[entityName] as JSActionEntityConfig;
+      let collection: JSCollection = yield select(
+        getJSCollection,
+        entity.actionId,
+      );
+
+      if (!!entityConfig.moduleInstanceId) {
+        collection = yield select(
+          getModuleInstanceJSCollectionById,
+          entity.actionId,
+        );
+      }
+
+      const action = collection?.actions.find(
+        (action) => action.name === propertyPath,
+      );
+
+      if (collection && action) {
+        const runBehaviour =
+          entityConfig?.meta && entityConfig.meta[action.name]?.runBehaviour;
+
+        if (runBehaviour === ActionRunBehaviour.AUTOMATIC) {
+          yield put(
+            startExecutingJSFunction({
+              action,
+              collection: collection,
+              from: "KEYBOARD_SHORTCUT",
+              openDebugger: false,
+            }),
+          );
+          // Wait for the JS function execution to complete
+          yield race([
+            take(
+              (action: AnyReduxAction) =>
+                action.type === ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS ||
+                action.type ===
+                  ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_ERRORS ||
+                action.type === ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+            ),
+          ]);
+        }
+      }
+    }
+
+    if (isAction(entity)) {
+      const entityConfig = configTree[entityName] as ActionEntityConfig;
+
+      if (
+        entityConfig.runBehaviour === ActionRunBehaviour.AUTOMATIC &&
+        onLoadActionExecutions
+      ) {
+        yield runSingleAction(entityConfig.actionId);
+      }
+    }
+
+    yield call(executionForJSModuleInstance, {
+      entity,
+      entityName,
+      dataTree,
+      configTree,
+      propertyPath,
+    });
+  }
+}
+
+export default function* PostEvaluationSagas() {
+  yield all([
+    debounce(
+      1000,
+      ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
+      executeReactiveQueries,
+    ),
+  ]);
 }

@@ -6,19 +6,12 @@ import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import type { Page } from "entities/Page";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetConfigProps } from "WidgetProvider/types";
-import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { AppTheme } from "entities/AppTheming";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { Module } from "ee/constants/ModuleConstants";
-import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
+import type { ActionRunBehaviourType } from "PluginActionEditor/types/PluginActionTypes";
+import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,12 +28,6 @@ export const ACTION_TYPE = ENTITY_TYPE.ACTION;
 
 type ValueOf<T> = T[keyof T];
 export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
-
-export enum EvaluationSubstitutionType {
-  TEMPLATE = "TEMPLATE",
-  PARAMETER = "PARAMETER",
-  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
-}
 
 // Action entity types
 export interface ActionEntity {
@@ -73,6 +60,8 @@ export interface ActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
+  dynamicTriggerPathList: DynamicPath[];
+  runBehaviour: ActionRunBehaviourType;
 }
 
 // JSAction (JSObject) entity Types
@@ -80,6 +69,7 @@ export interface ActionEntityConfig extends EntityConfig {
 export interface MetaArgs {
   arguments: Variable[];
   confirmBeforeExecute: boolean;
+  runBehaviour: ActionRunBehaviourType;
 }
 
 export interface JSActionEntityConfig extends EntityConfig {
@@ -97,6 +87,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleInstanceId?: string;
   isPublic?: boolean;
   actionNames: Set<string>;
+  dynamicTriggerPathList: DynamicPath[];
 }
 
 export interface JSActionEntity {
@@ -194,28 +185,6 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   workspaceName: string;
   appName: string;
   currentEnvironmentName: string;
-}
-
-export interface DataTreeSeed {
-  actions: ActionDataState;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editorConfigs: Record<string, any[]>;
-  pluginDependencyConfig: Record<string, DependencyMap>;
-  widgets: CanvasWidgetsReduxState;
-  widgetsMeta: MetaState;
-  appData: AppDataState;
-  jsActions: JSCollectionDataState;
-  theme: AppTheme["properties"];
-  metaWidgets: MetaWidgetsReduxState;
-  isMobile: boolean;
-  moduleInputs: Module["inputsForm"];
-  moduleInstances: Record<string, ModuleInstance> | null;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  moduleInstanceEntities: any;
-  layoutSystemType: LayoutSystemTypes;
-  loadingEntities: LoadingEntitiesState;
 }
 
 export type DataTreeEntityConfig =

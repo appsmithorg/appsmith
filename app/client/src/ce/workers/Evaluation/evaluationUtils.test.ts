@@ -10,10 +10,7 @@ import type {
   PrivateWidgets,
   JSActionEntity,
 } from "ee/entities/DataTree/types";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
@@ -47,6 +44,7 @@ import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Plugin";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
