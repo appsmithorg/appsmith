@@ -1164,11 +1164,6 @@ function* executePageLoadAction(
       }
     }
 
-    yield put({
-      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
-      payload: { id: pageAction.id, isExecuted: true },
-    });
-
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
     if (
@@ -1298,6 +1293,11 @@ function* executePageLoadActionsSaga(
         ),
       );
     }
+
+    yield put({
+      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
+      payload: true,
+    });
 
     // We show errors in the debugger once onPageLoad actions
     // are executed

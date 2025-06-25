@@ -358,8 +358,9 @@ export function* executeReactiveQueries(
   const executedActions = new Set<string>();
   const pendingActions = new Set(executeReactiveActions);
 
-  const onLoadActionExecutions: Record<string, string | boolean>[] =
-    yield select(getOnLoadActionsWithExecutionStatus);
+  const onLoadActionExecutions: boolean = yield select(
+    getOnLoadActionsWithExecutionStatus,
+  );
 
   while (pendingActions.size > 0) {
     // Get next action to execute
@@ -432,13 +433,10 @@ export function* executeReactiveQueries(
 
     if (isAction(entity)) {
       const entityConfig = configTree[entityName] as ActionEntityConfig;
-      const onLoadAction = onLoadActionExecutions.find(
-        (action) => action.id == entity.actionId,
-      );
 
       if (
         entityConfig.runBehaviour === ActionRunBehaviour.AUTOMATIC &&
-        onLoadAction?.isExecuted
+        onLoadActionExecutions
       ) {
         yield runSingleAction(entityConfig.actionId);
       }
