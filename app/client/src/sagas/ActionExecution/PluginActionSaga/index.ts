@@ -105,6 +105,7 @@ import {
   type ExecutePluginActionResponse,
 } from "./baseExectutePluginSaga";
 import { executePageLoadActionsSaga } from "./onPageLoadSaga";
+import { executePageUnloadActionsSaga } from "./onPageUnloadSaga";
 
 export default function* executePluginActionTriggerSaga(
   pluginAction: TRunDescription,
@@ -650,5 +651,9 @@ export function* watchPluginActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
+      executePageUnloadActionsSaga,
+    ),
   ]);
 }

@@ -128,7 +128,7 @@ export const getPageSavingError = (state: DefaultRootState) => {
 export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
 
-export const getPageUnloadActions = createSelector(
+export const getLayoutOnUnloadActions = createSelector(
   getAllJSCollectionActions,
   (jsActions) => {
     return jsActions.filter((action) => {
