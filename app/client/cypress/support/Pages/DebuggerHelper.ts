@@ -141,8 +141,8 @@ export class DebuggerHelper {
   }
 
   AssertErrorCount(count: number) {
-    const assertion = count > 0 ? `Debug (${count})` : "Debug";
-    this.agHelper.GetNAssertContains(this.locators._errorCount, assertion);
+    const assertion = count > 0 ? `Debug (${count})` : "Debug ";
+    this.agHelper.GetNAssertElementText(this.locators._errorCount, assertion);
   }
 
   changeLogsGroup(option: string) {

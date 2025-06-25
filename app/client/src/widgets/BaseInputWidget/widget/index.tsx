@@ -6,7 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
@@ -21,7 +21,7 @@ import IconSVG from "../icon.svg";
 import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 class BaseInputWidget<

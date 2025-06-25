@@ -32,6 +32,7 @@ export enum FocusEntity {
   JS_MODULE_INSTANCE = "JS_MODULE_INSTANCE",
   JS_OBJECT_ADD = "JS_OBJECT_ADD",
   PAGE = "PAGE",
+  TRIGGER_SETTINGS = "TRIGGER_SETTINGS",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -297,6 +298,15 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         entity: FocusEntity.SETTINGS,
         id: "",
         appState: EditorState.SETTINGS,
+        params: match.params,
+      };
+    }
+
+    if (match.params.entity === "trigger-settings") {
+      return {
+        entity: FocusEntity.TRIGGER_SETTINGS,
+        id: "",
+        appState: EditorState.TRIGGER_SETTINGS,
         params: match.params,
       };
     }

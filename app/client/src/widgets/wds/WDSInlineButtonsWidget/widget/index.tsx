@@ -15,7 +15,7 @@ import type { InlineButtonsWidgetProps } from "./types";
 import { InlineButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSInlineButtonsWidget extends BaseWidget<
   InlineButtonsWidgetProps,

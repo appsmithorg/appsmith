@@ -1,7 +1,7 @@
 import type {
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { InputIcon, InputThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {

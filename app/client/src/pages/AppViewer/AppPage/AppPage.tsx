@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { useSelector } from "react-redux";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";

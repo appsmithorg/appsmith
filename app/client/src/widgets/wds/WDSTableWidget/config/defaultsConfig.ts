@@ -2,7 +2,7 @@ import { InlineEditingSaveOptions } from "../constants";
 import {
   BlueprintOperationTypes,
   type WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DEFAULT_DATA } from "../constants/data";
 import type { WidgetProps } from "widgets/BaseWidget";

@@ -11,7 +11,7 @@ import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { extractTillNestedListWidget } from "./widget/helper";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
@@ -92,6 +92,7 @@ export interface GeneratorOptions {
   serverSidePagination: boolean;
   templateHeight: number;
   widgetName: string;
+  isEmptyListWidgetCase: boolean;
 }
 
 export interface ConstructorProps {
@@ -252,6 +253,7 @@ class MetaWidgetGenerator {
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
+  private isEmptyListWidgetCase: boolean;
 
   constructor(props: ConstructorProps) {
     this.siblings = {};
@@ -296,6 +298,7 @@ class MetaWidgetGenerator {
       unchanged: new Set(),
     };
     this.widgetName = "";
+    this.isEmptyListWidgetCase = false;
   }
 
   withOptions = (options: GeneratorOptions) => {
@@ -325,6 +328,7 @@ class MetaWidgetGenerator {
     this.level = options.level ?? 1;
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
+    this.isEmptyListWidgetCase = options.isEmptyListWidgetCase;
 
     this.updateModificationsQueue(this.prevOptions);
 
@@ -1106,14 +1110,28 @@ class MetaWidgetGenerator {
   ) => {
     if (metaWidget.currentItem) return;
 
-    const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
-      metaWidgetId,
-      key,
-    );
+    /**
+     * Check if we're in the empty data case (when original listData was empty, we add [{}])
+     * The page condition is included because there may be instances when a user uses navigation controls and lands on a specific page number,
+     * such as page 3, which returns an empty response.
+     * In this case, the list data will be empty, and we want to avoid generating empty meta widgets for that scenario.
+     */
 
-    const dataBinding = shouldAddDataCacheToBinding
-      ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
-      : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    let dataBinding: string;
+
+    if (this.isEmptyListWidgetCase) {
+      // For empty data case, set currentItem to empty object
+      dataBinding = "{{{}}}";
+    } else {
+      const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
+        metaWidgetId,
+        key,
+      );
+
+      dataBinding = shouldAddDataCacheToBinding
+        ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
+        : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    }
 
     metaWidget.currentItem = dataBinding;
     metaWidget.dynamicBindingPathList = [
@@ -1852,10 +1870,6 @@ class MetaWidgetGenerator {
     return this.getRowTemplateCache(key, this.containerWidgetId, {
       keepMetaWidgetData: true,
     })?.metaWidgetName;
-  };
-
-  private resetCache = () => {
-    this.setWidgetCache({});
   };
 
   private initVirtualizer = () => {

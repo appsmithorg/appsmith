@@ -766,7 +766,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                                 // after a new branch is created, the parent branch should be reset to a
                                 // clean status, i.e. last commit
-                                return discardChanges(sourceArtifact, gitType).thenReturn(newImportedArtifact);
+                                return discardChanges(sourceArtifact, gitType, FALSE)
+                                        .thenReturn(newImportedArtifact);
                             });
                 })
                 .flatMap(newImportedArtifact -> gitRedisUtils
@@ -2125,7 +2126,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     protected Mono<? extends Artifact> discardChanges(Artifact branchedArtifact, GitType gitType) {
+        return discardChanges(branchedArtifact, gitType, TRUE);
+    }
 
+    protected Mono<? extends Artifact> discardChanges(
+            Artifact branchedArtifact, GitType gitType, Boolean isValidateAndPublish) {
         ArtifactType artifactType = branchedArtifact.getArtifactType();
         GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
 
@@ -2169,8 +2174,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             return artifactJsonFromLastCommitMono
                                     .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
                                             workspaceId, branchedArtifact.getId(), artifactExchangeJson, branchName))
-                                    .flatMap(artifactFromLastCommit ->
-                                            gitArtifactHelper.validateAndPublishArtifact(artifactFromLastCommit, true))
+                                    .flatMap(artifactFromLastCommit -> {
+                                        if (!TRUE.equals(isValidateAndPublish)) {
+                                            return gitArtifactHelper.publishArtifact(artifactFromLastCommit, true);
+                                        }
+
+                                        return gitArtifactHelper.validateAndPublishArtifact(
+                                                artifactFromLastCommit, true);
+                                    })
                                     .flatMap(publishedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null))
                                     .onErrorResume(exception -> {

@@ -84,7 +84,7 @@ import {
 } from "ee/constants/messages";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
 import { toast } from "@appsmith/ads";

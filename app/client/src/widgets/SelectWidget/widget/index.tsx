@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
@@ -31,7 +31,7 @@ import derivedProperties from "./parseDerivedProperties";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
@@ -50,7 +50,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";

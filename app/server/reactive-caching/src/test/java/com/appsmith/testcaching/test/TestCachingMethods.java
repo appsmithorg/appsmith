@@ -1,6 +1,7 @@
 package com.appsmith.testcaching.test;
 
 import com.appsmith.caching.components.CacheManager;
+import com.appsmith.testcaching.TestConfig;
 import com.appsmith.testcaching.model.ArgumentModel;
 import com.appsmith.testcaching.model.TestModel;
 import com.appsmith.testcaching.service.CacheTestService;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
+@ContextConfiguration(classes = TestConfig.class)
 public class TestCachingMethods {
 
     @Autowired

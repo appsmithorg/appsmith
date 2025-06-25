@@ -6,9 +6,9 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 
 import * as config from "../config";
 import type { BaseInputWidgetProps } from "./types";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
 
 class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,

@@ -1,8 +1,10 @@
 package com.appsmith.server.aspect;
 
+import com.appsmith.caching.components.InstanceIdProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class DistributedLockAspectTest {
@@ -26,45 +29,61 @@ class DistributedLockAspectTest {
     @Autowired
     private ReactiveRedisOperations<String, String> redisOperations;
 
-    private static final String LOCK_PREFIX = "lock:";
+    @MockBean
+    private InstanceIdProvider instanceIdProvider;
+
+    private static final String LOCK_PREFIX = "lock";
+    private static final String TEST_INSTANCE_ID = "test-instance-123";
+
+    private String getLockKey(String key) {
+        return LOCK_PREFIX + ":" + TEST_INSTANCE_ID + ":" + key;
+    }
 
     @Test
     void testMonoOperation() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         StepVerifier.create(testLockService.monoOperation())
                 .expectNext("mono-success")
                 .verifyComplete();
 
         // Verify lock is released
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "mono-test"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("mono-test")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testFluxOperation() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         StepVerifier.create(testLockService.fluxOperation().collectList())
                 .expectNext(List.of("flux-success-1", "flux-success-2"))
                 .verifyComplete();
 
         // Verify lock is released
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "flux-test"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("flux-test")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testBlockingOperation() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         String result = testLockService.blockingOperation();
         assertEquals("blocking-success", result);
 
         // Verify lock is released
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "blocking-test"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("blocking-test")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testConcurrentAccess() throws InterruptedException {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         AtomicReference<String> thread1Result = new AtomicReference<>();
         AtomicReference<String> thread2Result = new AtomicReference<>();
         CountDownLatch thread1Started = new CountDownLatch(1);
@@ -106,13 +125,15 @@ class DistributedLockAspectTest {
 
     @Test
     void testPersistentLock() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         // First operation acquires lock and doesn't release it
         StepVerifier.create(testLockService.operationWithPersistentLock())
                 .expectNext("success")
                 .verifyComplete();
 
         // Verify lock still exists after operation completes
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "persistent-lock"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("persistent-lock")))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -121,20 +142,22 @@ class DistributedLockAspectTest {
                 .verifyComplete(); // Completes empty because lock is still held
 
         // Cleanup: Release lock for other tests
-        StepVerifier.create(testLockService.releaseLock("persistent-lock", redisOperations))
+        StepVerifier.create(testLockService.releaseLock("persistent-lock", redisOperations, TEST_INSTANCE_ID))
                 .expectNext(1L)
                 .verifyComplete();
     }
 
     @Test
     void testPersistentLockExpiration() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         // Execute operation with short-lived lock
         StepVerifier.create(Mono.just(testLockService.operationWithShortLivedLock()))
                 .expectNext("success")
                 .verifyComplete();
 
         // Verify lock exists immediately after
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "short-lived-lock"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("short-lived-lock")))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -146,43 +169,49 @@ class DistributedLockAspectTest {
         }
 
         // Verify lock has expired
-        StepVerifier.create(redisOperations.hasKey(LOCK_PREFIX + "short-lived-lock"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("short-lived-lock")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testLockReleasedOnBlockingError() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         // Execute operation that throws error
         assertThrows(RuntimeException.class, () -> testLockService.blockingMethodWithError());
 
         // Verify lock is released despite shouldReleaseLock = false
-        StepVerifier.create(redisOperations.hasKey("lock:error-lock"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("error-lock")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testLockReleasedOnReactiveError() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         // Execute operation that returns Mono.error
         StepVerifier.create(testLockService.reactiveMethodWithError())
                 .expectError(RuntimeException.class)
                 .verify();
 
         // Verify lock is released despite shouldReleaseLock = false
-        StepVerifier.create(redisOperations.hasKey("lock:error-lock"))
+        StepVerifier.create(redisOperations.hasKey(getLockKey("error-lock")))
                 .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void testLockReleasedOnErrorAllowsSubsequentExecution() {
+        when(instanceIdProvider.getInstanceId()).thenReturn(Mono.just(TEST_INSTANCE_ID));
+
         // First call throws error
         assertThrows(RuntimeException.class, () -> testLockService.blockingMethodWithError());
 
         // Verify we can acquire the same lock immediately after error
         AtomicBoolean lockAcquired = new AtomicBoolean(false);
-        StepVerifier.create(redisOperations.opsForValue().setIfAbsent("lock:error-lock", "test-value"))
+        StepVerifier.create(redisOperations.opsForValue().setIfAbsent(getLockKey("error-lock"), "test-value"))
                 .consumeNextWith(result -> lockAcquired.set(result))
                 .verifyComplete();
 
@@ -190,6 +219,6 @@ class DistributedLockAspectTest {
         assertTrue(lockAcquired.get());
 
         // Cleanup
-        redisOperations.delete("lock:error-lock").block();
+        redisOperations.delete(getLockKey("error-lock")).block();
     }
 }

@@ -430,6 +430,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             branding: false,
             resize: false,
             browser_spellcheck: true,
+            convert_unsafe_embeds: true,
             content_style: `
               ${cssVariables}
               ${

@@ -3,7 +3,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 

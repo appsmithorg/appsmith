@@ -14,10 +14,13 @@ import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.RunBehaviourAnalyticsMetadata;
+import com.appsmith.server.enums.RunBehaviourUpdateSource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ObservationHelperImpl;
+import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -94,6 +97,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final ObservationRegistry observationRegistry;
     private final ObservationHelperImpl observationHelper;
     private final FeatureFlagService featureFlagService;
+    private final RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -307,6 +311,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             List<String> messagesRef,
             CreatorContextType creatorType) {
         List<Executable> toUpdateExecutables = new ArrayList<>();
+        Map<String, RunBehaviourEnum> oldRunBehaviourMap = new HashMap<>();
 
         // Fetch all the actions which exist in this page.
         Flux<Executable> creatorContextExecutablesFlux =
@@ -373,7 +378,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 turnedOnExecutableNames.removeAll(existingOnLoadExecutableNames);
 
                                 for (Executable executable : creatorContextExecutables) {
-
                                     String executableName = executable.getUserExecutableName();
                                     // If a user has ever set execute on load, this field can not be changed
                                     // automatically.
@@ -382,6 +386,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     // this
                                     // condition is false.
                                     if (FALSE.equals(executable.getUserSetOnLoad())) {
+                                        // Store old run behaviour before updating
+                                        oldRunBehaviourMap.put(executableName, executable.getRunBehaviour());
 
                                         // If this executable is no longer an onload executable, turn the execute on
                                         // load to
@@ -457,8 +463,36 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                                 // Finally update the actions which require an update
                                 return Flux.fromIterable(toUpdateExecutables)
-                                        .flatMap(executable -> this.updateUnpublishedExecutable(
-                                                executable.getId(), executable, creatorType))
+                                        .flatMap(executable -> {
+                                            RunBehaviourEnum oldRunBehaviour = oldRunBehaviourMap.getOrDefault(
+                                                    executable.getUserExecutableName(), null);
+                                            return this.updateUnpublishedExecutable(
+                                                            executable.getId(), executable, creatorType)
+                                                    .flatMap(updatedExecutable -> {
+                                                        if (!(updatedExecutable instanceof ActionDTO actionDTO)) {
+                                                            return Mono.empty();
+                                                        }
+                                                        return runBehaviourAnalyticsUtils
+                                                                .sendRunBehaviourChangedAnalytics(
+                                                                        RunBehaviourAnalyticsMetadata.builder()
+                                                                                .actionDTO(actionDTO)
+                                                                                .oldRunBehaviour(oldRunBehaviour)
+                                                                                .creatorContextType(creatorType)
+                                                                                .wasChangedBy(
+                                                                                        RunBehaviourUpdateSource.SYSTEM)
+                                                                                .isActionPartOfModuleInstance(
+                                                                                        !isRegularAction(actionDTO))
+                                                                                .build())
+                                                                .onErrorResume(e -> {
+                                                                    log.warn(
+                                                                            "Analytics publish failed for action {}: {}",
+                                                                            actionDTO.getId(),
+                                                                            e.getMessage());
+                                                                    return Mono.empty();
+                                                                });
+                                                    })
+                                                    .then();
+                                        })
                                         .then(Mono.just(TRUE));
                             });
                 });
@@ -468,6 +502,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     public Mono<Layout> findAndUpdateLayout(
             String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
         return getExecutableOnLoadService(creatorType).findAndUpdateLayout(creatorId, layoutId, layout);
+    }
+
+    // Regular action here means action created as part of application editor
+    protected boolean isRegularAction(ActionDTO actionDTO) {
+        return true;
     }
 
     private Mono<Executable> updateUnpublishedExecutable(

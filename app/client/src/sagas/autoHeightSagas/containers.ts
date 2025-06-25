@@ -6,7 +6,7 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,

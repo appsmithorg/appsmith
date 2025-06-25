@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { SizeConfig } from "WidgetProvider/types";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";

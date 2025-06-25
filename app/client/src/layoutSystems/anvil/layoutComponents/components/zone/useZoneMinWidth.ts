@@ -4,7 +4,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getRenderMode } from "selectors/editorSelectors";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { SizeConfig } from "WidgetProvider/types";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";

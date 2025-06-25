@@ -12,7 +12,7 @@ import { createZoneAndAddWidgets } from "./zoneUtils";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { anvilWidgets } from "widgets/wds/constants";
 import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 

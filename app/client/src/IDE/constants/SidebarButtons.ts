@@ -6,6 +6,7 @@ const SidebarButtonTitles = {
   DATA: "Datasources",
   SETTINGS: "Settings",
   LIBRARIES: "Libraries",
+  TRIGGER_SETTINGS: "Trigger Settings",
 };
 
 export const EditorButton = (urlSuffix: string): IDESidebarButton => ({
@@ -37,5 +38,13 @@ export const SettingsButton = (urlSuffix: string): IDESidebarButton => ({
   icon: "settings-v3",
   tooltip: SidebarButtonTitles.SETTINGS,
   testId: SidebarButtonTitles.SETTINGS,
+  urlSuffix,
+});
+
+export const TriggerSettingsButton = (urlSuffix: string): IDESidebarButton => ({
+  state: EditorState.TRIGGER_SETTINGS,
+  icon: "lightning-line",
+  tooltip: SidebarButtonTitles.TRIGGER_SETTINGS,
+  testId: SidebarButtonTitles.TRIGGER_SETTINGS,
   urlSuffix,
 });

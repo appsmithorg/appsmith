@@ -657,6 +657,7 @@ export function* handleStartExecuteJSFunctionSaga(
     consoleStatements:
       action.actionConfiguration?.body?.match(CONSOLE_DOT_LOG_INVOCATION_REGEX)
         ?.length || 0,
+    runBehaviour: action.runBehaviour,
   });
 
   yield call(handleExecuteJSFunctionSaga, {

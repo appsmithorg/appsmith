@@ -30,7 +30,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 function* addWidgetAndReorderSaga(

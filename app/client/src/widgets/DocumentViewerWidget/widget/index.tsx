@@ -9,7 +9,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,

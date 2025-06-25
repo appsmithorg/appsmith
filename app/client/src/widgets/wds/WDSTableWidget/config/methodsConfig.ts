@@ -2,7 +2,7 @@ import { merge } from "lodash";
 import type {
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
