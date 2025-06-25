@@ -24,6 +24,8 @@ import { EntityItem } from "@appsmith/ads";
 import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { noop } from "lodash";
+import { executePageUnloadActions } from "actions/pluginActionActions";
+import { waitForPageUnloadActionsToComplete } from "utils/pageUnloadHelper";
 
 export const PageEntity = ({
   onClick,
@@ -82,21 +84,27 @@ export const PageEntity = ({
 
   const handleDoubleClick = canManagePages ? handleEnterEditMode : noop;
 
-  const switchPage = useCallback(() => {
-    AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
-      name: page.pageName,
-      fromUrl: location.pathname,
-      type: "PAGES",
-      toUrl: navigateToUrl,
-    });
-    dispatch(toggleInOnboardingWidgetSelection(true));
-    history.push(navigateToUrl, {
-      invokedBy: NavigationMethod.EntityExplorer,
-    });
+  const switchPage = useCallback(async () => {
+    try {
+      // Execute custom function before navigation if provided
+      dispatch(executePageUnloadActions());
+      await waitForPageUnloadActionsToComplete();
 
-    if (onClick) {
-      onClick();
-    }
+      AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
+        name: page.pageName,
+        fromUrl: location.pathname,
+        type: "PAGES",
+        toUrl: navigateToUrl,
+      });
+      dispatch(toggleInOnboardingWidgetSelection(true));
+      history.push(navigateToUrl, {
+        invokedBy: NavigationMethod.EntityExplorer,
+      });
+
+      if (onClick) {
+        onClick();
+      }
+    } catch (error) {}
   }, [location.pathname, navigateToUrl, dispatch, page.pageName, onClick]);
 
   const contextMenu = useMemo(
