@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 /**
  * This hook is used to select and focus on a detached widget

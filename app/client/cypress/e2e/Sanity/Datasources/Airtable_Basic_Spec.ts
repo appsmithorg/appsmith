@@ -19,11 +19,10 @@ describe(
   "Validate Airtable Ds",
   {
     tags: [
+      "@tag.Airtable",
       "@tag.Datasource",
       "@tag.Sanity",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
     ],
   },
   () => {

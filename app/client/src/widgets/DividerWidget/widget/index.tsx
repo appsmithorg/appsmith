@@ -8,7 +8,7 @@ import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";

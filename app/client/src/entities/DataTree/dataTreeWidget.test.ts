@@ -3,14 +3,12 @@ import {
   generateDataTreeWidget,
   getSetterConfig,
 } from "entities/DataTree/dataTreeWidget";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import WidgetFactory from "WidgetProvider/factory";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 

@@ -1,7 +1,6 @@
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-import { DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE } from "../../../../../../src/constants/WidgetConstants";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -77,7 +76,7 @@ describe(
       cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
         cy.wrap($inputWidget)
           .find("input")
-          .type(index + 1, { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
+          .type(index + 1);
       });
 
       // Verify the typed value
@@ -102,7 +101,7 @@ describe(
       cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
         cy.wrap($inputWidget)
           .find("input")
-          .type(index + 4, { delay: DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE });
+          .type(index + 4);
       });
 
       // Verify the typed value
@@ -162,6 +161,18 @@ describe(
         commonlocators.serverSidePaginationCheckbox,
         false,
       );
+    });
+
+    it("7. For the empty list, there should be no errors in appsmith console(as empty meta widgets are generated)", () => {
+      cy.openPropertyPane("listwidgetv2");
+
+      _.propPane.UpdatePropertyFieldValue("Items", "[]");
+
+      _.agHelper.AssertElementVisibility(
+        _.locators._visibleTextDiv("No data to display"),
+      );
+
+      _.debuggerHelper.AssertErrorCount(0);
     });
   },
 );

@@ -5,6 +5,7 @@ import {
   APP_LIBRARIES_EDITOR_PATH,
   APP_PACKAGES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
+  APP_TRIGGER_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
   INTEGRATION_EDITOR_PATH,
@@ -13,6 +14,7 @@ import {
 import AppSettingsPane from "../../components/AppSettings";
 import { DataSidePane } from "pages/Editor/DataSidePane";
 import EditorPane from "../components/EditorPane";
+import { TriggerSettingsPane } from "ee/pages/AppIDE/components/TriggerSettingsPane";
 import LibrarySidePane from "ee/pages/AppIDE/components/LibrariesList/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
@@ -64,6 +66,11 @@ const LeftPane = () => {
           component={LibrarySidePane}
           exact
           path={librarySidePanePaths}
+        />
+        <SentryRoute
+          component={TriggerSettingsPane}
+          exact
+          path={`${path}${APP_TRIGGER_SETTINGS_EDITOR_PATH}`}
         />
         <SentryRoute
           component={AppSettingsPane}

@@ -15,7 +15,7 @@ import {
 import { labelKeyValidation } from "./validations/labelKeyValidation";
 import { Flex } from "@appsmith/ads";
 import { SAMPLE_DATA } from "../../widget/constants";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 export const propertyPaneContentConfig = [
   {

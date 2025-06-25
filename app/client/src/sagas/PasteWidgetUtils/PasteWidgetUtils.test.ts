@@ -1,4 +1,4 @@
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { klona } from "klona";
 import {
   accessNestedObjectValue,

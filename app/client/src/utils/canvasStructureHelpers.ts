@@ -7,7 +7,7 @@ import type {
 import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
 
 interface DenormalizeOptions {

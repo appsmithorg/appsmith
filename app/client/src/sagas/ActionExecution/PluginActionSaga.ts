@@ -109,7 +109,7 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { APP_MODE } from "entities/App";
-import { FileDataTypes } from "WidgetProvider/constants";
+import { FileDataTypes } from "WidgetProvider/types";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import {
   ActionValidationError,
@@ -490,14 +490,25 @@ function* evaluateActionParams(
         evaluatedParams[key] = "blob";
       }
 
-      value = JSON.stringify(value);
-      evaluatedParams[key] = value;
+      // Handle null values separately to avoid stringifying them
+      if (value === null) {
+        value = null;
+        evaluatedParams[key] = null;
+      } else {
+        value = JSON.stringify(value);
+        evaluatedParams[key] = value;
+      }
     }
 
     // If there are no blob urls in the value, we can directly add it to the formData
     // If there are blob urls, we need to add them to the blobDataMap
     if (!useBlobMaps) {
-      value = new Blob([value], { type: "text/plain" });
+      // Handle null values separately to avoid creating a Blob with "null" string
+      if (value === null) {
+        value = null;
+      } else {
+        value = new Blob([value], { type: "text/plain" });
+      }
     }
 
     bindingsMap[key] = `k${i}`;
@@ -860,7 +871,7 @@ export function* runActionSaga(
   };
 
   const allowedActionAnalyticsKeys = getAllowedActionAnalyticsKeys(
-    plugin.packageName,
+    plugin?.packageName,
   );
   const actionAnalyticsPayload = getActionProperties(
     actionObject,
@@ -954,6 +965,7 @@ export function* runActionSaga(
     isMock: !!datasource?.isMock,
     actionConfig: actionAnalyticsPayload,
     source: reduxAction.payload.actionExecutionContext,
+    runBehaviour: actionObject?.runBehaviour,
   });
 
   yield put({
@@ -1117,6 +1129,7 @@ function* executePageLoadAction(
       source: !!actionExecutionContext
         ? actionExecutionContext
         : ActionExecutionContext.PAGE_LOAD,
+      runBehaviour: action?.runBehaviour,
     });
 
     const actionName = getPluginActionNameToDisplay(
@@ -1285,6 +1298,11 @@ function* executePageLoadActionsSaga(
         ),
       );
     }
+
+    yield put({
+      type: ReduxActionTypes.SET_ONLOAD_ACTION_EXECUTED,
+      payload: true,
+    });
 
     // We show errors in the debugger once onPageLoad actions
     // are executed

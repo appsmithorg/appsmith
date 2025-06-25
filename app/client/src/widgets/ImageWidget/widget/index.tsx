@@ -7,12 +7,12 @@ import ImageComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";

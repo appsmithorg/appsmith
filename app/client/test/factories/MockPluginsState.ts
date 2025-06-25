@@ -16,6 +16,7 @@ export const PluginIDs: Record<PluginPackageName, string> = {
   [PluginPackageName.MS_SQL]: "65e58df296506a506bd706a5",
   [PluginPackageName.ORACLE]: "65e58df396506a506bd706bf",
   [PluginPackageName.WORKFLOW]: "<replace-me-with-default-plugin-id>", // this is added for the typing of PluginIDs to pass
+  [PluginPackageName.APPSMITH_AGENT]: "<replace-me-with-default-plugin-id>",
 };
 
 export default {
@@ -6959,8 +6960,9 @@ export default {
             options: [
               {
                 label: "Automatic",
-                subText: "Query runs on page load or when a variable it depends on changes",
-                value: "AUTOMATIC"
+                subText:
+                  "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC",
               },
               {
                 label: "On page load",
@@ -7044,8 +7046,9 @@ export default {
             options: [
               {
                 label: "Automatic",
-                subText: "Query runs on page load or when a variable it depends on changes",
-                value: "AUTOMATIC"
+                subText:
+                  "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC",
               },
               {
                 label: "On page load",
@@ -7129,8 +7132,9 @@ export default {
             options: [
               {
                 label: "Automatic",
-                subText: "Query runs on page load or when a variable it depends on changes",
-                value: "AUTOMATIC"
+                subText:
+                  "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC",
               },
               {
                 label: "On page load",
@@ -7178,8 +7182,9 @@ export default {
             options: [
               {
                 label: "Automatic",
-                subText: "Query runs on page load or when a variable it depends on changes",
-                value: "AUTOMATIC"
+                subText:
+                  "Query runs on page load or when a variable it depends on changes",
+                value: "AUTOMATIC",
               },
               {
                 label: "On page load",

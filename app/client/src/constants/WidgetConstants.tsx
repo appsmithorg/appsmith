@@ -1,5 +1,5 @@
 import type { SupportedLayouts } from "reducers/entityReducers/types";
-import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
+import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory/types";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;
@@ -279,6 +279,3 @@ export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
   existingWidgets?: unknown;
 } & EitherMouseLocationORGridPosition;
-
-// Constant for debouncing the input change to avoid multiple Execute calls in reactive flow
-export const DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE = 300;

@@ -1,8 +1,10 @@
 package com.appsmith.server.exceptions;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -30,6 +32,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Component
+@Slf4j
 @Order(-2)
 public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHandler {
 
@@ -53,6 +56,39 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
     @Override
     protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
         return route(all(), this::render);
+    }
+
+    @Override
+    protected int getHttpStatus(Map<String, Object> errorAttributes) {
+        Object status = errorAttributes.get("status");
+        if (status instanceof Integer) {
+            return (Integer) status;
+        }
+        if (status instanceof String) {
+            try {
+                return Integer.parseInt((String) status);
+            } catch (NumberFormatException e) {
+                log.warn("Could not parse status as integer: {}", status);
+            }
+        }
+
+        // If status is missing or invalid, check for exception type
+        Object error = errorAttributes.get("error");
+        if (error instanceof Throwable) {
+            Throwable throwable = (Throwable) error;
+            if (throwable instanceof AppsmithException) {
+                return ((AppsmithException) throwable).getHttpStatus();
+            }
+            if (throwable instanceof AppsmithPluginException) {
+                return ((AppsmithPluginException) throwable).getHttpStatus();
+            }
+        }
+
+        // Default to 500 if we can't determine the status
+        log.warn(
+                "Could not determine HTTP status from error attributes, defaulting to 500. Error attributes: {}",
+                errorAttributes);
+        return 500;
     }
 
     @Nonnull

@@ -209,4 +209,6 @@ public class FieldNameCE {
     public static final String NONE = "none";
     public static final String ORGANIZATION_ADMINISTRATOR_ROLE = "Organization Administrator Role";
     public static final String INSTANCE_VARIABLES = "instanceVariables";
+
+    public static final String ACTION_CONFIGURATION_RUN_BEHAVIOUR = "runBehaviour";
 }

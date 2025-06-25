@@ -1,5 +1,5 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget";
 
 export const defaultsConfig = {

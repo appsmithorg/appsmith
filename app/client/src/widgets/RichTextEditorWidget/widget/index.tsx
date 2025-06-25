@@ -7,7 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -20,7 +20,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,
@@ -33,12 +33,8 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
-} from "WidgetProvider/constants";
-import {
-  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-  WIDGET_TAGS,
-} from "constants/WidgetConstants";
-import { debounce } from "lodash";
+} from "WidgetProvider/types";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -52,21 +48,10 @@ const RichTextEditorComponent = lazy(async () =>
 
 const converter = new showdown.Converter();
 
-interface RichTextEditorWidgetState extends WidgetState {
-  inputValue: string;
-}
-
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
-  RichTextEditorWidgetState
+  WidgetState
 > {
-  constructor(props: RichTextEditorWidgetProps) {
-    super(props);
-    this.state = {
-      inputValue: props.text ?? "",
-    };
-  }
-
   static type = "RICH_TEXT_EDITOR_WIDGET";
 
   static getConfig() {
@@ -506,12 +491,6 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
-    if (prevProps.text !== this.props.text) {
-      this.setState({ inputValue: this.props.text ?? "" });
-      // Cancel any pending debounced calls when value is updated externally
-      this.debouncedOnValueChange.cancel();
-    }
-
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
@@ -519,12 +498,7 @@ class RichTextEditorWidget extends BaseWidget<
     }
   }
 
-  componentWillUnmount() {
-    this.debouncedOnValueChange.cancel();
-  }
-
-  // debouncing the input change to avoid multiple Execute calls in reactive flow
-  debouncedOnValueChange = debounce((text: string) => {
+  onValueChange = (text: string) => {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -536,11 +510,6 @@ class RichTextEditorWidget extends BaseWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
-  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
-
-  onValueChange = (text: string) => {
-    this.setState({ inputValue: text });
-    this.debouncedOnValueChange(text);
   };
 
   static getSetterConfig(): SetterConfig {
@@ -563,7 +532,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    let value = this.state.inputValue;
+    let value = this.props.text ?? "";
 
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);

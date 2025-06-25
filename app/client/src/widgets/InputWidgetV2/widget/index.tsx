@@ -1,9 +1,9 @@
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ICON_NAMES } from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -18,7 +18,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { debounce, isNil, isNumber, merge, toString } from "lodash";
+import { isNil, isNumber, merge, toString } from "lodash";
 import React from "react";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -47,11 +47,8 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type {
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
-import {
-  DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE,
-  WIDGET_TAGS,
-} from "constants/WidgetConstants";
+} from "WidgetProvider/types";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
@@ -302,16 +299,11 @@ function InputTypeUpdateHook(
   return updates;
 }
 
-interface InputWidgetState extends WidgetState {
-  inputValue: string;
-}
-
-class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
+class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
     super(props);
     this.state = {
       isFocused: false,
-      inputValue: props.inputText ?? "",
     };
   }
 
@@ -714,12 +706,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
-    if (prevProps.inputText !== this.props.inputText) {
-      this.setState({ inputValue: this.props.inputText ?? "" });
-      // Cancel any pending debounced calls when value is updated externally
-      this.debouncedOnValueChange.cancel();
-    }
-
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
@@ -746,12 +732,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
     }
   };
 
-  componentWillUnmount() {
-    this.debouncedOnValueChange.cancel();
-  }
-
-  // debouncing the input change to avoid multiple Execute calls in reactive flow
-  debouncedOnValueChange = debounce((value: string) => {
+  onValueChange = (value: string) => {
     /*
      * Ideally text property should be derived property. But widgets
      * with derived properties won't work as expected inside a List
@@ -774,11 +755,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  }, DEBOUNCE_WAIT_TIME_ON_INPUT_CHANGE);
-
-  onValueChange = (value: string) => {
-    this.setState({ inputValue: value });
-    this.debouncedOnValueChange(value);
   };
 
   static getSetterConfig(): SetterConfig {
@@ -814,7 +790,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, InputWidgetState> {
   };
 
   getWidgetView() {
-    const value = this.state.inputValue ?? "";
+    const value = this.props.inputText ?? "";
     let isInvalid = false;
 
     if (this.props.isDirty) {

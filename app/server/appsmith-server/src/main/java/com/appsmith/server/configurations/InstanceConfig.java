@@ -5,7 +5,6 @@ import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import io.micrometer.observation.annotation.Observed;
-import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -71,7 +70,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
             startupProcess.block();
         } catch (Exception e) {
             log.debug("Application start up encountered an error: {}", e.getMessage());
-            Sentry.captureException(e);
         }
     }
 

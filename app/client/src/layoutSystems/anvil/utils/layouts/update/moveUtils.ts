@@ -7,7 +7,7 @@ import type {
 import { deleteWidgetFromPreset } from "./deletionUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { addWidgetsToPreset } from "./additionUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 
 /**
  * Update widgets relationship upon movement.

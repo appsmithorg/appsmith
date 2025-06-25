@@ -1,6 +1,6 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -24,7 +24,7 @@ import {
   type WidgetBaseConfiguration,
   type WidgetDefaultProps,
   type FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";

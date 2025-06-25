@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 
 import type { InputType } from "./types";
 import { INPUT_TYPE_TO_WIDGET_TYPE_MAP } from "./constants";

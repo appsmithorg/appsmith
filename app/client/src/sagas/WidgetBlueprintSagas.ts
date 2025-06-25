@@ -2,7 +2,7 @@ import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
   BlueprintOperationActionTypes,
   type WidgetBlueprint,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
@@ -12,7 +12,7 @@ import WidgetFactory from "WidgetProvider/factory";
 
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import * as log from "loglevel";
 import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";

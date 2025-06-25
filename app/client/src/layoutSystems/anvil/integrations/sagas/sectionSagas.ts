@@ -4,7 +4,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import {
   MAX_ZONE_COUNT,
