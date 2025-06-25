@@ -14,7 +14,6 @@ import MenuText from "./MenuText";
 import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
 import { navigateToAnotherPage } from "actions/pageActions";
-import { isPageActive } from "utils/navigationUtils";
 
 interface MenuItemProps {
   page: Page;
@@ -45,7 +44,7 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "inherit",
   );
 
-  const isActive = isPageActive(pathname, page.pageId);
+  const isActive = pathname.indexOf(page.pageId) > -1;
 
   const handleClick = () => {
     dispatch(
