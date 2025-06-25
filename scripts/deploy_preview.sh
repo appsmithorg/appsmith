@@ -66,12 +66,24 @@ kubectl create secret docker-registry "$SECRET" \
   --docker-password="$DOCKER_HUB_ACCESS_TOKEN" \
   -n "$NAMESPACE" || true
 
-# Add Helm repo and deploy
-AWS_REGION=us-east-2 helm repo add appsmith-ee "$HELMCHART_URL"
+# Add Helm repo (idempotent)
+AWS_REGION=us-east-2 helm repo add appsmith-ee "$HELMCHART_URL" || echo "Helm repo already added."
 helm repo update
-helm plugin install https://github.com/helm/helm-mapkubeapis -n "$NAMESPACE" || true
-helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE"
-helm show chart appsmith-ee/$HELMCHART
+
+# Attempt to install the plugin only if it's not installed
+if ! helm plugin list | grep -q mapkubeapis; then
+  echo "Installing mapkubeapis plugin..."
+  helm plugin install https://github.com/helm/helm-mapkubeapis || echo "Plugin installation failed, continuing..."
+else
+  echo "mapkubeapis plugin already installed."
+fi
+
+# Run mapkubeapis (safe to fail)
+echo "Running helm mapkubeapis (optional)..."
+helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE" || echo "mapkubeapis failed, continuing..."
+
+# Show chart metadata
+helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-blocking)."
 
 echo "Deploying Appsmith Helm chart..."
 helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
