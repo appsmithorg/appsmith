@@ -30,6 +30,7 @@ import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasRedu
 import { getActionEditorSavingMap } from "PluginActionEditor/store";
 import {
   getCanvasWidgets,
+  getAllJSCollectionActions,
   getJSCollections,
 } from "ee/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
@@ -50,6 +51,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 const getIsDraggingOrResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -125,6 +127,15 @@ export const getPageSavingError = (state: DefaultRootState) => {
 
 export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
+
+export const getPageUnloadActions = createSelector(
+  getAllJSCollectionActions,
+  (jsActions) => {
+    return jsActions.filter((action) => {
+      return action.runBehaviour === ActionRunBehaviour.ON_PAGE_UNLOAD;
+    });
+  },
+);
 
 export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
