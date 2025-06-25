@@ -92,7 +92,7 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false --set persistence.efs.enabled=true --set ingress.className="nginx" \
-  --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-dp-appsmith \
+  --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-sc \
   --set persistence.efs.volumeHandle="$DP_EFS_ID:/$edition/$edition$PULL_REQUEST_NUMBER" \
   --set resources.requests.cpu="1m" \
   --set podDisruptionBudgets.enabled=false \
