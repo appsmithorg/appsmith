@@ -3,7 +3,7 @@ import React from "react";
 import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -18,7 +18,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -26,11 +26,11 @@ import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { get } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";

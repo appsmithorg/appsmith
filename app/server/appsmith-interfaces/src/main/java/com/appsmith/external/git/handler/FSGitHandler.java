@@ -249,5 +249,5 @@ public interface FSGitHandler {
 
     Path createRepoPath(Path suffix);
 
-    Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName);
+    Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoSuffix, String branchName);
 }

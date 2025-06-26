@@ -10,6 +10,7 @@ import {
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
 import { createReducer } from "utils/ReducerUtils";
+import type { Organization } from "ee/api/OrganizationApi";
 
 export interface OrganizationReduxState<T> {
   displayName?: string;
@@ -21,6 +22,8 @@ export interface OrganizationReduxState<T> {
   instanceId: string;
   tenantId: string;
   isWithinAnOrganization: boolean;
+  myOrganizations: Organization[];
+  isFetchingMyOrganizations: boolean;
 }
 
 export const defaultBrandingConfig = {
@@ -43,6 +46,8 @@ export const initialState: OrganizationReduxState<any> = {
   instanceId: "",
   tenantId: "",
   isWithinAnOrganization: false,
+  myOrganizations: [],
+  isFetchingMyOrganizations: false,
 };
 
 export const handlers = {
@@ -74,6 +79,8 @@ export const handlers = {
         ...action.payload.organizationConfiguration.brandColors,
       },
     },
+    displayName: action.payload.displayName,
+    slug: action.payload.slug,
     isLoading: false,
     instanceId: action.payload.instanceId,
     tenantId: action.payload.tenantId,
@@ -110,6 +117,32 @@ export const handlers = {
   ) => ({
     ...state,
     isLoading: false,
+  }),
+  [ReduxActionTypes.FETCH_MY_ORGANIZATIONS_INIT]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state: OrganizationReduxState<any>,
+  ) => ({
+    ...state,
+    isFetchingMyOrganizations: true,
+  }),
+  [ReduxActionTypes.FETCH_MY_ORGANIZATIONS_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state: OrganizationReduxState<any>,
+    action: ReduxAction<Organization[]>,
+  ) => ({
+    ...state,
+    myOrganizations: action.payload,
+    isFetchingMyOrganizations: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_MY_ORGANIZATIONS_ERROR]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state: OrganizationReduxState<any>,
+  ) => ({
+    ...state,
+    isFetchingMyOrganizations: false,
   }),
 };
 

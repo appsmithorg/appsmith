@@ -135,6 +135,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               readOnly={isReadOnly}
               ref={inputRef}
               renderer={renderAs}
+              size="1"
               value={value}
               {...rest}
             />

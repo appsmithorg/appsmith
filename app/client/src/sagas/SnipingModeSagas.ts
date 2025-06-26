@@ -21,7 +21,7 @@ import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import { getModuleInstanceById } from "ee/selectors/moduleInstanceSelectors";
 

@@ -7,7 +7,7 @@ import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 import { Button, MenuTrigger, Menu, MenuItem } from "@appsmith/wds";
 
 import * as config from "../config";

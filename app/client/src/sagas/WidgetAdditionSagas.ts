@@ -5,11 +5,9 @@ import {
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { WidgetBlueprint } from "WidgetProvider/constants";
-import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "WidgetProvider/constants";
+import type { WidgetBlueprint } from "WidgetProvider/types";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";

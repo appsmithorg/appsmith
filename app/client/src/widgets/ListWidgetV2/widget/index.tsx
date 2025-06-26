@@ -24,7 +24,7 @@ import type {
   FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   PropertyPaneContentConfig,
@@ -43,7 +43,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import {
+  getMetaFlexLayers,
+  isListFullyEmpty,
+  isTargetElementClickable,
+} from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -558,12 +562,16 @@ class ListWidget extends BaseWidget<
       serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
+    const data = this.props.listData;
+
+    const isEmptyListWidgetCase =
+      (data && isListFullyEmpty(data, pageNo)) ?? false;
 
     return {
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: this.currFlattenedChildCanvasWidgets,
-      data: listData,
+      data: isEmptyListWidgetCase ? [{}] : listData,
       itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
       level: this.props.level ?? 1,
@@ -580,6 +588,7 @@ class ListWidget extends BaseWidget<
       hooks: {
         afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
       },
+      isEmptyListWidgetCase,
     };
   };
 
@@ -602,6 +611,9 @@ class ListWidget extends BaseWidget<
   };
 
   generateMetaWidgets = () => {
+    // The metaWidgetGeneratorOptions method already handles empty data
+    // by providing [{}] when listData is empty, so we can use normal generation flow
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
 
     const { metaWidgets, propertyUpdates, removedMetaWidgetIds } =
@@ -1458,8 +1470,7 @@ class ListWidget extends BaseWidget<
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
-      this.props.renderMode === RenderModes.PAGE
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0
     ) {
       return (
         <>

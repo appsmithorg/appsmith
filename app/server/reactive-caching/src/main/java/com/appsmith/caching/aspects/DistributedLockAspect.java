@@ -1,6 +1,7 @@
 package com.appsmith.caching.aspects;
 
 import com.appsmith.caching.annotations.DistributedLock;
+import com.appsmith.caching.components.InstanceIdProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -23,11 +24,14 @@ import java.time.temporal.ChronoUnit;
 public class DistributedLockAspect {
 
     private final ReactiveRedisOperations<String, String> redisOperations;
+    private final InstanceIdProvider instanceIdProvider;
 
-    private static final String LOCK_PREFIX = "lock:";
+    private static final String LOCK_PREFIX = "lock";
 
-    public DistributedLockAspect(ReactiveRedisOperations<String, String> redisOperations) {
+    public DistributedLockAspect(
+            ReactiveRedisOperations<String, String> redisOperations, InstanceIdProvider instanceIdProvider) {
         this.redisOperations = redisOperations;
+        this.instanceIdProvider = instanceIdProvider;
     }
 
     // Method to acquire a distributed lock before executing the annotated method.
@@ -57,12 +61,14 @@ public class DistributedLockAspect {
         }
     }
 
-    private LockDetails createLockDetails(DistributedLock lock) {
-        String lockKey = LOCK_PREFIX + lock.key();
-        long ttl = lock.ttl();
-        String value =
-                "locked until " + Instant.now().plus(ttl, ChronoUnit.SECONDS).toString();
-        return new LockDetails(lockKey, value, Duration.ofSeconds(ttl));
+    private Mono<LockDetails> createLockDetails(DistributedLock lock) {
+        return instanceIdProvider.getInstanceId().defaultIfEmpty("unknown").map(instanceId -> {
+            String lockKey = LOCK_PREFIX + ":" + instanceId + ":" + lock.key();
+            long ttl = lock.ttl();
+            String value = "locked until "
+                    + Instant.now().plus(ttl, ChronoUnit.SECONDS).toString();
+            return new LockDetails(lockKey, value, Duration.ofSeconds(ttl));
+        });
     }
 
     private void releaseLock(String lockKey) {
@@ -80,9 +86,7 @@ public class DistributedLockAspect {
     }
 
     private Object handleMono(ProceedingJoinPoint joinPoint, DistributedLock lock) {
-        LockDetails lockDetails = createLockDetails(lock);
-
-        return redisOperations
+        return createLockDetails(lock).flatMap(lockDetails -> redisOperations
                 .opsForValue()
                 .setIfAbsent(lockDetails.key, lockDetails.value, lockDetails.duration)
                 .flatMap(acquired -> {
@@ -103,13 +107,11 @@ public class DistributedLockAspect {
                     }
                     log.info("Lock already acquired for: {}", lockDetails.key);
                     return Mono.empty();
-                });
+                }));
     }
 
     private Object handleFlux(ProceedingJoinPoint joinPoint, DistributedLock lock) {
-        LockDetails lockDetails = createLockDetails(lock);
-
-        return redisOperations
+        return createLockDetails(lock).flatMapMany(lockDetails -> redisOperations
                 .opsForValue()
                 .setIfAbsent(lockDetails.key, lockDetails.value, lockDetails.duration)
                 .flatMapMany(acquired -> {
@@ -130,11 +132,11 @@ public class DistributedLockAspect {
                     }
                     log.info("Lock already acquired for: {}", lockDetails.key);
                     return Flux.empty();
-                });
+                }));
     }
 
     private Object handleBlocking(ProceedingJoinPoint joinPoint, DistributedLock lock) throws Throwable {
-        LockDetails lockDetails = createLockDetails(lock);
+        LockDetails lockDetails = createLockDetails(lock).block();
 
         Boolean acquired = null;
         try {

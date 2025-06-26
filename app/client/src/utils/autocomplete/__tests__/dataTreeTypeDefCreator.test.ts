@@ -3,10 +3,7 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 import InputWidget from "widgets/InputWidgetV2";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
@@ -15,6 +12,7 @@ import {
   generateTypeDef,
   getFunctionsArgsType,
 } from "../defCreatorUtils";
+import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {

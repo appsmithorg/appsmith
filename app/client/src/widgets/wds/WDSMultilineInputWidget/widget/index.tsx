@@ -1,6 +1,6 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
 import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 import { MultilineInputIcon, MultilineInputThumbnail } from "appsmith-icons";
 

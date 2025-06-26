@@ -14,7 +14,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";

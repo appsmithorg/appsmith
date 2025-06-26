@@ -4,7 +4,6 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
   const tableName = "Table1";
   const inputVariations = [
     "currentRow.price",
-    `JSObject1.somefunction(currentRow["id"] || 0)`,
     `
     [
       {
@@ -35,6 +34,8 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
     "currentRow.price * 2",
     "currentRow.isValid && true",
     "!currentRow.isDeleted",
+    "JSObject1.myFun1(currentRow['id'])",
+    `JSObject1.somefunction(currentRow["id"] || 0)`,
   ];
 
   it("1. should return the correct computed value", () => {
@@ -85,7 +86,7 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
       ComputeTablePropertyControlV2.getInputComputedValue(
         malformedComputedValue,
       ),
-    ).toBe(malformedComputedValue);
+    ).toBe("{{currentRow.function(unbalanced}}");
   });
 
   it("5. should correctly parse complex but valid expressions with multiple nested parentheses", () => {

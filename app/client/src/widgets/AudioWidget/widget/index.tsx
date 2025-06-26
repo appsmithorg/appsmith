@@ -10,7 +10,7 @@ import BaseWidget from "../../BaseWidget";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";

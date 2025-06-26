@@ -31,7 +31,7 @@ import type {
   DataTreeEvaluationProps,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type {
   AnvilConfig,
   AutoLayoutConfig,
@@ -40,9 +40,9 @@ import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
   WidgetMethods,
-} from "../WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,

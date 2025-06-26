@@ -210,9 +210,9 @@ export function getDefaultColumnProperties(
     isDiscardVisible: true,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
+      : `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow["${escapeString(
           id,
-        )}"]))}}`,
+        )}"])) : ${escapeString(id)} })()}}`,
     sticky: StickyType.NONE,
     validation: {},
     currencyCode: "USD",

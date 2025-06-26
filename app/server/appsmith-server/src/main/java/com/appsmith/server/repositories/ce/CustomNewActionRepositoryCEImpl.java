@@ -182,9 +182,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<NewAction> findUnpublishedActionsByPageIdAndRunbehaviourSetByUserOnPageLoad(
             String pageId, AclPermission permission) {
         BridgeQuery<NewAction> q = Bridge.<NewAction>or(
-                        // First condition: new runBehaviour = ON_PAGE_LOAD
-                        Bridge.<NewAction>equal(
-                                NewAction.Fields.unpublishedAction_runBehaviour, RunBehaviourEnum.ON_PAGE_LOAD),
+                        // First condition: new runBehaviour = ON_PAGE_LOAD or AUTOMATIC
+                        Bridge.<NewAction>in(
+                                NewAction.Fields.unpublishedAction_runBehaviour,
+                                List.of(RunBehaviourEnum.ON_PAGE_LOAD.name(), RunBehaviourEnum.AUTOMATIC.name())),
                         // Second condition: legacy executeOnLoad = true
                         Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad))
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)

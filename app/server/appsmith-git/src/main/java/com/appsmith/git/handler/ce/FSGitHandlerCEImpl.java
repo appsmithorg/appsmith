@@ -1477,7 +1477,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     /**
      * reset to last commit on the current branch itself but doesn't checkout to any specific branch
      * @param repoSuffix suffixedPath used to generate the base repo path this includes workspaceId, defaultAppId, repoName
-     * @return a boolean whether the operation was successfull or not
+     * @return a boolean whether the operation was successful or not
      */
     public Mono<Boolean> resetToLastCommit(Path repoSuffix) {
         return Mono.using(
@@ -1563,9 +1563,9 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     }
 
     @Override
-    public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
+    public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoSuffix, String branchName) {
         return Mono.using(
-                        () -> Git.open(repoPath.toFile()),
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     Span jgitBranchTrackingSpan =
                                             observationHelper.createSpan(GitSpan.JGIT_BRANCH_TRACK);

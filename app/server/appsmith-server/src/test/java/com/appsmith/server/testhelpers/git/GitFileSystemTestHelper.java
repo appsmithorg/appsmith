@@ -1,11 +1,14 @@
 package com.appsmith.server.testhelpers.git;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
-import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CommonGitFileUtils;
+import com.appsmith.server.services.GitArtifactHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +31,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class GitFileSystemTestHelper {
 
-    private final GitExecutor gitExecutor;
+    private final GitArtifactHelperResolver gitArtifactHelperResolver;
+    private final FSGitHandler fsGitHandler;
     private final CommonGitFileUtils commonGitFileUtils;
 
     private final Gson gson = new GsonBuilder()
@@ -42,8 +46,12 @@ public class GitFileSystemTestHelper {
             String repoName,
             ApplicationJson applicationJson)
             throws GitAPIException, IOException {
-        Path suffix = Paths.get(workspaceId, applicationId, repoName);
-        Path gitCompletePath = gitExecutor.createRepoPath(suffix);
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(applicationJson.getArtifactJsonType());
+        Path artifactRepoSuffixPath = gitArtifactHelper.getRepoSuffixPath(workspaceId, applicationId, repoName);
+
+        Path gitCompletePath = fsGitHandler.createRepoPath(artifactRepoSuffixPath);
         String metadataFileName = CommonConstants.METADATA + CommonConstants.JSON_EXTENSION;
 
         // Delete the repository if it already exists,
@@ -52,18 +60,19 @@ public class GitFileSystemTestHelper {
 
         // create a new repository
         log.debug("Setting up Git repository at path: {}", gitCompletePath);
-        gitExecutor.createNewRepository(gitCompletePath);
+        fsGitHandler.createNewRepository(gitCompletePath);
         File file = gitCompletePath.resolve(metadataFileName).toFile();
         file.createNewFile();
 
         // committing initially to avoid ref-head error
-        gitExecutor
-                .commitArtifact(suffix, "commit message", "user", "user@domain.xy", true, false)
+        fsGitHandler
+                .commitArtifact(artifactRepoSuffixPath, "commit message", "user", "user@domain.xy", true, false)
                 .block();
 
         // checkout to the new branch
-        gitExecutor.createAndCheckoutToBranch(suffix, branchName).block();
-
+        fsGitHandler
+                .createAndCheckoutToBranch(artifactRepoSuffixPath, branchName)
+                .block();
         commitArtifact(workspaceId, applicationId, branchName, repoName, applicationJson, "commit message two");
     }
 
@@ -78,12 +87,15 @@ public class GitFileSystemTestHelper {
         Path suffix = Paths.get(workspaceId, applicationId, repoName);
         // saving the files into the git repository from application json
         // The files would later be saved in this git repository from resources section instead of applicationJson
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(ArtifactType.APPLICATION);
+        Path artifactRepoSuffixPath = gitArtifactHelper.getRepoSuffixPath(workspaceId, applicationId, repoName);
         commonGitFileUtils
-                .saveArtifactToLocalRepo(workspaceId, applicationId, repoName, applicationJson, branchName)
+                .saveArtifactToLocalRepoNew(artifactRepoSuffixPath, applicationJson, branchName)
                 .block();
 
         // commit the application
-        gitExecutor
+        fsGitHandler
                 .commitArtifact(suffix, commitMessage, "user", "user@domain.xy", true, false)
                 .block();
     }
@@ -100,7 +112,7 @@ public class GitFileSystemTestHelper {
 
     public void deleteWorkspaceDirectory(String workspaceId) {
         try {
-            Path repoPath = gitExecutor.createRepoPath(Paths.get(workspaceId));
+            Path repoPath = fsGitHandler.createRepoPath(Paths.get(workspaceId));
             FileUtils.deleteDirectory(repoPath.toFile());
         } catch (IOException ioException) {
             log.info("unable to delete the workspace with id : {}", workspaceId);

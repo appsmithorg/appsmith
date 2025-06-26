@@ -23,7 +23,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import * as config from "../config";
 import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";

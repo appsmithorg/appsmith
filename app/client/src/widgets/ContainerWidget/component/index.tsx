@@ -15,7 +15,7 @@ import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetType } from "WidgetProvider/factory";
+import type { WidgetType } from "WidgetProvider/factory/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const StyledContainerComponent = styled.div<

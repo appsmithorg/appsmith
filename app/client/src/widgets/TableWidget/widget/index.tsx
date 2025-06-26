@@ -68,16 +68,16 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/types";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 
 const ReactTableComponent = lazy(async () =>

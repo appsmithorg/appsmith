@@ -32,7 +32,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 
 // Utility functions
 interface ButtonData {

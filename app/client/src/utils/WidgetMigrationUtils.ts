@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 
 /*
  * Function to traverse the DSL tree and execute the given migration function for each widget present in

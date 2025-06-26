@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -93,6 +94,8 @@ public interface GitHandlingServiceCE {
 
     Mono<String> fetchRemoteReferences(
             ArtifactJsonTransformationDTO jsonTransformationDTO, FetchRemoteDTO fetchRemoteDTO, GitAuth gitAuth);
+
+    Mono<BranchTrackingStatus> getBranchTrackingStatus(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
     Mono<String> mergeBranches(ArtifactJsonTransformationDTO jsonTransformationDTO, GitMergeDTO gitMergeDTO);
 

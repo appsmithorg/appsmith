@@ -1,4 +1,4 @@
-import type { WidgetCallout } from "WidgetProvider/constants";
+import type { WidgetCallout } from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   PropertyPaneConfig,

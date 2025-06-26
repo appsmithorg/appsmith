@@ -1,5 +1,5 @@
 import type { SupportedLayouts } from "reducers/entityReducers/types";
-import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
+import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory/types";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;

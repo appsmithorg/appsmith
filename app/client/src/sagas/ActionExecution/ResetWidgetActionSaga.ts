@@ -7,7 +7,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 import AppsmithConsole from "utils/AppsmithConsole";

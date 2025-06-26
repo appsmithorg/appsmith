@@ -3,7 +3,7 @@ import * as React from "react";
 import type {
   AutocompletionDefinitions,
   WidgetCallout,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { Colors } from "constants/Colors";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";

@@ -766,7 +766,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                                 // after a new branch is created, the parent branch should be reset to a
                                 // clean status, i.e. last commit
-                                return discardChanges(sourceArtifact, gitType).thenReturn(newImportedArtifact);
+                                return discardChanges(sourceArtifact, gitType, FALSE)
+                                        .thenReturn(newImportedArtifact);
                             });
                 })
                 .flatMap(newImportedArtifact -> gitRedisUtils
@@ -1906,7 +1907,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 });
     }
 
-    public Mono<String> fetchRemoteChanges(
+    @Override
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(
             Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType) {
 
         if (refArtifact == null
@@ -1941,9 +1943,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         // current user mono has been zipped just to run in parallel.
-        Mono<String> fetchRemoteMono = acquireGitLockMono
+        Mono<BranchTrackingStatus> fetchRemoteMono = acquireGitLockMono
                 .then(Mono.defer(() -> gitHandlingService.fetchRemoteReferences(
                         jsonTransformationDTO, baseArtifactGitData.getGitAuth(), FALSE)))
+                .flatMap(fetchedRemoteString -> {
+                    return gitHandlingService.getBranchTrackingStatus(jsonTransformationDTO);
+                })
                 .flatMap(fetchedRemoteStatusString -> {
                     return gitRedisUtils
                             .releaseFileLock(artifactType, baseArtifactId, isFileLock)
@@ -1960,14 +1965,17 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             refArtifactGitData.getRefName(),
                             gitType,
                             throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
+
+                    return gitRedisUtils
+                            .releaseFileLock(artifactType, baseArtifactId, isFileLock)
+                            .then(Mono.error(new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage())));
                 })
                 .elapsed()
                 .zipWith(currUserMono)
                 .flatMap(objects -> {
                     Long elapsedTime = objects.getT1().getT1();
-                    String fetchRemote = objects.getT1().getT2();
+                    BranchTrackingStatus fetchRemote = objects.getT1().getT2();
                     User currentUser = objects.getT2();
                     return gitAnalyticsUtils
                             .sendUnitExecutionTimeAnalyticsEvent(
@@ -1995,7 +2003,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
      * @return Mono of {@link BranchTrackingStatus}
      */
     @Override
-    public Mono<String> fetchRemoteChanges(
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(
             String refArtifactId, ArtifactType artifactType, boolean isFileLock, GitType gitType, RefType refType) {
         GitArtifactHelper<?> artifactGitHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
@@ -2118,7 +2126,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     protected Mono<? extends Artifact> discardChanges(Artifact branchedArtifact, GitType gitType) {
+        return discardChanges(branchedArtifact, gitType, TRUE);
+    }
 
+    protected Mono<? extends Artifact> discardChanges(
+            Artifact branchedArtifact, GitType gitType, Boolean isValidateAndPublish) {
         ArtifactType artifactType = branchedArtifact.getArtifactType();
         GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
 
@@ -2162,8 +2174,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             return artifactJsonFromLastCommitMono
                                     .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
                                             workspaceId, branchedArtifact.getId(), artifactExchangeJson, branchName))
-                                    .flatMap(artifactFromLastCommit ->
-                                            gitArtifactHelper.validateAndPublishArtifact(artifactFromLastCommit, true))
+                                    .flatMap(artifactFromLastCommit -> {
+                                        if (!TRUE.equals(isValidateAndPublish)) {
+                                            return gitArtifactHelper.publishArtifact(artifactFromLastCommit, true);
+                                        }
+
+                                        return gitArtifactHelper.validateAndPublishArtifact(
+                                                artifactFromLastCommit, true);
+                                    })
                                     .flatMap(publishedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null))
                                     .onErrorResume(exception -> {

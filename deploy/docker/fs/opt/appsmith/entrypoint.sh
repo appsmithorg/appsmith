@@ -5,8 +5,6 @@ source pg-utils.sh
 
 set -e
 
-tlog "Running as: $(id)"
-
 stacks_path=/appsmith-stacks
 
 export APPSMITH_PG_DATABASE="appsmith"
@@ -14,6 +12,23 @@ export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in su
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
+
+if [ "$(id -u)" != "0" ]; then
+    # if user is non-root setup nss_wrapper
+    # If this is a container restart, the files may already exist and we want them to remain read-only
+    if [[ ! -f /tmp/appsmith/passwd ]]; then
+        echo "appsmith:x:$(id -u):$(id -g):Appsmith:/opt/appsmith:/bin/bash" > /tmp/appsmith/passwd
+        chmod 444 /tmp/appsmith/passwd
+    fi
+    if [[ ! -f /tmp/appsmith/group ]]; then
+        echo "appsmith:x:$(id -g):" > /tmp/appsmith/group
+        chmod 444 /tmp/appsmith/group
+    fi
+    # NSS_WRAPPER_PASSWD, NSS_WRAPPER_GROUP, and NSS_WRAPPER_SYMLINK are set in Dockerfile
+    export LD_PRELOAD="$NSS_WRAPPER_SYMLINK"
+fi
+
+tlog "Running as: $(id)"
 
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
@@ -429,6 +444,11 @@ check_redis_compatible_page_size() {
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
   if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
+    if [[ "$(id -u)" != "0" ]]; then
+      tlog "== When running as a non-root user embedded PostgreSQL cannot be used. Please use an external PostgreSQL instance instead." >&2
+      exit 1
+    fi
+
     tlog "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 

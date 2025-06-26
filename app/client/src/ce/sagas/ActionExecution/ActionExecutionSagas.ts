@@ -155,8 +155,12 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): Generator {
 
   log.debug({ dynamicString, callbackData, globalContext });
 
-  if (dynamicString === undefined) {
-    throw new Error("Executing undefined action");
+  if (!dynamicString || typeof dynamicString !== "string") {
+    log.warn("Attempted to execute action with invalid dynamicString:", {
+      payload,
+    });
+
+    return;
   }
 
   return yield call(

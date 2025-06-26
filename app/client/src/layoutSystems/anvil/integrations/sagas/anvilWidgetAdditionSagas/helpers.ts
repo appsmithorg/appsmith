@@ -1,7 +1,7 @@
 import type {
   FlattenedWidgetProps,
   WidgetBlueprint,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";

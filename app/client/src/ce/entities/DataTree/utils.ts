@@ -84,3 +84,14 @@ export function isWidgetActionOrJsObject(
 ): entity is ActionEntity | WidgetEntity | JSActionEntity {
   return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }
+
+const THEME_PROPERTIES = new Set([
+  "{{appsmith.theme.fontFamily.appFont}}",
+  "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "{{appsmith.theme.colors.primaryColor}}",
+  "{{appsmith.theme.borderRadius.appBorderRadius}}",
+]);
+
+export function isThemeUnevaluatedValue(value: string): boolean {
+  return THEME_PROPERTIES.has(value);
+}

@@ -38,7 +38,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -61,17 +60,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.git.constants.CommonConstants.DELIMITER_PATH;
-import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
 import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.MAIN_CONTAINER;
 import static com.appsmith.git.constants.CommonConstants.WIDGETS;
-import static com.appsmith.git.constants.CommonConstants.fileFormatVersion;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
@@ -179,25 +177,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         GitResourceIdentity applicationIdentity =
                 new GitResourceIdentity(GitResourceType.ROOT_CONFIG, applicationFilePath, applicationFilePath);
         resourceMap.put(applicationIdentity, application);
-
-        // metadata
-        Iterable<String> keys = AppsmithBeanUtils.getAllFields(applicationJson.getClass())
-                .map(Field::getName)
-                .filter(name -> !getBlockedMetadataFields().contains(name))
-                .collect(Collectors.toList());
-
-        ApplicationJson applicationMetadata = new ApplicationJson();
         applicationJson.setModifiedResources(null);
-        copyProperties(applicationJson, applicationMetadata, keys);
-        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
-        ObjectNode metadata = objectMapper.valueToTree(applicationMetadata);
-
-        // put file format version;
-        metadata.put(FILE_FORMAT_VERSION, fileFormatVersion);
-
-        GitResourceIdentity metadataIdentity =
-                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
-        resourceMap.put(metadataIdentity, metadata);
 
         // pages and widgets
         applicationJson.getPageList().stream()
@@ -724,6 +704,15 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
 
         // widgets
         pageList.parallelStream().forEach(newPage -> {
+            String pathToReplace = Pattern.quote(PAGE_DIRECTORY
+                    + DELIMITER_PATH
+                    + newPage.getUnpublishedPage().getName()
+                    + DELIMITER_PATH
+                    + WIDGETS
+                    + DELIMITER_PATH);
+            String replacementString = MAIN_CONTAINER + DELIMITER_PATH;
+            Pattern replacementPattern = Pattern.compile(pathToReplace);
+
             Map<String, org.json.JSONObject> widgetsData = resourceMap.entrySet().stream()
                     .filter(entry -> {
                         GitResourceIdentity key = entry.getKey();
@@ -731,17 +720,9 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                                 && key.getResourceIdentifier().startsWith(newPage.getGitSyncId() + "-");
                     })
                     .collect(Collectors.toMap(
-                            entry -> entry.getKey()
-                                    .getFilePath()
-                                    .replaceFirst(
-                                            PAGE_DIRECTORY
-                                                    + DELIMITER_PATH
-                                                    + newPage.getUnpublishedPage()
-                                                            .getName()
-                                                    + DELIMITER_PATH
-                                                    + WIDGETS
-                                                    + DELIMITER_PATH,
-                                            MAIN_CONTAINER + DELIMITER_PATH),
+                            entry -> replacementPattern
+                                    .matcher(entry.getKey().getFilePath())
+                                    .replaceFirst(replacementString),
                             entry -> {
                                 try {
                                     return new org.json.JSONObject(objectMapper.writeValueAsString(entry.getValue()));

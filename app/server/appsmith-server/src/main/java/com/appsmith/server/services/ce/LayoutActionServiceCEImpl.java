@@ -13,11 +13,14 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.RunBehaviourAnalyticsMetadata;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.enums.RunBehaviourUpdateSource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.RunBehaviourAnalyticsUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -64,6 +67,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
+    private final RunBehaviourAnalyticsUtils runBehaviourAnalyticsUtils;
 
     /**
      * Called by Action controller to create Action
@@ -321,17 +325,31 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
 
+                    RunBehaviourEnum oldRunBehaviour = action.getRunBehaviour();
+
                     action.setUserSetOnLoad(true);
                     action.setRunBehaviour(behaviour);
 
                     newAction.setUnpublishedAction(action);
 
-                    return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
-                            .updatePageLayoutsByPageId(
-                                    savedAction.getUnpublishedAction().getPageId())
-                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
-                            .tap(Micrometer.observation(observationRegistry))
-                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
+                    return newActionService
+                            .save(newAction)
+                            .flatMap(savedAction -> updateLayoutService
+                                    .updateLayoutByContextTypeAndContextId(
+                                            action.getContextType(), action.getContextId())
+                                    .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .thenReturn(newActionService.generateActionByViewMode(savedAction, false)))
+                            .flatMap(updatedAction -> runBehaviourAnalyticsUtils
+                                    .sendRunBehaviourChangedAnalytics(RunBehaviourAnalyticsMetadata.builder()
+                                            .actionDTO(updatedAction)
+                                            .oldRunBehaviour(oldRunBehaviour)
+                                            .creatorContextType(action.getContextType())
+                                            .wasChangedBy(RunBehaviourUpdateSource.USER)
+                                            .isActionPartOfModuleInstance(!isRegularAction(updatedAction))
+                                            .build())
+                                    .onErrorResume(e -> Mono.empty())
+                                    .thenReturn(updatedAction));
                 });
     }
 
@@ -446,6 +464,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
                             .thenReturn(zippedActions.getT1());
                 });
+    }
+
+    // Regular action here means action created as part of application editor
+    protected boolean isRegularAction(ActionDTO actionDTO) {
+        return false;
     }
 
     protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(

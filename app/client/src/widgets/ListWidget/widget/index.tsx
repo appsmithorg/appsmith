@@ -6,12 +6,12 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
   WidgetCallout,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   BlueprintOperationTypes,
   type DSLWidget,
   type FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";

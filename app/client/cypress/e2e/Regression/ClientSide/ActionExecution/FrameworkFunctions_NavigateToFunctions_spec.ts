@@ -119,9 +119,7 @@ describe(
     it("2. To verify add a widget navigation using URL containing widgetID", () => {
       EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
-      cy.url().then((url) => {
-        pageTwoUrl = url;
-      });
+
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
@@ -253,7 +251,6 @@ describe(
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     });
-
     it("4. To verify navigation to a hidden page in same as well a new window", () => {
       agHelper.RefreshPage();
       PageList.AddNewPage();
@@ -268,15 +265,14 @@ describe(
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.ToggleJSMode("onClick", false);
-      propPane.SelectPlatformFunction("onClick", "Navigate to");
-      propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-      agHelper.GetNClick(propPane._navigateToType("URL"));
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Enter URL"),
-        pageTwoUrl,
+
+      propPane.ToggleJSMode("onClick", true);
+      propPane.EnterJSContext(
+        "onClick",
+        `{{navigateTo('${pageTwoUrl}', {}, 'SAME_WINDOW');}}`,
+        true,
+        false,
       );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

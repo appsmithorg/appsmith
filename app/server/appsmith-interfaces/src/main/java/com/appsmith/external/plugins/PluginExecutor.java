@@ -22,12 +22,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
@@ -304,11 +305,23 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
             ActionConfiguration actionConfiguration,
             ObservationRegistry observationRegistry,
             Map<String, Boolean> featureFlagMap) {
+        this.sanitiseNullsInParams(executeActionDTO);
         return this.executeParameterizedWithFlags(
                         connection, executeActionDTO, datasourceConfiguration, actionConfiguration, featureFlagMap)
                 .tag("plugin", this.getClass().getName())
                 .name(ACTION_EXECUTION_PLUGIN_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    default void sanitiseNullsInParams(ExecuteActionDTO executeActionDTO) {
+        String stringNull = "null";
+        if (executeActionDTO != null && !isEmpty(executeActionDTO.getParams())) {
+            executeActionDTO.getParams().stream().forEach(param -> {
+                if (Objects.isNull(param.getValue())) {
+                    param.setValue(stringNull);
+                }
+            });
+        }
     }
 
     default Mono<TriggerResultDTO> triggerWithFlags(
@@ -377,17 +390,21 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         // Do variable substitution
         // Do this only if params have been provided in the execute command
         if (executeActionDTO != null && !isEmpty(executeActionDTO.getParams())) {
-            Map<String, String> replaceParamsMap = executeActionDTO.getParams().stream()
-                    .collect(Collectors.toMap(
-                            // Trimming here for good measure. If the keys have space on either side,
-                            // Mustache won't be able to find the key.
-                            // We also add a backslash before every double-quote or backslash character
-                            // because we apply the template replacing in a JSON-stringified version of
-                            // these properties, where these two characters are escaped.
-                            p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
-                            Param::getValue,
-                            // In case of a conflict, we pick the older value
-                            (oldValue, newValue) -> oldValue));
+            Map<String, String> replaceParamsMap = new HashMap<>();
+            for (Param p : executeActionDTO.getParams()) {
+                if (p != null && p.getKey() != null) {
+                    String key = p.getKey().trim();
+                    // We also add a backslash before every double-quote or backslash character
+                    // because we apply the template replacing in a JSON-stringified version of
+                    // these properties, where these two characters are escaped.
+                    // The original comment about .replaceAll("["\n\\]", "\\$0") for the key
+                    // is preserved here for context, though not directly applied in this simplified key trim.
+                    String value = p.getValue(); // This will now correctly store null if p.getValue() is null
+
+                    // In case of a conflict, putIfAbsent picks the older value (the one already in the map)
+                    replaceParamsMap.putIfAbsent(key, value);
+                }
+            }
 
             MustacheHelper.renderFieldValues(datasourceConfiguration, replaceParamsMap);
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);

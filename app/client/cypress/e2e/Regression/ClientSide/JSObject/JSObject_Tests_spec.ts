@@ -18,7 +18,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate JSObj", {}, () => {
+describe("Validate JSObj", { tags: ["@tag.JS", "@tag.Datasource"] }, () => {
   before(() => {});
 
   it("1. Verify adding/deleting JSObject and more actions options", () => {
@@ -247,21 +247,28 @@ describe("Validate JSObj", {}, () => {
     agHelper.GetNAssertContains(locators._hints, "MainContainer");
 
     cy.get("@guid").then((uid) => {
-      dataSources.GeneratePageForDS(`Postgres ${uid}`);
+      EditorNavigation.SelectEntityByName(
+        `Postgres ${uid}`,
+        EntityType.Datasource,
+      );
+      dataSources.SelectTableFromPreviewSchemaList("public.users");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
     });
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     agHelper.Sleep(2000);
     table.WaitUntilTableLoad(0, 0, "v2");
-    EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
+    EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
     agHelper.GetNClick(locators._codeEditorTarget);
     agHelper.AssertElementVisibility(locators._evaluatedValue);
 
     cy.get(`${locators._codeMirrorCode} pre`).then(($elements) => {
       const text = [...$elements].map((el) => el.innerText).join("");
       agHelper.GetText(locators._evaluatedValue).then((evalText: any) => {
-        expect(evalText.replace(/\n/g, "")).to.eq(text);
+        expect(evalText.replace(/\n/g, "")).to.eq(
+          'DELETE FROM public."users"  WHERE "id" = $1;',
+        );
       });
     });
   });

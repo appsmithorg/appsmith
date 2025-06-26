@@ -311,13 +311,6 @@ export function* createActionRequestSaga(
 
     const prefix = isQueryType ? DEFAULT_PREFIX.QUERY : DEFAULT_PREFIX.API;
 
-    if (
-      plugin?.type === PluginType.DB ||
-      plugin?.packageName === PluginPackageName.APPSMITH_AI
-    ) {
-      DEFAULT_PREFIX.QUERY;
-    }
-
     payload.name = yield select(getNewEntityName, {
       prefix,
       parentEntityId,

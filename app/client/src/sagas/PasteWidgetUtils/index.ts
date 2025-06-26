@@ -9,7 +9,7 @@ import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidget, getWidgets } from "../selectors";
 
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { reflow } from "reflow";
