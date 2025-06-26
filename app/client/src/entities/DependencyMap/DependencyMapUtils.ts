@@ -163,81 +163,69 @@ export class DependencyMapUtils {
   ) {
     const dependencies = dependencyMap.rawDependencies;
 
-    // Helper function to get all transitive dependencies
-    const getAllTransitiveDependencies = (node: string): Set<string> => {
-      const allDeps = new Set<string>();
-      const queue = [node];
+    for (const node of dependencies.keys()) {
+      // For each entity, check if both .run and a .data path are present
+      let hasRun = false;
+      let hasData = false;
+      let dataPath = "";
+      let runPath = "";
 
-      while (queue.length > 0) {
-        const current = queue.shift()!;
-        const deps = dependencyMap.getDirectDependencies(current) || [];
-
-        for (const dep of deps) {
-          if (!allDeps.has(dep)) {
-            allDeps.add(dep);
-            queue.push(dep);
-          }
-        }
-      }
-
-      return allDeps;
-    };
-
-    for (const [node, deps] of dependencies.entries()) {
-      // Get all dependencies including transitive ones
-      const allDeps = new Set<string>();
-      const queue = Array.from(deps);
-
-      while (queue.length > 0) {
-        const dep = queue.shift()!;
-
-        if (!allDeps.has(dep)) {
-          allDeps.add(dep);
-          const depDeps = dependencyMap.getDirectDependencies(dep) || [];
-
-          queue.push(...depDeps);
-        }
-      }
-
-      // Separate dependencies into trigger paths and data paths
-      const triggerPaths = Array.from(deps).filter((dep) =>
-        this.isTriggerPath(dep, configTree),
+      const transitiveDeps = this.getAllTransitiveDependencies(
+        dependencyMap,
+        node,
       );
-      const dataPaths = Array.from(deps).filter((dep) => this.isDataPath(dep));
 
-      // For each trigger path, check if there's a data path from the same entity
-      for (const triggerPath of triggerPaths) {
-        const triggerEntity = triggerPath.split(".")[0];
+      for (const dep of transitiveDeps) {
+        const { entityName } = getEntityNameAndPropertyPath(dep);
+        const entityConfig = configTree[entityName];
 
-        // Find data paths from the same entity
-        const sameEntityDataPaths = dataPaths.filter((dataPath) => {
-          const dataEntity = dataPath.split(".")[0];
+        if (entityConfig && entityConfig.ENTITY_TYPE === "ACTION") {
+          if (this.isTriggerPath(dep, configTree)) {
+            hasRun = true;
+            runPath = dep;
+          }
 
-          return dataEntity === triggerEntity;
-        });
+          if (DependencyMapUtils.isDataPath(dep)) {
+            hasData = true;
+            dataPath = dep;
+          }
 
-        if (sameEntityDataPaths.length > 0) {
-          // Check if any of these data paths depend on the trigger path (directly or indirectly)
-          for (const dataPath of sameEntityDataPaths) {
-            const dataPathTransitiveDeps =
-              getAllTransitiveDependencies(dataPath);
-
-            if (dataPathTransitiveDeps.has(triggerPath)) {
-              const error = new Error(
-                `Reactive dependency misuse: '${node}' depends on both trigger path '${triggerPath}' and data path '${dataPath}' from the same entity, and '${dataPath}' depends on '${triggerPath}' (directly or indirectly). This can cause unexpected reactivity.`,
-              );
-
-              // Add custom properties
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (error as any).node = node;
-
-              throw error;
-            }
+          if (hasRun && hasData) {
+            throw Object.assign(
+              new Error(
+                `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
+              ),
+              { node, triggerPath: runPath, dataPath },
+            );
           }
         }
       }
     }
+  }
+
+  /**
+   * Returns all transitive dependencies (direct and indirect, no duplicates) for a given node.
+   */
+  static getAllTransitiveDependencies(
+    dependencyMap: DependencyMap,
+    node: string,
+  ): string[] {
+    const dependencies = dependencyMap.rawDependencies;
+    const visited = new Set<string>();
+
+    function traverse(current: string) {
+      const directDeps = dependencies.get(current) || new Set<string>();
+
+      for (const dep of directDeps) {
+        if (!visited.has(dep)) {
+          visited.add(dep);
+          traverse(dep);
+        }
+      }
+    }
+
+    traverse(node);
+
+    return Array.from(visited);
   }
 }
