@@ -24,7 +24,7 @@ jest.mock("react-router-dom", () => ({
   useLocation: jest.fn(),
 }));
 
-jest.mock("./MenuItem.styled", () => ({
+jest.mock("../MenuItem.styled", () => ({
   StyledMenuItem: jest.fn(({ children, ...props }) => (
     <div data-testid="styled-menu-item" {...props}>
       {children}
@@ -32,7 +32,7 @@ jest.mock("./MenuItem.styled", () => ({
   )),
 }));
 
-jest.mock("./MenuText", () =>
+jest.mock("../MenuText", () =>
   jest.fn((props) => (
     <div data-testid="menu-text" {...props}>
       {props.name}
