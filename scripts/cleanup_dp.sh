@@ -1,7 +1,6 @@
 #!/bin/bash
 # Configure the AWS & kubectl environment
 
-# Configure AWS CLI and kubectl environment
 mkdir -p ~/.aws
 cat > ~/.aws/config <<EOF
 [default]
