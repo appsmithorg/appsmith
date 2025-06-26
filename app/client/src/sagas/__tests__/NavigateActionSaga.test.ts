@@ -11,8 +11,8 @@ import { call, put, select, take } from "redux-saga/effects";
 import navigateActionSaga, {
   navigateToAnyPageInApplication,
   pushToHistory,
-  type NavigateToAnotherPagePayload,
 } from "sagas/ActionExecution/NavigateActionSaga";
+import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga/types";
 import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";

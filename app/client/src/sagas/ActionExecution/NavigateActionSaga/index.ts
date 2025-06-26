@@ -1,29 +1,24 @@
+import type { ReduxAction } from "actions/ReduxActionTypes";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { setDataUrl } from "ee/sagas/PageSagas";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { APP_MODE } from "entities/App";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import type { Page } from "entities/Page";
+import _ from "lodash";
 import { call, put, select, take } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
-import _ from "lodash";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "entities/Page";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
-import history from "utils/history";
-import { setDataUrl } from "ee/sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { TriggerFailureError } from "./errorUtils";
+import { trimQueryString } from "utils/helpers";
+import history from "utils/history";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import type { LocationState } from "history";
-import { trimQueryString } from "utils/helpers";
-import type { ReduxAction } from "actions/ReduxActionTypes";
-
-export enum NavigationTargetType_Dep {
-  SAME_WINDOW = "SAME_WINDOW",
-  NEW_WINDOW = "NEW_WINDOW",
-}
+import { TriggerFailureError } from "../errorUtils";
+import type { NavigateToAnotherPagePayload } from "./types";
 
 const isValidPageName = (
   pageNameOrUrl: string,
@@ -116,11 +111,6 @@ export default function* navigateActionSaga(
   }
 }
 
-export interface NavigateToAnotherPagePayload {
-  pageURL: string;
-  query: string;
-  state?: LocationState;
-}
 export function* navigateToAnyPageInApplication(
   action: ReduxAction<NavigateToAnotherPagePayload>,
 ) {

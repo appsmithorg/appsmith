@@ -30,7 +30,7 @@ import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 import { appsmithTelemetry } from "instrumentation";
-import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga";
+import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga/types";
 
 export interface FetchPageListPayload {
   applicationId: string;
