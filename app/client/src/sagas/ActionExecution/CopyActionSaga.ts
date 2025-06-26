@@ -3,7 +3,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import type { TCopyToClipboardDescription } from "workers/Evaluation/fns/copyToClipboard";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 
 export default function copySaga(
   action: TCopyToClipboardDescription,

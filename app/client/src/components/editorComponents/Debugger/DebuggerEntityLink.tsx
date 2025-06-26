@@ -1,5 +1,6 @@
 import React from "react";
-import type { Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Message } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Plugin } from "entities/Plugin";
 import { Link } from "@appsmith/ads";

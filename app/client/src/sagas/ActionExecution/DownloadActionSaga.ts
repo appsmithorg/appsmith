@@ -6,7 +6,7 @@ import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 import { isBase64String, isUrlString } from "./downloadActionUtils";
 import { isBlobUrl } from "utils/AppsmithUtils";
 import type { TDownloadDescription } from "workers/Evaluation/fns/download";
-import type { SourceEntity } from "../../entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 
 function downloadBlobURL(url: string, name: string) {
   const ele = document.createElement("a");

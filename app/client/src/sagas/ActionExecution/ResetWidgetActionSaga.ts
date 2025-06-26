@@ -11,7 +11,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 import AppsmithConsole from "utils/AppsmithConsole";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 
 export default function* resetWidgetActionSaga(
   action: TResetWidgetDescription,

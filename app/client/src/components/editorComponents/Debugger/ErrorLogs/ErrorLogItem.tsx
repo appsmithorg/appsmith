@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Log, Message } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "@appsmith/ads-old";
