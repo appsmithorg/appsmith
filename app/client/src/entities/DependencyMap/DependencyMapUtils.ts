@@ -4,9 +4,12 @@ import {
   entityTypeCheckForPathDynamicTrigger,
   getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
+  isAction,
+  isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 
 type SortDependencies =
   | {
@@ -23,6 +26,9 @@ export class DependencyMapUtils {
   ): SortDependencies {
     const dependencyTree: Array<[string, string | undefined]> = [];
     const dependencies = dependencyMap.rawDependencies;
+    const featureFlags = WorkerEnv.getFeatureFlags();
+    const isReactiveActionsEnabled =
+      featureFlags.release_reactive_actions_enabled;
 
     for (const [node, deps] of dependencies.entries()) {
       if (deps.size) {
@@ -38,7 +44,7 @@ export class DependencyMapUtils {
         .reverse()
         .filter((edge) => !!edge);
 
-      if (configTree) {
+      if (configTree && isReactiveActionsEnabled) {
         this.detectReactiveDependencyMisuse(dependencyMap, configTree);
       }
 
@@ -164,6 +170,27 @@ export class DependencyMapUtils {
     const dependencies = dependencyMap.rawDependencies;
 
     for (const node of dependencies.keys()) {
+      const { entityName: nodeName } = getEntityNameAndPropertyPath(node);
+      const nodeConfig = configTree[nodeName];
+
+      const isJSActionEntity = isJSAction(nodeConfig);
+      const isActionEntity = isAction(nodeConfig);
+
+      if (isJSActionEntity) {
+        // Only continue if at least one function is automatic
+        const hasAutomaticFunc = Object.values(nodeConfig.meta).some(
+          (jsFunction) => jsFunction.runBehaviour === "AUTOMATIC",
+        );
+
+        if (!hasAutomaticFunc) continue;
+      } else if (isActionEntity) {
+        // Only continue if runBehaviour is AUTOMATIC
+        if (nodeConfig.runBehaviour !== "AUTOMATIC") continue;
+      } else {
+        // If not a JSAction, or Action, skip
+        continue;
+      }
+
       // For each entity, check if both .run and a .data path are present
       let hasRun = false;
       let hasData = false;
