@@ -136,7 +136,10 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
+import {
+  isWidgetActionOrJsObject,
+  isThemeUnevaluatedValue,
+} from "ee/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
@@ -1178,6 +1181,8 @@ export default class DataTreeEvaluator {
     }
 
     const dependencies = this.dependencyMap.dependencies;
+    // Add a cache for specific appsmith theme properties
+    const themePropertyCache = new Map<string, unknown>();
 
     try {
       for (const fullPropertyPath of evaluationOrder) {
@@ -1266,16 +1271,32 @@ export default class DataTreeEvaluator {
           }
 
           try {
-            evalPropertyValue = this.getDynamicValue(
-              unEvalPropertyValue,
-              contextTree,
-              oldConfigTree,
-              evaluationSubstitutionType,
-              contextData,
-              undefined,
-              fullPropertyPath,
-              evalContextCache,
-            );
+            const themeEvaluatedValue =
+              themePropertyCache.get(unEvalPropertyValue);
+
+            // use the cached value if it exists
+            if (themeEvaluatedValue) {
+              evalPropertyValue = themeEvaluatedValue;
+            } else {
+              evalPropertyValue = this.getDynamicValue(
+                unEvalPropertyValue,
+                contextTree,
+                oldConfigTree,
+                evaluationSubstitutionType,
+                contextData,
+                undefined,
+                fullPropertyPath,
+                evalContextCache,
+              );
+
+              if (
+                evalPropertyValue &&
+                isThemeUnevaluatedValue(unEvalPropertyValue)
+              ) {
+                // we are caching theme properties because its a frequent unevaluated value roughly constitues 20% of all bindings
+                themePropertyCache.set(unEvalPropertyValue, evalPropertyValue);
+              }
+            }
           } catch (error) {
             this.errors.push({
               type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
