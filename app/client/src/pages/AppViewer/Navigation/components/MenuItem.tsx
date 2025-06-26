@@ -15,7 +15,7 @@ import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
 import { navigateToAnotherPage } from "actions/pageActions";
 
-interface MenuItemProps {
+export interface MenuItemProps {
   page: Page;
   query: string;
   navigationSetting?: NavigationSetting;
