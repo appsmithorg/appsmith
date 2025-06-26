@@ -1,7 +1,7 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeEntityConfig } from "../DataTree/types";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/types";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

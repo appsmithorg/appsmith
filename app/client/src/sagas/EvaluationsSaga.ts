@@ -57,7 +57,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/types";
 import { executeActionTriggers } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import {
   EventType,

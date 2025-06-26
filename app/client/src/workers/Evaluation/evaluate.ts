@@ -9,7 +9,7 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/types";
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
 import {
