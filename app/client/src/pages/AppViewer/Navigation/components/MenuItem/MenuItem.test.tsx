@@ -14,8 +14,8 @@ import React from "react";
 import { Provider, type DefaultRootState } from "react-redux";
 import configureStore from "redux-mock-store";
 import { NavigationMethod } from "utils/history";
-import type { MenuItemProps } from "./MenuItem";
-import MenuItem from "./MenuItem";
+import type { MenuItemProps } from "./types";
+import MenuItem from ".";
 
 const mockStore = configureStore([]);
 

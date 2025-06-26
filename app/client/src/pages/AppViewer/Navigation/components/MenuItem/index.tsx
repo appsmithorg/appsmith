@@ -1,25 +1,18 @@
-import React from "react";
-import type { Page } from "entities/Page";
-import type { NavigationSetting } from "constants/AppConstants";
+import { navigateToAnotherPage } from "actions/pageActions";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import MenuText from "./MenuText";
-import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
-import { navigateToAnotherPage } from "actions/pageActions";
-
-export interface MenuItemProps {
-  page: Page;
-  query: string;
-  navigationSetting?: NavigationSetting;
-}
+import { StyledMenuItem } from "../MenuItem.styled";
+import MenuText from "../MenuText";
+import type { MenuItemProps } from "./types";
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
   const appMode = useSelector(getAppMode);
