@@ -381,17 +381,18 @@ setup-custom-ca-certificates() (
     -srcstorepass changeit \
     -deststorepass changeit
 
-  # Process each certificate file
-  find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt' | while read -r cert_file; do
-    # For ca_bundle.crt, split into individual certificates
-    if [[ "$(basename "$cert_file")" == "ca_bundle.crt" ]]; then
-      # Split the bundle into individual certificates
-      awk 'split_after==1{n++;split_after=0} /-----END CERTIFICATE-----/ {split_after=1} {print > ("'"$temp_cert_dir"'/cert" n ".crt")}' "$cert_file"
-    else
-      # For individual .crt files, just copy them
-      cp "$cert_file" "$temp_cert_dir/cert$(basename "$cert_file")"
-    fi
-  done
+  # Split every .crt file (bundle or single) into individual certs
+  cert_index=0
+  while read -r cert_file; do
+    awk -v prefix="$temp_cert_dir/cert" -v ext=".crt" -v idx="$cert_index" '
+      BEGIN {n=0}
+      /-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/ {
+        print > (prefix idx "_" n ext)
+        if (/-----END CERTIFICATE-----/) n++
+      }
+    ' "$cert_file"
+    cert_index=$((cert_index + 1))
+  done < <(find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt')
 
   # Import all certificates from the temp directory
   find "$temp_cert_dir" -type f -name '*.crt' | while read -r cert_file; do
