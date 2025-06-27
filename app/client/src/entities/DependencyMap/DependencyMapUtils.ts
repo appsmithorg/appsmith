@@ -10,6 +10,7 @@ import {
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 type SortDependencies =
   | {
@@ -179,13 +180,14 @@ export class DependencyMapUtils {
       if (isJSActionEntity) {
         // Only continue if at least one function is automatic
         const hasAutomaticFunc = Object.values(nodeConfig.meta).some(
-          (jsFunction) => jsFunction.runBehaviour === "AUTOMATIC",
+          (jsFunction) =>
+            jsFunction.runBehaviour === ActionRunBehaviour.AUTOMATIC,
         );
 
         if (!hasAutomaticFunc) continue;
       } else if (isActionEntity) {
         // Only continue if runBehaviour is AUTOMATIC
-        if (nodeConfig.runBehaviour !== "AUTOMATIC") continue;
+        if (nodeConfig.runBehaviour !== ActionRunBehaviour.AUTOMATIC) continue;
       } else {
         // If not a JSAction, or Action, skip
         continue;
