@@ -65,6 +65,13 @@ jest.mock("ee/RouteBuilder", () => ({
   viewerURL: jest.fn(),
   builderURL: jest.fn(),
 }));
+
+// Mock the useNavigateToAnotherPage hook
+jest.mock("../../hooks/useNavigateToAnotherPage", () => ({
+  __esModule: true,
+  default: jest.fn(() => jest.fn()),
+}));
+
 const mockPage: Page = {
   pageId: "page1_id",
   pageName: "Test Page 1",
@@ -129,6 +136,27 @@ describe("MenuItem Component", () => {
     /* eslint-disable @typescript-eslint/no-var-requires */
     (require("react-router-dom").useLocation as jest.Mock).mockReturnValue({
       pathname: currentPathname,
+    });
+
+    // Mock the useNavigateToAnotherPage hook
+    const useNavigateToAnotherPageMock =
+      require("../../hooks/useNavigateToAnotherPage").default;
+
+    useNavigateToAnotherPageMock.mockImplementation(() => {
+      return () => {
+        const pageURL =
+          testState.entities.app.mode === APP_MODE.PUBLISHED
+            ? `/viewer/${mockPage.basePageId}`
+            : `/builder/${mockPage.basePageId}`;
+
+        store.dispatch(
+          navigateToAnotherPage({
+            pageURL,
+            query: mockQuery,
+            state: { invokedBy: NavigationMethod.AppNavigation },
+          }),
+        );
+      };
     });
 
     return render(
