@@ -1,28 +1,23 @@
-import { navigateToAnotherPage } from "actions/pageActions";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 import { get } from "lodash";
-import { useHref } from "pages/Editor/utils";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { NavigationMethod } from "utils/history";
+import useNavigateToAnotherPage from "../../hooks/useNavigateToAnotherPage";
 import { StyledMenuItem } from "../MenuItem.styled";
 import MenuText from "../MenuText";
 import type { MenuItemProps } from "./types";
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
-  const appMode = useSelector(getAppMode);
-  const dispatch = useDispatch();
   const location = useLocation();
-  const { pathname } = location;
-  const pageURL = useHref(
-    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { basePageId: page.basePageId },
-  );
+
+  const navigateToAnotherPage = useNavigateToAnotherPage({
+    basePageId: page.basePageId,
+    query,
+    state: { invokedBy: NavigationMethod.AppNavigation },
+  });
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
     navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
@@ -37,16 +32,13 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "inherit",
   );
 
-  const isActive = pathname.indexOf(page.pageId) > -1;
+  const isActive = useMemo(
+    () => location.pathname.indexOf(page.pageId) > -1,
+    [location, page.pageId],
+  );
 
   const handleClick = () => {
-    dispatch(
-      navigateToAnotherPage({
-        pageURL: pageURL,
-        query: query,
-        state: { invokedBy: NavigationMethod.AppNavigation },
-      }),
-    );
+    navigateToAnotherPage();
   };
 
   return (

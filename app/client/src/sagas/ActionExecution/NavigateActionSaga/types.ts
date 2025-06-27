@@ -1,7 +1,7 @@
-import type { LocationState } from "history";
+import type { AppsmithLocationState } from "utils/history";
 
 export interface NavigateToAnotherPagePayload {
   pageURL: string;
   query: string;
-  state?: LocationState;
+  state: AppsmithLocationState;
 }
