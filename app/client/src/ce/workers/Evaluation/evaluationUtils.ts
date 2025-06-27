@@ -413,7 +413,9 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
+export function isJSAction(
+  entity: Partial<DataTreeEntity>,
+): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
