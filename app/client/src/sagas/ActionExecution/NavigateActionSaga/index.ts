@@ -12,13 +12,13 @@ import _ from "lodash";
 import { call, put, select, take } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { trimQueryString } from "utils/helpers";
-import history from "utils/history";
+import history, { type AppsmithLocationState } from "utils/history";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 import { TriggerFailureError } from "../errorUtils";
 import type { NavigateToAnotherPagePayload } from "./types";
+import type { LocationDescriptor, Path } from "history";
 
 const isValidPageName = (
   pageNameOrUrl: string,
@@ -53,10 +53,7 @@ export default function* navigateActionSaga(
     });
 
     if (target === NavigationTargetType.SAME_WINDOW) {
-      yield call(pushToHistory, {
-        pageURL: path,
-        query: getQueryStringfromObject(params),
-      });
+      yield call(pushToHistory, path);
 
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
@@ -117,7 +114,7 @@ export function* navigateToAnyPageInApplication(
   yield call(pushToHistory, action.payload);
 }
 
-export function* pushToHistory(payload: NavigateToAnotherPagePayload) {
+export function* pushToHistory(payload: NavigateToAnotherPagePayload | Path) {
   yield put({
     type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
   });
@@ -126,9 +123,18 @@ export function* pushToHistory(payload: NavigateToAnotherPagePayload) {
     ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS,
     ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR,
   ]);
-  history.push({
-    pathname: trimQueryString(payload.pageURL),
+
+  if (typeof payload === "string") {
+    history.push(payload);
+
+    return;
+  }
+
+  const historyState: LocationDescriptor<AppsmithLocationState> = {
+    pathname: payload.pageURL,
     search: payload.query,
-    ...(!!payload.state && { state: payload.state }),
-  });
+    state: payload.state,
+  };
+
+  history.push(historyState);
 }
