@@ -16,7 +16,7 @@ import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/Navigat
 import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 
@@ -98,18 +98,9 @@ describe("NavigateActionSaga", () => {
           [select(getPageList), MOCK_PAGE_LIST],
           [select(getCurrentPageId), "page2"],
           [select(getAppMode), APP_MODE.EDIT],
-          [
-            call(pushToHistory, {
-              pageURL: "/builder/basePage1",
-              query: "",
-            }),
-            undefined,
-          ], // Mock pushToHistory
+          [call(pushToHistory, "/builder/basePage1"), undefined], // Mock pushToHistory
         ])
-        .call(pushToHistory, {
-          pageURL: "/builder/basePage1",
-          query: "",
-        })
+        .call(pushToHistory, "/builder/basePage1")
         .run()
         .then(() => {
           expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("NAVIGATE", {
@@ -161,13 +152,7 @@ describe("NavigateActionSaga", () => {
           [select(getPageList), MOCK_PAGE_LIST],
           [select(getCurrentPageId), "page1"], // Current page is page1
           [select(getAppMode), APP_MODE.EDIT],
-          [
-            call(pushToHistory, {
-              pageURL: "/builder/basePage1",
-              query: "",
-            }),
-            undefined,
-          ],
+          [call(pushToHistory, "/builder/basePage1"), undefined],
           [call(setDataUrl), undefined],
         ])
         .put({ type: ReduxActionTypes.TRIGGER_EVAL })
@@ -254,6 +239,7 @@ describe("NavigateActionSaga", () => {
             call(pushToHistory, {
               pageURL: "/builder/basePage1?key1=value1&key2=value2",
               query: "key1=value1&key2=value2",
+              state: {},
             }),
             undefined,
           ],
@@ -266,6 +252,7 @@ describe("NavigateActionSaga", () => {
     const payload: NavigateToAnotherPagePayload = {
       pageURL: "/app/page-1",
       query: "param=value",
+      state: {},
     };
 
     const onPageUnloadActionsCompletionPattern = [
@@ -273,87 +260,155 @@ describe("NavigateActionSaga", () => {
       ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR,
     ];
 
-    it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for success", async () => {
-      return expectSaga(pushToHistory, payload)
-        .provide([
-          [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
-          [
-            take(onPageUnloadActionsCompletionPattern),
-            { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
-          ],
-        ])
-        .run()
-        .then(() => {
-          expect(history.push).toHaveBeenCalledWith({
-            pathname: "/app/page-1",
-            search: "param=value",
+    describe("with payload", () => {
+      it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for success", async () => {
+        return expectSaga(pushToHistory, payload)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith({
+              pathname: "/app/page-1",
+              search: "param=value",
+              state: {},
+            });
           });
-        });
+      });
+
+      it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for error", async () => {
+        return expectSaga(pushToHistory, payload)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith({
+              pathname: "/app/page-1",
+              search: "param=value",
+              state: {},
+            });
+          });
+      });
+
+      it("should call history.push with state if provided", async () => {
+        const payloadWithState: NavigateToAnotherPagePayload = {
+          ...payload,
+          state: { invokedBy: NavigationMethod.AppNavigation },
+        };
+
+        return expectSaga(pushToHistory, payloadWithState)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith({
+              pathname: "/app/page-1",
+              search: "param=value",
+              state: { invokedBy: NavigationMethod.AppNavigation },
+            });
+          });
+      });
     });
 
-    it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for error", async () => {
-      return expectSaga(pushToHistory, payload)
-        .provide([
-          [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
-          [
-            take(onPageUnloadActionsCompletionPattern),
-            { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR },
-          ],
-        ])
-        .run()
-        .then(() => {
-          expect(history.push).toHaveBeenCalledWith({
-            pathname: "/app/page-1",
-            search: "param=value",
+    describe("with string parameter", () => {
+      it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for success with string path", async () => {
+        const stringPath = "/app/simple-page";
+
+        return expectSaga(pushToHistory, stringPath)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith(stringPath);
           });
-        });
-    });
+      });
 
-    it("should call history.push with state if provided", async () => {
-      const payloadWithState: NavigateToAnotherPagePayload = {
-        ...payload,
-        state: { testState: true },
-      };
+      it("should dispatch EXECUTE_PAGE_UNLOAD_ACTIONS and wait for error with string path", async () => {
+        const stringPath = "/app/another-page";
 
-      return expectSaga(pushToHistory, payloadWithState)
-        .provide([
-          [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
-          [
-            take(onPageUnloadActionsCompletionPattern),
-            { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
-          ],
-        ])
-        .run()
-        .then(() => {
-          expect(history.push).toHaveBeenCalledWith({
-            pathname: "/app/page-1",
-            search: "param=value",
-            state: { testState: true },
+        return expectSaga(pushToHistory, stringPath)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith(stringPath);
           });
-        });
-    });
+      });
 
-    it("should trim query string from pageURL for pathname", async () => {
-      const payloadWithPathQuery: NavigateToAnotherPagePayload = {
-        pageURL: "/app/page-1?extra=true",
-        query: "param=value",
-      };
+      it("should handle string path with query parameters", async () => {
+        const stringPathWithQuery = "/app/page?param1=value1&param2=value2";
 
-      return expectSaga(pushToHistory, payloadWithPathQuery)
-        .provide([
-          [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
-          [
-            take(onPageUnloadActionsCompletionPattern),
-            { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
-          ],
-        ])
-        .run()
-        .then(() => {
-          expect(history.push).toHaveBeenCalledWith({
-            pathname: "/app/page-1", // trimmed
-            search: "param=value",
+        return expectSaga(pushToHistory, stringPathWithQuery)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith(stringPathWithQuery);
           });
-        });
+      });
+
+      it("should handle root path string", async () => {
+        const rootPath = "/";
+
+        return expectSaga(pushToHistory, rootPath)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith(rootPath);
+          });
+      });
+
+      it("should handle empty string path", async () => {
+        const emptyPath = "";
+
+        return expectSaga(pushToHistory, emptyPath)
+          .provide([
+            [put({ type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS }), true],
+            [
+              take(onPageUnloadActionsCompletionPattern),
+              { type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS },
+            ],
+          ])
+          .run()
+          .then(() => {
+            expect(history.push).toHaveBeenCalledWith(emptyPath);
+          });
+      });
     });
   });
 
@@ -362,6 +417,7 @@ describe("NavigateActionSaga", () => {
       const payload: NavigateToAnotherPagePayload = {
         pageURL: "/app/my-page",
         query: "test=1",
+        state: {},
       };
       const action: ReduxAction<NavigateToAnotherPagePayload> = {
         type: "NAVIGATE_TO_PAGE", // Mock action type
