@@ -205,28 +205,23 @@ export class DependencyMapUtils {
       );
 
       for (const dep of transitiveDeps) {
-        const { entityName } = getEntityNameAndPropertyPath(dep);
-        const entityConfig = configTree[entityName];
+        if (this.isTriggerPath(dep, configTree)) {
+          hasRun = true;
+          runPath = dep;
+        }
 
-        if (entityConfig && entityConfig.ENTITY_TYPE === "ACTION") {
-          if (this.isTriggerPath(dep, configTree)) {
-            hasRun = true;
-            runPath = dep;
-          }
+        if (this.isDataPath(dep)) {
+          hasData = true;
+          dataPath = dep;
+        }
 
-          if (this.isDataPath(dep)) {
-            hasData = true;
-            dataPath = dep;
-          }
-
-          if (hasRun && hasData) {
-            throw Object.assign(
-              new Error(
-                `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
-              ),
-              { node, triggerPath: runPath, dataPath },
-            );
-          }
+        if (hasRun && hasData) {
+          throw Object.assign(
+            new Error(
+              `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
+            ),
+            { node, triggerPath: runPath, dataPath },
+          );
         }
       }
     }
