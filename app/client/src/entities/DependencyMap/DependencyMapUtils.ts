@@ -4,8 +4,8 @@ import {
   entityTypeCheckForPathDynamicTrigger,
   getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
-  isAction,
-  isJSAction,
+  isActionConfig,
+  isJSActionConfig,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
@@ -174,8 +174,8 @@ export class DependencyMapUtils {
       const { entityName: nodeName } = getEntityNameAndPropertyPath(node);
       const nodeConfig = configTree[nodeName];
 
-      const isJSActionEntity = isJSAction(nodeConfig);
-      const isActionEntity = isAction(nodeConfig);
+      const isJSActionEntity = isJSActionConfig(nodeConfig);
+      const isActionEntity = isActionConfig(nodeConfig);
 
       if (isJSActionEntity) {
         // Only continue if at least one function is automatic
@@ -214,7 +214,7 @@ export class DependencyMapUtils {
             runPath = dep;
           }
 
-          if (DependencyMapUtils.isDataPath(dep)) {
+          if (this.isDataPath(dep)) {
             hasData = true;
             dataPath = dep;
           }
