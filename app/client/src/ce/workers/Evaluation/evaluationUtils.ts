@@ -29,6 +29,7 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
+  ActionEntityConfig,
 } from "ee/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
@@ -396,6 +397,16 @@ export const shouldSuppressDebuggerError = (widget: WidgetEntity) =>
 export function isAction(
   entity: Partial<DataTreeEntity>,
 ): entity is ActionEntity {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
+
+export function isActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is ActionEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&

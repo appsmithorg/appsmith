@@ -4,8 +4,8 @@ import {
   entityTypeCheckForPathDynamicTrigger,
   getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
-  isAction,
-  isJSAction,
+  isActionConfig,
+  isJSActionConfig,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
@@ -174,8 +174,8 @@ export class DependencyMapUtils {
       const { entityName: nodeName } = getEntityNameAndPropertyPath(node);
       const nodeConfig = configTree[nodeName];
 
-      const isJSActionEntity = isJSAction(nodeConfig);
-      const isActionEntity = isAction(nodeConfig);
+      const isJSActionEntity = isJSActionConfig(nodeConfig);
+      const isActionEntity = isActionConfig(nodeConfig);
 
       if (isJSActionEntity) {
         // Only continue if at least one function is automatic
@@ -205,28 +205,23 @@ export class DependencyMapUtils {
       );
 
       for (const dep of transitiveDeps) {
-        const { entityName } = getEntityNameAndPropertyPath(dep);
-        const entityConfig = configTree[entityName];
+        if (this.isTriggerPath(dep, configTree)) {
+          hasRun = true;
+          runPath = dep;
+        }
 
-        if (entityConfig && entityConfig.ENTITY_TYPE === "ACTION") {
-          if (this.isTriggerPath(dep, configTree)) {
-            hasRun = true;
-            runPath = dep;
-          }
+        if (this.isDataPath(dep)) {
+          hasData = true;
+          dataPath = dep;
+        }
 
-          if (DependencyMapUtils.isDataPath(dep)) {
-            hasData = true;
-            dataPath = dep;
-          }
-
-          if (hasRun && hasData) {
-            throw Object.assign(
-              new Error(
-                `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
-              ),
-              { node, triggerPath: runPath, dataPath },
-            );
-          }
+        if (hasRun && hasData) {
+          throw Object.assign(
+            new Error(
+              `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
+            ),
+            { node, triggerPath: runPath, dataPath },
+          );
         }
       }
     }
