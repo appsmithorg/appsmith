@@ -5,8 +5,9 @@ import {
   type UserTraits,
   AnalyticsBrowser,
 } from "@segment/analytics-next";
-import { shouldTrackAnonymousUsers } from "ee/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ee/configs";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import log from "loglevel";
 
 enum InitializationStatus {
@@ -50,6 +51,36 @@ class SegmentSingleton {
     }
   }
 
+  private async shouldTrackAnonymousUsers(): Promise<boolean> {
+    try {
+      const { default: appStore } = await import("store");
+      const { getCurrentUser } = await import("selectors/usersSelectors");
+      const { selectFeatureFlagCheck } = await import(
+        "ee/selectors/featureFlagsSelectors"
+      );
+
+      const state = appStore.getState();
+      const currentUser = getCurrentUser(state);
+      const isAnonymous =
+        currentUser?.isAnonymous ||
+        currentUser?.username === ANONYMOUS_USERNAME;
+      const isLicenseActive =
+        state.organization?.organizationConfiguration?.license?.active === true;
+
+      const telemetryOn = currentUser?.enableTelemetry ?? false;
+      const featureFlagOff = !selectFeatureFlagCheck(
+        state,
+        FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+      );
+
+      return (
+        isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff))
+      );
+    } catch (error) {
+      return true;
+    }
+  }
+
   public async init(): Promise<boolean> {
     const { segment } = getAppsmithConfigs();
 
@@ -59,7 +90,7 @@ class SegmentSingleton {
       return true;
     }
 
-    const shouldTrackAnonymousUser = await shouldTrackAnonymousUsers();
+    const shouldTrackAnonymousUser = await this.shouldTrackAnonymousUsers();
 
     if (!shouldTrackAnonymousUser) {
       this.avoidTracking();

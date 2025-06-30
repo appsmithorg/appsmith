@@ -21,8 +21,6 @@ import {
 } from "ee/utils/Analytics/getEventExtraProperties";
 
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
 
 export enum AnalyticsEventType {
   error = "error",
@@ -124,28 +122,6 @@ function logEvent(
     });
 }
 
-async function shouldTrackAnonymousUsers(): Promise<boolean> {
-  try {
-    const { default: appStore } = await import("store");
-    const state = appStore.getState();
-    const currentUser = getCurrentUser(state);
-    const isAnonymous =
-      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
-    const isLicenseActive =
-      state.organization?.organizationConfiguration?.license?.active === true;
-
-    const telemetryOn = currentUser?.enableTelemetry ?? false;
-    const featureFlagOff = !selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-    );
-
-    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
-  } catch (error) {
-    return true;
-  }
-}
-
 async function identifyUser(userData: User, sendAdditionalData?: boolean) {
   const { appVersion } = getAppsmithConfigs();
 
@@ -230,5 +206,4 @@ export {
   logEvent,
   reset,
   setBlockErrorLogs,
-  shouldTrackAnonymousUsers,
 };
