@@ -37,6 +37,7 @@ export const initialState: EditorReduxState = {
   snipModeBindTo: undefined,
   isPreviewMode: false,
   isProtectedMode: true,
+  isExecutingPageUnloadActions: false,
   zoomLevel: 1,
   onLoadActionExecution: false,
 };
@@ -51,6 +52,8 @@ export const handlers = {
       currentApplicationId: undefined,
       pageWidgetId: undefined,
       pageActions: undefined,
+      pageUnloadActions: undefined,
+      isExecutingPageUnloadActions: false,
       layoutOnLoadActionErrors: undefined,
       loadingStates: {
         ...state.loadingStates,
@@ -311,6 +314,19 @@ export const handlers = {
       onLoadActionExecution: action.payload,
     };
   },
+  [ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS]: (state: EditorReduxState) => {
+    return { ...state, isExecutingPageUnloadActions: true };
+  },
+  [ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return { ...state, isExecutingPageUnloadActions: false };
+  },
+  [ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return { ...state, isExecutingPageUnloadActions: false };
+  },
 };
 
 const editorReducer = createReducer(initialState, handlers);
@@ -324,6 +340,8 @@ export interface EditorReduxState {
   currentPageId?: string;
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
+  pageUnloadActions?: PageAction[][];
+  isExecutingPageUnloadActions: boolean;
   isSnipingMode: boolean;
   snipModeBindTo?: string;
   isPreviewMode: boolean;
