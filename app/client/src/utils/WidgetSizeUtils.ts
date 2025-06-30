@@ -21,6 +21,7 @@ export const getCanvasHeightOffset = (
   props: WidgetProps,
 ) => {
   const { getCanvasHeightOffset } = WidgetFactory.getWidgetMethods(widgetType);
+
   let offset = 0;
 
   if (getCanvasHeightOffset) {

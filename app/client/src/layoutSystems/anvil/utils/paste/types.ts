@@ -1,5 +1,5 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/types";
-import type { WidgetLayoutPositionInfo } from "../layouts/widgetPositionUtils";
+import type { WidgetLayoutPositionInfo } from "../layouts/types";
 import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type { LayoutProps } from "../anvilTypes";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";

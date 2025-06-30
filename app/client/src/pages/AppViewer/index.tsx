@@ -40,8 +40,7 @@ import {
   getAppThemeSettings,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
-import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { registerLayoutComponentsOnly } from "../../utils/editor/EditorUtils";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -49,6 +48,9 @@ import {
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "ee/selectors/organizationSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getRenderPage } from "selectors/evaluationSelectors";
+import { widgetInitialisationSuccess } from "actions/widgetActions";
+import type { ReactNode } from "react";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -80,6 +82,21 @@ type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
 
 const DEFAULT_FONT_NAME = "System Default";
 
+function WDSThemeProviderWithTheme({ children }: { children: ReactNode }) {
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
+  const themeSetting = useSelector(getAppThemeSettings);
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode.toLowerCase(),
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  } as Parameters<typeof useTheme>[0];
+  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
+
+  return <WDSThemeProvider theme={theme}>{children}</WDSThemeProvider>;
+}
+
 function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { pathname, search } = props.location;
@@ -103,15 +120,7 @@ function AppViewer(props: Props) {
     getCurrentApplication,
   );
   const isAnvilLayout = useSelector(getIsAnvilLayout);
-  const themeSetting = useSelector(getAppThemeSettings);
-  const wdsThemeProps = {
-    borderRadius: themeSetting.borderRadius,
-    seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase(),
-    userSizing: themeSetting.sizing,
-    userDensity: themeSetting.density,
-  } as Parameters<typeof useTheme>[0];
-  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
+  const renderPage = useSelector(getRenderPage);
 
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
@@ -120,9 +129,9 @@ function AppViewer(props: Props) {
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
-    editorInitializer().then(() => {
-      dispatch(widgetInitialisationSuccess());
-    });
+    registerLayoutComponentsOnly();
+    // we want to intialise only the widgets relevant to the tab within the appViewer page first so that first evaluation is faster
+    dispatch(widgetInitialisationSuccess(true));
   }, []);
   /**
    * initialize the app if branch, pageId or application is changed
@@ -205,6 +214,8 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
+  if (!renderPage) return null;
+
   const renderChildren = () => {
     return (
       <EditorContextProvider renderMode="PAGE">
@@ -251,7 +262,7 @@ function AppViewer(props: Props) {
 
   if (isAnvilLayout) {
     return (
-      <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+      <WDSThemeProviderWithTheme>{renderChildren()}</WDSThemeProviderWithTheme>
     );
   }
 

@@ -23,10 +23,8 @@ import {
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import { getWidgetLayoutMetaInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import { type WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/types";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { Positioning } from "layoutSystems/common/utils/constants";

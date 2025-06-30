@@ -1,12 +1,7 @@
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-
-export interface WidgetLayoutPositionInfo {
-  layoutOrder: string[];
-  rowIndex: number;
-  widgetLayoutProps: WidgetLayoutProps;
-}
+import type { WidgetLayoutPositionInfo } from "./types";
 
 export function getWidgetLayoutMetaInfo(
   parentLayout: LayoutProps | null,

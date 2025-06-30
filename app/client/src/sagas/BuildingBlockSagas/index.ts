@@ -7,7 +7,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { ApiResponse } from "api/ApiResponses";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { Action } from "entities/Action";
-import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/types";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { all, call, put, select } from "redux-saga/effects";
