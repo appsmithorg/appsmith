@@ -94,7 +94,6 @@ function logEvent(
 
 async function shouldCreateAnonymousUsers(): Promise<boolean> {
   try {
-    // Use dynamic import to avoid circular dependencies
     const { default: appStore } = await import("store");
     const state = appStore.getState();
     const currentUser = getCurrentUser(state);
