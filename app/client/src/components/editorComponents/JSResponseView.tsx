@@ -241,7 +241,7 @@ function JSResponseView(props: Props) {
         panelComponent: <ErrorLogs />,
       });
 
-      if (ideType === IDE_TYPE.App) {
+      if (ideType === IDE_TYPE.App || ideType === IDE_TYPE.UIPackage) {
         jsTabs.push({
           key: DEBUGGER_TAB_KEYS.STATE_TAB,
           title: createMessage(DEBUGGER_STATE),
