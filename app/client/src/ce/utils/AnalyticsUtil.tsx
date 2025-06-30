@@ -1,28 +1,28 @@
-import log from "loglevel";
-import { getAppsmithConfigs } from "ee/configs";
+import type { EventProperties } from "@segment/analytics-next";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { getAppsmithConfigs } from "ee/configs";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
-import type { EventProperties } from "@segment/analytics-next";
+import log from "loglevel";
 
-import SegmentSingleton from "utils/Analytics/segment";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
+import { appsmithTelemetry } from "instrumentation";
 import MixpanelSingleton, {
   type SessionRecordingConfig,
 } from "utils/Analytics/mixpanel";
-import { appsmithTelemetry } from "instrumentation";
+import SegmentSingleton from "utils/Analytics/segment";
 import SmartlookUtil from "utils/Analytics/smartlook";
-import TrackedUser from "ee/utils/Analytics/trackedUser";
 
 import {
-  initLicense,
-  initInstanceId,
-  getInstanceId,
   getEventExtraProperties,
+  getInstanceId,
+  initInstanceId,
+  initLicense,
 } from "ee/utils/Analytics/getEventExtraProperties";
 
-import { getCurrentUser } from "selectors/usersSelectors";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export enum AnalyticsEventType {
   error = "error",
@@ -49,17 +49,18 @@ async function initialize(
   await identifyUser(user);
 }
 
-function logEvent(
-  eventName: EventName,
-  eventData?: EventProperties,
-  eventType?: AnalyticsEventType,
-) {
-  // Block tracking for anonymous users when the feature flag is enabled.
-  // We resolve store & selectors lazily to avoid circular dependencies.
+async function shouldBlockAnonymousTracking(): Promise<boolean> {
   try {
-    // Use eval("require") so webpack doesn't add this to the static dep graph
-    // preventing circular-chunk detection in prod build.
-    const { default: appStore } = eval("require")("store");
+    const [
+      { default: appStore },
+      { getCurrentUser },
+      { selectFeatureFlagCheck },
+    ] = await Promise.all([
+      import("store"),
+      import("selectors/usersSelectors"),
+      import("ee/selectors/featureFlagsSelectors"),
+    ]);
+
     const state = appStore.getState();
     const currentUser = getCurrentUser(state);
     const isAnonymous =
@@ -70,33 +71,66 @@ function logEvent(
       FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
     );
 
-    if (isAnonymous && blockAnonymousEvents) {
-      return;
-    }
-  } catch (_err) {
-    // If anything goes wrong (e.g., during tests when the store isn't ready),
-    // fall back to tracking to avoid breaking app logic.
-  }
+    return isAnonymous && blockAnonymousEvents;
+  } catch (error) {
+    log.error("Error checking anonymous tracking status", error);
 
+    // Fall back to allowing tracking to avoid breaking app logic
+    return false;
+  }
+}
+
+function logEvent(
+  eventName: EventName,
+  eventData?: EventProperties,
+  eventType?: AnalyticsEventType,
+) {
+  // Block error logs if configured
   if (blockErrorLogs && eventType === AnalyticsEventType.error) {
     return;
   }
 
-  const finalEventData = {
-    ...eventData,
-    ...getEventExtraProperties(),
-  };
+  // For anonymous user tracking check, we'll use a non-blocking approach
+  // The check happens asynchronously and won't block the current event
+  shouldBlockAnonymousTracking()
+    .then((shouldBlock) => {
+      if (shouldBlock) {
+        return; // Skip tracking for anonymous users when feature flag is enabled
+      }
 
-  if (segmentAnalytics) {
-    segmentAnalytics.track(eventName, finalEventData);
-  }
+      const finalEventData = {
+        ...eventData,
+        ...getEventExtraProperties(),
+      };
+
+      if (segmentAnalytics) {
+        segmentAnalytics.track(eventName, finalEventData);
+      }
+    })
+    .catch((error) => {
+      log.error(
+        "Error in anonymous tracking check, proceeding with tracking",
+        error,
+      );
+      // Fall back to tracking to avoid breaking app logic
+      const finalEventData = {
+        ...eventData,
+        ...getEventExtraProperties(),
+      };
+
+      if (segmentAnalytics) {
+        segmentAnalytics.track(eventName, finalEventData);
+      }
+    });
 }
 
-async function shouldCreateAnonymousUsers(): Promise<boolean> {
+async function shouldTrackAnonymousUsers(): Promise<boolean> {
   try {
     const { default: appStore } = await import("store");
     const state = appStore.getState();
     const currentUser = getCurrentUser(state);
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
     const isLicenseActive =
       state.organization?.organizationConfiguration?.license?.active === true;
 
@@ -106,7 +140,7 @@ async function shouldCreateAnonymousUsers(): Promise<boolean> {
       FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
     );
 
-    return isLicenseActive || (telemetryOn && featureFlagOff);
+    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
   } catch (error) {
     return true;
   }
@@ -186,15 +220,15 @@ function avoidTracking() {
 }
 
 export {
-  initialize,
-  logEvent,
-  identifyUser,
-  initInstanceId,
-  setBlockErrorLogs,
-  getAnonymousId,
-  reset,
-  getEventExtraProperties,
-  initLicense,
   avoidTracking,
-  shouldCreateAnonymousUsers,
+  getAnonymousId,
+  getEventExtraProperties,
+  identifyUser,
+  initialize,
+  initInstanceId,
+  initLicense,
+  logEvent,
+  reset,
+  setBlockErrorLogs,
+  shouldTrackAnonymousUsers,
 };

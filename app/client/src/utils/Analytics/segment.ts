@@ -5,7 +5,7 @@ import {
   type UserTraits,
   AnalyticsBrowser,
 } from "@segment/analytics-next";
-import { shouldCreateAnonymousUsers } from "ee/utils/AnalyticsUtil";
+import { shouldTrackAnonymousUsers } from "ee/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 
@@ -59,7 +59,9 @@ class SegmentSingleton {
       return true;
     }
 
-    if (!(await shouldCreateAnonymousUsers())) {
+    const shouldTrackAnonymousUser = await shouldTrackAnonymousUsers();
+
+    if (!shouldTrackAnonymousUser) {
       this.avoidTracking();
 
       return true;
