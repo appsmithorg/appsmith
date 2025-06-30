@@ -5,6 +5,7 @@ import {
   type UserTraits,
   AnalyticsBrowser,
 } from "@segment/analytics-next";
+import { shouldCreateAnonymousUsers } from "ee/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 
@@ -49,39 +50,6 @@ class SegmentSingleton {
     }
   }
 
-  private async shouldCreateAnonymousUsers(): Promise<boolean> {
-    try {
-      // Use dynamic imports to avoid circular dependencies
-      const [
-        storeModule,
-        { getCurrentUser },
-        { selectFeatureFlagCheck },
-        { FEATURE_FLAG },
-      ] = await Promise.all([
-        import("store"),
-        import("selectors/usersSelectors"),
-        import("ee/selectors/featureFlagsSelectors"),
-        import("ee/entities/FeatureFlag"),
-      ]);
-
-      const appStore = storeModule.default;
-      const state = appStore.getState();
-      const currentUser = getCurrentUser(state);
-      const isLicenceActive =
-        state.organization?.organizationConfiguration?.license?.active == true;
-
-      const telemetryOn = currentUser?.enableTelemetry ?? false;
-      const featureFlagOff = !selectFeatureFlagCheck(
-        state,
-        FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-      );
-
-      return isLicenceActive || (telemetryOn && featureFlagOff);
-    } catch (error) {
-      return true;
-    }
-  }
-
   public async init(): Promise<boolean> {
     const { segment } = getAppsmithConfigs();
 
@@ -91,7 +59,7 @@ class SegmentSingleton {
       return true;
     }
 
-    if (!(await this.shouldCreateAnonymousUsers())) {
+    if (!(await shouldCreateAnonymousUsers())) {
       this.avoidTracking();
 
       return true;

@@ -92,6 +92,27 @@ function logEvent(
   }
 }
 
+async function shouldCreateAnonymousUsers(): Promise<boolean> {
+  try {
+    // Use dynamic import to avoid circular dependencies
+    const { default: appStore } = await import("store");
+    const state = appStore.getState();
+    const currentUser = getCurrentUser(state);
+    const isLicenseActive =
+      state.organization?.organizationConfiguration?.license?.active === true;
+
+    const telemetryOn = currentUser?.enableTelemetry ?? false;
+    const featureFlagOff = !selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+    );
+
+    return isLicenseActive || (telemetryOn && featureFlagOff);
+  } catch (error) {
+    return true;
+  }
+}
+
 async function identifyUser(userData: User, sendAdditionalData?: boolean) {
   const { appVersion } = getAppsmithConfigs();
 
@@ -176,4 +197,5 @@ export {
   getEventExtraProperties,
   initLicense,
   avoidTracking,
+  shouldCreateAnonymousUsers,
 };
