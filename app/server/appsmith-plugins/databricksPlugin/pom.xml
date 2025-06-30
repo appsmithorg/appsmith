@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>databricks-sdk-java</artifactId>
-            <version>0.14.0</version>
+            <version>0.54.0</version>
         </dependency>
         <dependency>
             <groupId>com.databricks</groupId>
