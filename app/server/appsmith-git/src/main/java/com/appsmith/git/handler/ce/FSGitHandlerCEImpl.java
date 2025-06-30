@@ -21,6 +21,7 @@ import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
+import com.appsmith.git.service.BashService;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,6 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
@@ -111,6 +111,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
     private final ObservationHelper observationHelper;
+
+    private final BashService bashService = new BashService();
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -1102,62 +1104,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         }
     }
 
-    private String getPageName(String path) {
-        String[] pathArray = path.split(CommonConstants.DELIMITER_PATH);
-        return pathArray[1];
-    }
-
     @Override
-    public Mono<String> mergeBranch(
-            Path repoSuffix, String sourceBranch, String destinationBranch, boolean keepWorkingDirChanges) {
-        return Mono.using(
-                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
-                        git -> Mono.fromCallable(() -> {
-                                    Span jgitMergeSpan = observationHelper.createSpan(GitSpan.JGIT_MERGE);
-                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
-                                            repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
-
-                                    log.info(
-                                            "{}: Merge branch {} on {}",
-                                            Thread.currentThread().getName(),
-                                            sourceBranch,
-                                            destinationBranch);
-
-                                    try {
-                                        MergeResult mergeResult = git.merge()
-                                                .include(git.getRepository().findRef(sourceBranch))
-                                                .setStrategy(MergeStrategy.RECURSIVE)
-                                                .call();
-                                        processStopwatch.stopAndLogTimeInMillis();
-                                        return mergeResult.getMergeStatus().name();
-                                    } catch (GitAPIException e) {
-                                        // On merge conflicts abort the merge => git merge --abort
-                                        git.getRepository().writeMergeCommitMsg(null);
-                                        git.getRepository().writeMergeHeads(null);
-                                        processStopwatch.stopAndLogTimeInMillis();
-                                        throw new Exception(e);
-                                    } finally {
-                                        jgitMergeSpan.end();
-                                    }
-                                })
-                                .onErrorResume(error -> {
-                                    if (keepWorkingDirChanges) {
-                                        return Mono.error(error);
-                                    }
-
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch, keepWorkingDirChanges)
-                                                .thenReturn(error.getMessage());
-                                    } catch (Exception e) {
-                                        log.error("Error while hard resetting to latest commit", e);
-                                        return Mono.error(e);
-                                    }
-                                })
-                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                                .name(GitSpan.FS_MERGE)
-                                .tap(Micrometer.observation(observationRegistry)),
-                        Git::close)
-                .subscribeOn(scheduler);
+    public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
+        String repoPath = createRepoPath(repoSuffix).toString();
+        return bashService
+                .callFunction("git.sh", "git_merge_branch", repoPath, sourceBranch, destinationBranch)
+                .map(result -> result.getOutput());
     }
 
     @Override

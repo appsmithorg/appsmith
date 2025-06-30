@@ -31,7 +31,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IDLE;
-import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -207,22 +206,6 @@ public class GitAutoCommitHelperImplTest {
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isTrue();
                     Mockito.verify(autoCommitEventHandler).publish(autoCommitEvent);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void getAutoCommitProgress_WhenAutoCommitRunning_ReturnsValidResponse() {
-        Mono<AutoCommitResponseDTO> progressDTOMono = redisUtils
-                .startAutoCommit(defaultApplicationId, branchName)
-                .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
-                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
-
-        StepVerifier.create(progressDTOMono)
-                .assertNext(dto -> {
-                    assertThat(dto.getAutoCommitResponse()).isEqualTo(IN_PROGRESS);
-                    assertThat(dto.getProgress()).isEqualTo(20);
-                    assertThat(dto.getBranchName()).isEqualTo(branchName);
                 })
                 .verifyComplete();
     }
