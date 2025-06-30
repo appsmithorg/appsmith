@@ -16,6 +16,7 @@ function isValidAppsmithDomain(domain: string): boolean {
     domain.endsWith(".appsmith.com") &&
     !domain.startsWith("login.") &&
     !domain.startsWith("release.") &&
+    !domain.startsWith("app.") &&
     !domain.startsWith("dev.")
   );
 }
