@@ -62,6 +62,8 @@ export const FEATURE_FLAG = {
   license_ai_agent_instance_enabled: "license_ai_agent_instance_enabled",
   release_jsobjects_onpageunloadactions_enabled:
     "release_jsobjects_onpageunloadactions_enabled",
+  configure_block_event_tracking_for_anonymous_users:
+    "configure_block_event_tracking_for_anonymous_users",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -113,6 +115,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_reactive_actions_enabled: false,
   license_ai_agent_instance_enabled: false,
   release_jsobjects_onpageunloadactions_enabled: false,
+  configure_block_event_tracking_for_anonymous_users: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

@@ -9,6 +9,7 @@ import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -24,7 +25,8 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
             UserUtils userUtils,
             ProjectProperties projectProperties,
             UserDataRepository userDataRepository,
-            DeploymentProperties deploymentProperties) {
+            DeploymentProperties deploymentProperties,
+            @Lazy FeatureFlagService featureFlagService) {
         super(
                 analytics,
                 sessionUserService,
@@ -33,6 +35,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                 userUtils,
                 projectProperties,
                 deploymentProperties,
-                userDataRepository);
+                userDataRepository,
+                featureFlagService);
     }
 }
