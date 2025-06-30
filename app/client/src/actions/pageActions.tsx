@@ -30,6 +30,7 @@ import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 import { appsmithTelemetry } from "instrumentation";
+import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga/types";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -695,4 +696,11 @@ export const setupPublishedPage = (
     bustCache,
     pageWithMigratedDsl,
   },
+});
+
+export const navigateToAnotherPage = (
+  payload: NavigateToAnotherPagePayload,
+) => ({
+  type: ReduxActionTypes.NAVIGATE_TO_ANOTHER_PAGE,
+  payload,
 });

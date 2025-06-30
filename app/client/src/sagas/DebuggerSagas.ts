@@ -47,7 +47,7 @@ import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/types";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";

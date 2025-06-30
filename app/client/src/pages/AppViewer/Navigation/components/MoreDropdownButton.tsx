@@ -1,22 +1,17 @@
-import React, { useState } from "react";
+import { Icon } from "@appsmith/ads";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { Page } from "entities/Page";
 import { get } from "lodash";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
 import {
   StyledMenuDropdownContainer,
-  StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import type { Page } from "entities/Page";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { trimQueryString } from "utils/helpers";
-import { NavigationMethod } from "utils/history";
+import MoreDropDownButtonItem from "./MoreDropDownButtonItem";
 
 interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;
@@ -42,7 +37,6 @@ const MoreDropdownButton = ({
     "properties.borderRadius.appBorderRadius",
     "inherit",
   );
-  const appMode = useSelector(getAppMode);
   const [isOpen, setIsOpen] = useState(false);
 
   const TargetButton = (
@@ -83,34 +77,15 @@ const MoreDropdownButton = ({
       target={TargetButton}
     >
       {pages.map((page) => {
-        const pageURL =
-          appMode === APP_MODE.PUBLISHED
-            ? viewerURL({
-                basePageId: page.basePageId,
-              })
-            : builderURL({
-                basePageId: page.basePageId,
-              });
-
         return (
-          <StyledMenuItemInDropdown
-            activeClassName="is-active"
+          <MoreDropDownButtonItem
             borderRadius={borderRadius}
-            className="t--app-viewer-navigation-top-inline-more-dropdown-item"
             key={page.pageId}
+            navColorStyle={navColorStyle}
+            page={page}
             primaryColor={primaryColor}
-            to={{
-              pathname: trimQueryString(pageURL),
-              search: query,
-              state: { invokedBy: NavigationMethod.AppNavigation },
-            }}
-          >
-            <MenuText
-              name={page.pageName}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-            />
-          </StyledMenuItemInDropdown>
+            query={query}
+          />
         );
       })}
     </StyledMenuDropdownContainer>

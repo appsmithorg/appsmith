@@ -6,7 +6,7 @@ import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { call } from "redux-saga/effects";
 import showToast from "sagas/ToastSagas";
 import { uniqueId } from "lodash";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 
 export default function* showAlertSaga(
   action: TShowAlertDescription,

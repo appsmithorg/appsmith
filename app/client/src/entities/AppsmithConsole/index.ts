@@ -1,12 +1,8 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type LOG_TYPE from "./logtype";
+import type { PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import type { PluginType } from "entities/Plugin";
-import type { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
-import type {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "ee/entities/AppsmithConsole/utils";
+import type LOG_TYPE from "./logtype";
+import type { SourceEntity } from "./types";
 
 export type Methods =
   | "log"
@@ -55,20 +51,6 @@ export interface UserAction {
   // these action types should have a dynamic `id` associated with them
   // or we should use JS callback functions instead
   reduxAction: ReduxAction<unknown>;
-}
-
-export interface SourceEntity {
-  type: ENTITY_TYPE;
-  // Widget or action name
-  name: string;
-  // Id of the widget or action
-  id: string;
-  // property path of the child
-  propertyPath?: string;
-  // plugin type of the action or type of widget
-  pluginType?: PluginType | string;
-  // http method of the api. (Only for api actions)
-  httpMethod?: HTTP_METHOD;
 }
 
 export enum LOG_CATEGORY {

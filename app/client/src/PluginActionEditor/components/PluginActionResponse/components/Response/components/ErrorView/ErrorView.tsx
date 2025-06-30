@@ -9,7 +9,7 @@ import { Tooltip } from "@appsmith/ads";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { type Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 
 import { getErrorMessageFromActionResponse } from "../../utils";
 import { REACT_JSON_PROPS } from "../../constants";

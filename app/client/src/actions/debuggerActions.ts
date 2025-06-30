@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Log, Message } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type {
   CanvasDebuggerState,

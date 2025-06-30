@@ -14,7 +14,7 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import { DatasourceTab } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import type { ActionResponse } from "api/ActionAPI";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole/types";
 import type { Action } from "entities/Action";
 import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import {

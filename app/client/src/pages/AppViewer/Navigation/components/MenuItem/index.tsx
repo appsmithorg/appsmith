@@ -1,31 +1,23 @@
-import React from "react";
-import type { Page } from "entities/Page";
-import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { APP_MODE } from "entities/App";
 import { get } from "lodash";
-import { useHref } from "pages/Editor/utils";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { getAppMode } from "ee/selectors/applicationSelectors";
+import { useLocation } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { trimQueryString } from "utils/helpers";
-import MenuText from "./MenuText";
-import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
-
-interface MenuItemProps {
-  page: Page;
-  query: string;
-  navigationSetting?: NavigationSetting;
-}
+import useNavigateToAnotherPage from "../../hooks/useNavigateToAnotherPage";
+import { StyledMenuItem } from "../MenuItem.styled";
+import MenuText from "../MenuText";
+import type { MenuItemProps } from "./types";
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
-  const appMode = useSelector(getAppMode);
-  const pageURL = useHref(
-    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { basePageId: page.basePageId },
-  );
+  const location = useLocation();
+
+  const navigateToAnotherPage = useNavigateToAnotherPage({
+    basePageId: page.basePageId,
+    query,
+    state: { invokedBy: NavigationMethod.AppNavigation },
+  });
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
     navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
@@ -40,18 +32,22 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "inherit",
   );
 
+  const isActive = useMemo(
+    () => location.pathname.indexOf(page.pageId) > -1,
+    [location, page.pageId],
+  );
+
+  const handleClick = () => {
+    navigateToAnotherPage();
+  };
+
   return (
     <StyledMenuItem
-      activeClassName="is-active"
       borderRadius={borderRadius}
-      className="t--page-switch-tab"
+      className={`t--page-switch-tab ${isActive ? "is-active" : ""}`}
       navColorStyle={navColorStyle}
+      onClick={handleClick}
       primaryColor={primaryColor}
-      to={{
-        pathname: trimQueryString(pageURL),
-        search: query,
-        state: { invokedBy: NavigationMethod.AppNavigation },
-      }}
     >
       <MenuText
         name={page.pageName}
