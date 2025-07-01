@@ -7,6 +7,7 @@ import {
 } from "@segment/analytics-next";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
+import AnonymousTrackingService from "utils/AnonymousTrackingService";
 
 enum InitializationStatus {
   WAITING = "waiting",
@@ -53,6 +54,16 @@ class SegmentSingleton {
     const { segment } = getAppsmithConfigs();
 
     if (!segment.enabled) {
+      this.avoidTracking();
+
+      return true;
+    }
+
+    const anonymousTrackingService = AnonymousTrackingService.getInstance();
+    const shouldTrackAnonymousUser =
+      await anonymousTrackingService.shouldTrackAnonymousUsers();
+
+    if (!shouldTrackAnonymousUser) {
       this.avoidTracking();
 
       return true;
