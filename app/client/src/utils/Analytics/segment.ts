@@ -49,18 +49,10 @@ class SegmentSingleton {
     }
   }
 
-  public async init(
-    shouldTrackAnonymousUser: boolean = true,
-  ): Promise<boolean> {
+  public async init(): Promise<boolean> {
     const { segment } = getAppsmithConfigs();
 
     if (!segment.enabled) {
-      this.avoidTracking();
-
-      return true;
-    }
-
-    if (!shouldTrackAnonymousUser) {
       this.avoidTracking();
 
       return true;

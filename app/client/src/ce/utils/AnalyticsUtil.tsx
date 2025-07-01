@@ -1,25 +1,24 @@
-import type { EventProperties } from "@segment/analytics-next";
+import log from "loglevel";
+import { getAppsmithConfigs } from "ee/configs";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { getAppsmithConfigs } from "ee/configs";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
-import log from "loglevel";
+import type { EventProperties } from "@segment/analytics-next";
 
-import TrackedUser from "ee/utils/Analytics/trackedUser";
-import { appsmithTelemetry } from "instrumentation";
+import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton, {
   type SessionRecordingConfig,
 } from "utils/Analytics/mixpanel";
-import SegmentSingleton from "utils/Analytics/segment";
+import { appsmithTelemetry } from "instrumentation";
 import SmartlookUtil from "utils/Analytics/smartlook";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
 
 import {
-  getEventExtraProperties,
-  getInstanceId,
-  initInstanceId,
   initLicense,
+  initInstanceId,
+  getInstanceId,
+  getEventExtraProperties,
 } from "ee/utils/Analytics/getEventExtraProperties";
-import AnonymousTrackingService from "utils/AnonymousTrackingService";
 
 export enum AnalyticsEventType {
   error = "error",
@@ -37,12 +36,7 @@ async function initialize(
 
   segmentAnalytics = SegmentSingleton.getInstance();
 
-  // Determine if we should track anonymous users and pass to segment
-  const anonymousTrackingService = AnonymousTrackingService.getInstance();
-  const shouldTrackAnonymous =
-    await anonymousTrackingService.shouldTrackAnonymousUsers();
-
-  await segmentAnalytics.init(shouldTrackAnonymous);
+  await segmentAnalytics.init();
 
   // Mixpanel needs to be initialized after Segment
   await MixpanelSingleton.getInstance().init(sessionRecordingConfig);
@@ -56,46 +50,18 @@ function logEvent(
   eventData?: EventProperties,
   eventType?: AnalyticsEventType,
 ) {
-  // Block error logs if configured
   if (blockErrorLogs && eventType === AnalyticsEventType.error) {
     return;
   }
 
-  // For anonymous user tracking check, we'll use a non-blocking approach
-  // The check happens asynchronously and won't block the current event
-  const anonymousTrackingService = AnonymousTrackingService.getInstance();
+  const finalEventData = {
+    ...eventData,
+    ...getEventExtraProperties(),
+  };
 
-  anonymousTrackingService
-    .shouldBlockAnonymousTracking()
-    .then((shouldBlock: boolean) => {
-      if (shouldBlock) {
-        return; // Skip tracking for anonymous users when feature flag is enabled
-      }
-
-      const finalEventData = {
-        ...eventData,
-        ...getEventExtraProperties(),
-      };
-
-      if (segmentAnalytics) {
-        segmentAnalytics.track(eventName, finalEventData);
-      }
-    })
-    .catch((error) => {
-      log.error(
-        "Error in anonymous tracking check, proceeding with tracking",
-        error,
-      );
-      // Fall back to tracking to avoid breaking app logic
-      const finalEventData = {
-        ...eventData,
-        ...getEventExtraProperties(),
-      };
-
-      if (segmentAnalytics) {
-        segmentAnalytics.track(eventName, finalEventData);
-      }
-    });
+  if (segmentAnalytics) {
+    segmentAnalytics.track(eventName, finalEventData);
+  }
 }
 
 async function identifyUser(userData: User, sendAdditionalData?: boolean) {
@@ -172,14 +138,14 @@ function avoidTracking() {
 }
 
 export {
-  avoidTracking,
-  getAnonymousId,
-  getEventExtraProperties,
-  identifyUser,
   initialize,
-  initInstanceId,
-  initLicense,
   logEvent,
-  reset,
+  identifyUser,
+  initInstanceId,
   setBlockErrorLogs,
+  getAnonymousId,
+  reset,
+  getEventExtraProperties,
+  initLicense,
+  avoidTracking,
 };
