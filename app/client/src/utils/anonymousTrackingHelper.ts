@@ -1,18 +1,29 @@
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import type { User } from "constants/userConstants";
+// Define types locally to avoid cyclic dependencies
+interface User {
+  isAnonymous?: boolean;
+  username?: string;
+  enableTelemetry?: boolean;
+}
+
+interface FeatureFlags {
+  configure_block_event_tracking_for_anonymous_users?: boolean;
+}
+
+interface OrganizationState {
+  organizationConfiguration?: {
+    license?: {
+      active?: boolean;
+    };
+  };
+}
+
+// Define constants locally to avoid imports
+const ANONYMOUS_USERNAME = "anonymousUser";
 
 export function shouldTrackAnonymousUser(
   currentUser: User,
   featureFlags: FeatureFlags,
-  organizationState: {
-    organizationConfiguration: {
-      license: {
-        active: boolean;
-      };
-    };
-  },
+  organizationState: OrganizationState,
 ): boolean {
   try {
     const isAnonymous =
@@ -24,9 +35,7 @@ export function shouldTrackAnonymousUser(
     const telemetryOn = currentUser?.enableTelemetry ?? false;
 
     const featureFlagOff =
-      !featureFlags?.[
-        FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users
-      ];
+      !featureFlags?.configure_block_event_tracking_for_anonymous_users;
 
     return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
   } catch (error) {
