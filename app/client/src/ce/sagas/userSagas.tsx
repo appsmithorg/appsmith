@@ -91,7 +91,6 @@ import {
 import { getSegmentState } from "selectors/analyticsSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import type { AppState } from "ee/reducers";
 
 export function* getCurrentUserSaga(action?: {
@@ -180,10 +179,12 @@ function* initTrackers(currentUser: User): SagaIterator {
 
       const telemetryOn = currentUser?.enableTelemetry ?? false;
 
-      const featureFlagOff = !(yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-      )) as boolean;
+      const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+      const featureFlagOff =
+        !featureFlags[
+          FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users
+        ];
 
       shouldTrackAnonymousUser =
         isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
