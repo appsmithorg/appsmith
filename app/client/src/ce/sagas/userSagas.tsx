@@ -171,7 +171,6 @@ function* initTrackers(currentUser: User): SagaIterator {
 
     try {
       const state: AppState = yield select();
-      const currentUser: User = yield select(getCurrentUser);
       const isAnonymous =
         currentUser?.isAnonymous ||
         currentUser?.username === ANONYMOUS_USERNAME;
