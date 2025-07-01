@@ -151,6 +151,49 @@ function* getSessionRecordingConfig() {
   };
 }
 
+function shouldTrackUser(
+  currentUser: User,
+  // avoid import of AppState to avoid circular dependency
+  state: {
+    ui: {
+      users: {
+        featureFlag: {
+          data: FeatureFlags;
+        };
+      };
+    };
+    organization: {
+      organizationConfiguration: {
+        license: {
+          active: boolean;
+        };
+      };
+    };
+  },
+): boolean {
+  try {
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === "anonymousUser";
+
+    if (!isAnonymous) {
+      return true;
+    }
+
+    const isLicenseActive =
+      state?.organization?.organizationConfiguration?.license?.active === true;
+
+    const telemetryOn = currentUser?.enableTelemetry ?? false;
+
+    const featureFlagOff =
+      !state?.ui?.users?.featureFlag?.data
+        ?.configure_block_event_tracking_for_anonymous_users;
+
+    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
+  } catch (error) {
+    return true;
+  }
+}
+
 function* initTrackers(currentUser: User): SagaIterator {
   try {
     const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
@@ -164,28 +207,7 @@ function* initTrackers(currentUser: User): SagaIterator {
     );
 
     const state = yield select();
-    const shouldTrack = (() => {
-      try {
-        const isAnonymous =
-          currentUser?.isAnonymous || currentUser?.username === "anonymousUser";
-
-        const isLicenseActive =
-          state.organization?.organizationConfiguration?.license?.active ===
-          true;
-
-        const telemetryOn = currentUser?.enableTelemetry ?? false;
-
-        const featureFlagOff =
-          !state.ui?.users?.featureFlag.data
-            ?.configure_block_event_tracking_for_anonymous_users;
-
-        return (
-          isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff))
-        );
-      } catch (error) {
-        return true;
-      }
-    })();
+    const shouldTrack = shouldTrackUser(currentUser, state);
 
     yield call(
       AnalyticsUtil.initialize,
