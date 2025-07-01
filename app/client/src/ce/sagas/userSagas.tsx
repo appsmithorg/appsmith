@@ -90,7 +90,6 @@ import {
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import type { AppState } from "ee/reducers";
-import { shouldTrackAnonymousUser } from "utils/anonymousTrackingHelper";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -166,11 +165,28 @@ function* initTrackers(currentUser: User): SagaIterator {
     );
 
     const state: AppState = yield select();
-    const shouldTrack = shouldTrackAnonymousUser(
-      currentUser,
-      state.ui?.users?.featureFlag.data,
-      state.organization,
-    );
+    const shouldTrack = (() => {
+      try {
+        const isAnonymous =
+          currentUser?.isAnonymous || currentUser?.username === "anonymousUser";
+
+        const isLicenseActive =
+          state.organization?.organizationConfiguration?.license?.active ===
+          true;
+
+        const telemetryOn = currentUser?.enableTelemetry ?? false;
+
+        const featureFlagOff =
+          !state.ui?.users?.featureFlag.data
+            ?.configure_block_event_tracking_for_anonymous_users;
+
+        return (
+          isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff))
+        );
+      } catch (error) {
+        return true;
+      }
+    })();
 
     yield call(
       AnalyticsUtil.initialize,
