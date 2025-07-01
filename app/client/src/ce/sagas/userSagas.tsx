@@ -89,9 +89,8 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
+import { shouldTrackAnonymousUser } from "utils/anonymousTrackingHelper";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -166,38 +165,18 @@ function* initTrackers(currentUser: User): SagaIterator {
       getSessionRecordingConfig,
     );
 
-    let shouldTrackAnonymousUser = true;
-
-    try {
-      const state: AppState = yield select();
-      const isAnonymous =
-        currentUser?.isAnonymous ||
-        currentUser?.username === ANONYMOUS_USERNAME;
-
-      const isLicenseActive =
-        state.organization?.organizationConfiguration?.license?.active === true;
-
-      const telemetryOn = currentUser?.enableTelemetry ?? false;
-
-      const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-
-      const featureFlagOff =
-        !featureFlags[
-          FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users
-        ];
-
-      shouldTrackAnonymousUser =
-        isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
-    } catch (error) {
-      log.error("Error checking anonymous tracking status", error);
-      shouldTrackAnonymousUser = true;
-    }
+    const state: AppState = yield select();
+    const shouldTrack = shouldTrackAnonymousUser(
+      currentUser,
+      state.ui?.users?.featureFlag.data,
+      state.organization,
+    );
 
     yield call(
       AnalyticsUtil.initialize,
       currentUser,
       sessionRecordingConfig,
-      shouldTrackAnonymousUser,
+      shouldTrack,
     );
     yield put(segmentInitSuccess());
   } catch (e) {
