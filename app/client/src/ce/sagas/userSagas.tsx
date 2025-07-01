@@ -89,6 +89,7 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -153,23 +154,8 @@ function* getSessionRecordingConfig() {
 
 function shouldTrackUser(
   currentUser: User,
-  // avoid import of AppState to avoid circular dependency
-  state: {
-    ui: {
-      users: {
-        featureFlag: {
-          data: FeatureFlags;
-        };
-      };
-    };
-    organization: {
-      organizationConfiguration: {
-        license: {
-          active: boolean;
-        };
-      };
-    };
-  },
+  licenseActive: boolean,
+  featureFlag: boolean,
 ): boolean {
   try {
     const isAnonymous =
@@ -179,16 +165,9 @@ function shouldTrackUser(
       return true;
     }
 
-    const isLicenseActive =
-      state?.organization?.organizationConfiguration?.license?.active === true;
-
     const telemetryOn = currentUser?.enableTelemetry ?? false;
 
-    const featureFlagOff =
-      !state?.ui?.users?.featureFlag?.data
-        ?.configure_block_event_tracking_for_anonymous_users;
-
-    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
+    return isAnonymous && (licenseActive || (telemetryOn && !featureFlag));
   } catch (error) {
     return true;
   }
@@ -206,8 +185,14 @@ function* initTrackers(currentUser: User): SagaIterator {
       getSessionRecordingConfig,
     );
 
-    const state = yield select();
-    const shouldTrack = shouldTrackUser(currentUser, state);
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const organizationConfig = yield select(getOrganizationConfig);
+
+    const shouldTrack = shouldTrackUser(
+      currentUser,
+      organizationConfig.license.active,
+      featureFlags.configure_block_event_tracking_for_anonymous_users,
+    );
 
     yield call(
       AnalyticsUtil.initialize,
