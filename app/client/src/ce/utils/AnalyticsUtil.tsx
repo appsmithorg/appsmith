@@ -19,8 +19,7 @@ import {
   initInstanceId,
   initLicense,
 } from "ee/utils/Analytics/getEventExtraProperties";
-
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnonymousTrackingService from "utils/AnonymousTrackingService";
 
 export enum AnalyticsEventType {
   error = "error",
@@ -39,7 +38,9 @@ async function initialize(
   segmentAnalytics = SegmentSingleton.getInstance();
 
   // Determine if we should track anonymous users and pass to segment
-  const shouldTrackAnonymous = await shouldTrackAnonymousUsers();
+  const anonymousTrackingService = AnonymousTrackingService.getInstance();
+  const shouldTrackAnonymous =
+    await anonymousTrackingService.shouldTrackAnonymousUsers();
 
   await segmentAnalytics.init(shouldTrackAnonymous);
 
@@ -48,70 +49,6 @@ async function initialize(
 
   // Identify the user after all services are initialized
   await identifyUser(user);
-}
-
-async function shouldTrackAnonymousUsers(): Promise<boolean> {
-  try {
-    const [
-      { default: appStore },
-      { getCurrentUser },
-      { selectFeatureFlagCheck },
-    ] = await Promise.all([
-      import("store"),
-      import("selectors/usersSelectors"),
-      import("ee/selectors/featureFlagsSelectors"),
-    ]);
-
-    const state = appStore.getState();
-    const currentUser = getCurrentUser(state);
-    const isAnonymous =
-      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
-    const isLicenseActive =
-      state.organization?.organizationConfiguration?.license?.active === true;
-
-    const telemetryOn = currentUser?.enableTelemetry ?? false;
-    const featureFlagOff = !selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-    );
-
-    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
-  } catch (error) {
-    log.error("Error checking anonymous tracking status", error);
-
-    return true; // Default to allowing tracking to avoid breaking app logic
-  }
-}
-
-async function shouldBlockAnonymousTracking(): Promise<boolean> {
-  try {
-    const [
-      { default: appStore },
-      { getCurrentUser },
-      { selectFeatureFlagCheck },
-    ] = await Promise.all([
-      import("store"),
-      import("selectors/usersSelectors"),
-      import("ee/selectors/featureFlagsSelectors"),
-    ]);
-
-    const state = appStore.getState();
-    const currentUser = getCurrentUser(state);
-    const isAnonymous =
-      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
-
-    const blockAnonymousEvents = selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
-    );
-
-    return isAnonymous && blockAnonymousEvents;
-  } catch (error) {
-    log.error("Error checking anonymous tracking status", error);
-
-    // Fall back to allowing tracking to avoid breaking app logic
-    return false;
-  }
 }
 
 function logEvent(
@@ -126,8 +63,11 @@ function logEvent(
 
   // For anonymous user tracking check, we'll use a non-blocking approach
   // The check happens asynchronously and won't block the current event
-  shouldBlockAnonymousTracking()
-    .then((shouldBlock) => {
+  const anonymousTrackingService = AnonymousTrackingService.getInstance();
+
+  anonymousTrackingService
+    .shouldBlockAnonymousTracking()
+    .then((shouldBlock: boolean) => {
       if (shouldBlock) {
         return; // Skip tracking for anonymous users when feature flag is enabled
       }
