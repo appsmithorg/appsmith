@@ -38,13 +38,49 @@ async function initialize(
 
   segmentAnalytics = SegmentSingleton.getInstance();
 
-  await segmentAnalytics.init();
+  // Determine if we should track anonymous users and pass to segment
+  const shouldTrackAnonymous = await shouldTrackAnonymousUsers();
+
+  await segmentAnalytics.init(shouldTrackAnonymous);
 
   // Mixpanel needs to be initialized after Segment
   await MixpanelSingleton.getInstance().init(sessionRecordingConfig);
 
   // Identify the user after all services are initialized
   await identifyUser(user);
+}
+
+async function shouldTrackAnonymousUsers(): Promise<boolean> {
+  try {
+    const [
+      { default: appStore },
+      { getCurrentUser },
+      { selectFeatureFlagCheck },
+    ] = await Promise.all([
+      import("store"),
+      import("selectors/usersSelectors"),
+      import("ee/selectors/featureFlagsSelectors"),
+    ]);
+
+    const state = appStore.getState();
+    const currentUser = getCurrentUser(state);
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
+    const isLicenseActive =
+      state.organization?.organizationConfiguration?.license?.active === true;
+
+    const telemetryOn = currentUser?.enableTelemetry ?? false;
+    const featureFlagOff = !selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+    );
+
+    return isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
+  } catch (error) {
+    log.error("Error checking anonymous tracking status", error);
+
+    return true; // Default to allowing tracking to avoid breaking app logic
+  }
 }
 
 async function shouldBlockAnonymousTracking(): Promise<boolean> {
