@@ -89,7 +89,6 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
-import type { AppState } from "ee/reducers";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -164,7 +163,7 @@ function* initTrackers(currentUser: User): SagaIterator {
       getSessionRecordingConfig,
     );
 
-    const state: AppState = yield select();
+    const state = yield select();
     const shouldTrack = (() => {
       try {
         const isAnonymous =
