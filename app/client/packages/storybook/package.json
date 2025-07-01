@@ -15,7 +15,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",
     "@storybook/addon-a11y": "8.2.7",
-    "@storybook/addon-controls": "8.2.7",
+    "@storybook/addon-controls": "9.0.8",
     "@storybook/addon-docs": "8.2.7",
     "@storybook/addon-measure": "8.2.7",
     "@storybook/addon-outline": "8.2.7",
