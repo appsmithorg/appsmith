@@ -7,6 +7,7 @@ import {
   take,
   type TakeEffect,
 } from "redux-saga/effects";
+import type { SagaIterator } from "redux-saga";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -88,6 +89,10 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import type { AppState } from "ee/reducers";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -150,7 +155,7 @@ function* getSessionRecordingConfig() {
   };
 }
 
-function* initTrackers(currentUser: User) {
+function* initTrackers(currentUser: User): SagaIterator {
   try {
     const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
 
@@ -162,7 +167,38 @@ function* initTrackers(currentUser: User) {
       getSessionRecordingConfig,
     );
 
-    yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
+    let shouldTrackAnonymousUser = true;
+
+    try {
+      const state: AppState = yield select();
+      const currentUser: User = yield select(getCurrentUser);
+      const isAnonymous =
+        currentUser?.isAnonymous ||
+        currentUser?.username === ANONYMOUS_USERNAME;
+
+      const isLicenseActive =
+        state.organization?.organizationConfiguration?.license?.active === true;
+
+      const telemetryOn = currentUser?.enableTelemetry ?? false;
+
+      const featureFlagOff = !(yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.configure_block_event_tracking_for_anonymous_users,
+      )) as boolean;
+
+      shouldTrackAnonymousUser =
+        isAnonymous && (isLicenseActive || (telemetryOn && featureFlagOff));
+    } catch (error) {
+      log.error("Error checking anonymous tracking status", error);
+      shouldTrackAnonymousUser = true;
+    }
+
+    yield call(
+      AnalyticsUtil.initialize,
+      currentUser,
+      sessionRecordingConfig,
+      shouldTrackAnonymousUser,
+    );
     yield put(segmentInitSuccess());
   } catch (e) {
     log.error(e);
