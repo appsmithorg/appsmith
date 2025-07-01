@@ -12627,6 +12627,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/companion-client@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "@uppy/companion-client@npm:4.4.2"
+  dependencies:
+    "@uppy/utils": ^6.1.4
+    namespace-emitter: ^2.0.1
+    p-retry: ^6.1.0
+  peerDependencies:
+    "@uppy/core": ^4.4.5
+  checksum: 579d43e1b3c8ee5bcce0315b8f2db21767a68309a9ffd16108e5dd25e36b25b26ce7f08f53a7175da73cc866c5444eb1d89127d715845ac174a64f132497d724
+  languageName: node
+  linkType: hard
+
 "@uppy/core@npm:^1.16.0":
   version: 1.16.0
   resolution: "@uppy/core@npm:1.16.0"
@@ -12730,17 +12743,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/onedrive@npm:^1.1.22":
-  version: 1.1.22
-  resolution: "@uppy/onedrive@npm:1.1.22"
+"@uppy/onedrive@npm:^4.2.4":
+  version: 4.2.4
+  resolution: "@uppy/onedrive@npm:4.2.4"
   dependencies:
-    "@uppy/companion-client": ^1.8.1
-    "@uppy/provider-views": ^1.11.0
-    "@uppy/utils": ^3.4.0
-    preact: 8.2.9
+    "@uppy/companion-client": ^4.4.2
+    "@uppy/provider-views": ^4.4.3
+    "@uppy/utils": ^6.1.4
+    preact: ^10.5.13
   peerDependencies:
-    "@uppy/core": ^1.0.0
-  checksum: fa8a2963a673dc2622c5f53b8ba1639c80ec36d954461fc4e25a58645bf1ba8fd0e9033d7a6d4c1f96cb23226163feb3c9dff5b9ca2c17c2676b516ea7009452
+    "@uppy/core": ^4.4.5
+  checksum: 5b90fa5dee674d5be21a797549fa90a39aff462ee8d21a276e649dcce33940d20d02273666c8a0f64ddcebbce24db2a42ad9bacfd765d67fa1d7fb7ef8b716af
   languageName: node
   linkType: hard
 
@@ -12766,6 +12779,21 @@ __metadata:
   peerDependencies:
     "@uppy/core": ^1.0.0
   checksum: d46b56c5a13e6fdf89da2a07863e28fb0226b52e4c5e718e1e09bc56ae06148f3d330b0424fa95941308ad4044ceba46efd190d4afc400f77199df125a752378
+  languageName: node
+  linkType: hard
+
+"@uppy/provider-views@npm:^4.4.3":
+  version: 4.4.5
+  resolution: "@uppy/provider-views@npm:4.4.5"
+  dependencies:
+    "@uppy/utils": ^6.1.5
+    classnames: ^2.2.6
+    nanoid: ^5.0.9
+    p-queue: ^8.0.0
+    preact: ^10.5.13
+  peerDependencies:
+    "@uppy/core": ^4.4.7
+  checksum: 62a45ba849552c233409daecb51006a5b9e068b1853a9db346027ca199a1f416d9650e6060b0e41c6e3b6550498c7184a3a9a754f856182822b00de69e9198e3
   languageName: node
   linkType: hard
 
@@ -12844,13 +12872,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/utils@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@uppy/utils@npm:6.0.2"
+"@uppy/utils@npm:^6.0.2, @uppy/utils@npm:^6.1.4, @uppy/utils@npm:^6.1.5":
+  version: 6.1.5
+  resolution: "@uppy/utils@npm:6.1.5"
   dependencies:
     lodash: ^4.17.21
     preact: ^10.5.13
-  checksum: c9bacd221f454f0159dbd097478aad4c309205b5d1e312beb1f71207ba981f76e0752b2b6453c55560289ffd3293bb6f07b8ebfbc6d4e30b56df05d3d5ddbda6
+  checksum: 6af04d4c27679ff0dfec0ae838bf7922f88eba377ed16c9af7726d6b220c6d5c798e8bc1588442a02f1db84b5a532c24aea8878ffeb440025464d517bb15b1a7
   languageName: node
   linkType: hard
 
@@ -13736,7 +13764,7 @@ __metadata:
     "@uppy/dashboard": ^1.16.0
     "@uppy/google-drive": ^1.5.22
     "@uppy/image-editor": ^0.2.4
-    "@uppy/onedrive": ^1.1.22
+    "@uppy/onedrive": ^4.2.4
     "@uppy/react": ^1.11.2
     "@uppy/url": ^1.5.16
     "@uppy/utils": ^6.0.2
@@ -26239,6 +26267,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^5.0.9":
+  version: 5.1.5
+  resolution: "nanoid@npm:5.1.5"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: 6de2d006b51c983be385ef7ee285f7f2a57bd96f8c0ca881c4111461644bd81fafc2544f8e07cb834ca0f3e0f3f676c1fe78052183f008b0809efe6e273119f5
+  languageName: node
+  linkType: hard
+
 "natural-compare-lite@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare-lite@npm:1.4.0"
@@ -27092,7 +27129,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-retry@npm:^6.2.0":
+"p-queue@npm:^8.0.0":
+  version: 8.1.0
+  resolution: "p-queue@npm:8.1.0"
+  dependencies:
+    eventemitter3: ^5.0.1
+    p-timeout: ^6.1.2
+  checksum: b6602ef0f3bd22ebfd916e0fe42ae1388090c63d8fa667fd7b29137e44970653adc5a9f39bedcbb0980ad4ab2cca8c04dbfdd9085b241d12c13f1d9dd02c497e
+  languageName: node
+  linkType: hard
+
+"p-retry@npm:^6.1.0, p-retry@npm:^6.2.0":
   version: 6.2.1
   resolution: "p-retry@npm:6.2.1"
   dependencies:
@@ -27109,6 +27156,13 @@ __metadata:
   dependencies:
     p-finally: ^1.0.0
   checksum: 3dd0eaa048780a6f23e5855df3dd45c7beacff1f820476c1d0d1bcd6648e3298752ba2c877aa1c92f6453c7dd23faaf13d9f5149fc14c0598a142e2c5e8d649c
+  languageName: node
+  linkType: hard
+
+"p-timeout@npm:^6.1.2":
+  version: 6.1.4
+  resolution: "p-timeout@npm:6.1.4"
+  checksum: 0fb7bcac2cf49a97b44f881accfdd1057560a4d8657d75c32c4ebc9d75c0a4a09107f32491bcfedb3d8c0b95d06407beb004d880d6386fa58492ab40cd85a1c5
   languageName: node
   linkType: hard
 
