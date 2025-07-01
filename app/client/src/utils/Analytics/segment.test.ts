@@ -58,7 +58,7 @@ describe("SegmentSingleton", () => {
   describe("init", () => {
     it("should initialize successfully with API key", async () => {
       const segment = SegmentSingleton.getInstance();
-      const result = await segment.init();
+      const result = await segment.init(true);
 
       expect(result).toBe(true);
       expect(mockAnalyticsBrowser.load).toHaveBeenCalledWith(
@@ -73,7 +73,15 @@ describe("SegmentSingleton", () => {
       });
 
       const segment = SegmentSingleton.getInstance();
-      const result = await segment.init();
+      const result = await segment.init(true);
+
+      expect(result).toBe(true);
+      expect(mockAnalyticsBrowser.load).not.toHaveBeenCalled();
+    });
+
+    it("should not initialize when shouldTrackUser is false", async () => {
+      const segment = SegmentSingleton.getInstance();
+      const result = await segment.init(false);
 
       expect(result).toBe(true);
       expect(mockAnalyticsBrowser.load).not.toHaveBeenCalled();
@@ -89,7 +97,7 @@ describe("SegmentSingleton", () => {
       });
 
       const segment = SegmentSingleton.getInstance();
-      const result = await segment.init();
+      const result = await segment.init(true);
 
       expect(result).toBe(true);
       expect(mockAnalyticsBrowser.load).toHaveBeenCalledWith(
@@ -119,7 +127,7 @@ describe("SegmentSingleton", () => {
       const eventData = { test: "data" };
 
       segment.track("test-event", eventData);
-      await segment.init();
+      await segment.init(true);
 
       expect(mockAnalytics.track).toHaveBeenCalledWith("test-event", eventData);
     });
@@ -127,7 +135,7 @@ describe("SegmentSingleton", () => {
     it("should track events directly when initialized", async () => {
       const segment = SegmentSingleton.getInstance();
 
-      await segment.init();
+      await segment.init(true);
 
       const eventData = { test: "data" };
 
@@ -141,7 +149,7 @@ describe("SegmentSingleton", () => {
     it("should call analytics identify when initialized", async () => {
       const segment = SegmentSingleton.getInstance();
 
-      await segment.init();
+      await segment.init(true);
 
       const userId = "test-user";
       const traits = { name: "Test User" };
@@ -156,7 +164,7 @@ describe("SegmentSingleton", () => {
     it("should call analytics reset when initialized", async () => {
       const segment = SegmentSingleton.getInstance();
 
-      await segment.init();
+      await segment.init(true);
 
       segment.reset();
 
@@ -169,7 +177,7 @@ describe("SegmentSingleton", () => {
       mockAnalyticsBrowser.load.mockRejectedValueOnce(new Error("Init failed"));
 
       const segment = SegmentSingleton.getInstance();
-      const result = await segment.init();
+      const result = await segment.init(true);
 
       expect(result).toBe(false);
       expect(log.error).toHaveBeenCalledWith(
@@ -182,7 +190,7 @@ describe("SegmentSingleton", () => {
     it("should not track events after avoidTracking is called", async () => {
       const segment = SegmentSingleton.getInstance();
 
-      await segment.init();
+      await segment.init(true);
 
       // Track an event before calling avoidTracking
       segment.track("pre-avoid-event", { data: "value" });
@@ -214,7 +222,7 @@ describe("SegmentSingleton", () => {
       segment.avoidTracking();
 
       // Initialize
-      await segment.init();
+      await segment.init(true);
 
       // Analytics track should not be called since we're avoiding tracking
       expect(mockAnalytics.track).not.toHaveBeenCalled();
