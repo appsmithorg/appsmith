@@ -13,7 +13,7 @@ import {
 import log from "loglevel";
 import { expectSaga } from "redux-saga-test-plan";
 import { call, select } from "redux-saga/effects";
-import { executePageUnloadActionsSaga } from "sagas/ActionExecution/PluginActionSaga/onPageUnloadSaga";
+import { executePageUnloadActionsSaga } from "sagas/ActionExecution/PluginActionSaga";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import {
   getCurrentPageId,
