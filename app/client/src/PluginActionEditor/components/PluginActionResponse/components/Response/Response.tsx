@@ -21,7 +21,7 @@ import {
   PREPARED_STATEMENT_WARNING,
 } from "ee/constants/messages";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type { SourceEntity } from "entities/AppsmithConsole";
 
 import BindDataButton from "../BindDataButton";
 import { NoResponse } from "../NoResponse";

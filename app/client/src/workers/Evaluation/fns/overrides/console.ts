@@ -1,6 +1,9 @@
 import { uuid4 } from "@sentry/utils";
-import type { LogObject, Methods } from "entities/AppsmithConsole";
-import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type {
+  LogObject,
+  Methods,
+  SourceEntity,
+} from "entities/AppsmithConsole";
 import { Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { klona } from "klona/lite";

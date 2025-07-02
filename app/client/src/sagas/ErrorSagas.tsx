@@ -38,7 +38,7 @@ import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
 import AppsmithConsole from "../utils/AppsmithConsole";
-import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "../entities/App";
 import { appsmithTelemetry } from "instrumentation";
