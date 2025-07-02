@@ -4,6 +4,7 @@ import process from "process";
 import { showHelp } from "./utils";
 import * as export_db from "./export_db";
 import * as import_db from "./import_db";
+import * as organise_db from "./organise_db";
 import * as backup from "./backup";
 import * as restore from "./restore";
 import * as check_replica_set from "./check_replica_set";
@@ -29,6 +30,11 @@ if (!process.env.APPSMITH_DB_URL) {
 }
 
 const command = process.argv[2];
+
+if (["organise-db"].includes(command)) {
+  console.log("Organising database");
+  organise_db.run();
+}
 
 if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");

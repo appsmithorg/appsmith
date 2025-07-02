@@ -38,6 +38,33 @@ export async function start(apps) {
   console.log("Started", apps);
 }
 
+export function getRedisUrl() {
+  let redisUrl = "";
+
+  try {
+    const env_array = fs
+      .readFileSync(Constants.ENV_PATH, "utf8")
+      .toString()
+      .split("\n");
+
+    for (const i in env_array) {
+      if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
+        redisUrl = env_array[i].toString().split("=")[1].trim();
+        break;
+      }
+    }
+  } catch (err) {
+    console.error("Error reading the environment file:", err);
+  }
+  const redisEnvUrl = process.env.APPSMITH_REDIS_URL;
+
+  // Make sure redisEnvUrl takes precedence over redisUrl
+  if (redisEnvUrl && redisEnvUrl !== "undefined") {
+    redisUrl = redisEnvUrl.trim();
+  }
+  return redisUrl;
+}
+
 export function getDburl() {
   let dbUrl = "";
 
