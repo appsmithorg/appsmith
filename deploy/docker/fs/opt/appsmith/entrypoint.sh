@@ -369,7 +369,7 @@ setup-custom-ca-certificates() (
     tlog "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
   fi
 
-  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -o -type l -name '*.crt' | wc -l)" -gt 0 ]]; then
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 \( -type f -name '*.crt' -o -type l -name '*.crt' \) | wc -l)" -gt 0 ]]; then
     tlog "No custom CA certificates found."
     return
   fi
