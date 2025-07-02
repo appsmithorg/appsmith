@@ -6,7 +6,7 @@ import { setDataUrl } from "ee/sagas/PageSagas";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
-import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Page } from "entities/Page";
 import _ from "lodash";
 import { call, put, select, take } from "redux-saga/effects";

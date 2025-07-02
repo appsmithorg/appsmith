@@ -1,5 +1,5 @@
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/types";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
 import { showToastOnExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";

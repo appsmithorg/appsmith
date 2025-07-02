@@ -6,7 +6,7 @@ import type {
   TCloseModalDescription,
   TShowModalDescription,
 } from "workers/Evaluation/fns/modalFns";
-import type { SourceEntity } from "entities/AppsmithConsole/types";
+import type { SourceEntity } from "entities/AppsmithConsole";
 
 export function* openModalSaga(
   action: TShowModalDescription,
