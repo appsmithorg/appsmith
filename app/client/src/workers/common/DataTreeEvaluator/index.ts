@@ -490,7 +490,6 @@ export default class DataTreeEvaluator {
       evaluationOrder,
       undefined,
       this.oldConfigTree,
-      {},
     );
 
     /**
@@ -960,7 +959,6 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
     unevalUpdates: DataTreeDiff[],
     metaWidgetIds: string[] = [],
-    oldEvalTree: DataTree,
   ): {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
@@ -984,7 +982,6 @@ export default class DataTreeEvaluator {
         metaWidgets: metaWidgetIds,
       },
       configTree,
-      oldEvalTree,
     );
     const evaluationEndTime = performance.now();
 
@@ -1127,7 +1124,6 @@ export default class DataTreeEvaluator {
       metaWidgets: [],
     },
     oldConfigTree: ConfigTree,
-    oldEvalTree: DataTree,
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -1323,7 +1319,7 @@ export default class DataTreeEvaluator {
         if (!propertyPath) continue;
 
         // Get old value from oldEvalTree for comparison
-        const oldValue = get(oldEvalTree, fullPropertyPath);
+        const oldValue = get(this.getPrevState(), fullPropertyPath);
 
         switch (entityType) {
           case ENTITY_TYPE.WIDGET: {

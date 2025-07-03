@@ -305,7 +305,6 @@ describe("DataTreeEvaluator", () => {
         configTree as unknown as ConfigTree,
         unEvalUpdates,
         [],
-        dataTreeEvaluator.evalTree,
       );
 
       expect(dataTreeEvaluator.dependencies).toStrictEqual({
@@ -478,7 +477,6 @@ describe("DataTreeEvaluator", () => {
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
             [],
-            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
             undefined,
@@ -503,7 +501,6 @@ describe("DataTreeEvaluator", () => {
             arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
             [],
-            dataTreeEvaluator.evalTree,
           );
 
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
@@ -533,7 +530,6 @@ describe("DataTreeEvaluator", () => {
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
           [],
-          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [{...}, {...}]
@@ -548,7 +544,6 @@ describe("DataTreeEvaluator", () => {
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
           [],
-          dataTreeEvaluator.evalTree,
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
@@ -577,7 +572,6 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
             [],
-            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
             undefined,
@@ -605,7 +599,6 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
             [],
-            dataTreeEvaluator.evalTree,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(
             undefined,
@@ -637,7 +630,6 @@ describe("DataTreeEvaluator", () => {
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
           [],
-          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -652,7 +644,6 @@ describe("DataTreeEvaluator", () => {
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
           [],
-          dataTreeEvaluator.evalTree,
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
@@ -680,7 +671,6 @@ describe("DataTreeEvaluator", () => {
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
           [],
-          dataTreeEvaluator.evalTree,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
@@ -695,7 +685,6 @@ describe("DataTreeEvaluator", () => {
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
           unEvalUpdates2,
           [],
-          dataTreeEvaluator.evalTree,
         );
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
