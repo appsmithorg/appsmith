@@ -125,16 +125,21 @@ export const getPageSavingError = (state: DefaultRootState) => {
   return state.ui.editor.loadingStates.savingError;
 };
 
+export const getCurrentPageId = (state: DefaultRootState) =>
+  state.entities.pageList.currentPageId;
+
 export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
 
 export const getLayoutOnUnloadActions = createSelector(
+  getCurrentPageId,
   getAllJSCollectionActions,
-  (jsActions) => {
-    return jsActions.filter((action) => {
-      return action.runBehaviour === ActionRunBehaviour.ON_PAGE_UNLOAD;
-    });
-  },
+  (currentPageId, jsActions) =>
+    jsActions.filter(
+      (action) =>
+        action.runBehaviour === ActionRunBehaviour.ON_PAGE_UNLOAD &&
+        action.pageId === currentPageId,
+    ),
 );
 
 export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
@@ -166,9 +171,6 @@ export const getPageByBaseId = (basePageId: string) =>
   createSelector(getPageList, (pages: Page[]) =>
     pages.find((page) => page.basePageId === basePageId),
   );
-
-export const getCurrentPageId = (state: DefaultRootState) =>
-  state.entities.pageList.currentPageId;
 
 export const getCurrentBasePageId = (state: DefaultRootState) =>
   state.entities.pageList.currentBasePageId;
