@@ -6,6 +6,7 @@ import * as export_db from "./export_db";
 import * as import_db from "./import_db";
 import * as backup from "./backup";
 import * as restore from "./restore";
+import * as enable_form_login from "./enable_form_login";
 import * as check_replica_set from "./check_replica_set";
 import * as version from "./version";
 import * as mongo_shell_utils from "./mongo_shell_utils";
@@ -29,6 +30,11 @@ if (!process.env.APPSMITH_DB_URL) {
 }
 
 const command = process.argv[2];
+
+if (["enable-form-login"].includes(command)) {
+  console.log("Enabling form login");
+  enable_form_login.run();
+}
 
 if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");
