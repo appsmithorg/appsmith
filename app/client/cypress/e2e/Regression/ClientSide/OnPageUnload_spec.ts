@@ -30,85 +30,79 @@ describe("On-Page Unload Functionality", () => {
     });
   });
 
-  describe("Deployed mode:", () => {
-    it("1. Nav via links (Deployed Mode): Triggers unload, then doesn't on return", () => {
-      deployMode.DeployApp();
-      // Start on Page 1 and navigate to Page 2.
-      agHelper.WaitUntilEleAppear(appSettings.locators._header);
-      agHelper.AssertElementVisibility(
-        appSettings.locators._getActivePage(page1),
-      );
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page2,
-      );
-      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page1,
-      );
-      deployMode.NavigateBacktoEditor();
-    });
+  it("1. [Deployed Mode] Nav via links: Triggers unload, then doesn't on return", () => {
+    deployMode.DeployApp();
+    // Start on Page 1 and navigate to Page 2.
+    agHelper.WaitUntilEleAppear(appSettings.locators._header);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage(page1),
+    );
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page2,
+    );
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page1,
+    );
+    deployMode.NavigateBacktoEditor();
   });
 
-  describe("Edit mode:", () => {
-    it("2. Nav via Page Selector (Edit Mode): Triggers unload", () => {
-      EditorNavigation.SelectEntityByName(page2, EntityType.Page);
-      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
+  it("2. [Edit Mode] Nav via Page Selector: Triggers unload", () => {
+    EditorNavigation.SelectEntityByName(page2, EntityType.Page);
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
 
-      EditorNavigation.SelectEntityByName(page3, EntityType.Page);
-      agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
+    EditorNavigation.SelectEntityByName(page3, EntityType.Page);
+    agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
 
-      EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-    });
-
-    it("3. Multiple Handlers: Triggers all handlers on a Preview mode", () => {
-      agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper.AssertElementVisibility(
-        appSettings.locators._getActivePage(page1),
-      );
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page2,
-      );
-      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
-
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page3,
-      );
-      agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page1,
-      );
-      agHelper.GetNClick(locators._exitPreviewMode);
-    });
+    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
   });
 
-  describe("Programmatic navigation(`NavigateTo`):", () => {
-    it("4. Programmatic nav (Both Modes): Triggers unload via button click", () => {
-      agHelper.ClickButton(page1ButtonText);
-      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
-      pageList.ShowList();
-      EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+  it("3. [Preview mode] Multiple Handlers: Triggers all handlers", () => {
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage(page1),
+    );
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page2,
+    );
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
 
-      deployMode.DeployApp();
-      agHelper.ClickButton(page1ButtonText);
-      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-      agHelper.AssertElementVisibility(
-        appSettings.locators._getActivePage(page2),
-      );
-      agHelper.GetNClickByContains(
-        appSettings.locators._navigationMenuItem,
-        page1,
-      );
-      deployMode.NavigateBacktoEditor();
-    });
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page3,
+    );
+    agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page1,
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
+  });
+
+  it("4. [Both Modes - Programmatic nav]: Triggers unload via button click", () => {
+    agHelper.ClickButton(page1ButtonText);
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
+    pageList.ShowList();
+    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+
+    deployMode.DeployApp();
+    agHelper.ClickButton(page1ButtonText);
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage(page2),
+    );
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page1,
+    );
+    deployMode.NavigateBacktoEditor();
   });
 });
