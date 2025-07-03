@@ -33,7 +33,13 @@ const command = process.argv[2];
 
 if (["enable-form-login"].includes(command)) {
   console.log("Enabling form login");
-  enable_form_login.run();
+  try {
+    enable_form_login.run();
+    console.log("Form login enabled successfully");
+  } catch (error) {
+    console.error("Failed to enable form login:", error.message);
+    process.exit(1);
+  }
 }
 
 if (["export-db", "export_db", "ex"].includes(command)) {

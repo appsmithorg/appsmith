@@ -3,7 +3,7 @@ import * as Constants from "./constants";
 import childProcess from "child_process";
 import fs from "node:fs";
 import { ConnectionString } from "mongodb-connection-string-url";
-import { parse } from 'acorn';
+import { parse } from "acorn";
 
 export function showHelp() {
   console.log(
@@ -52,6 +52,7 @@ export function parseRedisUrl(redisUrlObject) {
 }
 
 export function getRedisUrl() {
+  let redisUrl = null;
   let redisUrlObject = process.env.APPSMITH_REDIS_URL;
   // Make sure redisUrl takes precedence over process.env.APPSMITH_REDIS_URL
   if (redisUrlObject && redisUrlObject !== "undefined") {
@@ -70,7 +71,9 @@ export function getRedisUrl() {
 
     for (const i in env_array) {
       if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
-        redisUrl = parseRedisUrl(env_array[i].toString().split("=")[1].trim());
+        const redisUrl = parseRedisUrl(
+          env_array[i].toString().split("=")[1].trim(),
+        );
         break;
       }
     }
