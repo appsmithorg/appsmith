@@ -65,7 +65,6 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Enabling form login");
   try {
     enable_form_login.run();
-    console.log("Form login enabled successfully");
   } catch (error) {
     console.error("Failed to enable form login:", error.message);
   }
