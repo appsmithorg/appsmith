@@ -3,7 +3,6 @@ import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory from ".";
 import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
 /*
  * Function to create builder for the widgets and register them in widget factory
  * Note: Ideally we should do this on the widfactory itself. but introducing the withMeta
@@ -11,28 +10,29 @@ import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
  * extracted this into a seperate file to break the circular reference.
  *
  */
+
 export const registerWidgets = (widgets: (typeof BaseWidget)[]) => {
-  const widgetAndBuilders = widgets.map((widget) => {
-    const { eagerRender = false, needsMeta = false } = widget.getConfig();
-
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ProfiledWidget: any = withBaseWidgetHOC(
-      widget,
-      needsMeta,
-      eagerRender,
-    );
-
-    return [
-      widget,
-      (widgetProps: CanvasWidgetStructure) => (
-        <ProfiledWidget {...widgetProps} key={widgetProps.widgetId} />
-      ),
-    ] as [
-      typeof BaseWidget,
-      (widgetProps: CanvasWidgetStructure) => React.ReactNode,
-    ];
+  widgets.forEach((widget) => {
+    registerWidget(widget);
   });
+};
 
-  WidgetFactory.initialize(widgetAndBuilders);
+export const registerWidget = (widget: typeof BaseWidget) => {
+  const { eagerRender = false, needsMeta = false } = widget.getConfig();
+
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ProfiledWidget: any = withBaseWidgetHOC(widget, needsMeta, eagerRender);
+
+  const widgetAndBuilder: [
+    typeof BaseWidget,
+    (widgetProps: CanvasWidgetStructure) => React.ReactNode,
+  ] = [
+    widget,
+    (widgetProps: CanvasWidgetStructure) => (
+      <ProfiledWidget {...widgetProps} key={widgetProps.widgetId} />
+    ),
+  ];
+
+  WidgetFactory.initialize([widgetAndBuilder]);
 };

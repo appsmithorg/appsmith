@@ -12,6 +12,16 @@ export function fetchJSLibraries(
   };
 }
 
+export function deferLoadingJSLibraries(
+  applicationId: string,
+  customJSLibraries?: ApiResponse,
+) {
+  return {
+    type: ReduxActionTypes.DEFER_LOADING_JS_LIBRARIES,
+    payload: { applicationId, customJSLibraries },
+  };
+}
+
 export function installLibraryInit(payload: Partial<JSLibrary>) {
   return {
     type: ReduxActionTypes.INSTALL_LIBRARY_INIT,

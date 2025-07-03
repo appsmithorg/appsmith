@@ -11,7 +11,7 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
-import { call, put, spawn } from "redux-saga/effects";
+import { call, put, select, spawn } from "redux-saga/effects";
 import type { DeployConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
@@ -20,7 +20,10 @@ import {
 } from "sagas/InitSagas";
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
+import {
+  fetchJSLibraries,
+  deferLoadingJSLibraries,
+} from "actions/JSLibraryActions";
 import { waitForFetchUserSuccess } from "ee/sagas/userSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
@@ -29,6 +32,7 @@ import {
 } from "actions/appThemingActions";
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
+import { getIsFirstPageLoad } from "selectors/evaluationSelectors";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -120,9 +124,18 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId, customJSLibraries));
-    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
-    failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
+    const isFirstPageLoad = yield select(getIsFirstPageLoad);
+
+    if (isFirstPageLoad) {
+      // we are deferring the loading of JS libraries
+      yield put(deferLoadingJSLibraries(applicationId, customJSLibraries));
+    } else {
+      initActionsCalls.push(fetchJSLibraries(applicationId, customJSLibraries));
+      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+      failureActionEffects.push(
+        ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
+      );
+    }
 
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
       initActionsCalls,

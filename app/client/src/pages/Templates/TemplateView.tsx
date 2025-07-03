@@ -24,7 +24,7 @@ import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "ee/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
-import { registerEditorWidgets } from "utils/editor/EditorUtils";
+import { registerAllWidgets } from "utils/editor/EditorUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -154,7 +154,7 @@ export function TemplateView({
   };
 
   useEffect(() => {
-    registerEditorWidgets();
+    registerAllWidgets();
   }, []);
   useEffect(() => {
     dispatch(getTemplateInformation(templateId));

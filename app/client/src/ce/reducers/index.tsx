@@ -70,6 +70,7 @@ import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConve
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 import type { IDEState } from "reducers/uiReducers/ideReducer";
 import type { PluginActionEditorState } from "PluginActionEditor";
+import type { FirstEvaluationState } from "reducers/evaluationReducers/firstEvaluationReducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -171,6 +172,7 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
+    firstEvaluation: FirstEvaluationState;
   };
   linting: {
     errors: LintErrorsStore;
