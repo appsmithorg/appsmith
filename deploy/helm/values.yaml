@@ -121,11 +121,20 @@ strategyType: RollingUpdate
 ##
 initContainer: {}
   # redis:
-  #   image: docker.io/redis:7.0.15
+  #   image: docker.io/redis:7.0.15  # Full image override (legacy)
+  #   registry: docker.io            # Registry override
+  #   repository: redis              # Repository override
+  #   tag: 7.0.15                   # Tag override
   # mongodb:
-  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+  #   image: docker.io/bitnami/mongodb:6.0.13  # Full image override (legacy)
+  #   registry: docker.io                      # Registry override
+  #   repository: bitnami/mongodb              # Repository override
+  #   tag: 6.0.13                             # Tag override
   # postgresql:
-  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21  # Full image override (legacy)
+  #   registry: docker.io                                        # Registry override
+  #   repository: bitnami/postgresql                             # Repository override
+  #   tag: 14.5.0-debian-11-r21                                 # Tag override
 ## Image
 ##
 image:
