@@ -31,17 +31,6 @@ if (!process.env.APPSMITH_DB_URL) {
 
 const command = process.argv[2];
 
-if (["enable-form-login"].includes(command)) {
-  console.log("Enabling form login");
-  try {
-    enable_form_login.run();
-    console.log("Form login enabled successfully");
-  } catch (error) {
-    console.error("Failed to enable form login:", error.message);
-    process.exit(1);
-  }
-}
-
 if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");
   export_db.run();
@@ -72,6 +61,14 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   version.exec();
 } else if (["mongo-eval", "mongo_eval", "mongoEval"].includes(command)) {
   mongo_shell_utils.exec();
+} else if (["efl", "enable-form-login"].includes(command)) {
+  console.log("Enabling form login");
+  try {
+    enable_form_login.run();
+    console.log("Form login enabled successfully");
+  } catch (error) {
+    console.error("Failed to enable form login:", error.message);
+  }
 } else {
   showHelp();
 }

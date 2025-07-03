@@ -15,6 +15,7 @@ export function showHelp() {
   console.log("\tcrs, check_replica_set\tCheck replica set mongoDB.\r");
   console.log("\tbackup\t\t\tTake a backup of Appsmith instance.\r");
   console.log("\trestore\t\t\tRestore Appsmith instance from a backup.\r");
+  console.log("\tefl, enable-form-login\t\tEnable form login.\r");
   console.log("\t--help\t\t\t" + "Show help.");
 }
 
