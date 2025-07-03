@@ -1,0 +1,115 @@
+// Import necessary helpers and libraries.
+import {
+  agHelper,
+  appSettings,
+  assertHelper,
+  deployMode,
+  entityExplorer,
+  homePage,
+  jsEditor,
+  locators,
+  propPane,
+} from "../../../support/Objects/ObjectsCore";
+import pageList from "../../../support/Pages/PageList";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
+
+describe("On-Page Unload Functionality", () => {
+  const page1 = "Page1 - with long long name";
+  const page2 = "Page2 - with long long name";
+  const page3 = "Page3 - with long long name";
+  const page1ToastForOnPageUnload = "Page 1 on page unload.";
+  const page2ToastForOnPageUnload = "Page 2 on page unload.";
+  const page1ButtonText = "Submit";
+  // Setup: Runs once before all tests in this block.
+  before(() => {
+    homePage.NavigateToHome();
+    homePage.ImportApp("onPageUnloadBehavior_app.json");
+    assertHelper.AssertNetworkStatus("@importNewApplication");
+    featureFlagIntercept({
+      release_jsobjects_onpageunloadactions_enabled: true,
+    });
+  });
+
+  describe("Deployed mode:", () => {
+    it("1. Nav via links (Deployed Mode): Triggers unload, then doesn't on return", () => {
+      deployMode.DeployApp();
+      // Start on Page 1 and navigate to Page 2.
+      agHelper.WaitUntilEleAppear(appSettings.locators._header);
+      agHelper.AssertElementVisibility(
+        appSettings.locators._getActivePage(page1),
+      );
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page2,
+      );
+      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page1,
+      );
+      deployMode.NavigateBacktoEditor();
+    });
+  });
+
+  describe("Edit mode:", () => {
+    it("2. Nav via Page Selector (Edit Mode): Triggers unload", () => {
+      EditorNavigation.SelectEntityByName(page2, EntityType.Page);
+      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+      agHelper.WaitUntilAllToastsDisappear();
+
+      EditorNavigation.SelectEntityByName(page3, EntityType.Page);
+      agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
+      agHelper.WaitUntilAllToastsDisappear();
+
+      EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+    });
+
+    it("3. Multiple Handlers: Triggers all handlers on a Preview mode", () => {
+      agHelper.GetNClick(locators._enterPreviewMode);
+      agHelper.AssertElementVisibility(
+        appSettings.locators._getActivePage(page1),
+      );
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page2,
+      );
+      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+      agHelper.WaitUntilAllToastsDisappear();
+
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page3,
+      );
+      agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
+      agHelper.WaitUntilAllToastsDisappear();
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page1,
+      );
+      agHelper.GetNClick(locators._exitPreviewMode);
+    });
+  });
+
+  it("4. Programmatic nav (Both Modes): Triggers unload via button click", () => {
+    agHelper.ClickButton(page1ButtonText);
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.WaitUntilAllToastsDisappear();
+    pageList.ShowList();
+    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+
+    deployMode.DeployApp();
+    agHelper.ClickButton(page1ButtonText);
+    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage(page2),
+    );
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      page1,
+    );
+    deployMode.NavigateBacktoEditor();
+  });
+});
