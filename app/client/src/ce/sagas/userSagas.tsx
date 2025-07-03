@@ -7,6 +7,7 @@ import {
   take,
   type TakeEffect,
 } from "redux-saga/effects";
+import type { SagaIterator } from "redux-saga";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -88,6 +89,7 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -150,7 +152,28 @@ function* getSessionRecordingConfig() {
   };
 }
 
-function* initTrackers(currentUser: User) {
+function shouldTrackUser(
+  currentUser: User,
+  licenseActive: boolean,
+  featureFlag: boolean,
+): boolean {
+  try {
+    const isAnonymous =
+      currentUser?.isAnonymous || currentUser?.username === "anonymousUser";
+
+    if (!isAnonymous) {
+      return true;
+    }
+
+    const telemetryOn = currentUser?.enableTelemetry ?? false;
+
+    return isAnonymous && (licenseActive || (telemetryOn && !featureFlag));
+  } catch (error) {
+    return true;
+  }
+}
+
+function* initTrackers(currentUser: User): SagaIterator {
   try {
     const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
 
@@ -162,7 +185,21 @@ function* initTrackers(currentUser: User) {
       getSessionRecordingConfig,
     );
 
-    yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const organizationConfig = yield select(getOrganizationConfig);
+
+    const shouldTrack = shouldTrackUser(
+      currentUser,
+      organizationConfig.license.active,
+      featureFlags.configure_block_event_tracking_for_anonymous_users,
+    );
+
+    yield call(
+      AnalyticsUtil.initialize,
+      currentUser,
+      sessionRecordingConfig,
+      shouldTrack,
+    );
     yield put(segmentInitSuccess());
   } catch (e) {
     log.error(e);

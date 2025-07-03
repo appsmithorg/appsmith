@@ -775,8 +775,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    return pacConfigurationService.setRolesAndGroups(
-                            profile, userFromDb, true, commonConfig.isCloudHosting());
+                    return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
                 });
     }
 

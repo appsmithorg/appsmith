@@ -30,13 +30,14 @@ let segmentAnalytics: SegmentSingleton | null = null;
 async function initialize(
   user: User,
   sessionRecordingConfig: SessionRecordingConfig,
+  shouldTrackUser: boolean,
 ) {
   // SentryUtil.init();
   await SmartlookUtil.init();
 
   segmentAnalytics = SegmentSingleton.getInstance();
 
-  await segmentAnalytics.init();
+  await segmentAnalytics.init(shouldTrackUser);
 
   // Mixpanel needs to be initialized after Segment
   await MixpanelSingleton.getInstance().init(sessionRecordingConfig);

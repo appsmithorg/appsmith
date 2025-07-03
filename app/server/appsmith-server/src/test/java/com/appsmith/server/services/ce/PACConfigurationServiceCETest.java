@@ -22,7 +22,7 @@ class PACConfigurationServiceCETest {
     public void test_setRolesAndGroups_featureFlagDisabled() {
         UserProfileDTO userProfileDTO = new UserProfileDTO();
         Mono<UserProfileDTO> userProfileDTOMono =
-                pacConfigurationService.setRolesAndGroups(userProfileDTO, null, false, false);
+                pacConfigurationService.setRolesAndGroups(userProfileDTO, null, false);
         StepVerifier.create(userProfileDTOMono)
                 .assertNext(userProfileDTO1 -> {
                     assertThat(userProfileDTO1.getRoles())

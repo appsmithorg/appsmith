@@ -12,8 +12,7 @@ import static com.appsmith.server.constants.ce.AccessControlConstantsCE.UPGRADE_
 @Service
 public class PACConfigurationServiceCEImpl implements PACConfigurationServiceCE {
     @Override
-    public Mono<UserProfileDTO> setRolesAndGroups(
-            UserProfileDTO profile, User user, boolean showUsersAndGroups, boolean isCloudHosting) {
+    public Mono<UserProfileDTO> setRolesAndGroups(UserProfileDTO profile, User user, boolean showUsersAndGroups) {
         profile.setRoles(
                 List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
         profile.setGroups(

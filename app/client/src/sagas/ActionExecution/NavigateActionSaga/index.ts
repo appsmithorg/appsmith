@@ -1,26 +1,24 @@
-import { call, put, select } from "redux-saga/effects";
-import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
-import _ from "lodash";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "entities/Page";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
-import history from "utils/history";
-import { setDataUrl } from "ee/sagas/PageSagas";
-import AppsmithConsole from "utils/AppsmithConsole";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { TriggerFailureError } from "./errorUtils";
+import { setDataUrl } from "ee/sagas/PageSagas";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { APP_MODE } from "entities/App";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import type { Page } from "entities/Page";
+import _ from "lodash";
+import { call, put, select, take } from "redux-saga/effects";
+import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import history, { type AppsmithLocationState } from "utils/history";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
-import type { SourceEntity } from "entities/AppsmithConsole";
-
-export enum NavigationTargetType_Dep {
-  SAME_WINDOW = "SAME_WINDOW",
-  NEW_WINDOW = "NEW_WINDOW",
-}
+import { TriggerFailureError } from "../errorUtils";
+import type { NavigateToAnotherPagePayload } from "./types";
+import type { LocationDescriptor, Path } from "history";
 
 const isValidPageName = (
   pageNameOrUrl: string,
@@ -48,19 +46,14 @@ export default function* navigateActionSaga(
     });
 
     const appMode: APP_MODE = yield select(getAppMode);
-    const path =
-      appMode === APP_MODE.EDIT
-        ? builderURL({
-            basePageId: page.basePageId,
-            params,
-          })
-        : viewerURL({
-            basePageId: page.basePageId,
-            params,
-          });
+    const urlBuilder = appMode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const path = urlBuilder({
+      basePageId: page.basePageId,
+      params,
+    });
 
     if (target === NavigationTargetType.SAME_WINDOW) {
-      history.push(path);
+      yield call(pushToHistory, path);
 
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
@@ -113,4 +106,35 @@ export default function* navigateActionSaga(
       navUrl: pageNameOrUrl,
     });
   }
+}
+
+export function* navigateToAnyPageInApplication(
+  action: ReduxAction<NavigateToAnotherPagePayload>,
+) {
+  yield call(pushToHistory, action.payload);
+}
+
+export function* pushToHistory(payload: NavigateToAnotherPagePayload | Path) {
+  yield put({
+    type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
+  });
+
+  yield take([
+    ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_SUCCESS,
+    ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS_ERROR,
+  ]);
+
+  if (typeof payload === "string") {
+    history.push(payload);
+
+    return;
+  }
+
+  const historyState: LocationDescriptor<AppsmithLocationState> = {
+    pathname: payload.pageURL,
+    search: payload.query,
+    state: payload.state,
+  };
+
+  history.push(historyState);
 }
