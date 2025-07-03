@@ -1,20 +1,17 @@
 // Import necessary helpers and libraries.
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   appSettings,
   assertHelper,
   deployMode,
-  entityExplorer,
   homePage,
-  jsEditor,
   locators,
-  propPane,
 } from "../../../support/Objects/ObjectsCore";
-import pageList from "../../../support/Pages/PageList";
 import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
-import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
+import pageList from "../../../support/Pages/PageList";
 
 describe("On-Page Unload Functionality", () => {
   const page1 = "Page1 - with long long name";
@@ -93,23 +90,25 @@ describe("On-Page Unload Functionality", () => {
     });
   });
 
-  it("4. Programmatic nav (Both Modes): Triggers unload via button click", () => {
-    agHelper.ClickButton(page1ButtonText);
-    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-    agHelper.WaitUntilAllToastsDisappear();
-    pageList.ShowList();
-    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+  describe("Programmatic navigation(`NavigateTo`):", () => {
+    it("4. Programmatic nav (Both Modes): Triggers unload via button click", () => {
+      agHelper.ClickButton(page1ButtonText);
+      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+      agHelper.WaitUntilAllToastsDisappear();
+      pageList.ShowList();
+      EditorNavigation.SelectEntityByName(page1, EntityType.Page);
 
-    deployMode.DeployApp();
-    agHelper.ClickButton(page1ButtonText);
-    agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
-    agHelper.AssertElementVisibility(
-      appSettings.locators._getActivePage(page2),
-    );
-    agHelper.GetNClickByContains(
-      appSettings.locators._navigationMenuItem,
-      page1,
-    );
-    deployMode.NavigateBacktoEditor();
+      deployMode.DeployApp();
+      agHelper.ClickButton(page1ButtonText);
+      agHelper.ValidateToastMessage(page1ToastForOnPageUnload);
+      agHelper.AssertElementVisibility(
+        appSettings.locators._getActivePage(page2),
+      );
+      agHelper.GetNClickByContains(
+        appSettings.locators._navigationMenuItem,
+        page1,
+      );
+      deployMode.NavigateBacktoEditor();
+    });
   });
 });
