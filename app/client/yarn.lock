@@ -2989,7 +2989,7 @@ __metadata:
     "@appsmith/wds-theming": "workspace:^"
     "@chromatic-com/storybook": ^1.6.1
     "@storybook/addon-a11y": 8.2.7
-    "@storybook/addon-controls": 8.2.7
+    "@storybook/addon-controls": 9.0.8
     "@storybook/addon-docs": 8.2.7
     "@storybook/addon-measure": 8.2.7
     "@storybook/addon-outline": 8.2.7
@@ -9882,16 +9882,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-controls@npm:8.2.7":
-  version: 8.2.7
-  resolution: "@storybook/addon-controls@npm:8.2.7"
-  dependencies:
-    dequal: ^2.0.2
-    lodash: ^4.17.21
-    ts-dedent: ^2.0.0
-  peerDependencies:
-    storybook: ^8.2.7
-  checksum: 3312e08ade58a977ed2ce05c6e99059d3cb3866aa7acd513e7a30990e17c85f2360fe7023093f135bb1d2ab59c3364f239fbff4533926997ef21ae466fff420d
+"@storybook/addon-controls@npm:9.0.8":
+  version: 9.0.8
+  resolution: "@storybook/addon-controls@npm:9.0.8"
+  checksum: b411ebedcb0a1ca731f51218a5de97d1c79d425b15e7c4f3d27ff833f4ebdf2165044f91a18e6e746a718e5839e4c8c1ddffe556f5545ce6f6a035601d040c05
   languageName: node
   linkType: hard
 
