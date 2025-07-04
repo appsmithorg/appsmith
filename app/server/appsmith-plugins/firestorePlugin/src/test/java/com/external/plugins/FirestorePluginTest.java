@@ -753,6 +753,25 @@ public class FirestorePluginTest {
     }
 
     @Test
+    public void testDatasource_withOptions() {
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("https://url");
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+
+        Mockito.when(spyExecutor.datasourceCreate(datasourceConfiguration)).thenReturn(Mono.just(firestoreConnection));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(datasourceConfiguration);
+
+        StepVerifier.create(testDatasourceMono)
+            .assertNext(datasourceTestResult -> {
+                assertNotNull(datasourceTestResult);
+                assertTrue(datasourceTestResult.isSuccess());
+                assertTrue(datasourceTestResult.getInvalids().isEmpty());
+            })
+            .verifyComplete();
+    }
+
+    @Test
     public void testDatasource_withCorrectCredentials_returnsWithoutInvalids() {
 
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
