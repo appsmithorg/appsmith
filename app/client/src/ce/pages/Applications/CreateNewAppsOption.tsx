@@ -175,6 +175,8 @@ const CreateNewAppsOption = ({
         })),
       );
 
+      urlBuilder.setCurrentBasePageId(application.pages[0].baseId);
+
       startWithData();
     }
   }, [application]);
