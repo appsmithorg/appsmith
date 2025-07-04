@@ -98,7 +98,7 @@
     "@uppy/dashboard": "^1.16.0",
     "@uppy/google-drive": "^1.5.22",
     "@uppy/image-editor": "^0.2.4",
-    "@uppy/onedrive": "^1.1.22",
+    "@uppy/onedrive": "^4.2.4",
     "@uppy/react": "^1.11.2",
     "@uppy/url": "^1.5.16",
     "@uppy/utils": "^6.0.2",
