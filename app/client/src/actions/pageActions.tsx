@@ -31,6 +31,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 import { appsmithTelemetry } from "instrumentation";
 import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga/types";
+import type { Path } from "history";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -699,7 +700,7 @@ export const setupPublishedPage = (
 });
 
 export const navigateToAnotherPage = (
-  payload: NavigateToAnotherPagePayload,
+  payload: NavigateToAnotherPagePayload | Path,
 ) => ({
   type: ReduxActionTypes.NAVIGATE_TO_ANOTHER_PAGE,
   payload,

@@ -1702,14 +1702,18 @@ export function* executePageUnloadActionsSaga() {
   const span = startRootSpan("executePageUnloadActionsSaga");
 
   try {
-    const pageActions: Action[] = yield select(getLayoutOnUnloadActions);
-    const actionCount = pageActions.length;
+    const pageOnUnloadActions: Action[] = yield select(
+      getLayoutOnUnloadActions,
+    );
+    const actionCount = pageOnUnloadActions.length;
 
     setAttributesToSpan(span, { numActions: actionCount });
 
     // Execute unload actions in parallel batches
     yield all(
-      pageActions.map((action) => call(executeOnPageUnloadJSAction, action)),
+      pageOnUnloadActions.map((action) =>
+        call(executeOnPageUnloadJSAction, action),
+      ),
     );
 
     // Publish success event after all actions are executed
