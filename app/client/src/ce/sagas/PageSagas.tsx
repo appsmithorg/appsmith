@@ -154,6 +154,7 @@ import { apiFailureResponseInterceptor } from "api/interceptors/response";
 import type { AxiosError } from "axios";
 import { handleFetchApplicationError } from "./ApplicationSagas";
 import { getCurrentUser } from "actions/authActions";
+import { generateUIModuleInstanceSaga } from "ee/sagas/moduleInterfaceSaga";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -271,6 +272,8 @@ export function* handleFetchedPage({
     yield put(fetchSnapshotDetailsAction());
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
+    // Generate UI module instances when page DSL is loaded
+    yield call(generateUIModuleInstanceSaga);
     // dispatch fetch page success
     yield put(fetchPageSuccess());
 
@@ -449,6 +452,11 @@ export function* fetchPublishedPageResourcesSaga(
       }
 
       yield call(postFetchedPublishedPage, pageWithMigratedDsl, pageId);
+      // In view mode, the fetchPublishedPageResourcesSaga is called only
+      // when page is switched. So, we need to generate UI module instances.
+      // Whereas, setupPublishedPageSaga gets called on first time app load in view mode.
+      // This is differently done for some reason when compared to edit mode.
+      yield call(generateUIModuleInstanceSaga);
 
       // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
