@@ -114,6 +114,24 @@ export function* navigateToAnyPageInApplication(
   yield call(pushToHistory, action.payload);
 }
 
+/**
+ * Pushes navigation state to browser history after executing page unload actions.
+ *
+ * This function handles three different variants of history.push() calls to maintain
+ * backward compatibility with existing code patterns:
+ *
+ * 1. String payload: Direct path navigation without query or state
+ *    - Uses: history.push(path)
+ *
+ * 2. Payload with state but no query: Navigation with state object
+ *    - Uses: history.push(pageURL, state)
+ *
+ * 3. Payload with query and/or state: Full navigation with all parameters
+ *    - Uses: history.push({ pathname, search, state })
+ *
+ * These variants exist to conform to how the code was working previously and
+ * ensure consistent behavior across different navigation scenarios.
+ */
 export function* pushToHistory(payload: NavigateToAnotherPagePayload | Path) {
   yield put({
     type: ReduxActionTypes.EXECUTE_PAGE_UNLOAD_ACTIONS,
@@ -126,6 +144,12 @@ export function* pushToHistory(payload: NavigateToAnotherPagePayload | Path) {
 
   if (typeof payload === "string") {
     history.push(payload);
+
+    return;
+  }
+
+  if (!payload.query && payload.state) {
+    history.push(payload.pageURL, payload.state);
 
     return;
   }

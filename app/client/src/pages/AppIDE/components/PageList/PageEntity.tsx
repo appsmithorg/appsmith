@@ -23,6 +23,7 @@ import { EntityItem } from "@appsmith/ads";
 import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { noop } from "lodash";
+import { NavigationMethod } from "utils/history";
 
 export const PageEntity = ({
   onClick,
@@ -89,7 +90,14 @@ export const PageEntity = ({
       toUrl: navigateToUrl,
     });
     dispatch(toggleInOnboardingWidgetSelection(true));
-    dispatch(navigateToAnotherPage(navigateToUrl));
+    dispatch(
+      navigateToAnotherPage({
+        pageURL: navigateToUrl,
+        state: {
+          invokedBy: NavigationMethod.EntityExplorer,
+        },
+      }),
+    );
 
     if (onClick) {
       onClick();
