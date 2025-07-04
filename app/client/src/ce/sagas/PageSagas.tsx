@@ -149,12 +149,14 @@ import {
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
 import { appsmithTelemetry } from "instrumentation";
-import { getLayoutSavePayload } from "ee/sagas/helpers";
+import {
+  getLayoutSavePayload,
+  generateUIModuleInstanceSaga,
+} from "ee/sagas/helpers";
 import { apiFailureResponseInterceptor } from "api/interceptors/response";
 import type { AxiosError } from "axios";
 import { handleFetchApplicationError } from "./ApplicationSagas";
 import { getCurrentUser } from "actions/authActions";
-import { generateUIModuleInstanceSaga } from "ee/sagas/moduleInterfaceSaga";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;

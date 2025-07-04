@@ -35,6 +35,3 @@ export function* handleUIModuleWidgetReplay(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   widgets: CanvasWidgetsReduxState,
 ) {}
-
-// This is a placeholder saga and is extended in EE
-export function* generateUIModuleInstanceSaga() {}
