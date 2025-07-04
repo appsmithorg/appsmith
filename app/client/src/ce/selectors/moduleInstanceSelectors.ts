@@ -14,3 +14,6 @@ export const getModuleInstanceJSCollectionById = (
 ): JSCollection | undefined => {
   return undefined;
 };
+export const getAllUniqueWidgetTypesInUiModules = (state: DefaultRootState) => {
+  return [];
+};
