@@ -110,3 +110,6 @@ export function* getLayoutSavePayload(
     dsl: nestedDSL,
   };
 }
+
+// This is a placeholder saga and is extended in EE
+export function* generateUIModuleInstanceSaga() {}
