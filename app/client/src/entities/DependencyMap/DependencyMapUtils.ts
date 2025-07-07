@@ -215,7 +215,11 @@ export class DependencyMapUtils {
           dataPath = dep;
         }
 
-        if (hasRun && hasData) {
+        if (
+          hasRun &&
+          hasData &&
+          runPath.split(".")[0] === dataPath.split(".")[0]
+        ) {
           throw Object.assign(
             new Error(
               `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
