@@ -20,6 +20,8 @@ export async function run() {
 
   await utils.ensureSupervisorIsRunning();
 
+  let organizationId: string;
+
   try {
     // First, check if the organization exists
     const orgCheckResult = await utils.execCommandReturningOutput([
@@ -46,14 +48,14 @@ export async function run() {
       "--json",
     ]);
 
+    organizationId = orgData._id.$oid;
+    console.log("Organization ID:", organizationId);
+
     console.log("Successfully updated organization configuration");
   } catch (error) {
     console.error("Failed to execute mongo command:", error);
     throw error;
   }
-
-  const organizationId = orgData._id.$oid;
-  console.log("Organization ID:", organizationId);
 
   // Clear Redis cache for the organization
   try {
