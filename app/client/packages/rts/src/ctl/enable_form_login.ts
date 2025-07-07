@@ -52,27 +52,8 @@ export async function run() {
     throw error;
   }
 
-  // Get organization ID for cache invalidation
-  let organizationId;
-  try {
-    const organizationData = await utils.execCommandReturningOutput([
-      "mongosh",
-      dbUrl,
-      "--eval",
-      "db.organization.findOne({slug:'default'},{_id:1})",
-      "--json",
-    ]);
-    const parsedData = JSON.parse(organizationData);
-    if (!parsedData || !parsedData._id) {
-      console.error("Failed to parse organization data");
-      throw new Error("Failed to parse organization data");
-    }
-    organizationId = parsedData._id.$oid;
-    console.log("Organization ID:", organizationId);
-  } catch (error) {
-    console.error("Failed to get organization ID:", error);
-    throw error;
-  }
+  const organizationId = orgData._id.$oid;
+  console.log("Organization ID:", organizationId);
 
   // Clear Redis cache for the organization
   try {
