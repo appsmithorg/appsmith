@@ -18,7 +18,6 @@ import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.commands.AICommand;
 import com.external.plugins.models.AIRequestDTO;
-import com.external.plugins.models.Role;
 import com.external.plugins.utils.AIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
 import com.google.common.cache.Cache;
@@ -51,7 +50,6 @@ import static com.external.plugins.constants.DeepseekAIConstants.DATA;
 import static com.external.plugins.constants.DeepseekAIConstants.ID;
 import static com.external.plugins.constants.DeepseekAIConstants.MODEL;
 import static com.external.plugins.constants.DeepseekAIErrorMessages.QUERY_FAILED_TO_EXECUTE;
-import static com.external.plugins.constants.DeepseekAIConstants.CHAT_ROLES;
 
 @Slf4j
 public class DeepseekAiPlugin extends BasePlugin {
@@ -250,7 +248,7 @@ public class DeepseekAiPlugin extends BasePlugin {
 
             return responseMono
                     .map(jsonObject -> {
-                        if (!jsonObject.has(DATA) || jsonObject.get(DATA) instanceof JSONArray) {
+                        if (!jsonObject.has(DATA) && jsonObject.get(DATA) instanceof JSONArray) {
                             // let's throw some error.
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
