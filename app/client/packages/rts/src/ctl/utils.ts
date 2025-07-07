@@ -3,7 +3,6 @@ import * as Constants from "./constants";
 import childProcess from "child_process";
 import fs from "node:fs";
 import { ConnectionString } from "mongodb-connection-string-url";
-import { parse } from "acorn";
 
 export function showHelp() {
   console.log(
@@ -44,17 +43,19 @@ export function parseRedisUrl(redisUrlObject) {
   if (redisUrlObject && redisUrlObject !== "undefined") {
     try {
       const redisUrl = new URL(redisUrlObject);
+
       return redisUrl.hostname;
     } catch (err) {
       console.error("Error parsing redis URL:", err);
     }
   }
+
   return null;
 }
 
 export function getRedisUrl() {
-  let redisUrl = null;
-  let redisUrlObject = process.env.APPSMITH_REDIS_URL;
+  const redisUrlObject = process.env.APPSMITH_REDIS_URL;
+
   // Make sure redisUrl takes precedence over process.env.APPSMITH_REDIS_URL
   if (redisUrlObject && redisUrlObject !== "undefined") {
     try {
@@ -63,6 +64,7 @@ export function getRedisUrl() {
       console.error("Error parsing redis URL from environment variable:", err);
     }
   }
+
   // If environment variable APPSMITH_REDIS_URL is not set, read from the environment file
   try {
     const env_array = fs
@@ -75,13 +77,15 @@ export function getRedisUrl() {
         const redisUrl = parseRedisUrl(
           env_array[i].toString().split("=")[1].trim(),
         );
-        break;
+
+        return redisUrl;
       }
     }
   } catch (err) {
     console.error("Error reading the environment file:", err);
   }
-  return redisUrl;
+
+  return null;
 }
 
 export function getDburl() {

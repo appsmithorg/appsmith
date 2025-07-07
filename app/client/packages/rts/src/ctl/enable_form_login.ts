@@ -32,6 +32,7 @@ export async function run() {
     ]);
 
     const orgData = JSON.parse(orgCheckResult);
+
     if (!orgData || !orgData._id) {
       throw new Error("Organization with slug 'default' not found in database");
     }
