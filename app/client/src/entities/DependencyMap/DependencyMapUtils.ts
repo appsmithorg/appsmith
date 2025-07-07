@@ -202,6 +202,7 @@ export class DependencyMapUtils {
       const transitiveDeps = this.getAllTransitiveDependencies(
         dependencyMap,
         node,
+        configTree,
       );
 
       for (const dep of transitiveDeps) {
@@ -237,11 +238,21 @@ export class DependencyMapUtils {
   static getAllTransitiveDependencies(
     dependencyMap: DependencyMap,
     node: string,
+    configTree: ConfigTree,
   ): string[] {
     const dependencies = dependencyMap.rawDependencies;
     const visited = new Set<string>();
 
     function traverse(current: string) {
+      const { entityName } = getEntityNameAndPropertyPath(current);
+      const entityConfig = configTree[entityName];
+
+      if (!entityConfig) return;
+
+      if (!isActionConfig(entityConfig) && !isJSActionConfig(entityConfig)) {
+        return;
+      }
+
       const directDeps = dependencies.get(current) || new Set<string>();
 
       for (const dep of directDeps) {
