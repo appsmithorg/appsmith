@@ -634,7 +634,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -674,7 +673,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
 
     const dataTree = evaluator.evalTree;
@@ -722,7 +720,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -787,7 +784,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -832,7 +828,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -898,7 +893,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
@@ -971,7 +965,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree1,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
@@ -1007,7 +1000,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree2,
       unEvalUpdates2,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -1050,7 +1042,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree3,
       unEvalUpdates3,
       [],
-      evaluator.evalTree,
     );
     const dataTree3 = evaluator.evalTree;
 
@@ -1094,7 +1085,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     const dataTree = evaluator.evalTree;
 
@@ -1135,7 +1125,6 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
       [],
-      evaluator.evalTree,
     );
     // Hard check to not regress on the number of clone operations. Try to improve this number.
     // Not a good assertion because in one piece of code im cloning multiple times, however the value im cloning is very small.

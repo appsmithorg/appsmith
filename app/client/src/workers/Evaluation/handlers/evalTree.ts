@@ -33,7 +33,6 @@ import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasW
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
-import { klona as klonaJSON } from "klona/json";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,7 +193,6 @@ export async function evalTree(
       isNewTree = true;
     } else {
       const tree = dataTreeEvaluator.getEvalTree();
-      const oldDataTree = klonaJSON(tree);
 
       // during update cycles update actions to the dataTree directly
       // this is useful in cases where we have debounced updateActionData and a regular evaluation
@@ -243,7 +241,6 @@ export async function evalTree(
             configTree,
             unEvalUpdates,
             Object.keys(metaWidgets),
-            oldDataTree,
           ),
       );
 

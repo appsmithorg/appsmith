@@ -21,7 +21,6 @@ import {
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { klona as klonaJson } from "klona/json";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",
@@ -71,10 +70,8 @@ export function evalTreeWithChanges(
   );
 
   let setupUpdateTreeResponse = {} as UpdateTreeResponse;
-  let oldEvalTree: DataTree = {};
 
   if (dataTreeEvaluator) {
-    oldEvalTree = klonaJson(dataTreeEvaluator.getEvalTree());
     setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTreeWithDifferences(
       updatedValuePaths,
       pathsToSkipFromEval,
@@ -86,7 +83,6 @@ export function evalTreeWithChanges(
     setupUpdateTreeResponse,
     metaUpdates,
     pathsToSkipFromEval,
-    oldEvalTree,
   );
 }
 
@@ -107,14 +103,12 @@ export const evaluateAndPushResponse = (
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
-  oldEvalTree: DataTree,
 ) => {
   const response = evaluateAndGenerateResponse(
     dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
     additionalPathsAddedAsUpdates,
-    oldEvalTree,
   );
 
   return pushResponseToMainThread(response);
@@ -125,7 +119,6 @@ export const evaluateAndGenerateResponse = (
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
-  oldEvalTree: DataTree,
 ): UpdateDataTreeMessageData => {
   // generate default response first and later add updates to it
   const defaultResponse = getDefaultEvalResponse();
@@ -158,7 +151,6 @@ export const evaluateAndGenerateResponse = (
     dataTreeEvaluator.oldConfigTree,
     unEvalUpdates,
     [],
-    oldEvalTree,
   );
 
   const dataTree = updateEvalProps(dataTreeEvaluator) || {};
