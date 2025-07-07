@@ -1,7 +1,6 @@
 import * as utils from "./utils";
 
 export async function run() {
-  console.log("Enabling form login");
   const dbUrl = utils.getDburl();
   const redisUrl = utils.getRedisUrl();
 
