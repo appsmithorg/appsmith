@@ -130,7 +130,6 @@ describe("evaluateAndPushResponse", () => {
       },
       [],
       [],
-      {},
     );
     // check if push response has been called
     expect(pushResponseToMainThreadMock).toHaveBeenCalled();
@@ -226,7 +225,6 @@ describe("evaluateAndGenerateResponse", () => {
       },
       [],
       [],
-      {},
     );
     const parsedUpdates = getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
@@ -261,7 +259,6 @@ describe("evaluateAndGenerateResponse", () => {
       },
       [],
       [],
-      {},
     );
     const parsedUpdates = getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
@@ -301,7 +298,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         [],
-        {},
       );
 
       expect(webworkerResponse.workerResponse.dependencies).toEqual({
@@ -342,7 +338,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         [],
-        {},
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
@@ -376,7 +371,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         [],
-        {},
       );
 
       const parsedUpdates =
@@ -420,7 +414,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         ["Text1.text"],
-        {},
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
@@ -466,7 +459,6 @@ describe("evaluateAndGenerateResponse", () => {
           response,
           metaUpdates,
           [],
-          {},
         );
 
       expect(workerResponse.evalMetaUpdates).toEqual(metaUpdates);
@@ -497,7 +489,6 @@ describe("evaluateAndGenerateResponse", () => {
           response,
           metaUpdates,
           [],
-          {},
         );
 
       // the function properties should be stripped out
@@ -529,7 +520,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         [],
-        {},
       );
 
       const parsedUpdates =
@@ -568,7 +558,6 @@ describe("evaluateAndGenerateResponse", () => {
         updateTreeResponse,
         [],
         [],
-        {},
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
