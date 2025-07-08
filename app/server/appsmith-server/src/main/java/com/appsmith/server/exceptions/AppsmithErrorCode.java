@@ -131,6 +131,14 @@ public enum AppsmithErrorCode {
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
     FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
+
+    // Git route related error codes
+    GIT_ROUTE_HANDLER_NOT_FOUND("AE-GIT-5005", "Git route handler not found"),
+    GIT_ROUTE_INVALID_FIELD_VALUE("AE-GIT-5006", "Git route invalid field value"),
+    GIT_ROUTE_CONTEXT_BUILD_ERROR("AE-GIT-5007", "Git route context build error"),
+    GIT_ROUTE_ARTIFACT_NOT_FOUND("AE-GIT-5008", "Git route artifact not found"),
+    GIT_ROUTE_INVALID_PRIVATE_KEY("AE-GIT-5009", "Git route invalid private key"),
+
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),

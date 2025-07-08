@@ -21,6 +21,7 @@ import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
+import com.appsmith.git.service.BashService;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +112,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
     private final ObservationHelper observationHelper;
+
+    private final BashService bashService = new BashService();
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -1105,6 +1108,14 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     private String getPageName(String path) {
         String[] pathArray = path.split(CommonConstants.DELIMITER_PATH);
         return pathArray[1];
+    }
+
+    @Override
+    public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
+        String repoPath = createRepoPath(repoSuffix).toString();
+        return bashService
+                .callFunction("git.sh", "git_merge_branch", repoPath, sourceBranch, destinationBranch)
+                .map(result -> result.getOutput());
     }
 
     @Override
