@@ -159,23 +159,38 @@ export class GitSync {
     repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
+    useNewAPI = false,
   ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
       this.CreateTestGiteaRepo(repoName, privateFlag);
 
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repoName}`,
-      );
+      if (useNewAPI) {
+        cy.intercept("POST", "/api/v1/git/applications/*/ssh-keypair*").as(
+          `generateKey-${repoName}`,
+        );
 
-      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
-        `protected-${repoName}`,
-      );
+        cy.intercept("GET", "/api/v1/git/applications/*/protected-branches").as(
+          `protected-${repoName}`,
+        );
 
-      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
-        `branches-${repoName}`,
-      );
+        cy.intercept("GET", "/api/v1/git/applications/*/refs").as(
+          `branches-${repoName}`,
+        );
+      } else {
+        cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+          `generateKey-${repoName}`,
+        );
+
+        cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
+          `protected-${repoName}`,
+        );
+
+        cy.intercept("GET", "/api/v1/git/branch/app/*").as(
+          `branches-${repoName}`,
+        );
+      }
 
       this.OpenConnectModal();
 
