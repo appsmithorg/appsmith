@@ -24,6 +24,7 @@ export interface RedirectUserAfterSignupProps {
   validLicense?: boolean;
   dispatch: Dispatch;
   isAiAgentInstanceEnabled: boolean;
+  isMultiOrgEnabled?: boolean;
   isOnLoginPage: boolean;
 }
 
