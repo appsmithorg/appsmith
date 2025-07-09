@@ -202,6 +202,7 @@ export class DependencyMapUtils {
       const transitiveDeps = this.getAllTransitiveDependencies(
         dependencyMap,
         node,
+        configTree,
       );
 
       for (const dep of transitiveDeps) {
@@ -215,7 +216,11 @@ export class DependencyMapUtils {
           dataPath = dep;
         }
 
-        if (hasRun && hasData) {
+        if (
+          hasRun &&
+          hasData &&
+          runPath.split(".")[0] === dataPath.split(".")[0]
+        ) {
           throw Object.assign(
             new Error(
               `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
@@ -233,11 +238,21 @@ export class DependencyMapUtils {
   static getAllTransitiveDependencies(
     dependencyMap: DependencyMap,
     node: string,
+    configTree: ConfigTree,
   ): string[] {
     const dependencies = dependencyMap.rawDependencies;
     const visited = new Set<string>();
 
     function traverse(current: string) {
+      const { entityName } = getEntityNameAndPropertyPath(current);
+      const entityConfig = configTree[entityName];
+
+      if (!entityConfig) return;
+
+      if (!isActionConfig(entityConfig) && !isJSActionConfig(entityConfig)) {
+        return;
+      }
+
       const directDeps = dependencies.get(current) || new Set<string>();
 
       for (const dep of directDeps) {

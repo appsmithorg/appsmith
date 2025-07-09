@@ -14,6 +14,7 @@ export function showHelp() {
   console.log("\tcrs, check_replica_set\tCheck replica set mongoDB.\r");
   console.log("\tbackup\t\t\tTake a backup of Appsmith instance.\r");
   console.log("\trestore\t\t\tRestore Appsmith instance from a backup.\r");
+  console.log("\tefl, enable-form-login\t\tEnable form login.\r");
   console.log("\t--help\t\t\t" + "Show help.");
 }
 
@@ -36,6 +37,55 @@ export async function start(apps) {
   console.log("Starting", apps);
   await execCommand(["/usr/bin/supervisorctl", "start", ...apps]);
   console.log("Started", apps);
+}
+
+export function parseRedisUrl(redisUrlObject) {
+  if (redisUrlObject && redisUrlObject !== "undefined") {
+    try {
+      const redisUrl = new URL(redisUrlObject);
+
+      return redisUrl.hostname;
+    } catch (err) {
+      console.error("Error parsing redis URL:", err);
+    }
+  }
+
+  return null;
+}
+
+export function getRedisUrl() {
+  const redisUrlObject = process.env.APPSMITH_REDIS_URL;
+
+  // Make sure redisUrl takes precedence over process.env.APPSMITH_REDIS_URL
+  if (redisUrlObject && redisUrlObject !== "undefined") {
+    try {
+      return parseRedisUrl(redisUrlObject);
+    } catch (err) {
+      console.error("Error parsing redis URL from environment variable:", err);
+    }
+  }
+
+  // If environment variable APPSMITH_REDIS_URL is not set, read from the environment file
+  try {
+    const env_array = fs
+      .readFileSync(Constants.ENV_PATH, "utf8")
+      .toString()
+      .split("\n");
+
+    for (const i in env_array) {
+      if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
+        const redisUrl = parseRedisUrl(
+          env_array[i].toString().split("=")[1].trim(),
+        );
+
+        return redisUrl;
+      }
+    }
+  } catch (err) {
+    console.error("Error reading the environment file:", err);
+  }
+
+  return null;
 }
 
 export function getDburl() {
