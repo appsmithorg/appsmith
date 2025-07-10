@@ -4,9 +4,13 @@ import { evalWorker } from "utils/workerInstances";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { runSaga } from "redux-saga";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
+import { registerAllWidgets } from "utils/editor/EditorUtils";
 
 export async function UNSTABLE_executeDynamicTrigger(dynamicTrigger: string) {
   const state = store.getState();
+
+  await registerAllWidgets();
+
   const unEvalTree = getUnevaluatedDataTree(state);
 
   const result = runSaga(
