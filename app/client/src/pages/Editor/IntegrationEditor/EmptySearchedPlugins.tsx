@@ -43,14 +43,27 @@ export default function EmptySearchedPlugins({
       FEATURE_FLAG.release_external_saas_plugins_enabled,
     ),
   );
-  const isIntegrationsEnabledForPaid = useSelector((state) =>
+  const isLicenseExternalSaasEnabled = useSelector((state) =>
     selectFeatureFlagCheck(
       state,
       FEATURE_FLAG.license_external_saas_plugins_enabled,
     ),
   );
 
+  // We are using this feature flag to identify whether its the enterprise/business user
+  const isGACEnabled = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.license_gac_enabled),
+  );
+
   const pluginNames = plugins.map((plugin) => plugin.name.toLocaleLowerCase());
+
+  // Logic for EXTERNAL_SAAS integrations:
+  // These integrations are only available for business and enterprise instances.
+  // For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
+  // For business/enterprise instances (GAC enabled): show in upcoming section when either release OR license flag is true
+  const shouldShowIntegrations = isGACEnabled
+    ? isExternalSaasEnabled || isLicenseExternalSaasEnabled
+    : true;
 
   const searchedItems =
     filterSearch(
@@ -59,7 +72,7 @@ export default function EmptySearchedPlugins({
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
         ...getFilteredUpcomingIntegrations(
-          isExternalSaasEnabled || isIntegrationsEnabledForPaid,
+          shouldShowIntegrations,
           pluginNames,
           upcomingPlugins,
         ),

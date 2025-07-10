@@ -232,9 +232,10 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
         />
       ))}
-      {!props.isIntegrationsEnabledForPaid && (
-        <PremiumDatasources plugins={props.upcomingIntegrations} />
-      )}
+      {!props.isIntegrationsEnabledForPaid &&
+        props.upcomingIntegrations.length > 0 && (
+          <PremiumDatasources plugins={props.upcomingIntegrations} />
+        )}
     </DatasourceContainer>
   );
 }
@@ -345,25 +346,46 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
-  const isIntegrationsEnabledForPaid = selectFeatureFlagCheck(
+  const isLicenseExternalSaasEnabled = selectFeatureFlagCheck(
     state,
     FEATURE_FLAG.license_external_saas_plugins_enabled,
+  );
+
+  // We are using this feature flag to identify whether its the enterprise/business user
+  const isGACEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
   );
 
   const pluginNames = allPlugins.map((plugin) =>
     plugin.name.toLocaleLowerCase(),
   );
 
-  const upcomingIntegrations = props.showSaasAPIs
-    ? (filterSearch(
-        getFilteredUpcomingIntegrations(
-          isExternalSaasEnabled || isIntegrationsEnabledForPaid,
-          pluginNames,
-          upcomingPlugins,
-        ),
-        searchedPlugin,
-      ) as UpcomingIntegration[])
-    : [];
+  // Logic for EXTERNAL_SAAS integrations:
+  // These integrations are only available for business and enterprise instances.
+  // 1. For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
+  // 2. For business/enterprise instances (GAC enabled): show in upcoming section when either release OR license flag is true
+  // 3. The license flag controls if the integrations are actually functional for business/enterprise users
+  const shouldShowIntegrations = isGACEnabled
+    ? isExternalSaasEnabled || isLicenseExternalSaasEnabled
+    : true; // Always show for non-GAC (as Premium), show for GAC when either flag is true
+
+  // For GAC-enabled instances: show in upcoming section when either release OR license flag is true
+  // For non-GAC instances: show as Premium tagged items (handled in PremiumDatasources component)
+  const shouldShowInUpcomingSection =
+    isGACEnabled && (isExternalSaasEnabled || isLicenseExternalSaasEnabled);
+
+  const upcomingIntegrations =
+    props.showSaasAPIs && shouldShowIntegrations
+      ? (filterSearch(
+          getFilteredUpcomingIntegrations(
+            shouldShowIntegrations,
+            pluginNames,
+            upcomingPlugins,
+          ),
+          searchedPlugin,
+        ) as UpcomingIntegration[])
+      : [];
 
   const restAPIVisible =
     !props.showSaasAPIs &&
@@ -385,7 +407,7 @@ const mapStateToProps = (
     restAPIVisible,
     graphQLAPIVisible,
     isCreating: props.isCreating || getDatasourcesLoadingState(state),
-    isIntegrationsEnabledForPaid,
+    isIntegrationsEnabledForPaid: shouldShowInUpcomingSection,
   };
 };
 

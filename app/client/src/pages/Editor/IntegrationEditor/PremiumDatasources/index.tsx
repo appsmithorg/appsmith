@@ -41,6 +41,9 @@ export default function PremiumDatasources(props: {
     }
   };
 
+  // Show Premium tag only when NOT in the upcoming section (i.e., for non-GAC instances)
+  const showPremiumTag = !props.isIntegrationsEnabledForPaid;
+
   return (
     <>
       {props.plugins.map((integration) => (
@@ -53,7 +56,7 @@ export default function PremiumDatasources(props: {
           key={integration.name}
           name={integration.name}
           rightSibling={
-            !props.isIntegrationsEnabledForPaid && (
+            showPremiumTag && (
               <PremiumTag isClosable={false} kind={"premium"}>
                 {createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG)}
               </PremiumTag>
