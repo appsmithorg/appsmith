@@ -52,6 +52,7 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getAppsmithConfigs } from "ee/configs";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -357,23 +358,32 @@ const mapStateToProps = (
     FEATURE_FLAG.license_gac_enabled,
   );
 
+  const { cloudHosting } = getAppsmithConfigs();
+
   const pluginNames = allPlugins.map((plugin) =>
     plugin.name.toLocaleLowerCase(),
   );
 
   // Logic for EXTERNAL_SAAS integrations:
-  // These integrations are only available for business and enterprise instances.
-  // 1. For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
-  // 2. For business/enterprise instances (GAC enabled): show in upcoming section when either release OR license flag is true
-  // 3. The license flag controls if the integrations are actually functional for business/enterprise users
-  const shouldShowIntegrations = isGACEnabled
-    ? isExternalSaasEnabled || isLicenseExternalSaasEnabled
-    : true; // Always show for non-GAC (as Premium), show for GAC when either flag is true
+  // 1. For cloud instances:
+  //    - If either release_external_saas_plugins_enabled OR license_external_saas_plugins_enabled is true: show as upcoming
+  //    - If both are false: show as premium
+  // 2. For self-hosted instances:
+  //    - For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
+  //    - For business/enterprise instances (GAC enabled): always show integrations in upcoming section
+  const shouldShowIntegrations = cloudHosting
+    ? true // Always show for cloud instances (either as upcoming or premium)
+    : isGACEnabled
+      ? true // Always show for GAC-enabled instances
+      : true; // Always show for non-GAC (as Premium)
 
-  // For GAC-enabled instances: show in upcoming section when either release OR license flag is true
-  // For non-GAC instances: show as Premium tagged items (handled in PremiumDatasources component)
-  const shouldShowInUpcomingSection =
-    isGACEnabled && (isExternalSaasEnabled || isLicenseExternalSaasEnabled);
+  // Determine if integrations should show in upcoming section:
+  // - Cloud instances: show in upcoming section when either flag is true
+  // - Self-hosted GAC instances: always show in upcoming section
+  // - Self-hosted non-GAC instances: show as Premium tagged items (handled in PremiumDatasources component)
+  const shouldShowInUpcomingSection = cloudHosting
+    ? isExternalSaasEnabled || isLicenseExternalSaasEnabled
+    : isGACEnabled;
 
   const upcomingIntegrations =
     props.showSaasAPIs && shouldShowIntegrations

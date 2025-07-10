@@ -17,6 +17,7 @@ import { filterSearch } from "./util";
 import type { MockDatasource } from "entities/Datasource";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getAppsmithConfigs } from "ee/configs";
 
 const EmptyImage = styled.img`
   margin-bottom: var(--ads-v2-spaces-6);
@@ -37,33 +38,27 @@ export default function EmptySearchedPlugins({
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
   const plugins = useSelector(getPlugins);
 
-  const isExternalSaasEnabled = useSelector((state) =>
-    selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.release_external_saas_plugins_enabled,
-    ),
-  );
-  const isLicenseExternalSaasEnabled = useSelector((state) =>
-    selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.license_external_saas_plugins_enabled,
-    ),
-  );
-
   // We are using this feature flag to identify whether its the enterprise/business user
   const isGACEnabled = useSelector((state) =>
     selectFeatureFlagCheck(state, FEATURE_FLAG.license_gac_enabled),
   );
 
+  const { cloudHosting } = getAppsmithConfigs();
+
   const pluginNames = plugins.map((plugin) => plugin.name.toLocaleLowerCase());
 
   // Logic for EXTERNAL_SAAS integrations:
-  // These integrations are only available for business and enterprise instances.
-  // For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
-  // For business/enterprise instances (GAC enabled): show in upcoming section when either release OR license flag is true
-  const shouldShowIntegrations = isGACEnabled
-    ? isExternalSaasEnabled || isLicenseExternalSaasEnabled
-    : true;
+  // 1. For cloud instances:
+  //    - If either release_external_saas_plugins_enabled OR license_external_saas_plugins_enabled is true: show as upcoming
+  //    - If both are false: show as premium
+  // 2. For self-hosted instances:
+  //    - For non business/enterprise instances (GAC disabled): show Premium tag (regardless of flag values)
+  //    - For business/enterprise instances (GAC enabled): always show integrations
+  const shouldShowIntegrations = cloudHosting
+    ? true // Always show for cloud instances (either as upcoming or premium)
+    : isGACEnabled
+      ? true // Always show for GAC-enabled instances
+      : true;
 
   const searchedItems =
     filterSearch(
