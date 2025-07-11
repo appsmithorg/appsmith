@@ -25,6 +25,7 @@ public interface PluginConstants {
         String DATABRICKS_PLUGIN = "databricks-plugin";
         String AWS_LAMBDA_PLUGIN = "aws-lambda-plugin";
         String MONGO_PLUGIN = "mongo-plugin";
+        String DEEPSEEK_AI_PLUGIN = "deepseekai-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
@@ -55,6 +56,8 @@ public interface PluginConstants {
         public static final String APPSMITH_AI_PLUGIN_NAME = "Appsmith AI";
         public static final String DATABRICKS_PLUGIN_NAME = "Databricks";
         public static final String AWS_LAMBDA_PLUGIN_NAME = "AWS Lambda";
+
+        public static final String DEEPSEEK_AI_PLUGIN_NAME = "DeepSeek AI";
     }
 
     interface HostName {

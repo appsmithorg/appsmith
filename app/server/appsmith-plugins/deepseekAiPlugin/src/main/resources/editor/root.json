@@ -1,0 +1,186 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "Models",
+              "tooltipText": "Select the model for response generation",
+              "subtitle": "ID of the model to use.",
+              "isRequired": true,
+              "propertyName": "chat_model_id",
+              "configProperty": "actionConfiguration.formData.chatModel.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "",
+              "options": [],
+              "placeholderText": "All models will be fetched.",
+              "fetchOptionsConditionally": true,
+              "setFirstOptionAsDefault": true,
+              "alternateViewTypes": ["json"],
+              "conditionals": {
+                "enable": "{{true}}",
+                "fetchDynamicValues": {
+                  "condition": "{{true}}",
+                  "config": {
+                    "params": {
+                      "requestType": "CHAT_MODELS",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "label": "Max Tokens",
+              "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+              "subtitle": "The maximum number of tokens to generate in the chat completion.",
+              "Description": "Put a positive integer value",
+              "configProperty": "actionConfiguration.formData.maxTokens",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "2048",
+              "isRequired": true,
+              "dataType": "NUMBER"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "Messages",
+              "tooltipText": "Ask a question",
+              "subtitle": "A list of messages comprising the conversation so far.",
+              "propertyName": "messages",
+              "isRequired": true,
+              "configProperty": "actionConfiguration.formData.messages.data",
+              "controlType": "ARRAY_FIELD",
+              "alternateViewTypes": ["json"],
+              "addMoreButtonLabel": "Add message",
+              "schema": [
+                {
+                  "label": "Role",
+                  "key": "role",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "user",
+                  "options": [
+                    {
+                      "label": "User",
+                      "value": "user"
+                    },
+                    {
+                      "label": "System",
+                      "value": "system"
+                    },
+                    {
+                      "label": "Assistant",
+                      "value": "assistant"
+                    },
+                    {
+                      "label": "Tool",
+                      "value": "tool"
+                    }
+                  ]
+                },
+                {
+                  "label": "Content",
+                  "key": "content",
+                  "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                  "placeholderText": "{{ UserInput.text }}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "Temperature",
+              "tooltipText": "Put a value between 0 and 2",
+              "Description": "Put a value between 0 and 2",
+              "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+              "configProperty": "actionConfiguration.formData.temperature",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "1",
+              "isRequired": false
+            },
+            {
+              "label": "Top P",
+              "tooltipText": "Put a value between 0 and 1",
+              "Description": "Put a value between 0 and 1",
+              "subtitle": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.",
+              "configProperty": "actionConfiguration.formData.topP",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "1",
+              "isRequired": false,
+              "hidden": true
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "Frequency Penalty",
+              "tooltipText": "Put a value between -2 and 2",
+              "Description": "Put a value between -2 and 2",
+              "subtitle": "Number between -2 and 2. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.",
+              "configProperty": "actionConfiguration.formData.frequencyPenalty",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "0",
+              "isRequired": false
+            },
+            {
+              "label": "Presence Penalty",
+              "tooltipText": "Put a value between -2 and 2",
+              "Description": "Put a value between -2 and 2",
+              "subtitle": "Number between -2 and 2. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.",
+              "configProperty": "actionConfiguration.formData.presencePenalty",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "0",
+              "isRequired": false
+            }
+          ]
+        },
+        {
+          "label": "Response Format",
+          "tooltipText": "Select the response format",
+          "configProperty": "actionConfiguration.formData.responseFormat",
+          "controlType": "DROP_DOWN",
+          "placeholderText": "Select response format",
+          "initialValue": "text",
+          "options": [
+            {
+              "label": "Text",
+              "value": "text"
+            },
+            {
+              "label": "Json Object",
+              "value": "json_object"
+            }
+          ],
+          "isRequired": false
+        },
+        {
+          "label": "Stream",
+          "tooltipText": "If enabled, the response will be streamed",
+          "Description": "If enabled, the response will be streamed",
+          "configProperty": "actionConfiguration.formData.stream",
+          "controlType": "SWITCH",
+          "dataType": "BOOLEAN",
+          "initialValue": false,
+          "isRequired": false,
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}
