@@ -6,9 +6,10 @@ import type {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
-import widgets from "widgets";
+import { loadAllWidgets } from "widgets";
 import WidgetFactory from "WidgetProvider/factory";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import type BaseWidget from "widgets/BaseWidget";
 
 function validatePropertyPaneConfig(
   config: PropertyPaneConfig[],
@@ -143,96 +144,112 @@ const isNotFloat = (n: any) => {
 };
 
 describe("Tests all widget's propertyPane config", () => {
-  beforeAll(() => {
-    registerWidgets(widgets);
+  let widgetsArray: (typeof BaseWidget)[] = [];
+
+  beforeAll(async () => {
+    // Load all widgets and convert Map to array
+    const widgetsMap = await loadAllWidgets();
+
+    widgetsArray = Array.from(widgetsMap.values());
+
+    // Register all widgets
+    registerWidgets(widgetsArray);
   });
 
-  widgets
-    // Exclude WDS widgets from the tests, since they work differently
-    .filter((widget) => !widget.type.includes("WDS"))
-    .forEach((widget) => {
-      const config = widget.getConfig();
+  it("should have loaded widgets", () => {
+    expect(widgetsArray.length).toBeGreaterThan(0);
+  });
 
-      it(`Checks ${widget.type}'s propertyPaneConfig`, () => {
-        const propertyPaneConfig = widget.getPropertyPaneConfig();
+  describe("Property Pane Config Tests", () => {
+    //widgets are loaded in the beforeAll and ready now
+    widgetsArray
+      // Exclude WDS widgets from the tests, since they work differently
+      .filter((widget) => !widget.type.includes("WDS"))
+      .forEach((widget) => {
+        const config = widget.getConfig();
 
-        expect(
-          validatePropertyPaneConfig(propertyPaneConfig, !!config.hideCard),
-        ).toStrictEqual(true);
-        const propertyPaneContentConfig = widget.getPropertyPaneContentConfig();
+        it(`Checks ${widget.type}'s propertyPaneConfig`, () => {
+          const propertyPaneConfig = widget.getPropertyPaneConfig();
 
-        expect(
-          validatePropertyPaneConfig(
-            propertyPaneContentConfig,
-            !!config.isDeprecated,
-          ),
-        ).toStrictEqual(true);
-        const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
+          expect(
+            validatePropertyPaneConfig(propertyPaneConfig, !!config.hideCard),
+          ).toStrictEqual(true);
+          const propertyPaneContentConfig =
+            widget.getPropertyPaneContentConfig();
 
-        expect(
-          validatePropertyPaneConfig(
-            propertyPaneStyleConfig,
-            !!config.isDeprecated,
-          ),
-        ).toStrictEqual(true);
-      });
-      it(`Check if ${widget.type}'s dimensions are always integers`, () => {
-        const defaults = widget.getDefaults();
+          expect(
+            validatePropertyPaneConfig(
+              propertyPaneContentConfig,
+              !!config.isDeprecated,
+            ),
+          ).toStrictEqual(true);
+          const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
 
-        expect(isNotFloat(defaults.rows)).toBe(true);
-        expect(isNotFloat(defaults.columns)).toBe(true);
-      });
+          expect(
+            validatePropertyPaneConfig(
+              propertyPaneStyleConfig,
+              !!config.isDeprecated,
+            ),
+          ).toStrictEqual(true);
+        });
+        it(`Check if ${widget.type}'s dimensions are always integers`, () => {
+          const defaults = widget.getDefaults();
 
-      if (config.isDeprecated) {
-        it(`Check if ${widget.type}'s deprecation config has a proper replacement Widget`, () => {
-          const widgetType = widget.type;
+          expect(isNotFloat(defaults.rows)).toBe(true);
+          expect(isNotFloat(defaults.columns)).toBe(true);
+        });
 
-          if (config.replacement === undefined) {
-            fail(`${widgetType}'s replacement widget is not defined`);
-          }
+        if (config.isDeprecated) {
+          it(`Check if ${widget.type}'s deprecation config has a proper replacement Widget`, () => {
+            const widgetType = widget.type;
 
-          const replacementWidgetType = config.replacement;
-          const replacementWidget = WidgetFactory.get(replacementWidgetType);
-          const replacementWidgetConfig = replacementWidget?.getConfig();
+            if (config.replacement === undefined) {
+              fail(`${widgetType}'s replacement widget is not defined`);
+            }
 
-          if (replacementWidgetConfig === undefined) {
-            fail(
-              `${widgetType}'s replacement widget ${replacementWidgetType} does not resolve to an actual widget Config`,
-            );
-          }
+            const replacementWidgetType = config.replacement;
+            const replacementWidget = WidgetFactory.get(replacementWidgetType);
+            const replacementWidgetConfig = replacementWidget?.getConfig();
 
-          if (replacementWidgetConfig?.isDeprecated) {
-            fail(
-              `${widgetType}'s replacement widget ${replacementWidgetType} itself is deprecated. Cannot have a deprecated widget as a replacement for another deprecated widget`,
-            );
-          }
+            if (replacementWidgetConfig === undefined) {
+              fail(
+                `${widgetType}'s replacement widget ${replacementWidgetType} does not resolve to an actual widget Config`,
+              );
+            }
 
-          if (replacementWidgetConfig?.hideCard) {
-            fail(
-              `${widgetType}'s replacement widget ${replacementWidgetType} should be available in the entity Explorer`,
-            );
+            if (replacementWidgetConfig?.isDeprecated) {
+              fail(
+                `${widgetType}'s replacement widget ${replacementWidgetType} itself is deprecated. Cannot have a deprecated widget as a replacement for another deprecated widget`,
+              );
+            }
+
+            if (replacementWidgetConfig?.hideCard) {
+              fail(
+                `${widgetType}'s replacement widget ${replacementWidgetType} should be available in the entity Explorer`,
+              );
+            }
+          });
+        }
+
+        it(`Check if ${widget.type}'s setter method are configured correctly`, () => {
+          const setterConfig = widget.getSetterConfig();
+
+          if (setterConfig) {
+            expect(setterConfig).toHaveProperty("__setters");
+            const setters = setterConfig.__setters;
+
+            for (const [setterName, config] of Object.entries(setters)) {
+              expect(config).toHaveProperty("type");
+              expect(config).toHaveProperty("path");
+              expect(setterName).toContain("set");
+              const type = config.type;
+              const path = config.path;
+
+              expect(typeof type).toBe("string");
+              expect(typeof path).toBe("string");
+            }
           }
         });
-      }
-
-      it(`Check if ${widget.type}'s setter method are configured correctly`, () => {
-        const setterConfig = widget.getSetterConfig();
-
-        if (setterConfig) {
-          expect(setterConfig).toHaveProperty("__setters");
-          const setters = setterConfig.__setters;
-
-          for (const [setterName, config] of Object.entries(setters)) {
-            expect(config).toHaveProperty("type");
-            expect(config).toHaveProperty("path");
-            expect(setterName).toContain("set");
-            const type = config.type;
-            const path = config.path;
-
-            expect(typeof type).toBe("string");
-            expect(typeof path).toBe("string");
-          }
-        }
       });
-    });
+  });
 });

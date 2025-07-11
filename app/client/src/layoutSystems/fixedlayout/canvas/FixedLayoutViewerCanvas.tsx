@@ -56,14 +56,13 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
       !!props.noPad,
     );
   }, [
-    props.children,
+    props?.children,
+    props?.metaWidgetChildrenStructure,
     props.positioning,
-    props.shouldScrollContents,
     props.widgetId,
-    props.componentHeight,
-    props.componentWidth,
-    snapColumnSpace,
-    props.metaWidgetChildrenStructure,
+    props.noPad,
+    defaultWidgetProps,
+    layoutSystemProps,
   ]);
   const snapRows = getCanvasSnapRows(props.bottomRow);
 
