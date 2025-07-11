@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class RedisUtils {
     private final ReactiveRedisOperations<String, String> redisOperations;
+    private final GitServiceConfig gitServiceConfig;
 
     private static final String REDIS_FILE_LOCK_VALUE = "inUse";
 
@@ -47,7 +49,11 @@ public class RedisUtils {
         });
     }
 
+    @Deprecated
     public Mono<Boolean> addFileLock(String key, Duration expirationPeriod, AppsmithException exception) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
             if (Boolean.TRUE.equals(isKeyPresent)) {
                 return Mono.error(exception);
@@ -56,15 +62,27 @@ public class RedisUtils {
         });
     }
 
+    @Deprecated
     public Mono<Boolean> releaseFileLock(String key) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         return redisOperations.opsForValue().delete(key);
     }
 
+    @Deprecated
     public Mono<Boolean> hasKey(String key) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(false);
+        }
         return redisOperations.hasKey(key);
     }
 
+    @Deprecated
     public Mono<Boolean> startAutoCommit(String defaultApplicationId, String branchName) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
         return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
             if (Boolean.TRUE.equals(isKeyPresent)) {
@@ -84,12 +102,20 @@ public class RedisUtils {
         return redisOperations.opsForValue().get(key).map(Integer::valueOf);
     }
 
+    @Deprecated
     public Mono<Boolean> finishAutoCommit(String defaultApplicationId) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
         return redisOperations.opsForValue().delete(key);
     }
 
+    @Deprecated
     public Mono<String> getRunningAutoCommitBranchName(String defaultApplicationId) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.empty();
+        }
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
         return redisOperations.hasKey(key).flatMap(hasKey -> {
             if (hasKey) {
@@ -105,7 +131,11 @@ public class RedisUtils {
      * This would be required for whenever any attribute related to sessions becomes invalid at a systemic level.
      * Use with caution, every user will be logged out.
      */
+    @Deprecated
     public Mono<Void> deleteAllSessionsIncludingCurrentUser() {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.empty();
+        }
         AtomicInteger deletedKeysCount = new AtomicInteger(0);
 
         return redisOperations

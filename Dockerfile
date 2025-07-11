@@ -11,9 +11,11 @@ ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 
 COPY deploy/docker/fs /
 
-# Install git
 RUN apt-get update && \
-    apt-get install -y git && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:git-core/ppa && \
+    apt-get update && \
+    apt-get install -y git tar zstd openssh-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -34,6 +36,9 @@ COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/dist rts/
+
+# Create the git-storage directory with group writeable permissions so non-root users can write to it.
+RUN mkdir --mode 775 "/dev/shm/git-storage"
 
 ENV PATH /opt/bin:/opt/java/bin:/opt/node/bin:$PATH
 

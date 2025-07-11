@@ -8,9 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GitServiceConfig {
 
-    @Value("${appsmith.git.root:/data/git-storage}")
+    @Value("${appsmith.git.root}")
     private String gitRootPath;
 
     @Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
     private String readmeTemplatePath;
+
+    public Boolean isGitInMemory() {
+        return gitRootPath.startsWith("/dev/shm/");
+    }
 }

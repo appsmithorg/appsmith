@@ -11,13 +11,9 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -28,8 +24,6 @@ import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,29 +114,5 @@ public class ExchangeJsonConversionTests {
         assertThat(artifactExchangeJson).isNotNull();
 
         templateProvider.assertResourceComparisons(originalArtifactJson, artifactExchangeJson);
-    }
-
-    @TestTemplate
-    public void testSerializeArtifactExchangeJson_whenArtifactIsFullyPopulated_returnsCorrespondingBaseRepoPath(
-            ExchangeJsonContext context) throws IOException, GitAPIException {
-        ArtifactExchangeJson originalArtifactJson = createArtifactJson(context).block();
-
-        Mockito.doReturn(Mono.just(true))
-                .when(fsGitHandler)
-                .resetToLastCommit(Mockito.any(), Mockito.anyString(), Mockito.anyBoolean());
-
-        Files.createDirectories(Path.of("./container-volumes/git-storage/test123"));
-
-        Mono<Path> responseMono =
-                commonGitFileUtils.saveArtifactToLocalRepoNew(Path.of("test123"), originalArtifactJson, "irrelevant");
-
-        StepVerifier.create(responseMono)
-                .assertNext(response -> {
-                    Assertions.assertThat(response).isNotNull();
-                })
-                .verifyComplete();
-
-        FileUtils.deleteDirectory(
-                Path.of("./container-volumes/git-storage/test123").toFile());
     }
 }

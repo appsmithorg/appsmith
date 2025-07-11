@@ -1,6 +1,7 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.git.handler.FSGitHandler;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.central.GitHandlingServiceCECompatible;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
@@ -28,7 +29,8 @@ public class GitFSServiceCECompatibleImpl extends GitFSServiceCEImpl implements 
             FSGitHandler fsGitHandler,
             GitAnalyticsUtils gitAnalyticsUtils,
             GitArtifactHelperResolver gitArtifactHelperResolver,
-            FeatureFlagService featureFlagService) {
+            FeatureFlagService featureFlagService,
+            GitServiceConfig gitServiceConfig) {
         super(
                 gitDeployKeysRepository,
                 commonGitFileUtils,
@@ -39,6 +41,7 @@ public class GitFSServiceCECompatibleImpl extends GitFSServiceCEImpl implements 
                 fsGitHandler,
                 gitAnalyticsUtils,
                 gitArtifactHelperResolver,
-                featureFlagService);
+                featureFlagService,
+                gitServiceConfig);
     }
 }
