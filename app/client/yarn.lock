@@ -2605,6 +2605,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/colors@npm:^5.1.8":
+  version: 5.1.8
+  resolution: "@blueprintjs/colors@npm:5.1.8"
+  dependencies:
+    tslib: ~2.6.2
+  checksum: 7d461654b9057e7db0c2d28d5ca0ee83ca571116e53dc219676132ae94d6677c7783d29cca52346ac3b692f60566f8955b033756bd9843696a2f8da64ad95731
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/core@npm:3.47.0":
   version: 3.47.0
   resolution: "@blueprintjs/core@npm:3.47.0"
@@ -2627,6 +2636,33 @@ __metadata:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
   checksum: 54ca7ae7574847468eb39d7ae1925662990bd36d241f96e424ddb5f616e27059d89a61b12209c005b6cf5e0a73a42d6be61849c269b1e82515cdcedc23a0e879
+  languageName: node
+  linkType: hard
+
+"@blueprintjs/core@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@blueprintjs/core@npm:6.0.0"
+  dependencies:
+    "@blueprintjs/colors": ^5.1.8
+    "@blueprintjs/icons": ^6.0.0
+    "@popperjs/core": ^2.11.8
+    classnames: ^2.3.1
+    normalize.css: ^8.0.1
+    react-popper: ^2.3.0
+    react-transition-group: ^4.4.5
+    tslib: ~2.6.2
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    "@types/react": 18
+    react: 18
+    react-dom: 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  bin:
+    upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
+    upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
+  checksum: 6bf0ad6c1b2425365a10052030cfdeec094cac3b300c4385ace365ad210c5a0115ac4c4fd5f1ac55b7d297b7ee522139578e60d37b488f3df210516d97c4de1e
   languageName: node
   linkType: hard
 
@@ -2697,17 +2733,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/select@npm:^3.10.0":
-  version: 3.14.2
-  resolution: "@blueprintjs/select@npm:3.14.2"
+"@blueprintjs/select@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@blueprintjs/select@npm:6.0.0"
   dependencies:
-    "@blueprintjs/core": ^3.33.0
-    classnames: ^2.2
-    tslib: ~1.13.0
+    "@blueprintjs/core": ^6.0.0
+    "@blueprintjs/icons": ^6.0.0
+    classnames: ^2.3.1
+    tslib: ~2.6.2
   peerDependencies:
-    react: ^15.3.0 || 16
-    react-dom: ^15.3.0 || 16
-  checksum: d09a0f4912c571d6ab54b8b4e93bbd91de059ab69536d3ac9b963fc43bd462f03c486d03fdb57ed1f69dca422feb942221fca7d51fe6a954a7116bc39981d2dc
+    "@types/react": 18
+    react: 18
+    react-dom: 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 8ec3e24344b7106b439f883f094914bed7f9f3852ac972390233f888bf5f84b30673b405cd419d09b1c5a3aba572d1f8714e5ac781392e59337ed31c563c9616
   languageName: node
   linkType: hard
 
@@ -5490,10 +5531,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@popperjs/core@npm:^2.5.4, @popperjs/core@npm:^2.9.2":
-  version: 2.11.7
-  resolution: "@popperjs/core@npm:2.11.7"
-  checksum: 5b6553747899683452a1d28898c1b39173a4efd780e74360bfcda8eb42f1c5e819602769c81a10920fc68c881d07fb40429604517d499567eac079cfa6470f19
+"@popperjs/core@npm:^2.11.8, @popperjs/core@npm:^2.5.4, @popperjs/core@npm:^2.9.2":
+  version: 2.11.8
+  resolution: "@popperjs/core@npm:2.11.8"
+  checksum: e5c69fdebf52a4012f6a1f14817ca8e9599cb1be73dd1387e1785e2ed5e5f0862ff817f420a87c7fc532add1f88a12e25aeb010ffcbdc98eace3d55ce2139cf0
   languageName: node
   linkType: hard
 
@@ -13642,7 +13683,7 @@ __metadata:
     "@blueprintjs/datetime": ^3.23.6
     "@blueprintjs/icons": 3.22.0
     "@blueprintjs/popover2": ^0.5.0
-    "@blueprintjs/select": ^3.10.0
+    "@blueprintjs/select": ^6.0.0
     "@cypress/grep": ^4.0.1
     "@design-system/widgets-old": "workspace:^"
     "@faker-js/faker": ^7.4.0
@@ -34022,6 +34063,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:~2.6.2":
+  version: 2.6.3
+  resolution: "tslib@npm:2.6.3"
+  checksum: 74fce0e100f1ebd95b8995fbbd0e6c91bdd8f4c35c00d4da62e285a3363aaa534de40a80db30ecfd388ed7c313c42d930ee0eaf108e8114214b180eec3dbe6f5
+  languageName: node
+  linkType: hard
+
 "tsutils@npm:^3.21.0":
   version: 3.21.0
   resolution: "tsutils@npm:3.21.0"
@@ -34742,12 +34790,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "use-sync-external-store@npm:1.4.0"
+"use-sync-external-store@npm:^1.2.0, use-sync-external-store@npm:^1.4.0":
+  version: 1.5.0
+  resolution: "use-sync-external-store@npm:1.5.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: dc3843a1b59ac8bd01417bd79498d4c688d5df8bf4801be50008ef4bfaacb349058c0b1605b5b43c828e0a2d62722d7e861573b3f31cea77a7f23e8b0fc2f7e3
+  checksum: 5e639c9273200adb6985b512c96a3a02c458bc8ca1a72e91da9cdc6426144fc6538dca434b0f99b28fb1baabc82e1c383ba7900b25ccdcb43758fb058dc66c34
   languageName: node
   linkType: hard
 
