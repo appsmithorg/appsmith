@@ -71,3 +71,18 @@ export const DatasourceDescription = styled.div`
   font-weight: var(--ads-v2-font-weight-normal);
   line-height: var(--ads-v2-line-height-2);
 `;
+
+export const DatasourceContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--ads-v2-spaces-4);
+`;
+
+export const DatasourceLeftContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-4);
+  flex: 1;
+`;
