@@ -128,7 +128,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
 
       return false;
     },
-    [plugins, isIntegrationsEnabledForPaid],
+    [plugins, isIntegrationsEnabledForPaid, isPaidFeaturesTaggingEnabled],
   );
 
   return (
