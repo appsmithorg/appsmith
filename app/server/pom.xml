@@ -118,7 +118,7 @@
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
+                        <version>5.13.3</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.junit.platform</groupId>
@@ -151,7 +151,7 @@
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
+                        <version>5.13.3</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.junit.platform</groupId>
