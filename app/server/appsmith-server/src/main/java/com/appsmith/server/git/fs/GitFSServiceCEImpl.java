@@ -10,6 +10,7 @@ import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
@@ -79,6 +80,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     protected final GitArtifactHelperResolver gitArtifactHelperResolver;
     private final FeatureFlagService featureFlagService;
+    private final GitServiceConfig gitServiceConfig;
 
     private static final String ORIGIN = "origin/";
     private static final String REMOTE_NAME_REPLACEMENT = "";
@@ -698,6 +700,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        if (gitServiceConfig.isGitInMemory()) {
+            return fsGitHandler.mergeBranch(
+                    repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
+        }
+
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
