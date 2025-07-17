@@ -31,6 +31,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import HtmlTitle from "../AppViewerHtmlTitle";
 import Sidebar from "./Sidebar";
 import TopHeader from "./components/TopHeader";
+import { getRenderPage } from "selectors/evaluationSelectors";
 
 export function Navigation() {
   const dispatch = useDispatch();
@@ -50,7 +51,7 @@ export function Navigation() {
     getCurrentApplication,
   );
   const pages = useSelector(getViewModePageList);
-
+  const shouldShowHeader = useSelector(getRenderPage);
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed") === "true";
   const forceShowNavBar = queryParams.get("navbar") === "true";
@@ -69,15 +70,17 @@ export function Navigation() {
   // TODO: refactor this to not directly reference a DOM element by class defined elsewhere
   useEffect(
     function adjustHeaderHeightEffect() {
-      const header = document.querySelector(".js-appviewer-header");
+      if (shouldShowHeader) {
+        const header = document.querySelector(".js-appviewer-header");
 
-      dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
+        dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
+      }
 
       return () => {
         dispatch(setAppViewHeaderHeight(0));
       };
     },
-    [navStyle, orientation, dispatch],
+    [navStyle, orientation, dispatch, shouldShowHeader],
   );
 
   useEffect(
@@ -121,6 +124,8 @@ export function Navigation() {
     orientation,
     pages,
   ]);
+
+  if (!shouldShowHeader) return null;
 
   if (hideHeader) return <HtmlTitle />;
 

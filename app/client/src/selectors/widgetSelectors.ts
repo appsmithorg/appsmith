@@ -8,6 +8,7 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "WidgetProvider/factory";
+import { getWidgetConfigsVersion } from "WidgetProvider/factory/widgetConfigVersion";
 import {
   getAltBlockWidgetSelection,
   getFocusedWidget,
@@ -78,6 +79,7 @@ export const getModalDropdownList = createSelector(
 export const getNextModalName = createSelector(
   getExistingWidgetNames,
   getModalWidgetType,
+  getWidgetConfigsVersion, // Add dependency on widget configs version
   (names, modalWidgetType) => {
     const prefix =
       WidgetFactory.widgetConfigMap.get(modalWidgetType)?.widgetName || "";
@@ -266,4 +268,20 @@ export const isResizingOrDragging = createSelector(
   (state: DefaultRootState) => state.ui.widgetDragResize.isResizing,
   (state: DefaultRootState) => state.ui.widgetDragResize.isDragging,
   (isResizing, isDragging) => !!isResizing || !!isDragging,
+);
+// get widgets types associated to a tab
+export const getUsedWidgetTypes = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets) => {
+    const widgetTypes = new Set<string>();
+
+    // Iterate through all widgets in the state
+    Object.values(canvasWidgets).forEach((widget) => {
+      if (widget.type && !widget.type.startsWith("MODULE_WIDGET_")) {
+        widgetTypes.add(widget.type);
+      }
+    });
+
+    return Array.from(widgetTypes);
+  },
 );

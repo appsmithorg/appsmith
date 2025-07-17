@@ -93,6 +93,7 @@ import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import { validateSessionToken } from "utils/SessionUtils";
 import { appsmithTelemetry } from "instrumentation";
+import { clearAllWidgetFactoryCache } from "WidgetProvider/factory/decorators";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -535,6 +536,11 @@ function* eagerPageInitSaga() {
   } catch (e) {}
 }
 
+function handleWidgetInitSuccess() {
+  //every time a widget is initialized, we clear the cache so that all widgetFactory values are recomputed
+  clearAllWidgetFactoryCache();
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLeading(
@@ -547,5 +553,7 @@ export default function* watchInitSagas() {
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
     takeEvery(ReduxActionTypes.INITIALIZE_CURRENT_PAGE, eagerPageInitSaga),
+
+    takeLeading(ReduxActionTypes.WIDGET_INIT_SUCCESS, handleWidgetInitSuccess),
   ]);
 }

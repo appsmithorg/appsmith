@@ -1,28 +1,15 @@
 import React, { useState } from "react";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Modal, ModalContent, Tag } from "@appsmith/ads";
+import { Modal, ModalContent } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { handlePremiumDatasourceClick } from "./Helpers";
 import DatasourceItem from "../DatasourceItem";
-import { createMessage } from "ee/constants/messages";
-import { PREMIUM_DATASOURCES } from "ee/constants/messages";
 import type { UpcomingIntegration } from "entities/Plugin";
+import PremiumFeatureTag from "components/editorComponents/PremiumFeatureTag";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
-`;
-
-const PremiumTag = styled(Tag)`
-  color: var(--ads-v2-color-purple-700);
-  background-color: var(--ads-v2-color-purple-100);
-  border-color: var(--ads-v2-color-purple-300);
-  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-2);
-  text-transform: uppercase;
-  > span {
-    font-weight: 700;
-    font-size: 10px;
-  }
 `;
 
 export default function PremiumDatasources(props: {
@@ -53,11 +40,7 @@ export default function PremiumDatasources(props: {
           key={integration.name}
           name={integration.name}
           rightSibling={
-            !props.isIntegrationsEnabledForPaid && (
-              <PremiumTag isClosable={false} kind={"premium"}>
-                {createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG)}
-              </PremiumTag>
-            )
+            !props.isIntegrationsEnabledForPaid && <PremiumFeatureTag />
           }
         />
       ))}

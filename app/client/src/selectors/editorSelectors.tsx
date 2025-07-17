@@ -52,6 +52,7 @@ import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import { getWidgetConfigsVersion } from "WidgetProvider/factory/widgetConfigVersion";
 
 const getIsDraggingOrResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -398,6 +399,7 @@ const isModuleWidget = (
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
   getIsAnvilLayout,
+  getWidgetConfigsVersion, // Add dependency on widget configs version
   (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
     const widgetConfigsArray = Object.values(widgetConfigs);

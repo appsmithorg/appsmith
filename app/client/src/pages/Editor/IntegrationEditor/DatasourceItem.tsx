@@ -5,6 +5,8 @@ import {
   DatasourceImage,
   DatasourceName,
   DatasourceNameWrapper,
+  DatasourceContentWrapper,
+  DatasourceLeftContent,
 } from "./IntegrationStyledComponents";
 
 interface DatasourceItem {
@@ -40,25 +42,29 @@ export default function DatasourceItem({
       data-testid={dataCardTestId}
       onClick={handleOnClick}
     >
-      <DatasourceImage
-        alt={name}
-        className="content-icon"
-        data-testid={dataCardImageTestId}
-        src={icon}
-      />
-      <DatasourceNameWrapper data-testid={dataCardWrapperTestId}>
-        <DatasourceName
-          className="t--plugin-name"
-          data-testid={dataNameTestId}
-          renderAs="p"
-        >
-          {name}
-        </DatasourceName>
-        <DatasourceDescription data-testid={dataCardDescriptionTestId}>
-          {description}
-        </DatasourceDescription>
-      </DatasourceNameWrapper>
-      {rightSibling}
+      <DatasourceContentWrapper>
+        <DatasourceLeftContent>
+          <DatasourceImage
+            alt={name}
+            className="content-icon"
+            data-testid={dataCardImageTestId}
+            src={icon}
+          />
+          <DatasourceNameWrapper data-testid={dataCardWrapperTestId}>
+            <DatasourceName
+              className="t--plugin-name"
+              data-testid={dataNameTestId}
+              renderAs="p"
+            >
+              {name}
+            </DatasourceName>
+            <DatasourceDescription data-testid={dataCardDescriptionTestId}>
+              {description}
+            </DatasourceDescription>
+          </DatasourceNameWrapper>
+        </DatasourceLeftContent>
+        {rightSibling}
+      </DatasourceContentWrapper>
     </DatasourceCard>
   );
 }
