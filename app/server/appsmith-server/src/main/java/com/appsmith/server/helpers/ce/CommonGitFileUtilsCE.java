@@ -650,7 +650,7 @@ public class CommonGitFileUtilsCE {
      * @return an instance of an object which extends artifact exchange json.
      * i.e. Application Json, Package Json
      */
-    public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepository(
+    public Mono<ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepository(
             ArtifactJsonTransformationDTO jsonTransformationDTO) {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
