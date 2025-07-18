@@ -1,5 +1,4 @@
-import { difference } from "lodash";
-import { isChildPropertyPath } from "utils/DynamicBindingUtils";
+import { isChildPropertyPath, getDifferences } from "utils/DynamicBindingUtils";
 
 export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
@@ -107,9 +106,9 @@ export default class DependencyMap {
     const newNodeDependencies = validDependencies;
 
     // dependencies removed from path
-    const removedNodeDependencies = difference(
-      Array.from(previousNodeDependencies),
-      Array.from(newNodeDependencies),
+    const removedNodeDependencies = getDifferences(
+      previousNodeDependencies,
+      newNodeDependencies,
     );
 
     // Remove node from the inverseDependencies of removed deps
@@ -122,9 +121,9 @@ export default class DependencyMap {
     const newNodeInvalidDependencies = invalidDependencies;
 
     // invalid dependencies removed from path
-    const removedNodeInvalidDependencies = difference(
-      Array.from(previousNodeInvalidDependencies),
-      Array.from(newNodeInvalidDependencies),
+    const removedNodeInvalidDependencies = getDifferences(
+      previousNodeInvalidDependencies,
+      newNodeInvalidDependencies,
     );
 
     // Remove node from the inverseDependencies of removed invalidDeps

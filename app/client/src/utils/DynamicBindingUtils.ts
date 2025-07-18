@@ -640,3 +640,13 @@ export function getEntityName(
 
   if (isJSAction(entity)) return entityConfig.name;
 }
+
+export function getDifferences<T>(a: Set<T>, b: Set<T>): T[] {
+  const diff: T[] = [];
+
+  for (const val of a) {
+    if (!b.has(val)) diff.push(val);
+  }
+
+  return diff;
+}
