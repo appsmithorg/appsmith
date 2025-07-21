@@ -47,3 +47,7 @@ mongo-data**
 
 # ignore the task file as it will be different for different project implementations.
 TASKS.md
+
+# Ignore all log files
+*.log
+
