@@ -41,6 +41,7 @@ import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
+import UpgradeButton from "components/editorComponents/UpgradeButton";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
@@ -78,6 +79,7 @@ const HomepageHeaderAction = ({
   return (
     <div className="flex items-center">
       <ShowUpgradeMenuItem />
+      <UpgradeButton />
       {getShowAdminSettings(isFeatureEnabled, user) && (
         <Tooltip content={createMessage(ADMIN_SETTINGS)} placement="bottom">
           <Button
