@@ -30,7 +30,9 @@ deploy/helm/charts
 app/client/.yalc/
 app/client/yalc.lock
 
-# editor related
+###############################################
+# 🛠️ IDE / Editor Configs
+###############################################
 .vscode/*
 .idea
 .fleet/*
