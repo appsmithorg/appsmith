@@ -77,7 +77,6 @@ import {
   isObject,
   isUndefined,
   set,
-  union,
   unset,
 } from "lodash";
 
@@ -1008,29 +1007,29 @@ export default class DataTreeEvaluator {
     changes: Array<string>,
     inverseMap: Record<string, string[]>,
   ): Array<string> {
-    let finalSortOrder: Array<string> = [];
     let computeSortOrder = true;
     // Initialize parents with the current sent of property paths that need to be evaluated
     let parents = changes;
     let subSortOrderArray: Array<string>;
-    let visitedNodes: string[] = [];
+    const visitedNodesSet = new Set<string>();
+    // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
+    // up the tree, there are bound to be many duplicates.
+    const uniqueKeysInSortOrder = new Set<string>();
 
     while (computeSortOrder) {
       // Get all the nodes that would be impacted by the evaluation of the nodes in parents array in sorted order
       subSortOrderArray = this.getEvaluationSortOrder(parents, inverseMap);
-      visitedNodes = union(visitedNodes, parents);
-      // Add all the sorted nodes in the final list
-      finalSortOrder = union(finalSortOrder, subSortOrderArray);
+
+      // Add all parents and subSortOrderArray nodes to their respective sets
+      for (const node of parents) visitedNodesSet.add(node);
+
+      for (const node of subSortOrderArray) uniqueKeysInSortOrder.add(node);
 
       parents = getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
-      computeSortOrder = difference(parents, visitedNodes).length > 0;
+      computeSortOrder = parents.some((parent) => !visitedNodesSet.has(parent));
     }
-
-    // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
-    // up the tree, there are bound to be many duplicates.
-    const uniqueKeysInSortOrder = new Set(finalSortOrder);
 
     // if a property path evaluation gets triggered by diff top order changes
     // this could lead to incorrect sort order in spite of the bfs traversal

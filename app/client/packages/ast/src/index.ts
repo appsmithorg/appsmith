@@ -403,29 +403,45 @@ export interface IdentifierInfo {
   variables: string[];
   isError: boolean;
 }
+
+// Extracted function to sanitize, wrap, parse code, and call ancestorWalk, now with caching
+const sanitizedWrappedAncestorWalkCache = new Map<string, NodeList>();
+
+function getSanitizedWrappedAncestorWalk(
+  code: string,
+  evaluationVersion: number,
+): NodeList {
+  const cacheKey = `${evaluationVersion}::${code}`;
+
+  if (sanitizedWrappedAncestorWalkCache.has(cacheKey)) {
+    return sanitizedWrappedAncestorWalkCache.get(cacheKey)!;
+  }
+
+  const sanitizedScript = sanitizeScript(code, evaluationVersion);
+  // We sanitize and wrap the code because all code/script gets wrapped with a function during evaluation.
+  // Some syntax won't be valid unless they're at the RHS of a statement.
+  // Since we're assigning all code/script to RHS during evaluation, we do the same here.
+  // So that during ast parse, those errors are neglected.
+  // e.g. IIFE without braces:
+  //   function() { return 123; }() -> is invalid
+  //   let result = function() { return 123; }() -> is valid
+  const wrappedCode = wrapCode(sanitizedScript);
+  const ast = getAST(wrappedCode);
+  const result = ancestorWalk(ast);
+
+  sanitizedWrappedAncestorWalkCache.set(cacheKey, result);
+
+  return result;
+}
+
 export const extractIdentifierInfoFromCode = (
   code: string,
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>,
 ): IdentifierInfo => {
-  let ast: Node = { end: 0, start: 0, type: "" };
-
   try {
-    const sanitizedScript = sanitizeScript(code, evaluationVersion);
-    /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
-       Some syntax won't be valid unless they're at the RHS of a statement.
-       Since we're assigning all code/script to RHS during evaluation, we do the same here.
-       So that during ast parse, those errors are neglected.
-    */
-    /* e.g. IIFE without braces
-      function() { return 123; }() -> is invalid
-      let result = function() { return 123; }() -> is valid
-    */
-    const wrappedCode = wrapCode(sanitizedScript);
-
-    ast = getAST(wrappedCode);
     const { functionalParams, references, variableDeclarations }: NodeList =
-      ancestorWalk(ast);
+      getSanitizedWrappedAncestorWalk(code, evaluationVersion);
     const referencesArr = Array.from(references).filter((reference) => {
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
