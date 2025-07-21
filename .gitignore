@@ -8,7 +8,7 @@ stacks
 # Server artifacts
 /deploy/docker/fs/opt/appsmith/server
 
-# to ignore the node_modeules folder
+# # to ignore the node_modules folder
 node_modules
 # to ignore the package-lock.json file
 package-lock.json
