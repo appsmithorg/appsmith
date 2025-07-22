@@ -83,9 +83,6 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isPaidFeaturesTaggingEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_paid_features_tagging,
-  );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -113,8 +110,6 @@ export const DataSidePane = (props: DataSidePaneProps) => {
 
   const shouldShowPremiumTag = useCallback(
     (datasource: Datasource) => {
-      if (!isPaidFeaturesTaggingEnabled) return false;
-
       const plugin = plugins.find((p) => p.id === datasource.pluginId);
 
       if (!plugin) return false;
@@ -128,7 +123,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
 
       return false;
     },
-    [plugins, isIntegrationsEnabledForPaid, isPaidFeaturesTaggingEnabled],
+    [plugins, isIntegrationsEnabledForPaid],
   );
 
   return (
