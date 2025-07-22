@@ -15,7 +15,7 @@
 
     <properties>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
-        <uk.co.jemos.podam.podam.version>7.2.11.RELEASE</uk.co.jemos.podam.podam.version>
+        <uk.co.jemos.podam.podam.version>8.0.2.RELEASE</uk.co.jemos.podam.podam.version>
     </properties>
 
     <dependencies>
