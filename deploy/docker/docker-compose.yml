@@ -4,7 +4,7 @@ version: "3"
 
 services:
   appsmith:
-    image: appsmith/appsmith-ce:graviton  # ✅ Use the ARM64-compatible image tag
+    image: appsmith/appsmith-ce:release  # # The 'release' tag supports multi-architecture (amd64 + arm64) and works on EC2 Graviton
     container_name: appsmith
     ports:
       - "8080:80"
