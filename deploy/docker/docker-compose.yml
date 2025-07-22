@@ -1,10 +1,10 @@
-# Use for running an Appsmith, during development.
+# docker-compose.yml - Graviton-Compatible Setup
 
 version: "3"
 
 services:
   appsmith:
-    image: index.docker.io/appsmith/appsmith-ce:release
+    image: appsmith/appsmith-ce:graviton  # ✅ Use the ARM64-compatible image tag
     container_name: appsmith
     ports:
       - "8080:80"
@@ -13,3 +13,4 @@ services:
       APPSMITH_ENCRYPTION_SALT: abcd
     volumes:
       - ./stacks:/appsmith-stacks
+
