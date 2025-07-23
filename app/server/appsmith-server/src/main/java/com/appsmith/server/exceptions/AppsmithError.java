@@ -1020,6 +1020,46 @@ public enum AppsmithError {
             "Insufficient password strength",
             ErrorType.ARGUMENT_ERROR,
             null),
+    GIT_ROUTE_HANDLER_NOT_FOUND(
+            500,
+            AppsmithErrorCode.GIT_ROUTE_HANDLER_NOT_FOUND.getCode(),
+            "No handler found for Git route type: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Git route handler not found",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
+    GIT_ROUTE_INVALID_FIELD_VALUE(
+            400,
+            AppsmithErrorCode.GIT_ROUTE_INVALID_FIELD_VALUE.getCode(),
+            "Invalid field value provided for Git route: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid Git route field value",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
+    GIT_ROUTE_CONTEXT_BUILD_ERROR(
+            500,
+            AppsmithErrorCode.GIT_ROUTE_CONTEXT_BUILD_ERROR.getCode(),
+            "Failed to build Git route context: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Git route context build failed",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
+    GIT_ROUTE_ARTIFACT_NOT_FOUND(
+            404,
+            AppsmithErrorCode.GIT_ROUTE_ARTIFACT_NOT_FOUND.getCode(),
+            "Artifact not found for Git route: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Git route artifact not found",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
+    GIT_ROUTE_INVALID_PRIVATE_KEY(
+            400,
+            AppsmithErrorCode.GIT_ROUTE_INVALID_PRIVATE_KEY.getCode(),
+            "Invalid private key format for Git route: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid Git private key",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

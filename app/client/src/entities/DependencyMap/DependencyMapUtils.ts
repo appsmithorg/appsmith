@@ -96,19 +96,26 @@ export class DependencyMapUtils {
   ) {
     const dependencies = dependencyMap.rawDependencies;
 
+    // We don't want to process the same node multiple times
+    // STEP 1: Collect all unique nodes that need processing
+    const nodesToProcess = new Set<string>();
+
     for (const [node, deps] of dependencies.entries()) {
       if (affectedSet.has(node)) {
-        DependencyMapUtils.makeParentsDependOnChild(dependencyMap, node);
+        nodesToProcess.add(node); // Just add to set, don't call function yet
       }
 
-      deps.forEach((dep) => {
+      for (const dep of deps) {
         if (affectedSet.has(dep)) {
-          DependencyMapUtils.makeParentsDependOnChild(dependencyMap, dep);
+          nodesToProcess.add(dep); // Just add to set, don't call function yet
         }
-      });
+      }
     }
 
-    return dependencyMap;
+    // STEP 2: Process each unique node exactly once
+    for (const nodeToProcess of nodesToProcess) {
+      DependencyMapUtils.makeParentsDependOnChild(dependencyMap, nodeToProcess);
+    }
   }
 
   static makeParentsDependOnChild = (
