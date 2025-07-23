@@ -106,7 +106,7 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 
   & > *:only-child,
   & > *:only-child button {
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
 `;
 
