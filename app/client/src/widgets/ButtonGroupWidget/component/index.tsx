@@ -103,6 +103,11 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
         ? `0px ${borderRadius} ${borderRadius} 0`
         : `0px 0px ${borderRadius} ${borderRadius}`};
   }
+
+  & > *:only-child,
+  & > *:only-child button {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
 `;
 
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
