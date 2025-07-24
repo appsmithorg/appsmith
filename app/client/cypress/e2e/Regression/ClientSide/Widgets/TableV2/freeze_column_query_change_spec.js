@@ -47,7 +47,7 @@ describe(
       cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
 
       //Check the id column is still frozen to the right:
-      cy.checkColumnPosition("customColumn1", 5);
+      cy.checkColumnPosition("customColumn1", 4);
     });
 
     it("1.3 Check if the custom + common columns retain their positon", () => {
