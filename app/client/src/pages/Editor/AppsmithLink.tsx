@@ -22,6 +22,7 @@ export const StyledLink = styled((props) => {
     min-width: 24px;
     width: 24px;
     height: 24px;
+    object-fit: contain;
   }
 `;
 
