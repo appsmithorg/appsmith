@@ -5,6 +5,8 @@ import { LOGO_TOOLTIP, createMessage } from "ee/constants/messages";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import history from "utils/history";
+import { useSelector } from "react-redux";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 
 export const StyledLink = styled((props) => {
   // we are removing non input related props before passing them in the components
@@ -20,10 +22,13 @@ export const StyledLink = styled((props) => {
     min-width: 24px;
     width: 24px;
     height: 24px;
+    object-fit: contain;
   }
 `;
 
 export const AppsmithLink = () => {
+  const organizationConfig = useSelector(getOrganizationConfig);
+
   const handleOnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.stopPropagation();
@@ -43,7 +48,11 @@ export const AppsmithLink = () => {
         <img
           alt="Appsmith logo"
           className="t--appsmith-logo"
-          src={AppsmithLogo}
+          src={
+            organizationConfig.brandLogoUrl
+              ? organizationConfig.brandLogoUrl
+              : AppsmithLogo
+          }
         />
       </StyledLink>
     </Tooltip>
