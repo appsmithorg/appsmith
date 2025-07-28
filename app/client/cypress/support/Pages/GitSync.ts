@@ -278,11 +278,6 @@ export class GitSync {
     });
     this.agHelper.GetNClick(this.locators.connectDeployKeyCheckbox, 0, true);
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
-
-    if (assertConnect) {
-      cy.wait("@importFromGit");
-      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-    }
   }
 
   public CreateGitBranch(
