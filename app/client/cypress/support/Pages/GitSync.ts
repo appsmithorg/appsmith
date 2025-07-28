@@ -280,6 +280,7 @@ export class GitSync {
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
 
     if (assertConnect) {
+      cy.wait("@importFromGit");
       this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
     }
   }
