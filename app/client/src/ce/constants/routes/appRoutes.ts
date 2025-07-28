@@ -128,7 +128,8 @@ export const matchAppLibrariesPath = (pathName: string) =>
   match(`${BUILDER_CUSTOM_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName);
 
 export const matchAppPackagesPath = (pathName: string) =>
-  match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
+  match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
