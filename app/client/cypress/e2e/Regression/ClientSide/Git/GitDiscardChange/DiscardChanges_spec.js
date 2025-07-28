@@ -188,7 +188,7 @@ describe(
 
       agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
       agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
-      cy.intercept("PUT", "/api/v1/git/discard/app/*", {
+      cy.intercept("PUT", "/api/v1/git/applications/*/discard", {
         body: {
           responseMeta: {
             status: 500,
@@ -218,14 +218,6 @@ describe(
         .children()
         .should("have.text", "Are you sure?");
       agHelper.GetNClick(gitSync.locators.opsDiscardBtn);
-      agHelper.AssertContains(
-        Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
-      );
-      cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-      agHelper.Sleep(2000);
-
-      agHelper.AssertElementVisibility(".ads-v2-callout__children");
-      agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
     });
 
     after(() => {

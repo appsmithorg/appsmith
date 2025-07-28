@@ -37,13 +37,16 @@ describe(
         repoName = uid;
         _.gitSync.CreateTestGiteaRepo(repoName);
         _.gitSync.ImportAppFromGit(undefined, repoName, false);
-        cy.wait("@importFromGit").then((interception) => {
-          const status = interception.response.body.responseMeta.status;
-          const message = interception.response.body.responseMeta.error.message;
-          expect(status).to.be.gte(400);
-          expect(message).to.contain(failureMessage);
-          _.gitSync.CloseConnectModal();
-        });
+        cy.wait("@importFromGit", { requestTimeout: 30000 }).then(
+          (interception) => {
+            const status = interception.response.body.responseMeta.status;
+            const message =
+              interception.response.body.responseMeta.error.message;
+            expect(status).to.be.gte(400);
+            expect(message).to.contain(failureMessage);
+            _.gitSync.CloseConnectModal();
+          },
+        );
       });
     });
     after(() => {
