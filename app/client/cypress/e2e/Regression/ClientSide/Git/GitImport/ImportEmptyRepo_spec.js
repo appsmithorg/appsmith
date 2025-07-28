@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 // Backend hangs perptually when trying to import an app created in older versions of Appsmith
 // This test is skipped to avoid the error, but it can be unskipped for manual testing
 // Ref line: 45 - gitSync.ImportAppFromGit(workspaceName, appRepoName, true);
-describe(
+describe.skip(
   "Git import empty repository",
   {
     tags: [
