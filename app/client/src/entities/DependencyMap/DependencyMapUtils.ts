@@ -7,6 +7,7 @@ import {
   isActionConfig,
   isDataPath,
   isJSActionConfig,
+  isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
@@ -260,7 +261,7 @@ export class DependencyMapUtils {
 
       if (!entityConfig) return;
 
-      if (!isActionConfig(entityConfig) && !isJSActionConfig(entityConfig)) {
+      if (isWidget(entityConfig)) {
         return;
       }
 
