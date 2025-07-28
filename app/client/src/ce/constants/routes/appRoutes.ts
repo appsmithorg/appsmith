@@ -124,7 +124,8 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
 
 export const matchAppLibrariesPath = (pathName: string) =>
-  match(`${BUILDER_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName);
+  match(`${BUILDER_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName);
 
 export const matchAppPackagesPath = (pathName: string) =>
   match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
