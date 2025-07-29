@@ -1698,13 +1698,13 @@ export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
-  `Uploaded file must have a max size of 32X32 pixels`;
+  `Uploaded file must have a max size of 48X48 pixels`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
   `Uploaded file must be less than 2MB`;
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
   `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
-  `.ICO, .PNG, or .JPG only • Max 32X32`;
+  `.ICO, .PNG, or .JPG only • Max 48X48`;
 export const PROFILE_DISPLAY_PICTURE_REQUIREMENT = () =>
   `.ICO, .PNG, or .JPG only • Max 32X32`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
