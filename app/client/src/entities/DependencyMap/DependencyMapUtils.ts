@@ -215,7 +215,7 @@ export class DependencyMapUtils {
         const entity = configTree[depName];
 
         // to show cyclic dependency errors only for Action calls and not JSObject.body or JSObject
-        if (entity && entity.ENTITY_TYPE === "ACTION") {
+        if (entity && entity.ENTITY_TYPE) {
           if (this.isTriggerPath(dep, configTree)) {
             hasRun = true;
             runPath = dep;
