@@ -316,7 +316,7 @@
         <dependency>
             <groupId>com.segment.analytics.java</groupId>
             <artifactId>analytics</artifactId>
-            <version>3.3.1</version>
+            <version>3.5.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.squareup.okhttp3</groupId>
