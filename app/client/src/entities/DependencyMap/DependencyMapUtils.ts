@@ -5,7 +5,9 @@ import {
   getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
   isActionConfig,
+  isDataPath,
   isJSActionConfig,
+  isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
@@ -167,10 +169,6 @@ export class DependencyMapUtils {
     return false;
   }
 
-  static isDataPath(path: string) {
-    return path.endsWith(".data");
-  }
-
   static detectReactiveDependencyMisuse(
     dependencyMap: DependencyMap,
     configTree: ConfigTree,
@@ -213,27 +211,34 @@ export class DependencyMapUtils {
       );
 
       for (const dep of transitiveDeps) {
-        if (this.isTriggerPath(dep, configTree)) {
-          hasRun = true;
-          runPath = dep;
-        }
+        const { entityName: depName } = getEntityNameAndPropertyPath(dep);
+        const entity = configTree[depName];
 
-        if (this.isDataPath(dep)) {
-          hasData = true;
-          dataPath = dep;
-        }
+        // to show cyclic dependency errors only for Action calls and not JSObject.body or JSObject
+        if (entity && entity.ENTITY_TYPE) {
+          if (this.isTriggerPath(dep, configTree)) {
+            hasRun = true;
+            runPath = dep;
+          }
 
-        if (
-          hasRun &&
-          hasData &&
-          runPath.split(".")[0] === dataPath.split(".")[0]
-        ) {
-          throw Object.assign(
-            new Error(
-              `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
-            ),
-            { node, triggerPath: runPath, dataPath },
-          );
+          // using the isDataPath function from evalUtils to calculate data paths based on entity type
+          if (isDataPath(entity, dep)) {
+            hasData = true;
+            dataPath = dep;
+          }
+
+          if (
+            hasRun &&
+            hasData &&
+            runPath.split(".")[0] === dataPath.split(".")[0]
+          ) {
+            throw Object.assign(
+              new Error(
+                `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
+              ),
+              { node, triggerPath: runPath, dataPath },
+            );
+          }
         }
       }
     }
@@ -256,7 +261,15 @@ export class DependencyMapUtils {
 
       if (!entityConfig) return;
 
-      if (!isActionConfig(entityConfig) && !isJSActionConfig(entityConfig)) {
+      if (isWidget(entityConfig)) {
+        return;
+      }
+
+      // to not calculate transitive dependencies for JSObject.body and JSObject
+      if (
+        isJSActionConfig(entityConfig) &&
+        (current.includes(".body") || !current.includes("."))
+      ) {
         return;
       }
 
