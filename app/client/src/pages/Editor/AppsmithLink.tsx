@@ -49,8 +49,8 @@ export const AppsmithLink = () => {
           alt="Appsmith logo"
           className="t--appsmith-logo"
           src={
-            organizationConfig.brandLogoUrl
-              ? organizationConfig.brandLogoUrl
+            organizationConfig.brandFaviconUrl
+              ? organizationConfig.brandFaviconUrl
               : AppsmithLogo
           }
         />
