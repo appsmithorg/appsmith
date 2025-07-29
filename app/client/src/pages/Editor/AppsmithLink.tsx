@@ -22,7 +22,6 @@ export const StyledLink = styled((props) => {
     min-width: 24px;
     width: 24px;
     height: 24px;
-    object-fit: contain;
   }
 `;
 
@@ -49,7 +48,9 @@ export const AppsmithLink = () => {
           alt="Appsmith logo"
           className="t--appsmith-logo"
           src={
-            organizationConfig.brandFaviconUrl
+            organizationConfig.brandFaviconUrl &&
+            organizationConfig.brandFaviconUrl !==
+              "https://assets.appsmith.com/appsmith-favicon-orange.ico"
               ? organizationConfig.brandFaviconUrl
               : AppsmithLogo
           }
