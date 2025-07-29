@@ -356,16 +356,7 @@ export class GitSync {
       },
     ).as("gitCheckoutAPI");
 
-    //cy.get(gitSync.locators.branchItem).contains(branch).click();
     this.agHelper.GetNClickByContains(this.locators.branchItem, branch);
-
-    // checks if the spinner exists
-    // cy.get(
-    //   `div${this.locators.branchItem} ${this.commonLocators._btnSpinner}`,
-    //   {
-    //     timeout: 500,
-    //   },
-    // ).should("exist");
 
     cy.wait("@gitCheckoutAPI");
 
