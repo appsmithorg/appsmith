@@ -6,7 +6,7 @@ updates:
       interval: "weekly"
     ignore:
       - dependency-name: "tinymce"
-        versions: ["6.8.3"]
+        versions: ["7.0.0"]
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
