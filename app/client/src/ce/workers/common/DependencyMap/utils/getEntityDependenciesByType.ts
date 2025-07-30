@@ -132,16 +132,6 @@ export function getJSDependencies(
     dependencies = { ...dependencies, [fullPropertyPath]: newDeps };
   }
 
-  for (const funcName of jsActionConfig.actionNames) {
-    const func = jsEntity[funcName];
-
-    if (func) {
-      dependencies[`${jsObjectName}.${funcName}.data`] = [
-        `${jsObjectName}.${funcName}`,
-      ];
-    }
-  }
-
   return dependencies;
 }
 export function getActionDependencies(

@@ -1197,7 +1197,7 @@ export function getExternalChangedDependencies(
 }
 
 export const isDataPath = (
-  entity: DataTreeEntity,
+  entity: DataTreeEntity | Partial<DataTreeEntityConfig>,
   fullPropertyPath: string,
 ) => {
   if (isWidget(entity)) {
