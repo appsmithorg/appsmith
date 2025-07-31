@@ -867,7 +867,8 @@ public class CommonGitFileUtilsCE {
                     if (metadataJsonObject == null) {
                         log.error(
                                 "Error in retrieving the metadata from the file system for repository {}", repoSuffix);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, CommonConstants.METADATA));
                     }
 
                     JsonElement artifactJsonType = metadataJsonObject.get(ARTIFACT_JSON_TYPE);
@@ -876,7 +877,8 @@ public class CommonGitFileUtilsCE {
                         log.error(
                                 "artifactJsonType attribute not found in the metadata file for repository {}",
                                 repoSuffix);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_FILE_SYSTEM_ERROR, "No artifactJsonType attribute found"));
                     }
 
                     return Mono.just(artifactJsonType.getAsString());
