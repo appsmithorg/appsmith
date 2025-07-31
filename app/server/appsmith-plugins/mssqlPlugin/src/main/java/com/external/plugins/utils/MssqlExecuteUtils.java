@@ -1,6 +1,6 @@
 package com.external.plugins.utils;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

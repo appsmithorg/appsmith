@@ -60,6 +60,12 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
             <version>${org.pf4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

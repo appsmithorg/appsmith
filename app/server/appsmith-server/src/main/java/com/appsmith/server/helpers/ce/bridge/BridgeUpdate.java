@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers.ce.bridge;
 
 import lombok.NonNull;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
