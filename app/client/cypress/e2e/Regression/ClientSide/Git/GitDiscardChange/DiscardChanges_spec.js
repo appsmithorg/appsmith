@@ -188,7 +188,7 @@ describe(
 
       agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
       agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
-      cy.intercept("PUT", "/api/v1/git/discard/app/*", {
+      cy.intercept("PUT", "/api/v1/git/applications/*/discard", {
         body: {
           responseMeta: {
             status: 500,

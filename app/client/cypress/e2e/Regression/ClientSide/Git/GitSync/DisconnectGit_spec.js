@@ -79,7 +79,9 @@ describe(
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.enabled");
 
       // disconnecting validation
-      cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
+      cy.intercept("POST", "api/v1/git/applications/*/disconnect").as(
+        "disconnect",
+      );
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).click();
       cy.wait(3000);
       cy.wait("@disconnect").should(
