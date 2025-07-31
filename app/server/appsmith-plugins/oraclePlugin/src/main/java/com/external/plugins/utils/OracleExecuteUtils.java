@@ -4,7 +4,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
 import oracle.jdbc.OracleBlob;
 import oracle.sql.CLOB;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

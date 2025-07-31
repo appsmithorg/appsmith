@@ -97,7 +97,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
-import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @RequiredArgsConstructor

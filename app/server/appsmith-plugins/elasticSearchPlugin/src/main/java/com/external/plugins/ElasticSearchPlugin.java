@@ -15,7 +15,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.ElasticSearchErrorMessages;
 import com.external.plugins.exceptions.ElasticSearchPluginError;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
