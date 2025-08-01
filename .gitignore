@@ -8,7 +8,7 @@ stacks
 # Server artifacts
 /deploy/docker/fs/opt/appsmith/server
 
-# to ignore the node_modeules folder
+# # to ignore the node_modules folder
 node_modules
 # to ignore the package-lock.json file
 package-lock.json
@@ -30,7 +30,9 @@ deploy/helm/charts
 app/client/.yalc/
 app/client/yalc.lock
 
-# editor related
+###############################################
+# 🛠️ IDE / Editor Configs
+###############################################
 .vscode/*
 .idea
 .fleet/*
@@ -45,3 +47,7 @@ mongo-data**
 
 # ignore the task file as it will be different for different project implementations.
 TASKS.md
+
+# Ignore all log files
+*.log
+
