@@ -39,6 +39,7 @@ import {
   getAllPathsBasedOnDiffPaths,
   isDataPath,
   isJSModuleInstance,
+  isPropertyAnEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 
 import {
@@ -1192,7 +1193,11 @@ export default class DataTreeEvaluator {
           valuechanged[fullPropertyPath] = true;
           continue;
         }
+
         // Skip evaluations for actions in JSObjects
+        if (isPropertyAnEntityAction(entity, propertyPath, entityConfig)) {
+          continue;
+        }
 
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
