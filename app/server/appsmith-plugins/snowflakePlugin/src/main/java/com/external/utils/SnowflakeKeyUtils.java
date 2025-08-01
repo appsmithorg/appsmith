@@ -15,7 +15,7 @@ import java.io.StringReader;
 import java.security.PrivateKey;
 import java.security.Security;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class SnowflakeKeyUtils {
     static {

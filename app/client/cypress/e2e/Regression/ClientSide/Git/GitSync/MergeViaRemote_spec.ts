@@ -108,10 +108,6 @@ describe(
 
       _.gitSync.SwitchGitBranch(mainBranch);
 
-      cy.get(".t--upgrade").click({ force: true });
-
-      cy.get(".t--upgrade-confirm").click({ force: true });
-
       cy.location().should((location) => {
         expect(location.pathname).includes(newPathname);
       });

@@ -35,7 +35,7 @@ describe(
 
         cy.intercept({
           method: "POST",
-          url: /\/api\/v1\/git\/branch\/app\/.*\/protected/,
+          url: /\/api\/v1\/git\/applications\/.*\/protected-branches/,
         }).as("gitProtectApi");
         cy.get("@gitRepoName").then((repName) => {
           repoName = repName;

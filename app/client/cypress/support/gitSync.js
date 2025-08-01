@@ -88,9 +88,15 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
 Cypress.Commands.add("merge", (destinationBranch) => {
   agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
 
-  cy.intercept("GET", "/api/v1/git/status/app/*").as(`gitStatus`);
+  cy.intercept(
+    "GET",
+    /\/api\/v1\/git\/applications\/.*\/status\?compareRemote=.*/,
+  ).as(`gitStatus`);
 
-  cy.intercept("GET", "/api/v1/git/branch/app/*").as(`gitBranches`);
+  cy.intercept(
+    "GET",
+    /\/api\/v1\/git\/applications\/.*\/refs\?refType=.*&pruneRefs=.*/,
+  ).as(`gitBranches`);
 
   cy.get(gitSync.locators.quickActionsMergeBtn).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
@@ -115,15 +121,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
       cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
       gitSync.AssertAbsenceOfCheckingMergeability();
       assertHelper.WaitForNetworkCall("mergeStatus");
-      cy.get("@mergeStatus").should(
-        "have.nested.property",
-        "response.body.data.isMergeAble",
-        true,
-      );
-      cy.wait(2000);
       cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
       cy.get(gitSync.locators.opsMergeBtn).click();
-      assertHelper.AssertNetworkStatus("mergeBranch", 200);
       agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
     }
   });

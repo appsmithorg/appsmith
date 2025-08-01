@@ -36,11 +36,10 @@ describe(
     it("Issue 26038 : No simultaneous git status and remote compare api calls on commit modal", function () {
       cy.wait(1000);
 
-      cy.intercept({
-        method: "GET",
-        url: "/api/v1/git/status/app/**",
-        query: { compareRemote: "true" },
-      }).as("gitStatusApi");
+      cy.intercept(
+        "GET",
+        /\/api\/v1\/git\/applications\/.*\/status\?compareRemote=.*/,
+      ).as("gitStatusApi");
 
       _.agHelper.GetNClick(_.locators._publishButton);
 

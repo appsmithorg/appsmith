@@ -687,10 +687,14 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.intercept("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
-  cy.intercept("POST", "/api/v1/git/import/*").as("importFromGit");
-  cy.intercept("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
-  cy.intercept("POST", "/api/v1/git/merge/status/app/*").as("mergeStatus");
+  cy.intercept("POST", "/api/v1/git/applications/*/commit").as("commit");
+  cy.intercept("POST", /\/api\/v1\/git\/artifacts\/import\?workspaceId=.*/).as(
+    "importFromGit",
+  );
+  cy.intercept("POST", "/api/v1/git/applications/*/merge").as("mergeBranch");
+  cy.intercept("POST", "/api/v1/git/applications/*/merge/status").as(
+    "mergeStatus",
+  );
   cy.intercept("PUT", "api/v1/collections/actions/refactor").as(
     "renameJsAction",
   );
@@ -709,10 +713,21 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
-  cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
-  cy.intercept("GET", "/api/v1/git/branch/app/*").as("getBranch");
-  cy.intercept("POST", "/api/v1/git/create-branch/app/*").as("createBranch");
-  cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
+  cy.intercept(
+    "DELETE",
+    /\/api\/v1\/git\/applications\/.*\/ref\?refType=.*&refName=.*/,
+  ).as("deleteBranch");
+  cy.intercept(
+    "GET",
+    /\/api\/v1\/git\/applications\/.*\/refs\?refType=.*&pruneRefs=.*/,
+  ).as("getBranch");
+  cy.intercept("POST", "/api/v1/git/applications/*/create-ref").as(
+    "createBranch",
+  );
+  cy.intercept(
+    "GET",
+    /\/api\/v1\/git\/applications\/.*\/status\?compareRemote=.*/,
+  ).as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
@@ -722,14 +737,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getTemplatePages",
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
-  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
-  cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
+  cy.intercept("POST", "/api/v1/git/applications/*/ssh-keypair").as(
+    "generateKey",
+  );
+  cy.intercept("GET", "/api/v1/git/applications/*/ssh-keypair").as(
+    "generatedKey",
+  );
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept("GET", "/api/v1/applications/snapshot/*").as("pageSnap");
   cy.intercept(
     {
       method: "POST",
-      url: "/api/v1/git/connect/app/*",
+      url: "/api/v1/git/applications/*/connect",
       hostname: window.location.host,
     },
     (req) => {
@@ -755,7 +774,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/tenants", (req) => {
     req.headers["origin"] = "Cypress";
   }).as("postTenant");
-  cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
+  cy.intercept("PUT", "/api/v1/git/applications/*/discard").as(
+    "discardChanges",
+  );
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
 
   if (
@@ -764,6 +785,14 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   ) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept({ release_anvil_enabled: true }, false);
+  } else if (
+    Cypress.currentTest.titlePath.some((title) =>
+      title.toLowerCase().includes("git"),
+    ) ||
+    (Cypress.currentTest.tags && Cypress.currentTest.tags.includes("@tag.Git"))
+  ) {
+    // intercept features call for Git tests that require release_git_api_contracts_enabled flag
+    featureFlagIntercept({ release_git_api_contracts_enabled: true }, false);
   } else {
     featureFlagIntercept({}, false);
   }
