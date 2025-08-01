@@ -2,6 +2,7 @@
 import type { DefaultRootState } from "react-redux";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import type { JSCollection } from "entities/JSCollection";
+import { getJSCollectionFromAllEntities } from "ce/selectors/entitiesSelector";
 
 export const getModuleInstanceById = (
   state: DefaultRootState,
@@ -12,8 +13,9 @@ export const getModuleInstanceJSCollectionById = (
   state: DefaultRootState,
   jsCollectionId: string,
 ): JSCollection | undefined => {
-  return undefined;
+  return getJSCollectionFromAllEntities(state, jsCollectionId);
 };
+
 export const getAllUniqueWidgetTypesInUiModules = (state: DefaultRootState) => {
   return [];
 };
