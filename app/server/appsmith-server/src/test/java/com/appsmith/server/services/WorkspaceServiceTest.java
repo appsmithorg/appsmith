@@ -1524,6 +1524,66 @@ public class WorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void uploadWorkspaceLogo_validSvg() throws IOException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        new ClassPathResource("test_assets/valid.svg"), new DefaultDataBufferFactory(), 4096)
+                .cache();
+        assertThat(dataBufferFlux.count().block())
+                .isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.valueOf("image/svg+xml"));
+
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
+
+        final Mono<Tuple2<Workspace, Asset>> resultMono = createWorkspace.flatMap(workspace -> workspaceService
+                .uploadLogo(workspace.getId(), filepart)
+                .flatMap(workspaceWithLogo -> Mono.zip(
+                        Mono.just(workspaceWithLogo), assetRepository.findById(workspaceWithLogo.getLogoAssetId()))));
+
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final Workspace workspaceWithLogo = tuple.getT1();
+                    assertThat(workspaceWithLogo.getLogoUrl()).isNotNull();
+                    assertThat(workspaceWithLogo.getLogoUrl()).contains(workspaceWithLogo.getLogoAssetId());
+
+                    final Asset asset = tuple.getT2();
+                    assertThat(asset).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uploadWorkspaceLogo_invalidSvg() throws IOException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        new ClassPathResource("test_assets/invalid.svg"), new DefaultDataBufferFactory(), 4096)
+                .cache();
+        assertThat(dataBufferFlux.count().block())
+                .isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.valueOf("image/svg+xml"));
+
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
+
+        final Mono<Tuple2<Workspace, Asset>> resultMono = createWorkspace.flatMap(workspace -> workspaceService
+                .uploadLogo(workspace.getId(), filepart)
+                .flatMap(workspaceWithLogo -> Mono.zip(
+                        Mono.just(workspaceWithLogo), assetRepository.findById(workspaceWithLogo.getLogoAssetId()))));
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage("Please upload a valid svg.")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void delete_WhenWorkspaceHasApp_ThrowsException() {
         Workspace workspace = new Workspace();
         workspace.setName("Test org to test delete org");
