@@ -1,4 +1,4 @@
-ARG BASE
+ARG BASE=eclipse-temurin:17-jdk-jammy
 FROM ${BASE}
 
 ENV IN_DOCKER=1
