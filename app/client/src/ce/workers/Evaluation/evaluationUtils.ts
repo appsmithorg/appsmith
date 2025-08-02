@@ -359,11 +359,10 @@ export const addDependantsOfNestedPropertyPaths = (
   parentPaths: Array<string>,
   inverseMap: DependencyMap,
 ): Set<string> => {
-  const withNestedPaths: Set<string> = new Set();
+  const withNestedPaths: Set<string> = new Set(parentPaths);
   const dependantNodes = Object.keys(inverseMap);
 
   parentPaths.forEach((propertyPath) => {
-    withNestedPaths.add(propertyPath);
     dependantNodes
       .filter((dependantNodePath) =>
         isChildPropertyPath(propertyPath, dependantNodePath),
