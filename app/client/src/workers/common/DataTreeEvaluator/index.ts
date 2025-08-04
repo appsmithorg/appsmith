@@ -39,6 +39,7 @@ import {
   getAllPathsBasedOnDiffPaths,
   isDataPath,
   isJSModuleInstance,
+  isPropertyAnEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 
 import {
@@ -1192,7 +1193,11 @@ export default class DataTreeEvaluator {
           valuechanged[fullPropertyPath] = true;
           continue;
         }
+
         // Skip evaluations for actions in JSObjects
+        if (isPropertyAnEntityAction(entity, propertyPath, entityConfig)) {
+          continue;
+        }
 
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1953,6 +1958,8 @@ export default class DataTreeEvaluator {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     const configTree = this.getConfigTree();
 
+    const updatedValuePathsLatencyStart = performance.now();
+
     for (const pathArray of updatedValuePaths) {
       const fullPropertyPath = convertPathToString(pathArray);
 
@@ -2000,27 +2007,45 @@ export default class DataTreeEvaluator {
       }
     }
 
+    const updatedValuePathsLatency =
+      performance.now() - updatedValuePathsLatencyStart;
+
     // If a nested property path has changed and someone (say x) is dependent on the parent of the said property,
     // x must also be evaluated. For example, the following relationship exists in dependency map:
     // <  "Input1.defaultText" : ["Table1.selectedRow.email"] >
     // If Table1.selectedRow has changed, then Input1.defaultText must also be evaluated because Table1.selectedRow.email
     // is a nested property of Table1.selectedRow
+    const addDependantsOfNestedPropertyPathsLatencyStart = performance.now();
     const changePathsWithNestedDependants = addDependantsOfNestedPropertyPaths(
       Array.from(changePaths),
       this.inverseDependencies,
     );
-
+    const addDependantsOfNestedPropertyPathsLatency =
+      performance.now() - addDependantsOfNestedPropertyPathsLatencyStart;
+    const trimDependantChangePathsLatencyStart = performance.now();
     const trimmedChangedPaths = trimDependantChangePaths(
       changePathsWithNestedDependants,
       this.dependencies,
     );
+    const trimDependantChangePathsLatency =
+      performance.now() - trimDependantChangePathsLatencyStart;
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
+    const completeSortOrderLatencyStart = performance.now();
     const completeSortOrder = this.getCompleteSortOrder(
       trimmedChangedPaths,
       this.inverseDependencies,
     );
+    const completeSortOrderLatency =
+      performance.now() - completeSortOrderLatencyStart;
+
+    this.logs.push({
+      updatedValuePathsLatency,
+      addDependantsOfNestedPropertyPathsLatency,
+      trimDependantChangePathsLatency,
+      completeSortOrderLatency,
+    });
 
     // Remove any paths that do not exist in the data tree anymore
     return difference(
