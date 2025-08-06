@@ -83,6 +83,7 @@ export default function SwitchEnvironment({}: Props) {
   const rampLinkSelector = getRampLink({
     section: RampSection.BottomBarEnvSwitcher,
     feature: RampFeature.MultipleEnv,
+    isBusinessFeature: false,
   });
   const rampLink = useSelector(rampLinkSelector);
 
