@@ -185,6 +185,12 @@ export default {
     const componentHeight = props.componentHeight - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
+    // If pagination is completely disabled (no page navigation)
+    // and server-side pagination is also off, display all data with scroll
+    if (!props.showPagination && !props.serverSidePaginationEnabled) {
+      return props.tableData ? props.tableData.length : 100;
+    }
+
     let pageSize =
       (componentHeight -
         tableSizes.TABLE_HEADER_HEIGHT -
@@ -380,9 +386,9 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
-    /* 
-    Check if there are select columns, 
-    and if the columns are sorting by label instead of default value 
+    /*
+    Check if there are select columns,
+    and if the columns are sorting by label instead of default value
     */
     const selectColumnKeysWithSortByLabel = [];
 
@@ -397,9 +403,9 @@ export default {
       }
     });
 
-    /* 
-    If there are select columns, 
-    transform the specific columns data to show the label instead of the value for sorting 
+    /*
+    If there are select columns,
+    transform the specific columns data to show the label instead of the value for sorting
     */
     let processedTableDataWithLabelInsteadOfValue;
 
