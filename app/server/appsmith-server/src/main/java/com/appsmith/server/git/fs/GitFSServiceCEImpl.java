@@ -182,13 +182,26 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         return obtainArtifactTypeFromGitRepository(jsonTransformationDTO).zipWith(Mono.just(""));
     }
 
+    protected Mono<ArtifactType> handleErrorWhileArtifactTypeIdentification(Throwable exception) {
+        if (exception instanceof AppsmithException appsmithException
+                && AppsmithError.GIT_FILE_SYSTEM_ERROR.getAppErrorCode().equals(appsmithException.getAppErrorCode())) {
+            return Mono.just(ArtifactType.APPLICATION);
+        }
+
+        return Mono.error(exception);
+    }
+
     public Mono<ArtifactType> obtainArtifactTypeFromGitRepository(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String placeHolder = jsonTransformationDTO.getBaseArtifactId();
         String repoName = jsonTransformationDTO.getRepoName();
         Path temporaryStorage = Path.of(workspaceId, placeHolder, repoName);
 
-        return commonGitFileUtils.getArtifactJsonTypeOfRepository(temporaryStorage);
+        return commonGitFileUtils
+                .getArtifactJsonTypeOfRepository(temporaryStorage)
+                .onErrorResume(error -> {
+                    return handleErrorWhileArtifactTypeIdentification(error);
+                });
     }
 
     @Override
