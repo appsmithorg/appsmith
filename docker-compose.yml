@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  appsmith:
+    image: appsmith/appsmith-ce:release-1.21.0  # ระบุเวอร์ชันที่เสถียร
+    container_name: appsmith
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - APPSMITH_MONGODB_URI=mongodb://root:example@mongo:27017/appsmith?authSource=admin
+      - APPSMITH_REDIS_URL=redis://:example@redis:6379
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "example"]
+
+volumes:
+  mongo_data:
