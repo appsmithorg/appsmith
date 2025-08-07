@@ -633,7 +633,19 @@ export default function* executePluginActionTriggerSaga(
       ...payload.pluginErrorDetails,
     });
 
-    if (onError) {
+    if (isError && payload.body && typeof payload.body === "string") {
+      throw new PluginTriggerFailureError(payload.body, [payload.body, params]);
+    } else if (
+      isError &&
+      payload.body &&
+      typeof payload.body === "object" &&
+      "message" in payload.body
+    ) {
+      throw new PluginTriggerFailureError(
+        (payload.body as { message: string }).message,
+        [payload.body, params],
+      );
+    } else if (onError) {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_ACTION_EXECUTE_FAIL, pluginActionNameToDisplay),
         [payload.body, params],
