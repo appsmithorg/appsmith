@@ -66,6 +66,8 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   ]);
   const snapRows = getCanvasSnapRows(props.bottomRow);
 
+  console.log("canvas parent - fixed layout", props);
+
   return (
     <CanvasViewerWrapper
       isListWidgetCanvas={props.isListWidgetCanvas}

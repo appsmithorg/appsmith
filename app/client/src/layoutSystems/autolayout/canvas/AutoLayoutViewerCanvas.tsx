@@ -23,6 +23,8 @@ export const AutoLayoutViewerCanvas = (props: BaseWidgetProps) => {
     true,
   );
 
+  console.log("canvas parent - auto layout", props);
+
   return (
     <CanvasViewerWrapper
       isListWidgetCanvas={props.isListWidgetCanvas}
