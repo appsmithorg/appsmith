@@ -34,7 +34,7 @@ mongodb:
   tolerations: []
   image:
     registry: docker.io
-    repository: bitnami/mongodb
+    repository: bitnamilegacy/mongodb
     tag: 6.0.13
   arbiter:
     nodeSelector: {}
@@ -44,10 +44,6 @@ mongodb:
     nodeSelector: {}
     affinity: {}
     tolerations: []
-  image:
-    registry: docker.io
-    repository: bitnami/mongodb
-    tag: 6.0.13
 
 ## postgresql parameters
 postgresql:
@@ -59,7 +55,7 @@ postgresql:
     database: keycloak
   image:
     registry: docker.io
-    repository: bitnami/postgresql
+    repository: bitnamilegacy/postgresql
     tag: 14.12.0
   primary:
     affinity: {}
