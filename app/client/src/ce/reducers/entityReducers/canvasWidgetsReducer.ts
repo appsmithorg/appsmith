@@ -60,6 +60,7 @@ export const handlers = {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const { widgets } = action.payload;
+    console.log("ankita", "INIT_CANVAS_LAYOUT");
 
     for (const [widgetId, widgetProps] of Object.entries(widgets)) {
       if (widgetProps.type === "CANVAS_WIDGET") {
@@ -76,6 +77,8 @@ export const handlers = {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     let listOfUpdatedWidgets;
+
+    console.log("ankita", "UPDATE_LAYOUT", action.payload);
 
     // if payload has knowledge of which widgets were changed, use that
     if (action.payload.updatedWidgetIds) {
