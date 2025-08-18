@@ -188,19 +188,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
               ),
             };
           } else {
-            console.log(
-              "computed",
-              Math.max(
-                CANVAS_DEFAULT_MIN_HEIGHT_PX,
-                computed.bottomRow +
-                  GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
-                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              ),
-              computed.bottomRow +
-                GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
-                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              CANVAS_DEFAULT_MIN_HEIGHT_PX,
-            );
             return {
               ...computed,
               bottomRow: Math.max(
