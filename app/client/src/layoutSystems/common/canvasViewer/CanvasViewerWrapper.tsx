@@ -26,14 +26,6 @@ export const CanvasViewerWrapper = ({
     position: "relative",
   };
 
-  console.log(
-    "canvas snapRows",
-    snapRows,
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-  console.log("canvas height", height);
-  console.log("canvas isListWidgetCanvas", isListWidgetCanvas);
-
   return (
     <div className={getCanvasClassName()} style={style}>
       {children}
