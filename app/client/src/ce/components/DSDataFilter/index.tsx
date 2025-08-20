@@ -74,6 +74,7 @@ export function DSDataFilter({
   const rampLinkSelector = getRampLink({
     section: RampSection.DSEditor,
     feature: RampFeature.MultipleEnv,
+    isBusinessFeature: false,
   });
   const rampLink = useSelector(rampLinkSelector);
 
