@@ -47,7 +47,7 @@ ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 RUN set -o xtrace \
   && mkdir -p /opt/java \
   # Assets from https://github.com/adoptium/temurin17-binaries/releases using the Adoptium API
-  && curl --location "http://api.adoptium.net/v3/binary/latest/17/ga/linux/$(uname -m | sed s/x86_64/x64/)/jdk/hotspot/normal/eclipse" \
+  && curl --location "https://api.adoptium.net/v3/binary/latest/17/ga/linux/$(uname -m | sed s/x86_64/x64/)/jdk/hotspot/normal/eclipse" \
   | tar -xz -C /opt/java --strip-components 1
 
 # Install NodeJS
