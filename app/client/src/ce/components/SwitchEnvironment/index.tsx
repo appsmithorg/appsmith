@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Icon, Link, Option, Select, Text, Tooltip } from "@appsmith/ads";
 import { capitalizeFirstLetter } from "utils/helpers";
 import {
-  BUSINESS_EDITION_TEXT,
+  ENTERPRISE_EDITION_TEXT,
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "ee/constants/messages";
@@ -68,7 +68,7 @@ export const DisabledTooltipContent = (rampLink: string) => {
     >
       {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
       <TooltipLink kind="primary" target="_blank" to={rampLink}>
-        {createMessage(BUSINESS_EDITION_TEXT)}
+        {createMessage(ENTERPRISE_EDITION_TEXT)}
       </TooltipLink>
     </Text>
   );
@@ -83,6 +83,7 @@ export default function SwitchEnvironment({}: Props) {
   const rampLinkSelector = getRampLink({
     section: RampSection.BottomBarEnvSwitcher,
     feature: RampFeature.MultipleEnv,
+    isBusinessFeature: false,
   });
   const rampLink = useSelector(rampLinkSelector);
 

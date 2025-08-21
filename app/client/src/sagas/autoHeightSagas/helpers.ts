@@ -204,10 +204,6 @@ export function* getMinHeightBasedOnChildren(
     }
   }
 
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    return minHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET;
-  }
-
   return minHeightInRows;
 }
 /**
