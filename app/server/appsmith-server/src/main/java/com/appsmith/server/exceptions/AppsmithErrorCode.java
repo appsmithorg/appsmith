@@ -138,6 +138,7 @@ public enum AppsmithErrorCode {
     GIT_ROUTE_CONTEXT_BUILD_ERROR("AE-GIT-5007", "Git route context build error"),
     GIT_ROUTE_ARTIFACT_NOT_FOUND("AE-GIT-5008", "Git route artifact not found"),
     GIT_ROUTE_INVALID_PRIVATE_KEY("AE-GIT-5009", "Git route invalid private key"),
+    GIT_ROUTE_METADATA_NOT_FOUND("AE-GIT-5010", "Git route metadata not found"),
 
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),

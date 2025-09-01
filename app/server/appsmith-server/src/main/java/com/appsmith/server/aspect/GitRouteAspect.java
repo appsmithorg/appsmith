@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.git.utils.GitProfileUtils;
+import com.appsmith.server.services.GitArtifactHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -28,16 +29,20 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.StringReader;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -49,6 +54,10 @@ public class GitRouteAspect {
 
     private static final Duration LOCK_TTL = Duration.ofSeconds(90);
     private static final String REDIS_REPO_KEY_FORMAT = "purpose=repo/v=1/workspace=%s/artifact=%s/repository=%s/";
+    private static final String BASH_COMMAND_FILE = "git.sh";
+    private static final String GIT_UPLOAD = "git_upload";
+    private static final String GIT_DOWNLOAD = "git_download";
+    private static final String GIT_CLONE = "git_clone_and_checkout";
 
     private final ReactiveRedisTemplate<String, String> redis;
     private final GitProfileUtils gitProfileUtils;
@@ -59,15 +68,14 @@ public class GitRouteAspect {
     @Value("${appsmith.redis.git.url}")
     private String redisUrl;
 
-    @Value("${appsmith.git.root}")
-    private String gitRootPath;
-
     /*
      * FSM: Definitions
      */
 
     private enum State {
         ARTIFACT,
+        ROUTE_FILTER,
+        UNROUTED_EXECUTION,
         PARENT,
         GIT_META,
         REPO_KEY,
@@ -78,6 +86,8 @@ public class GitRouteAspect {
         GIT_KEY,
         REPO_PATH,
         DOWNLOAD,
+        FETCH_BRANCHES,
+        CLONE,
         EXECUTE,
         UPLOAD,
         UNLOCK,
@@ -103,6 +113,13 @@ public class GitRouteAspect {
         }
     }
 
+    @Getter
+    @AllArgsConstructor
+    private static class StateExceptions extends Exception {
+        private State errorState;
+        private String message;
+    }
+
     @Data
     @Accessors(chain = true)
     private static class Context {
@@ -115,6 +132,7 @@ public class GitRouteAspect {
 
         // Tasks
         private Artifact artifact;
+        private Boolean routeFilter;
         private Artifact parent;
         private GitArtifactMetadata gitMeta;
         private String repoKey;
@@ -129,14 +147,19 @@ public class GitRouteAspect {
         private Object upload;
         private Boolean unlock;
         private Object result;
+        private List<String> localBranches;
+        private Object clone;
 
         // Errors
-        private Throwable error;
+        private StateExceptions error;
     }
 
     // Refer to GitRouteAspect.md#gitroute-fsm-execution-flow for the FSM diagram.
     private final Map<State, StateConfig> FSM = Map.ofEntries(
-            Map.entry(State.ARTIFACT, new StateConfig(State.PARENT, State.RESULT, "artifact", this::artifact)),
+            Map.entry(State.ARTIFACT, new StateConfig(State.ROUTE_FILTER, State.RESULT, "artifact", this::artifact)),
+            Map.entry(
+                    State.ROUTE_FILTER,
+                    new StateConfig(State.PARENT, State.UNROUTED_EXECUTION, "routeFilter", this::routeFilter)),
             Map.entry(State.PARENT, new StateConfig(State.GIT_META, State.RESULT, "parent", this::parent)),
             Map.entry(State.GIT_META, new StateConfig(State.REPO_KEY, State.RESULT, "gitMeta", this::gitMeta)),
             Map.entry(State.REPO_KEY, new StateConfig(State.LOCK_KEY, State.RESULT, "repoKey", this::repoKey)),
@@ -146,11 +169,19 @@ public class GitRouteAspect {
             Map.entry(State.GIT_AUTH, new StateConfig(State.GIT_KEY, State.UNLOCK, "gitAuth", this::gitAuth)),
             Map.entry(State.GIT_KEY, new StateConfig(State.REPO_PATH, State.UNLOCK, "gitKey", this::gitKey)),
             Map.entry(State.REPO_PATH, new StateConfig(State.DOWNLOAD, State.UNLOCK, "repoPath", this::repoPath)),
-            Map.entry(State.DOWNLOAD, new StateConfig(State.EXECUTE, State.UNLOCK, "download", this::download)),
+            Map.entry(
+                    State.DOWNLOAD,
+                    new StateConfig(State.EXECUTE, State.FETCH_BRANCHES, "download", this::downloadFromRedis)),
             Map.entry(State.EXECUTE, new StateConfig(State.UPLOAD, State.UPLOAD, "execute", this::execute)),
             Map.entry(State.UPLOAD, new StateConfig(State.UNLOCK, State.UNLOCK, "upload", this::upload)),
             Map.entry(State.UNLOCK, new StateConfig(State.RESULT, State.RESULT, "unlock", this::unlock)),
-            Map.entry(State.RESULT, new StateConfig(State.DONE, State.DONE, "result", this::result)));
+            Map.entry(State.UNROUTED_EXECUTION, new StateConfig(State.RESULT, State.RESULT, "execute", this::execute)),
+            Map.entry(State.RESULT, new StateConfig(State.DONE, State.DONE, "result", this::result)),
+            // not yet included
+            Map.entry(
+                    State.FETCH_BRANCHES,
+                    new StateConfig(State.CLONE, State.UNLOCK, "localBranches", this::getLocalBranches)),
+            Map.entry(State.CLONE, new StateConfig(State.EXECUTE, State.UNLOCK, "clone", this::clone)));
 
     /*
      * FSM: Runners
@@ -167,11 +198,8 @@ public class GitRouteAspect {
         }
 
         String fieldValue = extractFieldValue(joinPoint, gitRoute.fieldName());
-
         ctx.setFieldValue(fieldValue);
-
-        return run(ctx, State.ARTIFACT)
-                .flatMap(unused -> ctx.getError() != null ? Mono.error(ctx.getError()) : Mono.just(ctx.getResult()));
+        return run(ctx, State.ARTIFACT).flatMap(unused -> this.result(ctx));
     }
 
     // State machine executor
@@ -192,7 +220,7 @@ public class GitRouteAspect {
                     return run(ctx, config.next(Outcome.SUCCESS));
                 })
                 .onErrorResume(e -> {
-                    ctx.setError(e);
+                    ctx.setError(new StateExceptions(current, e.getMessage()));
                     long duration = System.currentTimeMillis() - startTime;
                     log.info("State: {}, FAIL: {}, Time: {}ms", current, e.getMessage(), duration);
                     return run(ctx, config.next(Outcome.FAIL));
@@ -217,6 +245,22 @@ public class GitRouteAspect {
         ArtifactType artifactType = ctx.getGitRoute().artifactType();
         String artifactId = ctx.getFieldValue();
         return gitRouteArtifact.getArtifact(artifactType, artifactId);
+    }
+
+    // Finds if this route requires FS state, or it is just a db operation.
+    private Mono<?> routeFilter(Context ctx) {
+        // if the metadata is null, that means that at this point, either this artifact is not git connected.
+        // i.e. in case of connect where generating the key-pair/ connecting api wouldn't have
+        // these properties predefined.
+        Artifact artifact = ctx.getArtifact();
+        if (artifact.getGitArtifactMetadata() == null
+                || !StringUtils.hasText(artifact.getGitArtifactMetadata().getDefaultArtifactId())
+                || !StringUtils.hasText(artifact.getGitArtifactMetadata().getRepoName())
+                || !StringUtils.hasText(artifact.getGitArtifactMetadata().getRemoteUrl())) {
+            return Mono.error(new AppsmithException(AppsmithError.GIT_ROUTE_METADATA_NOT_FOUND));
+        }
+
+        return Mono.just(Boolean.TRUE);
     }
 
     // Finds parent artifact
@@ -277,19 +321,25 @@ public class GitRouteAspect {
 
     // Gets local repo path
     private Mono<?> repoPath(Context ctx) {
-        var path = Paths.get(
-                gitRootPath,
-                ctx.getArtifact().getWorkspaceId(),
-                ctx.getGitMeta().getDefaultArtifactId(),
-                ctx.getGitMeta().getRepoName());
-        return Mono.just(path.toString());
+        // this needs to be changed based on artifact as well.
+        Path repositorySuffixPath = gitRouteArtifact
+                .getArtifactHelper(ctx.getGitRoute().artifactType())
+                .getRepoSuffixPath(
+                        ctx.getArtifact().getWorkspaceId(),
+                        ctx.getGitMeta().getDefaultArtifactId(),
+                        ctx.getGitMeta().getRepoName());
+
+        Path repositoryPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffixPath);
+
+        log.info("Repository path is: {}", repositoryPath.toAbsolutePath());
+        return Mono.just(repositoryPath.toAbsolutePath().toString());
     }
 
     // Downloads Git repo
-    private Mono<?> download(Context ctx) {
+    private Mono<?> downloadFromRedis(Context ctx) {
         return bashService.callFunction(
-                "git.sh",
-                "git_download",
+                BASH_COMMAND_FILE,
+                GIT_DOWNLOAD,
                 ctx.getGitProfile().getAuthorEmail(),
                 ctx.getGitProfile().getAuthorName(),
                 ctx.getGitKey(),
@@ -297,6 +347,32 @@ public class GitRouteAspect {
                 redisUrl,
                 ctx.getGitMeta().getRemoteUrl(),
                 ctx.getRepoPath());
+    }
+
+    private Mono<?> getLocalBranches(Context ctx) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitRouteArtifact.getArtifactHelper(ctx.getGitRoute().artifactType());
+        return gitArtifactHelper
+                .getAllArtifactByBaseId(ctx.getParent().getGitArtifactMetadata().getDefaultArtifactId(), null)
+                .map(artifact -> artifact.getGitArtifactMetadata().getRefName())
+                .collectList();
+    }
+
+    // If in case download fails, then we clone from
+    private Mono<?> clone(Context ctx) {
+        List<String> metaArgs = List.of(
+                ctx.getGitProfile().getAuthorName(),
+                ctx.getGitProfile().getAuthorName(),
+                ctx.getGitKey(),
+                ctx.getGitMeta().getRemoteUrl(),
+                ctx.getRepoPath());
+
+        List<String> completeArgs = new ArrayList<>(metaArgs);
+        completeArgs.addAll(ctx.localBranches);
+
+        String[] varArgs = completeArgs.toArray(new String[0]);
+
+        return bashService.callFunction(BASH_COMMAND_FILE, GIT_CLONE, varArgs);
     }
 
     // Executes Git operation
@@ -310,7 +386,7 @@ public class GitRouteAspect {
 
     // Uploads Git changes
     private Mono<?> upload(Context ctx) {
-        return bashService.callFunction("git.sh", "git_upload", ctx.getRepoKey(), redisUrl, ctx.getRepoPath());
+        return bashService.callFunction(BASH_COMMAND_FILE, GIT_UPLOAD, ctx.getRepoKey(), redisUrl, ctx.getRepoPath());
     }
 
     // Releases Redis lock
@@ -320,7 +396,12 @@ public class GitRouteAspect {
 
     // Returns operation result
     private Mono<?> result(Context ctx) {
-        return ctx.getError() != null ? Mono.error(ctx.getError()) : Mono.just(ctx.getExecute());
+        Set<State> errorStates = Set.of(State.DOWNLOAD, State.ROUTE_FILTER);
+        if (ctx.getError() == null || errorStates.contains(ctx.getError().getErrorState())) {
+            return Mono.just(ctx.getExecute());
+        }
+
+        return Mono.error(ctx.getError());
     }
 
     /*
