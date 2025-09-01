@@ -35,7 +35,7 @@ git_clone() {
     local remote_url="$2"
     local target_folder="$3"
 
-    local temp_private_key=$(mktemp /dev/shm/tmp.XXXXXX)
+    local temp_private_key=$(mktemp /tmp/shm/tmp.XXXXXX)
     trap 'rm -rf "'"$temp_private_key"'"' EXIT ERR
 
     echo "$private_key" > "$temp_private_key"
@@ -85,56 +85,33 @@ git_download() {
 }
 
 git_clone_and_checkout() {
-    local author_email="$1"
-    local author_name="$2"
-    local private_key="$3"
-    local remote_url="$4"
-    local target_folder="$5"
-    ## branches are after argument 5
+        local author_email="$1"
+        local author_name="$2"
+        local private_key="$3"
+        local remote_url="$4"
+        local target_folder="$5"
+        ## branches are after argument 5
 
-    trap 'log_error "git_clone_and_checkout failed; cleaning up: '$target_folder'"; rm -rf "'$target_folder'"' ERR
+        trap 'rm -rf "'"$target_folder"'"' ERR
 
-    log_info "git_clone_and_checkout: target_folder='${target_folder}', remote_url='${remote_url}'"
-    ## remove the repository directory entirely
-    rm -rf "$target_folder"
+        echo "target_folder: $target_folder, remote_url: $remote_url" >&1
+        ## remove the repository directory entirely
+        rm -rf "$target_folder"
 
-    ## create the same directory
-    mkdir -p "$target_folder"
+        ## create the same directory
+        mkdir -p "$target_folder"
 
-    git_clone "$private_key" "$remote_url" "$target_folder"
-    git -C "$target_folder" config user.name "$author_name"
-    git -C "$target_folder" config user.email "$author_email"
-    git -C "$target_folder" config fetch.parallel 4
+        git_clone "$private_key" "$remote_url" "$target_folder"
+        git -C "$target_folder" config user.name "$author_name"
+        git -C "$target_folder" config user.email "$author_email"
+        git -C "$target_folder" config fetch.parallel 4
 
-    # Checkout requested branches (args 6..N)
-    for arg in "${@:6}"; do
-        local local_branch
-        local_branch="$arg"
-        if [ -z "${local_branch}" ]; then
-            log_warn "git_clone_and_checkout: empty branch argument encountered; skipping"
-            continue
-        fi
-        log_info "git_clone_and_checkout: checking out branch '${local_branch}'"
-
-        # If branch exists locally
-        if git -C "$target_folder" show-ref --verify --quiet "refs/heads/${local_branch}"; then
-            git -C "$target_folder" checkout "${local_branch}"
-            continue
-        fi
-
-        # If remote branch exists
-        if git -C "$target_folder" ls-remote --heads origin "${local_branch}" >/dev/null 2>&1; then
-            git -C "$target_folder" checkout -b "${local_branch}" "origin/${local_branch}"
-            continue
-        fi
-
-        # Fallback: attempt to fetch/track remote if possible; else warn
-        if git -C "$target_folder" fetch origin "${local_branch}:${local_branch}" >/dev/null 2>&1; then
-            git -C "$target_folder" checkout "${local_branch}"
-        else
-            log_warn "git_clone_and_checkout: branch '${local_branch}' not found locally or on origin; skipping"
-        fi
-    done
+        # Checkout all local branches
+        for arg in "${@:6}"; do
+            local local_branch=$arg
+            echo "checking out local_branch $local_branch" >&1
+            git -C "$target_folder" checkout $local_branch
+        done
 
 }
 
