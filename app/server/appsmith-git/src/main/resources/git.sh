@@ -35,7 +35,7 @@ git_clone() {
     local remote_url="$2"
     local target_folder="$3"
 
-    local temp_private_key=$(mktemp /tmp/shm/tmp.XXXXXX)
+    local temp_private_key=$(mktemp /dev/shm/tmp.XXXXXX)
     trap 'rm -rf "'"$temp_private_key"'"' EXIT ERR
 
     echo "$private_key" > "$temp_private_key"
