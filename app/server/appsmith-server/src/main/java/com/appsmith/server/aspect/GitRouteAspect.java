@@ -54,6 +54,7 @@ public class GitRouteAspect {
 
     private static final Duration LOCK_TTL = Duration.ofSeconds(90);
     private static final String REDIS_REPO_KEY_FORMAT = "purpose=repo/v=1/workspace=%s/artifact=%s/repository=%s/";
+    private static final String REDIS_KV_FORMAT = "branchStore=%s";
     private static final String BASH_COMMAND_FILE = "git.sh";
     private static final String GIT_UPLOAD = "git_upload";
     private static final String GIT_DOWNLOAD = "git_download";
@@ -142,6 +143,7 @@ public class GitRouteAspect {
         private GitAuth gitAuth;
         private String gitKey;
         private String repoPath;
+        private String branchStoreKey;
         private Object download;
         private Object execute;
         private Object upload;
@@ -329,6 +331,7 @@ public class GitRouteAspect {
                         ctx.getGitMeta().getDefaultArtifactId(),
                         ctx.getGitMeta().getRepoName());
 
+        ctx.setBranchStoreKey(String.format(REDIS_KV_FORMAT, repositorySuffixPath));
         Path repositoryPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffixPath);
 
         log.info("Repository path is: {}", repositoryPath.toAbsolutePath());
@@ -346,7 +349,8 @@ public class GitRouteAspect {
                 ctx.getRepoKey(),
                 redisUrl,
                 ctx.getGitMeta().getRemoteUrl(),
-                ctx.getRepoPath());
+                ctx.getRepoPath(),
+                ctx.getBranchStoreKey());
     }
 
     private Mono<?> getLocalBranches(Context ctx) {
@@ -365,7 +369,9 @@ public class GitRouteAspect {
                 ctx.getGitProfile().getAuthorName(),
                 ctx.getGitKey(),
                 ctx.getGitMeta().getRemoteUrl(),
-                ctx.getRepoPath());
+                ctx.getRepoPath(),
+                redisUrl,
+                ctx.getBranchStoreKey());
 
         List<String> completeArgs = new ArrayList<>(metaArgs);
         completeArgs.addAll(ctx.localBranches);
@@ -386,7 +392,8 @@ public class GitRouteAspect {
 
     // Uploads Git changes
     private Mono<?> upload(Context ctx) {
-        return bashService.callFunction(BASH_COMMAND_FILE, GIT_UPLOAD, ctx.getRepoKey(), redisUrl, ctx.getRepoPath());
+        return bashService.callFunction(
+                BASH_COMMAND_FILE, GIT_UPLOAD, ctx.getRepoKey(), redisUrl, ctx.getRepoPath(), ctx.getBranchStoreKey());
     }
 
     // Releases Redis lock

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GitServiceConfig {
 
-    @Value("${appsmith.git.root:/dev/shm/git-storage/}")
+    @Value("${appsmith.git.root:}")
     private String gitRootPath;
 
     @Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
