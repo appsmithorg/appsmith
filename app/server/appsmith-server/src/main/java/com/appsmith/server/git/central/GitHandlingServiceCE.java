@@ -120,4 +120,6 @@ public interface GitHandlingServiceCE {
 
     Mono<MergeStatusDTO> pullArtifact(
             ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseMetadata);
+
+    Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }

@@ -86,6 +86,7 @@ import static com.appsmith.git.constants.ce.GitDirectoriesCE.DATASOURCE_DIRECTOR
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
 import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
+import static java.lang.Boolean.TRUE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -1018,5 +1019,36 @@ public class CommonGitFileUtilsCE {
 
         JsonElement fileFormatVersion = metadataJsonObject.get(CommonConstants.FILE_FORMAT_VERSION);
         return fileFormatVersion.getAsInt();
+    }
+
+    public Mono<Boolean> removeDanglingLocks(Path repositorySuffix) {
+        final String GIT_FOLDER = ".git";
+        final String INDEX_LOCK = "index.lock";
+        final String INDEX = "index";
+
+        if (!gitServiceConfig.isGitInMemory()) {
+            return Mono.just(TRUE);
+        }
+
+        Path repositoryPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
+        Path gitDir = repositoryPath.resolve(GIT_FOLDER);
+
+        Path lockFile = gitDir.resolve(INDEX_LOCK);
+        Path indexFile = gitDir.resolve(INDEX);
+
+        boolean deleted = false;
+        try {
+            deleted = Files.deleteIfExists(lockFile);
+        } catch (IOException ioException) {
+            log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
+        }
+
+        try {
+            Files.deleteIfExists(indexFile);
+        } catch (IOException ioException) {
+            log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
+        }
+
+        return Mono.just(TRUE);
     }
 }

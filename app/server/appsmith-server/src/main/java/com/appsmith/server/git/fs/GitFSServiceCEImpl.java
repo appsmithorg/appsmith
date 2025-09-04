@@ -926,4 +926,17 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             }
         });
     }
+
+    @Override
+    public Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return commonGitFileUtils.removeDanglingLocks(repoSuffix);
+    }
 }
