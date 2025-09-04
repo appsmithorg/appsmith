@@ -1022,33 +1022,37 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Boolean> removeDanglingLocks(Path repositorySuffix) {
-        final String GIT_FOLDER = ".git";
-        final String INDEX_LOCK = "index.lock";
-        final String INDEX = "index";
+        return Mono.just(gitServiceConfig.isGitInMemory())
+                .map(inMemoryGit -> {
+                    if (Boolean.TRUE.equals(inMemoryGit)) {
+                        return TRUE;
+                    }
 
-        if (!gitServiceConfig.isGitInMemory()) {
-            return Mono.just(TRUE);
-        }
+                    final String GIT_FOLDER = ".git";
+                    final String INDEX_LOCK = "index.lock";
+                    final String INDEX = "index";
 
-        Path repositoryPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
-        Path gitDir = repositoryPath.resolve(GIT_FOLDER);
+                    Path repositoryPath =
+                            Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
+                    Path gitDir = repositoryPath.resolve(GIT_FOLDER);
 
-        Path lockFile = gitDir.resolve(INDEX_LOCK);
-        Path indexFile = gitDir.resolve(INDEX);
+                    Path lockFile = gitDir.resolve(INDEX_LOCK);
+                    Path indexFile = gitDir.resolve(INDEX);
 
-        boolean deleted = false;
-        try {
-            deleted = Files.deleteIfExists(lockFile);
-        } catch (IOException ioException) {
-            log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
-        }
+                    try {
+                        Files.deleteIfExists(lockFile);
+                    } catch (IOException ioException) {
+                        log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
+                    }
 
-        try {
-            Files.deleteIfExists(indexFile);
-        } catch (IOException ioException) {
-            log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
-        }
+                    try {
+                        Files.deleteIfExists(indexFile);
+                    } catch (IOException ioException) {
+                        log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
+                    }
 
-        return Mono.just(TRUE);
+                    return TRUE;
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

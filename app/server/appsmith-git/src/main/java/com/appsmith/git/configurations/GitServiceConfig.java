@@ -3,6 +3,7 @@ package com.appsmith.git.configurations;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 @Data
 @Configuration
@@ -15,6 +16,10 @@ public class GitServiceConfig {
     private String readmeTemplatePath;
 
     public Boolean isGitInMemory() {
+        if (!StringUtils.hasText(gitRootPath)) {
+            return Boolean.FALSE;
+        }
+
         return gitRootPath.startsWith("/dev/shm/");
     }
 }
