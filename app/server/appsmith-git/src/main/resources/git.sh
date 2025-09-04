@@ -20,7 +20,7 @@ log_error() {
 }
 
 # Time-to-live for git artifacts in Redis (24 hours in seconds)
-GIT_ARTIFACT_TTL=86400
+GIT_ARTIFACT_TTL=1800
 
 # Returns Redis lock key for given key
 get_lock_key() {
