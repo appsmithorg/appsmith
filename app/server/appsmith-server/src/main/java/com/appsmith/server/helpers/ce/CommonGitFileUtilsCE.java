@@ -1021,6 +1021,16 @@ public class CommonGitFileUtilsCE {
         return fileFormatVersion.getAsInt();
     }
 
+    /**
+     * Removes leftover Git lock and index files in the repository to unblock subsequent Git operations.
+     *
+     * <p>Specifically, deletes the files ".git/index.lock" and ".git/index" if they exist. This is a
+     * best-effort cleanup used when a previous Git operation was interrupted and left locks or a stale
+     * index behind. For in-memory Git repositories, this method is a no-op.</p>
+     *
+     * @param repositorySuffix Path of the repository relative to the configured Git root path.
+     * @return A Mono that emits TRUE after the cleanup attempt has been scheduled.
+     */
     public Mono<Boolean> removeDanglingLocks(Path repositorySuffix) {
         return Mono.just(gitServiceConfig.isGitInMemory())
                 .map(inMemoryGit -> {

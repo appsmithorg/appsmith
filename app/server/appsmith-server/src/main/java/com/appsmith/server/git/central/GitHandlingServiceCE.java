@@ -121,5 +121,15 @@ public interface GitHandlingServiceCE {
     Mono<MergeStatusDTO> pullArtifact(
             ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseMetadata);
 
+    /**
+     * Removes leftover Git lock and index files for the repository referenced by the provided DTO
+     * to unblock subsequent Git operations.
+     *
+     * <p>This is a best-effort cleanup that deletes ".git/index.lock" and ".git/index" if present.
+     * For in-memory Git repositories, this is a no-op.</p>
+     *
+     * @param jsonTransformationDTO DTO carrying repository identification and context used to resolve the path
+     * @return a Mono that emits TRUE after the cleanup attempt has been scheduled
+     */
     Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }
