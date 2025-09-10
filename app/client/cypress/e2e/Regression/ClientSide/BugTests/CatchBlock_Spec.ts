@@ -22,7 +22,7 @@ describe(
       jsEditor.CreateJSObject(
         `export default {
       fun: async () => {
-        return await Api1.run().catch((e) => showAlert("404 hit : " + e.message));
+        return await Api1.run().catch((e) => showAlert("404 hit : " + e.message.message));
       }
     }`,
         {
@@ -32,9 +32,7 @@ describe(
           shouldCreateNewJSObj: true,
         },
       );
-      agHelper.AssertContains(
-        "404 hit : org.springframework.web.reactive.function.client.WebClientRequestException: host.docker.internal: Name or service not known",
-      );
+      agHelper.AssertContains("404 hit : Not Found");
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.JSObject,
