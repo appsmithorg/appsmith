@@ -22,7 +22,7 @@ describe(
       jsEditor.CreateJSObject(
         `export default {
       fun: async () => {
-        return await Api1.run().catch((e) => showAlert("404 hit : " + e.message.message));
+        return await Api1.run().catch((e) => showAlert("404 hit : " + e.message));
       }
     }`,
         {
@@ -32,7 +32,7 @@ describe(
           shouldCreateNewJSObj: true,
         },
       );
-      agHelper.AssertContains("404 hit : Not Found");
+      agHelper.AssertContains("404 hit : Api1 failed to execute");
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.JSObject,
