@@ -32,7 +32,9 @@ describe(
           shouldCreateNewJSObj: true,
         },
       );
-      agHelper.AssertContains("404 hit : Api1 failed to execute");
+      agHelper.AssertContains(
+        "404 hit : org.springframework.web.reactive.function.client.WebClientRequestException: host.docker.internal: Name or service not known",
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.JSObject,
