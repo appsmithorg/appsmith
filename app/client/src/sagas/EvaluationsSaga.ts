@@ -533,6 +533,8 @@ export function* executeTriggerRequestSaga(
     responsePayload.error = {
       // @ts-expect-error: reason is of type string
       message: error.responseData?.[0] || error.message,
+      // @ts-expect-error: responseData is of type array
+      responseData: error.responseData || [],
     };
   }
 
