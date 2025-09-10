@@ -836,12 +836,29 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getWidgetView() {
+    const {
+      currentIndex,
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+      updateWidgetMetaProperty,
+    } = this.props;
+
+    const itemId = String(currentIndex);
+    let values = selectedValuesByItem[itemId] || defaultOptionValue;
+
+    if (!selectedValuesByItem[itemId] && defaultOptionValue) {
+      values = defaultOptionValue as string[];
+      updateWidgetMetaProperty("selectedValuesByItem", {
+        ...selectedValuesByItem,
+        [itemId]: values,
+      });
+    }
+
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth =
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
-    const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
@@ -887,7 +904,13 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DraftValueType) => {
-    this.props.updateWidgetMetaProperty("selectedOptions", value, {
+    const itemId = this.props.currentIndex;
+    const updatedValue = {
+      ...(this.props.selectedValuesByItem || {}),
+      [itemId]: value,
+    };
+
+    this.props.updateWidgetMetaProperty("selectedValuesByItem", updatedValue, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
