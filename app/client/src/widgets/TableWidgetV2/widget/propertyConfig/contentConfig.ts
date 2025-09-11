@@ -22,7 +22,6 @@ import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateAllowAddNewRowOnInfiniteScrollChange,
-  updateCellEditabilityOnInfiniteScrollChange,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
@@ -197,7 +196,6 @@ export default [
         isTriggerProperty: false,
         updateHook: composePropertyUpdateHook([
           updateAllowAddNewRowOnInfiniteScrollChange,
-          updateCellEditabilityOnInfiniteScrollChange,
           updateSearchSortFilterOnInfiniteScrollChange,
         ]),
         dependencies: ["primaryColumns", "serverSidePaginationEnabled"],

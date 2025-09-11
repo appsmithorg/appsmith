@@ -198,6 +198,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     isInfiniteScrollEnabled || (editMode === false && isSortable === false);
 
   const isColumnEditable =
+    !isInfiniteScrollEnabled &&
     props.column.columnProperties.isCellEditable &&
     props.column.columnProperties.isEditable &&
     isColumnTypeEditable(props.column.columnProperties.columnType);
