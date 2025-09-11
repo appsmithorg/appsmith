@@ -531,8 +531,15 @@ export function* executeTriggerRequestSaga(
     // a success: false is sent to reject the promise
     // @ts-expect-error: reason is of type string
     responsePayload.error = {
-      // @ts-expect-error: reason is of type string
-      message: error.responseData?.[0] || error.message,
+      message:
+        // @ts-expect-error: reason is of type string
+        error.responseData?.[0] && typeof error.responseData?.[0] === "string"
+          ? // @ts-expect-error: reason is of type string
+            error.responseData?.[0]
+          : // @ts-expect-error: reason is of type string
+            error.message,
+      // @ts-expect-error: responseData is of type array
+      responseData: error.responseData || [],
     };
   }
 

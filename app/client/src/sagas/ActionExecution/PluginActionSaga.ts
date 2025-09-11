@@ -641,7 +641,15 @@ export default function* executePluginActionTriggerSaga(
     } else {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, pluginActionNameToDisplay),
-        [],
+        [
+          payload.body,
+          params,
+          {
+            isExecutionSuccess: payload.isExecutionSuccess,
+            statusCode: payload.statusCode,
+            headers: payload.headers,
+          },
+        ],
       );
     }
   } else {
