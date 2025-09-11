@@ -20,6 +20,7 @@ describe("BasicCell Component", () => {
     tableWidth: 100,
     disabledEditIcon: false,
     disabledEditIconMessage: "",
+    infiniteScrollEnabled: false,
   };
 
   it("renders the value", () => {
