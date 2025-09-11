@@ -4,6 +4,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { StickyType } from "../../component/Constants";
 import {
   COLUMN_MIN_WIDTH,
+  ColumnTypes,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_COLUMN_NAME,
 } from "../../constants";
@@ -21,6 +22,7 @@ export type getColumns = (
   componentWidth: number,
   renderMode: RenderMode,
   isPreviewMode: boolean,
+  infiniteScrollEnabled?: boolean,
 ) => ReactTableColumnProps[];
 
 //TODO: (Vamsi) need to unit test this function
@@ -32,6 +34,7 @@ export const getColumnsPureFn: getColumns = (
   componentWidth,
   renderMode,
   isPreviewMode,
+  infiniteScrollEnabled = false,
 ) => {
   let columns: ReactTableColumnProps[] = [];
   const hiddenColumns: ReactTableColumnProps[] = [];
@@ -42,6 +45,14 @@ export const getColumnsPureFn: getColumns = (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     orderedTableColumns.forEach((column: any) => {
+      // Skip EDIT_ACTIONS columns when infinite scroll is enabled
+      if (
+        infiniteScrollEnabled &&
+        column.columnType === ColumnTypes.EDIT_ACTIONS
+      ) {
+        return;
+      }
+
       const isHidden = !column.isVisible;
 
       const columnData = {

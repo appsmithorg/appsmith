@@ -580,6 +580,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     const {
       columnWidthMap,
+      infiniteScrollEnabled,
       isPreviewMode,
       orderedTableColumns,
       renderMode,
@@ -597,6 +598,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       componentWidth,
       renderMode,
       isPreviewMode,
+      infiniteScrollEnabled,
     );
   };
 
