@@ -107,7 +107,9 @@ function getContentHeight(ref: RefObject<HTMLDivElement>) {
 }
 
 function PlainTextCell(
-  props: RenderDefaultPropsType & editPropertyType & RenderCurrencyPropsType,
+  props: RenderDefaultPropsType &
+    editPropertyType &
+    RenderCurrencyPropsType & { infiniteScrollEnabled: boolean },
 ) {
   const {
     accentColor,
@@ -124,6 +126,7 @@ function PlainTextCell(
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
+    infiniteScrollEnabled,
     isCellDisabled,
     isCellEditable,
     isCellEditMode,
@@ -309,6 +312,7 @@ function PlainTextCell(
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        infiniteScrollEnabled={infiniteScrollEnabled}
         isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}

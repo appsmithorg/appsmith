@@ -90,6 +90,7 @@ export type PropType = BaseCellComponentProps & {
   onEdit?: () => void;
   url?: string;
   disabledEditIconMessage: string;
+  infiniteScrollEnabled: boolean;
 };
 
 export const BasicCell = React.forwardRef(
@@ -105,6 +106,7 @@ export const BasicCell = React.forwardRef(
       fontStyle,
       hasUnsavedChanges,
       horizontalAlignment,
+      infiniteScrollEnabled,
       isCellDisabled,
       isCellEditable,
       isCellEditMode,
@@ -141,6 +143,8 @@ export const BasicCell = React.forwardRef(
           return value;
       }
     }, [columnType, url, value]);
+
+    isCellEditable = !infiniteScrollEnabled && isCellEditable;
 
     return (
       <Wrapper

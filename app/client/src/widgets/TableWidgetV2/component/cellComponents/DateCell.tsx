@@ -51,6 +51,7 @@ type DateComponentProps = RenderDefaultPropsType &
       value: unknown,
       parsedValue: unknown,
     ) => void;
+    infiniteScrollEnabled: boolean;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
@@ -168,6 +169,7 @@ export const DateCell = (props: DateComponentProps) => {
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
+    infiniteScrollEnabled,
     inputFormat,
     isCellDisabled,
     isCellEditable,
@@ -372,6 +374,7 @@ export const DateCell = (props: DateComponentProps) => {
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        infiniteScrollEnabled={infiniteScrollEnabled}
         isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}

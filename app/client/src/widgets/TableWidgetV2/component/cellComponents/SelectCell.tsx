@@ -105,6 +105,7 @@ type SelectProps = BaseCellComponentProps & {
   onFilterChangeActionString?: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  infiniteScrollEnabled: boolean;
 };
 
 /*
@@ -126,6 +127,7 @@ export const SelectCell = (props: SelectProps) => {
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
+    infiniteScrollEnabled,
     isCellDisabled,
     isCellEditable,
     isCellEditMode,
@@ -267,6 +269,7 @@ export const SelectCell = (props: SelectProps) => {
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        infiniteScrollEnabled={infiniteScrollEnabled}
         isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}

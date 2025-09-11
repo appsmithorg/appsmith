@@ -2236,6 +2236,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
             isCellEditable={isCellEditable}
@@ -2565,6 +2566,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             inputFormat={cellProperties.inputFormat}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
@@ -2648,6 +2650,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
             isCellEditable={isCellEditable}
