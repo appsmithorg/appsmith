@@ -809,6 +809,19 @@ class MultiSelectWidget extends BaseWidget<
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+
+    if (hasChanges) {
+      const itemId = String(this.props.currentIndex);
+      const updatedSelectedValuesByItem = {
+        ...(this.props.selectedValuesByItem || {}),
+        [itemId]: this.props.defaultOptionValue,
+      };
+
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesByItem",
+        updatedSelectedValuesByItem,
+      );
+    }
   }
 
   static getSetterConfig(): SetterConfig {
@@ -836,29 +849,12 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const {
-      currentIndex,
-      defaultOptionValue = [],
-      selectedValuesByItem = {},
-      updateWidgetMetaProperty,
-    } = this.props;
-
-    const itemId = String(currentIndex);
-    let values = selectedValuesByItem[itemId] || defaultOptionValue;
-
-    if (!selectedValuesByItem[itemId] && defaultOptionValue) {
-      values = defaultOptionValue as string[];
-      updateWidgetMetaProperty("selectedValuesByItem", {
-        ...selectedValuesByItem,
-        [itemId]: values,
-      });
-    }
-
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth =
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
+    const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
@@ -925,17 +921,23 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
-    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
-      return [];
+    const {
+      currentIndex,
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+      updateWidgetMetaProperty,
+    } = this.props;
+    const itemId = String(currentIndex);
+    const values = selectedValuesByItem[itemId] || defaultOptionValue;
+
+    if (!selectedValuesByItem[itemId] && defaultOptionValue) {
+      updateWidgetMetaProperty("selectedValuesByItem", {
+        ...selectedValuesByItem,
+        [itemId]: defaultOptionValue,
+      });
     }
 
-    const labels = [...this.props.selectedOptionLabels];
-    const values = [...this.props.selectedOptionValues];
-
-    return values.map((value, index) => ({
-      value,
-      label: labels[index],
-    }));
+    return values;
   };
 
   onFilterChange = (value: string) => {
