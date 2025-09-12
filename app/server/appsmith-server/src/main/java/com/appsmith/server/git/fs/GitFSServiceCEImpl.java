@@ -926,4 +926,27 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             }
         });
     }
+
+    /**
+     * Removes leftover Git lock and index files for the repository referenced by the provided DTO
+     * to unblock subsequent Git operations.
+     *
+     * <p>This is a best-effort cleanup that deletes ".git/index.lock" and ".git/index" if present.
+     * For in-memory Git repositories, this is a no-op.</p>
+     *
+     * @param jsonTransformationDTO DTO carrying repository identification and context used to resolve the path
+     * @return a Mono that emits TRUE after the cleanup attempt has been scheduled
+     */
+    @Override
+    public Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return commonGitFileUtils.removeDanglingLocks(repoSuffix);
+    }
 }

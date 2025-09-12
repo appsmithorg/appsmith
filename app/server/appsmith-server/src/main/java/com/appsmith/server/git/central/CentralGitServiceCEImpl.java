@@ -486,10 +486,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setArtifactType(artifactType);
         jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
 
+        Mono<Boolean> removeDanglingLocksMono = gitHandlingService.removeDanglingLocks(jsonTransformationDTO);
+
         if (gitRefDTO.getRefName().startsWith(ORIGIN)) {
             // checking for local present references first
-            checkedOutArtifactMono = gitHandlingService
-                    .listReferences(jsonTransformationDTO, FALSE)
+            checkedOutArtifactMono = removeDanglingLocksMono
+                    .then(gitHandlingService.listReferences(jsonTransformationDTO, FALSE))
                     .flatMap(gitRefs -> {
                         long branchMatchCount = gitRefs.stream()
                                 .filter(gitRef -> gitRef.equals(finalRefName))
@@ -506,8 +508,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     });
         } else {
             // TODO refactor method to account for RefName as well
-            checkedOutArtifactMono = gitHandlingService
-                    .checkoutArtifact(jsonTransformationDTO)
+            checkedOutArtifactMono = removeDanglingLocksMono
+                    .then(gitHandlingService.checkoutArtifact(jsonTransformationDTO))
                     .flatMap(isCheckedOut -> gitArtifactHelper.getArtifactByBaseIdAndBranchName(
                             baseArtifactId, finalRefName, gitArtifactHelper.getArtifactReadPermission()))
                     .flatMap(artifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
@@ -697,12 +699,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         fetchRemoteDTO.setRefType(refType);
         fetchRemoteDTO.setIsFetchAll(TRUE);
 
+        Mono<Boolean> removeDanglingLock = gitHandlingService.removeDanglingLocks(baseRefTransformationDTO);
         Mono<String> fetchRemoteMono =
                 gitHandlingService.fetchRemoteReferences(baseRefTransformationDTO, fetchRemoteDTO, baseGitAuth);
 
         Mono<? extends Artifact> createBranchMono = acquireGitLockMono
-                .flatMap(ignoreLockAcquisition ->
-                        fetchRemoteMono.onErrorResume(error -> Mono.error(new AppsmithException(
+                .flatMap(ignoreLockAcquisition -> removeDanglingLock
+                        .then(fetchRemoteMono)
+                        .onErrorResume(error -> Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED, GitCommandConstants.FETCH_REMOTE, error))))
                 .flatMap(ignoreFetchString -> gitHandlingService
                         .listReferences(createRefTransformationDTO, TRUE)
@@ -906,8 +910,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
                     jsonTransformationDTO.setRepoName(referenceArtifactMetadata.getRepoName());
 
-                    return gitHandlingService
-                            .deleteGitReference(jsonTransformationDTO)
+                    Mono<Boolean> removeDanglingLock = gitHandlingService.removeDanglingLocks(jsonTransformationDTO);
+
+                    return removeDanglingLock
+                            .then(gitHandlingService.deleteGitReference(jsonTransformationDTO))
                             .flatMap(isReferenceDeleted -> gitRedisUtils
                                     .releaseFileLock(artifactType, baseArtifactId, TRUE)
                                     .thenReturn(isReferenceDeleted))
@@ -1419,7 +1425,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedArtifact.getGitArtifactMetadata().getRefName());
 
                     return gitHandlingService
-                            .prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson)
+                            .removeDanglingLocks(jsonTransformationDTO)
+                            .then(gitHandlingService.prepareChangesToBeCommitted(
+                                    jsonTransformationDTO, artifactExchangeJson))
                             .then(updateArtifactWithGitMetadataGivenPermission(branchedArtifact, branchedGitMetadata));
                 })
                 .flatMap(updatedBranchedArtifact -> {
@@ -1676,6 +1684,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitStatusDTO> lockHandledStatusMono = Mono.usingWhen(
                 exportedArtifactJsonMono,
                 artifactExchangeJson -> {
+                    Mono<Boolean> removeDanglingChanges = gitHandlingService.removeDanglingLocks(jsonTransformationDTO);
                     Mono<Boolean> prepareForStatus =
                             gitHandlingService.prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson);
 
@@ -1695,7 +1704,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         error.getMessage()))));
                     }
 
-                    return Mono.zip(prepareForStatus, fetchRemoteMono)
+                    return removeDanglingChanges
+                            .then(Mono.zip(prepareForStatus, fetchRemoteMono))
                             .then(Mono.defer(() -> gitHandlingService.getStatus(jsonTransformationDTO)))
                             .onErrorResume(throwable -> {
                                 /*
@@ -1782,7 +1792,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitPullDTO> lockHandledpullDTOMono = Mono.usingWhen(
                         gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.PULL, TRUE),
                         ignoreLock -> {
-                            // TODO: verifying why remote needs to be fetched for status, when only modified is checked
                             Mono<GitStatusDTO> statusMono =
                                     getStatus(baseArtifact, branchedArtifact, false, false, gitType);
 
@@ -2156,8 +2165,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<? extends Artifact> artifactFromLastCommitMono = Mono.usingWhen(
                         gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.DISCARD, TRUE),
                         ignoreLockAcquisition -> {
-                            Mono<? extends ArtifactExchangeJson> artifactJsonFromLastCommitMono = gitHandlingService
-                                    .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
+                            Mono<Boolean> removeDanglingLock =
+                                    gitHandlingService.removeDanglingLocks(jsonTransformationDTO);
+                            Mono<? extends ArtifactExchangeJson> artifactJsonFromLastCommitMono = removeDanglingLock
+                                    .then(gitHandlingService.recreateArtifactJsonFromLastCommit(jsonTransformationDTO))
                                     .onErrorResume(exception -> {
                                         log.error(
                                                 "Git recreate Artifact Json Failed : {}",
@@ -2269,6 +2280,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setRefName(currentBranch);
         jsonTransformationDTO.setRefType(branchedGitData.getRefType());
 
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+        Mono<Boolean> removeDanglingLocks = gitHandlingService.removeDanglingLocks(jsonTransformationDTO);
+
         Mono<String> baseBranchMono;
         if (TRUE.equals(pruneBranches) && syncDefaultBranchWithRemote) {
             baseBranchMono = syncDefaultBranchNameFromRemote(baseGitData, jsonTransformationDTO, gitType);
@@ -2276,7 +2290,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             baseBranchMono = Mono.just(GitUtils.getDefaultBranchName(baseGitData));
         }
 
-        Mono<List<GitRefDTO>> branchMono = baseBranchMono
+        Mono<List<GitRefDTO>> branchMono = removeDanglingLocks
+                .then(baseBranchMono)
                 .flatMap(baseBranchName -> {
                     return getBranchListWithDefaultBranchName(
                             baseArtifact, baseBranchName, currentBranch, pruneBranches, gitType);
