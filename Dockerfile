@@ -25,8 +25,8 @@ RUN <<END
     exit 1
   fi
 
-  if ! [ -f server/mongo/server.jar -a -f server/pg/server.jar ]; then
-    echo "Missing one or both server.jar files in the right place. Are you using the build script?" >&2
+  if ! [ -f server/mongo/server.jar ]; then
+    echo "Missing MongoDB server.jar file. Are you using the build script?" >&2
     exit 1
   fi
 END
