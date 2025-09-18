@@ -1060,14 +1060,6 @@ public enum AppsmithError {
             "Invalid Git private key",
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
-    GIT_ROUTE_METADATA_NOT_FOUND(
-            404,
-            AppsmithErrorCode.GIT_ROUTE_METADATA_NOT_FOUND.getCode(),
-            "Artifact metadata not found for Git route: {0}",
-            AppsmithErrorAction.DEFAULT,
-            "Git route metadata not found",
-            ErrorType.GIT_CONFIGURATION_ERROR,
-            null),
     ;
 
     private final Integer httpErrorCode;
