@@ -20,6 +20,9 @@ public class GitServiceConfig {
             return Boolean.FALSE;
         }
 
-        return gitRootPath.startsWith("/dev/shm") || gitRootPath.startsWith("/tmp/shm");
+        final String trimmedRootPath = gitRootPath.strip();
+        return "/dev/shm".equals(trimmedRootPath)
+                || trimmedRootPath.startsWith("/dev/shm/")
+                || trimmedRootPath.startsWith("/tmp/shm/");
     }
 }

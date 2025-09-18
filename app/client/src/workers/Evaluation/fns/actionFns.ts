@@ -68,6 +68,27 @@ export default async function run(
      * */
     return response[0];
   } catch (e) {
+    const error = {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (e as any).message,
+    };
+
+    // If error contains responseData, update action data and responseMeta before throwing
+    // @ts-expect-error: responseData is a custom property
+    if (e.responseData && e.responseData.length > 0) {
+      // @ts-expect-error: self type is not defined
+      const action = self[this.name] as ActionEntity;
+      // @ts-expect-error: responseData is array format
+      const responseData = e.responseData;
+
+      if (action && responseData.length >= 3) {
+        action.data = responseData[0]; // error response body
+        action.responseMeta = responseData[2]; // { isExecutionSuccess, statusCode, headers }
+        action.isLoading = false;
+      }
+    }
+
     if (typeof onError === "function") {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +97,7 @@ export default async function run(
       return;
     }
 
-    throw e;
+    throw error;
   }
 }
 

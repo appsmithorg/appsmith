@@ -9,20 +9,18 @@ if [[ -z "${EDITION-}" ]]; then
   fi
 fi
 
-PG_TAG="${PG_TAG-pg}"
-echo "Will be copying pg server artifacts from appsmith-$EDITION:$PG_TAG"
+echo "Building server artifacts for $EDITION edition (PostgreSQL support removed)"
 
 target="deploy/docker/fs/opt/appsmith/server"
 mkdir -p "$target"
 rm -rf "$target"/{pg,mongo}
 
+# Build MongoDB server artifacts
 cp -r "app/server/dist" "$target/mongo"
 mv "$target/mongo"/server-*.jar "$target/mongo/server.jar"
 
-# Grab PostgreSQL server artifacts from Docker image.
-image="appsmith/appsmith-$EDITION:$PG_TAG"
-docker run --name xx --detach --entrypoint sleep "$image" infinity
-docker cp xx:/opt/appsmith/server/pg "$target/pg"
-docker cp xx:/opt/appsmith/info.json "$target/pg/source-info.json"
-docker rm --force xx
-docker image rm "$image"
+# PostgreSQL support has been removed - no more vulnerable artifacts
+# This eliminates CVE-2024-38821 from the Docker image
+echo "✅ MongoDB artifacts prepared successfully"
+echo "🗑️ PostgreSQL artifacts skipped (CVE-2024-38821 eliminated)"
+echo "📁 Only MongoDB artifacts: $target/mongo/"
