@@ -714,17 +714,25 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
-        if (gitServiceConfig.isGitInMemory()) {
-            return fsGitHandler.mergeBranch(
-                    repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
-        }
-
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // At this point the assumption is that the repository has already checked out the destination branch
-        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> fsGitHandler.mergeBranch(
-                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), keepWorkingDirChanges));
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            if (gitServiceConfig.isGitInMemory()) {
+                return fsGitHandler.mergeBranch(
+                        repoSuffix,
+                        gitMergeDTO.getSourceBranch(),
+                        gitMergeDTO.getDestinationBranch(),
+                        keepWorkingDirChanges);
+            }
+
+            return fsGitHandler.mergeBranch(
+                    repoSuffix,
+                    gitMergeDTO.getSourceBranch(),
+                    gitMergeDTO.getDestinationBranch(),
+                    keepWorkingDirChanges);
+        });
     }
 
     @Override
