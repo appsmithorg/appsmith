@@ -1,6 +1,7 @@
 package com.appsmith.server.annotations;
 
 import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.git.constants.GitRouteOperation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,4 +16,6 @@ public @interface GitRoute {
     String fieldName();
 
     ArtifactType artifactType();
+
+    GitRouteOperation operation();
 }
