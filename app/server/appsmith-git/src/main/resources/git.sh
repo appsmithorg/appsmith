@@ -34,13 +34,14 @@ git_clone() {
     local private_key="$1"
     local remote_url="$2"
     local target_folder="$3"
+    local git_root="$4"
 
-    local temp_private_key=$(mktemp /dev/shm/tmp.XXXXXX)
+    local temp_private_key=$(mktemp ${git_root}tmp.XXXXXX)
     trap 'rm -rf "'"$temp_private_key"'"' EXIT ERR
 
     echo "$private_key" > "$temp_private_key"
 
-    git -C "$target_folder" init "$target_folder" --initial-branch=none
+    git -C "$target_folder" init --initial-branch=none
     git -C "$target_folder" remote add origin "$remote_url"
     GIT_SSH_COMMAND="ssh -i $temp_private_key -o StrictHostKeyChecking=no" git -C "$target_folder" fetch origin
 }
@@ -54,10 +55,10 @@ git_clean_up() {
     trap 'rm -rf "'"$target_folder"'"' EXIT ERR
 
     ## delete the repository from redis
-    redis-cli -u "$redis_url" DEL "$redis_key"
+    redis-exec "$redis_url" DEL "$redis_key"
 
     ## delete the repository branch_store
-    redis-cli -u "$redis_url" DEL "$key_value_pair_key"
+    redis-exec "$redis_url" DEL "$key_value_pair_key"
 }
 
 # Uploads git repo to Redis as compressed archive
@@ -72,7 +73,7 @@ git_upload() {
     rm -f "$target_folder/.git/index.lock"
 
     upload_branches_to_redis_hash "$target_folder" "$redis_url" "$key_value_pair_key"
-    tar -cf - -C "$target_folder" . | zstd -q --threads=0 | base64 -w 0 | redis-cli -u "$redis_url" --raw -x SETEX "$redis_key" "$GIT_ARTIFACT_TTL"
+    tar -cf - -C "$target_folder" . | zstd -q --threads=0 | base64 -w 0 | redis-exec "$redis_url" --raw -x SETEX "$redis_key" "$GIT_ARTIFACT_TTL"
 }
 
 upload_branches_to_redis_hash() {
@@ -85,8 +86,8 @@ upload_branches_to_redis_hash() {
 
     log_info "Preparing to upload branch store. Current branches: $branches"
 
-    redis-cli -u "$redis_url" DEL "$key_value_pair_key"
-    redis-cli -u "$redis_url" HSET "$key_value_pair_key" $branches
+    redis-exec "$redis_url" DEL "$key_value_pair_key"
+    redis-exec "$redis_url" HSET "$key_value_pair_key" $branches
 }
 
 # Downloads git repo from Redis or clones if not cached
@@ -105,8 +106,8 @@ git_download() {
     rm -rf "$target_folder"
     mkdir -p "$target_folder"
 
-    if [ "$(redis-cli -u "$redis_url" --raw EXISTS "$redis_key")" = "1" ]; then
-        redis-cli -u "$redis_url" --raw GET "$redis_key" | base64 -d | zstd -d --threads=0 | tar -xf - -C "$target_folder"
+    if [ "$(redis-exec "$redis_url" --raw EXISTS "$redis_key")" = "1" ]; then
+        redis-exec "$redis_url" --raw GET "$redis_key" | base64 -d | zstd -d --threads=0 | tar -xf - -C "$target_folder"
     else
       log_warn "Cache miss. Repository: $target_folder with key: $redis_key does not exist in redis."
       return 1
@@ -123,11 +124,12 @@ git_clone_and_checkout() {
         local author_name="$2"
         local private_key="$3"
         local remote_url="$4"
-        local target_folder="$5"
-        local redis_url="$6"
-        local key_value_pair_key="$7"
+        local git_root="$5"
+        local target_folder="$6"
+        local redis_url="$7"
+        local key_value_pair_key="$8"
 
-        ## branches are after argument 7
+        ## branches are after argument 8
 
         trap 'rm -rf "'"$target_folder"'"' ERR
 
@@ -138,16 +140,16 @@ git_clone_and_checkout() {
         ## create the same directory
         mkdir -p "$target_folder"
 
-        git_clone "$private_key" "$remote_url" "$target_folder"
+        git_clone "$private_key" "$remote_url" "$target_folder" "$git_root"
         git -C "$target_folder" config user.name "$author_name"
         git -C "$target_folder" config user.email "$author_email"
         git -C "$target_folder" config fetch.parallel 4
         git -C "$target_folder" reflog expire --expire=now --all
         git -C "$target_folder" gc --prune=now --aggressive
 
-        # This provides all the arguments from arg 5 onwards to the function git_co_from_redis.
+        # This provides all the arguments from arg 6 onwards to the function git_co_from_redis.
         # This includes the target folder, redis url, key value pair key, and all branch names from db.
-        git_checkout_from_branch_store ${@:5}
+        git_checkout_from_branch_store ${@:6}
 }
 
 git_checkout_from_branch_store() {
@@ -159,7 +161,7 @@ git_checkout_from_branch_store() {
     # fetch raw value
     log_info "Searching Redis branch-store for key : $key_value_pair_key"
     local raw
-    raw=$(redis-cli -u "$redis_url" --raw HGETALL "$key_value_pair_key" | sed 's/\"//g')
+    raw=$(redis-exec "$redis_url" --raw HGETALL "$key_value_pair_key" | sed 's/\"//g')
 
     # error handling: empty or missing key
     if [[ -z "$raw" ]]; then
@@ -252,4 +254,95 @@ git_merge_branch() {
 
     git -C "$target_folder" checkout "$destination_branch"
     git -C "$target_folder" merge "$source_branch" --strategy=recursive --allow-unrelated-histories --no-edit
+}
+
+# Redis CLI wrapper that handles different URL schemes
+# Usage: redis-exec <redis-url> [redis-cli-args...]
+# Supports: redis://, rediss://, redis-cluster://
+redis-exec() {
+    local url="$1"
+    
+    if [[ -z "$url" ]]; then
+        log_error "redis-exec: missing Redis URL"
+        log_error "Usage: redis-exec <redis-url> [redis-cli-args...]"
+        return 1
+    fi
+    
+    case "$url" in
+        redis://*|rediss://*)
+            # Standard Redis URL - pass directly to redis-cli -u
+            redis-cli -u "$url" "${@:2}"
+            ;;
+        redis-cluster://*)
+            # Cluster URL - extract components and use cluster mode
+            local stripped="${url#redis-cluster://}"
+            
+            # Split into authority and path parts
+            local authority="${stripped%%/*}"
+            local path_part="${stripped#*/}"
+            if [[ "$path_part" == "$stripped" ]]; then
+                path_part=""  # No path present
+            fi
+            
+            # Extract credentials from authority (user:pass@host:port)
+            local credentials=""
+            local host_port="$authority"
+            if [[ "$authority" == *"@"* ]]; then
+                credentials="${authority%%@*}"
+                host_port="${authority##*@}"
+            fi
+            
+            # Parse credentials
+            local username=""
+            local password=""
+            if [[ -n "$credentials" ]]; then
+                if [[ "$credentials" == *":"* ]]; then
+                    username="${credentials%%:*}"
+                    password="${credentials##*:}"
+                else
+                    password="$credentials"  # Only password provided
+                fi
+            fi
+            
+            # Extract host and port
+            local host="${host_port%:*}"
+            local port="${host_port##*:}"
+            
+            # If no port specified, default to 6379
+            if [[ "$port" == "$host" ]]; then
+                port="6379"
+            fi
+            
+            # Extract database number from path
+            local database=""
+            if [[ -n "$path_part" && "$path_part" =~ ^[0-9]+(\?.*)?$ ]]; then
+                database="${path_part%%\?*}"  # Remove query params if present
+            fi
+            
+            # Build redis-cli command
+            local cmd_args=("-c" "-h" "$host" "-p" "$port")
+            
+            # Add authentication if present
+            if [[ -n "$username" && -n "$password" ]]; then
+                cmd_args+=("--user" "$username" "--pass" "$password")
+            elif [[ -n "$password" ]]; then
+                cmd_args+=("-a" "$password")
+            fi
+            
+            # Add database selection if specified
+            if [[ -n "$database" ]]; then
+                cmd_args+=("-n" "$database")
+            fi
+            
+            # Add remaining arguments
+            cmd_args+=("${@:2}")
+            
+            redis-cli "${cmd_args[@]}"
+            ;;
+        *)
+            log_error "redis-exec: unsupported URL scheme: $url"
+            log_error "Supported schemes: redis://, rediss://, redis-cluster://"
+            return 1
+            ;;
+    esac
 }
