@@ -572,6 +572,7 @@ public class GitRouteAspect {
                 ctx.getGitProfile().getAuthorName(),
                 ctx.getGitKey(),
                 ctx.getGitMeta().getRemoteUrl(),
+                gitServiceConfig.getGitRootPath(),
                 ctx.getRepoPath(),
                 redisUrl,
                 ctx.getBranchStoreKey());
