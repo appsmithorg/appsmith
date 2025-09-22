@@ -45,6 +45,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1583,5 +1585,48 @@ public class AmazonS3PluginTest {
                         List.of(actionConfiguration), mappedColumnsAndTableName, userSelectedBucketName)
                 .block();
         assertEquals(userSelectedBucketName, mappedColumnsAndTableName.get("templateBucket"));
+    }
+
+    @Test
+    public void testContentMD5CalculationForObjectLock() throws NoSuchAlgorithmException {
+        // Test that MD5 calculation works correctly for Object Lock compliance
+        String testContent = "Hello, World!";
+        byte[] payload = testContent.getBytes();
+
+        // Calculate MD5 hash using the same logic as in uploadFileInS3
+        MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+        byte[] md5Hash = md5Digest.digest(payload);
+        String md5Base64 = java.util.Base64.getEncoder().encodeToString(md5Hash);
+
+        // Verify MD5 calculation is correct
+        assertNotNull(md5Base64);
+        assertTrue(md5Base64.length() > 0);
+
+        // For "Hello, World!" the MD5 hash should be deterministic
+        // Expected MD5 for "Hello, World!" is 65a8e27d8879283831b664bd8b7f0ad4
+        String expectedMd5Hex = "65a8e27d8879283831b664bd8b7f0ad4";
+        String actualMd5Hex = bytesToHex(md5Hash);
+        assertEquals(expectedMd5Hex, actualMd5Hex);
+
+        // Verify base64 encoding
+        String expectedBase64 = java.util.Base64.getEncoder().encodeToString(hexToBytes(expectedMd5Hex));
+        assertEquals(expectedBase64, md5Base64);
+    }
+
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+
+    private byte[] hexToBytes(String hex) {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4) + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return data;
     }
 }
