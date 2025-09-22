@@ -64,11 +64,16 @@ import {
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import AppSortSelector, { type SortOption } from "./AppSortSelector";
+import WorkspaceSortSelector, { type WorkspaceSortOption } from "./WorkspaceSortSelector";
+import useLocalStorageState from "utils/hooks/useLocalStorageState";
+import { STORAGE_KEYS } from "utils/storage";
 import React, {
   Component,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -306,6 +311,8 @@ export function LeftPaneSection(props: {
   children?: any;
   isFetchingWorkspaces: boolean;
   isBannerVisible?: boolean;
+  workspaces?: any[];
+  activeWorkspaceId?: string;
 }) {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -315,6 +322,34 @@ export function LeftPaneSection(props: {
   const canCreateWorkspace = getHasCreateWorkspacePermission(
     isFeatureEnabled,
     organizationPermissions,
+  );
+
+  // Workspace sort state management with localStorage persistence
+  const [workspaceSortOption, setWorkspaceSortOption] = useLocalStorageState<WorkspaceSortOption>(
+    STORAGE_KEYS.WORKSPACE_SORT_OPTION,
+    "recent"
+  );
+
+  // Workspace sorting logic
+  const sortWorkspaces = useCallback((workspaces: any[], sortType: WorkspaceSortOption) => {
+    if (!workspaces || workspaces.length === 0) return workspaces;
+
+    switch (sortType) {
+      case "alphabetical":
+        return [...workspaces].sort((a, b) => 
+          (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase())
+        );
+      case "recent":
+      default:
+        // Default sorting by recent activity (using existing behavior)
+        return [...workspaces];
+    }
+  }, []);
+
+  // Apply sorting to workspaces
+  const sortedWorkspaces = useMemo(() => 
+    sortWorkspaces(props.workspaces || [], workspaceSortOption), 
+    [props.workspaces, workspaceSortOption, sortWorkspaces]
   );
 
   const createNewWorkspace = async () => {
@@ -352,7 +387,28 @@ export function LeftPaneSection(props: {
           </Tooltip>
         )}
       </div>
-      {props.children}
+      {props.heading === createMessage(WORKSPACES_HEADING) && 
+       props.workspaces && 
+       props.workspaces.length > 0 && (
+        <WorkspaceSortSelector
+          value={workspaceSortOption}
+          onChange={setWorkspaceSortOption}
+        />
+      )}
+      {props.heading === createMessage(WORKSPACES_HEADING) ? (
+        <WorkpsacesNavigator data-testid="t--left-panel">
+          {sortedWorkspaces.map((workspace) => (
+            <WorkspaceMenuItem
+              isFetchingWorkspaces={props.isFetchingWorkspaces}
+              key={workspace.id}
+              selected={workspace.id === props.activeWorkspaceId}
+              workspace={workspace}
+            />
+          ))}
+        </WorkpsacesNavigator>
+      ) : (
+        props.children
+      )}
     </LeftPaneDataSection>
   );
 }
@@ -484,18 +540,9 @@ export function LeftPane(props: LeftPaneProps) {
         heading={createMessage(WORKSPACES_HEADING)}
         isBannerVisible={isBannerVisible}
         isFetchingWorkspaces={isFetchingWorkspaces}
-      >
-        <WorkpsacesNavigator data-testid="t--left-panel">
-          {workspaces.map((workspace) => (
-            <WorkspaceMenuItem
-              isFetchingWorkspaces={isFetchingWorkspaces}
-              key={workspace.id}
-              selected={workspace.id === activeWorkspaceId}
-              workspace={workspace}
-            />
-          ))}
-        </WorkpsacesNavigator>
-      </LeftPaneSection>
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+      />
     </LeftPaneWrapper>
   );
 }
@@ -589,6 +636,76 @@ export function ApplicationsSection(props: any) {
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
   const openImportModal = urlParams.get("openImportModal");
+  
+  // Sort state management with localStorage persistence
+  const [sortOption, setSortOption] = useLocalStorageState<SortOption>(
+    STORAGE_KEYS.WORKSPACE_APP_SORT_OPTION,
+    "recent"
+  );
+
+  // Sorting logic for different entity types
+  const sortEntities = useCallback((entities: any[], sortType: SortOption) => {
+    if (!entities || entities.length === 0) return entities;
+
+    switch (sortType) {
+      case "alphabetical":
+        return [...entities].sort((a, b) => 
+          (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase())
+        );
+      case "recent":
+      default:
+        // Default sorting by recent activity (modifiedAt)
+        return [...entities].sort((a, b) => {
+          const dateA = new Date(a.modifiedAt || 0).getTime();
+          const dateB = new Date(b.modifiedAt || 0).getTime();
+          return dateB - dateA; // Most recent first
+        });
+    }
+  }, []);
+
+  // Apply sorting to all entity types
+  const sortedPackages = useMemo(() => 
+    sortEntities(packages, sortOption), 
+    [packages, sortOption, sortEntities]
+  );
+  
+  const sortedWorkflows = useMemo(() => 
+    sortEntities(workflows, sortOption), 
+    [workflows, sortOption, sortEntities]
+  );
+
+  // Filter applications into classic and Anvil applications
+  const { anvilApplications, nonAnvilApplications } = useMemo(() => {
+    const anvilApps: ApplicationPayload[] = [];
+    const nonAnvilApps: ApplicationPayload[] = [];
+
+    applications.forEach((application: ApplicationPayload) => {
+      if (
+        application.applicationDetail?.appPositioning?.type ===
+        LayoutSystemTypes.ANVIL
+      ) {
+        anvilApps.push(application);
+      } else {
+        nonAnvilApps.push(application);
+      }
+    });
+
+    return {
+      anvilApplications: anvilApps,
+      nonAnvilApplications: nonAnvilApps,
+    };
+  }, [applications]);
+
+  // Apply sorting to the filtered application arrays
+  const sortedNonAnvilApplications = useMemo(() => 
+    sortEntities(nonAnvilApplications, sortOption), 
+    [nonAnvilApplications, sortOption, sortEntities]
+  );
+  
+  const sortedAnvilApplications = useMemo(() => 
+    sortEntities(anvilApplications, sortOption), 
+    [anvilApplications, sortOption, sortEntities]
+  );
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -826,21 +943,6 @@ export function ApplicationsSection(props: any) {
       }
     };
 
-    // The following filters the applications into classic and Anvil applications
-    // So, that they can be listed in different card lists depending on whether Anvil is enabled
-    const anvilApplications: ApplicationPayload[] = [];
-    const nonAnvilApplications: ApplicationPayload[] = [];
-
-    applications.forEach((application: ApplicationPayload) => {
-      if (
-        application.applicationDetail?.appPositioning?.type ===
-        LayoutSystemTypes.ANVIL
-      ) {
-        anvilApplications.push(application);
-      } else {
-        nonAnvilApplications.push(application);
-      }
-    });
 
     workspacesListComponent = (
       <React.Fragment key={activeWorkspace.id}>
@@ -867,6 +969,13 @@ export function ApplicationsSection(props: any) {
             />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
+                {applications && applications.length > 0 && (
+                  <AppSortSelector
+                    value={sortOption}
+                    onChange={setSortOption}
+                    isMobile={isMobile}
+                  />
+                )}
                 <SharedUserList />
                 {canInviteToWorkspace && !isMobile && (
                   <FormDialogComponent
@@ -931,7 +1040,7 @@ export function ApplicationsSection(props: any) {
             <>
               {!isAiAgentInstanceEnabled && (
                 <ApplicationCardList
-                  applications={nonAnvilApplications}
+                  applications={sortedNonAnvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
                   deleteApplication={deleteApplication}
                   enableImportExport={enableImportExport}
@@ -948,7 +1057,7 @@ export function ApplicationsSection(props: any) {
               )}
               {isAiAgentFlowEnabled && (
                 <ApplicationCardList
-                  applications={anvilApplications}
+                  applications={sortedAnvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
                   deleteApplication={deleteApplication}
                   emptyStateMessage={
@@ -971,13 +1080,13 @@ export function ApplicationsSection(props: any) {
               )}
               <PackageCardList
                 isMobile={isMobile}
-                packages={packages}
+                packages={sortedPackages}
                 workspace={activeWorkspace}
                 workspaceId={activeWorkspace.id}
               />
               <WorkflowCardList
                 isMobile={isMobile}
-                workflows={workflows}
+                workflows={sortedWorkflows}
                 workspace={activeWorkspace}
                 workspaceId={activeWorkspace.id}
               />
