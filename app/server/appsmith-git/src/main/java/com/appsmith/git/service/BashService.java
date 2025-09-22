@@ -63,9 +63,7 @@ public class BashService {
                     "Bash execution failed: " + buildErrorDetails(output, error, exceptionError, exitCode));
         }
 
-        log.info("Script: {}", fullScript);
-        log.info("Output: {}", output);
-        log.info("Error: {}", error);
+        log.info("Output: \n{}", output);
         log.info("Exit code: {}", exitCode);
 
         outputStream.close();

@@ -62,8 +62,10 @@ public class RestAPIActivateUtils {
             "application/octet-stream",
             "application/pdf",
             "application/pkcs8",
-            "application/x-binary");
-
+            "application/x-binary",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation");
     public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(
