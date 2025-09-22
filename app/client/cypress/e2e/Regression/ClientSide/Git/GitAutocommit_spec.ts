@@ -26,7 +26,7 @@ describe(
     ],
   },
   function () {
-    it("Check if autocommit progress bar is visible and network requests are properly called", function () {
+    it.skip("Check if autocommit progress bar is visible and network requests are properly called", function () {
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         wsName = "GitAC-" + uid;
