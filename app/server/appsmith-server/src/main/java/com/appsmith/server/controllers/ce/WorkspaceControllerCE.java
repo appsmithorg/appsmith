@@ -114,7 +114,7 @@ public class WorkspaceControllerCE {
             if (isEnabled) {
                 // If alphabetical ordering is enabled, then we need to sort the workspaces in alphabetical order
                 return userWorkspaceService
-                        .getUserWorkspaceInAlphabeticalOrder()
+                        .getUserWorkspacesInAlphabeticalOrder()
                         .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
             } else {
                 // If alphabetical ordering is disabled, then we need to sort the workspaces in recently used order

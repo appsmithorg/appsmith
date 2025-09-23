@@ -427,7 +427,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      * @return Mono containing the list of workspaces
      */
     @Override
-    public Mono<List<Workspace>> getUserWorkspaceInAlphabeticalOrder() {
+    public Mono<List<Workspace>> getUserWorkspacesInAlphabeticalOrder() {
         return workspaceService
             .getAll(workspacePermission.getReadPermission())
             .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))

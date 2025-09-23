@@ -26,5 +26,5 @@ public interface UserWorkspaceServiceCE {
 
     Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder();
     
-    Mono<List<Workspace>> getUserWorkspaceInAlphabeticalOrder();
+    Mono<List<Workspace>> getUserWorkspacesInAlphabeticalOrder();
 }
