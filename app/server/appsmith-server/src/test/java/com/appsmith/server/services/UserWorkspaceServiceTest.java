@@ -380,14 +380,15 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void getUserWorkspaceInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
+    public void getUserWorkspacesInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
         // Arrange: Create multiple workspaces with different names
         String[] workspaceNames = {"Zebra Workspace", "Alpha Workspace", "Beta Workspace"};
 
         for (String name : workspaceNames) {
             Workspace workspace = new Workspace();
             workspace.setName(name);
-            workspaceRepository.save(workspace).block();
+            // Ensures default permission groups & current user access are created
+            workspaceService.create(workspace).block();
         }
 
         // Act: Call the method to get the user's workspaces in alphabetical order
