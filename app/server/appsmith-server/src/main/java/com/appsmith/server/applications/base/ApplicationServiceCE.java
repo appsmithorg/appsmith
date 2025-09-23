@@ -31,6 +31,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Flux<Application> findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(String workspaceId);
 
+    Flux<Application> findByWorkspaceIdAndBaseApplicationsForHome(String workspaceId);
+
     Mono<Application> save(Artifact application);
 
     Mono<Application> updateApplicationWithPresets(String branchedApplicationId, Application application);

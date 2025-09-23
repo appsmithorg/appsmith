@@ -13,11 +13,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final OrganizationService organizationService;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final FeatureFlagService featureFlagService;
 
     @Autowired
     public UserWorkspaceServiceCEImpl(
@@ -65,7 +68,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             PermissionGroupService permissionGroupService,
             OrganizationService organizationService,
             WorkspacePermission workspacePermission,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            FeatureFlagService featureFlagService) {
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.userRepository = userRepository;
@@ -74,6 +78,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.organizationService = organizationService;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -432,5 +437,26 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             .getAll(workspacePermission.getReadPermission())
             .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))
             .collectList();
+    }
+
+    /**
+     * Returns a list of workspaces for the current user, sorted based on feature flag.
+     * If alphabetical ordering is enabled, returns workspaces in alphabetical order.
+     * Otherwise, returns workspaces in recently used order.
+     *
+     * @return Mono containing the list of workspaces
+     */
+    @Override
+    public Mono<List<Workspace>> getUserWorkspacesForHome() {
+        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
+        return isAlphabeticalOrderingEnabled.flatMap(isEnabled -> {
+            if (isEnabled) {
+                // If alphabetical ordering is enabled, then we need to sort the workspaces in alphabetical order
+                return getUserWorkspacesInAlphabeticalOrder();
+            } else {
+                // If alphabetical ordering is disabled, then we need to sort the workspaces in recently used order
+                return getUserWorkspacesByRecentlyUsedOrder();
+            }
+        });
     }
 }

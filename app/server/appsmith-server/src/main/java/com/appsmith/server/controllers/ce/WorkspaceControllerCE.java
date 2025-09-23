@@ -7,10 +7,8 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +33,6 @@ import java.util.List;
 public class WorkspaceControllerCE {
     private final WorkspaceService service;
     private final UserWorkspaceService userWorkspaceService;
-    private final FeatureFlagService featureFlagService;
 
     @JsonView(Views.Public.class)
     @GetMapping("/{id}")
@@ -109,19 +106,8 @@ public class WorkspaceControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/home")
     public Mono<ResponseDTO<List<Workspace>>> workspacesForHome() {
-        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
-        return isAlphabeticalOrderingEnabled.flatMap(isEnabled -> {
-            if (isEnabled) {
-                // If alphabetical ordering is enabled, then we need to sort the workspaces in alphabetical order
-                return userWorkspaceService
-                        .getUserWorkspacesInAlphabeticalOrder()
-                        .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
-            } else {
-                // If alphabetical ordering is disabled, then we need to sort the workspaces in recently used order
-                return userWorkspaceService
-                        .getUserWorkspacesByRecentlyUsedOrder()
-                        .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
-            }
-        });
+        return userWorkspaceService
+                .getUserWorkspacesForHome()
+                .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
     }
 }

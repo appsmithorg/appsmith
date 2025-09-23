@@ -36,10 +36,12 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -91,6 +93,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final ObservationRegistry observationRegistry;
+    private final FeatureFlagService featureFlagService;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -109,7 +112,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            FeatureFlagService featureFlagService) {
 
         super(validator, repository, analyticsService);
         this.policySolution = policySolution;
@@ -123,6 +127,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -248,6 +253,28 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
                                     || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
                         }));
+    }
+
+    /**
+     * This method is used to fetch all the applications for a given workspaceId. It sorts the applications based
+     * on feature flag - either alphabetically or by recently used order.
+     * For git connected applications only default branched application is returned.
+     *
+     * @param workspaceId workspaceId for which applications are to be fetched
+     * @return Flux of applications sorted based on feature flag
+     */
+    @Override
+    public Flux<Application> findByWorkspaceIdAndBaseApplicationsForHome(String workspaceId) {
+        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
+        return isAlphabeticalOrderingEnabled.flatMapMany(isEnabled -> {
+            if (isEnabled) {
+                // If alphabetical ordering is enabled, then we need to sort the applications in alphabetical order
+                return findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(workspaceId);
+            } else {
+                // If alphabetical ordering is disabled, then we need to sort the applications in recently used order
+                return findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId);
+            }
+        });
     }
 
     @Override

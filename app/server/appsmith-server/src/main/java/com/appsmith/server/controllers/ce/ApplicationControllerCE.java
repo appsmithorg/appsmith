@@ -30,10 +30,8 @@ import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +75,6 @@ public class ApplicationControllerCE {
     private final PartialImportService partialImportService;
     private final ImportService importService;
     private final ExportService exportService;
-    private final FeatureFlagService featureFlagService;
 
     @JsonView(Views.Public.class)
     @PostMapping
@@ -133,21 +130,9 @@ public class ApplicationControllerCE {
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
-        
-        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
-        return isAlphabeticalOrderingEnabled.flatMap(isEnabled -> {
-            if (isEnabled) {
-                // If alphabetical ordering is enabled, then we need to sort the applications in alphabetical order
-                return service.findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(workspaceId)
-                        .collectList()
-                        .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
-            } else {
-                // If alphabetical ordering is disabled, then we need to sort the applications in recently used order
-                return service.findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId)
-                        .collectList()
-                        .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
-            }
-        });
+        return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
+                .collectList()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
     }
 
     @JsonView(Views.Public.class)

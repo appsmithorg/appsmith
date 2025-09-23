@@ -11,7 +11,6 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +33,7 @@ public class ApplicationController extends ApplicationControllerCE {
             PartialExportService partialExportService,
             PartialImportService partialImportService,
             ImportService importService,
-            ExportService exportService,
-            FeatureFlagService featureFlagService) {
+            ExportService exportService) {
         super(
                 artifactService,
                 service,
@@ -47,7 +45,6 @@ public class ApplicationController extends ApplicationControllerCE {
                 partialExportService,
                 partialImportService,
                 importService,
-                exportService,
-                featureFlagService);
+                exportService);
     }
 }
