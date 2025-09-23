@@ -10,7 +10,6 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.central.GitType;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -43,7 +42,7 @@ import static org.mockito.ArgumentMatchers.eq;
 public class GitAutoCommitHelperImplTest {
 
     @MockBean
-    AutoCommitEventHandler autoCommitEventHandler;
+    AutoCommitAsyncEventManager autoCommitAsyncEventManager;
 
     @SpyBean
     ApplicationService applicationService;
@@ -205,7 +204,7 @@ public class GitAutoCommitHelperImplTest {
         StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isTrue();
-                    Mockito.verify(autoCommitEventHandler).publish(autoCommitEvent);
+                    Mockito.verify(autoCommitAsyncEventManager).publishAsyncEvent(autoCommitEvent);
                 })
                 .verifyComplete();
     }

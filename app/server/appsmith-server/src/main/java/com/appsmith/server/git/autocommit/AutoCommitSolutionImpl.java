@@ -8,14 +8,12 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl implements AutoCommitEventHandler {
+public class AutoCommitSolutionImpl extends AutoCommitSolutionCEImpl implements AutoCommitSolution {
 
-    public AutoCommitEventHandlerImpl(
-            ApplicationEventPublisher applicationEventPublisher,
+    public AutoCommitSolutionImpl(
             GitRedisUtils gitRedisUtils,
             RedisUtils redisUtils,
             DSLMigrationUtils dslMigrationUtils,
@@ -25,7 +23,6 @@ public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl imp
             ProjectProperties projectProperties,
             AnalyticsService analyticsService) {
         super(
-                applicationEventPublisher,
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
