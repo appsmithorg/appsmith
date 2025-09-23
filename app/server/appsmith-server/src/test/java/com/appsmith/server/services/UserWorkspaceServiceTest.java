@@ -391,7 +391,7 @@ public class UserWorkspaceServiceTest {
         }
 
         // Act: Call the method to get the user's workspaces in alphabetical order
-        Mono<List<Workspace>> workspacesMono = userWorkspaceService.getUserWorkspaceInAlphabeticalOrder();
+        Mono<List<Workspace>> workspacesMono = userWorkspaceService.getUserWorkspacesInAlphabeticalOrder();
 
         // Assert: Verify the workspaces are returned in alphabetical order
         StepVerifier.create(workspacesMono)
