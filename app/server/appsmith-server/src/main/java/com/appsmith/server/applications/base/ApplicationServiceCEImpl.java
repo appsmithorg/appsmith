@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -212,6 +213,41 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
                                     || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
                         })));
+    }
+
+    /**
+     * This method is used to fetch all the applications for a given workspaceId. It sorts the applications in
+     * alphabetical order by name.
+     * For git connected applications only default branched application is returned.
+     *
+     * @param workspaceId workspaceId for which applications are to be fetched
+     * @return Flux of applications sorted alphabetically
+     */
+    @Override
+    public Flux<Application> findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(String workspaceId) {
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        // Read the workspace
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
+        return workspaceMono.thenMany(
+                this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+                        .sort(Comparator.comparing(application -> application.getName().toLowerCase()))
+                        .filter(application -> {
+                            /*
+                             * Filter applications based on the following criteria:
+                             * - Applications that are not connected to Git.
+                             * - Applications that, when connected, revert with default branch only.
+                             */
+                            return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
+                                    || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
+                        }));
     }
 
     @Override

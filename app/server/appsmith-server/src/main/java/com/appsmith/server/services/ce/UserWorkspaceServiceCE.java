@@ -25,4 +25,6 @@ public interface UserWorkspaceServiceCE {
     Mono<Boolean> isLastAdminRoleEntity(PermissionGroup permissionGroup);
 
     Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder();
+    
+    Mono<List<Workspace>> getUserWorkspaceInAlphabeticalOrder();
 }

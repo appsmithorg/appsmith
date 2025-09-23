@@ -31,6 +31,10 @@ public enum FeatureFlagEnum {
     release_git_autocommit_eligibility_enabled,
     release_dynamodb_connection_time_to_live_enabled,
     release_reactive_actions_enabled,
+    /**
+     * Feature flag to enable alphabetical ordering for workspaces and applications
+     */
+    release_alphabetical_ordering_enabled,
 
     // Add EE flags below this line, to avoid conflicts.
 }
