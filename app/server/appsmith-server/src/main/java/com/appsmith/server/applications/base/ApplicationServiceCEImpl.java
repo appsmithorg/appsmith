@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.base;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -41,7 +42,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -241,18 +241,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
-        return workspaceMono.thenMany(
-                this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
-                        .sort(Comparator.comparing(application -> application.getName().toLowerCase()))
-                        .filter(application -> {
-                            /*
-                             * Filter applications based on the following criteria:
-                             * - Applications that are not connected to Git.
-                             * - Applications that, when connected, revert with default branch only.
-                             */
-                            return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
-                                    || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
-                        }));
+        return workspaceMono.thenMany(this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+                .sort(Comparator.comparing(application -> application.getName().toLowerCase()))
+                .filter(application -> {
+                    /*
+                     * Filter applications based on the following criteria:
+                     * - Applications that are not connected to Git.
+                     * - Applications that, when connected, revert with default branch only.
+                     */
+                    return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
+                            || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
+                }));
     }
 
     /**
@@ -265,7 +264,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Flux<Application> findByWorkspaceIdAndBaseApplicationsForHome(String workspaceId) {
-        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
+        Mono<Boolean> isAlphabeticalOrderingEnabled =
+                featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
         return isAlphabeticalOrderingEnabled.flatMapMany(isEnabled -> {
             if (isEnabled) {
                 // If alphabetical ordering is enabled, then we need to sort the applications in alphabetical order

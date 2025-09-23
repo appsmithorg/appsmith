@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -19,7 +20,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -434,9 +434,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<List<Workspace>> getUserWorkspacesInAlphabeticalOrder() {
         return workspaceService
-            .getAll(workspacePermission.getReadPermission())
-            .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))
-            .collectList();
+                .getAll(workspacePermission.getReadPermission())
+                .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))
+                .collectList();
     }
 
     /**
@@ -448,7 +448,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      */
     @Override
     public Mono<List<Workspace>> getUserWorkspacesForHome() {
-        Mono<Boolean> isAlphabeticalOrderingEnabled = featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
+        Mono<Boolean> isAlphabeticalOrderingEnabled =
+                featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
         return isAlphabeticalOrderingEnabled.flatMap(isEnabled -> {
             if (isEnabled) {
                 // If alphabetical ordering is enabled, then we need to sort the workspaces in alphabetical order
