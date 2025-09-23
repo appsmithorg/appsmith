@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
@@ -108,6 +109,9 @@ public class AutoCommitServiceTest {
 
     @SpyBean
     JsonSchemaMigration jsonSchemaMigration;
+
+    @SpyBean
+    GitServiceConfig gitServiceConfig;
 
     Application testApplication;
 
@@ -252,6 +256,8 @@ public class AutoCommitServiceTest {
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
         applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
+        doReturn(FALSE).when(gitServiceConfig).isGitInMemory();
+
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
@@ -308,6 +314,8 @@ public class AutoCommitServiceTest {
             throws GitAPIException, IOException, URISyntaxException {
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
+
+        doReturn(FALSE).when(gitServiceConfig).isGitInMemory();
 
         int pageDSLNumber = applicationJson
                 .getPageList()
