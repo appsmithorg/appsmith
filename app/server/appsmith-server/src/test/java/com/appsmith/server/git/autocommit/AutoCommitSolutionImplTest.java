@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -49,7 +48,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.autocommit.AutoCommitSolutionCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,9 +58,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class AutoCommitEventHandlerImplTest {
-    @MockBean
-    ApplicationEventPublisher applicationEventPublisher;
+public class AutoCommitSolutionImplTest {
 
     @SpyBean
     RedisUtils redisUtils;
@@ -96,7 +93,7 @@ public class AutoCommitEventHandlerImplTest {
     @Autowired
     ProjectProperties projectProperties;
 
-    AutoCommitEventHandler autoCommitEventHandler;
+    AutoCommitSolution autoCommitSolution;
 
     JsonSchemaVersions jsonSchemaVersions = new JsonSchemaVersions();
 
@@ -106,8 +103,7 @@ public class AutoCommitEventHandlerImplTest {
 
     @BeforeEach
     public void beforeTest() {
-        autoCommitEventHandler = new AutoCommitEventHandlerImpl(
-                applicationEventPublisher,
+        autoCommitSolution = new AutoCommitSolutionImpl(
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
@@ -135,7 +131,7 @@ public class AutoCommitEventHandlerImplTest {
 
         Mono<Boolean> map = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
-                .then(autoCommitEventHandler.autoCommitDSLMigration(autoCommitEvent));
+                .then(autoCommitSolution.autoCommitDSLMigration(autoCommitEvent));
 
         StepVerifier.create(map)
                 .assertNext(x -> {
@@ -243,7 +239,7 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getPrivateKey(),
                         autoCommitEvent.getBranchName());
 
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitDSLMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -292,7 +288,7 @@ public class AutoCommitEventHandlerImplTest {
                 .constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO);
 
         // the rest of the process should not trigger as no migration is required
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitDSLMigration(autoCommitEvent)
                         .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -353,7 +349,7 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getPrivateKey(),
                         autoCommitEvent.getBranchName());
 
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -371,7 +367,7 @@ public class AutoCommitEventHandlerImplTest {
 
         Mono<Boolean> map = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
-                .then(autoCommitEventHandler.autoCommitServerMigration(autoCommitEvent));
+                .then(autoCommitSolution.autoCommitServerMigration(autoCommitEvent));
 
         StepVerifier.create(map)
                 .assertNext(x -> {
@@ -414,7 +410,7 @@ public class AutoCommitEventHandlerImplTest {
                 .saveArtifactToLocalRepoNew(baseRepoSuffix, applicationJson, autoCommitEvent.getBranchName());
 
         // the rest of the process should not trigger as no migration is required
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -479,7 +475,7 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getPrivateKey(),
                         autoCommitEvent.getBranchName());
 
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -501,7 +497,7 @@ public class AutoCommitEventHandlerImplTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -544,7 +540,7 @@ public class AutoCommitEventHandlerImplTest {
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
 
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
@@ -603,7 +599,7 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName());
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitDSLMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {

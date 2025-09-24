@@ -142,6 +142,8 @@ public class GitRouteAspect {
 
         // Intermediate Inputs
         private String fieldValue;
+        private String authorName;
+        private String authorEmail;
 
         // Tasks
         private Artifact artifact;
@@ -229,6 +231,14 @@ public class GitRouteAspect {
             return execute(ctx);
         }
 
+        String authorName = extractFieldValue(joinPoint, gitRoute.authorName());
+        String authorEmail = extractFieldValue(joinPoint, gitRoute.authorEmail());
+
+        if (StringUtils.hasText(authorName) && StringUtils.hasText(authorEmail)) {
+            ctx.setAuthorEmail(authorEmail);
+            ctx.setAuthorName(authorName);
+        }
+
         String fieldValue = extractFieldValue(joinPoint, gitRoute.fieldName());
         ctx.setFieldValue(fieldValue);
         return run(ctx, State.ROUTE_FILTER).flatMap(unused -> {
@@ -267,14 +277,15 @@ public class GitRouteAspect {
                                 Outcome.SUCCESS.name(),
                                 result,
                                 duration);
+                    } else {
+                        log.info(
+                                "Operation : {}, State {} : {}, Time: {}ms",
+                                ctx.getGitRoute().operation(),
+                                current,
+                                Outcome.SUCCESS.name(),
+                                duration);
                     }
 
-                    log.info(
-                            "Operation : {}, State {} : {}, Time: {}ms",
-                            ctx.getGitRoute().operation(),
-                            current,
-                            Outcome.SUCCESS.name(),
-                            duration);
                     return run(ctx, config.next(Outcome.SUCCESS));
                 })
                 .onErrorResume(e -> {
@@ -460,10 +471,23 @@ public class GitRouteAspect {
      * @return Mono emitting the Git profile, or error if not configured
      */
     private Mono<GitProfile> gitProfile(Context ctx) {
-        return gitProfileUtils
-                .getGitProfileForUser(ctx.getFieldValue())
+        Mono<GitProfile> alternativeGitProfileMono = Mono.defer(() -> Mono.justOrEmpty(getProfileFromArgs(ctx)))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.INVALID_GIT_CONFIGURATION, "Git profile is not configured")));
+
+        return gitProfileUtils.getGitProfileForUser(ctx.getFieldValue()).switchIfEmpty(alternativeGitProfileMono);
+    }
+
+    private GitProfile getProfileFromArgs(Context ctx) {
+        if (!StringUtils.hasText(ctx.getAuthorEmail()) || !StringUtils.hasText(ctx.getAuthorName())) {
+            return null;
+        }
+
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorName(ctx.getAuthorName());
+        gitProfile.setAuthorEmail(ctx.getAuthorEmail());
+        gitProfile.setUseGlobalProfile(Boolean.TRUE);
+        return gitProfile;
     }
 
     /**

@@ -15,7 +15,6 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
-import com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse;
 import com.appsmith.server.dtos.BranchProtectionRequestDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -289,12 +288,9 @@ public class GitApplicationControllerCE {
             artifactType = ArtifactType.APPLICATION,
             operation = GitRouteOperation.AUTO_COMMIT)
     public Mono<ResponseDTO<AutoCommitResponseDTO>> autoCommitApplication(@PathVariable String branchedApplicationId) {
-        // disabling autocommit till in-memory git has been incorporated in the auto-commit
-        AutoCommitResponseDTO autoCommitResponseDTO = new AutoCommitResponseDTO();
-        autoCommitResponseDTO.setAutoCommitResponse(AutoCommitResponse.IDLE);
-        autoCommitResponseDTO.setProgress(0);
-
-        return Mono.just(autoCommitResponseDTO).map(data -> new ResponseDTO<>(HttpStatus.OK, data));
+        return autoCommitService
+                .autoCommitApplication(branchedApplicationId)
+                .map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @JsonView(Views.Public.class)

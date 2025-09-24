@@ -18,4 +18,8 @@ public @interface GitRoute {
     ArtifactType artifactType();
 
     GitRouteOperation operation();
+
+    String authorName() default "";
+
+    String authorEmail() default "";
 }
