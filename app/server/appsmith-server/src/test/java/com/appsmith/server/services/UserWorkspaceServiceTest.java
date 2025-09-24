@@ -381,9 +381,14 @@ public class UserWorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getUserWorkspacesInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
-        // Arrange: Create multiple workspaces with different names
-        String[] workspaceNames = {"Zebra Workspace", "Alpha Workspace", "Beta Workspace"};
 
+        List<String> existingWorkspaceNames =
+                workspaceService.getAll().map(Workspace::getName).collectList().block();
+
+        // Arrange: Create multiple workspaces with different names
+        List<String> workspaceNames =
+                new java.util.ArrayList<>(List.of("Zebra Workspace", "Alpha Workspace", "Beta Workspace"));
+        assert existingWorkspaceNames != null;
         for (String name : workspaceNames) {
             Workspace workspace = new Workspace();
             workspace.setName(name);
@@ -398,10 +403,13 @@ public class UserWorkspaceServiceTest {
         StepVerifier.create(workspacesMono)
                 .assertNext(workspaces -> {
                     assertThat(workspaces).isNotNull();
-                    assertThat(workspaces).hasSize(3);
-                    assertThat(workspaces.get(0).getName()).isEqualTo("Alpha Workspace");
-                    assertThat(workspaces.get(1).getName()).isEqualTo("Beta Workspace");
-                    assertThat(workspaces.get(2).getName()).isEqualTo("Zebra Workspace");
+                    assertThat(workspaces).hasSize(3 + existingWorkspaceNames.size());
+                    List<String> workspaceNamesList =
+                            workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
+                    workspaceNames.addAll(existingWorkspaceNames);
+                    List<String> sortedExistingWorkspaceNames =
+                            workspaceNames.stream().sorted().toList();
+                    assertThat(workspaceNamesList).containsExactly(sortedExistingWorkspaceNames.toArray(new String[0]));
                 })
                 .verifyComplete();
     }
