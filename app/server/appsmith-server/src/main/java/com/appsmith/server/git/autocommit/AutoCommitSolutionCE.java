@@ -3,10 +3,10 @@ package com.appsmith.server.git.autocommit;
 import com.appsmith.server.events.AutoCommitEvent;
 import reactor.core.publisher.Mono;
 
-public interface AutoCommitEventHandlerCE {
-    void publish(AutoCommitEvent autoCommitEvent);
+public interface AutoCommitSolutionCE {
 
-    void handle(AutoCommitEvent event);
+    Mono<Boolean> startApplicationAutoCommit(
+            String baseArtifactId, String authorName, String authorEmail, AutoCommitEvent event);
 
     Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent);
 

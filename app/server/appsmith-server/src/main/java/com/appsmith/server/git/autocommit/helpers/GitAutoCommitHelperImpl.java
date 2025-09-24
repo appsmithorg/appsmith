@@ -8,7 +8,6 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.central.GitType;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -30,7 +29,7 @@ import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.
 @Service
 public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
-    private final AutoCommitEventHandler autoCommitEventHandler;
+    private final AutoCommitAsyncEventManager autoCommitAsyncEventManager;
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
@@ -39,14 +38,14 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
 
     public GitAutoCommitHelperImpl(
             GitPrivateRepoHelper gitPrivateRepoHelper,
-            AutoCommitEventHandler autoCommitEventHandler,
+            AutoCommitAsyncEventManager autoCommitAsyncEventManager,
             UserDataService userDataService,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             RedisUtils redisUtils,
             @Lazy CentralGitService centralGitService) {
         this.gitPrivateRepoHelper = gitPrivateRepoHelper;
-        this.autoCommitEventHandler = autoCommitEventHandler;
+        this.autoCommitAsyncEventManager = autoCommitAsyncEventManager;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
@@ -217,7 +216,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                     }
 
                     // it's a synchronous call, no need to return anything
-                    autoCommitEventHandler.publish(autoCommitEvent);
+                    autoCommitAsyncEventManager.publishAsyncEvent(autoCommitEvent);
                     return Boolean.TRUE;
                 })
                 .defaultIfEmpty(Boolean.FALSE)

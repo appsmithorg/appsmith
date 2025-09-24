@@ -23,6 +23,7 @@ public enum GitRouteOperation {
     DISCARD_CHANGES(true),
     LIST_REFS(true),
     AUTO_COMMIT(true),
+    AUTO_COMMIT_SOLUTION(true),
 
     // whitelisted ones
 

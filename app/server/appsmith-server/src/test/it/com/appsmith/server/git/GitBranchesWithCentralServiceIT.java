@@ -53,7 +53,7 @@ import java.util.List;
 import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
 import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
 import static com.appsmith.server.exceptions.AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES;
-import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.autocommit.AutoCommitSolutionImpl.AUTO_COMMIT_MSG_FORMAT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
