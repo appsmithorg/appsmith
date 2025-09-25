@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.AliasConfiguration;
 import com.amazonaws.services.lambda.model.FunctionConfiguration;
+import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.model.ListAliasesRequest;
 import com.amazonaws.services.lambda.model.ListAliasesResult;
@@ -19,6 +20,7 @@ import com.appsmith.external.models.TriggerRequestDTO;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -36,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Testcontainers
@@ -275,6 +278,9 @@ public class AwsLambdaPluginTest {
         mockResult.setPayload(ByteBuffer.wrap("Hello World from version 2".getBytes()));
         when(mockLambda.invoke(any())).thenReturn(mockResult);
 
+        // Capture the InvokeRequest to verify the qualifier is set correctly
+        ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
+
         Mono<ActionExecutionResult> resultMono =
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
         StepVerifier.create(resultMono)
@@ -283,6 +289,12 @@ public class AwsLambdaPluginTest {
                     assertEquals("Hello World from version 2", result.getBody().toString());
                 })
                 .verifyComplete();
+
+        // Verify that the InvokeRequest was called with the correct qualifier
+        verify(mockLambda).invoke(requestCaptor.capture());
+        InvokeRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
+        assertEquals("2", capturedRequest.getQualifier());
     }
 
     @Test
@@ -304,6 +316,9 @@ public class AwsLambdaPluginTest {
         mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias".getBytes()));
         when(mockLambda.invoke(any())).thenReturn(mockResult);
 
+        // Capture the InvokeRequest to verify the qualifier is set correctly
+        ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
+
         Mono<ActionExecutionResult> resultMono =
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
         StepVerifier.create(resultMono)
@@ -312,6 +327,12 @@ public class AwsLambdaPluginTest {
                     assertEquals("Hello World from PROD alias", result.getBody().toString());
                 })
                 .verifyComplete();
+
+        // Verify that the InvokeRequest was called with the correct qualifier
+        verify(mockLambda).invoke(requestCaptor.capture());
+        InvokeRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
+        assertEquals("PROD", capturedRequest.getQualifier());
     }
 
     @Test
@@ -334,6 +355,9 @@ public class AwsLambdaPluginTest {
         mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias (alias takes precedence)".getBytes()));
         when(mockLambda.invoke(any())).thenReturn(mockResult);
 
+        // Capture the InvokeRequest to verify the qualifier is set correctly
+        ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
+
         Mono<ActionExecutionResult> resultMono =
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
         StepVerifier.create(resultMono)
@@ -344,6 +368,51 @@ public class AwsLambdaPluginTest {
                             result.getBody().toString());
                 })
                 .verifyComplete();
+
+        // Verify that the InvokeRequest was called with the alias (not version) as qualifier
+        verify(mockLambda).invoke(requestCaptor.capture());
+        InvokeRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
+        assertEquals("PROD", capturedRequest.getQualifier()); // Should be alias, not version "2"
+    }
+
+    @Test
+    public void testExecuteInvokeFunctionWithoutVersionOrAlias() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "INVOKE_FUNCTION");
+        setDataValueSafelyInFormData(configMap, "body", "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+        // No functionVersion or functionAlias specified
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        InvokeResult mockResult = new InvokeResult();
+        mockResult.setPayload(ByteBuffer.wrap("Hello World from $LATEST".getBytes()));
+        when(mockLambda.invoke(any())).thenReturn(mockResult);
+
+        // Capture the InvokeRequest to verify no qualifier is set (defaults to $LATEST)
+        ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals("Hello World from $LATEST", result.getBody().toString());
+                })
+                .verifyComplete();
+
+        // Verify that the InvokeRequest was called without a qualifier (defaults to $LATEST)
+        verify(mockLambda).invoke(requestCaptor.capture());
+        InvokeRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
+        // When no qualifier is set, it should be null (AWS defaults to $LATEST)
+        assertEquals(null, capturedRequest.getQualifier());
     }
 
     @Test
