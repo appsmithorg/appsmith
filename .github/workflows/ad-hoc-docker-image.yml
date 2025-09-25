@@ -92,7 +92,7 @@ jobs:
       - name: Generate info.json
         id: info_json
         run: |
-          scripts/generate_info_json.sh "${{ inputs.tag }}"
+          scripts/generate_info_json.sh
 
       - name: Place server artifacts-es
         run: |
