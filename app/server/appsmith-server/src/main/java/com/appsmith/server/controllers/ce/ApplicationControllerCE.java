@@ -130,7 +130,7 @@ public class ApplicationControllerCE {
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
-        return service.findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId)
+        return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
                 .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
     }
