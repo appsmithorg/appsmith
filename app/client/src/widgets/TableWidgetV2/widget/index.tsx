@@ -580,6 +580,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     const {
       columnWidthMap,
+      infiniteScrollEnabled,
       isPreviewMode,
       orderedTableColumns,
       renderMode,
@@ -597,6 +598,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       componentWidth,
       renderMode,
       isPreviewMode,
+      infiniteScrollEnabled,
     );
   };
 
@@ -2067,7 +2069,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     const isColumnEditable =
-      column.isEditable && isColumnTypeEditable(column.columnType);
+      column.isEditable &&
+      isColumnTypeEditable(column.columnType, this.props.infiniteScrollEnabled);
     const alias = props.cell.column.columnProperties.alias;
 
     const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
