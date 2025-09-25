@@ -110,7 +110,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             String requestType = request.getRequestType();
             ActionExecutionResult actionExecutionResult;
             List<Map<String, String>> options;
-            Map<String, String> params = request.getParams() == null ? Map.of() : request.getParams();
+            Map<?, Object> params = request.getParameters() == null ? Map.of() : request.getParameters();
 
             switch (requestType) {
                 case "FUNCTION_NAMES" -> {
@@ -123,7 +123,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_VERSIONS" -> {
-                    String functionName = params.get("functionName");
+                    String functionName = (String) params.get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -138,7 +138,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_ALIASES" -> {
-                    String functionName = params.get("functionName");
+                    String functionName = (String) params.get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -165,26 +165,33 @@ public class AwsLambdaPlugin extends BasePlugin {
         ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
             InvokeRequest invokeRequest = new InvokeRequest();
 
-            // Build function name with version/alias if specified
+            // Validate and set function name (required parameter)
             String functionName =
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            if (!StringUtils.hasText(functionName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Function name is required for Lambda invocation");
+            }
+
+            // Get version and alias parameters
             String functionVersion =
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionVersion", STRING_TYPE);
             String functionAlias =
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionAlias", STRING_TYPE);
 
-            // Construct the full function name
-            String fullFunctionName = functionName;
+            // Set function name (without qualifier)
+            invokeRequest.setFunctionName(functionName);
+
+            // Use setQualifier for version/alias instead of embedding in function name
             if (StringUtils.hasText(functionAlias)) {
                 // If alias is specified, use it (alias takes precedence over version)
-                fullFunctionName = functionName + ":" + functionAlias;
+                invokeRequest.setQualifier(functionAlias);
             } else if (StringUtils.hasText(functionVersion)) {
                 // If version is specified and no alias, use version
-                fullFunctionName = functionName + ":" + functionVersion;
+                invokeRequest.setQualifier(functionVersion);
             }
-            // If neither version nor alias is specified, use the function name as-is (defaults to $LATEST)
-
-            invokeRequest.setFunctionName(fullFunctionName);
+            // If neither version nor alias is specified, defaults to $LATEST
             invokeRequest.setPayload(
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "body", STRING_TYPE));
             invokeRequest.setInvocationType(

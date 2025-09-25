@@ -364,7 +364,7 @@ public class AwsLambdaPluginTest {
                 pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertEquals(2, result.getTrigger().size());
+                    assertEquals(2, ((List<?>) result.getTrigger()).size());
                 })
                 .verifyComplete();
     }
@@ -384,15 +384,15 @@ public class AwsLambdaPluginTest {
 
         TriggerRequestDTO request = new TriggerRequestDTO();
         request.setRequestType("FUNCTION_VERSIONS");
-        Map<String, String> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("functionName", "test-function");
-        request.setParams(params);
+        request.setParameters(params);
 
         Mono<com.appsmith.external.models.TriggerResultDTO> resultMono =
                 pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertEquals(3, result.getTrigger().size());
+                    assertEquals(3, ((List<?>) result.getTrigger()).size());
                 })
                 .verifyComplete();
     }
@@ -409,15 +409,15 @@ public class AwsLambdaPluginTest {
 
         TriggerRequestDTO request = new TriggerRequestDTO();
         request.setRequestType("FUNCTION_ALIASES");
-        Map<String, String> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("functionName", "test-function");
-        request.setParams(params);
+        request.setParameters(params);
 
         Mono<com.appsmith.external.models.TriggerResultDTO> resultMono =
                 pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertEquals(2, result.getTrigger().size());
+                    assertEquals(2, ((List<?>) result.getTrigger()).size());
                 })
                 .verifyComplete();
     }
