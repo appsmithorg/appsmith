@@ -110,6 +110,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             String requestType = request.getRequestType();
             ActionExecutionResult actionExecutionResult;
             List<Map<String, String>> options;
+            Map<String, String> params = request.getParams() == null ? Map.of() : request.getParams();
 
             switch (requestType) {
                 case "FUNCTION_NAMES" -> {
@@ -218,6 +219,11 @@ public class AwsLambdaPlugin extends BasePlugin {
             if (actionConfiguration != null) {
                 functionName =
                         getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            }
+            if (!StringUtils.hasText(functionName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "function name is required for listing versions");
             }
 
             ListVersionsByFunctionRequest request = new ListVersionsByFunctionRequest();
