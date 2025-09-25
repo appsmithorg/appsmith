@@ -122,7 +122,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_VERSIONS" -> {
-                    String functionName = request.getParams().get("functionName");
+                    String functionName = (String) request.getParameters().get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -137,7 +137,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_ALIASES" -> {
-                    String functionName = request.getParams().get("functionName");
+                    String functionName = (String) request.getParameters().get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
