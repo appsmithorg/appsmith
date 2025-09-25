@@ -37,6 +37,62 @@
           }
         },
         {
+          "label": "Function version",
+          "tooltipText": "Optional: Specify a version number (e.g., 1, 2, $LATEST) or leave empty for $LATEST.",
+          "subtitle": "",
+          "isRequired": false,
+          "propertyName": "function_version",
+          "configProperty": "actionConfiguration.formData.functionVersion.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "Leave empty for $LATEST version",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": false,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{actionConfiguration.formData.functionName.data}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION' && actionConfiguration.formData.functionName.data}}",
+              "config": {
+                "params": {
+                  "requestType": "FUNCTION_VERSIONS",
+                  "displayType": "DROP_DOWN",
+                  "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "label": "Function alias",
+          "tooltipText": "Optional: Specify an alias name (e.g., PROD, STAGING) or leave empty for no alias.",
+          "subtitle": "",
+          "isRequired": false,
+          "propertyName": "function_alias",
+          "configProperty": "actionConfiguration.formData.functionAlias.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "Leave empty for no alias",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": false,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{actionConfiguration.formData.functionName.data}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION' && actionConfiguration.formData.functionName.data}}",
+              "config": {
+                "params": {
+                  "requestType": "FUNCTION_ALIASES",
+                  "displayType": "DROP_DOWN",
+                  "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                }
+              }
+            }
+          }
+        },
+        {
           "label": "Type of invocation",
           "tooltipText": "Should the invocation be synchronous or asynchronous?",
           "subtitle": "",

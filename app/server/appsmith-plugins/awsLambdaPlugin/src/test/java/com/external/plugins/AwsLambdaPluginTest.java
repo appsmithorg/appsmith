@@ -1,9 +1,14 @@
 package com.external.plugins;
 
 import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.model.AliasConfiguration;
 import com.amazonaws.services.lambda.model.FunctionConfiguration;
 import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.services.lambda.model.ListAliasesRequest;
+import com.amazonaws.services.lambda.model.ListAliasesResult;
 import com.amazonaws.services.lambda.model.ListFunctionsResult;
+import com.amazonaws.services.lambda.model.ListVersionsByFunctionRequest;
+import com.amazonaws.services.lambda.model.ListVersionsByFunctionResult;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -188,6 +193,241 @@ public class AwsLambdaPluginTest {
         AWSLambda mockLambda = mock(AWSLambda.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TriggerRequestDTO request = new TriggerRequestDTO();
+
+        assertThrows(AppsmithPluginException.class, () -> {
+            pluginExecutor.trigger(mockLambda, datasourceConfiguration, request).block();
+        });
+    }
+
+    @Test
+    public void testExecuteListFunctionVersions() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "LIST_FUNCTION_VERSIONS");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        ListVersionsByFunctionResult mockVersionsResult = new ListVersionsByFunctionResult();
+        mockVersionsResult.setVersions(List.of(
+                new FunctionConfiguration().withVersion("$LATEST"),
+                new FunctionConfiguration().withVersion("1"),
+                new FunctionConfiguration().withVersion("2")));
+        when(mockLambda.listVersionsByFunction(any(ListVersionsByFunctionRequest.class)))
+                .thenReturn(mockVersionsResult);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteListFunctionAliases() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "LIST_FUNCTION_ALIASES");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        ListAliasesResult mockAliasesResult = new ListAliasesResult();
+        mockAliasesResult.setAliases(
+                List.of(new AliasConfiguration().withName("PROD"), new AliasConfiguration().withName("STAGING")));
+        when(mockLambda.listAliases(any(ListAliasesRequest.class))).thenReturn(mockAliasesResult);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvokeFunctionWithVersion() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "INVOKE_FUNCTION");
+        setDataValueSafelyInFormData(configMap, "body", "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+        setDataValueSafelyInFormData(configMap, "functionVersion", "2");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        InvokeResult mockResult = new InvokeResult();
+        mockResult.setPayload(ByteBuffer.wrap("Hello World from version 2".getBytes()));
+        when(mockLambda.invoke(any())).thenReturn(mockResult);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals("Hello World from version 2", result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvokeFunctionWithAlias() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "INVOKE_FUNCTION");
+        setDataValueSafelyInFormData(configMap, "body", "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+        setDataValueSafelyInFormData(configMap, "functionAlias", "PROD");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        InvokeResult mockResult = new InvokeResult();
+        mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias".getBytes()));
+        when(mockLambda.invoke(any())).thenReturn(mockResult);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals("Hello World from PROD alias", result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvokeFunctionWithAliasTakesPrecedenceOverVersion() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, "command", "INVOKE_FUNCTION");
+        setDataValueSafelyInFormData(configMap, "body", "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, "functionName", "test-aws-lambda");
+        setDataValueSafelyInFormData(configMap, "functionVersion", "2");
+        setDataValueSafelyInFormData(configMap, "functionAlias", "PROD");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // Mock the Lambda connection
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        InvokeResult mockResult = new InvokeResult();
+        mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias (alias takes precedence)".getBytes()));
+        when(mockLambda.invoke(any())).thenReturn(mockResult);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(
+                            "Hello World from PROD alias (alias takes precedence)",
+                            result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTriggerFunctionNames() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ListFunctionsResult mockFunctionsResult = new ListFunctionsResult();
+        mockFunctionsResult.setFunctions(List.of(
+                new FunctionConfiguration().withFunctionName("function1"),
+                new FunctionConfiguration().withFunctionName("function2")));
+        when(mockLambda.listFunctions()).thenReturn(mockFunctionsResult);
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType("FUNCTION_NAMES");
+
+        Mono<com.appsmith.external.models.TriggerResultDTO> resultMono =
+                pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertEquals(2, result.getTrigger().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTriggerFunctionVersions() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ListVersionsByFunctionResult mockVersionsResult = new ListVersionsByFunctionResult();
+        mockVersionsResult.setVersions(List.of(
+                new FunctionConfiguration().withVersion("$LATEST"),
+                new FunctionConfiguration().withVersion("1"),
+                new FunctionConfiguration().withVersion("2")));
+        when(mockLambda.listVersionsByFunction(any(ListVersionsByFunctionRequest.class)))
+                .thenReturn(mockVersionsResult);
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType("FUNCTION_VERSIONS");
+        Map<String, String> params = new HashMap<>();
+        params.put("functionName", "test-function");
+        request.setParams(params);
+
+        Mono<com.appsmith.external.models.TriggerResultDTO> resultMono =
+                pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertEquals(3, result.getTrigger().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTriggerFunctionAliases() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ListAliasesResult mockAliasesResult = new ListAliasesResult();
+        mockAliasesResult.setAliases(
+                List.of(new AliasConfiguration().withName("PROD"), new AliasConfiguration().withName("STAGING")));
+        when(mockLambda.listAliases(any(ListAliasesRequest.class))).thenReturn(mockAliasesResult);
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType("FUNCTION_ALIASES");
+        Map<String, String> params = new HashMap<>();
+        params.put("functionName", "test-function");
+        request.setParams(params);
+
+        Mono<com.appsmith.external.models.TriggerResultDTO> resultMono =
+                pluginExecutor.trigger(mockLambda, datasourceConfiguration, request);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertEquals(2, result.getTrigger().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTriggerUnsupportedRequestType() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType("UNSUPPORTED_TYPE");
 
         assertThrows(AppsmithPluginException.class, () -> {
             pluginExecutor.trigger(mockLambda, datasourceConfiguration, request).block();
