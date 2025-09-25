@@ -110,6 +110,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             String requestType = request.getRequestType();
             ActionExecutionResult actionExecutionResult;
             List<Map<String, String>> options;
+            Map<String, String> params = request.getParams() == null ? Map.of() : request.getParams();
 
             switch (requestType) {
                 case "FUNCTION_NAMES" -> {
@@ -122,7 +123,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_VERSIONS" -> {
-                    String functionName = request.getParams().get("functionName");
+                    String functionName = params.get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -137,7 +138,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_ALIASES" -> {
-                    String functionName = request.getParams().get("functionName");
+                    String functionName = params.get("functionName");
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
