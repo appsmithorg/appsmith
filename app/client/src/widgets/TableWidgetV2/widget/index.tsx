@@ -2072,7 +2072,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       column.isEditable && isColumnTypeEditable(column.columnType);
     const alias = props.cell.column.columnProperties.alias;
 
-    const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
+    const isCellEditable =
+      !this.props.infiniteScrollEnabled &&
+      isColumnEditable &&
+      cellProperties.isCellEditable;
 
     const isCellEditMode =
       (props.cell.column.alias === this.props.editableCell?.column &&
@@ -2236,7 +2239,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
-            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
             isCellEditable={isCellEditable}
@@ -2566,7 +2568,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
-            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             inputFormat={cellProperties.inputFormat}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
@@ -2650,7 +2651,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
-            infiniteScrollEnabled={this.props.infiniteScrollEnabled}
             isCellDisabled={cellProperties.isCellDisabled}
             isCellEditMode={isCellEditMode}
             isCellEditable={isCellEditable}
