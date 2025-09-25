@@ -220,6 +220,11 @@ public class AwsLambdaPlugin extends BasePlugin {
                 functionName =
                         getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
             }
+            if (!StringUtils.hasText(functionName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "function name is required for listing versions");
+            }
 
             ListVersionsByFunctionRequest request = new ListVersionsByFunctionRequest();
             request.setFunctionName(functionName);
