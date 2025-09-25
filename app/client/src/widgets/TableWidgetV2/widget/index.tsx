@@ -2069,13 +2069,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     const isColumnEditable =
-      column.isEditable && isColumnTypeEditable(column.columnType);
+      column.isEditable &&
+      isColumnTypeEditable(column.columnType, this.props.infiniteScrollEnabled);
     const alias = props.cell.column.columnProperties.alias;
 
-    const isCellEditable =
-      !this.props.infiniteScrollEnabled &&
-      isColumnEditable &&
-      cellProperties.isCellEditable;
+    const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
 
     const isCellEditMode =
       (props.cell.column.alias === this.props.editableCell?.column &&

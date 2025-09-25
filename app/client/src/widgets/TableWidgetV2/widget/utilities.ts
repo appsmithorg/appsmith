@@ -540,8 +540,11 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.CURRENCY,
 ];
 
-export function isColumnTypeEditable(columnType: string) {
-  return EdtiableColumnTypes.includes(columnType);
+export function isColumnTypeEditable(
+  columnType: string,
+  isInfiniteScrollEnabled = false,
+) {
+  return EdtiableColumnTypes.includes(columnType) && !isInfiniteScrollEnabled;
 }
 
 /*
