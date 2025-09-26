@@ -809,6 +809,19 @@ class MultiSelectWidget extends BaseWidget<
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+
+    if (hasChanges) {
+      const itemId = String(this.props.currentIndex);
+      const updatedSelectedValuesByItem = {
+        ...(this.props.selectedValuesByItem || {}),
+        [itemId]: this.props.defaultOptionValue,
+      };
+
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesByItem",
+        updatedSelectedValuesByItem,
+      );
+    }
   }
 
   static getSetterConfig(): SetterConfig {
@@ -887,7 +900,13 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DraftValueType) => {
-    this.props.updateWidgetMetaProperty("selectedOptions", value, {
+    const itemId = this.props.currentIndex;
+    const updatedValue = {
+      ...(this.props.selectedValuesByItem || {}),
+      [itemId]: value,
+    };
+
+    this.props.updateWidgetMetaProperty("selectedValuesByItem", updatedValue, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
@@ -902,17 +921,23 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
-    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
-      return [];
+    const {
+      currentIndex,
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+      updateWidgetMetaProperty,
+    } = this.props;
+    const itemId = String(currentIndex);
+    const values = selectedValuesByItem[itemId] || defaultOptionValue;
+
+    if (!selectedValuesByItem[itemId] && defaultOptionValue) {
+      updateWidgetMetaProperty("selectedValuesByItem", {
+        ...selectedValuesByItem,
+        [itemId]: defaultOptionValue,
+      });
     }
 
-    const labels = [...this.props.selectedOptionLabels];
-    const values = [...this.props.selectedOptionValues];
-
-    return values.map((value, index) => ({
-      value,
-      label: labels[index],
-    }));
+    return values;
   };
 
   onFilterChange = (value: string) => {
