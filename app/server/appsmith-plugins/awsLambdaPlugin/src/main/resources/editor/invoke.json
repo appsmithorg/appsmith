@@ -58,7 +58,9 @@
                 "params": {
                   "requestType": "FUNCTION_VERSIONS",
                   "displayType": "DROP_DOWN",
-                  "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                  "parameters": {
+                    "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                  }
                 }
               }
             }
@@ -86,7 +88,9 @@
                 "params": {
                   "requestType": "FUNCTION_ALIASES",
                   "displayType": "DROP_DOWN",
-                  "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                  "parameters": {
+                    "functionName": "{{actionConfiguration.formData.functionName.data}}"
+                  }
                 }
               }
             }
