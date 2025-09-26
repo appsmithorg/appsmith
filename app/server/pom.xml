@@ -27,7 +27,7 @@
 
     <properties>
         <deploy.disabled>true</deploy.disabled>
-        <jackson-bom.version>2.17.0</jackson-bom.version>
+        <jackson-bom.version>2.20.0</jackson-bom.version>
         <jackson.version>2.17.0</jackson.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
