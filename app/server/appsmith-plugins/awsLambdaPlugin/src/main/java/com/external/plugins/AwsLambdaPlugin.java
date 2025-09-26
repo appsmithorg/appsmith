@@ -9,7 +9,11 @@ import com.amazonaws.services.lambda.model.AWSLambdaException;
 import com.amazonaws.services.lambda.model.FunctionConfiguration;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.services.lambda.model.ListAliasesRequest;
+import com.amazonaws.services.lambda.model.ListAliasesResult;
 import com.amazonaws.services.lambda.model.ListFunctionsResult;
+import com.amazonaws.services.lambda.model.ListVersionsByFunctionRequest;
+import com.amazonaws.services.lambda.model.ListVersionsByFunctionResult;
 import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -70,6 +74,10 @@ public class AwsLambdaPlugin extends BasePlugin {
                         ActionExecutionResult result;
                         switch (Objects.requireNonNull(command)) {
                             case "LIST_FUNCTIONS" -> result = listFunctions(actionConfiguration, connection);
+                            case "LIST_FUNCTION_VERSIONS" -> result =
+                                    listFunctionVersions(actionConfiguration, connection);
+                            case "LIST_FUNCTION_ALIASES" -> result =
+                                    listFunctionAliases(actionConfiguration, connection);
                             case "INVOKE_FUNCTION" -> result = invokeFunction(actionConfiguration, connection);
                             default -> throw new IllegalStateException("Unexpected value: " + command);
                         }
@@ -98,24 +106,108 @@ public class AwsLambdaPlugin extends BasePlugin {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
             }
-            ActionExecutionResult actionExecutionResult = listFunctions(null, connection);
-            ArrayNode body = (ArrayNode) actionExecutionResult.getBody();
-            List<Map<String, String>> functionNames = StreamSupport.stream(body.spliterator(), false)
-                    .map(function -> function.get("functionName").asText())
-                    .sorted()
-                    .map(functionName -> Map.of("label", functionName, "value", functionName))
-                    .collect(Collectors.toList());
+
+            String requestType = request.getRequestType();
+            ActionExecutionResult actionExecutionResult;
+            List<Map<String, String>> options;
+            Map<?, Object> params = request.getParameters() == null ? Map.of() : request.getParameters();
+
+            switch (requestType) {
+                case "FUNCTION_NAMES" -> {
+                    actionExecutionResult = listFunctions(null, connection);
+                    ArrayNode body = (ArrayNode) actionExecutionResult.getBody();
+                    options = StreamSupport.stream(body.spliterator(), false)
+                            .map(function -> function.get("functionName").asText())
+                            .sorted()
+                            .map(functionName -> Map.of("label", functionName, "value", functionName))
+                            .collect(Collectors.toList());
+                }
+                case "FUNCTION_VERSIONS" -> {
+                    // Handle both old and new parameter structures
+                    String functionName;
+                    if (params.containsKey("parameters") && params.get("parameters") instanceof Map) {
+                        Map<?, ?> parameters = (Map<?, ?>) params.get("parameters");
+                        functionName = (String) parameters.get("functionName");
+                    } else {
+                        functionName = (String) params.get("functionName");
+                    }
+
+                    if (!StringUtils.hasText(functionName)) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "function name is required for listing versions");
+                    }
+                    actionExecutionResult = listFunctionVersions(null, connection, functionName);
+                    ArrayNode body = (ArrayNode) actionExecutionResult.getBody();
+                    options = StreamSupport.stream(body.spliterator(), false)
+                            .map(version -> version.get("version").asText())
+                            .sorted()
+                            .map(version -> Map.of("label", version, "value", version))
+                            .collect(Collectors.toList());
+                }
+                case "FUNCTION_ALIASES" -> {
+                    // Handle both old and new parameter structures
+                    String functionName;
+                    if (params.containsKey("parameters") && params.get("parameters") instanceof Map) {
+                        Map<?, ?> parameters = (Map<?, ?>) params.get("parameters");
+                        functionName = (String) parameters.get("functionName");
+                    } else {
+                        functionName = (String) params.get("functionName");
+                    }
+
+                    if (!StringUtils.hasText(functionName)) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "function name is required for listing aliases");
+                    }
+                    actionExecutionResult = listFunctionAliases(null, connection, functionName);
+                    ArrayNode body = (ArrayNode) actionExecutionResult.getBody();
+                    options = StreamSupport.stream(body.spliterator(), false)
+                            .map(alias -> alias.get("name").asText())
+                            .sorted()
+                            .map(alias -> Map.of("label", alias, "value", alias))
+                            .collect(Collectors.toList());
+                }
+                default -> throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported request type: " + requestType);
+            }
 
             TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
-            triggerResultDTO.setTrigger(functionNames);
+            triggerResultDTO.setTrigger(options);
 
             return Mono.just(triggerResultDTO);
         }
 
         ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
             InvokeRequest invokeRequest = new InvokeRequest();
-            invokeRequest.setFunctionName(
-                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE));
+
+            // Validate and set function name (required parameter)
+            String functionName =
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            if (!StringUtils.hasText(functionName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Function name is required for Lambda invocation");
+            }
+
+            // Get version and alias parameters
+            String functionVersion =
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionVersion", STRING_TYPE);
+            String functionAlias =
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionAlias", STRING_TYPE);
+
+            // Set function name (without qualifier)
+            invokeRequest.setFunctionName(functionName);
+
+            // Use setQualifier for version/alias instead of embedding in function name
+            if (StringUtils.hasText(functionAlias)) {
+                // If alias is specified, use it (alias takes precedence over version)
+                invokeRequest.setQualifier(functionAlias);
+            } else if (StringUtils.hasText(functionVersion)) {
+                // If version is specified and no alias, use version
+                invokeRequest.setQualifier(functionVersion);
+            }
+            // If neither version nor alias is specified, defaults to $LATEST
             invokeRequest.setPayload(
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "body", STRING_TYPE));
             invokeRequest.setInvocationType(
@@ -143,6 +235,61 @@ public class AwsLambdaPlugin extends BasePlugin {
             result.setBody(objectMapper.valueToTree(functions));
             result.setIsExecutionSuccess(true);
             return result;
+        }
+
+        ActionExecutionResult listFunctionVersions(
+                ActionConfiguration actionConfiguration, AWSLambda connection, String functionName) {
+            if (actionConfiguration != null) {
+                functionName =
+                        getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            }
+            if (!StringUtils.hasText(functionName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "function name is required for listing versions");
+            }
+
+            ListVersionsByFunctionRequest request = new ListVersionsByFunctionRequest();
+            request.setFunctionName(functionName);
+
+            ListVersionsByFunctionResult listVersionsResult = connection.listVersionsByFunction(request);
+            List<FunctionConfiguration> versions = listVersionsResult.getVersions();
+
+            ActionExecutionResult result = new ActionExecutionResult();
+            result.setBody(objectMapper.valueToTree(versions));
+            result.setIsExecutionSuccess(true);
+            return result;
+        }
+
+        ActionExecutionResult listFunctionVersions(ActionConfiguration actionConfiguration, AWSLambda connection) {
+            String functionName =
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            return listFunctionVersions(null, connection, functionName);
+        }
+
+        ActionExecutionResult listFunctionAliases(
+                ActionConfiguration actionConfiguration, AWSLambda connection, String functionName) {
+            if (actionConfiguration != null) {
+                functionName =
+                        getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            }
+
+            ListAliasesRequest request = new ListAliasesRequest();
+            request.setFunctionName(functionName);
+
+            ListAliasesResult listAliasesResult = connection.listAliases(request);
+            List<com.amazonaws.services.lambda.model.AliasConfiguration> aliases = listAliasesResult.getAliases();
+
+            ActionExecutionResult result = new ActionExecutionResult();
+            result.setBody(objectMapper.valueToTree(aliases));
+            result.setIsExecutionSuccess(true);
+            return result;
+        }
+
+        ActionExecutionResult listFunctionAliases(ActionConfiguration actionConfiguration, AWSLambda connection) {
+            String functionName =
+                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
+            return listFunctionAliases(null, connection, functionName);
         }
 
         @Override
