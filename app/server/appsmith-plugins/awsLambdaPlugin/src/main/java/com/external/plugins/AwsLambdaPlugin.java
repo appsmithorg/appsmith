@@ -123,7 +123,15 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_VERSIONS" -> {
-                    String functionName = (String) params.get("functionName");
+                    // Handle both old and new parameter structures
+                    String functionName;
+                    if (params.containsKey("parameters") && params.get("parameters") instanceof Map) {
+                        Map<?, ?> parameters = (Map<?, ?>) params.get("parameters");
+                        functionName = (String) parameters.get("functionName");
+                    } else {
+                        functionName = (String) params.get("functionName");
+                    }
+
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -138,7 +146,15 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .collect(Collectors.toList());
                 }
                 case "FUNCTION_ALIASES" -> {
-                    String functionName = (String) params.get("functionName");
+                    // Handle both old and new parameter structures
+                    String functionName;
+                    if (params.containsKey("parameters") && params.get("parameters") instanceof Map) {
+                        Map<?, ?> parameters = (Map<?, ?>) params.get("parameters");
+                        functionName = (String) parameters.get("functionName");
+                    } else {
+                        functionName = (String) params.get("functionName");
+                    }
+
                     if (!StringUtils.hasText(functionName)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
