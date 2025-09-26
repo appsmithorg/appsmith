@@ -9,9 +9,6 @@ swapon /swapfile
 apt-get -y update
 apt-get -y upgrade
 
-# install Digital Ocean agent
-curl -sSL https://repos.insights.digitalocean.com/install.sh | bash
-
 # open ports
 echo "y" | ufw enable
 ufw allow http

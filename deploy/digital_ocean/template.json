@@ -7,7 +7,7 @@
     {
       "type": "digitalocean",
       "api_token": "{{user `token`}}",
-      "image": "ubuntu-20-04-x64",
+      "image": "ubuntu-24-04-x64",
       "region": "blr1",
       "size": "s-1vcpu-1gb",
       "ssh_username": "root",
@@ -41,6 +41,7 @@
       "scripts": [
         "scripts/01-packages.sh",
         "scripts/90-cleanup.sh",
+        "scripts/91-cleanup-appsmith.sh",
         "scripts/99-img_check.sh"
       ]
     }
