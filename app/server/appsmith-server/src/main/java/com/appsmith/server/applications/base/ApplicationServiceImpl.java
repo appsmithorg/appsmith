@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -39,7 +40,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            FeatureFlagService featureFlagService) {
         super(
                 validator,
                 repository,
@@ -54,6 +56,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl
                 userDataService,
                 workspaceService,
                 workspacePermission,
-                observationRegistry);
+                observationRegistry,
+                featureFlagService);
     }
 }

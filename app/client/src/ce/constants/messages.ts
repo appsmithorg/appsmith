@@ -2679,6 +2679,8 @@ export const CUSTOM_ACTION_LABEL = () => "Custom Action";
 
 export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
   "Too many login attempts. Please try again after some time.";
+export const AUTH_ACCOUNT_SUSPENDED_FOR_RATE_LIMIT = () =>
+  "Your account is suspended for 24 hours. Please reset your password to continue";
 export const AUTH_INVALID_CREDENTIALS = () =>
   "Invalid credentials provided. Did you input the credentials correctly?";
 export const AUTH_UNAUTHORIZED = () => "Unauthorized access";

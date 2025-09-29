@@ -111,7 +111,7 @@ jobs:
       run:
         working-directory: app/server
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-8core
 
     steps:
       - name: Checkout the code

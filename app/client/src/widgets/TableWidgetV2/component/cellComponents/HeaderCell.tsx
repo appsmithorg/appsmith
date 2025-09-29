@@ -200,7 +200,10 @@ const HeaderCellComponent = (props: HeaderProps) => {
   const isColumnEditable =
     props.column.columnProperties.isCellEditable &&
     props.column.columnProperties.isEditable &&
-    isColumnTypeEditable(props.column.columnProperties.columnType);
+    isColumnTypeEditable(
+      props.column.columnProperties.columnType,
+      isInfiniteScrollEnabled,
+    );
 
   const toggleColumnFreeze = (value: StickyType) => {
     handleColumnFreeze &&

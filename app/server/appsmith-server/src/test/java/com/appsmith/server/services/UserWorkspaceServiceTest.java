@@ -377,4 +377,40 @@ public class UserWorkspaceServiceTest {
                 .cleanPermissionGroupCacheForUsers(List.of(api_user.getId(), test_user.getId()))
                 .block();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUserWorkspacesInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
+
+        List<String> existingWorkspaceNames =
+                workspaceService.getAll().map(Workspace::getName).collectList().block();
+
+        // Arrange: Create multiple workspaces with different names
+        List<String> workspaceNames =
+                new java.util.ArrayList<>(List.of("Zebra Workspace", "Alpha Workspace", "Beta Workspace"));
+        assert existingWorkspaceNames != null;
+        for (String name : workspaceNames) {
+            Workspace workspace = new Workspace();
+            workspace.setName(name);
+            // Ensures default permission groups & current user access are created
+            workspaceService.create(workspace).block();
+        }
+
+        // Act: Call the method to get the user's workspaces in alphabetical order
+        Mono<List<Workspace>> workspacesMono = userWorkspaceService.getUserWorkspacesInAlphabeticalOrder();
+
+        // Assert: Verify the workspaces are returned in alphabetical order
+        StepVerifier.create(workspacesMono)
+                .assertNext(workspaces -> {
+                    assertThat(workspaces).isNotNull();
+                    assertThat(workspaces).hasSize(3 + existingWorkspaceNames.size());
+                    List<String> workspaceNamesList =
+                            workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
+                    workspaceNames.addAll(existingWorkspaceNames);
+                    List<String> sortedExistingWorkspaceNames =
+                            workspaceNames.stream().sorted().toList();
+                    assertThat(workspaceNamesList).containsExactly(sortedExistingWorkspaceNames.toArray(new String[0]));
+                })
+                .verifyComplete();
+    }
 }

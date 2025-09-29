@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -13,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -32,6 +34,7 @@ import reactor.util.function.Tuple2;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +57,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final OrganizationService organizationService;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final FeatureFlagService featureFlagService;
 
     @Autowired
     public UserWorkspaceServiceCEImpl(
@@ -64,7 +68,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             PermissionGroupService permissionGroupService,
             OrganizationService organizationService,
             WorkspacePermission workspacePermission,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            FeatureFlagService featureFlagService) {
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.userRepository = userRepository;
@@ -73,6 +78,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.organizationService = organizationService;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -418,5 +424,40 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(domainFlux, workspaceIds))
                 // collect to list to keep the order of the workspaces
                 .collectList());
+    }
+
+    /*
+     * Returns a list of workspaces for the current user, sorted in alphabetical order.
+     *
+     * @return Mono containing the list of workspaces
+     */
+    @Override
+    public Mono<List<Workspace>> getUserWorkspacesInAlphabeticalOrder() {
+        return workspaceService
+                .getAll(workspacePermission.getReadPermission())
+                .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))
+                .collectList();
+    }
+
+    /**
+     * Returns a list of workspaces for the current user, sorted based on feature flag.
+     * If alphabetical ordering is enabled, returns workspaces in alphabetical order.
+     * Otherwise, returns workspaces in recently used order.
+     *
+     * @return Mono containing the list of workspaces
+     */
+    @Override
+    public Mono<List<Workspace>> getUserWorkspacesForHome() {
+        Mono<Boolean> isAlphabeticalOrderingEnabled =
+                featureFlagService.check(FeatureFlagEnum.release_alphabetical_ordering_enabled);
+        return isAlphabeticalOrderingEnabled.flatMap(isEnabled -> {
+            if (isEnabled) {
+                // If alphabetical ordering is enabled, then we need to sort the workspaces in alphabetical order
+                return getUserWorkspacesInAlphabeticalOrder();
+            } else {
+                // If alphabetical ordering is disabled, then we need to sort the workspaces in recently used order
+                return getUserWorkspacesByRecentlyUsedOrder();
+            }
+        });
     }
 }
