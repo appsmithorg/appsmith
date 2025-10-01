@@ -27,8 +27,7 @@
 
 Organizations build custom applications like dashboards, admin panels, customer 360, IT automation, and service management tools to help their teams work more efficiently and effectively. Appsmith is an open-source low-code platform that streamlines custom application development, deployment, and maintenance. Learn more on our [website](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
   
-[![Appsmith in 100 secs](/static/images/appsmith-introduction-video-tile.png)](https://www.youtube.com/watch?v=jhyDI0e1o08?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)  
-
+[![Appsmith in 100 secs](/static/images/appsmith-introduction-video-tile.png)](https://www.youtube.com/watch?v=jhyDI0e1o08&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)  
 
 ## Installation
 There are two ways to start using Appsmith:
@@ -71,7 +70,7 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 
 Let's build great software together.
 
-### Top Contributors
+## Top Contributors
 
 [![Nikhil-Nandagopal](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3897254?v=4&w=50&h=50&mask=circle)](https://github.com/Nikhil-Nandagopal)
 [![mohanarpit](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/458946?v=4&w=50&h=50&mask=circle)](https://github.com/mohanarpit)
