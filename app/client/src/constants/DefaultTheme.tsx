@@ -387,15 +387,86 @@ export type NestedObjectOrArray<T> =
   | Record<string, T | T[] | Record<string, T | T[]>>
   | T
   | T[];
+
+// 🎉 TypeScript interface for theme colors - enables autocomplete and type safety!
+export interface ThemeColors {
+  tooltip: {
+    lightBg: Color;
+    lightText: Color;
+    darkBg: Color;
+    darkText: Color;
+  };
+  appBackground: Color;
+  artboard: Color;
+  primaryOld: Color;
+  primaryDarker: Color;
+  primaryDarkest: Color;
+  secondary: Color;
+  secondaryDarker: Color;
+  secondaryDarkest: Color;
+  error: Color;
+  infoOld: Color;
+  errorMessage: Color;
+  hover: Color;
+  inputActiveBorder: Color;
+  inputInactiveBG: Color;
+  textDefault: Color;
+  textOnDarkBG: Color;
+  textOnGreyBG: Color;
+  textOnWhiteBG: Color;
+  textAnchor: Color;
+  border: Color;
+  paneCard: Color;
+  paneInputBG: Color;
+  paneBG: Color;
+  paneText: Color;
+  paneTextBG: Color;
+  paneTextUnderline: Color;
+  paneSectionLabel: Color;
+  navBG: Color;
+  grid: Color;
+  containerBorder: Color;
+  menuButtonBGInactive: Color;
+  menuIconColorInactive: Color;
+  bodyBG: Color;
+  builderBodyBG: Color;
+  widgetMultiSelectBorder: Color;
+  widgetBorder: Color;
+  widgetLightBorder: Color;
+  widgetSecondaryBorder: Color;
+  messageBG: Color;
+  paneIcon: Color;
+  bindingTextDark: Color;
+  bindingText: Color;
+  cmBacground: Color;
+  lightningborder: Color;
+  formButtonColor: Color;
+  appCardColors: any; // Could be typed further if needed
+  dataTypeBg: {
+    function: Color;
+    object: Color;
+    unknown: Color;
+    array: Color;
+    number: Color;
+  };
+  scrollbarLight: Color;
+  scrollbarLightBG: Color;
+  scrollbarDark: Color;
+  scrollbarDarkBG: Color;
+  dropdownIconBg: Color;
+  welcomeTourStickySidebarColor: Color;
+  welcomeTourStickySidebarBackground: Color;
+  dropdownIconDarkBg: Color;
+  dropdownGreyBg: Color;
+}
+
 export interface Theme {
   radii: Array<number>;
   fontSizes: Array<number>;
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colors: any;
+  colors: ThemeColors;
   typography: Typography;
   lineHeights: Array<number>;
   fonts: {
