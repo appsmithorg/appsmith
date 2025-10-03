@@ -49,12 +49,16 @@ kubectl get pods
 
 # Optional cleanup logic
 if [[ -n "${RECREATE-}" ]]; then
-  mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+  echo "Wiping the DP from MongoDB and Kubernetes since the reset flag was set"
   pod_name="$(kubectl get pods -n "$NAMESPACE" -o json | jq -r '.items[0].metadata.name')"
+  # execute this db.dropDatabase() from the k8s cluster because there's network restrictions on Atlas cluster.
+  # The \$ is used to escape the $ character in the APPSMITH_DB_URL environment variable so it's interpolated inside the kubectl exec command.
+  kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "mongosh \$APPSMITH_DB_URL --eval 'db.dropDatabase()'"
   kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "rm -rf /appsmith-stacks/*"
   kubectl delete ns "$NAMESPACE" || true
   kubectl patch pv "$NAMESPACE-appsmith" -p '{"metadata":{"finalizers":null}}' || true
   kubectl delete pv "$NAMESPACE-appsmith" --grace-period=0 --force || true
+  echo "DP wiped from MongoDB and Kubernetes"
 fi
 
 # Create namespace and image pull secret
