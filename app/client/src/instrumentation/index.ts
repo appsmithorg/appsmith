@@ -22,7 +22,6 @@ import {
 } from "@grafana/faro-web-tracing";
 import log from "loglevel";
 import { isTracingEnabled } from "instrumentation/utils";
-import { v4 as uuidv4 } from "uuid";
 import { error as errorLogger } from "loglevel";
 import type { User } from "constants/userConstants";
 
@@ -128,7 +127,7 @@ class AppsmithTelemetry {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public captureException(exception: any, hint?: Record<string, any>): string {
-    const eventId = uuidv4();
+    const eventId = crypto.randomUUID();
 
     if (!this.faro) {
       return eventId;

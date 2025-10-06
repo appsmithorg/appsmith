@@ -16,7 +16,6 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import type { FieldArrayFieldsProps } from "redux-form";
 import styled from "styled-components";
-import { v4 as uuid } from "uuid";
 import type {
   FunctionCallingConfigFormToolField,
   FunctionCallingEntityType,
@@ -90,7 +89,7 @@ export const FunctionCallingConfigForm = ({
 
   const handleAddFunctionButtonClick = useCallback(
     (option: FunctionCallingEntityTypeOption) => {
-      const id = uuid();
+      const id = crypto.randomUUID();
 
       fields.push({
         id,

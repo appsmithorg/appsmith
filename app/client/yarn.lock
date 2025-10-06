@@ -12072,13 +12072,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^9.0.5":
-  version: 9.0.8
-  resolution: "@types/uuid@npm:9.0.8"
-  checksum: b8c60b7ba8250356b5088302583d1704a4e1a13558d143c549c408bf8920535602ffc12394ede77f8a8083511b023704bc66d1345792714002bfa261b17c5275
-  languageName: node
-  linkType: hard
-
 "@types/wait-on@npm:^5.2.0":
   version: 5.3.4
   resolution: "@types/wait-on@npm:5.3.4"
@@ -13727,7 +13720,6 @@ __metadata:
     "@types/tern": 0.22.0
     "@types/tinycolor2": ^1.4.2
     "@types/toposort": ^2.0.3
-    "@types/uuid": ^9.0.5
     "@types/web": ^0.0.99
     "@types/zipcelx": ^1.5.0
     "@typescript-eslint/eslint-plugin": ^6.7.4
@@ -13961,7 +13953,6 @@ __metadata:
     unescape-js: ^1.1.4
     url-search-params-polyfill: ^8.0.0
     usehooks-ts: ^3.1.0
-    uuid: ^9.0.0
     validate-color: ^2.2.4
     web-vitals: 3.5.2
     webpack: ^5.98.0
@@ -34827,7 +34818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^9.0.1":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
