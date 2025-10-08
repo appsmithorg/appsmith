@@ -418,6 +418,8 @@
     "trim": "0.0.3",
     "webpack": "5.98.0",
     "on-headers": "1.1.0",
+    "sha.js": "2.4.12",
+    "cipher-base": "1.0.6",
     "@blueprintjs/core@^3.43.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
