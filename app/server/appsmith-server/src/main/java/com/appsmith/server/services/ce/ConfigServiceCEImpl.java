@@ -29,7 +29,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     @Override
     public Mono<Config> getByName(String name) {
         return repository
-                .findByName(name)
+                .findByName(name, AclPermission.READ_INSTANCE_CONFIGURATION)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
     }
@@ -38,7 +38,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     public Mono<Config> updateByName(Config config) {
         final String name = config.getName();
         return repository
-                .findByName(name)
+                .findByName(name, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(dbConfig -> {
@@ -115,12 +115,15 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables) {
-        // TODO @CloudBilling add manage instance permission once the migration for variables is complete
-        return getByName(FieldName.INSTANCE_CONFIG).flatMap(config -> {
-            JSONObject configObj = config.getConfig();
-            configObj.put(INSTANCE_VARIABLES, instanceVariables);
-            config.setConfig(configObj);
-            return repository.save(config);
-        });
+        return repository
+                .findByName(FieldName.INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, FieldName.INSTANCE_CONFIG)))
+                .flatMap(config -> {
+                    JSONObject configObj = config.getConfig();
+                    configObj.put(INSTANCE_VARIABLES, instanceVariables);
+                    config.setConfig(configObj);
+                    return repository.save(config);
+                });
     }
 }
