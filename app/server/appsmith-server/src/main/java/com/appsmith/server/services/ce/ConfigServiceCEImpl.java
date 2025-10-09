@@ -29,7 +29,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     @Override
     public Mono<Config> getByName(String name) {
         return repository
-                .findByName(name, AclPermission.READ_INSTANCE_CONFIGURATION)
+                .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
     }
@@ -37,8 +37,21 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     @Override
     public Mono<Config> updateByName(Config config) {
         final String name = config.getName();
+        // For instance config, use permission-based lookup
+        if (FieldName.INSTANCE_CONFIG.equals(name)) {
+            return repository
+                    .findByName(name, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
+                    .flatMap(dbConfig -> {
+                        log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
+                        dbConfig.setConfig(config.getConfig());
+                        return repository.save(dbConfig);
+                    });
+        }
+        // For other configs, use original behavior (backward compatibility)
         return repository
-                .findByName(name, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(dbConfig -> {
@@ -115,15 +128,12 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables) {
-        return repository
-                .findByName(FieldName.INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, FieldName.INSTANCE_CONFIG)))
-                .flatMap(config -> {
-                    JSONObject configObj = config.getConfig();
-                    configObj.put(INSTANCE_VARIABLES, instanceVariables);
-                    config.setConfig(configObj);
-                    return repository.save(config);
-                });
+        // TODO @CloudBilling add manage instance permission once the migration for variables is complete
+        return getByName(FieldName.INSTANCE_CONFIG).flatMap(config -> {
+            JSONObject configObj = config.getConfig();
+            configObj.put(INSTANCE_VARIABLES, instanceVariables);
+            config.setConfig(configObj);
+            return repository.save(config);
+        });
     }
 }
