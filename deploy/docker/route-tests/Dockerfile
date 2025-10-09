@@ -4,9 +4,9 @@ SHELL ["bash", "-eux", "-c"]
 
 RUN <<END
   version="$(basename "$(curl -sS --write-out '%{redirect_url}' 'https://github.com/Orange-OpenSource/hurl/releases/latest')")"
-  curl -sS --location "https://github.com/Orange-OpenSource/hurl/releases/download/$version/hurl-$version-$(uname -m)-unknown-linux-gnu.tar.gz" \
-    | tar xvz -C /tmp --strip-components 1
-  mv /tmp/hurl /bin
+  arch="$(uname -m)"
+  curl -sS --location "https://github.com/Orange-OpenSource/hurl/releases/download/$version/hurl-$version-$arch-unknown-linux-gnu.tar.gz" \
+    | tar -xvz -C /bin --strip-components 2 "hurl-$version-$arch-unknown-linux-gnu/bin/hurl"
   chmod +x /bin/hurl
 
   version="$(basename "$(curl -sS --write-out '%{redirect_url}' 'https://github.com/FiloSottile/mkcert/releases/latest')")"
