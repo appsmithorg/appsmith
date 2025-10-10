@@ -31,6 +31,9 @@
     "typeRoots": ["./typings", "./node_modules/@types"],
     "sourceMap": true,
     "baseUrl": "./src",
+    "paths": {
+      "components/*": ["components/*"]
+    },
     "noFallthroughCasesInSwitch": true,
     "verbatimModuleSyntax": true
   },
