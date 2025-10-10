@@ -1,9 +1,7 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -32,33 +30,6 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
-    }
-
-    @Override
-    public Mono<Config> updateByName(Config config) {
-        final String name = config.getName();
-        // For instance config, use permission-based lookup
-        if (FieldName.INSTANCE_CONFIG.equals(name)) {
-            return repository
-                    .findByName(name, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                    .flatMap(dbConfig -> {
-                        log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
-                        dbConfig.setConfig(config.getConfig());
-                        return repository.save(dbConfig);
-                    });
-        }
-        // For other configs, use original behavior (backward compatibility)
-        return repository
-                .findByName(name)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(dbConfig -> {
-                    log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
-                    dbConfig.setConfig(config.getConfig());
-                    return repository.save(dbConfig);
-                });
     }
 
     @Override
@@ -96,16 +67,6 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(repository::delete);
-    }
-
-    @Override
-    public Mono<Config> getByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission);
-    }
-
-    @Override
-    public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
-        return repository.findByNameAsUser(name, user, permission);
     }
 
     @Override
