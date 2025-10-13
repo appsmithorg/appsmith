@@ -21,7 +21,7 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <!-- Overriding version to get fix for CVE-2024-1597. Remove once spring-boot is at least at 3.1.9 or 3.2.3 -->
-            <version>42.6.1</version>
+            <version>42.7.8</version>
         </dependency>
 
         <dependency>
