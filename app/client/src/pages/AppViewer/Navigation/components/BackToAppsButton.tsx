@@ -15,6 +15,7 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Icon, Tooltip } from "@appsmith/ads";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { APPLICATIONS_URL } from "constants/routes";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -53,8 +54,8 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
 
   const handleNavigation = () => {
     const applicationsUrl = currentWorkspaceId
-      ? `/applications?workspaceId=${currentWorkspaceId}`
-      : "/applications";
+      ? `${APPLICATIONS_URL}?workspaceId=${currentWorkspaceId}`
+      : APPLICATIONS_URL;
 
     history.push(applicationsUrl);
   };
