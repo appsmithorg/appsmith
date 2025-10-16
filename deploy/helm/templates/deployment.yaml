@@ -135,7 +135,8 @@ spec:
           {{- end }}
           {{- if .Values.branding.enabled }}
             - name: branding-config
-              mountPath: "/appsmith-stacks/configuration"
+              mountPath: "/appsmith-stacks/configuration/appsmith-branding.json"
+              subPath: appsmith-branding.json
           {{- end }}
           env:
           {{- if .Values.HTTPContainerPort }}
