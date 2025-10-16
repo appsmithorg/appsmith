@@ -14,6 +14,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Icon, Tooltip } from "@appsmith/ads";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { APPLICATIONS_URL } from "constants/routes";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -44,10 +46,19 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   );
   const history = useHistory();
   const currentUser: User | undefined = useSelector(getCurrentUser);
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
 
   if (currentUser?.username === ANONYMOUS_USERNAME) {
     return null;
   }
+
+  const handleNavigation = () => {
+    const applicationsUrl = currentWorkspaceId
+      ? `${APPLICATIONS_URL}?workspaceId=${currentWorkspaceId}`
+      : APPLICATIONS_URL;
+
+    history.push(applicationsUrl);
+  };
 
   return (
     <Tooltip
@@ -69,9 +80,7 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
         insideSidebar={insideSidebar}
         isMinimal={isMinimal}
         navColorStyle={navColorStyle}
-        onClick={() => {
-          history.push("/applications");
-        }}
+        onClick={handleNavigation}
         primaryColor={primaryColor}
         text={insideSidebar && !isMinimal && createMessage(ALL_APPS)}
       />

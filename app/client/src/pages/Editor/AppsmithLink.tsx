@@ -7,6 +7,7 @@ import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import history from "utils/history";
 import { useSelector } from "react-redux";
 import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 export const StyledLink = styled((props) => {
   // we are removing non input related props before passing them in the components
@@ -27,18 +28,23 @@ export const StyledLink = styled((props) => {
 
 export const AppsmithLink = () => {
   const organizationConfig = useSelector(getOrganizationConfig);
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
 
   const handleOnClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.stopPropagation();
 
+      const applicationsUrl = currentWorkspaceId
+        ? `${APPLICATIONS_URL}?workspaceId=${currentWorkspaceId}`
+        : APPLICATIONS_URL;
+
       if (e.ctrlKey || e.metaKey) {
-        window.open(APPLICATIONS_URL, "_blank");
+        window.open(applicationsUrl, "_blank");
       } else {
-        history.push(APPLICATIONS_URL);
+        history.push(applicationsUrl);
       }
     },
-    [],
+    [currentWorkspaceId],
   );
 
   return (
