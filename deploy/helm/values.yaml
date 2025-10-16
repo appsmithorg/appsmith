@@ -383,6 +383,23 @@ podDisruptionBudgets:
   enabled: true
   minAvailable: 1
 
+## @section Branding Configuration
+## Appsmith branding configuration for custom colors and themes
+##
+branding:
+  ## @param branding.enabled Enable custom branding configuration
+  ##
+  enabled: true
+  ## @param branding.colors Brand color configuration
+  ##
+  colors:
+    primary: ""
+    background: ""
+    font: ""
+    disabled: ""
+    hover: ""
+    active: ""
+
 metrics:
   enabled: false
   port: 2019

@@ -1,0 +1,21 @@
+{{- if .Values.branding.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "appsmith.fullname" . }}-branding
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+data:
+  appsmith-branding.json: |
+    {
+      "brandColors": {
+        "primary": "{{ .Values.branding.colors.primary }}",
+        "background": "{{ .Values.branding.colors.background }}",
+        "font": "{{ .Values.branding.colors.font }}",
+        "disabled": "{{ .Values.branding.colors.disabled }}",
+        "hover": "{{ .Values.branding.colors.hover }}",
+        "active": "{{ .Values.branding.colors.active }}"
+      }
+    }
+{{- end }}

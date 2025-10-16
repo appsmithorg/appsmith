@@ -133,6 +133,10 @@ spec:
             - name: ca-cert
               mountPath: "/appsmith-stacks/ca-certs"
           {{- end }}
+          {{- if .Values.branding.enabled }}
+            - name: branding-config
+              mountPath: "/appsmith-stacks/configuration"
+          {{- end }}
           env:
           {{- if .Values.HTTPContainerPort }}
             - name: PORT
@@ -178,6 +182,14 @@ spec:
           - key: {{ $key }}
             path: {{ $key }}.crt
           {{- end }}
+      {{- end }}
+      {{- if .Values.branding.enabled }}
+      - name: branding-config
+        configMap:
+          name: {{ include "appsmith.fullname" . }}-branding
+          items:
+          - key: appsmith-branding.json
+            path: appsmith-branding.json
       {{- end }}
   {{- if not .Values.persistence.enabled }}
       - name: data
