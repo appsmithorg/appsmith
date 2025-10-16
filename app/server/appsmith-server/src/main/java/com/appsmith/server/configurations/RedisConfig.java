@@ -84,6 +84,7 @@ public class RedisConfig {
 
         switch (scheme) {
             case "redis" -> {
+                log.info("Creating Redis standalone connection configuration");
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
@@ -91,6 +92,7 @@ public class RedisConfig {
             }
 
             case "rediss" -> {
+                log.info("Creating Redis standalone SSL connection configuration");
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
@@ -100,6 +102,7 @@ public class RedisConfig {
             }
 
             case "redis-sentinel" -> {
+                log.info("Creating Redis Sentinel connection configuration");
                 validateSentinelMaster();
                 final RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
                         .master(redisSentinelMaster)
@@ -111,6 +114,7 @@ public class RedisConfig {
             }
 
             case "redis-cluster" -> {
+                log.info("Creating Redis Cluster connection configuration");
                 // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
                 final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
                 fillAuthentication(redisUri, clusterConfig);
