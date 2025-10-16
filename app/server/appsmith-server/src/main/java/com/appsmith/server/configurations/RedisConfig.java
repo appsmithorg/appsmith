@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisCredentials;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
@@ -24,6 +26,7 @@ import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -59,6 +62,9 @@ public class RedisConfig {
     @Value("${appsmith.redis.url:}")
     private String redisURL;
 
+    @Value("${appsmith.redis.sentinel.master:}")
+    private String redisSentinelMaster;
+
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
      * that we wish to broadcast. Starting with a single one for now.
@@ -93,6 +99,17 @@ public class RedisConfig {
                 return new LettuceConnectionFactory(config, clientConfig);
             }
 
+            case "redis-sentinel" -> {
+                validateSentinelMaster();
+                final RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+                        .master(redisSentinelMaster)
+                        .sentinel(redisUri.getHost(), redisUri.getPort());
+                fillAuthentication(redisUri, sentinelConfig);
+                final LettuceClientConfiguration clientConfig =
+                        LettuceClientConfiguration.builder().build();
+                return new LettuceConnectionFactory(sentinelConfig, clientConfig);
+            }
+
             case "redis-cluster" -> {
                 // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
                 final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
@@ -112,16 +129,13 @@ public class RedisConfig {
         String redisurl = redisURL;
         final URI redisUri = URI.create(redisURL);
         String scheme = redisUri.getScheme();
-        boolean isCluster = false;
+
         if ("redis-cluster".equalsIgnoreCase(scheme)) {
-            isCluster = true;
             // java clients do not support redis-cluster scheme
             if (redisurl.startsWith("redis-cluster://")) {
                 redisurl = "redis://" + redisurl.substring("redis-cluster://".length());
             }
-        }
 
-        if (isCluster) {
             RedisClusterClient redisClusterClient = RedisClusterClient.create(redisurl);
             redisClusterClient.setOptions(ClusterClientOptions.builder()
                     .timeoutOptions(TimeoutOptions.builder()
@@ -130,6 +144,24 @@ public class RedisConfig {
                             .build())
                     .build());
             return redisClusterClient;
+        }
+
+        if ("redis-sentinel".equalsIgnoreCase(scheme)) {
+            validateSentinelMaster();
+            // Create new RedisURI with Sentinel configuration
+            RedisURI.Builder uriBuilder = RedisURI.builder()
+                    .withSentinelMasterId(redisSentinelMaster)
+                    .withSentinel(redisUri.getHost(), redisUri.getPort());
+
+            fillAuthentication(redisUri, uriBuilder);
+            RedisClient redisClient = RedisClient.create(uriBuilder.build());
+            redisClient.setOptions(ClientOptions.builder()
+                    .timeoutOptions(TimeoutOptions.builder()
+                            .timeoutCommands(true)
+                            .fixedTimeout(Duration.ofMillis(2000))
+                            .build())
+                    .build());
+            return redisClient;
         }
 
         RedisClient redisClient = RedisClient.create(redisurl);
@@ -144,11 +176,32 @@ public class RedisConfig {
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
+        RedisCredentials credentials = extractCredentials(redisUri);
+        if (credentials != null) {
+            config.setUsername(credentials.getUsername());
+            config.setPassword(RedisPassword.of(credentials.getPassword()));
+        }
+    }
+
+    private void fillAuthentication(URI redisUri, RedisURI.Builder uriBuilder) {
+        RedisCredentials credentials = extractCredentials(redisUri);
+        if (credentials != null) {
+            uriBuilder.withAuthentication(credentials.getUsername(), credentials.getPassword());
+        }
+    }
+
+    private RedisCredentials extractCredentials(URI redisUri) {
         final String userInfo = redisUri.getUserInfo();
         if (StringUtils.isNotEmpty(userInfo)) {
             final String[] parts = userInfo.split(":", 2);
-            config.setUsername(parts[0]);
-            config.setPassword(RedisPassword.of(parts.length > 1 ? parts[1] : null));
+            return RedisCredentials.just(parts[0], parts.length > 1 ? parts[1] : null);
+        }
+        return null;
+    }
+
+    private void validateSentinelMaster() {
+        if (StringUtils.isEmpty(redisSentinelMaster)) {
+            throw new IllegalStateException("Redis Sentinel Master is not configured");
         }
     }
 
