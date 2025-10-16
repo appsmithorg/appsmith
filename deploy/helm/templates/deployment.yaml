@@ -137,6 +137,7 @@ spec:
             - name: branding-config
               mountPath: "/appsmith-stacks/configuration/appsmith-branding.json"
               subPath: appsmith-branding.json
+              readOnly: true
           {{- end }}
           env:
           {{- if .Values.HTTPContainerPort }}
