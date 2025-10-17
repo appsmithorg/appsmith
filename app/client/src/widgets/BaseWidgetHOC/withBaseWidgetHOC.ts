@@ -9,7 +9,8 @@ import { flow, identity } from "lodash";
 export interface BaseWidgetProps extends WidgetProps, WidgetState {}
 
 export const withBaseWidgetHOC = (
-  Widget: typeof BaseWidget,
+  // Another common way to type a class constructor
+  Widget: typeof BaseWidget extends new (...args: any[]) => infer R ? new (...args: any[]) => R : any,
   needsMeta: boolean,
   eagerRender: boolean,
 ) => {

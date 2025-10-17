@@ -576,11 +576,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   getWidgetView() {
-    const disabled =
+    const disableFromFormInvalidity =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&
       !this.props.isFormValid;
-    const isDisabled = this.props.isDisabled || disabled;
+      const isDisabled = this.props.isDisabled || disableFromFormInvalidity;
 
     return (
       <ButtonComponent
@@ -630,6 +630,11 @@ export interface ButtonWidgetProps extends WidgetProps {
   placement?: ButtonPlacement;
   disabledWhenInvalid?: boolean;
   resetFormOnClick?: boolean;
+  
+  isFormValid?: boolean;
+  onReset?: () => void; 
+  maxWidth?: number;
+  minHeight?: number; 
 }
 
 interface ButtonWidgetState extends WidgetState {
