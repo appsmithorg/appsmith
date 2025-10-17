@@ -31,7 +31,7 @@
     "llamaindex": "0.9.0",
     "loglevel": "^1.8.1",
     "mongodb": "^5.8.0",
-    "nodemailer": "6.9.9",
+    "nodemailer": "7.0.7",
     "readline-sync": "1.4.10",
     "simple-git": "^3.27.0"
   },
