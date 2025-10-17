@@ -1,5 +1,4 @@
 import "cypress-wait-until";
-import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 import type { EntityItemsType } from "./AssertHelper";
@@ -1174,7 +1173,7 @@ export class AggregateHelper {
   }
 
   public GenerateUUID() {
-    let id = uuidv4();
+    let id = crypto.randomUUID();
     id = "Cy" + id.split("-")[0];
     cy.wrap(id).as("guid");
   }

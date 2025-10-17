@@ -14,7 +14,6 @@ import EditorNavigation, {
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const path = require("path");
-import { v4 as uuidv4 } from "uuid";
 
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
@@ -325,7 +324,7 @@ Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
 });
 
 Cypress.Commands.add("generateUUID", () => {
-  let id = uuidv4();
+  let id = crypto.randomUUID();
   return id.split("-")[0];
 });
 
