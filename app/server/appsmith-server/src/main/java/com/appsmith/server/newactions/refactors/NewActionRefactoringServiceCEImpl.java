@@ -21,9 +21,11 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +35,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_EXTRACT_JSON_PATHS;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_GET_BY_CONTEXT;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_GET_EXISTING_NAMES;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_REFACTOR_DYNAMIC_BINDINGS;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_REFACTOR_NAME_IN_ACTION;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_REFACTOR_REFERENCES;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_SAVE;
+import static com.appsmith.external.constants.spans.RefactorSpan.ACTION_UPDATE_REFACTORED;
+import static com.appsmith.external.constants.spans.RefactorSpan.AST_REPLACE_VALUE_IN_MUSTACHE;
 import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 
 @Slf4j
@@ -44,6 +55,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     private final AstService astService;
     private final InstanceConfig instanceConfig;
     private final ObjectMapper objectMapper;
+    protected final ObservationRegistry observationRegistry;
 
     @Override
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
@@ -67,7 +79,17 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         CreatorContextType contextType = getDefaultContextIfNull(refactorEntityNameDTO.getContextType());
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
+
+        log.debug(
+                "Starting action refactoring: contextId={}, contextType={}, oldName={}, newName={}",
+                contextId,
+                contextType,
+                oldName,
+                newName);
+
         return getActionsByContextId(contextId, contextType)
+                .name(ACTION_GET_BY_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
@@ -90,10 +112,17 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     }
                     newAction.setUnpublishedAction(action);
                     return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
+                            .name(ACTION_REFACTOR_NAME_IN_ACTION)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMap(updates -> {
                                 if (updates.isEmpty()) {
+                                    log.debug("No updates found for action: {}", action.getName());
                                     return Mono.just(newAction);
                                 }
+                                log.debug(
+                                        "Found {} binding path updates for action: {}",
+                                        updates.size(),
+                                        action.getName());
                                 updatedBindingPaths.addAll(updates);
                                 if (StringUtils.hasLength(action.getCollectionId())) {
                                     updatableCollectionIds.add(action.getCollectionId());
@@ -101,7 +130,12 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
                                 return newActionService
                                         .extractAndSetJsonPathKeys(newAction)
-                                        .then(newActionService.save(newAction));
+                                        .name(ACTION_EXTRACT_JSON_PATHS)
+                                        .tap(Micrometer.observation(observationRegistry))
+                                        .then(newActionService
+                                                .save(newAction)
+                                                .name(ACTION_SAVE)
+                                                .tap(Micrometer.observation(observationRegistry)));
                             });
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
@@ -111,7 +145,9 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                         contextType.toString().toLowerCase(),
                         contextId,
                         updatedActionNames))
-                .then();
+                .then()
+                .name(ACTION_REFACTOR_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected String extractContextId(RefactorEntityNameDTO refactorEntityNameDTO) {
@@ -125,6 +161,11 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     @Override
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO) {
+        log.debug(
+                "Updating refactored action entity: actionId={}, newName={}",
+                refactorEntityNameDTO.getActionId(),
+                refactorEntityNameDTO.getNewName());
+
         return newActionService
                 .findById(refactorEntityNameDTO.getActionId(), actionPermission.getEditPermission())
                 .map(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
@@ -140,14 +181,21 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
                     return newActionService.updateUnpublishedAction(action.getId(), action);
                 })
-                .then();
+                .doOnSuccess(v ->
+                        log.debug("Successfully updated refactored action: {}", refactorEntityNameDTO.getNewName()))
+                .then()
+                .name(ACTION_UPDATE_REFACTORED)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
     public Flux<String> getExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        log.debug("Getting existing action entity names for contextId: {}", contextId);
         return this.getExistingEntities(contextId, contextType, layoutId, viewMode)
-                .map(ActionDTO::getValidName);
+                .map(ActionDTO::getValidName)
+                .name(ACTION_GET_EXISTING_NAMES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected Flux<ActionDTO> getExistingEntities(
@@ -180,6 +228,13 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     protected Mono<Set<String>> refactorNameInAction(
             ActionDTO actionDTO, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+        log.debug(
+                "Refactoring name in action: actionId={}, actionName={}, oldName={}, newName={}",
+                actionDTO.getId(),
+                actionDTO.getName(),
+                oldName,
+                newName);
+
         // If we're going the fallback route (without AST), we can first filter actions to be refactored
         // By performing a check on whether json path keys had a reference
         // This is not needed in the AST way since it would be costlier to make double the number of API calls
@@ -200,6 +255,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
             }
             // If no reference was found, return with an empty set
             if (Boolean.FALSE.equals(isReferenceFound)) {
+                log.debug("No reference found in action: {} json path keys", actionDTO.getName());
                 return Mono.just(new HashSet<>());
             }
         }
@@ -212,6 +268,11 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         // If there are dynamic bindings in this action configuration, inspect them
         if (actionDTO.getDynamicBindingPathList() != null
                 && !actionDTO.getDynamicBindingPathList().isEmpty()) {
+            log.debug(
+                    "Processing {} dynamic binding paths for action: {}",
+                    actionDTO.getDynamicBindingPathList().size(),
+                    actionDTO.getName());
+
             // recurse over each child
             refactorDynamicBindingsMono = Flux.fromIterable(actionDTO.getDynamicBindingPathList())
                     .flatMap(dynamicBindingPath -> {
@@ -227,6 +288,8 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                         return astService
                                 .replaceValueInMustacheKeys(
                                         mustacheValues, oldName, newName, evalVersion, oldNamePattern)
+                                .name(AST_REPLACE_VALUE_IN_MUSTACHE)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(replacementMap -> {
                                     if (replacementMap.isEmpty()) {
                                         return Mono.empty();
@@ -243,8 +306,14 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     .map(entityPaths -> {
                         actionDTO.setActionConfiguration(
                                 objectMapper.convertValue(actionConfigurationNode, ActionConfiguration.class));
+                        log.debug(
+                                "Completed refactoring {} dynamic bindings for action: {}",
+                                entityPaths.size(),
+                                actionDTO.getName());
                         return entityPaths;
-                    });
+                    })
+                    .name(ACTION_REFACTOR_DYNAMIC_BINDINGS)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         return refactorDynamicBindingsMono;

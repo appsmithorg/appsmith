@@ -20,8 +20,11 @@ import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.validations.EntityValidationService;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -35,6 +38,17 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.RefactorSpan.GET_ALL_EXISTING_ENTITIES;
+import static com.appsmith.external.constants.spans.RefactorSpan.IS_NAME_ALLOWED;
+import static com.appsmith.external.constants.spans.RefactorSpan.PREPARE_ANALYTICS;
+import static com.appsmith.external.constants.spans.RefactorSpan.REFACTOR_ALL_REFERENCES;
+import static com.appsmith.external.constants.spans.RefactorSpan.REFACTOR_ENTITY_NAME;
+import static com.appsmith.external.constants.spans.RefactorSpan.REFACTOR_NAME;
+import static com.appsmith.external.constants.spans.RefactorSpan.SEND_REFACTOR_ANALYTICS;
+import static com.appsmith.external.constants.spans.RefactorSpan.UNESCAPE_MONGO_CHARS;
+import static com.appsmith.external.constants.spans.RefactorSpan.UPDATE_LAYOUT;
+import static com.appsmith.external.constants.spans.RefactorSpan.VALIDATE_ENTITY_NAME;
+import static com.appsmith.external.constants.spans.RefactorSpan.VALIDATE_NAME;
 import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 
 @Slf4j
@@ -45,6 +59,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final EntityValidationService entityValidationService;
+    protected final ObservationRegistry observationRegistry;
 
     protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
     protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
@@ -73,6 +88,16 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
         String contextId = getBranchedContextId(refactorEntityNameDTO);
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
+        String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
+        EntityType entityType = refactorEntityNameDTO.getEntityType();
+
+        log.debug(
+                "Starting refactorName for entity type: {}, oldName: {}, newName: {}, contextId: {}, layoutId: {}",
+                entityType,
+                oldName,
+                newName,
+                contextId,
+                layoutId);
 
         Pattern oldNamePattern = getReplacementPattern(oldName);
 
@@ -84,33 +109,59 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
                 .getContextLayoutRefactorHelper(refactorEntityNameDTO.getContextType())
                 .getEvaluationVersionMono(contextId, refactorEntityNameDTO, refactoringMetaDTO));
 
-        Mono<Void> refactoredReferencesMono = refactorAllReferences(refactorEntityNameDTO, refactoringMetaDTO);
+        Mono<Void> refactoredReferencesMono = refactorAllReferences(refactorEntityNameDTO, refactoringMetaDTO)
+                .name(REFACTOR_ALL_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
 
-        return refactoredReferencesMono.then(Mono.defer(() -> {
-            Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
-            ContextLayoutRefactoringService<?, ?> contextLayoutRefactorHelper =
-                    contextLayoutRefactorResolver.getContextLayoutRefactorHelper(
-                            refactorEntityNameDTO.getContextType());
-            List<Layout> layouts = contextLayoutRefactorHelper.getLayouts(refactoringMetaDTO);
-            if (layouts != null) {
-                for (Layout layout : layouts) {
-                    if (layoutId.equals(layout.getId())) {
-                        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
-                        String artifactId = contextLayoutRefactorHelper.getArtifactId(refactoringMetaDTO);
-                        return updateLayoutService
-                                .updateLayout(
-                                        contextId,
-                                        artifactId,
-                                        layout.getId(),
-                                        layout,
-                                        refactorEntityNameDTO.getContextType())
-                                .zipWith(Mono.just(updatedBindingPaths));
+        return refactoredReferencesMono
+                .then(Mono.defer(() -> {
+                    Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
+                    log.debug(
+                            "Refactored references for entity: {} -> {}. Updated {} binding paths",
+                            oldName,
+                            newName,
+                            updatedBindingPaths.size());
+
+                    ContextLayoutRefactoringService<?, ?> contextLayoutRefactorHelper =
+                            contextLayoutRefactorResolver.getContextLayoutRefactorHelper(
+                                    refactorEntityNameDTO.getContextType());
+                    List<Layout> layouts = contextLayoutRefactorHelper.getLayouts(refactoringMetaDTO);
+                    if (layouts != null) {
+                        for (Layout layout : layouts) {
+                            if (layoutId.equals(layout.getId())) {
+                                Mono<JSONObject> unescapeMono = Mono.fromCallable(
+                                                () -> updateLayoutService.unescapeMongoSpecialCharacters(layout))
+                                        .name(UNESCAPE_MONGO_CHARS)
+                                        .tap(Micrometer.observation(observationRegistry));
+
+                                String artifactId = contextLayoutRefactorHelper.getArtifactId(refactoringMetaDTO);
+                                return unescapeMono
+                                        .flatMap(unescapedDsl -> {
+                                            layout.setDsl(unescapedDsl);
+                                            return updateLayoutService
+                                                    .updateLayout(
+                                                            contextId,
+                                                            artifactId,
+                                                            layout.getId(),
+                                                            layout,
+                                                            refactorEntityNameDTO.getContextType())
+                                                    .name(UPDATE_LAYOUT)
+                                                    .tap(Micrometer.observation(observationRegistry));
+                                        })
+                                        .doOnSuccess(layoutDTO -> log.debug(
+                                                "Successfully updated layout for entity refactor: {} -> {}",
+                                                oldName,
+                                                newName))
+                                        .map(layoutDTO -> Tuples.of(layoutDTO, updatedBindingPaths));
+                            }
+                        }
                     }
-                }
-            }
-            // Return empty Layout when there is no layout
-            return Mono.just(Tuples.of(new LayoutDTO(), Set.of()));
-        }));
+                    log.debug("No layout found to update for entity refactor: {} -> {}", oldName, newName);
+                    // Return empty Layout when there is no layout
+                    return Mono.just(Tuples.of(new LayoutDTO(), Set.<String>of()));
+                }))
+                .name(REFACTOR_NAME)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected static Pattern getReplacementPattern(String oldName) {
@@ -135,6 +186,11 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
 
     @Override
     public Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO) {
+        log.info(
+                "Starting entity refactoring: entityType={}, oldName={}, newName={}",
+                refactorEntityNameDTO.getEntityType(),
+                refactorEntityNameDTO.getOldFullyQualifiedName(),
+                refactorEntityNameDTO.getNewFullyQualifiedName());
 
         EntityRefactoringService<?> service = getEntityRefactoringService(refactorEntityNameDTO);
 
@@ -153,7 +209,9 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
                         }
                         return Mono.just(true);
-                    });
+                    })
+                    .name(VALIDATE_NAME)
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         // Make sure to retrieve correct page id for branched page
@@ -162,10 +220,23 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
         final Map<String, String> analyticsProperties = new HashMap<>();
 
         return isValidNameMono
-                .then(validateAndPrepareAnalyticsForRefactor(refactorEntityNameDTO, contextId, analyticsProperties))
+                .then(validateAndPrepareAnalyticsForRefactor(refactorEntityNameDTO, contextId, analyticsProperties)
+                        .name(VALIDATE_ENTITY_NAME)
+                        .tap(Micrometer.observation(observationRegistry)))
                 .flatMap(updatedAnalyticsProperties -> {
                     return refactorWithoutContext(refactorEntityNameDTO, service, updatedAnalyticsProperties);
-                });
+                })
+                .doOnSuccess(layoutDTO -> log.info(
+                        "Successfully refactored entity: {} -> {}",
+                        refactorEntityNameDTO.getOldFullyQualifiedName(),
+                        refactorEntityNameDTO.getNewFullyQualifiedName()))
+                .doOnError(error -> log.error(
+                        "Failed to refactor entity: {} -> {}. Error: {}",
+                        refactorEntityNameDTO.getOldFullyQualifiedName(),
+                        refactorEntityNameDTO.getNewFullyQualifiedName(),
+                        error.getMessage()))
+                .name(REFACTOR_ENTITY_NAME)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected Mono<Map<String, String>> validateAndPrepareAnalyticsForRefactor(
@@ -181,11 +252,15 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             String branchedContextId,
             Map<String, String> analyticsProperties) {
         refactorEntityNameDTO.setPageId(branchedContextId);
-        return newPageService.getByIdWithoutPermissionCheck(branchedContextId).map(page -> {
-            analyticsProperties.put(FieldName.APPLICATION_ID, page.getApplicationId());
-            analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
-            return analyticsProperties;
-        });
+        return newPageService
+                .getByIdWithoutPermissionCheck(branchedContextId)
+                .map(page -> {
+                    analyticsProperties.put(FieldName.APPLICATION_ID, page.getApplicationId());
+                    analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
+                    return analyticsProperties;
+                })
+                .name(PREPARE_ANALYTICS)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected Mono<Void> validateEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String contextId) {
@@ -242,9 +317,15 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
                     analyticsProperties.put("updatedPaths", updatedPaths.toString());
                     analyticsProperties.put("userId", user.getUsername());
                     analyticsService.sendEvent(event.getEventName(), user.getUsername(), analyticsProperties);
+                    log.debug(
+                            "Sent refactor analytics event: {}, updatedPathsCount: {}",
+                            event.getEventName(),
+                            updatedPaths.size());
                     return true;
                 })
-                .then();
+                .then()
+                .name(SEND_REFACTOR_ANALYTICS)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -252,18 +333,39 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             String contextId, CreatorContextType contextType, String layoutId, String newName) {
 
         boolean isFQN = newName.contains(".");
+        log.debug("Checking if name is allowed: {}, isFQN: {}, contextId: {}", newName, isFQN, contextId);
 
         return getAllExistingEntitiesMono(contextId, contextType, layoutId, isFQN)
-                .map(existingNames -> !existingNames.contains(newName));
+                .map(existingNames -> {
+                    boolean isAllowed = !existingNames.contains(newName);
+                    log.debug(
+                            "Name '{}' is {} (total existing entities: {})",
+                            newName,
+                            isAllowed ? "allowed" : "NOT allowed",
+                            existingNames.size());
+                    return isAllowed;
+                })
+                .name(IS_NAME_ALLOWED)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
     public Mono<Set<String>> getAllExistingEntitiesMono(
             String contextId, CreatorContextType contextType, String layoutId, boolean isFQN) {
+        log.debug(
+                "Getting all existing entities for contextId: {}, contextType: {}, isFQN: {}",
+                contextId,
+                contextType,
+                isFQN);
         Iterable<Flux<String>> existingEntityNamesFlux =
                 getExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
 
-        return Flux.merge(existingEntityNamesFlux).collect(Collectors.toSet());
+        return Flux.merge(existingEntityNamesFlux)
+                .collect(Collectors.toSet())
+                .doOnSuccess(entityNames ->
+                        log.debug("Found {} existing entities for contextId: {}", entityNames.size(), contextId))
+                .name(GET_ALL_EXISTING_ENTITIES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected Iterable<Flux<String>> getExistingEntityNamesFlux(

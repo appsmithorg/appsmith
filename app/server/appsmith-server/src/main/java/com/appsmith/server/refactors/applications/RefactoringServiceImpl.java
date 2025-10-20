@@ -10,6 +10,7 @@ import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.validations.EntityValidationService;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             EntityValidationService entityValidationService,
+            ObservationRegistry observationRegistry,
             EntityRefactoringService<Void> jsActionEntityRefactoringService,
             EntityRefactoringService<NewAction> newActionEntityRefactoringService,
             EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService,
@@ -33,6 +35,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
                 analyticsService,
                 sessionUserService,
                 entityValidationService,
+                observationRegistry,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,
