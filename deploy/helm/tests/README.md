@@ -26,6 +26,55 @@ docker run -ti --rm -v $(pwd):/apps helmunittest/helm-unittest -u .
 
 **Important**: Always review the changes in the snapshots before committing them to ensure they match your expectations.
 
+## Testing Custom Features
+
+### Branding Configuration
+
+The chart includes support for custom branding configuration. To test the branding feature, you can use the following example values:
+
+```yaml
+branding:
+  enabled: true
+  colors:
+    primary: "#FF6B35"
+    background: "#FFFFFF"
+    font: "#333333"
+    disabled: "#CCCCCC"
+    hover: "#FF8C5A"
+    active: "#E55A2B"
+```
+
+This will create a ConfigMap containing an `appsmith-branding.json` file with the brand colors. The ConfigMap will be named `<release-name>-branding`.
+
+**Example test command:**
+
+```bash
+# Test with custom branding values
+helm template test-release . --values tests/custom-branding-values.yaml | grep -A 10 "appsmith-branding.json"
+```
+
+**Validating the branding ConfigMap:**
+
+The branding ConfigMap should contain valid JSON with the following structure:
+
+```json
+{
+  "brandColors": {
+    "primary": "#FF6B35",
+    "background": "#FFFFFF",
+    "font": "#333333",
+    "disabled": "#CCCCCC",
+    "hover": "#FF8C5A",
+    "active": "#E55A2B"
+  }
+}
+```
+
+**Color format requirements:**
+- All color values should be in hex format (e.g., `#FF6B35` or `#FFF`)
+- Empty strings are allowed for optional colors
+- The schema validates color patterns using regex: `^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$`
+
 ## Documentation
 
 For more information about helm-unittest, including:
