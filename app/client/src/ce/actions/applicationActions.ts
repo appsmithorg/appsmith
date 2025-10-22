@@ -79,6 +79,34 @@ export const updateApplication = (
   };
 };
 
+export const persistAppSlug = (slug: string) => {
+  return {
+    type: ReduxActionTypes.PERSIST_APP_SLUG,
+    payload: {
+      slug,
+    },
+  };
+};
+
+export const validateAppSlug = (slug: string) => {
+  return {
+    type: ReduxActionTypes.VALIDATE_APP_SLUG,
+    payload: {
+      slug,
+    },
+  };
+};
+
+export const toggleStaticUrl = (isEnabled: boolean, applicationId?: string) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_STATIC_URL,
+    payload: {
+      isEnabled,
+      applicationId,
+    },
+  };
+};
+
 export const updateCurrentApplicationIcon = (icon: IconNames) => {
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,

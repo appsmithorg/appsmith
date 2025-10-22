@@ -57,6 +57,14 @@ export const getIsSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isSavingAppName;
 export const getIsErroredSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isErrorSavingAppName;
+export const getIsPersistingAppSlug = (state: DefaultRootState) =>
+  state.ui.applications.isPersistingAppSlug;
+export const getIsErrorPersistingAppSlug = (state: DefaultRootState) =>
+  state.ui.applications.isErrorPersistingAppSlug;
+export const getIsValidatingAppSlug = (state: DefaultRootState) =>
+  state.ui.applications.isValidatingAppSlug;
+export const getIsApplicationSlugValid = (state: DefaultRootState) =>
+  state.ui.applications.isApplicationSlugValid;
 
 export const getApplicationList = createSelector(
   getApplications,
@@ -202,3 +210,6 @@ export const getAppThemeSettings = (state: DefaultRootState) => {
     state.ui.applications.currentApplication?.applicationDetail?.themeSetting,
   );
 };
+
+export const getIsTogglingStaticUrl = (state: DefaultRootState) =>
+  state.ui.applications.isTogglingStaticUrl;

@@ -300,6 +300,21 @@ class PageApi extends Api {
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(PageApi.url, params);
   }
+
+  static async persistPageSlug(request: {
+    branchedPageId: string;
+    uniquePageSlug: string;
+    staticUrlEnabled: boolean;
+  }): Promise<AxiosPromise<ApiResponse>> {
+    return Api.patch(`${PageApi.url}/static-url`, request);
+  }
+
+  static async validatePageSlug(
+    pageId: string,
+    uniqueSlug: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.get(`${PageApi.url}/${pageId}/static-url/verify/${uniqueSlug}`);
+  }
 }
 
 export default PageApi;

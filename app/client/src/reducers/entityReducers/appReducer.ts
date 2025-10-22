@@ -35,6 +35,9 @@ export interface AppDataState {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workflows: Record<string, any>;
+  isStaticUrlEnabled: boolean;
+  pageSlug: Record<string, { isPersisting: boolean; isError: boolean }>;
+  pageSlugValidation: { isValidating: boolean; isValid: boolean };
 }
 
 const initialState: AppDataState = {
@@ -59,6 +62,9 @@ const initialState: AppDataState = {
     currentPosition: {},
   },
   workflows: {},
+  isStaticUrlEnabled: false,
+  pageSlug: {},
+  pageSlugValidation: { isValidating: false, isValid: true },
 };
 
 const appReducer = createReducer(initialState, {
@@ -107,6 +113,93 @@ const appReducer = createReducer(initialState, {
       geolocation: {
         ...state.geolocation,
         currentPosition: action.payload.position,
+      },
+    };
+  },
+  [ReduxActionTypes.TOGGLE_STATIC_URL]: (
+    state: AppDataState,
+    action: ReduxAction<{ isEnabled: boolean; applicationId?: string }>,
+  ): AppDataState => {
+    return {
+      ...state,
+      isStaticUrlEnabled: action.payload.isEnabled,
+    };
+  },
+  [ReduxActionTypes.PERSIST_PAGE_SLUG]: (
+    state: AppDataState,
+    action: ReduxAction<{ pageId: string; slug: string }>,
+  ) => {
+    return {
+      ...state,
+      pageSlug: {
+        ...state.pageSlug,
+        [action.payload.pageId]: {
+          isPersisting: true,
+          isError: false,
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.PERSIST_PAGE_SLUG_SUCCESS]: (
+    state: AppDataState,
+    action: ReduxAction<{ pageId: string; slug: string }>,
+  ) => {
+    return {
+      ...state,
+      pageSlug: {
+        ...state.pageSlug,
+        [action.payload.pageId]: {
+          isPersisting: false,
+          isError: false,
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.PERSIST_PAGE_SLUG_ERROR]: (
+    state: AppDataState,
+    action: ReduxAction<{ pageId: string; slug: string; error: unknown }>,
+  ) => {
+    return {
+      ...state,
+      pageSlug: {
+        ...state.pageSlug,
+        [action.payload.pageId]: {
+          isPersisting: false,
+          isError: true,
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.VALIDATE_PAGE_SLUG]: (state: AppDataState) => {
+    return {
+      ...state,
+      pageSlugValidation: {
+        isValidating: true,
+        isValid: true, // Reset to valid while validating
+      },
+    };
+  },
+  [ReduxActionTypes.VALIDATE_PAGE_SLUG_SUCCESS]: (
+    state: AppDataState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      pageSlugValidation: {
+        isValidating: false,
+        isValid: action.payload.isValid,
+      },
+    };
+  },
+  [ReduxActionTypes.VALIDATE_PAGE_SLUG_ERROR]: (
+    state: AppDataState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      pageSlugValidation: {
+        isValidating: false,
+        isValid: action.payload.isValid,
       },
     };
   },

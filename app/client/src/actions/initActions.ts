@@ -9,11 +9,13 @@ export const initCurrentPage = () => {
 };
 
 export interface InitEditorActionPayload {
-  baseApplicationId?: string;
+  applicationId?: string;
   basePageId?: string;
   branch?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }
 
 export const initEditorAction = (
@@ -25,26 +27,32 @@ export const initEditorAction = (
 
 export interface InitAppViewerPayload {
   branch: string;
-  baseApplicationId?: string;
-  basePageId: string;
+  applicationId?: string;
+  basePageId?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }
 
 export const initAppViewerAction = ({
-  baseApplicationId,
+  applicationId,
   basePageId,
   branch,
   mode,
   shouldInitialiseUserDetails,
+  staticApplicationSlug,
+  staticPageSlug,
 }: InitAppViewerPayload) => ({
   type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
   payload: {
     branch: branch,
-    baseApplicationId,
+    applicationId,
     basePageId,
     mode,
     shouldInitialiseUserDetails,
+    staticApplicationSlug,
+    staticPageSlug,
   },
 });
 

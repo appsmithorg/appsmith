@@ -1,8 +1,8 @@
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { NavigationMethod } from "utils/history";
 import useNavigateToAnotherPage from "../../hooks/useNavigateToAnotherPage";
@@ -12,6 +12,11 @@ import type { MenuItemProps } from "./types";
 
 const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
   const location = useLocation();
+  const params = useParams<{
+    staticPageSlug?: string;
+    staticApplicationSlug?: string;
+    basePageId?: string;
+  }>();
 
   const navigateToAnotherPage = useNavigateToAnotherPage({
     basePageId: page.basePageId,
@@ -32,14 +37,30 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "inherit",
   );
 
-  const isActive = useMemo(
-    () => location.pathname.indexOf(page.pageId) > -1,
-    [location, page.pageId],
-  );
+  const isActive = useMemo(() => {
+    // Check if we're on a static URL route (both staticApplicationSlug and staticPageSlug must be present)
+    const isStaticUrl = !!(
+      params.staticApplicationSlug && params.staticPageSlug
+    );
 
-  const handleClick = () => {
+    if (isStaticUrl) {
+      // For static URLs, check if the staticPageSlug matches the page's uniqueSlug
+      return page.uniqueSlug === params.staticPageSlug;
+    } else {
+      // For regular URLs, fall back to the older logic using indexOf
+      return location.pathname.indexOf(page.pageId) > -1;
+    }
+  }, [
+    params.staticApplicationSlug,
+    params.staticPageSlug,
+    page.uniqueSlug,
+    page.pageId,
+    location.pathname,
+  ]);
+
+  const handleClick = useCallback(() => {
     navigateToAnotherPage();
-  };
+  }, [navigateToAnotherPage]);
 
   return (
     <StyledMenuItem

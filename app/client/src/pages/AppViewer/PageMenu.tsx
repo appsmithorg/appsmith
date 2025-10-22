@@ -10,10 +10,8 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { useHref } from "pages/Editor/utils";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
+import { useStaticUrlGeneration } from "./Navigation/hooks/useStaticUrlGeneration";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
@@ -179,10 +177,9 @@ function PageNavLink({
 }) {
   const appMode = useSelector(getAppMode);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const pathname = useHref(
-    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { basePageId: page.basePageId },
-  );
+
+  // Use the common static URL generation hook
+  const pathname = useStaticUrlGeneration(page.basePageId, appMode);
 
   return (
     <StyledNavLink

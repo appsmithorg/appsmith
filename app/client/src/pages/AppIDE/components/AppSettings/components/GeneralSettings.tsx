@@ -1,25 +1,42 @@
-import { updateApplication } from "ee/actions/applicationActions";
+import {
+  updateApplication,
+  persistAppSlug as persistAppSlugAction,
+  validateAppSlug,
+  toggleStaticUrl,
+} from "ee/actions/applicationActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_LABEL,
+  GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE,
+  GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE,
 } from "ee/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Text } from "@appsmith/ads";
+import { Input, Switch, Text, Icon } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
-import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
+import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsSavingAppName,
+  getIsPersistingAppSlug,
+  getIsValidatingAppSlug,
+  getIsApplicationSlugValid,
+  getIsTogglingStaticUrl,
 } from "ee/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
+import UrlPreview from "./UrlPreview";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -53,16 +70,35 @@ function GeneralSettings() {
   const applicationId = useSelector(getCurrentApplicationId);
   const application = useSelector(getCurrentApplication);
   const isSavingAppName = useSelector(getIsSavingAppName);
+  const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
+  const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
 
   const [applicationName, setApplicationName] = useState(application?.name);
   const [isAppNameValid, setIsAppNameValid] = useState(true);
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
+  const [applicationSlug, setApplicationSlug] = useState(
+    application?.uniqueSlug || "",
+  );
+  const [isStaticUrlToggleEnabled, setIsStaticUrlToggleEnabled] =
+    useState(!!applicationSlug);
+  const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
+  const isTogglingStaticUrl = useSelector(getIsTogglingStaticUrl);
 
-  useEffect(() => {
-    !isSavingAppName && setApplicationName(application?.name);
-  }, [application, application?.name, isSavingAppName]);
+  useEffect(
+    function updateApplicationName() {
+      !isSavingAppName && setApplicationName(application?.name);
+    },
+    [application, application?.name, isSavingAppName],
+  );
+
+  useEffect(
+    function updateApplicationSlug() {
+      setApplicationSlug(application?.uniqueSlug || "");
+    },
+    [application?.uniqueSlug],
+  );
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -79,7 +115,7 @@ function GeneralSettings() {
       (isAppNameUpdated || icon) &&
         dispatch(updateApplication(applicationId, payload));
     }, 50),
-    [applicationName, application, applicationId],
+    [applicationName, application, applicationId, isAppNameValid, dispatch],
   );
 
   const onChange = (value: string) => {
@@ -93,6 +129,58 @@ function GeneralSettings() {
 
     setApplicationName(value);
   };
+
+  const onSlugChange = useCallback(
+    (value: string) => {
+      // Convert to lowercase and replace spaces with hyphens
+      const normalizedValue = value.toLowerCase().replace(/\s+/g, "-");
+
+      if (normalizedValue && normalizedValue.trim().length > 0) {
+        // Basic validation: only lowercase letters, numbers, and hyphens
+        const isValid = /^[a-z0-9-]+$/.test(normalizedValue);
+
+        if (isValid) {
+          // Dispatch validation action instead of persisting
+          dispatch(validateAppSlug(normalizedValue));
+        }
+      }
+
+      setApplicationSlug(normalizedValue);
+    },
+    [dispatch],
+  );
+
+  const onSlugBlur = useCallback(() => {
+    // Only persist on blur if the slug is different from current application slug
+    if (applicationSlug && applicationSlug !== application?.uniqueSlug) {
+      dispatch(persistAppSlugAction(applicationSlug));
+    }
+  }, [applicationSlug, application?.uniqueSlug, dispatch]);
+
+  const shouldShowUrl = applicationSlug && applicationSlug.trim().length > 0;
+  const appUrl = `${window.location.origin}/app/${applicationSlug}`;
+
+  const AppUrlContent = () => (
+    <>
+      {window.location.origin}/app/
+      <strong className={`text-[color:var(--appsmith-color-black-800))]`}>
+        {applicationSlug}
+      </strong>
+    </>
+  );
+
+  const handleStaticUrlToggle = useCallback(
+    (isEnabled: boolean) => {
+      setIsStaticUrlToggleEnabled(isEnabled);
+
+      dispatch(toggleStaticUrl(isEnabled, applicationId));
+    },
+    [dispatch, applicationId],
+  );
+
+  const handleUrlCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(appUrl);
+  }, [appUrl]);
 
   return (
     <>
@@ -142,6 +230,119 @@ function GeneralSettings() {
           selectedIcon={applicationIcon}
         />
       </IconSelectorWrapper>
+
+      <div className="flex content-center justify-between pt-2">
+        {isTogglingStaticUrl && <TextLoaderIcon />}
+        <Switch
+          className="mb-0"
+          id="t--general-settings-static-url"
+          isSelected={isStaticUrlToggleEnabled}
+          onChange={handleStaticUrlToggle}
+        >
+          <Text kind="action-m">Static URL</Text>
+        </Switch>
+      </div>
+
+      {isStaticUrlToggleEnabled && (
+        <div
+          className={classNames({
+            "pt-4 pb-2 relative": true,
+            "pb-4":
+              !applicationSlug ||
+              applicationSlug.trim().length === 0 ||
+              !isApplicationSlugValid,
+          })}
+        >
+          {isAppSlugSaving && <TextLoaderIcon />}
+          <Input
+            defaultValue={applicationSlug ? applicationSlug : ""}
+            errorMessage={
+              !applicationSlug || applicationSlug.trim().length === 0
+                ? GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE()
+                : isApplicationSlugValid
+                  ? undefined
+                  : GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE()
+            }
+            id="t--general-settings-app-url"
+            isValid={
+              !!applicationSlug &&
+              applicationSlug.trim().length > 0 &&
+              isApplicationSlugValid
+            }
+            label={GENERAL_SETTINGS_APP_URL_LABEL()}
+            onBlur={onSlugBlur}
+            onChange={onSlugChange}
+            placeholder="app-url"
+            size="md"
+            type="text"
+            value={applicationSlug}
+          />
+          {applicationSlug && applicationSlug.trim().length > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              {isValidatingAppSlug ? (
+                <>
+                  <Icon
+                    color="var(--ads-v2-color-fg-muted)"
+                    name="loader-line"
+                    size="sm"
+                  />
+                  <Text
+                    kind="body-s"
+                    style={{ color: "var(--ads-v2-color-fg-muted)" }}
+                  >
+                    {GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE()}
+                  </Text>
+                </>
+              ) : isApplicationSlugValid ? (
+                <>
+                  <Icon
+                    color="var(--ads-v2-color-fg-success)"
+                    name="check-line"
+                    size="sm"
+                  />
+                  <Text
+                    kind="body-s"
+                    style={{ color: "var(--ads-v2-color-fg-success)" }}
+                  >
+                    {GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE()}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Icon
+                    color="var(--ads-v2-color-fg-error)"
+                    name="close-line"
+                    size="sm"
+                  />
+                  <Text
+                    kind="body-s"
+                    style={{ color: "var(--ads-v2-color-fg-error)" }}
+                  >
+                    {GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE()}
+                  </Text>
+                </>
+              )}
+            </div>
+          )}
+          {shouldShowUrl && (
+            <>
+              <div className="pt-1">
+                <UrlPreview className="mb-1" onCopy={handleUrlCopy}>
+                  <AppUrlContent />
+                </UrlPreview>
+              </div>
+              <div className="mt-1">
+                <Text
+                  kind="body-s"
+                  style={{ color: "var(--ads-v2-color-fg-warning)" }}
+                >
+                  {GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE()}
+                </Text>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }

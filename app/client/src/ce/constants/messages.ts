@@ -1916,6 +1916,30 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
+export const GENERAL_SETTINGS_APP_URL_LABEL = () => "Application URL";
+export const GENERAL_SETTINGS_APP_URL_EMPTY_MESSAGE = () =>
+  "App URL cannot be empty";
+export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
+  "App URL can only contain lowercase letters, numbers, and hyphens";
+export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
+  "Changing this application slug will affect both edit and deployed versions of the app.";
+export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
+  "Check availability...";
+export const GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE = () => "Available";
+export const GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE = () =>
+  "Unavailable, please enter a unique value";
+export const GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE = () =>
+  "Enter a value";
+
+export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
+  "Check availability...";
+export const PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE = () => "Available";
+export const PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE = () =>
+  "Unavailable, please enter a unique value";
+export const PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE = () =>
+  "Changing this page slug will affect both edit and deployed versions of the app.";
+export const PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE = () =>
+  "This page name conflicts with an existing page slug.";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
 export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";

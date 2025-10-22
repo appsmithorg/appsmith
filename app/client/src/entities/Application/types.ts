@@ -22,6 +22,7 @@ export interface ApplicationPayload {
   userPermissions?: string[];
   appIsExample: boolean;
   slug: string;
+  uniqueSlug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;

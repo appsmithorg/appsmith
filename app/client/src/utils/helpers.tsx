@@ -25,6 +25,7 @@ import {
   VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
+  VIEWER_PATH_STATIC,
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
@@ -1138,6 +1139,11 @@ export const splitPathPreview = (
     VIEWER_CUSTOM_PATH,
   );
 
+  const staticUrlMatch = matchPath<{
+    applicationSlug: string;
+    pageSlug: string;
+  }>(url, VIEWER_PATH_STATIC);
+
   if (!customSlug && slugMatch?.isExact) {
     const { pageSlug } = slugMatch.params;
     const splitUrl = url.split(pageSlug);
@@ -1160,6 +1166,13 @@ export const splitPathPreview = (
       customSlug.slice(0, customSlug.length - 1), // to split -
       customSlug.slice(customSlug.length - 1),
     );
+
+    return splitUrl;
+  } else if (staticUrlMatch?.isExact) {
+    const { pageSlug } = staticUrlMatch.params;
+    const splitUrl = url.split(pageSlug);
+
+    splitUrl.splice(1, 0, pageSlug);
 
     return splitUrl;
   }

@@ -35,6 +35,7 @@ export interface ApplicationPagePayload {
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
+  uniqueSlug?: string;
   userPermissions?: string[];
 }
 
@@ -516,6 +517,45 @@ export class ApplicationApi extends Api {
     AxiosPromise<ApiResponse<ImportBuildingBlockToApplicationResponse>>
   > {
     return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
+  }
+
+  static async persistAppSlug(
+    applicationId: string,
+    request: {
+      branchedApplicationId: string;
+      uniqueApplicationSlug: string;
+      staticUrlEnabled: boolean;
+    },
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.patch(
+      `${ApplicationApi.baseURL}/${applicationId}/static-url`,
+      request,
+    );
+  }
+
+  static async validateAppSlug(
+    applicationId: string,
+    uniqueSlug: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/${applicationId}/static-url/${uniqueSlug}`,
+    );
+  }
+
+  static async toggleStaticUrl(
+    applicationId: string,
+    request: { staticUrlEnabled: boolean },
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.post(
+      `${ApplicationApi.baseURL}/${applicationId}/static-url`,
+      request,
+    );
+  }
+
+  static async deleteStaticUrl(
+    applicationId: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.delete(`${ApplicationApi.baseURL}/${applicationId}/static-url`);
   }
 }
 

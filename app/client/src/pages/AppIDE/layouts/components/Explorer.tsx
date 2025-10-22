@@ -13,6 +13,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
 } from "ee/constants/routes/appRoutes";
 import SegmentSwitcher from "./SegmentSwitcher/SegmentSwitcher";
 import { useSelector } from "react-redux";
@@ -32,6 +33,7 @@ const EditorPaneExplorer = () => {
       BUILDER_PATH,
       BUILDER_CUSTOM_PATH,
       BUILDER_PATH_DEPRECATED,
+      BUILDER_PATH_STATIC,
       ...widgetSegmentRoutes.map((route) => `${path}${route}`),
     ],
     [path],

@@ -8,5 +8,6 @@ export interface Page {
   isHidden?: boolean;
   slug: string;
   customSlug?: string;
+  uniqueSlug?: string;
   userPermissions?: string[];
 }

@@ -13,7 +13,12 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 type Props = {
   initAppViewer: (payload: InitAppViewerPayload) => void;
   clearCache: () => void;
-} & RouteComponentProps<{ basePageId: string; baseApplicationId?: string }>;
+} & RouteComponentProps<{
+  basePageId: string;
+  baseApplicationId?: string;
+  staticPageSlug?: string;
+  staticApplicationSlug?: string;
+}>;
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,16 +54,23 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
       location: { search },
       match: { params },
     } = this.props;
-    const { baseApplicationId, basePageId } = params;
+    const {
+      baseApplicationId,
+      basePageId,
+      staticApplicationSlug,
+      staticPageSlug,
+    } = params;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
     // onMount initPage
     if (baseApplicationId || basePageId) {
       initAppViewer({
-        baseApplicationId,
+        applicationId: baseApplicationId,
         branch,
         basePageId,
         mode: APP_MODE.PUBLISHED,
+        staticApplicationSlug,
+        staticPageSlug,
       });
     }
   }

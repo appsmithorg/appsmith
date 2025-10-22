@@ -3,6 +3,8 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
+  VIEWER_PATH_STATIC,
   PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
   VIEWER_CUSTOM_PATH,
@@ -33,6 +35,7 @@ export enum URL_TYPE {
   DEFAULT,
   SLUG,
   CUSTOM_SLUG,
+  STATIC,
 }
 
 export const baseURLRegistry = {
@@ -47,6 +50,10 @@ export const baseURLRegistry = {
   [URL_TYPE.CUSTOM_SLUG]: {
     [APP_MODE.EDIT]: BUILDER_CUSTOM_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_CUSTOM_PATH,
+  },
+  [URL_TYPE.STATIC]: {
+    [APP_MODE.EDIT]: BUILDER_PATH_STATIC,
+    [APP_MODE.PUBLISHED]: VIEWER_PATH_STATIC,
   },
 };
 
@@ -264,6 +271,35 @@ export class URLBuilder {
     const formattedParams = this.getFormattedParams(basePageId);
 
     formattedParams.pageSlug = `${pageName}-`;
+
+    return generatePath(urlPattern, formattedParams).toLowerCase();
+  }
+
+  getStaticUrlPathPreview(pageName: string) {
+    const urlPattern = baseURLRegistry[URL_TYPE.STATIC][APP_MODE.PUBLISHED];
+
+    const formattedParams = {
+      applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
+      baseApplicationId: this.appParams.baseApplicationId,
+      pageSlug: `${pageName}`,
+      basePageId: PLACEHOLDER_PAGE_SLUG,
+    };
+
+    return generatePath(urlPattern, formattedParams).toLowerCase();
+  }
+
+  getStaticUrlPathPreviewWithSlugs(
+    applicationUniqueSlug: string,
+    pageSlug: string,
+  ) {
+    const urlPattern = baseURLRegistry[URL_TYPE.STATIC][APP_MODE.PUBLISHED];
+
+    const formattedParams = {
+      staticApplicationSlug: applicationUniqueSlug,
+      staticPageSlug: pageSlug,
+      baseApplicationId: this.appParams.baseApplicationId,
+      basePageId: PLACEHOLDER_PAGE_SLUG,
+    };
 
     return generatePath(urlPattern, formattedParams).toLowerCase();
   }

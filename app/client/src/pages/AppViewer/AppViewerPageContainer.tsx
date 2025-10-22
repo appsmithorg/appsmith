@@ -1,15 +1,17 @@
 import React, { useMemo } from "react";
-import type { RouteComponentProps } from "react-router-dom";
 import { Link, withRouter } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import type { AppViewerRouteParams } from "constants/routes";
 import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
-import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getCurrentPageName,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
@@ -26,15 +28,13 @@ const Section = styled.section`
   overflow-y: auto;
 `;
 
-type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
-
-function AppViewerPageContainer(props: AppViewerPageContainerProps) {
+function AppViewerPageContainer() {
   const currentPageName = useSelector(getCurrentPageName);
+  const currentPageId = useSelector(getCurrentPageId);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
-  const { match } = props;
 
   // get appsmith editr link
   const appsmithEditorLink = useMemo(() => {
@@ -50,7 +50,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              basePageId: props.match.params.basePageId as string,
+              basePageId: currentPageId,
             })}
           >
             Appsmith Editor
@@ -58,7 +58,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
         </p>
       );
     }
-  }, [currentApplication?.userPermissions]);
+  }, [currentApplication?.userPermissions, currentPageId]);
 
   const pageNotFound = (
     <Centered>
@@ -91,7 +91,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     <Section>
       <AppPage
         appName={currentApplication?.name}
-        basePageId={match.params.basePageId}
+        basePageId={currentPageId}
         canvasWidth={canvasWidth}
         pageName={currentPageName}
         widgetsStructure={widgetsStructure}

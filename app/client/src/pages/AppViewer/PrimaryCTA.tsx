@@ -7,6 +7,7 @@ import {
   getCurrentBasePageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { useViewerUrlGeneration } from "./Navigation/hooks/useStaticUrlGeneration";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
   createMessage,
@@ -17,9 +18,7 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { viewerURL } from "ee/RouteBuilder";
 import { useHistory, useLocation } from "react-router";
-import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { Icon, Tooltip } from "@appsmith/ads";
 import { getApplicationNameTextColor } from "./utils";
@@ -112,13 +111,8 @@ function PrimaryCTA(props: Props) {
     }
   }, [currentApplication?.forkingEnabled, currentUser?.username]);
 
-  const appViewerURL = useHref(viewerURL, {
-    basePageId: currentBasePageId,
-    params: {
-      fork: "true",
-      branch: null,
-    },
-  });
+  // Use the common static URL generation hook for viewer URLs
+  const appViewerURL = useViewerUrlGeneration(currentBasePageId);
 
   // get the fork url
   const forkURL = useMemo(() => {

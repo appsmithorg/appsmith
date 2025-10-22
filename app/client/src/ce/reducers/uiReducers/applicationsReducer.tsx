@@ -45,6 +45,11 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
+  isPersistingAppSlug: false,
+  isErrorPersistingAppSlug: false,
+  isValidatingAppSlug: false,
+  isApplicationSlugValid: true,
+  isTogglingStaticUrl: false,
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
@@ -744,6 +749,80 @@ export const handlers = {
       isSavingNavigationSetting: false,
     };
   },
+  [ReduxActionTypes.PERSIST_APP_SLUG]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+      isErrorPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+      isErrorPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+      isErrorPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isValidatingAppSlug: true,
+      isApplicationSlugValid: true, // Reset to valid while validating
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: action.payload.isValid,
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG_ERROR]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: action.payload.isValid,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_STATIC_URL]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isTogglingStaticUrl: true,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_STATIC_URL_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isTogglingStaticUrl: false,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_STATIC_URL_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isTogglingStaticUrl: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -775,6 +854,11 @@ export interface ApplicationsReduxState {
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
+  isPersistingAppSlug: boolean;
+  isErrorPersistingAppSlug: boolean;
+  isValidatingAppSlug: boolean;
+  isApplicationSlugValid: boolean;
+  isTogglingStaticUrl: boolean;
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;

@@ -14,6 +14,7 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
   CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
@@ -27,6 +28,7 @@ import {
   VIEWER_PATCH_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
+  VIEWER_PATH_STATIC,
   WORKSPACE_URL,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
@@ -135,6 +137,9 @@ export function Routes() {
       {/*
        * End Note: When making changes to the order of the paths above
        */}
+      {/* Static URL routes that accept any page slug - must be after more specific routes */}
+      <SentryRoute component={AppIDE} path={BUILDER_PATH_STATIC} />
+      <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_STATIC} />
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
       <SentryRoute component={PageNotFound} />
