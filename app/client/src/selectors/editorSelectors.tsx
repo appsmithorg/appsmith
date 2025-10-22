@@ -250,6 +250,9 @@ export const selectApplicationVersion = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.applicationVersion ||
   ApplicationVersion.DEFAULT;
 
+export const getIsStaticUrlEnabled = (state: DefaultRootState) =>
+  !!state.ui.applications.currentApplication?.uniqueSlug;
+
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {
     const page = pages.find((page) => page.pageId === pageId);

@@ -39,6 +39,7 @@ import {
   getIsValidatingPageSlug,
   getIsPageSlugValid,
   getPageList,
+  getIsStaticUrlEnabled,
 } from "selectors/editorSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getUpdatingEntity } from "selectors/explorerSelector";
@@ -48,7 +49,6 @@ import UrlPreview from "./UrlPreview";
 import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../utils";
 import type { DefaultRootState } from "react-redux";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { getIsStaticUrlEnabled } from "ee/selectors/entitiesSelector";
 import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

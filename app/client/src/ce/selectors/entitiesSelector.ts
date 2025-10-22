@@ -1129,9 +1129,6 @@ export const getExistingJSCollectionNames = createSelector(
 
 export const getAppMode = (state: DefaultRootState) => state.entities.app.mode;
 
-export const getIsStaticUrlEnabled = (state: DefaultRootState) =>
-  !!state.ui.applications.currentApplication?.uniqueSlug;
-
 export const widgetsMapWithParentModalId = (state: DefaultRootState) => {
   const appMode = getAppMode(state);
 
