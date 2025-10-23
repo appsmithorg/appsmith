@@ -142,7 +142,7 @@ const Header = () => {
   );
 
   const deployLink = useHref(viewerURL, {
-    basePageId: currentPage?.basePageId,
+    basePageId: currentPage?.basePageId || null,
   });
 
   const updateApplicationDispatch = (
