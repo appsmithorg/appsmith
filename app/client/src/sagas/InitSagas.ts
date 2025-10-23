@@ -534,7 +534,7 @@ function* eagerPageInitSaga() {
         yield put(
           initEditorAction({
             basePageId,
-            applicationId: baseApplicationId,
+            baseApplicationId,
             branch,
             mode: APP_MODE.EDIT,
             shouldInitialiseUserDetails: true,
@@ -564,7 +564,7 @@ function* eagerPageInitSaga() {
       if (baseApplicationId || basePageId || isStaticPageUrl) {
         yield put(
           initAppViewerAction({
-            applicationId: baseApplicationId,
+            baseApplicationId,
             branch,
             basePageId,
             mode: APP_MODE.PUBLISHED,

@@ -173,7 +173,7 @@ class Editor extends Component<Props> {
     // to prevent re-init during connect
     if (prevBranch && isBranchUpdated && resolvedBasePageId) {
       this.props.initEditor({
-        applicationId: baseApplicationId,
+        baseApplicationId,
         basePageId: resolvedBasePageId,
         branch,
         mode: APP_MODE.EDIT,
@@ -194,7 +194,7 @@ class Editor extends Component<Props> {
           this.props.match.params.staticPageSlug
         ) {
           this.props.initEditor({
-            applicationId: baseApplicationId,
+            baseApplicationId,
             basePageId: resolvedBasePageId,
             branch,
             mode: APP_MODE.EDIT,

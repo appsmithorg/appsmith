@@ -172,7 +172,7 @@ function AppViewer(props: Props) {
     ) {
       dispatch(
         initAppViewerAction({
-          applicationId: baseApplicationId,
+          baseApplicationId,
           branch,
           basePageId: resolvedBasePageId || "",
           mode: APP_MODE.PUBLISHED,

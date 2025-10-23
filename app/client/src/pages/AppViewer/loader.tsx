@@ -65,7 +65,7 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
     // onMount initPage
     if (baseApplicationId || basePageId) {
       initAppViewer({
-        applicationId: baseApplicationId,
+        baseApplicationId,
         branch,
         basePageId,
         mode: APP_MODE.PUBLISHED,
