@@ -9,7 +9,7 @@ import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe(
-  "Repo Limit Exceeded Error Modal",
+  "Repo Limit Exceeded Error Modal for CE/EE instances",
   {
     tags: [
       "@tag.Git",
