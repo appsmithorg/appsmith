@@ -18,9 +18,12 @@ import {
   deleteNavigationLogoSaga,
   fetchAllApplicationsOfWorkspaceSaga,
   publishAnvilApplicationSaga,
+  toggleStaticUrlSaga,
+  persistAppSlugSaga,
+  validateAppSlugSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { all, takeLatest } from "redux-saga/effects";
+import { all, debounce, takeLatest } from "redux-saga/effects";
 
 export default function* applicationSagas() {
   yield all([
@@ -72,5 +75,8 @@ export default function* applicationSagas() {
       ReduxActionTypes.PUBLISH_ANVIL_APPLICATION_INIT,
       publishAnvilApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.PERSIST_APP_SLUG, persistAppSlugSaga),
+    debounce(300, ReduxActionTypes.VALIDATE_APP_SLUG, validateAppSlugSaga),
+    takeLatest(ReduxActionTypes.TOGGLE_STATIC_URL, toggleStaticUrlSaga),
   ]);
 }

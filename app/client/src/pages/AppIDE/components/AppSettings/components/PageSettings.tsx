@@ -74,7 +74,11 @@ function PageSettings(props: { page: Page }) {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const isStaticUrlEnabled = useSelector(getIsStaticUrlEnabled);
+  const isStaticUrlFeatureFlagEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_static_url_enabled,
+  );
+  const isStaticUrlEnabled =
+    useSelector(getIsStaticUrlEnabled) && isStaticUrlFeatureFlagEnabled;
 
   const [canManagePages, setCanManagePages] = useState(
     getHasManagePagePermission(isFeatureEnabled, page?.userPermissions || []),

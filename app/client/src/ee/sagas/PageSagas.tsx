@@ -22,6 +22,8 @@ import {
   setupPageSaga,
   setupPublishedPageSaga,
   fetchPublishedPageResourcesSaga,
+  validatePageSlugSaga,
+  persistPageSlugSaga,
 } from "ce/sagas/PageSagas";
 import {
   all,
@@ -77,5 +79,7 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
       fetchPublishedPageResourcesSaga,
     ),
+    takeLatest(ReduxActionTypes.PERSIST_PAGE_SLUG, persistPageSlugSaga),
+    debounce(300, ReduxActionTypes.VALIDATE_PAGE_SLUG, validatePageSlugSaga),
   ]);
 }

@@ -37,6 +37,8 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
 import UrlPreview from "./UrlPreview";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -84,6 +86,9 @@ function GeneralSettings() {
   const [isStaticUrlToggleEnabled, setIsStaticUrlToggleEnabled] =
     useState(!!applicationSlug);
   const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
+  const isStaticUrlFeatureEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_static_url_enabled,
+  );
   const isTogglingStaticUrl = useSelector(getIsTogglingStaticUrl);
 
   useEffect(
@@ -231,19 +236,21 @@ function GeneralSettings() {
         />
       </IconSelectorWrapper>
 
-      <div className="flex content-center justify-between pt-2">
-        {isTogglingStaticUrl && <TextLoaderIcon />}
-        <Switch
-          className="mb-0"
-          id="t--general-settings-static-url"
-          isSelected={isStaticUrlToggleEnabled}
-          onChange={handleStaticUrlToggle}
-        >
-          <Text kind="action-m">Static URL</Text>
-        </Switch>
-      </div>
+      {isStaticUrlFeatureEnabled && (
+        <div className="flex content-center justify-between pt-2">
+          {isTogglingStaticUrl && <TextLoaderIcon />}
+          <Switch
+            className="mb-0"
+            id="t--general-settings-static-url"
+            isSelected={isStaticUrlToggleEnabled}
+            onChange={handleStaticUrlToggle}
+          >
+            <Text kind="action-m">Static URL</Text>
+          </Switch>
+        </div>
+      )}
 
-      {isStaticUrlToggleEnabled && (
+      {isStaticUrlFeatureEnabled && isStaticUrlToggleEnabled && (
         <div
           className={classNames({
             "pt-4 pb-2 relative": true,
