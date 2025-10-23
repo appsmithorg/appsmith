@@ -76,7 +76,7 @@ export default function* applicationSagas() {
       publishAnvilApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.PERSIST_APP_SLUG, persistAppSlugSaga),
-    debounce(300, ReduxActionTypes.VALIDATE_APP_SLUG, validateAppSlugSaga),
+    debounce(500, ReduxActionTypes.VALIDATE_APP_SLUG, validateAppSlugSaga),
     takeLatest(ReduxActionTypes.TOGGLE_STATIC_URL, toggleStaticUrlSaga),
   ]);
 }

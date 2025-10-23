@@ -80,6 +80,6 @@ export default function* pageSagas() {
       fetchPublishedPageResourcesSaga,
     ),
     takeLatest(ReduxActionTypes.PERSIST_PAGE_SLUG, persistPageSlugSaga),
-    debounce(300, ReduxActionTypes.VALIDATE_PAGE_SLUG, validatePageSlugSaga),
+    debounce(500, ReduxActionTypes.VALIDATE_PAGE_SLUG, validatePageSlugSaga),
   ]);
 }
