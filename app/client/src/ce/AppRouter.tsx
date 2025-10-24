@@ -180,7 +180,6 @@ export default function AppRouter() {
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
-        <RouteChangeListener />
         {safeCrash && safeCrashCode ? (
           <>
             <ErrorPageHeader />
@@ -188,6 +187,7 @@ export default function AppRouter() {
           </>
         ) : (
           <>
+            <RouteChangeListener />
             <Walkthrough>
               <AppHeader />
               <Routes />

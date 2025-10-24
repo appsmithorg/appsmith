@@ -2,8 +2,11 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { type ReduxAction } from "actions/ReduxActionTypes";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
-import { getInitResponses } from "sagas/InitSagas";
-import { startAppEngine } from "sagas/InitSagas";
+import {
+  getInitResponses,
+  startAppEngine,
+  executeActionDuringUserDetailsInitialisation,
+} from "sagas/InitSagas";
 import type { AppEnginePayload } from "entities/Engine";
 import { testSaga } from "redux-saga-test-plan";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -70,6 +73,12 @@ describe("tests the sagas in initSagas", () => {
         toLoadPageId: pageId,
         toLoadBasePageId: basePageId,
       })
+      .call(
+        executeActionDuringUserDetailsInitialisation,
+        ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+        action.payload.shouldInitialiseUserDetails,
+      )
+      .next()
       .call(engine.loadAppURL, {
         basePageId: action.payload.basePageId,
         basePageIdInUrl: action.payload.basePageId,
@@ -89,6 +98,12 @@ describe("tests the sagas in initSagas", () => {
       .call(engine.completeChore, mockRootSpan)
       .next()
       .put(generateAutoHeightLayoutTreeAction(true, false))
+      .next()
+      .call(
+        executeActionDuringUserDetailsInitialisation,
+        ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+        action.payload.shouldInitialiseUserDetails,
+      )
       .next()
       .isDone();
   });

@@ -210,7 +210,7 @@ export function* reportSWStatus() {
   }
 }
 
-function* executeActionDuringUserDetailsInitialisation(
+export function* executeActionDuringUserDetailsInitialisation(
   actionType: string,
   shouldInitialiseUserDetails?: boolean,
 ) {
@@ -336,12 +336,6 @@ export function* getInitResponses({
 
   yield put(fetchProductAlertInit(productAlert));
 
-  yield call(
-    executeActionDuringUserDetailsInitialisation,
-    ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-    shouldInitialiseUserDetails,
-  );
-
   return rest;
 }
 
@@ -386,6 +380,12 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       rootSpan,
     );
 
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      action.payload.shouldInitialiseUserDetails,
+    );
+
     if (!isStaticPageUrl) {
       // Defer the load actions until after page states are stabilized
       yield call(engine.loadAppURL, {
@@ -413,6 +413,12 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     appsmithTelemetry.captureException(e, { errorName: "AppEngineError" });
     yield put(safeCrashAppRequest());
   } finally {
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      action.payload.shouldInitialiseUserDetails,
+    );
+
     endSpan(rootSpan);
   }
 }
