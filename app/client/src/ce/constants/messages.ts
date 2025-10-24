@@ -1923,7 +1923,7 @@ export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
   "Generating app slug";
 export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
-  "App URL can only contain lowercase letters, numbers, and hyphens";
+  "Slug can only contain lowercase letters, numbers, and hyphens.";
 export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
   "Changing this application slug will affect both edit and deployed versions of the app.";
 export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
