@@ -5,6 +5,7 @@ import {
   fetchAppSlugSuggestion,
   enableStaticUrl,
   disableStaticUrl,
+  resetAppSlugValidation,
 } from "ee/actions/applicationActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
@@ -171,6 +172,7 @@ function GeneralSettings() {
   const cancelSlugChange = useCallback(() => {
     setApplicationSlug(application?.uniqueSlug || "");
     setIsClientSideSlugValid(true);
+    dispatch(resetAppSlugValidation());
 
     // Reset toggle to false if uniqueSlug is empty or not available
     if (!application?.uniqueSlug) {
@@ -473,6 +475,7 @@ function GeneralSettings() {
           <Flex className="mt-2" gap="spaces-2" justifyContent="end">
             <Button
               data-testid="t--static-url-confirmation-cancel"
+              isDisabled={!hasSlugChanged}
               kind="tertiary"
               onClick={cancelSlugChange}
               size="sm"

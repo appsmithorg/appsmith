@@ -337,3 +337,9 @@ export const disableStaticUrl = (onSuccess?: () => void) => {
     },
   };
 };
+
+export const resetAppSlugValidation = () => {
+  return {
+    type: ReduxActionTypes.RESET_APP_SLUG_VALIDATION,
+  };
+};

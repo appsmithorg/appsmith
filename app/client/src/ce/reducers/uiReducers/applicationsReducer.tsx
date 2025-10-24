@@ -775,6 +775,15 @@ export const handlers = {
       isErrorPersistingAppSlug: true,
     };
   },
+  [ReduxActionTypes.RESET_APP_SLUG_VALIDATION]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: true,
+    };
+  },
   [ReduxActionTypes.VALIDATE_APP_SLUG]: (state: ApplicationsReduxState) => {
     return {
       ...state,
