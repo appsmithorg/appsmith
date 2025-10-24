@@ -255,16 +255,27 @@ function GeneralSettings() {
   const handleStaticUrlToggle = useCallback(
     (isEnabled: boolean) => {
       if (!isEnabled && isStaticUrlToggleEnabled) {
-        // Show confirmation modal when disabling
-        setModalType("disable");
-        setIsStaticUrlConfirmationModalOpen(true);
+        if (application?.staticUrlEnabled) {
+          // Show confirmation modal when disabling
+          setModalType("disable");
+          setIsStaticUrlConfirmationModalOpen(true);
+        } else {
+          // If the user just toggled it on and immediately turned it off, disable it immediately
+          // since the slug is not persisted yet.
+          setIsStaticUrlToggleEnabled(false);
+        }
       } else if (isEnabled) {
         // Enable immediately
         setIsStaticUrlToggleEnabled(true);
         dispatch(fetchAppSlugSuggestion(applicationId));
       }
     },
-    [dispatch, applicationId, isStaticUrlToggleEnabled],
+    [
+      dispatch,
+      applicationId,
+      isStaticUrlToggleEnabled,
+      application?.staticUrlEnabled,
+    ],
   );
 
   const handleUrlCopy = useCallback(async () => {

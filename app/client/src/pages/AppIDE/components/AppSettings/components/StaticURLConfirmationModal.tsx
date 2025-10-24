@@ -39,7 +39,6 @@ const UrlSection = styled.div`
 `;
 
 const UrlLabel = styled(Text)`
-  font-weight: 600;
   margin-bottom: 8px;
   display: block;
 `;
