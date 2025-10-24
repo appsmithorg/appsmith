@@ -21,10 +21,12 @@ import {
   GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING,
   GENERAL_SETTINGS_APP_URL_PLACEHOLDER,
   createMessage,
+  STATIC_URL_CHANGE_SUCCESS,
+  STATIC_URL_DISABLED_SUCCESS,
 } from "ee/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Switch, Text, Icon, Flex, Button } from "@appsmith/ads";
+import { Input, Switch, Text, Icon, Flex, Button, toast } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
 import React, { useCallback, useMemo, useState } from "react";
 import { useEffect } from "react";
@@ -150,6 +152,9 @@ function GeneralSettings() {
   const confirmStaticUrlChange = useCallback(() => {
     const onSuccess = () => {
       setIsStaticUrlConfirmationModalOpen(false);
+      toast.show(createMessage(STATIC_URL_CHANGE_SUCCESS), {
+        kind: "success",
+      });
     };
 
     if (applicationSlug && applicationSlug !== application?.uniqueSlug) {
@@ -270,6 +275,9 @@ function GeneralSettings() {
     const onSuccess = () => {
       setIsStaticUrlToggleEnabled(false);
       setIsStaticUrlConfirmationModalOpen(false);
+      toast.show(createMessage(STATIC_URL_DISABLED_SUCCESS), {
+        kind: "success",
+      });
     };
 
     dispatch(disableStaticUrl(onSuccess));
