@@ -69,6 +69,30 @@ function StaticURLConfirmationModal({
   onClose,
   onConfirm,
 }: StaticURLConfirmationModalProps) {
+  // Helper to render slug with app slug in bold
+  const renderSlugWithFormatting = (slug?: string) => {
+    if (!slug) return null;
+
+    // Check if slug contains a slash (legacy format: app-slug/page-slug-id)
+    const slashIndex = slug.indexOf("/");
+
+    if (slashIndex > 0) {
+      // Legacy format: bold the app slug, normal for page slug
+      const appSlug = slug.substring(0, slashIndex);
+      const pageSlug = slug.substring(slashIndex);
+
+      return (
+        <>
+          <UrlHighlight>{appSlug}</UrlHighlight>
+          {pageSlug}
+        </>
+      );
+    } else {
+      // Static URL format: just the app slug in bold
+      return <UrlHighlight>{slug}</UrlHighlight>;
+    }
+  };
+
   return (
     <Modal onOpenChange={onClose} open={isOpen}>
       <StyledModalContent data-testid="t--static-url-confirmation-modal">
@@ -89,7 +113,7 @@ function StaticURLConfirmationModal({
             <UrlLabel kind="body-m">From</UrlLabel>
             <UrlPreview>
               {baseUrl}
-              {oldSlug && <UrlHighlight>{oldSlug}</UrlHighlight>}
+              {renderSlugWithFormatting(oldSlug)}
             </UrlPreview>
           </UrlSection>
 
@@ -97,7 +121,7 @@ function StaticURLConfirmationModal({
             <UrlLabel kind="body-m">To</UrlLabel>
             <UrlPreview>
               {baseUrl}
-              {newSlug && <UrlHighlight>{newSlug}</UrlHighlight>}
+              {renderSlugWithFormatting(newSlug)}
             </UrlPreview>
           </UrlSection>
 

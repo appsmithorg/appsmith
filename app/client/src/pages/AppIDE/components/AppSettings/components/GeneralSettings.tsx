@@ -241,7 +241,50 @@ function GeneralSettings() {
 
   const shouldShowUrl = applicationSlug && applicationSlug.trim().length > 0;
   const appUrl = `${window.location.origin}/app/${applicationSlug}`;
-  const toUrlForDisable = application?.slug || "";
+
+  // Get default page for constructing legacy URLs
+  const defaultPage = application?.pages?.find((page) => page.isDefault);
+  const defaultPageSlug = defaultPage?.slug || "page";
+  const defaultPageId = defaultPage?.id || "";
+
+  // Compute modal slugs based on the scenario
+  const modalOldSlug = useMemo(() => {
+    if (modalType === "disable") {
+      // Disabling: show current static URL with default page
+      return `${application?.uniqueSlug || ""}/${defaultPageSlug}`;
+    } else {
+      // Enabling for first time or changing: show legacy format if not enabled yet
+      if (!application?.staticUrlEnabled) {
+        return `${application?.slug || ""}/${defaultPageSlug}-${defaultPageId}`;
+      }
+
+      // Changing existing static URL: show current static URL with default page
+      return `${application?.uniqueSlug || ""}/${defaultPageSlug}`;
+    }
+  }, [
+    modalType,
+    application?.uniqueSlug,
+    application?.slug,
+    application?.staticUrlEnabled,
+    defaultPageSlug,
+    defaultPageId,
+  ]);
+
+  const modalNewSlug = useMemo(() => {
+    if (modalType === "disable") {
+      // Disabling: show legacy format with page ID
+      return `${application?.slug || ""}/${defaultPageSlug}-${defaultPageId}`;
+    } else {
+      // Enabling or changing: show new static URL with default page
+      return `${applicationSlug || ""}/${defaultPageSlug}`;
+    }
+  }, [
+    modalType,
+    applicationSlug,
+    application?.slug,
+    defaultPageSlug,
+    defaultPageId,
+  ]);
 
   const AppUrlContent = () => (
     <>
@@ -525,10 +568,8 @@ function GeneralSettings() {
         isDisabling={modalType === "disable"}
         isOpen={isStaticUrlConfirmationModalOpen}
         isSaving={isAppSlugSaving}
-        newSlug={
-          modalType === "disable" ? toUrlForDisable : applicationSlug || ""
-        }
-        oldSlug={application?.uniqueSlug || application?.slug || ""}
+        newSlug={modalNewSlug}
+        oldSlug={modalOldSlug}
         onClose={closeStaticUrlConfirmationModal}
         onConfirm={
           modalType === "disable"
