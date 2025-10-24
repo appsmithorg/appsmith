@@ -211,5 +211,8 @@ export const getAppThemeSettings = (state: DefaultRootState) => {
   );
 };
 
-export const getIsTogglingStaticUrl = (state: DefaultRootState) =>
-  state.ui.applications.isTogglingStaticUrl;
+export const getIsFetchingAppSlugSuggestion = (state: DefaultRootState) =>
+  state.ui.applications.isFetchingAppSlugSuggestion;
+
+export const getAppSlugSuggestion = (state: DefaultRootState) =>
+  state.ui.applications.appSlugSuggestion;

@@ -404,7 +404,7 @@ function PageSettings(props: { page: Page }) {
         <div
           className={classNames({
             "py-1 relative": true,
-            "pb-4": !staticPageSlugError,
+            "pb-2": !staticPageSlugError,
           })}
         >
           {isStaticPageSlugSaving && <TextLoaderIcon />}
@@ -413,7 +413,7 @@ function PageSettings(props: { page: Page }) {
             errorMessage={staticPageSlugError}
             id="t--page-settings-static-page-slug"
             isDisabled={!canManagePages}
-            label="Static Page Slug"
+            label="Page slug"
             onBlur={saveStaticPageSlug}
             onChange={(value: string) => onStaticPageSlugChange(value)}
             onKeyPress={(ev: React.KeyboardEvent) => {
@@ -421,7 +421,7 @@ function PageSettings(props: { page: Page }) {
                 saveStaticPageSlug();
               }
             }}
-            placeholder="Static page slug"
+            placeholder="Page slug"
             size="md"
             type="text"
             value={staticPageSlug}
@@ -509,14 +509,16 @@ function PageSettings(props: { page: Page }) {
             {!Array.isArray(pathPreview.splitRelativePath) &&
               pathPreview.splitRelativePath}
           </UrlPreview>
-          <div className="mt-1 mb-1">
-            <Text
-              kind="body-s"
-              style={{ color: "var(--ads-v2-color-fg-warning)" }}
-            >
-              {PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE()}
-            </Text>
-          </div>
+          {isStaticUrlEnabled && (
+            <div className="mt-1 mb-1">
+              <Text
+                kind="body-s"
+                style={{ color: "var(--ads-v2-color-fg-warning)" }}
+              >
+                {PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE()}
+              </Text>
+            </div>
+          )}
         </>
       )}
 

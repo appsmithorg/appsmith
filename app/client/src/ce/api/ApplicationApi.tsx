@@ -524,7 +524,6 @@ export class ApplicationApi extends Api {
     request: {
       branchedApplicationId: string;
       uniqueApplicationSlug: string;
-      staticUrlEnabled: boolean;
     },
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.patch(
@@ -542,9 +541,9 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static async toggleStaticUrl(
+  static async enableStaticUrl(
     applicationId: string,
-    request: { staticUrlEnabled: boolean },
+    request: { uniqueApplicationSlug: string },
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(
       `${ApplicationApi.baseURL}/${applicationId}/static-url`,
@@ -552,10 +551,18 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static async deleteStaticUrl(
+  static async disableStaticUrl(
     applicationId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(`${ApplicationApi.baseURL}/${applicationId}/static-url`);
+  }
+
+  static async fetchAppSlugSuggestion(
+    applicationId: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/${applicationId}/static-url/suggest-app-slug`,
+    );
   }
 }
 

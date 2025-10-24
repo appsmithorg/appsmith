@@ -1916,9 +1916,12 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
-export const GENERAL_SETTINGS_APP_URL_LABEL = () => "Application URL";
+export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
 export const GENERAL_SETTINGS_APP_URL_EMPTY_MESSAGE = () =>
   "App URL cannot be empty";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
+  "Generating app slug";
 export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
   "App URL can only contain lowercase letters, numbers, and hyphens";
 export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
@@ -1927,9 +1930,19 @@ export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
   "Check availability...";
 export const GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE = () => "Available";
 export const GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE = () =>
-  "Unavailable, please enter a unique value";
+  "There is already an app with this slug.";
 export const GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE = () =>
   "Enter a value";
+export const ERROR_IN_DISABLING_STATIC_URL = () =>
+  "Error in disabling static URL. Please try again.";
+export const STATIC_URL_DISABLED_SUCCESS = () =>
+  "Static URL disabled. The app has reverted to default Appsmith URLs.";
+export const STATIC_URL_CHANGE_SUCCESS = () =>
+  "App slug updated. All pages now use the new base URL.";
+export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
+  "Error in fetching app slug suggestion. Please try again.";
+export const ERROR_IN_ENABLING_STATIC_URL = () =>
+  "Error in enabling static URL. Please try again.";
 
 export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
   "Check availability...";

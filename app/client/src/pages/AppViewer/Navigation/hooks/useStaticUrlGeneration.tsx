@@ -21,7 +21,7 @@ export const useStaticUrlGeneration = (basePageId: string, mode?: APP_MODE) => {
   const pages = useSelector(getPageList);
 
   // Check if static URLs are enabled for this application
-  const isStaticUrlEnabled = !!currentApplication?.uniqueSlug;
+  const isStaticUrlEnabled = currentApplication?.staticUrlEnabled;
 
   // Find the target page to get its uniqueSlug if static URLs are enabled
   const targetPage = pages.find((page) => page.basePageId === basePageId);

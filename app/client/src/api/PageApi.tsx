@@ -304,7 +304,6 @@ class PageApi extends Api {
   static async persistPageSlug(request: {
     branchedPageId: string;
     uniquePageSlug: string;
-    staticUrlEnabled: boolean;
   }): Promise<AxiosPromise<ApiResponse>> {
     return Api.patch(`${PageApi.url}/static-url`, request);
   }

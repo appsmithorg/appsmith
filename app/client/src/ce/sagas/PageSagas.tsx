@@ -1569,7 +1569,6 @@ export function* persistPageSlugSaga(
     const request = {
       branchedPageId: action.payload.pageId,
       uniquePageSlug: action.payload.slug,
-      staticUrlEnabled: true,
     };
 
     const response: ApiResponse = yield call(PageApi.persistPageSlug, request);

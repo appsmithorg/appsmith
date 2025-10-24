@@ -49,7 +49,8 @@ export const initialState: ApplicationsReduxState = {
   isErrorPersistingAppSlug: false,
   isValidatingAppSlug: false,
   isApplicationSlugValid: true,
-  isTogglingStaticUrl: false,
+  isFetchingAppSlugSuggestion: false,
+  appSlugSuggestion: "",
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
@@ -801,26 +802,98 @@ export const handlers = {
       isApplicationSlugValid: action.payload.isValid,
     };
   },
-  [ReduxActionTypes.TOGGLE_STATIC_URL]: (state: ApplicationsReduxState) => {
-    return {
-      ...state,
-      isTogglingStaticUrl: true,
-    };
-  },
-  [ReduxActionTypes.TOGGLE_STATIC_URL_SUCCESS]: (
+  [ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION]: (
     state: ApplicationsReduxState,
   ) => {
     return {
       ...state,
-      isTogglingStaticUrl: false,
+      isFetchingAppSlugSuggestion: true,
+      appSlugSuggestion: "",
     };
   },
-  [ReduxActionTypes.TOGGLE_STATIC_URL_ERROR]: (
+  [ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ uniqueApplicationSlug: string }>,
+  ) => {
+    return {
+      ...state,
+      isFetchingAppSlugSuggestion: false,
+      appSlugSuggestion: action.payload.uniqueApplicationSlug,
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_APP_SLUG_SUGGESTION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
     return {
       ...state,
-      isTogglingStaticUrl: false,
+      isFetchingAppSlugSuggestion: false,
+      appSlugSuggestion: "",
+    };
+  },
+  [ReduxActionTypes.ENABLE_STATIC_URL]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.ENABLE_STATIC_URL_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionErrorTypes.ENABLE_STATIC_URL_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.DISABLE_STATIC_URL]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.DISABLE_STATIC_URL_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionErrorTypes.DISABLE_STATIC_URL_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
     };
   },
 };
@@ -858,7 +931,8 @@ export interface ApplicationsReduxState {
   isErrorPersistingAppSlug: boolean;
   isValidatingAppSlug: boolean;
   isApplicationSlugValid: boolean;
-  isTogglingStaticUrl: boolean;
+  isFetchingAppSlugSuggestion: boolean;
+  appSlugSuggestion: string;
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;

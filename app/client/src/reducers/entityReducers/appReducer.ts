@@ -35,7 +35,6 @@ export interface AppDataState {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workflows: Record<string, any>;
-  isStaticUrlEnabled: boolean;
   pageSlug: Record<string, { isPersisting: boolean; isError: boolean }>;
   pageSlugValidation: { isValidating: boolean; isValid: boolean };
 }
@@ -62,7 +61,6 @@ const initialState: AppDataState = {
     currentPosition: {},
   },
   workflows: {},
-  isStaticUrlEnabled: false,
   pageSlug: {},
   pageSlugValidation: { isValidating: false, isValid: true },
 };
@@ -114,15 +112,6 @@ const appReducer = createReducer(initialState, {
         ...state.geolocation,
         currentPosition: action.payload.position,
       },
-    };
-  },
-  [ReduxActionTypes.TOGGLE_STATIC_URL]: (
-    state: AppDataState,
-    action: ReduxAction<{ isEnabled: boolean; applicationId?: string }>,
-  ): AppDataState => {
-    return {
-      ...state,
-      isStaticUrlEnabled: action.payload.isEnabled,
     };
   },
   [ReduxActionTypes.PERSIST_PAGE_SLUG]: (

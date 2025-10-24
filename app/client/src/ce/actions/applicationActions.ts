@@ -79,11 +79,12 @@ export const updateApplication = (
   };
 };
 
-export const persistAppSlug = (slug: string) => {
+export const persistAppSlug = (slug: string, onSuccess?: () => void) => {
   return {
     type: ReduxActionTypes.PERSIST_APP_SLUG,
     payload: {
       slug,
+      onSuccess,
     },
   };
 };
@@ -97,11 +98,10 @@ export const validateAppSlug = (slug: string) => {
   };
 };
 
-export const toggleStaticUrl = (isEnabled: boolean, applicationId?: string) => {
+export const fetchAppSlugSuggestion = (applicationId: string) => {
   return {
-    type: ReduxActionTypes.TOGGLE_STATIC_URL,
+    type: ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION,
     payload: {
-      isEnabled,
       applicationId,
     },
   };
@@ -317,4 +317,23 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
 
 export const fetchAllPackages = () => {
   return {};
+};
+
+export const enableStaticUrl = (slug: string, onSuccess?: () => void) => {
+  return {
+    type: ReduxActionTypes.ENABLE_STATIC_URL,
+    payload: {
+      slug,
+      onSuccess,
+    },
+  };
+};
+
+export const disableStaticUrl = (onSuccess?: () => void) => {
+  return {
+    type: ReduxActionTypes.DISABLE_STATIC_URL,
+    payload: {
+      onSuccess,
+    },
+  };
 };
