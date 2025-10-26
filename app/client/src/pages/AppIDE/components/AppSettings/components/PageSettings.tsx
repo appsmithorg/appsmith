@@ -22,7 +22,6 @@ import {
   PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE,
   PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE,
   PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE,
-  PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE,
   PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE,
 } from "ee/constants/messages";
 import type { Page } from "entities/Page";
@@ -479,47 +478,35 @@ function PageSettings(props: { page: Page }) {
       )}
 
       {!appNeedsUpdate && (
-        <>
-          <UrlPreview
-            className="mb-2"
-            onCopy={async () => {
-              navigator.clipboard.writeText(
-                location.protocol +
-                  "//" +
-                  window.location.hostname +
-                  pathPreview.relativePath,
-              );
-            }}
-          >
-            {location.protocol}
-            {"//"}
-            {window.location.hostname}
-            {Array.isArray(pathPreview.splitRelativePath) && (
-              <>
-                {pathPreview.splitRelativePath[0]}
-                <strong
-                  className={`text-[color:var(--appsmith-color-black-800))]`}
-                >
-                  {pathPreview.splitRelativePath[1]}
-                </strong>
-                {pathPreview.splitRelativePath[2]}
-                {pathPreview.splitRelativePath[3]}
-              </>
-            )}
-            {!Array.isArray(pathPreview.splitRelativePath) &&
-              pathPreview.splitRelativePath}
-          </UrlPreview>
-          {isStaticUrlEnabled && (
-            <div className="mt-1 mb-1">
-              <Text
-                kind="body-s"
-                style={{ color: "var(--ads-v2-color-fg-warning)" }}
+        <UrlPreview
+          className="mb-2"
+          onCopy={async () => {
+            navigator.clipboard.writeText(
+              location.protocol +
+                "//" +
+                window.location.hostname +
+                pathPreview.relativePath,
+            );
+          }}
+        >
+          {location.protocol}
+          {"//"}
+          {window.location.hostname}
+          {Array.isArray(pathPreview.splitRelativePath) && (
+            <>
+              {pathPreview.splitRelativePath[0]}
+              <strong
+                className={`text-[color:var(--appsmith-color-black-800))]`}
               >
-                {PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE()}
-              </Text>
-            </div>
+                {pathPreview.splitRelativePath[1]}
+              </strong>
+              {pathPreview.splitRelativePath[2]}
+              {pathPreview.splitRelativePath[3]}
+            </>
           )}
-        </>
+          {!Array.isArray(pathPreview.splitRelativePath) &&
+            pathPreview.splitRelativePath}
+        </UrlPreview>
       )}
 
       <div className="flex content-center justify-between pb-2">

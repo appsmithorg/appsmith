@@ -89,6 +89,7 @@ export interface UpdatePageRequest {
   name?: string;
   isHidden?: boolean;
   customSlug?: string;
+  uniqueSlug?: string;
 }
 
 export interface UpdatePageResponse {
@@ -97,6 +98,7 @@ export interface UpdatePageResponse {
   name: string;
   slug: string;
   customSlug?: string;
+  uniqueSlug?: string;
   applicationId: string;
   layouts: Array<PageLayout>;
   isHidden: boolean;

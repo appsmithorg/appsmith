@@ -61,12 +61,14 @@ export interface ApplicationURLParams {
   baseApplicationId?: string;
   applicationSlug?: string;
   applicationVersion?: ApplicationVersion;
+  staticApplicationSlug?: string;
 }
 
 export interface PageURLParams {
   basePageId: string;
   pageSlug: string;
   customSlug?: string;
+  staticPageSlug?: string;
 }
 
 export function getQueryStringfromObject(
@@ -152,38 +154,55 @@ export class URLBuilder {
     return URLBuilder._instance;
   }
 
-  private getURLType(
-    applicationVersion: ApplicationURLParams["applicationVersion"],
-    customSlug?: string,
-  ) {
+  private getURLType(options: {
+    applicationVersion?: ApplicationURLParams["applicationVersion"];
+    customSlug?: string;
+    hasStaticSlug?: boolean;
+  }) {
     if (
-      typeof applicationVersion !== "undefined" &&
-      applicationVersion < ApplicationVersion.SLUG_URL
+      typeof options.applicationVersion !== "undefined" &&
+      options.applicationVersion < ApplicationVersion.SLUG_URL
     )
       return URL_TYPE.DEFAULT;
 
-    if (customSlug) return URL_TYPE.CUSTOM_SLUG;
+    if (options.hasStaticSlug) return URL_TYPE.STATIC;
+
+    if (options.customSlug) return URL_TYPE.CUSTOM_SLUG;
 
     return URL_TYPE.SLUG;
   }
 
-  private getFormattedParams(basePageId: string) {
+  private getFormattedParams(basePageId: string, mode: APP_MODE) {
+    const staticApplicationSlug = this.appParams.staticApplicationSlug;
+    const currentPageParams = this.pageParams[basePageId] || {};
+
+    // Static slugs are only computed for published/viewer mode
+    // If staticApplicationSlug is present and mode is PUBLISHED, use staticPageSlug (or fallback to pageSlug)
+    // Otherwise, use the regular pageSlug for non-static URLs
+    const staticPageSlug =
+      mode === APP_MODE.PUBLISHED && staticApplicationSlug
+        ? currentPageParams.staticPageSlug ||
+          currentPageParams.pageSlug ||
+          PLACEHOLDER_PAGE_SLUG
+        : currentPageParams.pageSlug || PLACEHOLDER_PAGE_SLUG;
+
     const currentAppParams = {
       applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
       baseApplicationId: this.appParams.baseApplicationId,
+      staticApplicationSlug: staticApplicationSlug || PLACEHOLDER_APP_SLUG,
     };
-    let currentPageParams = this.pageParams[basePageId] || {};
 
-    currentPageParams = {
+    const formattedPageParams = {
       ...currentPageParams,
       pageSlug: `${currentPageParams.pageSlug || PLACEHOLDER_PAGE_SLUG}-`,
       customSlug: currentPageParams.customSlug
         ? `${currentPageParams.customSlug}-`
         : "",
+      staticPageSlug,
       basePageId,
     };
 
-    return { ...currentAppParams, ...currentPageParams };
+    return { ...currentAppParams, ...formattedPageParams };
   }
 
   setCurrentBasePageId(basePageId?: string | null) {
@@ -201,6 +220,8 @@ export class URLBuilder {
         appParams.applicationSlug || this.appParams.applicationSlug;
       this.appParams.applicationVersion =
         appParams.applicationVersion || this.appParams.applicationVersion;
+      this.appParams.staticApplicationSlug =
+        appParams.staticApplicationSlug || this.appParams.staticApplicationSlug;
     }
 
     if (pageParams) {
@@ -232,15 +253,22 @@ export class URLBuilder {
   }
 
   generateBasePathForApp(basePageId: string, mode: APP_MODE) {
-    const { applicationVersion } = this.appParams;
+    const { applicationVersion, staticApplicationSlug } = this.appParams;
 
     const customSlug = this.pageParams[basePageId]?.customSlug || "";
+    // Static URLs are only used in published/viewer mode
+    const hasStaticSlug =
+      mode === APP_MODE.PUBLISHED && !!staticApplicationSlug;
 
-    const urlType = this.getURLType(applicationVersion, customSlug);
+    const urlType = this.getURLType({
+      applicationVersion,
+      customSlug,
+      hasStaticSlug,
+    });
 
     const urlPattern = baseURLRegistry[urlType][mode];
 
-    const formattedParams = this.getFormattedParams(basePageId);
+    const formattedParams = this.getFormattedParams(basePageId, mode);
 
     const basePath = generatePath(urlPattern, formattedParams);
 
@@ -264,26 +292,16 @@ export class URLBuilder {
   getPagePathPreview(basePageId: string, pageName: string) {
     const { applicationVersion } = this.appParams;
 
-    const urlType = this.getURLType(applicationVersion);
+    const urlType = this.getURLType({ applicationVersion });
 
     const urlPattern = baseURLRegistry[urlType][APP_MODE.PUBLISHED];
 
-    const formattedParams = this.getFormattedParams(basePageId);
+    const formattedParams = this.getFormattedParams(
+      basePageId,
+      APP_MODE.PUBLISHED,
+    );
 
     formattedParams.pageSlug = `${pageName}-`;
-
-    return generatePath(urlPattern, formattedParams).toLowerCase();
-  }
-
-  getStaticUrlPathPreview(pageName: string) {
-    const urlPattern = baseURLRegistry[URL_TYPE.STATIC][APP_MODE.PUBLISHED];
-
-    const formattedParams = {
-      applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
-      baseApplicationId: this.appParams.baseApplicationId,
-      pageSlug: `${pageName}`,
-      basePageId: PLACEHOLDER_PAGE_SLUG,
-    };
 
     return generatePath(urlPattern, formattedParams).toLowerCase();
   }

@@ -244,6 +244,19 @@ export const pageListReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.PERSIST_PAGE_SLUG_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string; slug: string }>,
+  ) => {
+    return {
+      ...state,
+      pages: state.pages.map((page) =>
+        page.pageId === action.payload.pageId
+          ? { ...page, uniqueSlug: action.payload.slug }
+          : page,
+      ),
+    };
+  },
   [ReduxActionTypes.SET_GENERATE_PAGE_MODAL_OPEN]: (
     state: PageListReduxState,
     action: ReduxAction<GeneratePageModalParams>,

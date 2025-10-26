@@ -1949,8 +1949,6 @@ export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
 export const PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE = () => "Available";
 export const PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE = () =>
   "Unavailable, please enter a unique value";
-export const PAGE_SETTINGS_PAGE_SLUG_WARNING_MESSAGE = () =>
-  "Changing this page slug will affect both edit and deployed versions of the app.";
 export const PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE = () =>
   "This page name conflicts with an existing page slug.";
 

@@ -186,10 +186,6 @@ export function* publishApplicationSaga(
       const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentPageId: string = yield select(getCurrentPageId);
 
-      const appicationViewPageUrl = viewerURL({
-        basePageId: currentBasePageId,
-      });
-
       yield put(
         fetchApplication({
           applicationId,
@@ -197,6 +193,17 @@ export function* publishApplicationSaga(
           mode: APP_MODE.EDIT,
         }),
       );
+
+      // Wait for the fetch application success or error to ensure the application is fetched before getting the view page url
+      // This is to get the latest static url for the application
+      yield take([
+        ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ]);
+
+      const appicationViewPageUrl = viewerURL({
+        basePageId: currentBasePageId,
+      });
 
       // If the tab is opened focus and reload else open in new tab
       if (!windowReference || windowReference.closed) {
