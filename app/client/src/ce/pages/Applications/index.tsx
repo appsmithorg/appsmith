@@ -929,7 +929,7 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
-              {(!isAiAgentInstanceEnabled || !isAiAgentFlowEnabled) && (
+              {!isAiAgentInstanceEnabled && (
                 <ApplicationCardList
                   applications={nonAnvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -946,7 +946,7 @@ export function ApplicationsSection(props: any) {
                   workspaceId={activeWorkspace.id}
                 />
               )}
-              {isAiAgentFlowEnabled && isAiAgentInstanceEnabled && (
+              {isAiAgentFlowEnabled && (
                 <ApplicationCardList
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
