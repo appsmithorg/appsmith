@@ -120,9 +120,7 @@ export const WorkspaceDatasourcesPage = (
             <SentryRoute
               exact
               path="/workspace/:workspaceId/datasources/new"
-              render={() => (
-                <WorkspaceCreateNewDatasourceTab workspaceId={workspaceId} />
-              )}
+              render={() => <WorkspaceCreateNewDatasourceTab />}
             />
             {/* Edit existing datasource - use workspace-specific editor */}
             <SentryRoute
