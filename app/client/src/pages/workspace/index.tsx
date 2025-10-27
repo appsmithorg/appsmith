@@ -27,6 +27,16 @@ export function Workspace() {
           )}
           path={`${path}/:workspaceId/datasources`}
         />
+        <SentryRoute
+          component={({
+            match,
+          }: {
+            match: { params: { workspaceId: string } };
+          }) => (
+            <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
+          )}
+          path={`${path}/:workspaceId/datasource`}
+        />
         <SentryRoute component={DefaultWorkspacePage} />
       </Switch>
     </PageWrapper>

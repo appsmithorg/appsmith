@@ -203,7 +203,7 @@ export const workspaceDatasourcesURL = (workspaceId: string): string =>
 export const workspaceDatasourceEditorURL = (
   workspaceId: string,
   datasourceId: string,
-): string => `/workspace/${workspaceId}/datasources/${datasourceId}`;
+): string => `/workspace/${workspaceId}/datasource/${datasourceId}`;
 
 export const appLibrariesURL = (): string =>
   urlBuilder.build({

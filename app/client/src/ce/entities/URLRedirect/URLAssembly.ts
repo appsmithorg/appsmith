@@ -338,15 +338,15 @@ export class URLBuilder {
 
     const entityId = this.resolveEntityId(builderParams);
 
-    // Handle workspace-specific suffix modification
-    let modifiedSuffix = suffix;
+    // Handle workspace-specific URL generation
+    let basePath = this.generateBasePath(entityId, mode);
+    let suffixPath = suffix ? `/${suffix}` : "";
 
     if (this.isWorkspaceContext() && suffix?.startsWith("datasource/")) {
-      // For workspace context, remove the 'datasource/' prefix from suffix
-      modifiedSuffix = suffix.replace("datasource/", "");
+      // For workspace datasource URLs, use singular /datasource path
+      basePath = `/workspace/${entityId}/datasource`;
+      suffixPath = `/${suffix.replace("datasource/", "")}`;
     }
-
-    const basePath = this.generateBasePath(entityId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
       persistExistingParams,
@@ -361,8 +361,6 @@ export class URLBuilder {
     };
 
     const queryString = getQueryStringfromObject(modifiedQueryParams);
-
-    const suffixPath = modifiedSuffix ? `/${modifiedSuffix}` : "";
 
     const hashPath = hash ? `#${hash}` : "";
 

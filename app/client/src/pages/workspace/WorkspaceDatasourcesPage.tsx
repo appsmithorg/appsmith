@@ -119,21 +119,19 @@ export const WorkspaceDatasourcesPage = (
             {/* Create new datasource - use the exact same component */}
             <SentryRoute
               exact
-              path="/workspace/:workspaceId/datasources/new"
+              path="/workspace/:workspaceId/datasources/NEW"
               render={() => <WorkspaceCreateNewDatasourceTab />}
             />
             {/* Edit existing datasource - use workspace-specific editor */}
             <SentryRoute
               exact
-              path="/workspace/:workspaceId/datasources/:datasourceId"
+              path="/workspace/:workspaceId/datasource/:datasourceId"
               render={() => <WorkspaceDatasourceEditor />}
             />
             {/* Default list view - show "Connect a datasource" page by default */}
             <SentryRoute
               path="/workspace/:workspaceId/datasources"
-              render={() => (
-                <WorkspaceCreateNewDatasourceTab workspaceId={workspaceId} />
-              )}
+              render={() => <WorkspaceCreateNewDatasourceTab />}
             />
           </Switch>
         </MainPane>
