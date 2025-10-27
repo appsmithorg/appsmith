@@ -22,6 +22,7 @@ import {
   PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE,
   PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE,
   PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE,
+  PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE,
   PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE,
 } from "ee/constants/messages";
 import type { Page } from "entities/Page";
@@ -29,7 +30,7 @@ import classNames from "classnames";
 import { Input, Switch, Text, Icon } from "@appsmith/ads";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -134,6 +135,75 @@ function PageSettings(props: { page: Page }) {
     (state: DefaultRootState) => getUsedActionNames(state, ""),
     shallowEqual,
   );
+
+  // Determine which validation message to show for page slug
+  const pageSlugValidationMessage = useMemo(() => {
+    // Only show messages if there's a slug and no error
+    if (
+      !staticPageSlug ||
+      staticPageSlug.trim().length === 0 ||
+      staticPageSlugError
+    ) {
+      return null;
+    }
+
+    // Get the deployed page slug from currentApplication.pages
+    const deployedPageSlug = currentApplication?.pages?.find(
+      (p) => p.id === page.pageId,
+    )?.uniqueSlug;
+
+    // Check if saved but not deployed
+    const isSavedButNotDeployed =
+      deployedPageSlug !== page.uniqueSlug &&
+      staticPageSlug === page.uniqueSlug;
+
+    // Check if edited and different from saved
+    const isEditedAndDifferentFromSaved = staticPageSlug !== page.uniqueSlug;
+
+    // If saved but not deployed, show deploy message
+    if (isSavedButNotDeployed) {
+      return {
+        icon: "" as const,
+        color: "var(--ads-v2-color-fg)",
+        message: PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE(),
+      };
+    }
+
+    // If edited and different from saved, show availability check
+    if (isEditedAndDifferentFromSaved) {
+      if (isValidatingPageSlug) {
+        return {
+          icon: "loader-line" as const,
+          color: "var(--ads-v2-color-fg-muted)",
+          message: PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE(),
+        };
+      }
+
+      if (isPageSlugValid) {
+        return {
+          icon: "check-line" as const,
+          color: "var(--ads-v2-color-fg-success)",
+          message: PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE(),
+        };
+      }
+
+      return {
+        icon: "close-line" as const,
+        color: "var(--ads-v2-color-fg-error)",
+        message: PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE(),
+      };
+    }
+
+    return null;
+  }, [
+    staticPageSlug,
+    staticPageSlugError,
+    currentApplication?.pages,
+    page.pageId,
+    page.uniqueSlug,
+    isValidatingPageSlug,
+    isPageSlugValid,
+  ]);
 
   const hasActionNameConflict = useCallback(
     (name: string) => !isNameValid(name, conflictingNames),
@@ -425,55 +495,21 @@ function PageSettings(props: { page: Page }) {
             type="text"
             value={staticPageSlug}
           />
-          {staticPageSlug &&
-            staticPageSlug.trim().length > 0 &&
-            !staticPageSlugError && (
-              <div className="flex items-center gap-1 mt-1">
-                {isValidatingPageSlug ? (
-                  <>
-                    <Icon
-                      color="var(--ads-v2-color-fg-muted)"
-                      name="loader-line"
-                      size="sm"
-                    />
-                    <Text
-                      kind="body-s"
-                      style={{ color: "var(--ads-v2-color-fg-muted)" }}
-                    >
-                      {PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE()}
-                    </Text>
-                  </>
-                ) : isPageSlugValid ? (
-                  <>
-                    <Icon
-                      color="var(--ads-v2-color-fg-success)"
-                      name="check-line"
-                      size="sm"
-                    />
-                    <Text
-                      kind="body-s"
-                      style={{ color: "var(--ads-v2-color-fg-success)" }}
-                    >
-                      {PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE()}
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Icon
-                      color="var(--ads-v2-color-fg-error)"
-                      name="close-line"
-                      size="sm"
-                    />
-                    <Text
-                      kind="body-s"
-                      style={{ color: "var(--ads-v2-color-fg-error)" }}
-                    >
-                      {PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE()}
-                    </Text>
-                  </>
-                )}
-              </div>
-            )}
+          {pageSlugValidationMessage && (
+            <div className="flex items-center gap-1 mt-1">
+              <Icon
+                color={pageSlugValidationMessage.color}
+                name={pageSlugValidationMessage.icon}
+                size="sm"
+              />
+              <Text
+                kind="body-s"
+                style={{ color: pageSlugValidationMessage.color }}
+              >
+                {pageSlugValidationMessage.message}
+              </Text>
+            </div>
+          )}
         </div>
       )}
 
