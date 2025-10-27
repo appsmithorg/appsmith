@@ -13,6 +13,7 @@ import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { isNil } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 export interface URLBuilderParams {
   suffix?: string;
@@ -26,6 +27,7 @@ export interface URLBuilderParams {
   // This is used to pass ID if the sender doesn't know the type of the entity
   // base version of parent entity id, can be basePageId or moduleId
   baseParentEntityId?: string;
+  workspaceId?: string;
   generateEditorPath?: boolean;
 }
 
@@ -65,7 +67,7 @@ export interface PageURLParams {
 export function getQueryStringfromObject(
   params: Record<string, string> = {},
 ): string {
-  const paramKeys = Object.keys(params);
+  const paramKeys = objectKeys(params);
   const queryParams: string[] = [];
 
   if (paramKeys) {
@@ -241,7 +243,22 @@ export class URLBuilder {
   }
 
   generateBasePath(basePageId: string, mode: APP_MODE) {
+    // Check if we're in workspace context
+    if (this.isWorkspaceContext()) {
+      return this.generateBasePathForWorkspace(basePageId);
+    }
+
     return this.generateBasePathForApp(basePageId, mode);
+  }
+
+  isWorkspaceContext(): boolean {
+    const currentUrl = window.location.pathname;
+
+    return currentUrl.startsWith("/workspace");
+  }
+
+  generateBasePathForWorkspace(workspaceId: string) {
+    return `/workspace/${workspaceId}/datasources`;
   }
 
   getCustomSlugPathPreview(basePageId: string, customSlug: string) {
@@ -284,7 +301,24 @@ export class URLBuilder {
   }
 
   resolveEntityId(builderParams: URLBuilderParams): string {
+    // Check if we're in workspace context
+    if (this.isWorkspaceContext()) {
+      return this.resolveEntityIdForWorkspace(builderParams);
+    }
+
     return this.resolveEntityIdForApp(builderParams);
+  }
+
+  resolveEntityIdForWorkspace(builderParams: URLBuilderParams): string {
+    // Extract workspaceId from current URL if not provided
+    if (builderParams?.workspaceId) {
+      return builderParams.workspaceId;
+    }
+
+    const currentUrl = window.location.pathname;
+    const workspaceMatch = currentUrl.match(/^\/workspace\/([^\/]+)/);
+
+    return workspaceMatch ? workspaceMatch[1] : "";
   }
 
   /**
@@ -304,6 +338,14 @@ export class URLBuilder {
 
     const entityId = this.resolveEntityId(builderParams);
 
+    // Handle workspace-specific suffix modification
+    let modifiedSuffix = suffix;
+
+    if (this.isWorkspaceContext() && suffix?.startsWith("datasource/")) {
+      // For workspace context, remove the 'datasource/' prefix from suffix
+      modifiedSuffix = suffix.replace("datasource/", "");
+    }
+
     const basePath = this.generateBasePath(entityId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
@@ -320,7 +362,7 @@ export class URLBuilder {
 
     const queryString = getQueryStringfromObject(modifiedQueryParams);
 
-    const suffixPath = suffix ? `/${suffix}` : "";
+    const suffixPath = modifiedSuffix ? `/${modifiedSuffix}` : "";
 
     const hashPath = hash ? `#${hash}` : "";
 

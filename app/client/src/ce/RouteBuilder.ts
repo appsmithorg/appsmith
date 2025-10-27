@@ -197,6 +197,14 @@ export const queryAddURL = (props: URLBuilderParams): string =>
     suffix: `queries/add`,
   });
 
+export const workspaceDatasourcesURL = (workspaceId: string): string =>
+  `/workspace/${workspaceId}/datasources`;
+
+export const workspaceDatasourceEditorURL = (
+  workspaceId: string,
+  datasourceId: string,
+): string => `/workspace/${workspaceId}/datasources/${datasourceId}`;
+
 export const appLibrariesURL = (): string =>
   urlBuilder.build({
     suffix: "libraries",

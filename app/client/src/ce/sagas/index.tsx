@@ -57,6 +57,7 @@ import PostEvaluationSagas from "sagas/PostEvaluationSagas";
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
 import gitApplicationSagas from "git-artifact-helpers/application/sagas";
+import workspaceIDESagas from "ee/sagas/workspaceIDESagas";
 
 export const sagas = [
   initSagas,
@@ -75,6 +76,7 @@ export const sagas = [
   templateSagas,
   pluginSagas,
   workspaceSagas,
+  workspaceIDESagas,
   curlImportSagas,
   snipingModeSagas,
   queryPaneSagas,
