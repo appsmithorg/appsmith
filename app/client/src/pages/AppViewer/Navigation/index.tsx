@@ -13,15 +13,16 @@ import type { ApplicationPayload } from "entities/Application";
 // Application-specific imports
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { builderURL } from "ee/RouteBuilder";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import PageMenu from "pages/AppViewer/PageMenu";
+import { useHref } from "pages/Editor/utils";
 import {
   getCurrentBasePageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
-import { useBuilderUrlGeneration } from "./hooks/useStaticUrlGeneration";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
@@ -39,6 +40,7 @@ export function Navigation() {
   const headerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobileDevice();
   const basePageId = useSelector(getCurrentBasePageId);
+  const editorURL = useHref(builderURL, { basePageId });
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const currentUser = useSelector(getCurrentUser);
   const lightTheme = useSelector((state: DefaultRootState) =>
@@ -48,9 +50,6 @@ export function Navigation() {
     getCurrentApplication,
   );
   const pages = useSelector(getViewModePageList);
-
-  // Use the common static URL generation hook for builder URLs
-  const editorURL = useBuilderUrlGeneration(basePageId);
 
   const shouldShowHeader = useSelector(getRenderPage);
   const queryParams = new URLSearchParams(search);

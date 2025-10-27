@@ -45,7 +45,7 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
 
     if (isStaticUrl) {
       // For static URLs, check if the staticPageSlug matches the page's uniqueSlug
-      return page.uniqueSlug === params.staticPageSlug;
+      return !!(page.uniqueSlug && page.uniqueSlug === params.staticPageSlug);
     } else {
       // For regular URLs, fall back to the older logic using indexOf
       return location.pathname.indexOf(page.pageId) > -1;

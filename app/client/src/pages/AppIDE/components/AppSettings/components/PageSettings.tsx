@@ -537,9 +537,7 @@ function PageSettings(props: { page: Page }) {
           {Array.isArray(pathPreview.splitRelativePath) && (
             <>
               {pathPreview.splitRelativePath[0]}
-              <strong
-                className={`text-[color:var(--appsmith-color-black-800))]`}
-              >
+              <strong className="text-[color:var(--appsmith-color-black-800))]">
                 {pathPreview.splitRelativePath[1]}
               </strong>
               {pathPreview.splitRelativePath[2]}

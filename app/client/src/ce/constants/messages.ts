@@ -1917,8 +1917,6 @@ export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
-export const GENERAL_SETTINGS_APP_URL_EMPTY_MESSAGE = () =>
-  "App URL cannot be empty";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
   "Generating app slug";
@@ -1927,7 +1925,7 @@ export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
 export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
   "Changing this application slug will affect both edit and deployed versions of the app.";
 export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
-  "Check availability...";
+  "Checking availability...";
 export const GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE = () => "Available";
 export const GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE = () =>
   "There is already an app with this slug.";
@@ -1945,7 +1943,7 @@ export const ERROR_IN_ENABLING_STATIC_URL = () =>
   "Error in enabling static URL. Please try again.";
 
 export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
-  "Check availability...";
+  "Checking availability...";
 export const PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE = () => "Available";
 export const PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE = () =>
   "There is already a page with this slug.";

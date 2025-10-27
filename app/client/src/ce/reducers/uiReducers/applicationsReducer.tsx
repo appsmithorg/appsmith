@@ -750,31 +750,6 @@ export const handlers = {
       isSavingNavigationSetting: false,
     };
   },
-  [ReduxActionTypes.PERSIST_APP_SLUG]: (state: ApplicationsReduxState) => {
-    return {
-      ...state,
-      isPersistingAppSlug: true,
-      isErrorPersistingAppSlug: false,
-    };
-  },
-  [ReduxActionTypes.PERSIST_APP_SLUG_SUCCESS]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isPersistingAppSlug: false,
-      isErrorPersistingAppSlug: false,
-    };
-  },
-  [ReduxActionTypes.PERSIST_APP_SLUG_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isPersistingAppSlug: false,
-      isErrorPersistingAppSlug: true,
-    };
-  },
   [ReduxActionTypes.RESET_APP_SLUG_VALIDATION]: (
     state: ApplicationsReduxState,
   ) => {

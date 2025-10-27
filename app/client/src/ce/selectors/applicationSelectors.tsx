@@ -59,8 +59,6 @@ export const getIsErroredSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isErrorSavingAppName;
 export const getIsPersistingAppSlug = (state: DefaultRootState) =>
   state.ui.applications.isPersistingAppSlug;
-export const getIsErrorPersistingAppSlug = (state: DefaultRootState) =>
-  state.ui.applications.isErrorPersistingAppSlug;
 export const getIsValidatingAppSlug = (state: DefaultRootState) =>
   state.ui.applications.isValidatingAppSlug;
 export const getIsApplicationSlugValid = (state: DefaultRootState) =>

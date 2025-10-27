@@ -289,7 +289,7 @@ function GeneralSettings() {
   const AppUrlContent = () => (
     <>
       {window.location.origin}/app/
-      <strong className={`text-[color:var(--appsmith-color-black-800))]`}>
+      <strong className="text-[color:var(--appsmith-color-black-800))]">
         {applicationSlug}
       </strong>
     </>

@@ -1200,7 +1200,6 @@ export function* persistAppSlugSaga(
     const request = {
       branchedApplicationId: applicationId,
       uniqueApplicationSlug: slug,
-      staticUrlEnabled: true,
     };
 
     const response: ApiResponse = yield call(
@@ -1385,7 +1384,7 @@ export function* disableStaticUrlSaga(
       type: ReduxActionErrorTypes.DISABLE_STATIC_URL_ERROR,
       payload: {
         show: true,
-        messsage: createMessage(ERROR_IN_DISABLING_STATIC_URL),
+        message: createMessage(ERROR_IN_DISABLING_STATIC_URL),
       },
     });
   }
