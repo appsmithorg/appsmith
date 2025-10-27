@@ -300,7 +300,15 @@ export function useHref<T extends URLBuilderParams>(
   const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
-    if (pageId) setHref(urlBuilderFn(params));
+    if (pageId) {
+      try {
+        setHref(urlBuilderFn(params));
+      } catch (error) {
+        // If basePageId is not available yet, keep href as empty string
+        // This can happen during initial page load or navigation
+        setHref("");
+      }
+    }
   }, [params, urlBuilderFn, pageId]);
 
   return href;
