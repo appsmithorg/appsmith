@@ -24,6 +24,7 @@ import {
   PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE,
   PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE,
   PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
 import type { Page } from "entities/Page";
 import classNames from "classnames";
@@ -165,7 +166,7 @@ function PageSettings(props: { page: Page }) {
       return {
         icon: "" as const,
         color: "var(--ads-v2-color-fg)",
-        message: PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE(),
+        message: createMessage(PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE),
       };
     }
 
@@ -175,7 +176,7 @@ function PageSettings(props: { page: Page }) {
         return {
           icon: "loader-line" as const,
           color: "var(--ads-v2-color-fg-muted)",
-          message: PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE(),
+          message: createMessage(PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE),
         };
       }
 
@@ -183,14 +184,14 @@ function PageSettings(props: { page: Page }) {
         return {
           icon: "check-line" as const,
           color: "var(--ads-v2-color-fg-success)",
-          message: PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE(),
+          message: createMessage(PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE),
         };
       }
 
       return {
         icon: "close-line" as const,
         color: "var(--ads-v2-color-fg-error)",
-        message: PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE(),
+        message: createMessage(PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE),
       };
     }
 
@@ -361,11 +362,16 @@ function PageSettings(props: { page: Page }) {
     let errorMessage = null;
 
     if (!value || value.trim().length === 0) {
-      errorMessage = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
+      errorMessage = createMessage(PAGE_SETTINGS_NAME_EMPTY_MESSAGE);
     } else if (value !== page.pageName && hasActionNameConflict(value)) {
-      errorMessage = PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value);
+      errorMessage = createMessage(
+        PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
+        value,
+      );
     } else if (value !== page.pageName && checkPageNameSlugConflict(value)) {
-      errorMessage = PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE();
+      errorMessage = createMessage(
+        PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE,
+      );
     }
 
     setPageNameError(errorMessage);
@@ -409,7 +415,7 @@ function PageSettings(props: { page: Page }) {
           errorMessage={pageNameError}
           id="t--page-settings-name"
           isDisabled={!canManagePages}
-          label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
+          label={createMessage(PAGE_SETTINGS_PAGE_NAME_LABEL)}
           onBlur={savePageName}
           onChange={(value: string) => onPageNameChange(value)}
           onKeyPress={(ev: React.KeyboardEvent) => {
@@ -429,15 +435,15 @@ function PageSettings(props: { page: Page }) {
           className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px]`}
           style={{ lineHeight: "1.31" }}
         >
-          {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
+          {createMessage(PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1)}{" "}
           <ManualUpgrades inline>
             <a>
               <u className="text-[color:var(--appsmith-color-black-900)]">
-                {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2()}
+                {createMessage(PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2)}
               </u>
             </a>
           </ManualUpgrades>{" "}
-          {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3()}
+          {createMessage(PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3)}
         </div>
       )}
       {!isStaticUrlEnabled && (
@@ -453,7 +459,7 @@ function PageSettings(props: { page: Page }) {
             id="t--page-settings-custom-slug"
             isDisabled={!canManagePages}
             isReadOnly={appNeedsUpdate}
-            label={PAGE_SETTINGS_PAGE_URL_LABEL()}
+            label={createMessage(PAGE_SETTINGS_PAGE_URL_LABEL)}
             onBlur={saveCustomSlug}
             onChange={(value: string) => onPageSlugChange(value)}
             onKeyPress={(ev: React.KeyboardEvent) => {
@@ -557,10 +563,10 @@ function PageSettings(props: { page: Page }) {
           }}
         >
           <PropertyHelpLabel
-            label={PAGE_SETTINGS_SHOW_PAGE_NAV()}
+            label={createMessage(PAGE_SETTINGS_SHOW_PAGE_NAV)}
             lineHeight="1.17"
             maxWidth="217px"
-            tooltip={PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP()}
+            tooltip={createMessage(PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP)}
           />
         </Switch>
       </div>
@@ -580,13 +586,15 @@ function PageSettings(props: { page: Page }) {
           }}
         >
           <PropertyHelpLabel
-            label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+            label={createMessage(PAGE_SETTINGS_SET_AS_HOMEPAGE)}
             lineHeight="1.17"
             maxWidth="217px"
             tooltip={
               !!isDefault
-                ? PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()
-                : PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE()
+                ? createMessage(PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP)
+                : createMessage(
+                    PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
+                  )
             }
           />
         </Switch>
