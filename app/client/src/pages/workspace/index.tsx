@@ -11,35 +11,43 @@ export function Workspace() {
   const location = useLocation();
 
   return (
-    <PageWrapper displayName="Workspace Settings">
-      <Switch location={location}>
-        <SentryRoute
-          component={Settings}
-          path={`${path}/:workspaceId/settings`}
-        />
-        <SentryRoute
-          component={({
-            match,
-          }: {
-            match: { params: { workspaceId: string } };
-          }) => (
-            <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
-          )}
-          path={`${path}/:workspaceId/datasources`}
-        />
-        <SentryRoute
-          component={({
-            match,
-          }: {
-            match: { params: { workspaceId: string } };
-          }) => (
-            <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
-          )}
-          path={`${path}/:workspaceId/datasource`}
-        />
-        <SentryRoute component={DefaultWorkspacePage} />
-      </Switch>
-    </PageWrapper>
+    <Switch location={location}>
+      <SentryRoute
+        component={() => (
+          <PageWrapper displayName="Workspace Settings">
+            <Settings />
+          </PageWrapper>
+        )}
+        path={`${path}/:workspaceId/settings`}
+      />
+      <SentryRoute
+        component={({
+          match,
+        }: {
+          match: { params: { workspaceId: string } };
+        }) => (
+          <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
+        )}
+        path={`${path}/:workspaceId/datasources`}
+      />
+      <SentryRoute
+        component={({
+          match,
+        }: {
+          match: { params: { workspaceId: string } };
+        }) => (
+          <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
+        )}
+        path={`${path}/:workspaceId/datasource`}
+      />
+      <SentryRoute
+        component={() => (
+          <PageWrapper displayName="Workspace Settings">
+            <DefaultWorkspacePage />
+          </PageWrapper>
+        )}
+      />
+    </Switch>
   );
 }
 

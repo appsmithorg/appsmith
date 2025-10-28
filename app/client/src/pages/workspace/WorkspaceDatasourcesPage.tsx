@@ -18,6 +18,10 @@ import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 import { initWorkspaceIDE } from "ee/actions/workspaceIDEActions";
 import type { DefaultRootState } from "react-redux";
+import {
+  WORKSPACE_DATASOURCES_PAGE_URL,
+  WORKSPACE_DATASOURCE_EDITOR_PAGE_URL,
+} from "constants/routes";
 
 // Page container for full viewport layout
 const PageContainer = styled.div`
@@ -25,6 +29,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  padding-top: ${IDE_HEADER_HEIGHT}px;
 `;
 
 // Use the SAME layout structure as AppIDE
@@ -119,18 +124,18 @@ export const WorkspaceDatasourcesPage = (
             {/* Create new datasource - use the exact same component */}
             <SentryRoute
               exact
-              path="/workspace/:workspaceId/datasources/NEW"
+              path={`${WORKSPACE_DATASOURCES_PAGE_URL}/NEW`}
               render={() => <WorkspaceCreateNewDatasourceTab />}
             />
             {/* Edit existing datasource - use workspace-specific editor */}
             <SentryRoute
               exact
-              path="/workspace/:workspaceId/datasource/:datasourceId"
+              path={WORKSPACE_DATASOURCE_EDITOR_PAGE_URL}
               render={() => <WorkspaceDatasourceEditor />}
             />
             {/* Default list view - show "Connect a datasource" page by default */}
             <SentryRoute
-              path="/workspace/:workspaceId/datasources"
+              path={WORKSPACE_DATASOURCES_PAGE_URL}
               render={() => <WorkspaceCreateNewDatasourceTab />}
             />
           </Switch>
