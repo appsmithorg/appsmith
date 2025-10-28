@@ -565,6 +565,14 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                         for (String name : names) {
                             Executable executable = executableMap.get(name);
+                            if (executable == null) {
+                                log.warn(
+                                        "Executable with name `{}` not found in executable map; executable in scheduling order: {}; executable in executable map: {}",
+                                        name,
+                                        names,
+                                        executableMap.keySet());
+                                continue;
+                            }
                             if (hasUserSetExecutableToNotRunOnPageLoad(executable)) {
                                 onPageLoadExecutableSet.remove(name);
                             } else {
