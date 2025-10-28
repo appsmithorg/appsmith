@@ -27,7 +27,7 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
-        staticApplicationSlug: application?.uniqueSlug || "",
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
@@ -46,7 +46,7 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
-        staticApplicationSlug: application?.uniqueSlug || "",
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
@@ -63,7 +63,7 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
-        staticApplicationSlug: application?.uniqueSlug || "",
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       break;
     }
@@ -124,7 +124,7 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseid,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
-        staticApplicationSlug: application?.uniqueSlug || "",
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       break;
     case ReduxActionTypes.CLONE_PAGE_SUCCESS:

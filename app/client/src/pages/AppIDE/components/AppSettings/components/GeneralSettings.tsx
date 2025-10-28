@@ -98,7 +98,7 @@ function GeneralSettings() {
     application?.icon as AppIconName,
   );
   const [applicationSlug, setApplicationSlug] = useState(
-    application?.uniqueSlug || "",
+    application?.staticUrlSettings?.uniqueSlug || "",
   );
   const [isClientSideSlugValid, setIsClientSideSlugValid] = useState(true);
   const [isStaticUrlToggleEnabled, setIsStaticUrlToggleEnabled] =
@@ -121,9 +121,9 @@ function GeneralSettings() {
 
   useEffect(
     function updateApplicationSlug() {
-      setApplicationSlug(application?.uniqueSlug || "");
+      setApplicationSlug(application?.staticUrlSettings?.uniqueSlug || "");
     },
-    [application?.uniqueSlug],
+    [application?.staticUrlSettings?.uniqueSlug],
   );
 
   useEffect(
@@ -157,8 +157,11 @@ function GeneralSettings() {
       });
     };
 
-    if (applicationSlug && applicationSlug !== application?.uniqueSlug) {
-      if (!application?.staticUrlEnabled) {
+    if (
+      applicationSlug &&
+      applicationSlug !== application?.staticUrlSettings?.uniqueSlug
+    ) {
+      if (!application?.staticUrlSettings?.enabled) {
         dispatch(enableStaticUrl(applicationSlug, onSuccess));
       } else {
         dispatch(persistAppSlug(applicationSlug, onSuccess));
@@ -169,21 +172,21 @@ function GeneralSettings() {
     }
   }, [
     applicationSlug,
-    application?.uniqueSlug,
+    application?.staticUrlSettings?.uniqueSlug,
     dispatch,
-    application?.staticUrlEnabled,
+    application?.staticUrlSettings?.enabled,
   ]);
 
   const cancelSlugChange = useCallback(() => {
-    setApplicationSlug(application?.uniqueSlug || "");
+    setApplicationSlug(application?.staticUrlSettings?.uniqueSlug || "");
     setIsClientSideSlugValid(true);
     dispatch(resetAppSlugValidation());
 
     // Reset toggle to false if uniqueSlug is empty or not available
-    if (!application?.uniqueSlug) {
+    if (!application?.staticUrlSettings?.uniqueSlug) {
       setIsStaticUrlToggleEnabled(false);
     }
-  }, [application?.uniqueSlug]);
+  }, [application?.staticUrlSettings?.uniqueSlug, dispatch]);
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -251,21 +254,21 @@ function GeneralSettings() {
   const modalOldSlug = useMemo(() => {
     if (modalType === "disable") {
       // Disabling: show current static URL with default page
-      return `${application?.uniqueSlug || ""}/${defaultPageSlug}`;
+      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${defaultPageSlug}`;
     } else {
       // Enabling for first time or changing: show legacy format if not enabled yet
-      if (!application?.staticUrlEnabled) {
+      if (!application?.staticUrlSettings?.enabled) {
         return `${application?.slug || ""}/${defaultPageSlug}-${defaultPageId}`;
       }
 
       // Changing existing static URL: show current static URL with default page
-      return `${application?.uniqueSlug || ""}/${defaultPageSlug}`;
+      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${defaultPageSlug}`;
     }
   }, [
     modalType,
-    application?.uniqueSlug,
+    application?.staticUrlSettings?.uniqueSlug,
     application?.slug,
-    application?.staticUrlEnabled,
+    application?.staticUrlSettings?.enabled,
     defaultPageSlug,
     defaultPageId,
   ]);
@@ -298,7 +301,7 @@ function GeneralSettings() {
   const handleStaticUrlToggle = useCallback(
     (isEnabled: boolean) => {
       if (!isEnabled && isStaticUrlToggleEnabled) {
-        if (application?.staticUrlEnabled) {
+        if (application?.staticUrlSettings?.enabled) {
           // Show confirmation modal when disabling
           setModalType("disable");
           setIsStaticUrlConfirmationModalOpen(true);
@@ -317,7 +320,7 @@ function GeneralSettings() {
       dispatch,
       applicationId,
       isStaticUrlToggleEnabled,
-      application?.staticUrlEnabled,
+      application?.staticUrlSettings?.enabled,
     ],
   );
 
@@ -373,8 +376,8 @@ function GeneralSettings() {
   ]);
 
   const hasSlugChanged = useMemo(() => {
-    return applicationSlug !== application?.uniqueSlug;
-  }, [applicationSlug, application?.uniqueSlug]);
+    return applicationSlug !== application?.staticUrlSettings?.uniqueSlug;
+  }, [applicationSlug, application?.staticUrlSettings?.uniqueSlug]);
 
   return (
     <>
@@ -474,7 +477,7 @@ function GeneralSettings() {
             isClientSideSlugValid &&
             applicationSlug &&
             applicationSlug.trim().length > 0 &&
-            applicationSlug !== application?.uniqueSlug && (
+            applicationSlug !== application?.staticUrlSettings?.uniqueSlug && (
               <div className="flex items-center gap-1 mt-1">
                 {isValidatingAppSlug ? (
                   <>

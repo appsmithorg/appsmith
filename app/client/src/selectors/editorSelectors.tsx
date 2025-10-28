@@ -251,7 +251,7 @@ export const selectApplicationVersion = (state: DefaultRootState) =>
   ApplicationVersion.DEFAULT;
 
 export const getIsStaticUrlEnabled = (state: DefaultRootState) =>
-  !!state.ui.applications.currentApplication?.staticUrlEnabled;
+  !!state.ui.applications.currentApplication?.staticUrlSettings?.enabled;
 
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {

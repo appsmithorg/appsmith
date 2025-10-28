@@ -408,17 +408,17 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   } catch (e) {
     log.error(e);
 
+    if (e instanceof AppEngineApiError) return;
+
+    appsmithTelemetry.captureException(e, { errorName: "AppEngineError" });
+    yield put(safeCrashAppRequest());
+  } finally {
     yield call(
       executeActionDuringUserDetailsInitialisation,
       ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
       action.payload.shouldInitialiseUserDetails,
     );
 
-    if (e instanceof AppEngineApiError) return;
-
-    appsmithTelemetry.captureException(e, { errorName: "AppEngineError" });
-    yield put(safeCrashAppRequest());
-  } finally {
     endSpan(rootSpan);
   }
 }

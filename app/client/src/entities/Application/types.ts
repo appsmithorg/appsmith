@@ -22,7 +22,6 @@ export interface ApplicationPayload {
   userPermissions?: string[];
   appIsExample: boolean;
   slug: string;
-  uniqueSlug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
@@ -47,5 +46,8 @@ export interface ApplicationPayload {
   publishedAppToCommunityTemplate?: boolean;
   forkedFromTemplateTitle?: string;
   connectedWorkflowId?: string;
-  staticUrlEnabled?: boolean;
+  staticUrlSettings?: {
+    enabled: boolean;
+    uniqueSlug: string;
+  };
 }
