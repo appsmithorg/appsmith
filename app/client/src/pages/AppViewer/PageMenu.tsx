@@ -179,8 +179,6 @@ function PageNavLink({
 }) {
   const appMode = useSelector(getAppMode);
   const selectedTheme = useSelector(getSelectedAppTheme);
-
-  // Use the common static URL generation hook
   const pathname = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
     { basePageId: page.basePageId },

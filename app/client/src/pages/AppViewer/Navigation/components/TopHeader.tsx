@@ -59,7 +59,6 @@ const TopHeader = (props: TopHeaderProps) => {
   );
   const basePageId = useSelector(getCurrentBasePageId);
 
-  // Use the common static URL generation hook for builder URLs
   const editorURL = useHref(builderURL, { basePageId });
 
   return (

@@ -41,6 +41,7 @@ export function Navigation() {
   const isMobile = useIsMobileDevice();
   const basePageId = useSelector(getCurrentBasePageId);
   const editorURL = useHref(builderURL, { basePageId });
+
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const currentUser = useSelector(getCurrentUser);
   const lightTheme = useSelector((state: DefaultRootState) =>
@@ -50,7 +51,6 @@ export function Navigation() {
     getCurrentApplication,
   );
   const pages = useSelector(getViewModePageList);
-
   const shouldShowHeader = useSelector(getRenderPage);
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed") === "true";

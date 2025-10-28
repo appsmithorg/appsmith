@@ -19,7 +19,6 @@ const useNavigateToAnotherPage = ({
 }) => {
   const appMode = useSelector(getAppMode);
   const dispatch = useDispatch();
-
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
     { basePageId: basePageId },
