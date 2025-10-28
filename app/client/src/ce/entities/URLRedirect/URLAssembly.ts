@@ -221,7 +221,7 @@ export class URLBuilder {
       this.appParams.applicationVersion =
         appParams.applicationVersion || this.appParams.applicationVersion;
       this.appParams.staticApplicationSlug =
-        appParams.staticApplicationSlug || this.appParams.staticApplicationSlug;
+        appParams.staticApplicationSlug ?? this.appParams.staticApplicationSlug;
     }
 
     if (pageParams) {

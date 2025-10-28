@@ -10,7 +10,7 @@ import AppPage from "./AppPage";
 import {
   getCanvasWidth,
   getCurrentPageName,
-  getCurrentPageId,
+  getCurrentBasePageId,
 } from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
@@ -30,7 +30,7 @@ const Section = styled.section`
 
 function AppViewerPageContainer() {
   const currentPageName = useSelector(getCurrentPageName);
-  const currentPageId = useSelector(getCurrentPageId);
+  const currentBasePageId = useSelector(getCurrentBasePageId);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -50,7 +50,7 @@ function AppViewerPageContainer() {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              basePageId: currentPageId,
+              basePageId: currentBasePageId,
             })}
           >
             Appsmith Editor
@@ -58,7 +58,7 @@ function AppViewerPageContainer() {
         </p>
       );
     }
-  }, [currentApplication?.userPermissions, currentPageId]);
+  }, [currentApplication?.userPermissions, currentBasePageId]);
 
   const pageNotFound = (
     <Centered>
@@ -91,7 +91,7 @@ function AppViewerPageContainer() {
     <Section>
       <AppPage
         appName={currentApplication?.name}
-        basePageId={currentPageId}
+        basePageId={currentBasePageId}
         canvasWidth={canvasWidth}
         pageName={currentPageName}
         widgetsStructure={widgetsStructure}

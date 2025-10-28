@@ -110,14 +110,14 @@ function AppViewer(props: Props) {
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getPageList);
   const resolvedBasePageIdFromSlug = useSelector((state) =>
-    staticPageSlug ? getBasePageIdFromStaticSlug(state, staticPageSlug) : null,
+    staticPageSlug
+      ? getBasePageIdFromStaticSlug(state, staticPageSlug)
+      : undefined,
   );
 
   // Resolve basePageId from staticPageSlug if needed
   const resolvedBasePageId =
-    !basePageId && staticPageSlug
-      ? resolvedBasePageIdFromSlug || undefined
-      : basePageId;
+    !basePageId && staticPageSlug ? resolvedBasePageIdFromSlug : basePageId;
 
   const selectedTheme = useSelector(getSelectedAppTheme);
   const lightTheme = useSelector((state: DefaultRootState) =>
