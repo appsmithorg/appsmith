@@ -26,7 +26,10 @@ const WorkspaceDatasourceHeader = () => {
         </IDEHeader.Left>
         <IDEHeader.Center>
           {currentWorkspace?.name && (
-            <Link className="mr-1.5" to={APPLICATIONS_URL}>
+            <Link
+              className="mr-1.5"
+              to={`${APPLICATIONS_URL}?workspaceId=${currentWorkspace.id}`}
+            >
               {currentWorkspace.name}
             </Link>
           )}
