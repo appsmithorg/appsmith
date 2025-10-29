@@ -9,6 +9,7 @@ import { watchActionSagas } from "sagas/ActionSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
 import applicationSagas from "ee/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
+import windowSaga from "sagas/WindowSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import batchSagas from "sagas/BatchSagas";
@@ -95,6 +96,7 @@ export const sagas = [
   gitSyncSagas,
   SuperUserSagas,
   appThemingSaga,
+  windowSaga,
   NavigationSagas,
   editorContextSagas,
   AutoHeightSagas,

@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { CanvasWidgetStructure } from "WidgetProvider/types";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { updateWindowDimensions } from "actions/windowActions";
 
 import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
@@ -24,6 +25,7 @@ export function AppPage(props: AppPageProps) {
   const { appName, basePageId, canvasWidth, pageName, widgetsStructure } =
     props;
 
+  const dispatch = useDispatch();
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const isAnvilLayout = useSelector(getIsAnvilLayout);
@@ -45,6 +47,24 @@ export function AppPage(props: AppPageProps) {
       mode: "VIEW",
     });
   }, [appName, basePageId, pageName]);
+
+  // Set up window resize listener for window dimensions
+  useEffect(() => {
+    const handleResize = () => {
+      dispatch(updateWindowDimensions(window.innerHeight, window.innerWidth));
+    };
+
+    // Set initial dimensions immediately
+    dispatch(updateWindowDimensions(window.innerHeight, window.innerWidth));
+
+    // Add resize listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [dispatch]);
 
   return (
     <PageViewWrapper
