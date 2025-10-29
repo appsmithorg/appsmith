@@ -28,6 +28,7 @@ import {
 import "url-search-params-polyfill";
 import type { DefaultRootState } from "react-redux";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
+import { getWindowDimensions } from "./windowSelectors";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import _, { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -149,6 +150,7 @@ export const getUnevaluatedDataTree = createSelector(
   getMetaWidgetsFromUnevaluatedDataTree,
   getAppData,
   getSelectedAppThemeProperties,
+  getWindowDimensions,
   getCurrentAppWorkspace,
   getCurrentApplication,
   getCurrentPageName,
@@ -160,6 +162,7 @@ export const getUnevaluatedDataTree = createSelector(
     metaWidgets,
     appData,
     theme,
+    windowDimensions,
     currentWorkspace,
     currentApplication,
     getCurrentPageName,
@@ -182,12 +185,13 @@ export const getUnevaluatedDataTree = createSelector(
       // taking precedence in case the key is the same
       store: appData.store,
       theme,
+      ui: windowDimensions,
       currentPageName: getCurrentPageName,
       workspaceName: currentWorkspace.name,
       appName: currentApplication?.name,
       currentEnvironmentName,
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
     } as AppsmithEntity;
-    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     dataTree = { ...dataTree, ...metaWidgets.dataTree };
     configTree = { ...configTree, ...metaWidgets.configTree };
 

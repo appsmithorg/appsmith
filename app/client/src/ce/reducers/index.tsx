@@ -48,6 +48,7 @@ import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalR
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import type { AppThemingState } from "reducers/uiReducers/appThemingReducer";
+import type { WindowDimensionsState } from "reducers/uiReducers/windowReducer";
 import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasReducer";
 import type { SettingsReduxState } from "ee/reducers/settingsReducer";
 import SettingsReducer from "ee/reducers/settingsReducer";
@@ -147,6 +148,7 @@ export interface AppState {
     activeField: ActiveField;
     ide: IDEState;
     pluginActionEditor: PluginActionEditorState;
+    windowDimensions: WindowDimensionsState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
