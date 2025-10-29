@@ -4,7 +4,8 @@ import { evaluateTreeSaga } from "./EvaluationsSaga";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 
 export function* handleWindowDimensionsUpdate() {
-  const unEvalAndConfigTree = yield select(getUnevaluatedDataTree);
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
 
   yield call(evaluateTreeSaga, unEvalAndConfigTree);
 }

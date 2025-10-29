@@ -190,8 +190,8 @@ export const getUnevaluatedDataTree = createSelector(
       workspaceName: currentWorkspace.name,
       appName: currentApplication?.name,
       currentEnvironmentName,
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
     } as AppsmithEntity;
-    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     dataTree = { ...dataTree, ...metaWidgets.dataTree };
     configTree = { ...configTree, ...metaWidgets.configTree };
 
