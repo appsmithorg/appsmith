@@ -31,7 +31,9 @@ const WorkspaceDatasourceHeader = () => {
             </Link>
           )}
         </IDEHeader.Center>
-        <IDEHeader.Right />
+        <IDEHeader.Right>
+          <div />
+        </IDEHeader.Right>
       </IDEHeader>
     </StyledWorkspaceHeader>
   );
