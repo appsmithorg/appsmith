@@ -9,8 +9,6 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { updateWindowDimensions } from "actions/windowActions";
-import { debounce } from "lodash";
-import { RESIZE_DEBOUNCE_THRESHOLD } from "pages/hooks/constants";
 
 import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
@@ -50,30 +48,9 @@ export function AppPage(props: AppPageProps) {
     });
   }, [appName, basePageId, pageName]);
 
-  // Set up window resize listener for window dimensions
+  // Set initial window dimensions
   useEffect(() => {
-    const handleResize = () => {
-      dispatch(updateWindowDimensions(window.innerHeight, window.innerWidth));
-    };
-
-    // Create debounced version of resize handler
-    const debouncedHandleResize = debounce(
-      handleResize,
-      RESIZE_DEBOUNCE_THRESHOLD * 2,
-    );
-
-    // Set initial dimensions immediately
     dispatch(updateWindowDimensions(window.innerHeight, window.innerWidth));
-
-    // Add resize listener with debounced handler
-    window.addEventListener("resize", debouncedHandleResize);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("resize", debouncedHandleResize);
-      // Cancel any pending debounced calls
-      debouncedHandleResize.cancel();
-    };
   }, [dispatch]);
 
   return (

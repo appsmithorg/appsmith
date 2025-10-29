@@ -39,8 +39,6 @@ import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 import { AppIDEModals } from "ee/pages/AppIDE/components/AppIDEModals";
 import { updateWindowDimensions } from "actions/windowActions";
-import { debounce } from "lodash";
-import { RESIZE_DEBOUNCE_THRESHOLD } from "pages/hooks/constants";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -70,8 +68,6 @@ type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
   prevPageId: string | null = null;
-  private handleResize: (() => void) | null = null;
-  private debouncedHandleResize: ReturnType<typeof debounce> | null = null;
 
   componentDidMount() {
     const { basePageId } = this.props.match.params || {};
@@ -82,22 +78,8 @@ class Editor extends Component<Props> {
       this.props.widgetConfigBuildSuccess();
     });
 
-    // Set up window resize listener for window dimensions
-    this.handleResize = () => {
-      this.props.updateWindowDimensions(window.innerHeight, window.innerWidth);
-    };
-
-    // Create debounced version of resize handler
-    this.debouncedHandleResize = debounce(
-      this.handleResize,
-      RESIZE_DEBOUNCE_THRESHOLD * 2,
-    );
-
-    // Set initial dimensions immediately
+    // Set initial window dimensions
     this.props.updateWindowDimensions(window.innerHeight, window.innerWidth);
-
-    // Add resize listener with debounced handler
-    window.addEventListener("resize", this.debouncedHandleResize);
   }
 
   shouldComponentUpdate(nextProps: Props) {
@@ -182,13 +164,6 @@ class Editor extends Component<Props> {
   componentWillUnmount() {
     this.props.resetEditorRequest();
     urlBuilder.setCurrentBasePageId(null);
-
-    // Clean up window resize listener
-    if (this.debouncedHandleResize) {
-      window.removeEventListener("resize", this.debouncedHandleResize);
-      // Cancel any pending debounced calls
-      this.debouncedHandleResize.cancel();
-    }
   }
 
   public render() {
