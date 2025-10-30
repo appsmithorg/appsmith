@@ -8,6 +8,7 @@ public class PageSpanCE {
     public static final String GET_PAGE_WITHOUT_BRANCH = PAGES + "without_branch";
     public static final String GET_PAGE_WITH_BRANCH = PAGES + "with_branch";
     public static final String FETCH_PAGE_FROM_DB = PAGES + "fetch_page";
+    public static final String FETCH_PAGES_WITH_BASE_ID = PAGES + "fetch_pages_with_base_id";
 
     public static final String FETCH_PAGES_BY_APP_ID_DB = PAGES + "fetch_pages_by_app_id";
     public static final String MARK_RECENTLY_ACCESSED_RESOURCES_PAGES = PAGES + "update_recently_accessed_pages";

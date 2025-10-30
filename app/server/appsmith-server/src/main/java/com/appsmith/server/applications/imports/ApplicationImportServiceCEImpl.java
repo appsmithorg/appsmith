@@ -36,6 +36,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.staticurl.StaticUrlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,6 +67,7 @@ public class ApplicationImportServiceCEImpl
         implements ArtifactBasedImportServiceCE<Application, ApplicationImportDTO, ApplicationJson> {
 
     private final ApplicationService applicationService;
+    protected final StaticUrlService staticUrlService;
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
     private final UpdateLayoutService updateLayoutService;
@@ -397,9 +399,12 @@ public class ApplicationImportServiceCEImpl
         });
 
         if (!StringUtils.hasText(importingMetaDTO.getArtifactId())) {
-            importApplicationMono = importApplicationMono.flatMap(application -> {
-                return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-            });
+            importApplicationMono = importApplicationMono
+                    .flatMap(staticUrlService::generateAndUpdateApplicationSlugForNewImports)
+                    .flatMap(application -> {
+                        return applicationPageService.createOrUpdateSuffixedApplication(
+                                application, application.getName(), 0);
+                    });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
@@ -432,18 +437,24 @@ public class ApplicationImportServiceCEImpl
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
-                        .map(objects -> {
-                            Application newApplication = objects.getT1();
-                            Application existingApplication = objects.getT2();
-                            // This method sets the published mode properties in the imported
-                            // application.When a user imports an application from the git repo,
-                            // since the git only stores the unpublished version, the current
-                            // deployed version in the newly imported app is not updated.
-                            // This function sets the initial deployed version to the same as the
-                            // edit mode one.
-                            setPublishedApplicationProperties(newApplication);
-                            setPropertiesToExistingApplication(newApplication, existingApplication);
-                            return existingApplication;
+                        .flatMap(applicationFromJsonAndDB -> {
+                            Application appFromJson = applicationFromJsonAndDB.getT1();
+                            Application existingAppFromDB = applicationFromJsonAndDB.getT2();
+
+                            return staticUrlService
+                                    .generateAndUpdateApplicationSlugForImportsOnExistingApps(
+                                            appFromJson, existingAppFromDB)
+                                    .map(newApplication -> {
+                                        // This method sets the published mode properties in the imported
+                                        // application.When a user imports an application from the git repo,
+                                        // since the git only stores the unpublished version, the current
+                                        // deployed version in the newly imported app is not updated.
+                                        // This function sets the initial deployed version to the same as the
+                                        // edit mode one.
+                                        setPublishedApplicationProperties(newApplication);
+                                        setPropertiesToExistingApplication(newApplication, existingAppFromDB);
+                                        return existingAppFromDB;
+                                    });
                         })
                         .flatMap(application -> {
                             Mono<Application> parentApplicationMono;

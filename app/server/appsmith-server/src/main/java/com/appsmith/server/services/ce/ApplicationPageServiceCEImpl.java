@@ -278,6 +278,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     NewPage.Fields.publishedPage_icon,
                     NewPage.Fields.publishedPage_slug,
                     NewPage.Fields.publishedPage_customSlug,
+                    NewPage.Fields.publishedPage_uniqueSlug,
                     NewPage.Fields.publishedPage_isHidden,
                     NewPage.Fields.userPermissions,
                     NewPage.Fields.policies,

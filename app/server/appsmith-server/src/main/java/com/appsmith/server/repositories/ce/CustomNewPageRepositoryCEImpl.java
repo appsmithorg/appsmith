@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGES_WITH_BASE_ID;
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
 import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -139,11 +140,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.unpublishedPage_isHidden,
                 NewPage.Fields.unpublishedPage_slug,
                 NewPage.Fields.unpublishedPage_customSlug,
+                NewPage.Fields.unpublishedPage_uniqueSlug,
                 NewPage.Fields.publishedPage_name,
                 NewPage.Fields.publishedPage_icon,
                 NewPage.Fields.publishedPage_isHidden,
                 NewPage.Fields.publishedPage_slug,
-                NewPage.Fields.publishedPage_customSlug);
+                NewPage.Fields.publishedPage_customSlug,
+                NewPage.Fields.publishedPage_uniqueSlug);
 
         return this.queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
@@ -156,6 +159,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return Bridge.equal(
                 Boolean.TRUE.equals(viewMode) ? NewPage.Fields.publishedPage_name : NewPage.Fields.unpublishedPage_name,
                 name);
+    }
+
+    private BridgeQuery<NewPage> getSlugCriterion(String pageSlug, Boolean viewMode) {
+        return Bridge.equal(
+                Boolean.TRUE.equals(viewMode) ? NewPage.Fields.publishedPage_slug : NewPage.Fields.unpublishedPage_slug,
+                pageSlug);
+    }
+
+    private BridgeQuery<NewPage> getUniqueSlugCriterion(String uniqueSlug, Boolean viewMode) {
+        return Bridge.equal(
+                Boolean.TRUE.equals(viewMode)
+                        ? NewPage.Fields.publishedPage_uniqueSlug
+                        : NewPage.Fields.unpublishedPage_uniqueSlug,
+                uniqueSlug);
     }
 
     @Override
@@ -200,6 +217,23 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .fields(projectedFieldNames)
                 .one()
                 .name(FETCH_PAGE_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    @Override
+    public Flux<NewPage> findByBasePageId(
+            String basePageId, AclPermission permission, List<String> projectedFieldNames) {
+
+        final BridgeQuery<NewPage> q =
+                // defaultPageIdCriteria
+                Bridge.equal(NewPage.Fields.baseId, basePageId);
+
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .fields(projectedFieldNames)
+                .all()
+                .name(FETCH_PAGES_WITH_BASE_ID)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -270,5 +304,40 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<Long> countByDeletedAtNull() {
         final BridgeQuery<NewPage> q = Bridge.notExists(NewPage.Fields.deletedAt);
         return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public Mono<NewPage> findByUniquePageSlug(
+            String applicationId, String uniquePageName, AclPermission permission, boolean viewMode) {
+        final BridgeQuery<NewPage> uniqueSlugCriteria = getUniqueSlugCriterion(uniquePageName, viewMode);
+        final BridgeQuery<NewPage> appCriteria = Bridge.equal(NewPage.Fields.applicationId, applicationId);
+
+        return queryBuilder()
+                .criteria(appCriteria.and(uniqueSlugCriteria))
+                .permission(permission)
+                .one();
+    }
+
+    public Mono<NewPage> findByApplicationIdAndPageSlug(
+            String applicationId,
+            String pageSlug,
+            boolean viewMode,
+            AclPermission aclPermission,
+            List<String> projections) {
+        final BridgeQuery<NewPage> q =
+                getSlugCriterion(pageSlug, viewMode).equal(NewPage.Fields.applicationId, applicationId);
+        q.and(Bridge.equal(NewPage.Fields.applicationId, applicationId));
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
+            // exist. To handle this, only fetch non-deleted pages
+            q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
+        }
+
+        return queryBuilder()
+                .criteria(q)
+                .fields(projections)
+                .permission(aclPermission)
+                .one();
     }
 }

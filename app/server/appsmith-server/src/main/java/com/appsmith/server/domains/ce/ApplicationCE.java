@@ -5,6 +5,7 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Application.StaticUrlSettings;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -91,6 +92,9 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
 
     @JsonView(Views.Public.class)
     private String slug;
+
+    @JsonView({Views.Public.class, Git.class})
+    StaticUrlSettings staticUrlSettings;
 
     @JsonView({Views.Internal.class, Git.class})
     Application.AppLayout unpublishedAppLayout;
@@ -508,6 +512,34 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         }
     }
 
+    /**
+     * StaticUrlSettings stores the static URL configuration for the application
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldNameConstants
+    public static class StaticUrlSettingsCE implements Serializable {
+
+        @JsonView({Views.Public.class, Git.class})
+        private Boolean enabled;
+
+        @JsonView({Views.Public.class, Git.class})
+        private String uniqueSlug;
+
+        // Future properties can be added here:
+        // @JsonView({Views.Public.class, Git.class})
+        // private String organizationId; // For org-level constraints
+
+        // @JsonView({Views.Public.class, Git.class})
+        // private String customDomain; // For custom domain support
+
+        // @JsonView({Views.Public.class, Git.class})
+        // private Boolean sslEnabled; // For SSL configuration
+
+        public static class Fields {}
+    }
+
     public static class Fields extends BaseDomain.Fields {
         public static final String gitApplicationMetadata_gitAuth =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
@@ -517,9 +549,15 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_branchName =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
+        public static final String gitApplicationMetadata_refName =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.refName);
+        public static final String gitApplicationMetadata_refType =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.refType);
         public static final String gitApplicationMetadata_isRepoPrivate =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
         public static final String gitApplicationMetadata_isProtectedBranch =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
+        public static final String staticUrlSettings_uniqueSlug =
+                dotted(staticUrlSettings, StaticUrlSettings.Fields.uniqueSlug);
     }
 }

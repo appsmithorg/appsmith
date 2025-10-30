@@ -1020,6 +1020,14 @@ public enum AppsmithError {
             "Insufficient password strength",
             ErrorType.ARGUMENT_ERROR,
             null),
+    UNIQUE_SLUG_UNAVAILABLE(
+            500,
+            AppsmithErrorCode.UNIQUE_SLUG_UNAVAILABLE.getCode(),
+            "Duplicate {0} slug detected. Slug value: {1} is already in use. It must be unique",
+            AppsmithErrorAction.DEFAULT,
+            "Slug already in use",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     GIT_ROUTE_METADATA_NOT_FOUND(
             404,
             AppsmithErrorCode.GIT_ROUTE_METADATA_NOT_FOUND.getCode(),

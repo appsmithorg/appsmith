@@ -131,6 +131,7 @@ public enum AppsmithErrorCode {
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
     FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
+    UNIQUE_SLUG_UNAVAILABLE("AE-APP-5007", "Slug is unavailable"),
 
     // Git route related error codes
     GIT_ROUTE_HANDLER_NOT_FOUND("AE-GIT-5005", "Git route handler not found"),
