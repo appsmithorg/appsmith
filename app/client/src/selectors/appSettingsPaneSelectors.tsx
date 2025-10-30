@@ -1,4 +1,4 @@
-import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/AppSettings";
+import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/types";
 import type { DefaultRootState } from "react-redux";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import { createSelector } from "reselect";

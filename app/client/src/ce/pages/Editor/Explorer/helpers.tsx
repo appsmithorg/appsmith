@@ -105,11 +105,31 @@ export function getAppViewerPageIdFromPath(path: string): string | null {
 
 export const matchEditorPath = (
   path: string,
-): Match<{ baseApplicationId: string; basePageId: string }> => {
+): Match<{
+  baseApplicationId: string;
+  basePageId: string;
+  applicationSlug?: string;
+  pageSlug?: string;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
+}> => {
   return matchBuilderPath(path, { end: false });
 };
 export const isEditorPath = (path: string) => {
   return !!matchEditorPath(path);
+};
+
+export const matchViewerPathTyped = (
+  path: string,
+): Match<{
+  baseApplicationId?: string;
+  basePageId?: string;
+  applicationSlug?: string;
+  pageSlug?: string;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
+}> => {
+  return matchViewerPath(path);
 };
 
 export const isViewerPath = (path: string) => {

@@ -46,4 +46,8 @@ export interface ApplicationPayload {
   publishedAppToCommunityTemplate?: boolean;
   forkedFromTemplateTitle?: string;
   connectedWorkflowId?: string;
+  staticUrlSettings?: {
+    enabled: boolean;
+    uniqueSlug: string;
+  };
 }

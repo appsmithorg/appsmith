@@ -26,12 +26,22 @@ export class SlugURLRedirect extends URLRedirect {
       isURLDeprecated(pathname) || !basePageIdInUrl;
 
     if (!isCurrentURLDeprecated) {
+      // Only use static slugs for viewer mode, not for edit mode
+      const staticApplicationSlug =
+        this._mode === APP_MODE.PUBLISHED
+          ? currentApplication?.staticUrlSettings?.uniqueSlug || ""
+          : "";
+      const staticPageSlug =
+        this._mode === APP_MODE.PUBLISHED ? currentPage?.uniqueSlug || "" : "";
+
       newURL =
         getUpdatedRoute(pathname, {
           applicationSlug,
           pageSlug,
           basePageId,
           customSlug,
+          staticApplicationSlug,
+          staticPageSlug,
         }) +
         search +
         hash;

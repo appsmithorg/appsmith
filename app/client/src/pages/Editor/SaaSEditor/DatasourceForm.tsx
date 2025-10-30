@@ -31,6 +31,7 @@ import { JSONtoForm } from "../DataSourceEditor/JSONtoForm";
 import { normalizeValues, validate } from "components/formControls/utils";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getGsheetProjectID,
   getGsheetToken,
 } from "selectors/editorSelectors";
@@ -762,7 +763,7 @@ const mapStateToProps = (state: DefaultRootState, props: any) => {
     ? currentApplicationIdForCreateNewApp
     : getCurrentApplicationId(state);
 
-  const basePageId = props.match?.params?.basePageId;
+  const basePageId = getCurrentBasePageId(state);
   const pageIdFromUrl = convertToPageIdSelector(state, basePageId);
   const pageId = props.pageId || pageIdFromUrl;
 
