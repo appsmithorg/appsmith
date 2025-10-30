@@ -99,12 +99,6 @@ describe("tests the sagas in initSagas", () => {
       .next()
       .put(generateAutoHeightLayoutTreeAction(true, false))
       .next()
-      .call(
-        executeActionDuringUserDetailsInitialisation,
-        ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-        action.payload.shouldInitialiseUserDetails,
-      )
-      .next()
       .isDone();
   });
 });

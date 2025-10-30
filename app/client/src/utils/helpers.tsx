@@ -1032,6 +1032,13 @@ export const matchPath_ViewerCustomSlug = (path: string) =>
     path: trimQueryString(VIEWER_CUSTOM_PATH),
   });
 
+export const matchPath_ViewerStatic = (path: string) =>
+  matchPath<{ staticApplicationSlug: string; staticPageSlug: string }>(path, {
+    path: trimQueryString(VIEWER_PATH_STATIC),
+    strict: false,
+    exact: false,
+  });
+
 export const getUpdatedRoute = (
   path: string,
   params: Record<string, string>,
@@ -1042,6 +1049,7 @@ export const getUpdatedRoute = (
   const matchBuilderCustomPath = matchPath_BuilderCustomSlug(path);
   const matchViewerSlugPath = matchPath_ViewerSlug(path);
   const matchViewerCustomPath = matchPath_ViewerCustomSlug(path);
+  const matchViewerStaticPath = matchPath_ViewerStatic(path);
 
   /*
    * Note: When making changes to the order of these conditions
@@ -1072,6 +1080,13 @@ export const getUpdatedRoute = (
     return getUpdatedRouteForCustomSlugPath(
       path,
       matchViewerCustomPath.params.customSlug,
+      params,
+    );
+  } else if (matchViewerStaticPath?.params) {
+    return getUpdateRouteForStaticPath(
+      path,
+      matchViewerStaticPath.params.staticApplicationSlug,
+      matchViewerStaticPath.params.staticPageSlug,
       params,
     );
   }
@@ -1106,6 +1121,20 @@ const getUpdateRouteForSlugPath = (
 ) => {
   let updatedPath = path;
 
+  // If static slugs are provided, convert to static URL format (remove -basePageId)
+  if (params.staticApplicationSlug && params.staticPageSlug) {
+    // Match the pattern: applicationSlug/pageSlug-basePageId
+    // Replace with: staticApplicationSlug/staticPageSlug (no basePageId)
+    const pattern = `${applicationSlug}/${pageSlug}${params.basePageId}`;
+
+    updatedPath = updatedPath.replace(
+      pattern,
+      `${params.staticApplicationSlug}/${params.staticPageSlug}`,
+    );
+
+    return updatedPath;
+  }
+
   if (params.customSlug) {
     updatedPath = updatedPath.replace(
       `${applicationSlug}/${pageSlug}`,
@@ -1120,6 +1149,30 @@ const getUpdateRouteForSlugPath = (
 
   if (params.pageSlug)
     updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+
+  return updatedPath;
+};
+
+const getUpdateRouteForStaticPath = (
+  path: string,
+  staticApplicationSlug: string,
+  staticPageSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+
+  // Update static application slug if provided
+  if (params.staticApplicationSlug) {
+    updatedPath = updatedPath.replace(
+      staticApplicationSlug,
+      params.staticApplicationSlug,
+    );
+  }
+
+  // Update static page slug if provided
+  if (params.staticPageSlug) {
+    updatedPath = updatedPath.replace(staticPageSlug, params.staticPageSlug);
+  }
 
   return updatedPath;
 };
