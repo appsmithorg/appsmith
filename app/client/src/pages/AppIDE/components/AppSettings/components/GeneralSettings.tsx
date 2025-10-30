@@ -279,9 +279,7 @@ function GeneralSettings() {
     application?.staticUrlSettings?.uniqueSlug,
     application?.slug,
     application?.staticUrlSettings?.enabled,
-    currentAppPage?.uniqueSlug,
-    currentAppPage?.slug,
-    currentAppPage?.customSlug,
+    currentAppPage,
   ]);
 
   const modalNewSlug = useMemo(() => {
@@ -300,8 +298,7 @@ function GeneralSettings() {
     modalType,
     applicationSlug,
     application?.slug,
-    currentAppPage?.customSlug,
-    currentAppPage?.slug,
+    currentAppPage,
     currentBasePageId,
   ]);
 

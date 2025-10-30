@@ -826,6 +826,7 @@ export const handlers = {
     return {
       ...state,
       isPersistingAppSlug: false,
+      appSlugSuggestion: "",
     };
   },
   [ReduxActionErrorTypes.ENABLE_STATIC_URL_ERROR]: (
