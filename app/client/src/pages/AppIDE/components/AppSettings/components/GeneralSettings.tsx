@@ -45,7 +45,10 @@ import {
   getIsFetchingAppSlugSuggestion,
   getAppSlugSuggestion,
 } from "ee/selectors/applicationSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+} from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
 import UrlPreview from "./UrlPreview";
@@ -83,6 +86,7 @@ function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const application = useSelector(getCurrentApplication);
+  const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
   const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
@@ -245,48 +249,60 @@ function GeneralSettings() {
   const shouldShowUrl = applicationSlug && applicationSlug.trim().length > 0;
   const appUrl = `${window.location.origin}/app/${applicationSlug}`;
 
-  // Get default page for constructing legacy URLs
-  const defaultPage = application?.pages?.find((page) => page.isDefault);
-  const defaultPageSlug = defaultPage?.slug || "page";
-  const defaultPageId = defaultPage?.id || "";
+  // Get current page details for constructing URLs
+  const currentAppPage = useMemo(
+    () => application?.pages?.find((page) => page.id === currentBasePageId),
+    [application?.pages, currentBasePageId],
+  );
 
   // Compute modal slugs based on the scenario
   const modalOldSlug = useMemo(() => {
+    const pageSlug = currentAppPage?.uniqueSlug || currentAppPage?.slug;
+
     if (modalType === "disable") {
-      // Disabling: show current static URL with default page
-      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${defaultPageSlug}`;
+      // Disabling: show current static URL with current page
+      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${pageSlug}`;
     } else {
+      const initialPageSlug =
+        currentAppPage?.customSlug || currentAppPage?.slug;
+
       // Enabling for first time or changing: show legacy format if not enabled yet
       if (!application?.staticUrlSettings?.enabled) {
-        return `${application?.slug || ""}/${defaultPageSlug}-${defaultPageId}`;
+        return `${application?.slug || ""}/${initialPageSlug}-${currentBasePageId}`;
       }
 
-      // Changing existing static URL: show current static URL with default page
-      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${defaultPageSlug}`;
+      // Changing existing static URL: show current static URL with current page
+      return `${application?.staticUrlSettings?.uniqueSlug || ""}/${pageSlug}`;
     }
   }, [
     modalType,
     application?.staticUrlSettings?.uniqueSlug,
     application?.slug,
     application?.staticUrlSettings?.enabled,
-    defaultPageSlug,
-    defaultPageId,
+    currentAppPage?.uniqueSlug,
+    currentAppPage?.slug,
+    currentAppPage?.customSlug,
   ]);
 
   const modalNewSlug = useMemo(() => {
     if (modalType === "disable") {
-      // Disabling: show legacy format with page ID
-      return `${application?.slug || ""}/${defaultPageSlug}-${defaultPageId}`;
+      const pageSlug = currentAppPage?.customSlug || currentAppPage?.slug;
+
+      // Disabling: show legacy format with current page ID
+      return `${application?.slug || ""}/${pageSlug}-${currentBasePageId}`;
     } else {
-      // Enabling or changing: show new static URL with default page
-      return `${applicationSlug || ""}/${defaultPageSlug}`;
+      const pageSlug = currentAppPage?.uniqueSlug || currentAppPage?.slug;
+
+      // Enabling or changing: show new static URL with current page
+      return `${applicationSlug || ""}/${pageSlug}`;
     }
   }, [
     modalType,
     applicationSlug,
     application?.slug,
-    defaultPageSlug,
-    defaultPageId,
+    currentAppPage?.customSlug,
+    currentAppPage?.slug,
+    currentBasePageId,
   ]);
 
   const AppUrlContent = () => (
