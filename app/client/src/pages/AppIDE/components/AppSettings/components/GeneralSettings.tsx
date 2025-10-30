@@ -251,7 +251,7 @@ function GeneralSettings() {
 
   // Get current page details for constructing URLs
   const currentAppPage = useMemo(
-    () => application?.pages?.find((page) => page.id === currentBasePageId),
+    () => application?.pages?.find((page) => page.baseId === currentBasePageId),
     [application?.pages, currentBasePageId],
   );
 
