@@ -1248,4 +1248,25 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
         log.info("Page slugs updated successfully for import");
         return Mono.just(pagesToImport);
     }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    public Mono<PageDTO> updateUniqueSlugBeforeClone(PageDTO incomingPageDTO, List<NewPage> existingPagesFromApp) {
+        if (!StringUtils.hasText(incomingPageDTO.getUniqueSlug())) {
+            return Mono.just(incomingPageDTO);
+        }
+
+        Map<String, String> uniqueSlugToGitSyncId = new HashMap<>();
+
+        existingPagesFromApp.stream()
+                .filter(page -> page.getUnpublishedPage() != null
+                        && StringUtils.hasText(page.getUnpublishedPage().getUniqueSlug()))
+                .forEach(page -> {
+                    uniqueSlugToGitSyncId.put(page.getUnpublishedPage().getUniqueSlug(), "placeholder");
+                });
+
+        String updatedUniqueSlug = generateUniquePageSlug(null, incomingPageDTO.getUniqueSlug(), uniqueSlugToGitSyncId);
+        incomingPageDTO.setUniqueSlug(updatedUniqueSlug);
+        return Mono.just(incomingPageDTO);
+    }
 }

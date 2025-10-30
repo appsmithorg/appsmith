@@ -38,7 +38,7 @@ public class PageDTO implements LayoutContainer {
     @JsonView({Views.Public.class})
     private String baseId;
 
-    @JsonView({Views.Public.class, Git.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String uniqueSlug;
 
     @JsonView({Views.Public.class, Views.Export.class, Git.class})

@@ -26,6 +26,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     public ApplicationPageServiceImpl(
             WorkspaceService workspaceService,
             ApplicationService applicationService,
+            StaticUrlService staticUrlService,
             SessionUserService sessionUserService,
             WorkspaceRepository workspaceRepository,
             UpdateLayoutService updateLayoutService,
@@ -69,6 +71,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
         super(
                 workspaceService,
                 applicationService,
+                staticUrlService,
                 sessionUserService,
                 workspaceRepository,
                 updateLayoutService,

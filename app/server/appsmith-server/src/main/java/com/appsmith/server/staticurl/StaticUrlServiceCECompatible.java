@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.UniqueSlugDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -42,6 +43,8 @@ public interface StaticUrlServiceCECompatible {
 
     Mono<List<NewPage>> updateUniquePageSlugsBeforeImport(
             List<NewPage> pagesToImport, List<NewPage> pagesFromDb, Application importedApplication);
+
+    Mono<PageDTO> updateUniqueSlugBeforeClone(PageDTO incomingPageDTO, List<NewPage> newPages);
 
     void deleteUniqueSlugFromDbWhenAbsentFromPageJson(NewPage pageFromJson, NewPage pageFromDb);
 }

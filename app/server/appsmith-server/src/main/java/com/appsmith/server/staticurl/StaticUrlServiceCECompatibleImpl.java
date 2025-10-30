@@ -78,6 +78,12 @@ public class StaticUrlServiceCECompatibleImpl implements StaticUrlServiceCECompa
     }
 
     @Override
+    public Mono<PageDTO> updateUniqueSlugBeforeClone(PageDTO incomingPageDTO, List<NewPage> existingPagesFromApp) {
+        incomingPageDTO.setUniqueSlug(null);
+        return Mono.just(incomingPageDTO);
+    }
+
+    @Override
     public void deleteUniqueSlugFromDbWhenAbsentFromPageJson(NewPage pageFromJson, NewPage pageFromDb) {
         PageDTO jsonPageEditDTO = pageFromJson.getUnpublishedPage();
         PageDTO dbPageEditDTO = pageFromDb.getUnpublishedPage();

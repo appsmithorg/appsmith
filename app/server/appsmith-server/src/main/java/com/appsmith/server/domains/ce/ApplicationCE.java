@@ -93,7 +93,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @JsonView(Views.Public.class)
     private String slug;
 
-    @JsonView({Views.Public.class, Git.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     StaticUrlSettings staticUrlSettings;
 
     @JsonView({Views.Internal.class, Git.class})
@@ -521,21 +521,11 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @FieldNameConstants
     public static class StaticUrlSettingsCE implements Serializable {
 
-        @JsonView({Views.Public.class, Git.class})
+        @JsonView({Views.Public.class, Views.Export.class, Git.class})
         private Boolean enabled;
 
-        @JsonView({Views.Public.class, Git.class})
+        @JsonView({Views.Public.class, Views.Export.class, Git.class})
         private String uniqueSlug;
-
-        // Future properties can be added here:
-        // @JsonView({Views.Public.class, Git.class})
-        // private String organizationId; // For org-level constraints
-
-        // @JsonView({Views.Public.class, Git.class})
-        // private String customDomain; // For custom domain support
-
-        // @JsonView({Views.Public.class, Git.class})
-        // private Boolean sslEnabled; // For SSL configuration
 
         public static class Fields {}
     }

@@ -312,6 +312,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         final BridgeQuery<NewPage> uniqueSlugCriteria = getUniqueSlugCriterion(uniquePageName, viewMode);
         final BridgeQuery<NewPage> appCriteria = Bridge.equal(NewPage.Fields.applicationId, applicationId);
 
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
+            // exist. To handle this, only fetch non-deleted pages
+            uniqueSlugCriteria.isNull(NewPage.Fields.unpublishedPage_deletedAt);
+        }
+
         return queryBuilder()
                 .criteria(appCriteria.and(uniqueSlugCriteria))
                 .permission(permission)

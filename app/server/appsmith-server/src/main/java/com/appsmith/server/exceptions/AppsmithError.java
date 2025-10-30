@@ -1021,7 +1021,7 @@ public enum AppsmithError {
             ErrorType.ARGUMENT_ERROR,
             null),
     UNIQUE_SLUG_UNAVAILABLE(
-            500,
+            409,
             AppsmithErrorCode.UNIQUE_SLUG_UNAVAILABLE.getCode(),
             "Duplicate {0} slug detected. Slug value: {1} is already in use. It must be unique",
             AppsmithErrorAction.DEFAULT,
