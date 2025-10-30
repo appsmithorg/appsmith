@@ -73,8 +73,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     // Always add the organization level flags after the user flags to make sure organization flags gets
                     // the precedence
                     combinedFlags.putAll(remoteAndOrganizationFlags.getT2());
-                    // Mocking flag
-                    combinedFlags.put(FeatureFlagEnum.release_static_url_enabled.name(), true);
                     return combinedFlags;
                 });
     }
