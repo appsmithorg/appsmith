@@ -48,6 +48,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
+  getPageList,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
@@ -86,6 +87,7 @@ function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const application = useSelector(getCurrentApplication);
+  const pages = useSelector(getPageList);
   const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
@@ -251,8 +253,8 @@ function GeneralSettings() {
 
   // Get current page details for constructing URLs
   const currentAppPage = useMemo(
-    () => application?.pages?.find((page) => page.baseId === currentBasePageId),
-    [application?.pages, currentBasePageId],
+    () => pages?.find((page) => page.basePageId === currentBasePageId),
+    [pages, currentBasePageId],
   );
 
   // Compute modal slugs based on the scenario
