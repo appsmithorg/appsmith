@@ -1883,10 +1883,10 @@ public class ImportServiceTests {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
-                    importedApplication
-                            .getGitApplicationMetadata()
-                            .setDefaultApplicationId(importedApplication.getId());
+                    GitArtifactMetadata gitData = new GitArtifactMetadata();
+                    importedApplication.setGitApplicationMetadata(gitData);
+                    gitData.setDefaultApplicationId(importedApplication.getId());
+                    gitData.setRemoteUrl("https://dummy.url/dummy-user/dummy-app");
                     return applicationService
                             .save(importedApplication)
                             .then(importService.importArtifactInWorkspaceFromGit(

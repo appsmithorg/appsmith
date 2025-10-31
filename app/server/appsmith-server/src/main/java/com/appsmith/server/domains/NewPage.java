@@ -28,6 +28,23 @@ public class NewPage extends RefAwareDomain implements Context {
     @JsonView(Views.Public.class)
     PageDTO publishedPage;
 
+    @JsonView(Views.Internal.class)
+    public String getUniqueSlugOrFallback(boolean viewMode) {
+        if (viewMode) {
+            if (this.publishedPage == null) {
+                return "";
+            }
+
+            return this.publishedPage.getUniqueSlugOrFallback();
+        }
+
+        if (this.getUnpublishedPage() == null) {
+            return "";
+        }
+
+        return this.unpublishedPage.getUniqueSlugOrFallback();
+    }
+
     @Override
     public void sanitiseToExportDBObject() {
         this.setApplicationId(null);
@@ -73,6 +90,7 @@ public class NewPage extends RefAwareDomain implements Context {
         public static String unpublishedPage_isHidden = unpublishedPage + "." + PageDTO.Fields.isHidden;
         public static String unpublishedPage_slug = unpublishedPage + "." + PageDTO.Fields.slug;
         public static String unpublishedPage_customSlug = unpublishedPage + "." + PageDTO.Fields.customSlug;
+        public static String unpublishedPage_uniqueSlug = unpublishedPage + "." + PageDTO.Fields.uniqueSlug;
         public static String unpublishedPage_deletedAt = unpublishedPage + "." + PageDTO.Fields.deletedAt;
         public static String unpublishedPage_dependencyMap = unpublishedPage + "." + PageDTO.Fields.dependencyMap;
 
@@ -82,5 +100,6 @@ public class NewPage extends RefAwareDomain implements Context {
         public static String publishedPage_isHidden = publishedPage + "." + PageDTO.Fields.isHidden;
         public static String publishedPage_slug = publishedPage + "." + PageDTO.Fields.slug;
         public static String publishedPage_customSlug = publishedPage + "." + PageDTO.Fields.customSlug;
+        public static String publishedPage_uniqueSlug = publishedPage + "." + PageDTO.Fields.uniqueSlug;
     }
 }

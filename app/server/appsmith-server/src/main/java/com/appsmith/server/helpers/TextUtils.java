@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.text.Normalizer;
 import java.util.Arrays;
@@ -23,6 +24,24 @@ public class TextUtils {
      * <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html#posix">Details on {@code Punct}</a>.
      */
     private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}]+");
+
+    /**
+     * Pattern to recognize mongo style UUIDs. 24 hexadecimal characters.
+     */
+    static final Pattern MONGO_STYLE_UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{24}$");
+
+    /**
+     * Pattern to recognize Standard UUIDs. Standard UUID pattern: 8-4-4-4-12 hex groups
+     */
+    static final Pattern STANDARD_UUID_PATTERN =
+            Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+    /**
+     * Patter for unique slugs.
+     */
+    static final Pattern ALLOWED_UNIQUE_SLUG_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$");
+
+    static final Pattern WHITE_SPACE_PATTERN = Pattern.compile("\\s");
 
     /**
      * Creates URL safe text aka slug from the input text. It supports english locale only.
@@ -73,5 +92,21 @@ public class TextUtils {
      */
     public static String generateDefaultRoleNameForResource(String roleType, String resourceName) {
         return roleType + " - " + resourceName;
+    }
+
+    public static boolean isSlugFormatValid(String slug) {
+        // This check disallows:
+        // Null values or Empty Strings
+        // Any WhiteSpace Characters
+        // Mongo Style UUIDs
+        // Standard UUIDs
+        if (!StringUtils.hasText(slug)
+                || WHITE_SPACE_PATTERN.matcher(slug).find()
+                || MONGO_STYLE_UUID_PATTERN.matcher(slug).matches()
+                || STANDARD_UUID_PATTERN.matcher(slug).matches()) {
+            return false;
+        }
+
+        return ALLOWED_UNIQUE_SLUG_PATTERN.matcher(slug).matches();
     }
 }

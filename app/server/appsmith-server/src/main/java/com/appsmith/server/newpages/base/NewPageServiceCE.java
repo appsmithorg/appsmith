@@ -26,6 +26,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 
+    Flux<NewPage> findByBasePageId(String basePageId, AclPermission permission, List<String> projectedFieldNames);
+
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
 
     Flux<NewPage> findNewPagesByApplicationId(
@@ -96,4 +98,12 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<PageDTO> findByApplicationIdAndApplicationMode(
             String applicationId, AclPermission permission, ApplicationMode applicationMode);
+
+    Mono<NewPage> findByApplicationIdAndUniquePageSlug(
+            String applicationId, String uniquePageName, ApplicationMode applicationMode);
+
+    Mono<NewPage> findByIdAndApplicationMode(String id, ApplicationMode mode);
+
+    Mono<NewPage> findByApplicationIdAndPageSlug(
+            String applicationId, String pageSlug, ApplicationMode mode, List<String> projections);
 }

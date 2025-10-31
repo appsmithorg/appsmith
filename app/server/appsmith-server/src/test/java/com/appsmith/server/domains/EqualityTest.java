@@ -23,6 +23,7 @@ public class EqualityTest {
             TenantConfiguration.class,
             Application.AppLayout.class,
             Application.EmbedSetting.class,
+            Application.StaticUrlSettings.class,
             GitArtifactMetadata.class);
 
     @SneakyThrows
@@ -62,20 +63,16 @@ public class EqualityTest {
     }
 
     @Test
-    void testApplicationDetail() {
-        Application.AppPositioning p1 = new Application.AppPositioning(Application.AppPositioning.Type.AUTO);
-        Application.AppPositioning p2 = new Application.AppPositioning(Application.AppPositioning.Type.AUTO);
-        Application.AppPositioning p3 = new Application.AppPositioning(Application.AppPositioning.Type.FIXED);
+    void testStaticUrlSettings() {
+        Application.StaticUrlSettings p1 = new Application.StaticUrlSettings(true, "unique");
+        Application.StaticUrlSettings p2 = new Application.StaticUrlSettings(true, "unique");
+        Application.StaticUrlSettings p3 = new Application.StaticUrlSettings(true, "notUnique");
         assertThat(p1).isEqualTo(p2).isNotEqualTo(p3);
 
-        ApplicationDetail d1 = new ApplicationDetail();
-        d1.setAppPositioning(p1);
-        ApplicationDetail d2 = new ApplicationDetail();
-        d2.setAppPositioning(p2);
-        ApplicationDetail d3 = new ApplicationDetail();
-        d3.setAppPositioning(p3);
-        assertThat(d1).isEqualTo(d2);
-        assertThat(d1).isNotEqualTo(d3);
+        Application.StaticUrlSettings c1 = new Application.StaticUrlSettings(false, "unique");
+        Application.StaticUrlSettings c2 = new Application.StaticUrlSettings(false, "unique");
+        Application.StaticUrlSettings c3 = new Application.StaticUrlSettings(false, "notUnique");
+        assertThat(c1).isEqualTo(c2).isNotEqualTo(c3);
     }
 
     @Test
