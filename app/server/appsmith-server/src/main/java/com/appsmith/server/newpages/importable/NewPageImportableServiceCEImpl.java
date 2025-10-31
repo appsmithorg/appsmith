@@ -434,6 +434,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         }
 
         // Git Applications only
+        //TODO: add projections
         Mono<Map<String, NewPage>> gitSyncToPagesFromAllBranchesMono = newPageService
                 .findAllByApplicationIds(importingMetaDTO.getBranchedArtifactIds(), null)
                 .filter(page -> page.getGitSyncId() != null)
