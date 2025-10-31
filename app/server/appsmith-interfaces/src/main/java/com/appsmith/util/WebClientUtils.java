@@ -162,9 +162,13 @@ public class WebClientUtils {
 
     private static HttpClient makeSafeHttpClient(HttpClient httpClient) {
         if (shouldUseSystemProxy()) {
-            httpClient = httpClient.proxyWithSystemProperties();
+            // When a system proxy is configured, let the proxy perform DNS resolution.
+            // Avoid installing the custom resolver which forces local DNS lookups that
+            // can fail in restricted networks where only the proxy has egress.
+            return httpClient.proxyWithSystemProperties();
         }
 
+        // No proxy: keep the secure resolver to enforce disallowed host protections.
         return httpClient.resolver(ResolverGroup.INSTANCE);
     }
 
