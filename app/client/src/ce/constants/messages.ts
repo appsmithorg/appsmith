@@ -1128,6 +1128,14 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const GENERATE_DEPLOY_KEY_TITLE = () => "Deploy key";
+export const GENERATE_DEPLOY_KEY_MESSAGE = () =>
+  "Generate a new deploy key. You'll need to add the new key to your Git repository to restore this app's connection.";
+export const GENERATE_DEPLOY_KEY_BTN = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_TITLE = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_WAIT_TEXT = () => "Saving deploy key...";
+export const INVALID_DEPLOY_KEY_WARNING = () =>
+  "Your current deploy key may be invalid or outdated. Try generating a new key below and adding it to your Git repository.";
 export const AUTOCOMMIT = () => "Auto - commit";
 export const AUTOCOMMIT_MESSAGE = () =>
   "Enable/disable auto migrations from Appsmith.";

@@ -10,6 +10,8 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import { ENTITY_TYPE as DEBUGGER_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { Icon } from "@appsmith/ads";
 
 type IconProps = LogItemProps & {
   pluginImages: Record<string, string>;
@@ -46,5 +48,8 @@ export const getIconForEntity: IconEntityMapper = {
     }
 
     return <img alt="icon" />;
+  },
+  [DEBUGGER_ENTITY_TYPE.GIT]: () => {
+    return <Icon name="git-repository" />;
   },
 };

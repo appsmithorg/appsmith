@@ -2,6 +2,7 @@ import React from "react";
 import LocalProfile from "../../LocalProfile";
 import DangerZone from "../../DangerZone";
 import styled from "styled-components";
+import InvalidKeyWarning from "./InvalidKeyWarning";
 
 const Container = styled.div`
   overflow: auto;
@@ -21,6 +22,7 @@ function TabGeneral({
 
   return (
     <Container>
+      <InvalidKeyWarning />
       <LocalProfile />
       {showDangerZone && <DangerZone />}
     </Container>

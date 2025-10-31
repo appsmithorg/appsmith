@@ -6,6 +6,9 @@ import {
   DANGER_ZONE,
   DISCONNECT_GIT,
   DISCONNECT_GIT_MESSAGE,
+  GENERATE_DEPLOY_KEY_BTN,
+  GENERATE_DEPLOY_KEY_MESSAGE,
+  GENERATE_DEPLOY_KEY_TITLE,
   createMessage,
 } from "ee/constants/messages";
 import { Button, Divider, Text } from "@appsmith/ads";
@@ -64,6 +67,7 @@ interface DangerZoneViewProps {
     open: boolean,
     tab?: keyof typeof GitSettingsTab,
   ) => void;
+  openGenerateDeployKeyModal: () => void;
 }
 
 function DangerZoneView({
@@ -73,6 +77,7 @@ function DangerZoneView({
   isManageAutocommitPermitted = false,
   isToggleAutocommitLoading = false,
   openDisconnectModal = noop,
+  openGenerateDeployKeyModal = noop,
   toggleAutocommit = noop,
   toggleDisableAutocommitModal = noop,
   toggleSettingsModal = noop,
@@ -133,6 +138,25 @@ function DangerZoneView({
             </Button>
           </BodyContainer>
         )}
+        {showDivider && <StyledDivider />}
+        <BodyContainer>
+          <BodyInnerContainer>
+            <Text kind="heading-xs" renderAs="p">
+              {createMessage(GENERATE_DEPLOY_KEY_TITLE)}
+            </Text>
+            <Text renderAs="p">
+              {createMessage(GENERATE_DEPLOY_KEY_MESSAGE)}
+            </Text>
+          </BodyInnerContainer>
+          <Button
+            data-testid="t--git-disconnect-btn"
+            kind="error"
+            onClick={openGenerateDeployKeyModal}
+            size="md"
+          >
+            {createMessage(GENERATE_DEPLOY_KEY_BTN)}
+          </Button>
+        </BodyContainer>
         {showDivider && <StyledDivider />}
         {showDisconnect && (
           <BodyContainer>

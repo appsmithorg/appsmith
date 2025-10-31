@@ -7,7 +7,7 @@ import {
   WellContainer,
   WellTitle,
   WellTitleContainer,
-} from "./common";
+} from "../../common/GitUIComponents";
 import {
   Callout,
   Checkbox,
@@ -20,7 +20,7 @@ import {
   Text,
 } from "@appsmith/ads";
 import styled from "styled-components";
-import { GIT_DEMO_GIF, GIT_PROVIDERS } from "./constants";
+import { GIT_DEMO_GIF, GIT_PROVIDERS } from "../../common/constants";
 import noop from "lodash/noop";
 import {
   CHOOSE_A_GIT_PROVIDER_STEP,
@@ -33,7 +33,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import log from "loglevel";
-import type { ConnectFormDataState, GitProvider } from "./types";
+import type { ConnectFormDataState, GitProvider } from "../../common/types";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const WellInnerContainer = styled.div`
