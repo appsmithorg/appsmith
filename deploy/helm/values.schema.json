@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Appsmith Helm Chart Values Schema",
+  "type": "object",
+  "properties": {
+    "branding": {
+      "type": "object",
+      "title": "Branding Configuration",
+      "description": "Custom branding configuration for Appsmith instance",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable custom branding configuration",
+          "default": true
+        },
+        "colors": {
+          "type": "object",
+          "title": "Brand Colors",
+          "description": "Custom color configuration for branding",
+          "properties": {
+            "primary": {
+              "type": "string",
+              "description": "Primary brand color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            },
+            "background": {
+              "type": "string",
+              "description": "Background color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            },
+            "font": {
+              "type": "string",
+              "description": "Font color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            },
+            "disabled": {
+              "type": "string",
+              "description": "Disabled state color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            },
+            "hover": {
+              "type": "string",
+              "description": "Hover state color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            },
+            "active": {
+              "type": "string",
+              "description": "Active state color (hex color code or empty string)",
+              "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})?$",
+              "default": ""
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "colors"],
+      "additionalProperties": false
+    },
+    "redis": {
+      "type": "object"
+    },
+    "mongodb": {
+      "type": "object"
+    },
+    "postgresql": {
+      "type": "object"
+    },
+    "externalSecrets": {
+      "type": "object"
+    },
+    "prometheus": {
+      "type": "object"
+    },
+    "global": {
+      "type": "object"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    },
+    "containerName": {
+      "type": "string"
+    },
+    "commonLabels": {
+      "type": "object"
+    },
+    "commonAnnotations": {
+      "type": "object"
+    },
+    "schedulerName": {
+      "type": "string"
+    },
+    "strategyType": {
+      "type": "string"
+    },
+    "initContainer": {
+      "type": "object"
+    },
+    "image": {
+      "type": "object"
+    },
+    "serviceAccount": {
+      "type": "object"
+    },
+    "podAnnotations": {
+      "type": "object"
+    },
+    "podLabels": {
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "type": "object"
+    },
+    "securityContext": {
+      "type": "object"
+    },
+    "service": {
+      "type": "object"
+    },
+    "ingress": {
+      "type": "object"
+    },
+    "customCAcert": {
+      "type": ["object", "null"]
+    },
+    "resources": {
+      "type": "object"
+    },
+    "autoscaling": {
+      "type": "object"
+    },
+    "nodeSelector": {
+      "type": "object"
+    },
+    "tolerations": {
+      "type": "array"
+    },
+    "affinity": {
+      "type": "object"
+    },
+    "persistence": {
+      "type": "object"
+    },
+    "storageClass": {
+      "type": "object"
+    },
+    "podDisruptionBudgets": {
+      "type": "object"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "keda": {
+      "type": "object"
+    },
+    "autoupdate": {
+      "type": "object"
+    },
+    "secretName": {
+      "type": "string"
+    },
+    "applicationConfig": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
+

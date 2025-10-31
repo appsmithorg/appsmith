@@ -204,6 +204,74 @@ helm install \
   stable-appsmith/appsmith --generate-name
 ```
 
+### Branding configuration
+
+The Appsmith Helm chart supports custom branding to match your organization's visual identity. You can configure custom colors for various UI elements.
+
+#### Branding parameters
+
+| Name | Description | Value |
+| ---- | ----------- | ----- |
+| `branding.enabled` | Enable custom branding configuration | `true` |
+| `branding.colors.primary` | Primary brand color (hex format) | `""` |
+| `branding.colors.background` | Background color (hex format) | `""` |
+| `branding.colors.font` | Font color (hex format) | `""` |
+| `branding.colors.disabled` | Disabled state color (hex format) | `""` |
+| `branding.colors.hover` | Hover state color (hex format) | `""` |
+| `branding.colors.active` | Active state color (hex format) | `""` |
+
+#### How it works
+
+When enabled, the branding configuration creates a ConfigMap named `<release-name>-branding` containing an `appsmith-branding.json` file with the following structure:
+
+```json
+{
+  "brandColors": {
+    "primary": "#FF6B35",
+    "background": "#FFFFFF",
+    "font": "#333333",
+    "disabled": "#CCCCCC",
+    "hover": "#FF8C5A",
+    "active": "#E55A2B"
+  }
+}
+```
+
+#### Example usage
+
+To deploy Appsmith with custom branding colors:
+
+```bash
+helm install stable-appsmith/appsmith --generate-name \
+  --set branding.enabled=true \
+  --set branding.colors.primary="#FF6B35" \
+  --set branding.colors.background="#FFFFFF" \
+  --set branding.colors.font="#333333" \
+  --set branding.colors.hover="#FF8C5A"
+```
+
+Alternatively, you can create a `custom-branding.yaml` file:
+
+```yaml
+branding:
+  enabled: true
+  colors:
+    primary: "#FF6B35"
+    background: "#FFFFFF"
+    font: "#333333"
+    disabled: "#CCCCCC"
+    hover: "#FF8C5A"
+    active: "#E55A2B"
+```
+
+Then install using:
+
+```bash
+helm install -f custom-branding.yaml stable-appsmith/appsmith --generate-name
+```
+
+**Note:** Color values should be in hex format (e.g., `#FF6B35`). Empty strings are allowed if you want to use default values for specific colors.
+
 ## Expose Appsmith
 - If you wish to publish your Appsmith to the world through the Internet, you will need to setup the Ingress controller firstly. Please refer to the section **Kubernetes NGINX Ingress Controller** in the [Prerequisites](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#prerequisites)
 - In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
