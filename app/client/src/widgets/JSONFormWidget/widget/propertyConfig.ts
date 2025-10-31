@@ -515,6 +515,29 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        updateHook: (
+          props: JSONFormWidgetProps,
+          propertyPath: string,
+          propertyValue: string,
+        ) => {
+          const parentProperty = prefix;
+          const parentStyles = props[parentProperty as keyof JSONFormWidgetProps];
+
+          // Replace the parent styles object with a shallow copy containing the updated value for proper reactivity
+          if (parentStyles && typeof parentStyles === "object") {
+            return [
+              {
+                propertyPath: parentProperty,
+                propertyValue: {
+                  ...parentStyles,
+                  borderRadius: propertyValue,
+                },
+              },
+            ];
+          }
+
+          return [];
+        },
       },
       {
         propertyName: `${prefix}.boxShadow`,
@@ -527,6 +550,29 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
+        },
+        updateHook: (
+          props: JSONFormWidgetProps,
+          propertyPath: string,
+          propertyValue: string,
+        ) => {
+          const parentProperty = prefix;
+          const parentStyles = props[parentProperty as keyof JSONFormWidgetProps];
+
+          // Replace the parent styles object with a shallow copy containing the updated value proper reactivity
+          if (parentStyles && typeof parentStyles === "object") {
+            return [
+              {
+                propertyPath: parentProperty,
+                propertyValue: {
+                  ...parentStyles,
+                  boxShadow: propertyValue,
+                },
+              },
+            ];
+          }
+
+          return [];
         },
       },
     ],
