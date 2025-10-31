@@ -3,6 +3,7 @@ import { Switch, useRouteMatch, useLocation } from "react-router-dom";
 import PageWrapper from "pages/common/PageWrapper";
 import DefaultWorkspacePage from "./defaultWorkspacePage";
 import Settings from "./settings";
+import { WorkspaceDatasourcesPage } from "./WorkspaceDatasourcesPage";
 import { SentryRoute } from "components/SentryRoute";
 
 export function Workspace() {
@@ -10,15 +11,43 @@ export function Workspace() {
   const location = useLocation();
 
   return (
-    <PageWrapper displayName="Workspace Settings">
-      <Switch location={location}>
-        <SentryRoute
-          component={Settings}
-          path={`${path}/:workspaceId/settings`}
-        />
-        <SentryRoute component={DefaultWorkspacePage} />
-      </Switch>
-    </PageWrapper>
+    <Switch location={location}>
+      <SentryRoute
+        component={() => (
+          <PageWrapper displayName="Workspace Settings">
+            <Settings />
+          </PageWrapper>
+        )}
+        path={`${path}/:workspaceId/settings`}
+      />
+      <SentryRoute
+        component={({
+          match,
+        }: {
+          match: { params: { workspaceId: string } };
+        }) => (
+          <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
+        )}
+        path={`${path}/:workspaceId/datasources`}
+      />
+      <SentryRoute
+        component={({
+          match,
+        }: {
+          match: { params: { workspaceId: string } };
+        }) => (
+          <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
+        )}
+        path={`${path}/:workspaceId/datasource`}
+      />
+      <SentryRoute
+        component={() => (
+          <PageWrapper displayName="Workspace Settings">
+            <DefaultWorkspacePage />
+          </PageWrapper>
+        )}
+      />
+    </Switch>
   );
 }
 

@@ -48,4 +48,5 @@ export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
     BUILDER_PATH_STATIC,
   ],
   [IDE_TYPE.UIPackage]: [],
+  [IDE_TYPE.Workspace]: [],
 };

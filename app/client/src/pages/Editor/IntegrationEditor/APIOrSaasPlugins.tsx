@@ -365,14 +365,21 @@ const mapStateToProps = (
       ) as UpcomingIntegration[])
     : [];
 
+  // Check if we're on workspace datasources page
+  const isWorkspaceDatasourcesPage =
+    window.location.pathname.includes("/workspace/") &&
+    window.location.pathname.includes("/datasources");
+
   const restAPIVisible =
     !props.showSaasAPIs &&
+    !isWorkspaceDatasourcesPage &&
     filterSearch(
       [{ name: createMessage(CREATE_NEW_DATASOURCE_REST_API) }],
       searchedPlugin,
     ).length > 0;
   const graphQLAPIVisible =
     !props.showSaasAPIs &&
+    !isWorkspaceDatasourcesPage &&
     filterSearch(
       [{ name: createMessage(CREATE_NEW_DATASOURCE_GRAPHQL_API) }],
       searchedPlugin,
