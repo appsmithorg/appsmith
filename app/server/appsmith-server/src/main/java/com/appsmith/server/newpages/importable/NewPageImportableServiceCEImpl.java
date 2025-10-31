@@ -414,38 +414,23 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .canCreatePage(importedApplication)
                 .cache();
 
-        // If not connected to git, let's go ahead and import pages directly
-        if (!GitUtils.isArtifactConnectedToGit(importedApplication.getGitArtifactMetadata())) {
-            return hasPageCreatePermissionMonoCached
-                    .zipWith(pagesWithUpdatedUniqueSlugMono)
-                    .flatMapMany(tuple2 -> {
-                        Boolean canCreatePages = tuple2.getT1();
-                        List<NewPage> updatedSlugpagesToImport = tuple2.getT2();
-                        if (!canCreatePages) {
-                            log.error(
-                                    "User does not have permission to create pages in application with id: {}",
-                                    importedApplication.getId());
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, createPage));
-                        }
-
-                        return insertPagesInBulkFlux(updatedSlugpagesToImport, importingMetaDTO);
-                    });
+        Mono<Map<String, NewPage>> gitSyncToPagesFromAllBranchesMono = Mono.just(new HashMap<>());
+        if (GitUtils.isArtifactConnectedToGit(importedApplication.getGitArtifactMetadata())) {
+            // Git Applications only
+            // TODO: add projections
+            gitSyncToPagesFromAllBranchesMono = newPageService
+                    .findAllByApplicationIds(importingMetaDTO.getBranchedArtifactIds(), null)
+                    .filter(page -> page.getGitSyncId() != null)
+                    .collectMap(NewPage::getGitSyncId)
+                    .cache();
         }
-
-        // Git Applications only
-        Mono<Map<String, NewPage>> gitSyncToPagesFromAllBranchesMono = newPageService
-                .findAllByApplicationIds(importingMetaDTO.getBranchedArtifactIds(), null)
-                .filter(page -> page.getGitSyncId() != null)
-                .collectMap(NewPage::getGitSyncId)
-                .cache();
 
         return Mono.zip(
                         gitSyncToPagesFromAllBranchesMono,
                         pagesWithUpdatedUniqueSlugMono,
                         hasPageCreatePermissionMonoCached)
                 .flatMapMany(tuple3 -> {
-                    List<NewPage> updatedSlugpagesToImport = tuple3.getT2();
+                    List<NewPage> updatedSlugPagesToImport = tuple3.getT2();
                     Boolean canCreatePage = tuple3.getT3();
 
                     Map<String, NewPage> gitSyncToPagesFromAllBranches = tuple3.getT1();
@@ -456,7 +441,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             .forEach(pageFromDb ->
                                     gitSyncToDbPagesFromCurrentApp.put(pageFromDb.getGitSyncId(), pageFromDb));
 
-                    return Flux.fromIterable(updatedSlugpagesToImport).flatMap(pageToImport -> {
+                    return Flux.fromIterable(updatedSlugPagesToImport).flatMap(pageToImport -> {
                         log.info(
                                 "Importing page: {}",
                                 pageToImport.getUnpublishedPage().getName());
