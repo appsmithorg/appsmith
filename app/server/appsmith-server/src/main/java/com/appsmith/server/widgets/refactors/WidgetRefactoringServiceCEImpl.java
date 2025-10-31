@@ -16,9 +16,11 @@ import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
 import com.appsmith.server.refactors.resolver.ContextLayoutRefactorResolver;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +29,11 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_WIDGET;
+import static com.appsmith.external.constants.spans.RefactorSpan.WIDGET_GET_CONTEXT_DTO;
+import static com.appsmith.external.constants.spans.RefactorSpan.WIDGET_GET_EXISTING_NAMES;
+import static com.appsmith.external.constants.spans.RefactorSpan.WIDGET_REFACTOR_NAME_IN_DSL;
+import static com.appsmith.external.constants.spans.RefactorSpan.WIDGET_REFACTOR_REFERENCES;
+import static com.appsmith.external.constants.spans.RefactorSpan.WIDGET_UPDATE_CONTEXT;
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 
@@ -36,6 +43,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     protected final ObjectMapper objectMapper;
     protected final WidgetRefactorUtil widgetRefactorUtil;
     private final ContextLayoutRefactorResolver contextLayoutRefactorResolver;
+    protected final ObservationRegistry observationRegistry;
 
     @Override
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
@@ -55,6 +63,13 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
 
+        log.debug(
+                "Starting widget refactoring: contextType={}, layoutId={}, oldName={}, newName={}",
+                contextType,
+                layoutId,
+                oldName,
+                newName);
+
         Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
         Pattern oldNamePattern = refactoringMetaDTO.getOldNamePattern();
 
@@ -63,8 +78,10 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
                 contextLayoutRefactorResolver.getContextLayoutRefactorHelper(contextType);
 
         // Get context DTO mono (either PageDTO or ModuleDTO)
-        Mono<? extends LayoutContainer> contextDTOMono =
-                contextLayoutRefactorHelper.getContextDTOMono(refactoringMetaDTO);
+        Mono<? extends LayoutContainer> contextDTOMono = contextLayoutRefactorHelper
+                .getContextDTOMono(refactoringMetaDTO)
+                .name(WIDGET_GET_CONTEXT_DTO)
+                .tap(Micrometer.observation(observationRegistry));
 
         return contextDTOMono
                 .flatMap(contextDTO -> {
@@ -91,21 +108,34 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
                                 final JsonNode dslNode = objectMapper.convertValue(layout.getDsl(), JsonNode.class);
                                 return widgetRefactorUtil
                                         .refactorNameInDsl(dslNode, oldName, newName, evalVersion, oldNamePattern)
+                                        .name(WIDGET_REFACTOR_NAME_IN_DSL)
+                                        .tap(Micrometer.observation(observationRegistry))
                                         .flatMap(dslBindingPaths -> {
                                             updatedBindingPaths.addAll(dslBindingPaths);
+                                            log.debug(
+                                                    "Updated {} binding paths in widget DSL for widget: {} -> {}",
+                                                    dslBindingPaths.size(),
+                                                    oldName,
+                                                    newName);
                                             layout.setDsl(objectMapper.convertValue(dslNode, JSONObject.class));
                                             contextDTO.setLayouts(layouts);
                                             contextLayoutRefactorHelper.setUpdatedContext(
                                                     refactoringMetaDTO, contextDTO);
 
-                                            return contextLayoutRefactorHelper.updateContext(contextId, contextDTO);
+                                            return contextLayoutRefactorHelper
+                                                    .updateContext(contextId, contextDTO)
+                                                    .name(WIDGET_UPDATE_CONTEXT)
+                                                    .tap(Micrometer.observation(observationRegistry));
                                         });
                             }
                         }
                         return Mono.just(contextDTO);
                     });
                 })
-                .then();
+                .doOnSuccess(v -> log.debug("Completed widget refactoring: {} -> {}", oldName, newName))
+                .then()
+                .name(WIDGET_REFACTOR_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -117,26 +147,31 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     @Override
     public Flux<String> getExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        log.debug("Getting existing widget entity names for contextId: {}, layoutId: {}", contextId, layoutId);
         Mono<?> contextDTOMono = contextLayoutRefactorResolver
                 .getContextLayoutRefactorHelper(contextType)
                 .getContextDTOMono(contextId, viewMode);
-        return contextDTOMono.flatMapMany(contextDTO -> {
-            LayoutContainer layoutContainer = (LayoutContainer) contextDTO;
-            List<Layout> layouts = layoutContainer.getLayouts();
-            if (layouts == null) {
-                return Flux.empty();
-            }
-            for (Layout layout : layouts) {
-                if (layoutId.equals(layout.getId())) {
-                    if (layout.getWidgetNames() != null
-                            && !layout.getWidgetNames().isEmpty()) {
-                        return Flux.fromIterable(layout.getWidgetNames());
+        return contextDTOMono
+                .flatMapMany(contextDTO -> {
+                    LayoutContainer layoutContainer = (LayoutContainer) contextDTO;
+                    List<Layout> layouts = layoutContainer.getLayouts();
+                    if (layouts == null) {
+                        return Flux.empty();
                     }
-                    // In case of no widget names (which implies that there is no DSL), return an empty set.
-                    return Flux.empty();
-                }
-            }
-            return Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
-        });
+                    for (Layout layout : layouts) {
+                        if (layoutId.equals(layout.getId())) {
+                            if (layout.getWidgetNames() != null
+                                    && !layout.getWidgetNames().isEmpty()) {
+                                return Flux.fromIterable(layout.getWidgetNames());
+                            }
+                            // In case of no widget names (which implies that there is no DSL), return an empty set.
+                            return Flux.empty();
+                        }
+                    }
+                    return Flux.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
+                })
+                .name(WIDGET_GET_EXISTING_NAMES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 }

@@ -27,6 +27,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.validations.EntityValidationService;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,6 +98,8 @@ class RefactoringServiceCEImplTest {
     @Autowired
     private EntityValidationService entityValidationService;
 
+    private ObservationRegistry observationRegistry;
+
     @BeforeEach
     public void setUp() {
 
@@ -108,6 +111,7 @@ class RefactoringServiceCEImplTest {
                 analyticsService,
                 sessionUserService,
                 entityValidationService,
+                observationRegistry,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,

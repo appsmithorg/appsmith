@@ -6,16 +6,19 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefactoringServiceCEImpl
         implements EntityRefactoringService<ActionCollection> {
+
     public ActionCollectionRefactoringServiceImpl(
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
             ActionPermission actionPermission,
-            AstService astService) {
-        super(actionCollectionService, newActionService, actionPermission, astService);
+            AstService astService,
+            ObservationRegistry observationRegistry) {
+        super(actionCollectionService, newActionService, actionPermission, astService, observationRegistry);
     }
 }
