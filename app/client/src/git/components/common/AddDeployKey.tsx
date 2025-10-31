@@ -7,7 +7,7 @@ import {
   WellText,
   WellTitle,
   WellTitleContainer,
-} from "./common";
+} from "./GitUIComponents";
 import {
   Button,
   Checkbox,

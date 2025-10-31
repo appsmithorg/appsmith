@@ -1,4 +1,4 @@
-import { Callout, Text } from "@appsmith/ads";
+import { Callout, ModalContent, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 export const WellContainer = styled.div`
@@ -49,4 +49,14 @@ export const DemoImage = styled.img`
 
 export const ErrorCallout = styled(Callout)`
   margin-bottom: 16px;
+`;
+
+export const StyledModalContent = styled(ModalContent)`
+  &&& {
+    width: 640px;
+    transform: none !important;
+    top: 100px;
+    left: calc(50% - 320px);
+    max-height: calc(100vh - 200px);
+  }
 `;

@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { isValidGitRemoteUrl } from "../../utils";
 import GenerateSSH from "./GenerateSSH";
 import "@testing-library/jest-dom";
-import type { GitProvider } from "./types";
+import type { GitProvider } from "../../common/types";
 
 jest.mock("../../utils", () => ({
   isValidGitRemoteUrl: jest.fn(),

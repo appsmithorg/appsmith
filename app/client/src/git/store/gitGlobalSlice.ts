@@ -14,6 +14,7 @@ import {
   resetImportOverrideDetailsAction,
   setImportOverrideDetailsAction,
   toggleImportModalAction,
+  toggleGenerateSSHKeyModalAction,
 } from "./actions/uiActions";
 import {
   gitImportErrorAction,
@@ -28,6 +29,12 @@ import {
   resetGlobalSSHKeyAction,
 } from "./actions/fetchGlobalSSHKeyActions";
 import { toggleRepoLimitErrorModalAction } from "./actions/repoLimitErrorModalActions";
+import {
+  updateGeneratedSSHKeyInitAction,
+  updateGeneratedSSHKeySuccessAction,
+  updateGeneratedSSHKeyErrorAction,
+  resetUpdateGeneratedSSHKeyAction,
+} from "./actions/updateGeneratedSSHKeyActions";
 
 export const gitGlobalSlice = createSlice({
   name: "git/config",
@@ -42,6 +49,10 @@ export const gitGlobalSlice = createSlice({
     fetchGlobalSSHKeyInit: fetchGlobalSSHKeyInitAction,
     fetchGlobalSSHKeySuccess: fetchGlobalSSHKeySuccessAction,
     fetchGlobalSSHKeyError: fetchGlobalSSHKeyErrorAction,
+    updateGeneratedSSHKeyInit: updateGeneratedSSHKeyInitAction,
+    updateGeneratedSSHKeySuccess: updateGeneratedSSHKeySuccessAction,
+    updateGeneratedSSHKeyError: updateGeneratedSSHKeyErrorAction,
+    resetUpdateGeneratedSSHKey: resetUpdateGeneratedSSHKeyAction,
     resetGlobalSSHKey: resetGlobalSSHKeyAction,
     gitImportInit: gitImportInitAction,
     gitImportSuccess: gitImportSuccessAction,
@@ -51,6 +62,7 @@ export const gitGlobalSlice = createSlice({
     resetImportOverrideDetails: resetImportOverrideDetailsAction,
     setImportOverrideDetails: setImportOverrideDetailsAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
+    toggleGenerateSSHKeyModal: toggleGenerateSSHKeyModalAction,
   },
 });
 

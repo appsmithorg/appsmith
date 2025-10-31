@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import AddDeployKey from "./AddDeployKey";
+import AddDeployKey from "git/components/common/AddDeployKey";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ChooseGitProvider from "./ChooseGitProvider";
 import GenerateSSH from "./GenerateSSH";
 import Steps from "./Steps";
 import Statusbar from "../../Statusbar";
 import { Button, ModalBody, ModalFooter, ModalHeader } from "@appsmith/ads";
-import { GIT_CONNECT_STEPS } from "./constants";
+import { GIT_CONNECT_STEPS } from "../../common/constants";
 import { isValidGitRemoteUrl } from "../../utils";
 import type { ConnectRequestParams } from "git/requests/connectRequest.types";
 import noop from "lodash/noop";
 import type { GitApiError } from "git/store/types";
-import type { ConnectFormDataState } from "./types";
+import type { ConnectFormDataState } from "../../common/types";
 import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 import { GitErrorCodes } from "git/constants/enums";
 import { CONNECT_GIT, IMPORT_GIT } from "git/ee/constants/messages";

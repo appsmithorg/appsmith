@@ -163,11 +163,16 @@ export const gitGlobalInitialState: GitGlobalReduxState = {
     loading: false,
     error: null,
   },
+  updateGeneratedSSHKey: {
+    loading: false,
+    error: null,
+  },
   gitImport: {
     loading: false,
     error: null,
   },
   isImportModalOpen: false,
+  isGenerateSSHKeyModalOpen: false,
   importOverrideDetails: null,
   repoLimitErrorModalOpen: false,
 };

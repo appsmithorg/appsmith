@@ -329,6 +329,10 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
         yield put(addErrorLogs(payload));
         yield put(debuggerLog(payload));
         break;
+      case LOG_TYPE.INVALID_GIT_DEPLOY_KEY:
+        yield put(addErrorLogs(payload));
+        yield put(debuggerLog(payload));
+        break;
       default:
         otherLogs = otherLogs.concat(payload);
     }

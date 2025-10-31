@@ -7,6 +7,9 @@ import type { GitArtifactPayloadAction } from "git/store/types";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import handleApiErrors from "./helpers/handleApiErrors";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export default function* fetchStatusSaga(
   action: GitArtifactPayloadAction<FetchStatusInitPayload>,
@@ -39,6 +42,18 @@ export default function* fetchStatusSaga(
     }
   } catch (e) {
     const error = handleApiErrors(e as Error, response);
+
+    AppsmithConsole.error({
+      id: `invalid-deploy-key-${artifactDef.baseArtifactId}`,
+      text: "Git: Invalid Deploy Key",
+      messages: [{ message: new Error(error?.message || "") }],
+      logType: LOG_TYPE.INVALID_GIT_DEPLOY_KEY,
+      source: {
+        type: ENTITY_TYPE.GIT,
+        name: "Global SSH Key",
+        id: artifactDef.baseArtifactId,
+      },
+    });
 
     if (error) {
       yield put(gitArtifactActions.fetchStatusError({ artifactDef, error }));

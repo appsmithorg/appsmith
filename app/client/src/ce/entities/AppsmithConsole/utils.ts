@@ -8,6 +8,7 @@ export enum ENTITY_TYPE {
   DATASOURCE = "DATASOURCE",
   WIDGET = "WIDGET",
   JSACTION = "JSACTION",
+  GIT = "GIT",
 }
 
 export enum PLATFORM_ERROR {
