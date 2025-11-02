@@ -1130,7 +1130,7 @@ export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
 export const GENERATE_DEPLOY_KEY_TITLE = () => "Deploy key";
 export const GENERATE_DEPLOY_KEY_MESSAGE = () =>
-  "Generate a new deploy key. You'll need to add the new key to your Git repository to restore this app's connection.";
+  "Generate a new deploy key. Then, add the new key to your Git repository to restore this app’s connection.";
 export const GENERATE_DEPLOY_KEY_BTN = () => "Generate deploy key";
 export const GENERATE_DEPLOY_KEY_MODAL_TITLE = () => "Generate deploy key";
 export const GENERATE_DEPLOY_KEY_MODAL_WAIT_TEXT = () => "Saving deploy key...";
