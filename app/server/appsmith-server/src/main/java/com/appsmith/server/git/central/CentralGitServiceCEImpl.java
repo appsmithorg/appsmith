@@ -77,6 +77,10 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.UnknownHostException;
+import java.nio.channels.UnresolvedAddressException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,6 +138,50 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     protected static final String ORIGIN = "origin/";
     protected static final String REMOTE_NAME_REPLACEMENT = "";
+
+    private boolean isInvalidSshKeyError(Throwable throwable) {
+        // Log the original error for debugging purposes
+        log.debug(
+                "Checking if error is due to invalid SSH key. Error type: {}, Message: {}",
+                throwable.getClass().getName(),
+                throwable.getMessage(),
+                throwable);
+
+        // Inspect the causal chain and messages to distinguish SSH auth errors from network/connectivity issues
+        Throwable t = throwable;
+        while (t != null) {
+            String msg = t.getMessage() == null ? "" : t.getMessage().toLowerCase();
+            // Positive signals for invalid key/auth
+            if (msg.contains("cannot log in")
+                    || msg.contains("auth fail")
+                    || msg.contains("authentication failed")
+                    || msg.contains("no more keys to try")
+                    || msg.contains("publickey: no more keys to try")
+                    || msg.contains("userauth")) {
+                return true;
+            }
+
+            // Negative signals: clear network/offline/connectivity hints
+            if (t instanceof UnresolvedAddressException
+                    || t instanceof UnknownHostException
+                    || t instanceof ConnectException
+                    || t instanceof NoRouteToHostException) {
+                return false;
+            }
+
+            if (msg.contains("unresolvedaddressexception")
+                    || msg.contains("defaultconnectfuture")
+                    || msg.contains("network is unreachable")
+                    || msg.contains("connection refused")
+                    || msg.contains("connection timed out")
+                    || msg.contains("host is down")) {
+                return false;
+            }
+
+            t = t.getCause();
+        }
+        return false;
+    }
 
     protected Mono<Boolean> isRepositoryLimitReachedForWorkspace(String workspaceId, Boolean isRepositoryPrivate) {
         if (!isRepositoryPrivate) {
@@ -1064,8 +1112,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     if (error instanceof AppsmithException e) {
                                         appsmithException = e;
                                     } else if (error instanceof TransportException) {
-                                        appsmithException =
-                                                new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                        if (isInvalidSshKeyError(error)) {
+                                            appsmithException =
+                                                    new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                        } else {
+                                            appsmithException = new AppsmithException(
+                                                    AppsmithError.GIT_GENERIC_ERROR, error.getMessage());
+                                        }
                                     } else if (error instanceof InvalidRemoteException) {
                                         appsmithException = new AppsmithException(
                                                 AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage());
@@ -1204,7 +1257,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             // If the push fails remove all the cloned files from local repo
                                             return this.detachRemote(baseArtifactId, artifactType, gitType)
                                                     .flatMap(isDeleted -> {
-                                                        if (error instanceof TransportException) {
+                                                        if (error instanceof TransportException
+                                                                && isInvalidSshKeyError(error)) {
                                                             return gitAnalyticsUtils
                                                                     .addAnalyticsForGitOperation(
                                                                             AnalyticsEvents.GIT_CONNECT,
@@ -1698,10 +1752,53 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         fetchRemoteMono = Mono.defer(() -> gitHandlingService
                                 .fetchRemoteReferences(
                                         jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
-                                .onErrorResume(error -> Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED,
-                                        GitCommandConstants.FETCH_REMOTE,
-                                        error.getMessage()))));
+                                .onErrorResume(error -> {
+                                    log.error(
+                                            "Error while fetching remote references for artifact: {}, branch: {}",
+                                            baseArtifactId,
+                                            finalBranchName,
+                                            error);
+
+                                    AppsmithException appsmithException = null;
+                                    if (error instanceof AppsmithException e) {
+                                        appsmithException = e;
+                                    } else if (error instanceof TransportException) {
+                                        if (isInvalidSshKeyError(error)) {
+                                            appsmithException =
+                                                    new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                        } else {
+                                            appsmithException = new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED,
+                                                    GitCommandConstants.FETCH_REMOTE,
+                                                    error.getMessage());
+                                        }
+                                    } else if (error instanceof InvalidRemoteException) {
+                                        appsmithException = new AppsmithException(
+                                                AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage());
+                                    } else if (error instanceof TimeoutException) {
+                                        appsmithException = new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT);
+                                    } else if (error instanceof ClassCastException) {
+                                        // To catch TransportHttp cast error in case HTTP URL is passed
+                                        // instead of SSH URL
+                                        if (error.getMessage() != null
+                                                && error.getMessage().contains("TransportHttp")) {
+                                            appsmithException =
+                                                    new AppsmithException(AppsmithError.INVALID_GIT_SSH_URL);
+                                        } else {
+                                            appsmithException = new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED,
+                                                    GitCommandConstants.FETCH_REMOTE,
+                                                    error.getMessage());
+                                        }
+                                    } else {
+                                        appsmithException = new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED,
+                                                GitCommandConstants.FETCH_REMOTE,
+                                                error.getMessage());
+                                    }
+
+                                    return Mono.error(appsmithException);
+                                }));
                     }
 
                     return removeDanglingChanges
@@ -1975,10 +2072,39 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             gitType,
                             throwable);
 
+                    AppsmithException appsmithException = null;
+                    if (throwable instanceof AppsmithException e) {
+                        appsmithException = e;
+                    } else if (throwable instanceof TransportException) {
+                        if (isInvalidSshKeyError(throwable)) {
+                            appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                        } else {
+                            appsmithException = new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage());
+                        }
+                    } else if (throwable instanceof InvalidRemoteException) {
+                        appsmithException =
+                                new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, throwable.getMessage());
+                    } else if (throwable instanceof TimeoutException) {
+                        appsmithException = new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT);
+                    } else if (throwable instanceof ClassCastException) {
+                        // To catch TransportHttp cast error in case HTTP URL is passed
+                        // instead of SSH URL
+                        if (throwable.getMessage() != null
+                                && throwable.getMessage().contains("TransportHttp")) {
+                            appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_URL);
+                        } else {
+                            appsmithException = new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage());
+                        }
+                    } else {
+                        appsmithException =
+                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage());
+                    }
+
                     return gitRedisUtils
                             .releaseFileLock(artifactType, baseArtifactId, isFileLock)
-                            .then(Mono.error(new AppsmithException(
-                                    AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage())));
+                            .then(Mono.error(appsmithException));
                 })
                 .elapsed()
                 .zipWith(currUserMono)
