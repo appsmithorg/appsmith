@@ -60,6 +60,7 @@ interface DangerZoneViewProps {
   isToggleAutocommitLoading: boolean;
   isAutocommitEnabled: boolean;
   isFetchMetadataLoading: boolean;
+  toggleGenerateSSHKeyModal: (open: boolean) => void;
   openDisconnectModal: () => void;
   toggleAutocommit: () => void;
   toggleDisableAutocommitModal: (open: boolean) => void;
@@ -67,7 +68,6 @@ interface DangerZoneViewProps {
     open: boolean,
     tab?: keyof typeof GitSettingsTab,
   ) => void;
-  openGenerateDeployKeyModal: () => void;
 }
 
 function DangerZoneView({
@@ -77,9 +77,9 @@ function DangerZoneView({
   isManageAutocommitPermitted = false,
   isToggleAutocommitLoading = false,
   openDisconnectModal = noop,
-  openGenerateDeployKeyModal = noop,
   toggleAutocommit = noop,
   toggleDisableAutocommitModal = noop,
+  toggleGenerateSSHKeyModal = noop,
   toggleSettingsModal = noop,
 }: DangerZoneViewProps) {
   const handleDisconnect = useCallback(() => {
@@ -104,6 +104,11 @@ function DangerZoneView({
     toggleDisableAutocommitModal,
     toggleSettingsModal,
   ]);
+
+  const handleOpenGenerateDeployKeyModal = useCallback(() => {
+    toggleSettingsModal(false);
+    toggleGenerateSSHKeyModal(true);
+  }, [toggleGenerateSSHKeyModal, toggleSettingsModal]);
 
   const showAutoCommit = isManageAutocommitPermitted;
   const showDisconnect = isConnectPermitted;
@@ -151,7 +156,7 @@ function DangerZoneView({
           <Button
             data-testid="t--git-generate-deploy-key-btn"
             kind="error"
-            onClick={openGenerateDeployKeyModal}
+            onClick={handleOpenGenerateDeployKeyModal}
             size="md"
           >
             {createMessage(GENERATE_DEPLOY_KEY_BTN)}

@@ -31,12 +31,6 @@ function DangerZone() {
     }
   }, [artifactDef, artifact, openDisconnectModal]);
 
-  const handleOpenGenerateDeployKeyModal = useCallback(() => {
-    if (artifactDef && artifact) {
-      toggleGenerateSSHKeyModal(true);
-    }
-  }, [artifactDef, artifact, toggleGenerateSSHKeyModal]);
-
   return (
     <DangerZoneView
       closeDisconnectModal={closeDisconnectModal}
@@ -46,9 +40,9 @@ function DangerZone() {
       isManageAutocommitPermitted={isManageAutocommitPermitted}
       isToggleAutocommitLoading={isToggleAutocommitLoading}
       openDisconnectModal={handleOpenDisconnectModal}
-      openGenerateDeployKeyModal={handleOpenGenerateDeployKeyModal}
       toggleAutocommit={toggleAutocommit}
       toggleDisableAutocommitModal={toggleAutocommitDisableModal}
+      toggleGenerateSSHKeyModal={toggleGenerateSSHKeyModal}
       toggleSettingsModal={toggleSettingsModal}
     />
   );
