@@ -28,6 +28,7 @@ export function* updateGeneratedSSHKeySaga(
         gitArtifactActions.initGitForEditor({
           artifactDef,
           artifact: response.data,
+          skipCurrentBranchUpdate: true,
         }),
       );
       yield put(gitGlobalActions.updateGeneratedSSHKeySuccess());
