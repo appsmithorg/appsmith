@@ -149,7 +149,7 @@ function DangerZoneView({
             </Text>
           </BodyInnerContainer>
           <Button
-            data-testid="t--git-disconnect-btn"
+            data-testid="t--git-generate-deploy-key-btn"
             kind="error"
             onClick={openGenerateDeployKeyModal}
             size="md"
