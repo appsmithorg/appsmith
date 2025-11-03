@@ -1,4 +1,4 @@
-import React from "react-redux";
+import React from "react";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useCallback } from "react";
 import useSettings from "git/hooks/useSettings";

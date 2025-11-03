@@ -31,7 +31,7 @@ function useGenerateDeployKey() {
     if (artifactDef) {
       dispatch(gitGlobalActions.updateGeneratedSSHKeyInit({ artifactDef }));
     }
-  }, [dispatch]);
+  }, [dispatch, artifactDef]);
 
   const resetUpdateGeneratedSSHKey = useCallback(() => {
     dispatch(gitGlobalActions.resetUpdateGeneratedSSHKey());

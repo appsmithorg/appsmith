@@ -112,7 +112,6 @@ function DangerZoneView({
 
   const showAutoCommit = isManageAutocommitPermitted;
   const showDisconnect = isConnectPermitted;
-  const showDivider = showAutoCommit && showDisconnect;
 
   return (
     <Container>
@@ -143,7 +142,7 @@ function DangerZoneView({
             </Button>
           </BodyContainer>
         )}
-        {showDivider && <StyledDivider />}
+        {showAutoCommit && <StyledDivider />}
         <BodyContainer>
           <BodyInnerContainer>
             <Text kind="heading-xs" renderAs="p">
@@ -162,7 +161,7 @@ function DangerZoneView({
             {createMessage(GENERATE_DEPLOY_KEY_BTN)}
           </Button>
         </BodyContainer>
-        {showDivider && <StyledDivider />}
+        {showDisconnect && <StyledDivider />}
         {showDisconnect && (
           <BodyContainer>
             <BodyInnerContainer>

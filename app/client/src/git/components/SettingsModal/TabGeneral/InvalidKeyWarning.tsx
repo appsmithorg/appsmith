@@ -8,8 +8,7 @@ import {
 import { Callout } from "@appsmith/ads";
 import useGenerateDeployKey from "git/hooks/useGenerateDeployKey";
 import useSettings from "git/hooks/useSettings";
-
-const INVALID_SSH_KEY_ERROR_CODE = "AE-GIT-4032";
+import { GitErrorCodes } from "git/constants/enums";
 
 function InvalidKeyWarning() {
   const { fetchStatusError } = useStatus();
@@ -21,7 +20,7 @@ function InvalidKeyWarning() {
     toggleGenerateSSHKeyModal(true);
   }, [toggleGenerateSSHKeyModal, toggleSettingsModal]);
 
-  if (fetchStatusError?.code !== INVALID_SSH_KEY_ERROR_CODE) {
+  if (fetchStatusError?.code !== GitErrorCodes.INVALID_DEPLOY_KEY) {
     return null;
   }
 
