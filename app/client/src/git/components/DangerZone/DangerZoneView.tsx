@@ -6,6 +6,9 @@ import {
   DANGER_ZONE,
   DISCONNECT_GIT,
   DISCONNECT_GIT_MESSAGE,
+  GENERATE_DEPLOY_KEY_BTN,
+  GENERATE_DEPLOY_KEY_MESSAGE,
+  GENERATE_DEPLOY_KEY_TITLE,
   createMessage,
 } from "ee/constants/messages";
 import { Button, Divider, Text } from "@appsmith/ads";
@@ -57,6 +60,7 @@ interface DangerZoneViewProps {
   isToggleAutocommitLoading: boolean;
   isAutocommitEnabled: boolean;
   isFetchMetadataLoading: boolean;
+  toggleGenerateSSHKeyModal: (open: boolean) => void;
   openDisconnectModal: () => void;
   toggleAutocommit: () => void;
   toggleDisableAutocommitModal: (open: boolean) => void;
@@ -75,6 +79,7 @@ function DangerZoneView({
   openDisconnectModal = noop,
   toggleAutocommit = noop,
   toggleDisableAutocommitModal = noop,
+  toggleGenerateSSHKeyModal = noop,
   toggleSettingsModal = noop,
 }: DangerZoneViewProps) {
   const handleDisconnect = useCallback(() => {
@@ -100,9 +105,13 @@ function DangerZoneView({
     toggleSettingsModal,
   ]);
 
+  const handleOpenGenerateDeployKeyModal = useCallback(() => {
+    toggleSettingsModal(false);
+    toggleGenerateSSHKeyModal(true);
+  }, [toggleGenerateSSHKeyModal, toggleSettingsModal]);
+
   const showAutoCommit = isManageAutocommitPermitted;
   const showDisconnect = isConnectPermitted;
-  const showDivider = showAutoCommit && showDisconnect;
 
   return (
     <Container>
@@ -133,7 +142,26 @@ function DangerZoneView({
             </Button>
           </BodyContainer>
         )}
-        {showDivider && <StyledDivider />}
+        {showAutoCommit && <StyledDivider />}
+        <BodyContainer>
+          <BodyInnerContainer>
+            <Text kind="heading-xs" renderAs="p">
+              {createMessage(GENERATE_DEPLOY_KEY_TITLE)}
+            </Text>
+            <Text renderAs="p">
+              {createMessage(GENERATE_DEPLOY_KEY_MESSAGE)}
+            </Text>
+          </BodyInnerContainer>
+          <Button
+            data-testid="t--git-generate-deploy-key-btn"
+            kind="error"
+            onClick={handleOpenGenerateDeployKeyModal}
+            size="md"
+          >
+            {createMessage(GENERATE_DEPLOY_KEY_BTN)}
+          </Button>
+        </BodyContainer>
+        {showDisconnect && <StyledDivider />}
         {showDisconnect && (
           <BodyContainer>
             <BodyInnerContainer>

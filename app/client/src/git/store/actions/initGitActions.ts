@@ -3,6 +3,7 @@ import { createArtifactAction } from "../helpers/createArtifactAction";
 
 export interface InitGitForEditorPayload {
   artifact: GitArtifact | null;
+  skipCurrentBranchUpdate?: boolean;
 }
 
 export const initGitForEditorAction =
