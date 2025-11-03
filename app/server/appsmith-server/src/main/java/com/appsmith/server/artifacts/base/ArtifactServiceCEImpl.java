@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
-import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -60,7 +59,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
         return saveSshKeyToArtifact(artifactType, branchedArtifactId, gitAuth).map(artifact -> {
             GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
-            if (!GitUtils.isArtifactConnectedToGit(gitArtifactMetadata)) {
+            if (gitArtifactMetadata == null || gitArtifactMetadata.getGitAuth() == null) {
                 throw new AppsmithException(
                         AppsmithError.INVALID_GIT_CONFIGURATION, "Failed to save SSH key to artifact");
             }

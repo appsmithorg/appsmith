@@ -558,8 +558,6 @@ public class GitRouteAspect {
                         ctx.getRepoPath(),
                         ctx.getBranchStoreKey())
                 .onErrorResume(error -> {
-                    // SSH authentication doesn't occur in downloadFromRedis - it only fetches from Redis cache
-                    // Any errors here are Redis connection issues, data corruption, or extraction failures
                     return Mono.error(
                             new AppsmithException(AppsmithError.GIT_ROUTE_REDIS_DOWNLOAD_FAILED, error.getMessage()));
                 });
