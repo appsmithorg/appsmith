@@ -557,8 +557,12 @@ public class GitRouteAspect {
                         ctx.getGitMeta().getRemoteUrl(),
                         ctx.getRepoPath(),
                         ctx.getBranchStoreKey())
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ROUTE_REDIS_DOWNLOAD_FAILED, error.getMessage())));
+                .onErrorResume(error -> {
+                    // SSH authentication doesn't occur in downloadFromRedis - it only fetches from Redis cache
+                    // Any errors here are Redis connection issues, data corruption, or extraction failures
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.GIT_ROUTE_REDIS_DOWNLOAD_FAILED, error.getMessage()));
+                });
     }
 
     /**
@@ -606,7 +610,13 @@ public class GitRouteAspect {
 
         String[] varArgs = completeArgs.toArray(new String[0]);
 
-        return bashService.callFunction(BASH_COMMAND_FILE, GIT_CLONE, varArgs);
+        return bashService.callFunction(BASH_COMMAND_FILE, GIT_CLONE, varArgs).onErrorResume(error -> {
+            if (isInvalidSshKeyError(error)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+            }
+
+            return Mono.error(error);
+        });
     }
 
     /**
@@ -753,6 +763,41 @@ public class GitRouteAspect {
         return splitKeys.length > 1
                 ? handlePemFormat(privateKey, publicKey)
                 : handleBase64Format(privateKey, publicKey);
+    }
+
+    /**
+     * Best-effort detection of invalid SSH key/authentication errors from nested exceptions or script outputs.
+     * Aligns error reporting with FS-based flows so callers receive INVALID_GIT_SSH_CONFIGURATION consistently.
+     */
+    private static boolean isInvalidSshKeyError(Throwable throwable) {
+        // Log the original error for debugging purposes
+        log.debug(
+                "Checking if error is due to invalid SSH key (in-memory Git). Error type: {}, Message: {}",
+                throwable.getClass().getName(),
+                throwable.getMessage(),
+                throwable);
+
+        Throwable t = throwable;
+        while (t != null) {
+            String msg = t.getMessage() == null ? "" : t.getMessage().toLowerCase();
+
+            if (msg.contains("cannot log in")
+                    || msg.contains("auth fail")
+                    || msg.contains("authentication failed")
+                    || msg.contains("no more keys to try")
+                    || msg.contains("publickey: no more keys to try")
+                    || msg.contains("load key")
+                    || msg.contains("libcrypto")
+                    || msg.contains("permission denied (publickey)")
+                    || msg.contains("userauth")
+                    || msg.contains("not a valid key")
+                    || msg.contains("invalid format")) {
+                return true;
+            }
+
+            t = t.getCause();
+        }
+        return false;
     }
 
     /**

@@ -365,7 +365,7 @@ public enum AppsmithError {
     INVALID_GIT_SSH_CONFIGURATION(
             400,
             AppsmithErrorCode.INVALID_GIT_SSH_CONFIGURATION.getCode(),
-            "SSH key is not configured correctly. Did you forget to add the SSH key to your remote repository? Please try again by reconfiguring the SSH key with write access.",
+            "Appsmith couldn''t connect to this app''s Git repository. You may need to update the deploy key in the app''s Git settings and add the new key to your Git repository",
             AppsmithErrorAction.DEFAULT,
             "SSH key not configured",
             ErrorType.GIT_CONFIGURATION_ERROR,

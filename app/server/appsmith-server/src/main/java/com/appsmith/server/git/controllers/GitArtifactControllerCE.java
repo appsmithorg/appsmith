@@ -1,7 +1,10 @@
 package com.appsmith.server.git.controllers;
 
 import com.appsmith.external.views.Views;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ArtifactImportDTO;
@@ -36,6 +39,7 @@ public class GitArtifactControllerCE {
 
     protected final CentralGitService centralGitService;
     protected final GitProfileUtils gitProfileUtils;
+    protected final ArtifactService artifactService;
 
     protected static final GitType GIT_TYPE = GitType.FILE_SYSTEM;
 
@@ -108,5 +112,25 @@ public class GitArtifactControllerCE {
     @GetMapping("/import/keys")
     public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
         return centralGitService.generateSSHKey(keyType).map(result -> new ResponseDTO<>(HttpStatus.OK, result));
+    }
+
+    /**
+     * Save SSH key pair for an artifact (APPLICATION or PACKAGE).
+     * This endpoint fetches the SSH key from the database (generated via /import/keys endpoint)
+     * using the current user's email and saves it to the artifact.
+     * This ensures the private key never travels through the client for security purposes.
+     *
+     * @param artifactId The ID of the artifact (can be base or branched artifact)
+     * @param artifactType The type of artifact (APPLICATION or PACKAGE)
+     * @return The saved artifact with updated GitAuth
+     */
+    @JsonView(Views.Public.class)
+    @PostMapping("/{artifactId}/ssh-keypair")
+    public Mono<ResponseDTO<? extends Artifact>> saveSshKeyPair(
+            @PathVariable String artifactId, @RequestParam ArtifactType artifactType) {
+        log.info("Saving SSH key pair for artifact: {}, type: {}", artifactId, artifactType);
+        return artifactService
+                .saveSshKeyPair(artifactType, artifactId)
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 }

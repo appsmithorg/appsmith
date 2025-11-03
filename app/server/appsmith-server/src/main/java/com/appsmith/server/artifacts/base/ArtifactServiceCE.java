@@ -23,5 +23,16 @@ public interface ArtifactServiceCE {
      */
     Mono<GitAuth> createOrUpdateSshKeyPair(ArtifactType artifactType, String branchedArtifactId, String keyType);
 
+    /**
+     * Save an existing SSH key pair (generated via /import/keys) to an artifact. Keys will be stored only in the
+     * default/root artifact only and not the child branched artifacts.
+     * The SSH key is fetched from the database using the current user's email (from GitDeployKeysRepository).
+     *
+     * @param artifactType Type of artifact (APPLICATION or PACKAGE)
+     * @param branchedArtifactId The artifact ID (can be base or branched artifact)
+     * @return The saved artifact with updated GitAuth
+     */
+    Mono<? extends Artifact> saveSshKeyPair(ArtifactType artifactType, String branchedArtifactId);
+
     Mono<GitAuthDTO> getSshKey(ArtifactType artifactType, String branchedArtifactId);
 }

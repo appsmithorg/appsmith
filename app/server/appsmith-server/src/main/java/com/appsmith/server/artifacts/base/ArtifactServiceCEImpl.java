@@ -11,12 +11,16 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
+import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,11 +35,18 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
 
     protected final ArtifactBasedService<Application> applicationService;
     private final AnalyticsService analyticsService;
+    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final SessionUserService sessionUserService;
 
     public ArtifactServiceCEImpl(
-            ArtifactBasedService<Application> applicationService, AnalyticsService analyticsService) {
+            ArtifactBasedService<Application> applicationService,
+            AnalyticsService analyticsService,
+            GitDeployKeysRepository gitDeployKeysRepository,
+            SessionUserService sessionUserService) {
         this.applicationService = applicationService;
         this.analyticsService = analyticsService;
+        this.gitDeployKeysRepository = gitDeployKeysRepository;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -47,6 +58,49 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
     public Mono<GitAuth> createOrUpdateSshKeyPair(
             ArtifactType artifactType, String branchedArtifactId, String keyType) {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
+        return saveSshKeyToArtifact(artifactType, branchedArtifactId, gitAuth).map(artifact -> {
+            GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
+            if (!GitUtils.isArtifactConnectedToGit(gitArtifactMetadata)) {
+                throw new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION, "Failed to save SSH key to artifact");
+            }
+            return gitArtifactMetadata.getGitAuth();
+        });
+    }
+
+    /**
+     * Save an existing SSH key pair (generated via /import/keys) to an artifact.
+     * This method fetches the SSH key from the database (GitDeployKeysRepository) using the current user's email
+     * and saves it to the artifact. This ensures the private key never travels through the client.
+     *
+     * @param artifactType Type of artifact (APPLICATION or PACKAGE)
+     * @param branchedArtifactId The artifact ID (can be base or branched artifact)
+     * @return The saved artifact with updated GitAuth
+     */
+    @Override
+    public Mono<? extends Artifact> saveSshKeyPair(ArtifactType artifactType, String branchedArtifactId) {
+        Mono<GitAuth> gitAuthMono = sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> gitDeployKeysRepository.findByEmail(user.getEmail()))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "No SSH key found. Please generate an SSH key using /import/keys endpoint first.")))
+                .map(GitDeployKeys::getGitAuth)
+                .flatMap(gitAuth -> {
+                    if (gitAuth == null
+                            || !StringUtils.hasText(gitAuth.getPublicKey())
+                            || !StringUtils.hasText(gitAuth.getPrivateKey())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "SSH key is invalid. Please generate a new SSH key using /import/keys endpoint."));
+                    }
+                    return Mono.just(gitAuth);
+                });
+        return gitAuthMono.flatMap(gitAuth -> saveSshKeyToArtifact(artifactType, branchedArtifactId, gitAuth));
+    }
+
+    private Mono<? extends Artifact> saveSshKeyToArtifact(
+            ArtifactType artifactType, String branchedArtifactId, GitAuth gitAuth) {
         ArtifactBasedService<? extends Artifact> artifactBasedService = getArtifactBasedService(artifactType);
         ArtifactPermission artifactPermission = artifactBasedService.getPermissionService();
         final String artifactTypeName = artifactType.name().toLowerCase();
@@ -61,21 +115,21 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                     if (gitData != null
                             && StringUtils.hasLength(gitData.getDefaultArtifactId())
                             && branchedArtifactId.equals(gitData.getDefaultArtifactId())) {
-                        // This is the root application with update SSH key request
+                        // This is the root artifact with update SSH key request
                         gitAuth.setRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
                         return artifactBasedService.save(artifact);
                     } else if (gitData == null) {
-                        // This is a root application with generate SSH key request
+                        // This is a root artifact with generate SSH key request
                         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                         gitArtifactMetadata.setDefaultApplicationId(branchedArtifactId);
                         gitArtifactMetadata.setGitAuth(gitAuth);
                         artifact.setGitArtifactMetadata(gitArtifactMetadata);
                         return artifactBasedService.save(artifact);
                     }
-                    // Children application with update SSH key request for root application
-                    // Fetch root application and then make updates. We are storing the git metadata only in root
-                    // application
+                    // Children artifact with update SSH key request for root artifact
+                    // Fetch root artifact and then make updates. We are storing the git metadata only in root
+                    // artifact
                     if (!StringUtils.hasLength(gitData.getDefaultArtifactId())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -83,24 +137,23 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                         + " to remote repo to resolve this issue."));
                     }
                     gitAuth.setRegeneratedKey(true);
-
                     return artifactBasedService
                             .findById(gitData.getDefaultArtifactId(), artifactPermission.getEditPermission())
-                            .flatMap(baseApplication -> {
-                                GitArtifactMetadata gitArtifactMetadata = baseApplication.getGitArtifactMetadata();
-                                gitArtifactMetadata.setDefaultApplicationId(baseApplication.getId());
+                            .flatMap(baseArtifact -> {
+                                GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
+                                gitArtifactMetadata.setDefaultApplicationId(baseArtifact.getId());
                                 gitArtifactMetadata.setGitAuth(gitAuth);
-                                baseApplication.setGitArtifactMetadata(gitArtifactMetadata);
-                                return artifactBasedService.save(baseApplication);
+                                baseArtifact.setGitArtifactMetadata(gitArtifactMetadata);
+                                return artifactBasedService.save(baseArtifact);
                             });
                 })
                 .flatMap(artifact -> {
                     // Send generate SSH key analytics event
                     assert artifact.getId() != null;
-                    final Map<String, Object> eventData = Map.of(
-                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, artifact);
+                    final Map<String, Object> eventData =
+                            Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.ARTIFACT, artifact);
                     final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID,
+                            FieldName.ARTIFACT_ID,
                             artifact.getId(),
                             "workspaceId",
                             artifact.getWorkspaceId(),
@@ -114,8 +167,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                 log.warn("Error sending ssh key generation data point", e);
                                 return Mono.just(artifact);
                             });
-                })
-                .thenReturn(gitAuth);
+                });
     }
 
     /**
