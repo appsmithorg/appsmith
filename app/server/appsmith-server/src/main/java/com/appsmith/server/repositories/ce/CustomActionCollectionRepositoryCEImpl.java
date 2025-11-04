@@ -91,6 +91,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
+    public Flux<ActionCollection> findAllByIds(List<String> ids, AclPermission permission) {
+        BridgeQuery<ActionCollection> idCriteria = Bridge.in(FieldName.ID, ids);
+        return queryBuilder().criteria(idCriteria).permission(permission).all();
+    }
+
+    @Override
     public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         BridgeQuery<ActionCollection> applicationCriteria = Bridge.in(FieldName.APPLICATION_ID, applicationIds);
         return queryBuilder()

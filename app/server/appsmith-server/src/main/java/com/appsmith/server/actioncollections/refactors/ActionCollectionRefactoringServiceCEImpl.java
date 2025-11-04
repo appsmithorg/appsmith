@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -51,25 +52,67 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
 
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
-        Mono<List<ActionCollection>> actionCollectionsMono = evalVersionMono.flatMap(evalVersion -> Flux.fromIterable(
-                        updatableCollectionIds)
-                .flatMap(collectionId ->
-                        actionCollectionService.findById(collectionId, actionPermission.getEditPermission()))
+
+        return evalVersionMono.flatMap(evalVersion -> actionCollectionService
+                .findAllByIds(new ArrayList<>(updatableCollectionIds), actionPermission.getEditPermission())
+                .collectList()
+                .flatMap(actionCollections -> {
+                    if (actionCollections.isEmpty()) {
+                        return Mono.empty();
+                    }
+
+                    log.debug(
+                            "Processing {} action collections for refactoring with bulk processing",
+                            actionCollections.size());
+
+                    // Process all action collections in bulk
+                    return processBulkActionCollections(
+                            actionCollections, oldName, newName, evalVersion, oldNamePattern);
+                }));
+    }
+
+    /**
+     * Process all action collections in a single bulk operation for refactoring
+     */
+    private Mono<Void> processBulkActionCollections(
+            List<ActionCollection> actionCollections,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern) {
+        List<ActionCollection> collectionsToUpdate = new ArrayList<>();
+
+        return Flux.fromIterable(actionCollections)
                 .flatMap(actionCollection -> {
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
                     return this.refactorNameInActionCollection(
                                     unpublishedCollection, oldName, newName, evalVersion, oldNamePattern)
-                            .flatMap(isPresent -> {
+                            .map(isPresent -> {
                                 if (Boolean.TRUE.equals(isPresent)) {
-                                    return actionCollectionService.save(actionCollection);
+                                    collectionsToUpdate.add(actionCollection);
                                 }
-                                return Mono.just(actionCollection);
+                                return actionCollection;
                             });
                 })
-                .collectList());
+                .collectList()
+                .flatMap(processedCollections -> {
+                    if (collectionsToUpdate.isEmpty()) {
+                        log.debug("No action collections require updates for refactoring");
+                        return Mono.empty();
+                    }
 
-        return actionCollectionsMono.then();
+                    log.debug(
+                            "Processing bulk operation for {} action collections that require refactoring",
+                            collectionsToUpdate.size());
+
+                    // Use bulk update for all action collections at once
+                    return actionCollectionService
+                            .bulkUpdateActionCollections(collectionsToUpdate)
+                            .doOnSuccess(unused -> log.debug(
+                                    "Bulk refactoring completed for {} action collections",
+                                    collectionsToUpdate.size()));
+                });
     }
 
     protected Mono<Boolean> refactorNameInActionCollection(
