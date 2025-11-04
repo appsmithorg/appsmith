@@ -26,6 +26,9 @@ public class PageNameIdDTO {
     String slug;
 
     @JsonView(Views.Public.class)
+    String uniqueSlug;
+
+    @JsonView(Views.Public.class)
     String customSlug;
 
     @JsonView(Views.Public.class)

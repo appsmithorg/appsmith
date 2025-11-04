@@ -1050,4 +1050,23 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
     }
+
+    @Override
+    public Flux<Application> findByUniqueAppName(String uniqueAppName, AclPermission aclPermission) {
+        return repository.findByUniqueAppName(uniqueAppName, aclPermission);
+    }
+
+    @Override
+    public Flux<Application> findByUniqueAppNameRefNameAndApplicationMode(
+            String uniqueAppName, String refName, ApplicationMode applicationMode) {
+        AclPermission permissionForApplication = ApplicationMode.PUBLISHED.equals(applicationMode)
+                ? applicationPermission.getReadPermission()
+                : applicationPermission.getEditPermission();
+
+        if (!StringUtils.hasText(refName)) {
+            return repository.findByUniqueAppName(uniqueAppName, permissionForApplication);
+        }
+
+        return repository.findByUniqueAppSlugRefName(uniqueAppName, refName, permissionForApplication);
+    }
 }

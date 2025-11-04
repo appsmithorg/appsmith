@@ -93,4 +93,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Mono<Long> countByDeletedAtNull();
 
     Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
+
+    Flux<Application> findByUniqueAppSlugRefName(String uniqueAppName, String refName, AclPermission aclPermission);
+
+    Flux<Application> findByUniqueAppName(String uniqueAppName, AclPermission aclPermission);
 }

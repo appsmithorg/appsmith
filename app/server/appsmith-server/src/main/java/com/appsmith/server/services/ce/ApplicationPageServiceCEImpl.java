@@ -30,7 +30,6 @@ import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -60,6 +59,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
 import io.micrometer.observation.ObservationRegistry;
@@ -88,6 +88,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,6 +107,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
+    private final StaticUrlService staticUrlService;
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
     private final UpdateLayoutService updateLayoutService;
@@ -278,6 +280,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     NewPage.Fields.publishedPage_icon,
                     NewPage.Fields.publishedPage_slug,
                     NewPage.Fields.publishedPage_customSlug,
+                    NewPage.Fields.publishedPage_uniqueSlug,
                     NewPage.Fields.publishedPage_isHidden,
                     NewPage.Fields.userPermissions,
                     NewPage.Fields.policies,
@@ -633,27 +636,44 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return sourcePageMono
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
-                    Mono<ApplicationPagesDTO> pageNamesMono =
-                            newPageService.findApplicationPagesByBranchedApplicationIdAndViewMode(
-                                    page.getApplicationId(), false, false);
+
+                    List<String> pageFields = List.of(
+                            NewPage.Fields.id,
+                            NewPage.Fields.baseId,
+                            NewPage.Fields.applicationId,
+                            NewPage.Fields.refName,
+                            NewPage.Fields.refType,
+                            NewPage.Fields.branchName,
+                            NewPage.Fields.gitSyncId,
+                            NewPage.Fields.unpublishedPage_name,
+                            NewPage.Fields.unpublishedPage_slug,
+                            NewPage.Fields.unpublishedPage_customSlug,
+                            NewPage.Fields.unpublishedPage_uniqueSlug);
+
+                    Mono<List<NewPage>> editModePagesMono = newPageService
+                            .findNewPagesByApplicationId(
+                                    page.getApplicationId(), pagePermission.getReadPermission(), pageFields)
+                            .collectList();
 
                     Mono<Application> destinationApplicationMono = applicationService
                             .findById(applicationId, applicationPermission.getEditPermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
-                    return Mono.zip(pageNamesMono, destinationApplicationMono)
+                    return Mono.zip(editModePagesMono, destinationApplicationMono)
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
                             .flatMap(tuple -> {
-                                ApplicationPagesDTO pageNames = tuple.getT1();
+                                List<NewPage> editModePages = tuple.getT1();
                                 Application application = tuple.getT2();
 
                                 if (!Strings.isNullOrEmpty(newPageNameSuffix)) {
                                     String newPageName = page.getName() + newPageNameSuffix;
 
-                                    Set<String> names = pageNames.getPages().stream()
-                                            .map(PageNameIdDTO::getName)
+                                    Set<String> names = editModePages.stream()
+                                            .map(NewPage::getUnpublishedPage)
+                                            .filter(Objects::nonNull)
+                                            .map(PageDTO::getName)
                                             .collect(Collectors.toSet());
 
                                     int i = 0;
@@ -673,7 +693,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 if (gitData != null) {
                                     page.setRefName(gitData.getRefName());
                                 }
-                                return newPageService.createDefault(page);
+
+                                return staticUrlService
+                                        .updateUniqueSlugBeforeClone(page, editModePages)
+                                        .flatMap(incomingPageDTO -> newPageService.createDefault(incomingPageDTO));
                             });
                 })
                 .flatMap(clonedPage -> {

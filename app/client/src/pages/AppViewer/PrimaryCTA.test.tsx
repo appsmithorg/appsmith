@@ -32,6 +32,23 @@ jest.mock("react-redux", () => ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const initialState: any = {
   entities: {
+    app: {
+      mode: "PUBLISHED",
+      user: { username: "", email: "", id: "" },
+      URL: {
+        queryParams: {},
+        protocol: "",
+        host: "",
+        hostname: "",
+        port: "",
+        pathname: "",
+        hash: "",
+        fullPath: "",
+      },
+      store: {},
+      geolocation: { canBeRequested: false },
+      workflows: {},
+    },
     pageList: {
       applicationId: 1,
       currentPageId: "0123456789abcdef00000000",

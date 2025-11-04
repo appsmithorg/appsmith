@@ -30,10 +30,13 @@ const MoreDropDownButtonItem = ({
   const handleClick = () => {
     navigateToAnotherPage();
   };
-  const isActive = useMemo(
-    () => location.pathname.indexOf(page.pageId) > -1,
-    [location, page.pageId],
-  );
+  const isActive = useMemo(() => {
+    // Check if current pathname matches either pageId or uniqueSlug (for static URLs)
+    return (
+      location.pathname.indexOf(page.pageId) > -1 ||
+      (page.uniqueSlug && location.pathname.indexOf(page.uniqueSlug) > -1)
+    );
+  }, [location, page.pageId, page.uniqueSlug]);
 
   return (
     <StyledMenuItemInDropdown

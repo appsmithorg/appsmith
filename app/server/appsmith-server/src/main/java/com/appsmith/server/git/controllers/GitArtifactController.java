@@ -1,5 +1,6 @@
 package com.appsmith.server.git.controllers;
 
+import com.appsmith.server.artifacts.base.ArtifactService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.utils.GitProfileUtils;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.GIT_ARTIFACT_URL)
 public class GitArtifactController extends GitArtifactControllerCE {
 
-    public GitArtifactController(CentralGitService centralGitService, GitProfileUtils gitProfileUtils) {
-        super(centralGitService, gitProfileUtils);
+    public GitArtifactController(
+            CentralGitService centralGitService, GitProfileUtils gitProfileUtils, ArtifactService artifactService) {
+        super(centralGitService, gitProfileUtils, artifactService);
     }
 }

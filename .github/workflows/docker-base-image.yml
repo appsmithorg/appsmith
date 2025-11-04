@@ -44,12 +44,19 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Build and push base image
-        uses: docker/build-push-action@v5
+        uses: depot/build-push-action@v1
         with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
           context: .
           file: deploy/docker/base.dockerfile
           push: true
+          pull: true
           platforms: linux/arm64,linux/amd64
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.tag.outputs.tag }}
+        env:
+          DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}

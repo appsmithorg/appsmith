@@ -60,6 +60,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
+  ERROR_IN_DISABLING_STATIC_URL,
   IMPORT_APP_SUCCESSFUL,
 } from "ee/constants/messages";
 import { APP_MODE } from "entities/App";
@@ -185,10 +186,6 @@ export function* publishApplicationSaga(
       const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentPageId: string = yield select(getCurrentPageId);
 
-      const appicationViewPageUrl = viewerURL({
-        basePageId: currentBasePageId,
-      });
-
       yield put(
         fetchApplication({
           applicationId,
@@ -196,6 +193,17 @@ export function* publishApplicationSaga(
           mode: APP_MODE.EDIT,
         }),
       );
+
+      // Wait for the fetch application success or error to ensure the application is fetched before getting the view page url
+      // This is to get the latest static url for the application
+      yield take([
+        ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ]);
+
+      const appicationViewPageUrl = viewerURL({
+        basePageId: currentBasePageId,
+      });
 
       // If the tab is opened focus and reload else open in new tab
       if (!windowReference || windowReference.closed) {
@@ -319,6 +327,7 @@ export function* fetchAppAndPagesSaga(
             isHidden: !!page.isHidden,
             slug: page.slug,
             customSlug: page.customSlug,
+            uniqueSlug: page.uniqueSlug,
             userPermissions: page.userPermissions
               ? page.userPermissions
               : pagePermissionsMap[page.id],
@@ -1166,6 +1175,247 @@ export function* publishAnvilApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.PUBLISH_ANVIL_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* persistAppSlugSaga(
+  action: ReduxAction<{ slug: string; onSuccess?: () => void }>,
+) {
+  try {
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("No current application found");
+    }
+
+    const applicationId = currentApplication.id;
+    const { onSuccess, slug } = action.payload;
+
+    const request = {
+      branchedApplicationId: applicationId,
+      uniqueApplicationSlug: slug,
+    };
+
+    const response: ApiResponse = yield call(
+      ApplicationApi.persistAppSlug,
+      applicationId,
+      request,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      // Fetch the application again to get updated data
+      yield call(fetchAppAndPagesSaga, {
+        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+        payload: { applicationId, mode: APP_MODE.EDIT },
+      });
+
+      yield put({
+        type: ReduxActionTypes.PERSIST_APP_SLUG_SUCCESS,
+        payload: {
+          slug,
+        },
+      });
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.PERSIST_APP_SLUG_ERROR,
+      payload: {
+        error,
+        slug: action.payload.slug,
+      },
+    });
+  }
+}
+
+interface ValidateAppSlugResponse {
+  uniqueAppSlug: string;
+  isUniqueSlugAvailable: boolean;
+}
+
+export function* validateAppSlugSaga(action: ReduxAction<{ slug: string }>) {
+  try {
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("No current application found");
+    }
+
+    const applicationId = currentApplication.id;
+    const { slug } = action.payload;
+
+    const response: ApiResponse<ValidateAppSlugResponse> = yield call(
+      ApplicationApi.validateAppSlug,
+      applicationId,
+      slug,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const { isUniqueSlugAvailable } = response.data;
+
+      if (isUniqueSlugAvailable) {
+        yield put({
+          type: ReduxActionTypes.VALIDATE_APP_SLUG_SUCCESS,
+          payload: {
+            slug,
+            isValid: true,
+          },
+        });
+      } else {
+        yield put({
+          type: ReduxActionTypes.VALIDATE_APP_SLUG_ERROR,
+          payload: {
+            slug,
+            isValid: false,
+          },
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.VALIDATE_APP_SLUG_ERROR,
+      payload: {
+        error,
+        slug: action.payload.slug,
+        isValid: false,
+      },
+    });
+  }
+}
+
+export function* enableStaticUrlSaga(
+  action: ReduxAction<{ slug: string; onSuccess?: () => void }>,
+) {
+  try {
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("No current application found");
+    }
+
+    const applicationId = currentApplication.id;
+    const { onSuccess, slug } = action.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.enableStaticUrl,
+      applicationId,
+      { uniqueApplicationSlug: slug },
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield call(fetchAppAndPagesSaga, {
+        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+        payload: { applicationId, mode: APP_MODE.EDIT },
+      });
+      yield put({
+        type: ReduxActionTypes.ENABLE_STATIC_URL_SUCCESS,
+      });
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.ENABLE_STATIC_URL_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* disableStaticUrlSaga(
+  action: ReduxAction<{ onSuccess?: () => void }>,
+) {
+  try {
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("No current application found");
+    }
+
+    const applicationId = currentApplication.id;
+    const { onSuccess } = action.payload || {};
+
+    const response: ApiResponse = yield call(
+      ApplicationApi.disableStaticUrl,
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield call(fetchAppAndPagesSaga, {
+        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+        payload: { applicationId, mode: APP_MODE.EDIT },
+      });
+      yield put({
+        type: ReduxActionTypes.DISABLE_STATIC_URL_SUCCESS,
+      });
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DISABLE_STATIC_URL_ERROR,
+      payload: {
+        show: true,
+        message: createMessage(ERROR_IN_DISABLING_STATIC_URL),
+      },
+    });
+  }
+}
+
+export function* fetchAppSlugSuggestionSaga(
+  action: ReduxAction<{
+    applicationId: string;
+  }>,
+) {
+  try {
+    const { applicationId } = action.payload;
+
+    const response: ApiResponse<string> = yield call(
+      ApplicationApi.fetchAppSlugSuggestion,
+      applicationId,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const uniqueApplicationSlug = response.data;
+
+      yield put({
+        type: ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION_SUCCESS,
+        payload: { uniqueApplicationSlug },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APP_SLUG_SUGGESTION_ERROR,
       payload: {
         error,
       },

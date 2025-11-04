@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -41,6 +42,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConsolidatedAPIService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
@@ -137,6 +139,9 @@ public class ConsolidatedAPIServiceImplTest {
     @SpyBean
     NewPageRepository mockNewPageRepository;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
@@ -171,6 +176,8 @@ public class ConsolidatedAPIServiceImplTest {
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.release_static_url_enabled);
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
@@ -739,6 +746,8 @@ public class ConsolidatedAPIServiceImplTest {
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.release_static_url_enabled);
 
         Mockito.doReturn(Mono.empty())
                 .when(mockNewPageRepository)

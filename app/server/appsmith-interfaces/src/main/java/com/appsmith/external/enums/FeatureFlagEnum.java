@@ -32,6 +32,12 @@ public enum FeatureFlagEnum {
     release_dynamodb_connection_time_to_live_enabled,
     release_reactive_actions_enabled,
     /**
+     * Enables static and human-readable URLs for applications and pages. When enabled, Appsmith apps use
+     * predictable, unique slugs for app and page routes instead of dynamic URLs,
+     * improving usability, cross-instance navigation, and compatibility with Git.
+     */
+    release_static_url_enabled,
+    /**
      * Feature flag to enable alphabetical ordering for workspaces and applications
      */
     release_alphabetical_ordering_enabled,

@@ -27,11 +27,13 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
         basePageId: page.baseId,
         customSlug: page.customSlug,
+        staticPageSlug: page?.uniqueSlug || "",
       }));
       break;
     }
@@ -44,11 +46,13 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
         basePageId: page.baseId,
         customSlug: page.customSlug,
+        staticPageSlug: page?.uniqueSlug || "",
       }));
       break;
     }
@@ -59,6 +63,7 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       break;
     }
@@ -69,6 +74,7 @@ export const handler = (action: ReduxAction<any>) => {
         pageSlug: page.slug,
         basePageId: page.basePageId,
         customSlug: page.customSlug,
+        staticPageSlug: page?.uniqueSlug || "",
       }));
       break;
     }
@@ -80,6 +86,7 @@ export const handler = (action: ReduxAction<any>) => {
           pageSlug: page.slug,
           basePageId: page.baseId,
           customSlug: page.customSlug,
+          staticPageSlug: page?.uniqueSlug || "",
         },
       ];
       break;
@@ -92,6 +99,7 @@ export const handler = (action: ReduxAction<any>) => {
           pageSlug: page.slug,
           basePageId: page.basePageId,
           customSlug: page.customSlug,
+          staticPageSlug: page?.uniqueSlug || "",
         },
       ];
       break;
@@ -104,6 +112,7 @@ export const handler = (action: ReduxAction<any>) => {
           pageSlug: page.slug,
           basePageId: page.baseId,
           customSlug: page.customSlug,
+          staticPageSlug: page?.uniqueSlug || "",
         },
       ]);
       break;
@@ -115,15 +124,17 @@ export const handler = (action: ReduxAction<any>) => {
         baseApplicationId: application.baseid,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
+        staticApplicationSlug: application?.staticUrlSettings?.uniqueSlug || "",
       };
       break;
     case ReduxActionTypes.CLONE_PAGE_SUCCESS:
-      const { basePageId, pageSlug } = action.payload;
+      const { basePageId, pageSlug, uniqueSlug } = action.payload;
 
       pageParams = [
         {
           basePageId,
           pageSlug,
+          staticPageSlug: uniqueSlug || "",
         },
       ];
       break;

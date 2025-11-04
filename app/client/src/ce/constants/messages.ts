@@ -1128,6 +1128,14 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const GENERATE_DEPLOY_KEY_TITLE = () => "Deploy key";
+export const GENERATE_DEPLOY_KEY_MESSAGE = () =>
+  "Generate a new deploy key. Then, add the new key to your Git repository to restore this app’s connection.";
+export const GENERATE_DEPLOY_KEY_BTN = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_TITLE = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_WAIT_TEXT = () => "Saving deploy key...";
+export const INVALID_DEPLOY_KEY_WARNING = () =>
+  "Your current deploy key may be invalid or outdated. Try generating a new key below and adding it to your Git repository.";
 export const AUTOCOMMIT = () => "Auto - commit";
 export const AUTOCOMMIT_MESSAGE = () =>
   "Enable/disable auto migrations from Appsmith.";
@@ -1916,6 +1924,41 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
+export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
+  "Generating app slug";
+export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
+  "Slug can only contain lowercase letters, numbers, and hyphens.";
+export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
+  "Changing this application slug will affect both edit and deployed versions of the app.";
+export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
+  "Checking availability...";
+export const GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE = () => "Available";
+export const GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE = () =>
+  "There is already an app with this slug.";
+export const GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE = () =>
+  "Enter a value";
+export const ERROR_IN_DISABLING_STATIC_URL = () =>
+  "Error in disabling static URL. Please try again.";
+export const STATIC_URL_DISABLED_SUCCESS = () =>
+  "Static URL disabled. The app has reverted to default Appsmith URLs.";
+export const STATIC_URL_CHANGE_SUCCESS = () =>
+  "App slug updated. All pages now use the new base URL.";
+export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
+  "Error in fetching app slug suggestion. Please try again.";
+export const ERROR_IN_ENABLING_STATIC_URL = () =>
+  "Error in enabling static URL. Please try again.";
+
+export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
+  "Checking availability...";
+export const PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE = () => "Available";
+export const PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE = () =>
+  "There is already a page with this slug.";
+export const PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE = () =>
+  "Deploy app to apply this slug";
+export const PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE = () =>
+  "This page name conflicts with an existing page slug.";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
 export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";

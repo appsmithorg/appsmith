@@ -17,6 +17,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.ce.ConsolidatedAPIServiceCEImpl;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import io.micrometer.observation.ObservationRegistry;
 
@@ -37,6 +38,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             CustomJSLibService customJSLibService,
             PluginService pluginService,
             DatasourceService datasourceService,
+            StaticUrlService staticUrlService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
             CacheableRepositoryHelper cacheableRepositoryHelper,
@@ -56,6 +58,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 customJSLibService,
                 pluginService,
                 datasourceService,
+                staticUrlService,
                 mockDataService,
                 observationRegistry,
                 cacheableRepositoryHelper,

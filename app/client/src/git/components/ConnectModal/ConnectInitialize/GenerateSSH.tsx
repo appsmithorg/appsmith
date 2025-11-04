@@ -8,7 +8,7 @@ import {
   WellText,
   WellTitle,
   WellTitleContainer,
-} from "./common";
+} from "../../common/GitUIComponents";
 import {
   Button,
   Collapsible,
@@ -29,10 +29,10 @@ import {
   REMOTE_URL_INPUT_LABEL,
   createMessage,
 } from "ee/constants/messages";
-import { GIT_DEMO_GIF } from "./constants";
+import { GIT_DEMO_GIF } from "../../common/constants";
 import { isValidGitRemoteUrl } from "../../utils";
 import type { GitApiError } from "git/store/types";
-import type { GitProvider } from "./types";
+import type { GitProvider } from "../../common/types";
 
 interface GenerateSSHState {
   gitProvider?: GitProvider;

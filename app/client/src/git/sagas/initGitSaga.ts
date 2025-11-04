@@ -11,7 +11,11 @@ import { put, take } from "redux-saga/effects";
 export default function* initGitForEditorSaga(
   action: GitArtifactPayloadAction<InitGitForEditorPayload>,
 ) {
-  const { artifact, artifactDef } = action.payload;
+  const {
+    artifact,
+    artifactDef,
+    skipCurrentBranchUpdate = false,
+  } = action.payload;
   const artifactId = artifact?.id;
 
   yield put(gitArtifactActions.mount({ artifactDef }));
@@ -28,10 +32,13 @@ export default function* initGitForEditorSaga(
     }
 
     if (!!branchName) {
-      updateBranchParam(branchName);
-      yield put(
-        gitArtifactActions.updateCurrentBranch({ artifactDef, branchName }),
-      );
+      if (!skipCurrentBranchUpdate) {
+        updateBranchParam(branchName);
+
+        yield put(
+          gitArtifactActions.updateCurrentBranch({ artifactDef, branchName }),
+        );
+      }
 
       yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);

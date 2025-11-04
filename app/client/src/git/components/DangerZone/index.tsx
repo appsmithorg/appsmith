@@ -5,6 +5,7 @@ import React, { useCallback } from "react";
 import DangerZoneView from "./DangerZoneView";
 import useMetadata from "git/hooks/useMetadata";
 import { useGitContext } from "../GitContextProvider";
+import useGenerateDeployKey from "git/hooks/useGenerateDeployKey";
 
 function DangerZone() {
   const {
@@ -20,6 +21,7 @@ function DangerZone() {
     toggleAutocommit,
     toggleAutocommitDisableModal,
   } = useAutocommit();
+  const { toggleGenerateSSHKeyModal } = useGenerateDeployKey();
   const { toggleSettingsModal } = useSettings();
   const { isFetchMetadataLoading } = useMetadata();
 
@@ -40,6 +42,7 @@ function DangerZone() {
       openDisconnectModal={handleOpenDisconnectModal}
       toggleAutocommit={toggleAutocommit}
       toggleDisableAutocommitModal={toggleAutocommitDisableModal}
+      toggleGenerateSSHKeyModal={toggleGenerateSSHKeyModal}
       toggleSettingsModal={toggleSettingsModal}
     />
   );

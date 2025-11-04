@@ -28,3 +28,9 @@ export const selectFetchGlobalSSHKeyState = (state: GitRootState) =>
 
 export const selectRepoLimitErrorModalOpen = (state: GitRootState) =>
   selectGitGlobal(state).repoLimitErrorModalOpen;
+
+export const selectUpdateGeneratedSSHKeyState = (state: GitRootState) =>
+  selectGitGlobal(state).updateGeneratedSSHKey;
+
+export const selectGenerateSSHKeyModalOpen = (state: GitRootState) =>
+  selectGitGlobal(state).isGenerateSSHKeyModalOpen;

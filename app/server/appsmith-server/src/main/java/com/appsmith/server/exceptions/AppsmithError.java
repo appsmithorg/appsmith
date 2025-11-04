@@ -365,7 +365,7 @@ public enum AppsmithError {
     INVALID_GIT_SSH_CONFIGURATION(
             400,
             AppsmithErrorCode.INVALID_GIT_SSH_CONFIGURATION.getCode(),
-            "SSH key is not configured correctly. Did you forget to add the SSH key to your remote repository? Please try again by reconfiguring the SSH key with write access.",
+            "Appsmith couldn''t connect to this app''s Git repository. You may need to update the deploy key in the app''s Git settings and add the new key to your Git repository",
             AppsmithErrorAction.DEFAULT,
             "SSH key not configured",
             ErrorType.GIT_CONFIGURATION_ERROR,
@@ -1018,6 +1018,14 @@ public enum AppsmithError {
             "Password must be {0}-{1} characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces.",
             AppsmithErrorAction.DEFAULT,
             "Insufficient password strength",
+            ErrorType.ARGUMENT_ERROR,
+            null),
+    UNIQUE_SLUG_UNAVAILABLE(
+            409,
+            AppsmithErrorCode.UNIQUE_SLUG_UNAVAILABLE.getCode(),
+            "Duplicate {0} slug detected. Slug value: {1} is already in use. It must be unique",
+            AppsmithErrorAction.DEFAULT,
+            "Slug already in use",
             ErrorType.ARGUMENT_ERROR,
             null),
     GIT_ROUTE_METADATA_NOT_FOUND(

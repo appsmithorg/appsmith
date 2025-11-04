@@ -455,6 +455,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     // If the forking application is connected to git, do not copy those data to the new forked
                     // application
                     application.setGitApplicationMetadata(null);
+                    application.setStaticUrlSettings(null);
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?

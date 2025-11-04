@@ -705,3 +705,23 @@ export const navigateToAnotherPage = (
   type: ReduxActionTypes.NAVIGATE_TO_ANOTHER_PAGE,
   payload,
 });
+
+export const persistPageSlug = (pageId: string, slug: string) => {
+  return {
+    type: ReduxActionTypes.PERSIST_PAGE_SLUG,
+    payload: {
+      pageId,
+      slug,
+    },
+  };
+};
+
+export const validatePageSlug = (pageId: string, slug: string) => {
+  return {
+    type: ReduxActionTypes.VALIDATE_PAGE_SLUG,
+    payload: {
+      pageId,
+      slug,
+    },
+  };
+};
