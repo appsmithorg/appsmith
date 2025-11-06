@@ -10,6 +10,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ce_compatible.ConsolidatedAPIServiceCECompatibleImpl;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
             CustomJSLibService customJSLibService,
             PluginService pluginService,
             DatasourceService datasourceService,
+            StaticUrlService staticUrlService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
             CacheableRepositoryHelper cacheableRepositoryHelper,
@@ -53,6 +55,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
                 customJSLibService,
                 pluginService,
                 datasourceService,
+                staticUrlService,
                 mockDataService,
                 observationRegistry,
                 cacheableRepositoryHelper,

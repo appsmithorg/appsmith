@@ -7,6 +7,7 @@ import OpsModal from "git/components/OpsModal";
 import RepoLimitErrorModal from "git/components/RepoLimitErrorModal";
 import SettingsModal from "git/components/SettingsModal";
 import React from "react";
+import GenerateDeployKeyModal from "git/components/GenerateDeployKeyModal";
 
 function GitModals() {
   return (
@@ -19,6 +20,7 @@ function GitModals() {
       <DisconnectModal />
       <DisableAutocommitModal />
       <ConflictErrorModal />
+      <GenerateDeployKeyModal />
     </>
   );
 }

@@ -58,6 +58,7 @@ const TopHeader = (props: TopHeaderProps) => {
     "inherit",
   );
   const basePageId = useSelector(getCurrentBasePageId);
+
   const editorURL = useHref(builderURL, { basePageId });
 
   return (

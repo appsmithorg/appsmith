@@ -5,6 +5,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
   DATA_SOURCES_EDITOR_ID_PATH,
   ENTITY_PATH,
   INTEGRATION_EDITOR_PATH,
@@ -40,6 +41,11 @@ export const EntityPaths: string[] = [
 ];
 export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
   [IDE_TYPE.None]: [],
-  [IDE_TYPE.App]: [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH],
+  [IDE_TYPE.App]: [
+    BUILDER_PATH,
+    BUILDER_PATH_DEPRECATED,
+    BUILDER_CUSTOM_PATH,
+    BUILDER_PATH_STATIC,
+  ],
   [IDE_TYPE.UIPackage]: [],
 };

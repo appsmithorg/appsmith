@@ -9,3 +9,12 @@ export interface LogoConfigurationSwitches {
   logo: boolean;
   applicationTitle: boolean;
 }
+
+export enum AppSettingsTabs {
+  General,
+  Embed,
+  Theme,
+  Navigation,
+  Page,
+  Import,
+}

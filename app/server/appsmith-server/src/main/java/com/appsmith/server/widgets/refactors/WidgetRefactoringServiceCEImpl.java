@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.ce.LayoutContainer;
 import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -138,5 +139,39 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
             }
             return Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
         });
+    }
+
+    // New method that accepts cached data
+    public Flux<String> getExistingEntityNamesWithCache(
+            String contextId,
+            CreatorContextType contextType,
+            String layoutId,
+            boolean viewMode,
+            RefactorEntityNameDTO cacheDTO) {
+
+        // Use cached page DTO if available
+        if (cacheDTO.hasCachedPageDTO()) {
+            PageDTO pageDTO = cacheDTO.getCachedPageDTO();
+            return extractWidgetNamesFromPageDTO(pageDTO, layoutId);
+        }
+
+        // Fallback to original method
+        return getExistingEntityNames(contextId, contextType, layoutId, viewMode);
+    }
+
+    private Flux<String> extractWidgetNamesFromPageDTO(PageDTO pageDTO, String layoutId) {
+        List<Layout> layouts = pageDTO.getLayouts();
+        if (layouts == null) {
+            return Flux.empty();
+        }
+        for (Layout layout : layouts) {
+            if (layoutId.equals(layout.getId())) {
+                if (layout.getWidgetNames() != null && !layout.getWidgetNames().isEmpty()) {
+                    return Flux.fromIterable(layout.getWidgetNames());
+                }
+                return Flux.empty();
+            }
+        }
+        return Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
     }
 }

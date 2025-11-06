@@ -22,6 +22,7 @@ const mockStore = configureStore([]);
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useLocation: jest.fn(),
+  useParams: jest.fn(),
 }));
 
 jest.mock("../MenuItem.styled", () => ({
@@ -79,6 +80,7 @@ const mockPage: Page = {
   isDefault: true,
   isHidden: false,
   slug: "test-page-1",
+  uniqueSlug: "test-page-1-unique",
 };
 const mockQuery = "param=value";
 
@@ -92,6 +94,11 @@ describe("MenuItem Component", () => {
     initialState: Partial<DefaultRootState> = {},
     currentPathname = "/app/page1_id/section",
     appMode?: APP_MODE,
+    useParamsMock?: {
+      staticPageSlug?: string;
+      staticApplicationSlug?: string;
+      basePageId?: string;
+    },
   ) => {
     const testState = getTestState(initialState, appMode);
 
@@ -137,6 +144,14 @@ describe("MenuItem Component", () => {
     (require("react-router-dom").useLocation as jest.Mock).mockReturnValue({
       pathname: currentPathname,
     });
+
+    (require("react-router-dom").useParams as jest.Mock).mockReturnValue(
+      useParamsMock || {
+        staticPageSlug: undefined,
+        staticApplicationSlug: undefined,
+        basePageId: "base_page1_id",
+      },
+    );
 
     // Mock the useNavigateToAnotherPage hook
     const useNavigateToAnotherPageMock =
@@ -265,6 +280,36 @@ describe("MenuItem Component", () => {
       "navcolorstyle",
       NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT, // Default
     );
+  });
+
+  it("is marked active for static URL when staticPageSlug matches uniqueSlug", () => {
+    renderComponent(
+      undefined,
+      undefined,
+      "/app/test-app/test-page-1-unique",
+      undefined,
+      {
+        staticPageSlug: "test-page-1-unique",
+        staticApplicationSlug: "test-app",
+        basePageId: "base_page1_id",
+      },
+    );
+    expect(screen.getByTestId("styled-menu-item")).toHaveClass("is-active");
+  });
+
+  it("is not marked active for static URL when staticPageSlug does not match uniqueSlug", () => {
+    renderComponent(
+      undefined,
+      undefined,
+      "/app/test-app/different-page-slug",
+      undefined,
+      {
+        staticPageSlug: "different-page-slug",
+        staticApplicationSlug: "test-app",
+        basePageId: "base_page1_id",
+      },
+    );
+    expect(screen.getByTestId("styled-menu-item")).not.toHaveClass("is-active");
   });
 });
 

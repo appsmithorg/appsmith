@@ -28,6 +28,8 @@ export interface AppEnginePayload {
   branch?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }
 
 export interface IAppEngine {
@@ -87,9 +89,20 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ) {
     const loadAppDataSpan = startNestedSpan("AppEngine.loadAppData", rootSpan);
-    const { applicationId, basePageId, branch } = payload;
+    const {
+      applicationId,
+      basePageId,
+      branch,
+      staticApplicationSlug,
+      staticPageSlug,
+    } = payload;
     const { pages } = allResponses;
-    const page = pages.data?.pages?.find((page) => page.baseId === basePageId);
+
+    // For static URLs, look up page by staticPageSlug using uniqueSlug
+    const isStaticPageUrl = staticApplicationSlug && staticPageSlug;
+    const page = isStaticPageUrl
+      ? pages.data?.pages?.find((page) => page.uniqueSlug === staticPageSlug)
+      : pages.data?.pages?.find((page) => page.baseId === basePageId);
     const apiCalls: boolean = yield failFastApiCalls(
       [
         fetchApplication({

@@ -41,6 +41,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
@@ -102,7 +103,6 @@ import {
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
-import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 import {
   getIsAiAgentApp,
   getIsCreatingAgent,
@@ -1125,13 +1125,10 @@ const mapStateToProps = (
   props: any,
 ): ReduxStateProps => {
   const applicationId = props.applicationId ?? getCurrentApplicationId(state);
-  const application = getApplicationByIdFromWorkspaces(state, applicationId);
 
-  const basePageIdFromUrl = props?.match?.params?.basePageId;
-  const pageIdFromUrl = convertToPageIdSelector(state, basePageIdFromUrl);
+  const basePageId = getCurrentBasePageId(state);
+  const pageIdFromUrl = convertToPageIdSelector(state, basePageId);
   const pageId = props.pageId || pageIdFromUrl;
-  const basePageId =
-    application?.pages?.find((page) => page.id === pageId)?.baseId ?? "";
 
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;

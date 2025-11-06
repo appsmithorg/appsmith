@@ -16,6 +16,7 @@ import {
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
+  getBasePageIdFromStaticSlug,
   getCurrentPageDescription,
   getIsAutoLayout,
   getPageList,
@@ -100,9 +101,24 @@ function WDSThemeProviderWithTheme({ children }: { children: ReactNode }) {
 function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { pathname, search } = props.location;
-  const { baseApplicationId, basePageId } = props.match.params;
+  const {
+    baseApplicationId,
+    basePageId,
+    staticApplicationSlug,
+    staticPageSlug,
+  } = props.match.params;
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getPageList);
+  const resolvedBasePageIdFromSlug = useSelector((state) =>
+    staticPageSlug
+      ? getBasePageIdFromStaticSlug(state, staticPageSlug)
+      : undefined,
+  );
+
+  // Resolve basePageId from staticPageSlug if needed
+  const resolvedBasePageId =
+    !basePageId && staticPageSlug ? resolvedBasePageIdFromSlug : basePageId;
+
   const selectedTheme = useSelector(getSelectedAppTheme);
   const lightTheme = useSelector((state: DefaultRootState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
@@ -113,6 +129,7 @@ function AppViewer(props: Props) {
     branch,
     location: props.location,
     basePageId,
+    resolvedBasePageId,
   });
   const hideWatermark = useSelector(getHideWatermark);
   const pageDescription = useSelector(getCurrentPageDescription);
@@ -139,22 +156,28 @@ function AppViewer(props: Props) {
   useEffect(() => {
     const prevBranch = prevValues?.branch;
     const prevLocation = prevValues?.location;
-    const prevPageBaseId = prevValues?.basePageId;
+    const prevPageBaseId = prevValues?.resolvedBasePageId;
     let isBranchUpdated = false;
 
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
 
-    const isPageIdUpdated = basePageId !== prevPageBaseId;
+    const isPageIdUpdated = resolvedBasePageId !== prevPageBaseId;
 
-    if (prevBranch && isBranchUpdated && (baseApplicationId || basePageId)) {
+    if (
+      prevBranch &&
+      isBranchUpdated &&
+      (baseApplicationId || resolvedBasePageId)
+    ) {
       dispatch(
         initAppViewerAction({
           baseApplicationId,
           branch,
-          basePageId,
+          basePageId: resolvedBasePageId || "",
           mode: APP_MODE.PUBLISHED,
+          staticApplicationSlug,
+          staticPageSlug,
         }),
       );
     } else {
@@ -163,15 +186,15 @@ function AppViewer(props: Props) {
        * If we don't check for `prevPageId`: fetch page is retriggered
        * when redirected to the default page
        */
-      if (prevPageBaseId && basePageId && isPageIdUpdated) {
+      if (prevPageBaseId && resolvedBasePageId && isPageIdUpdated) {
         const pageId = pages.find(
-          (page) => page.basePageId === basePageId,
+          (page) => page.basePageId === resolvedBasePageId,
         )?.pageId;
 
         if (pageId) {
           dispatch(
             fetchPublishedPageResources({
-              basePageId,
+              basePageId: resolvedBasePageId,
               pageId,
               branch,
             }),
@@ -179,15 +202,28 @@ function AppViewer(props: Props) {
         }
       }
     }
-  }, [branch, basePageId, baseApplicationId, pathname]);
+  }, [
+    baseApplicationId,
+    branch,
+    dispatch,
+    pages,
+    prevValues?.resolvedBasePageId,
+    prevValues?.branch,
+    prevValues?.location,
+    props.location,
+    resolvedBasePageId,
+    staticApplicationSlug,
+    staticPageSlug,
+    pathname,
+  ]);
 
   useEffect(() => {
-    urlBuilder.setCurrentBasePageId(basePageId);
+    urlBuilder.setCurrentBasePageId(resolvedBasePageId);
 
     return () => {
       urlBuilder.setCurrentBasePageId(null);
     };
-  }, [basePageId]);
+  }, [resolvedBasePageId]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");

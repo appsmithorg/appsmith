@@ -138,6 +138,21 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Flux<NewPage> findByBasePageId(
+            String basePageId, AclPermission permission, List<String> projectedFieldNames) {
+        return repository.findByBasePageId(basePageId, permission, projectedFieldNames);
+    }
+
+    @Override
+    public Mono<NewPage> findByIdAndApplicationMode(String id, ApplicationMode mode) {
+        AclPermission permission = ApplicationMode.PUBLISHED.equals(mode)
+                ? pagePermission.getReadPermission()
+                : pagePermission.getEditPermission();
+
+        return findById(id, permission);
+    }
+
+    @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
 
         return findById(page.getId(), pagePermission.getEditPermission())
@@ -344,6 +359,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             Application application, List<NewPage> newPages, boolean viewMode) {
 
         String homePageId = getHomePageId(application, viewMode);
+        boolean isStaticUrlEnabled = application.getStaticUrlSettings() != null
+                && Boolean.TRUE.equals(application.getStaticUrlSettings().getEnabled());
         List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
         List<ApplicationPage> applicationPages = application.getPages();
         List<ApplicationPage> publishedApplicationPages = application.getPublishedPages();
@@ -363,7 +380,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         for (NewPage pageFromDb : newPages) {
-            PageNameIdDTO pageNameIdDTO = getPageNameIdDTO(pageFromDb, homePageId, viewMode);
+            PageNameIdDTO pageNameIdDTO = getPageNameIdDTO(pageFromDb, homePageId, viewMode, isStaticUrlEnabled);
             pageNameIdDTOList.add(pageNameIdDTO);
         }
 
@@ -384,7 +401,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return applicationPagesDTO;
     }
 
-    private static PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
+    private static PageNameIdDTO getPageNameIdDTO(
+            NewPage pageFromDb, String homePageId, boolean viewMode, boolean isStaticUrlEnabled) {
         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
         pageNameIdDTO.setId(pageFromDb.getId());
         pageNameIdDTO.setBaseId(pageFromDb.getBaseIdOrFallback());
@@ -400,6 +418,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             pageDTO = pageFromDb.getPublishedPage();
         } else {
             pageDTO = pageFromDb.getUnpublishedPage();
+        }
+
+        if (isStaticUrlEnabled) {
+            pageNameIdDTO.setUniqueSlug(pageFromDb.getUniqueSlugOrFallback(viewMode));
         }
 
         pageNameIdDTO.setName(pageDTO.getName());
@@ -661,5 +683,27 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return !isDeletedOrNull;
                 })
                 .flatMap(page -> getPageByViewMode(page, viewMode));
+    }
+
+    @Override
+    public Mono<NewPage> findByApplicationIdAndUniquePageSlug(
+            String applicationId, String uniquePageName, ApplicationMode applicationMode) {
+        AclPermission permission = ApplicationMode.PUBLISHED.equals(applicationMode)
+                ? pagePermission.getReadPermission()
+                : pagePermission.getEditPermission();
+
+        boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode);
+        return repository.findByUniquePageSlug(applicationId, uniquePageName, permission, viewMode);
+    }
+
+    @Override
+    public Mono<NewPage> findByApplicationIdAndPageSlug(
+            String applicationId, String pageSlug, ApplicationMode mode, List<String> projections) {
+        boolean viewMode = ApplicationMode.PUBLISHED.equals(mode);
+        AclPermission permission = ApplicationMode.PUBLISHED.equals(mode)
+                ? pagePermission.getReadPermission()
+                : pagePermission.getEditPermission();
+
+        return repository.findByApplicationIdAndPageSlug(applicationId, pageSlug, viewMode, permission, projections);
     }
 }

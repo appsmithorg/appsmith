@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -36,6 +37,9 @@ public class PageDTO implements LayoutContainer {
     @Transient
     @JsonView({Views.Public.class})
     private String baseId;
+
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
+    String uniqueSlug;
 
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String name;
@@ -114,5 +118,14 @@ public class PageDTO implements LayoutContainer {
     public void sanitiseToExportDBObject() {
         this.setDependencyMap(null);
         this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
+    }
+
+    @JsonView(Views.Internal.class)
+    public String getUniqueSlugOrFallback() {
+        if (StringUtils.hasText(uniqueSlug)) {
+            return this.uniqueSlug;
+        }
+
+        return this.slug;
     }
 }

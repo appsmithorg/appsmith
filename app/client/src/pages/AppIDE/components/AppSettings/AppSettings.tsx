@@ -35,15 +35,7 @@ import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
-
-export enum AppSettingsTabs {
-  General,
-  Embed,
-  Theme,
-  Navigation,
-  Page,
-  Import,
-}
+import { AppSettingsTabs } from "./types";
 
 export interface SelectedTab {
   type: AppSettingsTabs;

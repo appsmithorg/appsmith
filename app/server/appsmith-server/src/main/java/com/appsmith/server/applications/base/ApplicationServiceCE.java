@@ -105,4 +105,9 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
             String defaultApplicationId, String branchName, ApplicationMode mode);
 
     Mono<Application> findByBranchedApplicationIdAndApplicationMode(String branchedApplicationId, ApplicationMode mode);
+
+    Flux<Application> findByUniqueAppName(String uniqueAppName, AclPermission aclPermission);
+
+    Flux<Application> findByUniqueAppNameRefNameAndApplicationMode(
+            String uniqueAppName, String refName, ApplicationMode applicationMode);
 }

@@ -12,6 +12,7 @@ import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.UserReleaseNotes;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class ApplicationController extends ApplicationControllerCE {
     public ApplicationController(
             ArtifactService artifactService,
             ApplicationService service,
+            StaticUrlService staticUrlService,
             ApplicationPageService applicationPageService,
             UserReleaseNotes userReleaseNotes,
             ApplicationForkingService applicationForkingService,
@@ -37,6 +39,7 @@ public class ApplicationController extends ApplicationControllerCE {
         super(
                 artifactService,
                 service,
+                staticUrlService,
                 applicationPageService,
                 userReleaseNotes,
                 applicationForkingService,

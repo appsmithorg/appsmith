@@ -17,6 +17,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getPageList,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -247,11 +248,11 @@ function BindDataButton(props: BindDataButtonProps) {
   const pagePermissions = useSelector(getPagePermissions);
 
   const params = useParams<{
-    basePageId: string;
     baseApiId?: string;
     baseQueryId?: string;
     moduleInstanceId?: string;
   }>();
+  const currentBasePageId = useSelector(getCurrentBasePageId);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -346,7 +347,7 @@ function BindDataButton(props: BindDataButtonProps) {
           params.baseQueryId ||
           params.moduleInstanceId) as string,
         applicationId: applicationId as string,
-        basePageId: params.basePageId,
+        basePageId: currentBasePageId,
       }),
     );
 

@@ -176,6 +176,27 @@ export const getPageByBaseId = (basePageId: string) =>
 export const getCurrentBasePageId = (state: DefaultRootState) =>
   state.entities.pageList.currentBasePageId;
 
+export const getBasePageIdFromStaticSlug = createSelector(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [getPageList, (_: any, staticPageSlug: string) => staticPageSlug],
+  (pages: Page[], staticPageSlug: string) => {
+    if (!staticPageSlug || !pages.length) {
+      return null;
+    }
+
+    // Find page by matching uniqueSlug property
+    const matchingPage = pages.find(
+      (page) => page.uniqueSlug === staticPageSlug,
+    );
+
+    if (matchingPage) {
+      return matchingPage.basePageId;
+    }
+
+    return null;
+  },
+);
+
 export const getCurrentPagePermissions = createSelector(
   getCurrentPageId,
   getPageList,
@@ -229,6 +250,9 @@ export const selectApplicationVersion = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.applicationVersion ||
   ApplicationVersion.DEFAULT;
 
+export const getIsStaticUrlEnabled = (state: DefaultRootState) =>
+  !!state.ui.applications.currentApplication?.staticUrlSettings?.enabled;
+
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {
     const page = pages.find((page) => page.pageId === pageId);
@@ -260,6 +284,22 @@ export const getRenderMode = (state: DefaultRootState) => {
 
 export const getIsViewMode = (state: DefaultRootState) =>
   state.entities.app.mode === APP_MODE.PUBLISHED;
+
+export const getIsPersistingPageSlug = (
+  state: DefaultRootState,
+  pageId: string,
+) => state.entities.app.pageSlug[pageId]?.isPersisting || false;
+
+export const getIsErrorPersistingPageSlug = (
+  state: DefaultRootState,
+  pageId: string,
+) => state.entities.app.pageSlug[pageId]?.isError || false;
+
+export const getIsValidatingPageSlug = (state: DefaultRootState) =>
+  state.entities.app.pageSlugValidation.isValidating;
+
+export const getIsPageSlugValid = (state: DefaultRootState) =>
+  state.entities.app.pageSlugValidation.isValid;
 
 export const getViewModePageList = createSelector(
   getPageList,
