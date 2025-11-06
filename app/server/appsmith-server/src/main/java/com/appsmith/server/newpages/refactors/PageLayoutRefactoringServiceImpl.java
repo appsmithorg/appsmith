@@ -50,6 +50,28 @@ public class PageLayoutRefactoringServiceImpl implements ContextLayoutRefactorin
     @Override
     public Mono<Integer> getEvaluationVersionMono(
             String contextId, RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+
+        // Check if we already have cached evaluation version
+        if (refactorEntityNameDTO.hasCachedEvaluationVersion()) {
+            return Mono.just(refactorEntityNameDTO.getCachedEvaluationVersion());
+        }
+
+        // Use cached page DTO if available
+        if (refactorEntityNameDTO.hasCachedPageDTO()) {
+            PageDTO pageDTO = refactorEntityNameDTO.getCachedPageDTO();
+            String applicationId = pageDTO.getApplicationId();
+
+            // Set the page DTO in meta for other services to use
+            refactoringMetaDTO.setPageDTOMono(Mono.just(pageDTO));
+
+            return getEvaluationVersionMono(applicationId).map(evaluationVersion -> {
+                // Cache the evaluation version for future use
+                refactorEntityNameDTO.withCachedEvaluationVersion(evaluationVersion);
+                return evaluationVersion;
+            });
+        }
+
+        // Fallback to original implementation
         Mono<PageDTO> pageDTOMono = getContextDTOMono(contextId, false);
         refactoringMetaDTO.setPageDTOMono(pageDTOMono);
         return pageDTOMono.flatMap(
