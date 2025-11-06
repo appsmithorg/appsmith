@@ -55,6 +55,8 @@ jobs:
           file: deploy/docker/base.dockerfile
           push: true
           pull: true
+          # do not cache so we get fresh OS packages each time
+          no-cache: true
           platforms: linux/arm64,linux/amd64
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.tag.outputs.tag }}
