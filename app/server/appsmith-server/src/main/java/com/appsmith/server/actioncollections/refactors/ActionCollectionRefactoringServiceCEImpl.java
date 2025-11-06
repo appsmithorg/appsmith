@@ -88,7 +88,7 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
 
                     return this.refactorNameInActionCollection(
                                     unpublishedCollection, oldName, newName, evalVersion, oldNamePattern)
-                            .map(isPresent -> Boolean.TRUE.equals(isPresent) ? actionCollection : null);
+                            .mapNotNull(isPresent -> Boolean.TRUE.equals(isPresent) ? actionCollection : null);
                 })
                 // Keep only the ones that actually need update
                 .filter(Objects::nonNull)
