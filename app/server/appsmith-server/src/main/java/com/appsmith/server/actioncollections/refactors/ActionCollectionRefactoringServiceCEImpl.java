@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -80,7 +81,6 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
             String newName,
             int evalVersion,
             Pattern oldNamePattern) {
-        List<ActionCollection> collectionsToUpdate = new ArrayList<>();
 
         return Flux.fromIterable(actionCollections)
                 .flatMap(actionCollection -> {
@@ -88,15 +88,12 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
 
                     return this.refactorNameInActionCollection(
                                     unpublishedCollection, oldName, newName, evalVersion, oldNamePattern)
-                            .map(isPresent -> {
-                                if (Boolean.TRUE.equals(isPresent)) {
-                                    collectionsToUpdate.add(actionCollection);
-                                }
-                                return actionCollection;
-                            });
+                            .map(isPresent -> Boolean.TRUE.equals(isPresent) ? actionCollection : null);
                 })
+                // Keep only the ones that actually need update
+                .filter(Objects::nonNull)
                 .collectList()
-                .flatMap(processedCollections -> {
+                .flatMap(collectionsToUpdate -> {
                     if (collectionsToUpdate.isEmpty()) {
                         log.debug("No action collections require updates for refactoring");
                         return Mono.empty();

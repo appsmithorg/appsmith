@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,8 +107,9 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
             String contextId) {
 
         return evalVersionMono.flatMap(evalVersion -> {
-            List<NewAction> actionsToUpdate = new ArrayList<>();
-            List<String> updatedActionNames = new ArrayList<>();
+            // Use thread-safe collections for concurrent access during flatMap processing
+            List<NewAction> actionsToUpdate = Collections.synchronizedList(new ArrayList<>());
+            List<String> updatedActionNames = Collections.synchronizedList(new ArrayList<>());
 
             return Flux.fromIterable(actions)
                     .flatMap(newAction -> {
