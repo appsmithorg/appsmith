@@ -13,18 +13,24 @@ import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.schmizz.sshj.userauth.method.AuthPublickey;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
+import java.util.Base64;
 
 import static com.appsmith.external.constants.ConnectionMethod.CONNECTION_METHOD_SSH;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
@@ -76,7 +82,6 @@ public class SSHUtils {
         client.addHostKeyVerifier(new PromiscuousVerifier());
 
         client.connect(sshHost, sshPort);
-        Reader targetReader = new InputStreamReader(new ByteArrayInputStream(key.getDecodedContent()));
         String keyContent;
         KeyProvider keyFile = null;
         try (Reader reader = new StringReader(new String(key.getDecodedContent(), StandardCharsets.UTF_8));
@@ -102,10 +107,16 @@ public class SSHUtils {
                 OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
                 openSSHKeyFile.init(new StringReader(keyContent));
                 keyFile = openSSHKeyFile;
-            } else if (keyContent.contains(PKCS_8_PEM_HEADER) || keyContent.contains(PKCS_1_PEM_HEADER)) {
-                // Handle PEM (PKCS#8) and RSA PEM formats
+            } else if (keyContent.contains(PKCS_8_PEM_HEADER)) {
+                // Handle PEM (PKCS#8) format
                 PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
                 pkcs8KeyFile.init(new StringReader(keyContent));
+                keyFile = pkcs8KeyFile;
+            } else if (keyContent.contains(PKCS_1_PEM_HEADER)) {
+                // Handle traditional RSA (PKCS#1) format by converting it to PKCS#8
+                String pkcs8FormattedKey = convertRsaPkcs1ToPkcs8(keyContent);
+                PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
+                pkcs8KeyFile.init(new StringReader(pkcs8FormattedKey));
                 keyFile = pkcs8KeyFile;
             } else {
                 throw new AppsmithPluginException(
@@ -231,5 +242,40 @@ public class SSHUtils {
 
         SSHClient sshClient = sshTunnelContext.getSshClient();
         return sshClient != null && sshClient.isConnected() && sshClient.isAuthenticated();
+    }
+
+    static String convertRsaPkcs1ToPkcs8(String keyContent) throws IOException {
+        String sanitizedContent = keyContent
+                .replace("-----BEGIN RSA PRIVATE KEY-----", "")
+                .replace("-----END RSA PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+
+        if (sanitizedContent.isEmpty()) {
+            throw new IOException("Empty RSA key content");
+        }
+
+        byte[] pkcs1Bytes;
+        try {
+            pkcs1Bytes = Base64.getDecoder().decode(sanitizedContent);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Invalid Base64 encoding for RSA key", e);
+        }
+
+        ASN1Primitive asn1Primitive = ASN1Primitive.fromByteArray(pkcs1Bytes);
+        if (!(asn1Primitive instanceof ASN1Sequence)) {
+            throw new IOException("Invalid RSA key structure");
+        }
+        ASN1Sequence asn1Sequence = (ASN1Sequence) asn1Primitive;
+        RSAPrivateKey rsaPrivateKey = RSAPrivateKey.getInstance(asn1Sequence);
+
+        PrivateKeyInfo privateKeyInfo = new PrivateKeyInfo(
+                new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE), rsaPrivateKey);
+
+        return toPemPrivateKey(privateKeyInfo.getEncoded());
+    }
+
+    private static String toPemPrivateKey(byte[] pkcs8Bytes) {
+        String base64Encoded = Base64.getMimeEncoder(64, new byte[] {'\n'}).encodeToString(pkcs8Bytes);
+        return "-----BEGIN PRIVATE KEY-----\n" + base64Encoded + "\n-----END PRIVATE KEY-----\n";
     }
 }
