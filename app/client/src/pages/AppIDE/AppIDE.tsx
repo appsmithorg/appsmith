@@ -38,6 +38,7 @@ import type { Page } from "entities/Page";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 import { AppIDEModals } from "ee/pages/AppIDE/components/AppIDEModals";
+import { updateWindowDimensions } from "actions/windowActions";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -60,6 +61,7 @@ interface EditorProps {
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
   pages: Page[];
+  updateWindowDimensions: (height: number, width: number) => void;
 }
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -86,6 +88,9 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.props.widgetConfigBuildSuccess();
     });
+
+    // Set initial window dimensions
+    this.props.updateWindowDimensions(window.innerHeight, window.innerWidth);
   }
 
   shouldComponentUpdate(nextProps: Props) {
@@ -274,6 +279,8 @@ const mapDispatchToProps = (dispatch: any) => {
     setupPage: (pageId: string) => dispatch(setupPageAction({ id: pageId })),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
+    updateWindowDimensions: (height: number, width: number) =>
+      dispatch(updateWindowDimensions(height, width)),
   };
 };
 

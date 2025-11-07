@@ -1235,6 +1235,10 @@ const AppThemeActionsTypes = {
   RESET_APP_THEME_SUCCESS: "RESET_APP_THEME_SUCCESS",
 };
 
+const WindowActionsTypes = {
+  UPDATE_WINDOW_DIMENSIONS: "UPDATE_WINDOW_DIMENSIONS",
+};
+
 const AppThemeActionErrorTypes = {
   FETCH_APP_THEMES_ERROR: "FETCH_APP_THEMES_ERROR",
   SET_DEFAULT_SELECTED_THEME_ERROR: "SET_DEFAULT_SELECTED_THEME_ERROR",
@@ -1326,6 +1330,7 @@ export const ReduxActionTypes = {
   ...AIActionTypes,
   ...ApplicationActionTypes,
   ...AppThemeActionsTypes,
+  ...WindowActionsTypes,
   ...AppViewActionTypes,
   ...AppSettingsActionTypes,
   ...BatchUpdateActionTypes,
