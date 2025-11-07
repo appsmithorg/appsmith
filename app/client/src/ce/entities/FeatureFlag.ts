@@ -119,7 +119,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_jsobjects_onpageunloadactions_enabled: false,
   configure_block_event_tracking_for_anonymous_users: false,
   release_static_url_enabled: false,
-  release_window_dimensions_enabled: true,
+  release_window_dimensions_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
