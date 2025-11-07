@@ -835,30 +835,22 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "schemaPreview",
   );
   cy.intercept("GET", "/api/v1/pages/*/view?v=*").as("templatePreview");
-  cy.intercept(
-    "GET",
-    "/api/v1/applications/*/static-url/suggest-app-slug",
-  ).as("fetchAppSlugSuggestion");
-  cy.intercept(
-    "PATCH",
-    "/api/v1/applications/*/static-url",
-  ).as("persistAppSlug");
-  cy.intercept(
-    "GET",
-    "/api/v1/applications/*/static-url/*",
-  ).as("validateAppSlug");
-  cy.intercept(
-    "GET",
-    "/api/v1/pages/*/static-url/verify/*",
-  ).as("validatePageSlug");
-  cy.intercept(
-    "PATCH",
-    "/api/v1/pages/static-url",
-  ).as("persistPageSlug");
-  cy.intercept(
-    "DELETE",
-    "/api/v1/applications/*/static-url",
-  ).as("disableStaticUrl");
+  cy.intercept("GET", "/api/v1/applications/*/static-url/suggest-app-slug").as(
+    "fetchAppSlugSuggestion",
+  );
+  cy.intercept("PATCH", "/api/v1/applications/*/static-url").as(
+    "persistAppSlug",
+  );
+  cy.intercept("GET", "/api/v1/applications/*/static-url/*").as(
+    "validateAppSlug",
+  );
+  cy.intercept("GET", "/api/v1/pages/*/static-url/verify/*").as(
+    "validatePageSlug",
+  );
+  cy.intercept("PATCH", "/api/v1/pages/static-url").as("persistPageSlug");
+  cy.intercept("DELETE", "/api/v1/applications/*/static-url").as(
+    "disableStaticUrl",
+  );
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
