@@ -82,4 +82,14 @@ export default {
   smtpAppsmithMailTestButton: "[data-testid='admin-settings-button']",
   addEmailGhostInput:
     "[data-testid='admin-settings-tag-input'] .bp3-input-ghost",
+  // Static URL related locators
+  pageRoute: "[data-testid='t--page-route']",
+  generalSettingsAppName: "#t--general-settings-app-name",
+  generalSettingsStaticUrl: "#t--general-settings-static-url",
+  generalSettingsStaticAppSlug: "#t--general-settings-app-url",
+  staticUrlConfirmationConfirm: "[data-testid='t--static-url-confirmation-confirm']",
+  staticUrlConfirmationModal: "[data-testid='t--static-url-confirmation-modal']",
+  staticUrlConfirmationCancel: "[data-testid='t--static-url-confirmation-cancel']",
+  pageSettingsName: "#t--page-settings-name",
+  pageSettingsStaticPageSlug: "#t--page-settings-static-page-slug",
 };

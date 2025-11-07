@@ -535,14 +535,14 @@ function PageSettings(props: { page: Page }) {
           {"//"}
           {window.location.hostname}
           {Array.isArray(pathPreview.splitRelativePath) && (
-            <>
+            <span data-testid="t--page-route">
               {pathPreview.splitRelativePath[0]}
               <strong className="text-[color:var(--appsmith-color-black-800))]">
                 {pathPreview.splitRelativePath[1]}
               </strong>
               {pathPreview.splitRelativePath[2]}
               {pathPreview.splitRelativePath[3]}
-            </>
+            </span>
           )}
           {!Array.isArray(pathPreview.splitRelativePath) &&
             pathPreview.splitRelativePath}
