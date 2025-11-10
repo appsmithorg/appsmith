@@ -38,9 +38,16 @@ export const EntityPaths: string[] = [
   WIDGETS_EDITOR_ID_PATH + ADD_PATH,
   ENTITY_PATH,
 ];
+import {
+  WORKSPACE_DATASOURCE_EDITOR_PAGE_URL,
+  WORKSPACE_DATASOURCES_PAGE_URL,
+} from "constants/routes";
 export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
   [IDE_TYPE.None]: [],
   [IDE_TYPE.App]: [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH],
   [IDE_TYPE.UIPackage]: [],
-  [IDE_TYPE.Workspace]: [],
+  [IDE_TYPE.Workspace]: [
+    WORKSPACE_DATASOURCES_PAGE_URL,
+    WORKSPACE_DATASOURCE_EDITOR_PAGE_URL,
+  ],
 };

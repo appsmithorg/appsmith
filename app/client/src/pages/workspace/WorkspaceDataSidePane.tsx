@@ -10,7 +10,6 @@ import {
 } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { workspaceDatasourceEditorURL } from "ee/RouteBuilder";
-import { get } from "lodash";
 import { Button } from "@appsmith/ads";
 import { useLocation } from "react-router";
 import {
@@ -45,12 +44,11 @@ const DatasourceIcon = styled.img`
 `;
 
 interface WorkspaceDataSidePaneProps {
-  dsUsageMap: Record<string, string>;
   workspaceId: string;
 }
 
 export const WorkspaceDataSidePane = (props: WorkspaceDataSidePaneProps) => {
-  const { dsUsageMap, workspaceId } = props;
+  const { workspaceId } = props;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");
@@ -177,8 +175,6 @@ export const WorkspaceDataSidePane = (props: WorkspaceDataSidePaneProps) => {
                       src={getAssetUrl(pluginImages[data.pluginId])}
                     />
                   ),
-                  description: get(dsUsageMap, data.id, ""),
-                  descriptionType: "block",
                   className: "t--datasource",
                   isSelected: currentSelectedDatasource === data.id,
                   onClick: () => goToDatasource(data.id),

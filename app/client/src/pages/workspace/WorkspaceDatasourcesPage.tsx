@@ -11,9 +11,6 @@ import { WorkspaceDataSidePane } from "./WorkspaceDataSidePane";
 import WorkspaceCreateNewDatasourceTab from "./WorkspaceCreateNewDatasourceTab";
 import WorkspaceDatasourceEditor from "./WorkspaceDatasourceEditor";
 
-// Import actions and selectors
-import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
-import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 import { initWorkspaceIDE } from "ee/actions/workspaceIDEActions";
@@ -72,11 +69,6 @@ export const WorkspaceDatasourcesPage = (
     (state: DefaultRootState) => state.ui.editor.isWorkspaceEditorInitialized,
   );
 
-  // Get the same Redux state that app editor components expect
-  const dsUsageMap = useSelector((state) =>
-    getDatasourceUsageCountForApp(state, IDE_TYPE.App),
-  );
-
   const currentWorkspace = useSelector((state: DefaultRootState) => {
     const workspaces = getFetchedWorkspaces(state);
 
@@ -114,10 +106,7 @@ export const WorkspaceDatasourcesPage = (
     <PageContainer>
       <IDEContainer>
         <LeftPane>
-          <WorkspaceDataSidePane
-            dsUsageMap={dsUsageMap}
-            workspaceId={workspaceId}
-          />
+          <WorkspaceDataSidePane workspaceId={workspaceId} />
         </LeftPane>
         <MainPane>
           <Switch>
