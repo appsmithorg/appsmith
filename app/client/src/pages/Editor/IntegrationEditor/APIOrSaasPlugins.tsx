@@ -52,6 +52,7 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -366,9 +367,7 @@ const mapStateToProps = (
     : [];
 
   // Check if we're on workspace datasources page
-  const isWorkspaceDatasourcesPage =
-    window.location.pathname.includes("/workspace/") &&
-    window.location.pathname.includes("/datasources");
+  const isWorkspaceDatasourcesPage = urlBuilder.isWorkspaceContext();
 
   const restAPIVisible =
     !props.showSaasAPIs &&

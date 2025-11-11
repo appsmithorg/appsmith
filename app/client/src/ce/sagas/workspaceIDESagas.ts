@@ -1,10 +1,7 @@
-import { all, put, call, takeLatest } from "redux-saga/effects";
+import { put, call } from "redux-saga/effects";
 
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import WorkspaceEditorEngine from "ee/entities/Engine/WorkspaceEditorEngine";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
+import WorkspaceEditorEngine from "entities/Engine/WorkspaceEditorEngine";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { InitWorkspaceIDEPayload } from "ee/actions/workspaceIDEActions";
 import { resetEditorRequest } from "actions/initActions";
@@ -34,10 +31,4 @@ export function* startWorkspaceIDE(
       },
     });
   }
-}
-
-export default function* watchWorkspaceIDESagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.INITIALIZE_WORKSPACE_IDE, startWorkspaceIDE),
-  ]);
 }

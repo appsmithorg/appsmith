@@ -53,6 +53,7 @@ import {
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -316,9 +317,7 @@ const mapStateToProps = (
   ).toLocaleLowerCase();
 
   // Check if we're on workspace datasources page
-  const isWorkspaceDatasourcesPage =
-    window.location.pathname.includes("/workspace/") &&
-    window.location.pathname.includes("/datasources");
+  const isWorkspaceDatasourcesPage = urlBuilder.isWorkspaceContext();
 
   const filteredMostPopularPlugins: Plugin[] = !!isAirgappedInstance
     ? mostPopularPlugins.filter(
