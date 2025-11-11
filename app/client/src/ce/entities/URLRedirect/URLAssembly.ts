@@ -14,6 +14,8 @@ import { generatePath } from "react-router";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { isNil } from "lodash";
 import { objectKeys } from "@appsmith/utils";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 export interface URLBuilderParams {
   suffix?: string;
@@ -254,7 +256,7 @@ export class URLBuilder {
   isWorkspaceContext(): boolean {
     const currentUrl = window.location.pathname;
 
-    return currentUrl.startsWith("/workspace");
+    return getIDETypeByUrl(currentUrl) === IDE_TYPE.Workspace;
   }
 
   generateBasePathForWorkspace(workspaceId: string) {
