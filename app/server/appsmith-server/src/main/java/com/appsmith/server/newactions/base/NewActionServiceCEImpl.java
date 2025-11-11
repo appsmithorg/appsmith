@@ -681,6 +681,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<NewAction> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        return repository.findByWorkspaceId(workspaceId, permission).flatMap(this::sanitizeAction);
+    }
+
+    @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission).flatMap(this::sanitizeAction);
     }

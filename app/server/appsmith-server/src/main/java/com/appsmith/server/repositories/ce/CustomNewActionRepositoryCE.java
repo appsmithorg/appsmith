@@ -68,6 +68,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
+    Flux<NewAction> findByWorkspaceId(String workspaceId, AclPermission permission);
+
     Flux<NewAction> findAllByCollectionIds(List<String> collectionIds, boolean viewMode, AclPermission aclPermission);
 
     Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(

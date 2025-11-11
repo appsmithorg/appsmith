@@ -47,6 +47,7 @@ import selectedWorkspaceReducer from "ee/reducers/uiReducers/selectedWorkspaceRe
 import ideReducer from "reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
 import { pluginActionReducer } from "PluginActionEditor/store";
+import workspaceDatasourceUsageReducer from "reducers/uiReducers/workspaceDatasourceUsageReducer";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -98,4 +99,5 @@ export const uiReducerObject = {
   ide: ideReducer,
   consolidatedPageLoad: consolidatedPageLoadReducer,
   pluginActionEditor: pluginActionReducer,
+  workspaceDatasourceUsage: workspaceDatasourceUsageReducer,
 };

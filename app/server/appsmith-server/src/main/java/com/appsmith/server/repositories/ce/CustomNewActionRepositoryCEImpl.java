@@ -427,6 +427,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<NewAction> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.workspaceId, workspaceId);
+        q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
+
+        return queryBuilder().criteria(q).permission(permission).all();
+    }
+
+    @Override
     public Flux<NewAction> findAllByCollectionIds(
             List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
         String collectionIdPath;

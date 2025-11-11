@@ -853,6 +853,14 @@ export const SUGGESTED_TAG = () => "Suggested";
 
 export const DATASOURCE_VIEW_DATA_TAB = () => "View data";
 export const DATASOURCE_CONFIGURATIONS_TAB = () => "Configurations";
+export const DATASOURCE_USAGE_TAB = () => "Usage";
+export const DATASOURCE_USAGE_EMPTY_TITLE = () => "No usage yet";
+export const DATASOURCE_USAGE_EMPTY_DESCRIPTION = () =>
+  "This datasource is not referenced in any application.";
+export const DATASOURCE_USAGE_NO_QUERIES = () =>
+  "No queries found for this application.";
+export const DATASOURCE_USAGE_QUERY_COUNT = (count: number) =>
+  `${count} ${count === 1 ? "query" : "queries"}`;
 export const DATASOURCE_NO_RECORDS_TO_SHOW = () => "No data records to show";
 
 // Git sync
