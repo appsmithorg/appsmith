@@ -64,14 +64,16 @@ export const TableWrapper = styled.div<{
   .simplebar-track {
     opacity: 0.7;
     &.simplebar-horizontal {
+     # this height moves the scrollbar up and down
       height: ${TABLE_SCROLLBAR_HEIGHT}px;
       .simplebar-scrollbar {
-        height: 5px;
+      # this actual height of the scrollbar
+        height: 14px;
       }
       &.simplebar-hover {
-        height: 10px;
+        height: 12px;
         & .simplebar-scrollbar {
-          height: 8px;
+          height: 10px;
         }
       }
     }

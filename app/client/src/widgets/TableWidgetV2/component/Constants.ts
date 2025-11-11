@@ -599,7 +599,7 @@ export enum AddNewRowActions {
 export const EDITABLE_CELL_PADDING_OFFSET = 8;
 
 export const TABLE_SCROLLBAR_WIDTH = 10;
-export const TABLE_SCROLLBAR_HEIGHT = 8;
+export const TABLE_SCROLLBAR_HEIGHT = 9;
 
 export const POPOVER_ITEMS_TEXT_MAP = {
   SORT_ASC: "Sort column ascending",
