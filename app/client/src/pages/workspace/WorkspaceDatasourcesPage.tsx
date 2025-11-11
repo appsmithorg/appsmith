@@ -8,7 +8,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 // Import the workspace-adapted DataSidePane
 import { WorkspaceDataSidePane } from "./WorkspaceDataSidePane";
-import WorkspaceCreateNewDatasourceTab from "./WorkspaceCreateNewDatasourceTab";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import WorkspaceDatasourceEditor from "./WorkspaceDatasourceEditor";
 
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
@@ -114,7 +114,7 @@ export const WorkspaceDatasourcesPage = (
             <SentryRoute
               exact
               path={`${WORKSPACE_DATASOURCES_PAGE_URL}/NEW`}
-              render={() => <WorkspaceCreateNewDatasourceTab />}
+              render={() => <CreateNewDatasourceTab />}
             />
             {/* Edit existing datasource - use workspace-specific editor */}
             <SentryRoute
@@ -125,7 +125,7 @@ export const WorkspaceDatasourcesPage = (
             {/* Default list view - show "Connect a datasource" page by default */}
             <SentryRoute
               path={WORKSPACE_DATASOURCES_PAGE_URL}
-              render={() => <WorkspaceCreateNewDatasourceTab />}
+              render={() => <CreateNewDatasourceTab />}
             />
           </Switch>
         </MainPane>
