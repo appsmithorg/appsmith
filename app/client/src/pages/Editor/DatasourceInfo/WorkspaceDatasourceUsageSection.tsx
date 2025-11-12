@@ -1,5 +1,13 @@
-import React, { useMemo } from "react";
-import { EmptyState, Flex, Spinner, Text, Divider } from "@appsmith/ads";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  EmptyState,
+  Flex,
+  Spinner,
+  Text,
+  Divider,
+  Icon,
+} from "@appsmith/ads";
 import styled from "styled-components";
 import type {
   WorkspaceDatasourcePageUsage,
@@ -10,8 +18,16 @@ import {
   DATASOURCE_USAGE_EMPTY_TITLE,
   DATASOURCE_USAGE_NO_QUERIES,
   DATASOURCE_USAGE_QUERY_COUNT,
+  DATASOURCE_USAGE_COLLAPSE_ALL,
+  DATASOURCE_USAGE_EXPAND_ALL,
   createMessage,
 } from "ee/constants/messages";
+import { Link } from "react-router-dom";
+import { generatePath } from "react-router";
+import {
+  BUILDER_PATH_DEPRECATED,
+  QUERIES_EDITOR_ID_PATH,
+} from "ee/constants/routes/appRoutes";
 
 const UsageContainer = styled.div`
   height: 100%;
@@ -48,13 +64,110 @@ const WorkspaceDatasourceUsageSection = (
 
   const totalQueryCount = usage?.totalQueryCount ?? 0;
 
-  const headerSummary = useMemo(() => {
-    if (totalQueryCount <= 0) {
-      return undefined;
+  const headerSummary = useMemo(
+    () => createMessage(DATASOURCE_USAGE_QUERY_COUNT, totalQueryCount),
+    [totalQueryCount],
+  );
+
+  const [collapsedApplications, setCollapsedApplications] = useState<
+    Record<string, boolean>
+  >({});
+
+  useEffect(() => {
+    if (!applications.length) {
+      setCollapsedApplications({});
+
+      return;
     }
 
-    return createMessage(DATASOURCE_USAGE_QUERY_COUNT, totalQueryCount);
-  }, [totalQueryCount]);
+    setCollapsedApplications((prev) => {
+      const next: Record<string, boolean> = {};
+      let hasChanges =
+        Object.keys(prev).length !== applications.length ||
+        applications.length === 0;
+
+      applications.forEach((app) => {
+        const prevValue = prev[app.applicationId];
+        const value = typeof prevValue === "boolean" ? prevValue : false;
+
+        next[app.applicationId] = value;
+
+        if (prevValue === undefined) {
+          hasChanges = true;
+        }
+      });
+
+      if (!hasChanges) {
+        const prevKeys = Object.keys(prev);
+        const appIds = applications.map((app) => app.applicationId);
+
+        hasChanges =
+          prevKeys.length !== appIds.length ||
+          prevKeys.some((key) => !appIds.includes(key));
+      }
+
+      if (!hasChanges) {
+        return prev;
+      }
+
+      return next;
+    });
+  }, [applications]);
+
+  const handleToggleApplication = useCallback((applicationId: string) => {
+    setCollapsedApplications((prev) => ({
+      ...prev,
+      [applicationId]: !(prev[applicationId] ?? false),
+    }));
+  }, []);
+
+  const handleExpandAll = useCallback(() => {
+    setCollapsedApplications(() => {
+      const next: Record<string, boolean> = {};
+
+      applications.forEach((app) => {
+        next[app.applicationId] = false;
+      });
+
+      return next;
+    });
+  }, [applications]);
+
+  const handleCollapseAll = useCallback(() => {
+    setCollapsedApplications(() => {
+      const next: Record<string, boolean> = {};
+
+      applications.forEach((app) => {
+        next[app.applicationId] = true;
+      });
+
+      return next;
+    });
+  }, [applications]);
+
+  const allExpanded = useMemo(() => {
+    if (!applications.length) {
+      return false;
+    }
+
+    return applications.every(
+      (app) => !collapsedApplications[app.applicationId],
+    );
+  }, [applications, collapsedApplications]);
+
+  const toggleAllLabel = allExpanded
+    ? createMessage(DATASOURCE_USAGE_COLLAPSE_ALL)
+    : createMessage(DATASOURCE_USAGE_EXPAND_ALL);
+
+  const toggleAllIcon = allExpanded ? "arrow-up-s-line" : "arrow-down-s-line";
+
+  const handleToggleAll = useCallback(() => {
+    if (allExpanded) {
+      handleCollapseAll();
+    } else {
+      handleExpandAll();
+    }
+  }, [allExpanded, handleCollapseAll, handleExpandAll]);
 
   if (isLoading) {
     return (
@@ -72,22 +185,52 @@ const WorkspaceDatasourceUsageSection = (
   if (showEmptyState) {
     return (
       <Flex alignItems="center" height="100%" justifyContent="center">
-        <EmptyState
-          description={createMessage(DATASOURCE_USAGE_EMPTY_DESCRIPTION)}
-          icon="search-line"
-          title={createMessage(DATASOURCE_USAGE_EMPTY_TITLE)}
-        />
+        <Flex
+          alignItems="center"
+          flexDirection="column"
+          gap="spaces-4"
+          justifyContent="center"
+        >
+          <Text kind="heading-m">
+            {createMessage(DATASOURCE_USAGE_EMPTY_TITLE)}
+          </Text>
+          <EmptyState
+            description={createMessage(DATASOURCE_USAGE_EMPTY_DESCRIPTION)}
+            icon="search-line"
+          />
+        </Flex>
       </Flex>
     );
   }
 
   return (
     <UsageContainer>
-      {headerSummary ? (
+      {applications.length ? (
+        <Flex
+          alignItems="center"
+          flexWrap="wrap"
+          gap="spaces-3"
+          justifyContent="space-between"
+        >
+          <Flex style={{ flex: 1, minWidth: "50%" }}>
+            <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
+              {headerSummary}
+            </Text>
+          </Flex>
+          <Button
+            kind="tertiary"
+            onClick={handleToggleAll}
+            size="sm"
+            startIcon={toggleAllIcon}
+          >
+            {toggleAllLabel}
+          </Button>
+        </Flex>
+      ) : (
         <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
           {headerSummary}
         </Text>
-      ) : null}
+      )}
       {applications.map((application) => {
         const sortedPages = (application.pages ?? []).slice().sort((a, b) => {
           const nameA = a.pageName ?? "";
@@ -96,15 +239,35 @@ const WorkspaceDatasourceUsageSection = (
           return nameA.localeCompare(nameB);
         });
 
+        const isCollapsed = collapsedApplications[application.applicationId];
+
         return (
           <ApplicationCard key={application.applicationId}>
             <Flex
               alignItems="center"
-              gap="spaces-2"
+              aria-expanded={!isCollapsed}
+              flexWrap="wrap"
+              gap="spaces-3"
               justifyContent="space-between"
-              wrap="wrap"
+              onClick={() => handleToggleApplication(application.applicationId)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  handleToggleApplication(application.applicationId);
+                }
+              }}
+              role="button"
+              tabIndex={0}
             >
-              <Text kind="heading-s">{application.applicationName}</Text>
+              <Flex alignItems="center" gap="spaces-2">
+                <Icon
+                  name={
+                    isCollapsed ? "arrow-right-s-line" : "arrow-down-s-line"
+                  }
+                  size="md"
+                />
+                <Text kind="heading-s">{application.applicationName}</Text>
+              </Flex>
               <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
                 {createMessage(
                   DATASOURCE_USAGE_QUERY_COUNT,
@@ -112,16 +275,24 @@ const WorkspaceDatasourceUsageSection = (
                 )}
               </Text>
             </Flex>
-            <Divider />
-            {sortedPages.length ? (
-              sortedPages.map((page) => (
-                <PageUsageCard key={page.pageId} page={page} />
-              ))
-            ) : (
-              <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
-                {createMessage(DATASOURCE_USAGE_NO_QUERIES)}
-              </Text>
-            )}
+            {!isCollapsed ? (
+              <>
+                <Divider />
+                {sortedPages.length ? (
+                  sortedPages.map((page) => (
+                    <PageUsageCard
+                      applicationId={application.applicationId}
+                      key={page.pageId}
+                      page={page}
+                    />
+                  ))
+                ) : (
+                  <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
+                    {createMessage(DATASOURCE_USAGE_NO_QUERIES)}
+                  </Text>
+                )}
+              </>
+            ) : null}
           </ApplicationCard>
         );
       })}
@@ -155,7 +326,73 @@ const QueryPill = styled.span`
   color: var(--ads-v2-color-fg);
 `;
 
-const PageUsageCard = ({ page }: { page: WorkspaceDatasourcePageUsage }) => {
+const StyledPageLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const QueryLink = styled(Link)`
+  background-color: var(--ads-v2-color-bg);
+  border-radius: var(--ads-v2-border-radius);
+  padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-2);
+  font-size: var(--ads-v2-font-size-2);
+  color: var(--ads-v2-color-fg);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const buildPageEditorUrl = (
+  applicationId?: string,
+  pageId?: string,
+): string | undefined => {
+  if (!applicationId || !pageId) {
+    return;
+  }
+
+  try {
+    return generatePath(BUILDER_PATH_DEPRECATED, {
+      baseApplicationId: applicationId,
+      basePageId: pageId,
+    });
+  } catch (e) {
+    return;
+  }
+};
+
+const buildQueryEditorUrl = (
+  applicationId?: string,
+  pageId?: string,
+  queryId?: string,
+): string | undefined => {
+  if (!applicationId || !pageId || !queryId) {
+    return;
+  }
+
+  try {
+    return generatePath(`${BUILDER_PATH_DEPRECATED}${QUERIES_EDITOR_ID_PATH}`, {
+      baseApplicationId: applicationId,
+      basePageId: pageId,
+      baseQueryId: queryId,
+    });
+  } catch (e) {
+    return;
+  }
+};
+
+const PageUsageCard = ({
+  applicationId,
+  page,
+}: {
+  page: WorkspaceDatasourcePageUsage;
+  applicationId: string;
+}) => {
   const uniqueQueries = useMemo(() => {
     return [
       ...new Map(
@@ -163,6 +400,11 @@ const PageUsageCard = ({ page }: { page: WorkspaceDatasourcePageUsage }) => {
       ).values(),
     ];
   }, [page.queries]);
+
+  const pageEditorUrl = useMemo(
+    () => buildPageEditorUrl(applicationId, page.pageId),
+    [applicationId, page.pageId],
+  );
 
   return (
     <PageCard>
@@ -173,7 +415,15 @@ const PageUsageCard = ({ page }: { page: WorkspaceDatasourcePageUsage }) => {
         wrap="wrap"
       >
         <Flex alignItems="center" gap="spaces-2">
-          <Text kind="heading-xs">{page.pageName ?? "Unnamed page"}</Text>
+          {pageEditorUrl ? (
+            <Text kind="heading-xs">
+              <StyledPageLink to={pageEditorUrl}>
+                {page.pageName ?? "Unnamed page"}
+              </StyledPageLink>
+            </Text>
+          ) : (
+            <Text kind="heading-xs">{page.pageName ?? "Unnamed page"}</Text>
+          )}
         </Flex>
         <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">
           {createMessage(
@@ -184,9 +434,25 @@ const PageUsageCard = ({ page }: { page: WorkspaceDatasourcePageUsage }) => {
       </Flex>
       {uniqueQueries.length ? (
         <QueryList>
-          {uniqueQueries.map((query) => (
-            <QueryPill key={query.id}>{query.name ?? query.id}</QueryPill>
-          ))}
+          {uniqueQueries.map((query) => {
+            const queryEditorUrl = buildQueryEditorUrl(
+              applicationId,
+              page.pageId,
+              query.id,
+            );
+
+            if (queryEditorUrl) {
+              return (
+                <QueryLink key={query.id} to={queryEditorUrl}>
+                  {query.name ?? query.id}
+                </QueryLink>
+              );
+            }
+
+            return (
+              <QueryPill key={query.id}>{query.name ?? query.id}</QueryPill>
+            );
+          })}
         </QueryList>
       ) : (
         <Text color="var(--ads-v2-color-fg-subtle)" kind="body-s">

@@ -861,6 +861,8 @@ export const DATASOURCE_USAGE_NO_QUERIES = () =>
   "No queries found for this application.";
 export const DATASOURCE_USAGE_QUERY_COUNT = (count: number) =>
   `${count} ${count === 1 ? "query" : "queries"}`;
+export const DATASOURCE_USAGE_EXPAND_ALL = () => "Expand all";
+export const DATASOURCE_USAGE_COLLAPSE_ALL = () => "Collapse all";
 export const DATASOURCE_NO_RECORDS_TO_SHOW = () => "No data records to show";
 
 // Git sync
