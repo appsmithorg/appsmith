@@ -18,6 +18,7 @@ import {
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
+import { fetchWorkspaceDatasourceUsage } from "ee/actions/workspaceIDEActions";
 
 export default class WorkspaceEditorEngine {
   constructor() {
@@ -99,6 +100,8 @@ export default class WorkspaceEditorEngine {
       throw new PluginFormConfigsNotFoundError(
         "Unable to fetch plugin form configs",
       );
+
+    yield put(fetchWorkspaceDatasourceUsage({ workspaceId }));
   }
 
   *completeChore() {

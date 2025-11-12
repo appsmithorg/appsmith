@@ -4,6 +4,7 @@ import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import styled from "styled-components";
 import {
   DATASOURCE_CONFIGURATIONS_TAB,
+  DATASOURCE_USAGE_TAB,
   DATASOURCE_VIEW_DATA_TAB,
   createMessage,
 } from "ee/constants/messages";
@@ -52,6 +53,8 @@ const ConfigurationsTabPanelContainer = styled(TabPanel)`
 interface DatasourceTabProps {
   configChild: JSX.Element;
   datasource: Datasource;
+  usageChild?: JSX.Element;
+  defaultValue?: VIEW_MODE_TABS;
 }
 
 const DatasourceTabs = (props: DatasourceTabProps) => {
@@ -82,25 +85,36 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
     props.datasource?.userPermissions ?? [],
   );
 
+  const showUsageTab = Boolean(props.usageChild);
+  const showViewDataTab =
+    canCreateDatasourceActions && (isDatasourceValid || isPluginAuthorized);
+
+  const defaultTab =
+    props.defaultValue ??
+    (showViewDataTab
+      ? VIEW_MODE_TABS.VIEW_DATA
+      : showUsageTab
+        ? VIEW_MODE_TABS.USAGE
+        : VIEW_MODE_TABS.CONFIGURATIONS);
+
   return (
-    <TabsContainer
-      defaultValue={
-        (isDatasourceValid || isPluginAuthorized) && canCreateDatasourceActions
-          ? VIEW_MODE_TABS.VIEW_DATA
-          : VIEW_MODE_TABS.CONFIGURATIONS
-      }
-    >
+    <TabsContainer defaultValue={defaultTab}>
       <TabListWrapper className="t--datasource-tab-list">
-        {canCreateDatasourceActions && (
+        {showViewDataTab && (
           <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
             {createMessage(DATASOURCE_VIEW_DATA_TAB)}
+          </Tab>
+        )}
+        {showUsageTab && (
+          <Tab value={VIEW_MODE_TABS.USAGE}>
+            {createMessage(DATASOURCE_USAGE_TAB)}
           </Tab>
         )}
         <Tab value={VIEW_MODE_TABS.CONFIGURATIONS}>
           {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
         </Tab>
       </TabListWrapper>
-      {canCreateDatasourceActions && (
+      {showViewDataTab && (
         <TabPanelContainer
           className="t--datasource-tab-container"
           value={VIEW_MODE_TABS.VIEW_DATA}
@@ -117,6 +131,14 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
             />
           )}
         </TabPanelContainer>
+      )}
+      {showUsageTab && (
+        <ConfigurationsTabPanelContainer
+          className="t--datasource-tab-container"
+          value={VIEW_MODE_TABS.USAGE}
+        >
+          {props.usageChild}
+        </ConfigurationsTabPanelContainer>
       )}
       <ConfigurationsTabPanelContainer
         className="t--datasource-tab-container"

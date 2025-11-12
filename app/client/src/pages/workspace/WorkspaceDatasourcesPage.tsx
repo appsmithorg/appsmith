@@ -34,7 +34,6 @@ const IDEContainer = styled.div`
   display: grid;
   grid-template-columns: 300px 1fr;
   grid-template-rows: 100%;
-  height: 100vh;
   overflow: hidden;
   flex: 1;
 `;

@@ -7,7 +7,9 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceDatasourceUsageDTO;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceDatasourceUsageService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -33,6 +35,7 @@ import java.util.List;
 public class WorkspaceControllerCE {
     private final WorkspaceService service;
     private final UserWorkspaceService userWorkspaceService;
+    private final WorkspaceDatasourceUsageService workspaceDatasourceUsageService;
 
     @JsonView(Views.Public.class)
     @GetMapping("/{id}")
@@ -76,6 +79,15 @@ public class WorkspaceControllerCE {
         return userWorkspaceService
                 .getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK, users));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workspaceId}/datasource-usage")
+    public Mono<ResponseDTO<List<WorkspaceDatasourceUsageDTO>>> getWorkspaceDatasourceUsage(
+            @PathVariable String workspaceId) {
+        return workspaceDatasourceUsageService
+                .getDatasourceUsage(workspaceId)
+                .map(usage -> new ResponseDTO<>(HttpStatus.OK, usage));
     }
 
     @JsonView(Views.Public.class)

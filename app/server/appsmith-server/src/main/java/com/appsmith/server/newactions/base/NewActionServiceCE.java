@@ -57,6 +57,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findAllById(Iterable<String> id);
 
+    Flux<NewAction> findByWorkspaceId(String workspaceId, AclPermission permission);
+
     Mono<NewAction> findById(String id, AclPermission aclPermission);
 
     Flux<NewAction> findByPageId(String pageId, AclPermission permission);

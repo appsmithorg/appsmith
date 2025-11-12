@@ -1,9 +1,20 @@
 import { put, call } from "redux-saga/effects";
+import WorkspaceApi from "ee/api/WorkspaceApi";
+import { validateResponse } from "sagas/ErrorSagas";
+import log from "loglevel";
 
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
 import WorkspaceEditorEngine from "entities/Engine/WorkspaceEditorEngine";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import type { InitWorkspaceIDEPayload } from "ee/actions/workspaceIDEActions";
+import type {
+  FetchWorkspaceDatasourceUsagePayload,
+  InitWorkspaceIDEPayload,
+} from "ee/actions/workspaceIDEActions";
+import {
+  fetchWorkspaceDatasourceUsageError,
+  fetchWorkspaceDatasourceUsageSuccess,
+} from "ee/actions/workspaceIDEActions";
+import type { FetchWorkspaceDatasourceUsageResponse } from "ee/api/WorkspaceApi";
 import { resetEditorRequest } from "actions/initActions";
 
 export function* startWorkspaceIDE(
@@ -30,5 +41,38 @@ export function* startWorkspaceIDE(
         error,
       },
     });
+  }
+}
+
+export function* fetchWorkspaceDatasourceUsageSaga(
+  action: ReduxAction<FetchWorkspaceDatasourceUsagePayload>,
+) {
+  const { workspaceId } = action.payload;
+
+  try {
+    const response: FetchWorkspaceDatasourceUsageResponse = yield call(
+      WorkspaceApi.fetchWorkspaceDatasourceUsage,
+      action.payload,
+    );
+    const isValid: boolean = yield call(validateResponse, response);
+
+    if (isValid) {
+      const data = response.data ?? [];
+
+      yield put(
+        fetchWorkspaceDatasourceUsageSuccess({
+          workspaceId,
+          data,
+        }),
+      );
+    }
+  } catch (error) {
+    log.error("Failed to load workspace datasource usage", error);
+    yield put(
+      fetchWorkspaceDatasourceUsageError({
+        workspaceId,
+        error,
+      }),
+    );
   }
 }

@@ -101,8 +101,15 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import WorkspaceDatasourceUsageSection from "../DatasourceInfo/WorkspaceDatasourceUsageSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import {
+  selectWorkspaceDatasourceUsageForDatasource,
+  selectWorkspaceDatasourceUsageLoading,
+} from "ee/selectors/workspaceDatasourceSelectors";
+import type { WorkspaceDatasourceUsage } from "ee/api/WorkspaceApi";
+import { VIEW_MODE_TABS } from "constants/DatasourceEditorConstants";
 import {
   getIsAiAgentApp,
   getIsCreatingAgent,
@@ -149,6 +156,10 @@ interface ReduxStateProps {
   isOnboardingFlow?: boolean;
   isCreatingAgent?: boolean;
   isAgentApp?: boolean;
+  isWorkspaceContext?: boolean;
+  workspaceId?: string;
+  workspaceDatasourceUsage?: WorkspaceDatasourceUsage;
+  workspaceDatasourceUsageLoading?: boolean;
 }
 
 const Form = styled.div`
@@ -164,6 +175,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<{
     datasourceId: string;
     basePageId: string;
+    workspaceId?: string;
   }>;
 
 export const DSEditorWrapper = styled.div<{
@@ -921,18 +933,39 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   };
 
   shouldShowTabs = () => {
-    const { isPluginAllowedToPreviewData } = this.props;
+    const { isPluginAllowedToPreviewData, isWorkspaceContext } = this.props;
 
-    return isPluginAllowedToPreviewData;
+    return isPluginAllowedToPreviewData || !!isWorkspaceContext;
   };
 
   renderTabsForViewMode = () => {
-    const { datasource } = this.props;
+    const {
+      datasource,
+      isPluginAllowedToPreviewData,
+      isWorkspaceContext,
+      workspaceDatasourceUsage,
+      workspaceDatasourceUsageLoading,
+    } = this.props;
+
+    const usageChild = isWorkspaceContext ? (
+      <WorkspaceDatasourceUsageSection
+        datasourceName={(datasource as Datasource)?.name}
+        isLoading={!!workspaceDatasourceUsageLoading}
+        usage={workspaceDatasourceUsage}
+      />
+    ) : undefined;
+
+    const defaultTab =
+      !isPluginAllowedToPreviewData && isWorkspaceContext
+        ? VIEW_MODE_TABS.USAGE
+        : undefined;
 
     return this.shouldShowTabs() ? (
       <DatasourceTabs
         configChild={this.renderViewConfigChild()}
         datasource={datasource as Datasource}
+        defaultValue={defaultTab}
+        usageChild={usageChild}
       />
     ) : (
       this.renderViewConfigChild()
@@ -1134,6 +1167,9 @@ const mapStateToProps = (
     application?.pages?.find((page) => page.id === pageId)?.baseId ?? "";
 
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
+  const workspaceIdFromProps =
+    props.workspaceId ?? props.match?.params?.workspaceId;
+  const isWorkspaceContext = props.isWorkspaceContext ?? !!workspaceIdFromProps;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const viewMode = isDatasourceInViewMode(state);
@@ -1206,6 +1242,20 @@ const mapStateToProps = (
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
+  let workspaceDatasourceUsage: WorkspaceDatasourceUsage | undefined;
+
+  if (workspaceIdFromProps && datasourceId) {
+    workspaceDatasourceUsage = selectWorkspaceDatasourceUsageForDatasource(
+      state,
+      workspaceIdFromProps,
+      datasourceId,
+    );
+  }
+
+  const workspaceDatasourceUsageLoading = workspaceIdFromProps
+    ? selectWorkspaceDatasourceUsageLoading(state, workspaceIdFromProps)
+    : false;
+
   return {
     canDeleteDatasource,
     canManageDatasource,
@@ -1243,6 +1293,10 @@ const mapStateToProps = (
     showDebugger,
     isAgentApp,
     isCreatingAgent,
+    isWorkspaceContext,
+    workspaceId: workspaceIdFromProps,
+    workspaceDatasourceUsage,
+    workspaceDatasourceUsageLoading,
   };
 };
 

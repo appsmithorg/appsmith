@@ -42,6 +42,41 @@ export interface FetchAllRolesRequest {
   workspaceId: string;
 }
 
+export interface WorkspaceDatasourceQueryUsage {
+  id: string;
+  name: string;
+  pageId: string;
+  pageName?: string;
+  applicationId?: string;
+}
+
+export interface WorkspaceDatasourceApplicationUsage {
+  applicationId: string;
+  applicationName: string;
+  queryCount: number;
+  pages: WorkspaceDatasourcePageUsage[];
+}
+
+export interface WorkspaceDatasourceUsage {
+  datasourceId: string;
+  datasourceName: string;
+  pluginId?: string;
+  pluginName?: string;
+  totalQueryCount: number;
+  applications: WorkspaceDatasourceApplicationUsage[];
+}
+
+export interface FetchWorkspaceDatasourceUsageResponse extends ApiResponse {
+  data: WorkspaceDatasourceUsage[];
+}
+
+export interface WorkspaceDatasourcePageUsage {
+  pageId: string;
+  pageName?: string;
+  queryCount: number;
+  queries: WorkspaceDatasourceQueryUsage[];
+}
+
 export interface SaveWorkspaceRequest {
   id: string;
   name?: string;
@@ -146,6 +181,13 @@ class WorkspaceApi extends Api {
     workspaceId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(`${WorkspaceApi.workspacesURL}/${workspaceId}`);
+  }
+  static async fetchWorkspaceDatasourceUsage(
+    request: FetchWorkspaceRequest,
+  ): Promise<AxiosPromise<FetchWorkspaceDatasourceUsageResponse>> {
+    return Api.get(
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/datasource-usage`,
+    );
   }
 }
 export default WorkspaceApi;

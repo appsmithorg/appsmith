@@ -34,6 +34,7 @@ const WorkspaceDatasourceEditor = () => {
       datasourceId={datasourceId}
       isWorkspaceContext
       pageId={workspacePageId}
+      workspaceId={workspaceId}
     />
   );
 };

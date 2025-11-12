@@ -71,6 +71,7 @@ import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingRe
 import type { IDEState } from "reducers/uiReducers/ideReducer";
 import type { PluginActionEditorState } from "PluginActionEditor";
 import type { FirstEvaluationState } from "reducers/evaluationReducers/firstEvaluationReducer";
+import type { WorkspaceDatasourceUsageState } from "reducers/uiReducers/workspaceDatasourceUsageReducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -147,6 +148,7 @@ export interface AppState {
     activeField: ActiveField;
     ide: IDEState;
     pluginActionEditor: PluginActionEditorState;
+    workspaceDatasourceUsage: WorkspaceDatasourceUsageState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
