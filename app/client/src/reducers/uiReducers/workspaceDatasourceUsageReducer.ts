@@ -20,7 +20,7 @@ const initialState: WorkspaceDatasourceUsageState = {
 
 const workspaceDatasourceUsageReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_WORKSPACE_DATASOURCE_USAGE_INIT]: (
-    draft,
+    draft: WorkspaceDatasourceUsageState,
     action: ReduxAction<{ workspaceId: string }>,
   ) => {
     const { workspaceId } = action.payload;
@@ -29,7 +29,7 @@ const workspaceDatasourceUsageReducer = createImmerReducer(initialState, {
     draft.errorByWorkspaceId[workspaceId] = undefined;
   },
   [ReduxActionTypes.FETCH_WORKSPACE_DATASOURCE_USAGE_SUCCESS]: (
-    draft,
+    draft: WorkspaceDatasourceUsageState,
     action: ReduxAction<{
       workspaceId: string;
       data: WorkspaceDatasourceUsage[];
@@ -42,7 +42,7 @@ const workspaceDatasourceUsageReducer = createImmerReducer(initialState, {
     draft.errorByWorkspaceId[workspaceId] = undefined;
   },
   [ReduxActionErrorTypes.FETCH_WORKSPACE_DATASOURCE_USAGE_ERROR]: (
-    draft,
+    draft: WorkspaceDatasourceUsageState,
     action: ReduxAction<{ workspaceId: string; error?: unknown }>,
   ) => {
     const { error, workspaceId } = action.payload;

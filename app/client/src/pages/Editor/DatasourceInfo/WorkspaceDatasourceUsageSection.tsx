@@ -410,9 +410,9 @@ const PageUsageCard = ({
     <PageCard>
       <Flex
         alignItems="center"
+        flexWrap="wrap"
         gap="spaces-2"
         justifyContent="space-between"
-        wrap="wrap"
       >
         <Flex alignItems="center" gap="spaces-2">
           {pageEditorUrl ? (
