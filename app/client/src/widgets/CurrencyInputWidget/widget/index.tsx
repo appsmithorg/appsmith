@@ -539,7 +539,25 @@ class CurrencyInputWidget extends BaseInputWidget<
   };
 
   isTextFormatted = () => {
-    return this.props.text.includes(getLocaleThousandSeparator());
+    const text = this.props.text;
+    const thousandSep = getLocaleThousandSeparator();
+
+    // Check if text contains thousand separator
+    if (!text.includes(thousandSep)) {
+      return false;
+    }
+
+    // If text looks like an unformatted number (e.g., "12.33" where . is meant as decimal,
+    // not thousand separator), it's not actually formatted yet.
+    // Unformatted numbers from defaultText will only contain digits, optional minus, and at most one dot.
+    const unformattedNumberPattern = /^-?\d+\.?\d*$/;
+
+    if (unformattedNumberPattern.test(text)) {
+      return false;
+    }
+
+    // Otherwise, assume it's formatted (contains thousand separators in proper context)
+    return true;
   };
 
   handleFocusChange = (isFocused?: boolean) => {
