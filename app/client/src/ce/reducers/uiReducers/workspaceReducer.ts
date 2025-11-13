@@ -111,10 +111,11 @@ export const handlers = {
 
     // Also update searchEntities if they exist to keep search results in sync
     if (draftState.searchEntities?.workspaces) {
-      const searchWorkspaceIndex = draftState.searchEntities.workspaces.findIndex(
-        (workspace: Workspace) => workspace.id === action.payload.id,
-      );
-      
+      const searchWorkspaceIndex =
+        draftState.searchEntities.workspaces.findIndex(
+          (workspace: Workspace) => workspace.id === action.payload.id,
+        );
+
       if (searchWorkspaceIndex !== -1) {
         draftState.searchEntities.workspaces[searchWorkspaceIndex] = {
           ...draftState.searchEntities.workspaces[searchWorkspaceIndex],
