@@ -10,6 +10,7 @@ import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
@@ -79,6 +80,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     protected final GitArtifactHelperResolver gitArtifactHelperResolver;
     private final FeatureFlagService featureFlagService;
+    private final GitServiceConfig gitServiceConfig;
 
     private static final String ORIGIN = "origin/";
     private static final String REMOTE_NAME_REPLACEMENT = "";
@@ -180,13 +182,26 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         return obtainArtifactTypeFromGitRepository(jsonTransformationDTO).zipWith(Mono.just(""));
     }
 
+    protected Mono<ArtifactType> handleErrorWhileArtifactTypeIdentification(Throwable exception) {
+        if (exception instanceof AppsmithException appsmithException
+                && AppsmithError.GIT_FILE_SYSTEM_ERROR.getAppErrorCode().equals(appsmithException.getAppErrorCode())) {
+            return Mono.just(ArtifactType.APPLICATION);
+        }
+
+        return Mono.error(exception);
+    }
+
     public Mono<ArtifactType> obtainArtifactTypeFromGitRepository(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String placeHolder = jsonTransformationDTO.getBaseArtifactId();
         String repoName = jsonTransformationDTO.getRepoName();
         Path temporaryStorage = Path.of(workspaceId, placeHolder, repoName);
 
-        return commonGitFileUtils.getArtifactJsonTypeOfRepository(temporaryStorage);
+        return commonGitFileUtils
+                .getArtifactJsonTypeOfRepository(temporaryStorage)
+                .onErrorResume(error -> {
+                    return handleErrorWhileArtifactTypeIdentification(error);
+                });
     }
 
     @Override
@@ -698,12 +713,26 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
         Mono<Boolean> keepWorkingDirChangesMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_reset_optimization_enabled);
 
         // At this point the assumption is that the repository has already checked out the destination branch
-        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> fsGitHandler.mergeBranch(
-                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), keepWorkingDirChanges));
+        return keepWorkingDirChangesMono.flatMap(keepWorkingDirChanges -> {
+            if (gitServiceConfig.isGitInMemory()) {
+                return fsGitHandler.mergeBranch(
+                        repoSuffix,
+                        gitMergeDTO.getSourceBranch(),
+                        gitMergeDTO.getDestinationBranch(),
+                        keepWorkingDirChanges);
+            }
+
+            return fsGitHandler.mergeBranch(
+                    repoSuffix,
+                    gitMergeDTO.getSourceBranch(),
+                    gitMergeDTO.getDestinationBranch(),
+                    keepWorkingDirChanges);
+        });
     }
 
     @Override
@@ -904,5 +933,28 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
             }
         });
+    }
+
+    /**
+     * Removes leftover Git lock and index files for the repository referenced by the provided DTO
+     * to unblock subsequent Git operations.
+     *
+     * <p>This is a best-effort cleanup that deletes ".git/index.lock" and ".git/index" if present.
+     * For in-memory Git repositories, this is a no-op.</p>
+     *
+     * @param jsonTransformationDTO DTO carrying repository identification and context used to resolve the path
+     * @return a Mono that emits TRUE after the cleanup attempt has been scheduled
+     */
+    @Override
+    public Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return commonGitFileUtils.removeDanglingLocks(repoSuffix);
     }
 }

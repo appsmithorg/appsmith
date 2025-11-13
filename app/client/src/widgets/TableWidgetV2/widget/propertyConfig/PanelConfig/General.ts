@@ -137,7 +137,10 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
 
-        return !isColumnTypeEditable(columnType) || isDerived;
+        return (
+          !isColumnTypeEditable(columnType, props.infiniteScrollEnabled) ||
+          isDerived
+        );
       },
     },
     {

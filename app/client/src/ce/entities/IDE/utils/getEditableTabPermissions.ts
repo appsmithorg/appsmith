@@ -2,6 +2,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
 } from "ee/constants/routes/appRoutes";
 
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
@@ -11,6 +12,7 @@ export const EDITOR_PATHS = [
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  BUILDER_PATH_STATIC,
 ];
 
 export interface EditableTabPermissions {

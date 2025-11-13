@@ -4,9 +4,15 @@ import {
   entityTypeCheckForPathDynamicTrigger,
   getEntityNameAndPropertyPath,
   IMMEDIATE_PARENT_REGEX,
+  isActionConfig,
+  isDataPath,
+  isJSActionConfig,
+  isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 
 type SortDependencies =
   | {
@@ -23,6 +29,9 @@ export class DependencyMapUtils {
   ): SortDependencies {
     const dependencyTree: Array<[string, string | undefined]> = [];
     const dependencies = dependencyMap.rawDependencies;
+    const featureFlags = WorkerEnv.getFeatureFlags();
+    const isReactiveActionsEnabled =
+      featureFlags.release_reactive_actions_enabled;
 
     for (const [node, deps] of dependencies.entries()) {
       if (deps.size) {
@@ -38,7 +47,7 @@ export class DependencyMapUtils {
         .reverse()
         .filter((edge) => !!edge);
 
-      if (configTree) {
+      if (configTree && isReactiveActionsEnabled) {
         this.detectReactiveDependencyMisuse(dependencyMap, configTree);
       }
 
@@ -89,19 +98,26 @@ export class DependencyMapUtils {
   ) {
     const dependencies = dependencyMap.rawDependencies;
 
+    // We don't want to process the same node multiple times
+    // STEP 1: Collect all unique nodes that need processing
+    const nodesToProcess = new Set<string>();
+
     for (const [node, deps] of dependencies.entries()) {
       if (affectedSet.has(node)) {
-        DependencyMapUtils.makeParentsDependOnChild(dependencyMap, node);
+        nodesToProcess.add(node); // Just add to set, don't call function yet
       }
 
-      deps.forEach((dep) => {
+      for (const dep of deps) {
         if (affectedSet.has(dep)) {
-          DependencyMapUtils.makeParentsDependOnChild(dependencyMap, dep);
+          nodesToProcess.add(dep); // Just add to set, don't call function yet
         }
-      });
+      }
     }
 
-    return dependencyMap;
+    // STEP 2: Process each unique node exactly once
+    for (const nodeToProcess of nodesToProcess) {
+      DependencyMapUtils.makeParentsDependOnChild(dependencyMap, nodeToProcess);
+    }
   }
 
   static makeParentsDependOnChild = (
@@ -153,91 +169,122 @@ export class DependencyMapUtils {
     return false;
   }
 
-  static isDataPath(path: string) {
-    return path.endsWith(".data");
-  }
-
   static detectReactiveDependencyMisuse(
     dependencyMap: DependencyMap,
     configTree: ConfigTree,
   ) {
     const dependencies = dependencyMap.rawDependencies;
 
-    // Helper function to get all transitive dependencies
-    const getAllTransitiveDependencies = (node: string): Set<string> => {
-      const allDeps = new Set<string>();
-      const queue = [node];
+    for (const node of dependencies.keys()) {
+      const { entityName: nodeName } = getEntityNameAndPropertyPath(node);
+      const nodeConfig = configTree[nodeName];
 
-      while (queue.length > 0) {
-        const current = queue.shift()!;
-        const deps = dependencyMap.getDirectDependencies(current) || [];
+      const isJSActionEntity = isJSActionConfig(nodeConfig);
+      const isActionEntity = isActionConfig(nodeConfig);
 
-        for (const dep of deps) {
-          if (!allDeps.has(dep)) {
-            allDeps.add(dep);
-            queue.push(dep);
-          }
-        }
+      if (isJSActionEntity) {
+        // Only continue if at least one function is automatic
+        const hasAutomaticFunc = Object.values(nodeConfig.meta).some(
+          (jsFunction) =>
+            jsFunction.runBehaviour === ActionRunBehaviour.AUTOMATIC,
+        );
+
+        if (!hasAutomaticFunc) continue;
+      } else if (isActionEntity) {
+        // Only continue if runBehaviour is AUTOMATIC
+        if (nodeConfig.runBehaviour !== ActionRunBehaviour.AUTOMATIC) continue;
+      } else {
+        // If not a JSAction, or Action, skip
+        continue;
       }
 
-      return allDeps;
-    };
+      // For each entity, check if both .run and a .data path are present
+      let hasRun = false;
+      let hasData = false;
+      let dataPath = "";
+      let runPath = "";
 
-    for (const [node, deps] of dependencies.entries()) {
-      // Get all dependencies including transitive ones
-      const allDeps = new Set<string>();
-      const queue = Array.from(deps);
-
-      while (queue.length > 0) {
-        const dep = queue.shift()!;
-
-        if (!allDeps.has(dep)) {
-          allDeps.add(dep);
-          const depDeps = dependencyMap.getDirectDependencies(dep) || [];
-
-          queue.push(...depDeps);
-        }
-      }
-
-      // Separate dependencies into trigger paths and data paths
-      const triggerPaths = Array.from(deps).filter((dep) =>
-        this.isTriggerPath(dep, configTree),
+      const transitiveDeps = this.getAllTransitiveDependencies(
+        dependencyMap,
+        node,
+        configTree,
       );
-      const dataPaths = Array.from(deps).filter((dep) => this.isDataPath(dep));
 
-      // For each trigger path, check if there's a data path from the same entity
-      for (const triggerPath of triggerPaths) {
-        const triggerEntity = triggerPath.split(".")[0];
+      for (const dep of transitiveDeps) {
+        const { entityName: depName } = getEntityNameAndPropertyPath(dep);
+        const entity = configTree[depName];
 
-        // Find data paths from the same entity
-        const sameEntityDataPaths = dataPaths.filter((dataPath) => {
-          const dataEntity = dataPath.split(".")[0];
+        // to show cyclic dependency errors only for Action calls and not JSObject.body or JSObject
+        if (entity && entity.ENTITY_TYPE) {
+          if (this.isTriggerPath(dep, configTree)) {
+            hasRun = true;
+            runPath = dep;
+          }
 
-          return dataEntity === triggerEntity;
-        });
+          // using the isDataPath function from evalUtils to calculate data paths based on entity type
+          if (isDataPath(entity, dep)) {
+            hasData = true;
+            dataPath = dep;
+          }
 
-        if (sameEntityDataPaths.length > 0) {
-          // Check if any of these data paths depend on the trigger path (directly or indirectly)
-          for (const dataPath of sameEntityDataPaths) {
-            const dataPathTransitiveDeps =
-              getAllTransitiveDependencies(dataPath);
-
-            if (dataPathTransitiveDeps.has(triggerPath)) {
-              const error = new Error(
-                `Reactive dependency misuse: '${node}' depends on both trigger path '${triggerPath}' and data path '${dataPath}' from the same entity, and '${dataPath}' depends on '${triggerPath}' (directly or indirectly). This can cause unexpected reactivity.`,
-              );
-
-              // Add custom properties
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (error as any).node = node;
-
-              throw error;
-            }
+          if (
+            hasRun &&
+            hasData &&
+            runPath.split(".")[0] === dataPath.split(".")[0]
+          ) {
+            throw Object.assign(
+              new Error(
+                `Reactive dependency misuse: '${node}' depends on both trigger path '${runPath}' and data path '${dataPath}' from the same entity. This can cause unexpected reactivity.`,
+              ),
+              { node, triggerPath: runPath, dataPath },
+            );
           }
         }
       }
     }
+  }
+
+  /**
+   * Returns all transitive dependencies (direct and indirect, no duplicates) for a given node.
+   */
+  static getAllTransitiveDependencies(
+    dependencyMap: DependencyMap,
+    node: string,
+    configTree: ConfigTree,
+  ): string[] {
+    const dependencies = dependencyMap.rawDependencies;
+    const visited = new Set<string>();
+
+    function traverse(current: string) {
+      const { entityName } = getEntityNameAndPropertyPath(current);
+      const entityConfig = configTree[entityName];
+
+      if (!entityConfig) return;
+
+      if (isWidget(entityConfig)) {
+        return;
+      }
+
+      // to not calculate transitive dependencies for JSObject.body and JSObject
+      if (
+        isJSActionConfig(entityConfig) &&
+        (current.includes(".body") || !current.includes("."))
+      ) {
+        return;
+      }
+
+      const directDeps = dependencies.get(current) || new Set<string>();
+
+      for (const dep of directDeps) {
+        if (!visited.has(dep)) {
+          visited.add(dep);
+          traverse(dep);
+        }
+      }
+    }
+
+    traverse(node);
+
+    return Array.from(visited);
   }
 }

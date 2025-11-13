@@ -15,7 +15,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;

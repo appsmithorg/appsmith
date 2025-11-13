@@ -294,9 +294,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Mono<List<Executable>> flatPageLoadExecutablesMono = computeCompletePageLoadExecutableScheduleMono
                 .then(executableNameToExecutableMapMono)
                 .map(executableMap -> {
-                    onLoadExecutableSetRef.stream()
-                            .forEach(executableName ->
-                                    flatPageLoadExecutablesRef.add(executableMap.get(executableName)));
+                    onLoadExecutableSetRef.stream().forEach(executableName -> {
+                        Executable executable = executableMap.get(executableName);
+                        if (executable != null) {
+                            flatPageLoadExecutablesRef.add(executable);
+                        } else {
+                            log.warn(
+                                    "Executable with name `{}` not found in executable map when building flat page load executables list",
+                                    executableName);
+                        }
+                    });
                     return flatPageLoadExecutablesRef;
                 });
 
@@ -565,6 +572,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                         for (String name : names) {
                             Executable executable = executableMap.get(name);
+                            if (executable == null) {
+                                log.warn(
+                                        "Executable with name `{}` not found in executable map; executable in scheduling order: {}; executable in executable map: {}",
+                                        name,
+                                        names,
+                                        executableMap.keySet());
+                                // Remove it from the onPageLoadExecutableSet to maintain consistency
+                                onPageLoadExecutableSet.remove(name);
+                                continue;
+                            }
                             if (hasUserSetExecutableToNotRunOnPageLoad(executable)) {
                                 onPageLoadExecutableSet.remove(name);
                             } else {

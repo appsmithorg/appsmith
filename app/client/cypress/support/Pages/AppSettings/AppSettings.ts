@@ -59,7 +59,7 @@ export class AppSettings {
       ".t--app-viewer-navigation-top-inline-more-dropdown-item",
     _scrollArrows: ".scroll-arrows",
     _getActivePage: (pageName: string) =>
-      `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
+      `//span[contains(text(),"${pageName}")]//ancestor::div[contains(@class,'is-active')]`,
     _importBtn: "[data-testid='t--app-setting-import-btn']",
   };
 

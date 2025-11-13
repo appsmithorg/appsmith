@@ -103,6 +103,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
@@ -4530,5 +4531,139 @@ public class ApplicationServiceCETest {
                 .fetchBaseApplicationId(basePageId2Ref.get(), null)
                 .block();
         assertThat(cachedBaseAppId2).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createApplicationWithUniqueSlug() {
+        Application app1 = new Application();
+        app1.setName("SlugTestApp1");
+        Application.StaticUrlSettings staticUrlSettings1 =
+                new Application.StaticUrlSettings(true, "test-unique-slug-app1");
+        app1.setStaticUrlSettings(staticUrlSettings1);
+        Mono<Application> create1 = applicationPageService.createApplication(app1, workspaceId);
+        StepVerifier.create(create1)
+                .assertNext(app -> {
+                    assertThat(app.getStaticUrlSettings().getUniqueSlug()).isEqualTo("test-unique-slug-app1");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDuplicateUniqueSlugShouldFail() {
+        String slug = "duplicate-slug";
+        Application app1 = new Application();
+        app1.setName("App D1");
+        app1.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Application app2 = new Application();
+        app2.setName("App D2");
+        app2.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Mono<Application> create1 = applicationPageService.createApplication(app1, workspaceId);
+        Mono<Application> create2 =
+                create1.flatMap(saved -> applicationPageService.createApplication(app2, workspaceId));
+        StepVerifier.create(create2)
+                .expectErrorMatches(throwable -> throwable instanceof DuplicateKeyException)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createWithSameSlugAfterDelete() {
+        String slug = "deleted-slug-ok";
+        Application app1 = new Application();
+        app1.setName("App E1");
+        app1.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Application app2 = new Application();
+        app2.setName("App E2");
+        app2.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Mono<Application> createAndDelete = applicationPageService
+                .createApplication(app1, workspaceId)
+                .flatMap(savedApp -> applicationService.archive(savedApp));
+        Mono<Application> create2 = createAndDelete.then(applicationPageService.createApplication(app2, workspaceId));
+        StepVerifier.create(create2)
+                .assertNext(app -> {
+                    assertThat(app.getStaticUrlSettings().getUniqueSlug()).isEqualTo(slug);
+                    assertThat(app.isDeleted()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void findByUniqueAppNameTest() {
+        String slug = "find-by-slug";
+        Application app = new Application();
+        app.setName("FindBySlug");
+        app.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Mono<Application> create = applicationPageService.createApplication(app, workspaceId);
+        StepVerifier.create(create.flatMap(savedApp -> applicationService
+                        .findByUniqueAppName(slug, applicationPermission.getReadPermission())
+                        .next()))
+                .assertNext(found -> {
+                    assertThat(found.getName()).isEqualTo("FindBySlug");
+                    assertThat(found.getStaticUrlSettings().getUniqueSlug()).isEqualTo(slug);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void findByUniqueAppNameRefNameAndApplicationModeTest() {
+        String slug = "find-by-slug-ref";
+        Application app = new Application();
+        app.setName("FindBySlugRef");
+        app.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Mono<Application> create = applicationPageService.createApplication(app, workspaceId);
+        StepVerifier.create(create.flatMap(savedApp -> applicationService
+                        .findByUniqueAppNameRefNameAndApplicationMode(slug, null, ApplicationMode.EDIT)
+                        .next()))
+                .assertNext(found -> {
+                    assertThat(found.getName()).isEqualTo("FindBySlugRef");
+                    assertThat(found.getStaticUrlSettings().getUniqueSlug()).isEqualTo(slug);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateUniqueSlug() {
+        String slug1 = "updatable-slug";
+        String slug2 = "updatable-slug-2";
+        Application app = new Application();
+        app.setName("UpdatableSlug");
+        app.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug1));
+        Mono<Application> create = applicationPageService.createApplication(app, workspaceId);
+        Mono<Application> update = create.flatMap(saved -> {
+            saved.getStaticUrlSettings().setUniqueSlug(slug2);
+            return applicationService.update(saved.getId(), saved);
+        });
+        StepVerifier.create(update)
+                .assertNext(updated -> {
+                    assertThat(updated.getStaticUrlSettings().getUniqueSlug()).isEqualTo(slug2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void failUpdateUniqueSlugToExistingOne() {
+        String slug = "dup-slug-update";
+        Application app1 = new Application();
+        app1.setName("App Z1");
+        app1.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug));
+        Application app2 = new Application();
+        app2.setName("App Z2");
+        app2.setStaticUrlSettings(new Application.StaticUrlSettings(true, slug + "-other"));
+        Mono<Application> m1 = applicationPageService.createApplication(app1, workspaceId);
+        Mono<Application> m2 = applicationPageService.createApplication(app2, workspaceId);
+        Mono<Application> failUpdate = Mono.zip(m1, m2).flatMap(tuple -> {
+            Application updateApp2 = tuple.getT2();
+            updateApp2.getStaticUrlSettings().setUniqueSlug(slug);
+            return applicationService.update(updateApp2.getId(), updateApp2);
+        });
+        StepVerifier.create(failUpdate)
+                .expectErrorMatches(thr -> thr instanceof AppsmithException)
+                .verify();
     }
 }

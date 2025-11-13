@@ -6,6 +6,7 @@ import {
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPluginImages,
+  getPlugins,
 } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
@@ -29,6 +30,10 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import PremiumFeatureTag from "components/editorComponents/PremiumFeatureTag";
+import { PluginType } from "entities/Plugin";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import type { Datasource } from "entities/Datasource";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
@@ -54,7 +59,16 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   const datasources = useSelector(getDatasources);
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const pluginImages = useSelector(getPluginImages);
+  const plugins = useSelector(getPlugins);
   const location = useLocation();
+
+  const isIntegrationsEnabledForPaid = useSelector((state: DefaultRootState) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.license_external_saas_plugins_enabled,
+    ),
+  );
+
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -94,6 +108,24 @@ export const DataSidePane = (props: DataSidePaneProps) => {
     [addButtonClickHandler, canCreateDatasource],
   );
 
+  const shouldShowPremiumTag = useCallback(
+    (datasource: Datasource) => {
+      const plugin = plugins.find((p) => p.id === datasource.pluginId);
+
+      if (!plugin) return false;
+
+      if (
+        plugin.type === PluginType.EXTERNAL_SAAS &&
+        !isIntegrationsEnabledForPaid
+      ) {
+        return true;
+      }
+
+      return false;
+    },
+    [plugins, isIntegrationsEnabledForPaid],
+  );
+
   return (
     <Flex flexDirection="column" height="100%" width="100%">
       <PaneHeader
@@ -131,6 +163,9 @@ export const DataSidePane = (props: DataSidePaneProps) => {
                   className: "t--datasource",
                   isSelected: currentSelectedDatasource === data.id,
                   onClick: () => goToDatasource(data.id),
+                  rightControl: shouldShowPremiumTag(data) && (
+                    <PremiumFeatureTag />
+                  ),
                 };
               }),
               className: "",

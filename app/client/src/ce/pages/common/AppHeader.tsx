@@ -12,6 +12,8 @@ import {
   ADMIN_SETTINGS_CATEGORY_PATH,
   VIEWER_CUSTOM_PATH,
   BUILDER_CUSTOM_PATH,
+  BUILDER_PATH_STATIC,
+  VIEWER_PATH_STATIC,
   BASE_URL,
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
@@ -49,6 +51,8 @@ export const Routes = () => {
       <Route component={AppIDEHeader} path={BUILDER_CUSTOM_PATH} />
       <Route component={Navigation} path={VIEWER_PATH} />
       <Route component={Navigation} path={VIEWER_CUSTOM_PATH} />
+      <Route component={AppIDEHeader} path={BUILDER_PATH_STATIC} />
+      <Route component={Navigation} path={VIEWER_PATH_STATIC} />
       <Route component={PageHeader} path={BASE_URL} />
     </Switch>
   );

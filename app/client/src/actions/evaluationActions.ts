@@ -13,6 +13,7 @@ import type {
   ConditionalOutput,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { ReduxActionWithoutPayload } from "./ReduxActionTypes";
 
 export const shouldTriggerEvaluation = (action: ReduxAction<unknown>) => {
   return (
@@ -76,6 +77,12 @@ export const setDependencyMap = (
   return {
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap },
+  };
+};
+
+export const setIsFirstPageLoad = (): ReduxActionWithoutPayload => {
+  return {
+    type: ReduxActionTypes.IS_FIRST_PAGE_LOAD,
   };
 };
 

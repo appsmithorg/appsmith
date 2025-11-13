@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
-import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @Component

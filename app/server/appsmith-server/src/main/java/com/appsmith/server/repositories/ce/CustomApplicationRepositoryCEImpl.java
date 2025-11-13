@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Application.Fields;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -278,8 +279,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Flux<String> findBranchedApplicationIdsByBaseApplicationId(String baseApplicationId) {
 
-        final BridgeQuery<Application> q =
-                Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId);
+        final BridgeQuery<Application> q = Bridge.or(
+                Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId),
+                Bridge.equal(Application.Fields.gitApplicationMetadata_defaultArtifactId, baseApplicationId));
 
         return queryBuilder().criteria(q).fields(Application.Fields.id).all().map(application -> application.getId());
     }
@@ -336,5 +338,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id)
                 .equal(Application.Fields.exportWithConfiguration, exportWithConfiguration);
         return queryBuilder().criteria(q).one();
+    }
+
+    @Override
+    public Flux<Application> findByUniqueAppSlugRefName(
+            String uniqueAppName, String refName, AclPermission aclPermission) {
+        final BridgeQuery<Application> criteria = Bridge.and(
+                Bridge.equal(Fields.staticUrlSettings_uniqueSlug, uniqueAppName),
+                Bridge.or(
+                        Bridge.equal(Fields.gitApplicationMetadata_branchName, refName),
+                        Bridge.equal(Fields.gitApplicationMetadata_refName, refName)));
+
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+    }
+
+    @Override
+    public Flux<Application> findByUniqueAppName(String uniqueAppName, AclPermission aclPermission) {
+        final BridgeQuery<Application> criteria = Bridge.equal(Fields.staticUrlSettings_uniqueSlug, uniqueAppName);
+
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 }

@@ -33,6 +33,9 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
+    public Flux<NewPage> findByBasePageId(
+            String basePageId, AclPermission permission, List<String> projectedFieldNames);
+
     Mono<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
             RefType refType,
             String refName,
@@ -51,4 +54,14 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Flux<NewPage> findByApplicationId(String applicationId);
 
     Mono<Long> countByDeletedAtNull();
+
+    Mono<NewPage> findByUniquePageSlug(
+            String applicationId, String uniquePageName, AclPermission permission, boolean viewMode);
+
+    Mono<NewPage> findByApplicationIdAndPageSlug(
+            String applicationId,
+            String pageSlug,
+            boolean viewMode,
+            AclPermission aclPermission,
+            List<String> projections);
 }

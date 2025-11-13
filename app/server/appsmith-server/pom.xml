@@ -185,7 +185,7 @@
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
-            <version>1.7</version>
+            <version>1.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -256,12 +256,24 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
             <version>0.8.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
             <version>${org.pf4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -443,6 +455,19 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

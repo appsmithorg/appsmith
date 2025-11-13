@@ -58,6 +58,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1167,10 +1169,29 @@ public class AmazonS3Plugin extends BasePlugin {
             TransferManager transferManager =
                     TransferManagerBuilder.standard().withS3Client(connection).build();
             final ObjectMetadata objectMetadata = new ObjectMetadata();
+
+            // Set content length
+            objectMetadata.setContentLength(payload.length);
+
             // Only add content type if the user has mentioned it in the body
             if (multipartFormDataDTO.getType() != null) {
                 objectMetadata.setContentType(multipartFormDataDTO.getType());
             }
+
+            // Calculate and set Content-MD5 header for Object Lock compliance
+            try {
+                MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+                byte[] md5Hash = md5Digest.digest(payload);
+                String md5Base64 = Base64.getEncoder().encodeToString(md5Hash);
+                objectMetadata.setContentMD5(md5Base64);
+                log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
+            } catch (NoSuchAlgorithmException e) {
+                log.warn(
+                        "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
+                        e);
+                // Continue with upload without MD5 header - let AWS handle the error if Object Lock is enabled
+            }
+
             transferManager
                     .upload(bucketName, path, inputStream, objectMetadata)
                     .waitForUploadResult();

@@ -29,6 +29,7 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
+  ActionEntityConfig,
 } from "ee/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
@@ -358,11 +359,10 @@ export const addDependantsOfNestedPropertyPaths = (
   parentPaths: Array<string>,
   inverseMap: DependencyMap,
 ): Set<string> => {
-  const withNestedPaths: Set<string> = new Set();
+  const withNestedPaths: Set<string> = new Set(parentPaths);
   const dependantNodes = Object.keys(inverseMap);
 
   parentPaths.forEach((propertyPath) => {
-    withNestedPaths.add(propertyPath);
     dependantNodes
       .filter((dependantNodePath) =>
         isChildPropertyPath(propertyPath, dependantNodePath),
@@ -403,6 +403,16 @@ export function isAction(
   );
 }
 
+export function isActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is ActionEntityConfig {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
+
 export function isAppsmithEntity(
   entity: DataTreeEntity,
 ): entity is AppsmithEntity {
@@ -413,7 +423,9 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
+export function isJSAction(
+  entity: Partial<DataTreeEntity>,
+): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -1184,7 +1196,7 @@ export function getExternalChangedDependencies(
 }
 
 export const isDataPath = (
-  entity: DataTreeEntity,
+  entity: DataTreeEntity | Partial<DataTreeEntityConfig>,
   fullPropertyPath: string,
 ) => {
   if (isWidget(entity)) {

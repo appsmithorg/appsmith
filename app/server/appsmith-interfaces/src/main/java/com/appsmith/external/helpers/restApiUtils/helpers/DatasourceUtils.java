@@ -4,7 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;

@@ -83,7 +83,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -1883,10 +1883,10 @@ public class ImportServiceTests {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
-                    importedApplication
-                            .getGitApplicationMetadata()
-                            .setDefaultApplicationId(importedApplication.getId());
+                    GitArtifactMetadata gitData = new GitArtifactMetadata();
+                    importedApplication.setGitApplicationMetadata(gitData);
+                    gitData.setDefaultApplicationId(importedApplication.getId());
+                    gitData.setRemoteUrl("https://dummy.url/dummy-user/dummy-app");
                     return applicationService
                             .save(importedApplication)
                             .then(importService.importArtifactInWorkspaceFromGit(

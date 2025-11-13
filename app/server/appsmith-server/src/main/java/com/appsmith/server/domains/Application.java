@@ -65,6 +65,21 @@ public class Application extends ApplicationCE implements Artifact {
         }
     }
 
+    /**
+     * StaticUrlSettings stores the static URL configuration for the application
+     */
+    @Data
+    @NoArgsConstructor
+    @FieldNameConstants
+    @EqualsAndHashCode(callSuper = true)
+    public static class StaticUrlSettings extends ApplicationCE.StaticUrlSettingsCE {
+        public StaticUrlSettings(boolean enabled, String uniqueSlug) {
+            super(enabled, uniqueSlug);
+        }
+
+        public static class Fields extends ApplicationCE.StaticUrlSettingsCE.Fields {}
+    }
+
     @Data
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor

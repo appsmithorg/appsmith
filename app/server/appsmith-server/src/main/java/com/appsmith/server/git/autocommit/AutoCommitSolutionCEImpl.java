@@ -6,6 +6,7 @@ import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.models.GitResourceType;
+import com.appsmith.server.annotations.GitRoute;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
@@ -18,6 +19,7 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.constants.GitRouteOperation;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -29,9 +31,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -51,8 +50,7 @@ import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
 @Slf4j
-public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
-    private final ApplicationEventPublisher applicationEventPublisher;
+public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
     private final GitRedisUtils gitRedisUtils;
     private final RedisUtils redisUtils;
     private final DSLMigrationUtils dslMigrationUtils;
@@ -66,16 +64,15 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
             "System generated commit, to support new features in Appsmith %s";
 
     @Override
-    public void publish(AutoCommitEvent autoCommitEvent) {
-        applicationEventPublisher.publishEvent(autoCommitEvent);
-        log.info("published event for auto commit: {}", autoCommitEvent);
-    }
-
-    @Async
-    @EventListener
-    @Override
-    public void handle(AutoCommitEvent event) {
-        log.info("received event for auto commit: {}", event);
+    @GitRoute(
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.AUTO_COMMIT_SOLUTION,
+            fieldName = "baseArtifactId",
+            authorEmail = "authorEmail",
+            authorName = "authorName")
+    public Mono<Boolean> startApplicationAutoCommit(
+            String baseArtifactId, String authorName, String authorEmail, AutoCommitEvent event) {
+        log.info("Starting auto-commit process for event: {}", event);
         Mono<Boolean> autocommitMigration;
         if (Boolean.TRUE.equals(event.getIsServerSideEvent())) {
             autocommitMigration = this.autoCommitServerMigration(event);
@@ -83,13 +80,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
             autocommitMigration = this.autoCommitDSLMigration(event);
         }
 
-        autocommitMigration
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe(
-                        result -> log.info(
-                                "Auto-commit completed successfully for application: {}", event.getApplicationId()),
-                        error -> log.error(
-                                "Error during auto-commit for application: {}", event.getApplicationId(), error));
+        return autocommitMigration.subscribeOn(Schedulers.boundedElastic());
     }
 
     private <T> Mono<T> setProgress(T result, String applicationId, int progress) {

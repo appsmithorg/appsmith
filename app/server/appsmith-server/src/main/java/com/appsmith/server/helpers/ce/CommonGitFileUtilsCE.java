@@ -86,6 +86,7 @@ import static com.appsmith.git.constants.ce.GitDirectoriesCE.DATASOURCE_DIRECTOR
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
 import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
+import static java.lang.Boolean.TRUE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -650,7 +651,7 @@ public class CommonGitFileUtilsCE {
      * @return an instance of an object which extends artifact exchange json.
      * i.e. Application Json, Package Json
      */
-    public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepository(
+    public Mono<ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepository(
             ArtifactJsonTransformationDTO jsonTransformationDTO) {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
@@ -867,7 +868,8 @@ public class CommonGitFileUtilsCE {
                     if (metadataJsonObject == null) {
                         log.error(
                                 "Error in retrieving the metadata from the file system for repository {}", repoSuffix);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, CommonConstants.METADATA));
                     }
 
                     JsonElement artifactJsonType = metadataJsonObject.get(ARTIFACT_JSON_TYPE);
@@ -876,7 +878,8 @@ public class CommonGitFileUtilsCE {
                         log.error(
                                 "artifactJsonType attribute not found in the metadata file for repository {}",
                                 repoSuffix);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_FILE_SYSTEM_ERROR, "No artifactJsonType attribute found"));
                     }
 
                     return Mono.just(artifactJsonType.getAsString());
@@ -1016,5 +1019,50 @@ public class CommonGitFileUtilsCE {
 
         JsonElement fileFormatVersion = metadataJsonObject.get(CommonConstants.FILE_FORMAT_VERSION);
         return fileFormatVersion.getAsInt();
+    }
+
+    /**
+     * Removes leftover Git lock and index files in the repository to unblock subsequent Git operations.
+     *
+     * <p>Specifically, deletes the files ".git/index.lock" and ".git/index" if they exist. This is a
+     * best-effort cleanup used when a previous Git operation was interrupted and left locks or a stale
+     * index behind. For in-memory Git repositories, this method is a no-op.</p>
+     *
+     * @param repositorySuffix Path of the repository relative to the configured Git root path.
+     * @return A Mono that emits TRUE after the cleanup attempt has been scheduled.
+     */
+    public Mono<Boolean> removeDanglingLocks(Path repositorySuffix) {
+        return Mono.just(gitServiceConfig.isGitInMemory())
+                .map(inMemoryGit -> {
+                    if (Boolean.TRUE.equals(inMemoryGit)) {
+                        return TRUE;
+                    }
+
+                    final String GIT_FOLDER = ".git";
+                    final String INDEX_LOCK = "index.lock";
+                    final String INDEX = "index";
+
+                    Path repositoryPath =
+                            Path.of(gitServiceConfig.getGitRootPath()).resolve(repositorySuffix);
+                    Path gitDir = repositoryPath.resolve(GIT_FOLDER);
+
+                    Path lockFile = gitDir.resolve(INDEX_LOCK);
+                    Path indexFile = gitDir.resolve(INDEX);
+
+                    try {
+                        Files.deleteIfExists(lockFile);
+                    } catch (IOException ioException) {
+                        log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
+                    }
+
+                    try {
+                        Files.deleteIfExists(indexFile);
+                    } catch (IOException ioException) {
+                        log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
+                    }
+
+                    return TRUE;
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

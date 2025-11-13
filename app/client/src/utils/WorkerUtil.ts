@@ -20,6 +20,7 @@ import {
   filterSpanData,
   newWebWorkerSpanData,
 } from "instrumentation/generateWebWorkerTraces";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -241,12 +242,13 @@ export class GracefulWorkerService {
    *
    * @param method identifier for a rpc method
    * @param requestData data that we want to send over to the worker
+   * @param isFirstEvaluation whether this is the first evaluation of the request
    *
    * @returns response from the worker
    */
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  *request(method: string, data = {}): any {
+  *request(method: string, data = {}, isFirstEvaluation = false): any {
     yield this.ready(true);
 
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
@@ -291,6 +293,12 @@ export class GracefulWorkerService {
         body: body,
         messageId,
       });
+
+      // Use delay to ensure RENDER_PAGE is dispatched after the sendMessage macro task
+      if (isFirstEvaluation) {
+        yield delay(0); // This ensures the macro task completes
+        yield put({ type: ReduxActionTypes.RENDER_PAGE });
+      }
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);

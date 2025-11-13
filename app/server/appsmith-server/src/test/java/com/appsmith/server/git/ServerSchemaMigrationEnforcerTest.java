@@ -12,8 +12,8 @@ import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
-import com.appsmith.server.git.autocommit.AutoCommitEventHandlerImpl;
+import com.appsmith.server.git.autocommit.AutoCommitSolution;
+import com.appsmith.server.git.autocommit.AutoCommitSolutionImpl;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
@@ -62,7 +62,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
-import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.autocommit.AutoCommitSolutionCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -124,7 +124,7 @@ public class ServerSchemaMigrationEnforcerTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    AutoCommitEventHandler autoCommitEventHandler;
+    AutoCommitSolution autoCommitSolution;
 
     @Autowired
     ProjectProperties projectProperties;
@@ -395,8 +395,7 @@ public class ServerSchemaMigrationEnforcerTest {
     public void autocommitMigration_WhenServerVersionIsBehindDiffOccursAnd_CommitSuccess()
             throws URISyntaxException, IOException, GitAPIException {
 
-        autoCommitEventHandler = new AutoCommitEventHandlerImpl(
-                applicationEventPublisher,
+        autoCommitSolution = new AutoCommitSolutionImpl(
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
@@ -425,7 +424,7 @@ public class ServerSchemaMigrationEnforcerTest {
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
 
-        StepVerifier.create(autoCommitEventHandler
+        StepVerifier.create(autoCommitSolution
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {

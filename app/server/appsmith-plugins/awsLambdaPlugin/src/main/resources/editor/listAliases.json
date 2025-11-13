@@ -1,0 +1,42 @@
+{
+  "identifier": "LIST_FUNCTION_ALIASES",
+  "controlType": "SECTION_V2",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'LIST_FUNCTION_ALIASES'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "label": "Function details",
+      "children": [
+        {
+          "label": "Function name",
+          "tooltipText": "The name of the AWS Lambda function to list aliases for.",
+          "subtitle": "",
+          "isRequired": true,
+          "propertyName": "function_name",
+          "configProperty": "actionConfiguration.formData.functionName.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All function names will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'LIST_FUNCTION_ALIASES'}}",
+              "config": {
+                "params": {
+                  "requestType": "FUNCTION_NAMES",
+                  "displayType": "DROP_DOWN"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

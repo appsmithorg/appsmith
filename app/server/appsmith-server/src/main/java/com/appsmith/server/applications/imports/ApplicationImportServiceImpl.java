@@ -20,6 +20,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.staticurl.StaticUrlService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +29,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
 
     public ApplicationImportServiceImpl(
             ApplicationService applicationService,
+            StaticUrlService staticUrlService,
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             UpdateLayoutService updateLayoutService,
@@ -44,6 +46,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
             ImportableService<ActionCollection> actionCollectionImportableService) {
         super(
                 applicationService,
+                staticUrlService,
                 applicationPageService,
                 newActionService,
                 updateLayoutService,

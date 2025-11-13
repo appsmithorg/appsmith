@@ -65,6 +65,7 @@ import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import DeployButton from "./DeployButton";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 import ChevronMenu from "./ChevronMenu";
+import { ShowUpgradeMenuItem } from "ee/utils/licenseHelpers";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -141,7 +142,7 @@ const Header = () => {
   );
 
   const deployLink = useHref(viewerURL, {
-    basePageId: currentPage?.basePageId,
+    basePageId: currentPage?.basePageId || null,
   });
 
   const updateApplicationDispatch = (
@@ -194,6 +195,7 @@ const Header = () => {
           )}
         </IDEHeader.Center>
         <IDEHeader.Right>
+          <ShowUpgradeMenuItem />
           <HelpBar />
           <StyledDivider orientation={"vertical"} />
           <ToggleModeButton />

@@ -14,6 +14,7 @@ export class GitSync {
     quickActionsCommitCount:
       "[data-testid='t--git-quick-actions-commit-count']",
     quickActionsPullBtn: "[data-testid='t--git-quick-actions-pull'] button",
+    quickActionsPullCount: "[data-testid='t--git-quick-actions-pull-count']",
     quickActionsBranchBtn: "[data-testid='t--git-quick-actions-branch']",
     quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge'] button",
     quickActionsSettingsBtn: "[data-testid='t--git-quick-actions-settings']",
@@ -165,15 +166,15 @@ export class GitSync {
       repoName += uid;
       this.CreateTestGiteaRepo(repoName, privateFlag);
 
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+      cy.intercept("POST", "/api/v1/git/applications/*/ssh-keypair*").as(
         `generateKey-${repoName}`,
       );
 
-      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
+      cy.intercept("GET", "/api/v1/git/applications/*/protected-branches").as(
         `protected-${repoName}`,
       );
 
-      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
+      cy.intercept("GET", "/api/v1/git/applications/*/refs").as(
         `branches-${repoName}`,
       );
 
@@ -234,9 +235,10 @@ export class GitSync {
     repoName: string,
     assertConnect = true,
   ) {
-    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-      `importKey-${repoName}`,
-    );
+    cy.intercept(
+      "GET",
+      /\/api\/v1\/git\/artifacts\/import\/keys\?keyType=.*/,
+    ).as(`importKey-${repoName}`);
 
     this.homePage.ImportGitApp(workspaceName);
 
@@ -276,10 +278,6 @@ export class GitSync {
     });
     this.agHelper.GetNClick(this.locators.connectDeployKeyCheckbox, 0, true);
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
-
-    if (assertConnect) {
-      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-    }
   }
 
   public CreateGitBranch(
@@ -348,8 +346,8 @@ export class GitSync {
     // this slows down the checkout api by 1 sec
     cy.intercept(
       {
-        method: "GET",
-        url: "/api/v1/git/checkout-branch/app/**",
+        method: "POST",
+        url: "/api/v1/git/applications/*/checkout-ref",
       },
       async (req) => {
         return new Promise((resolve) => {
@@ -358,16 +356,7 @@ export class GitSync {
       },
     ).as("gitCheckoutAPI");
 
-    //cy.get(gitSync.locators.branchItem).contains(branch).click();
     this.agHelper.GetNClickByContains(this.locators.branchItem, branch);
-
-    // checks if the spinner exists
-    cy.get(
-      `div${this.locators.branchItem} ${this.commonLocators._btnSpinner}`,
-      {
-        timeout: 500,
-      },
-    ).should("exist");
 
     cy.wait("@gitCheckoutAPI");
 
@@ -503,7 +492,6 @@ export class GitSync {
     );
     this.agHelper.AssertContains("Discarded changes successfully");
     this.assertHelper.AssertNetworkStatus("@discardChanges");
-    this.assertHelper.AssertNetworkStatus("@gitStatus");
     this.agHelper.AssertElementExist(
       this.locators.quickActionsCommitBtn,
       0,

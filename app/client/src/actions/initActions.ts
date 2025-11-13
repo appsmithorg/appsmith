@@ -14,6 +14,8 @@ export interface InitEditorActionPayload {
   branch?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }
 
 export const initEditorAction = (
@@ -26,9 +28,11 @@ export const initEditorAction = (
 export interface InitAppViewerPayload {
   branch: string;
   baseApplicationId?: string;
-  basePageId: string;
+  basePageId?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }
 
 export const initAppViewerAction = ({
@@ -37,6 +41,8 @@ export const initAppViewerAction = ({
   branch,
   mode,
   shouldInitialiseUserDetails,
+  staticApplicationSlug,
+  staticPageSlug,
 }: InitAppViewerPayload) => ({
   type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
   payload: {
@@ -45,6 +51,8 @@ export const initAppViewerAction = ({
     basePageId,
     mode,
     shouldInitialiseUserDetails,
+    staticApplicationSlug,
+    staticPageSlug,
   },
 });
 

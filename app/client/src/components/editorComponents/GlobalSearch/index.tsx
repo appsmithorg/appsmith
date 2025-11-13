@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
-import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
 import type { DefaultRootState } from "react-redux";
 import SearchModal from "./SearchModal";
@@ -39,13 +38,13 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
 import {
   getCurrentPageId,
+  getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { getQueryParams } from "utils/URLUtils";
@@ -189,9 +188,9 @@ function GlobalSearch() {
     },
     [dispatch],
   );
-  const params = useParams<ExplorerURLParams>();
   const pageIdToBasePageIdMap = useSelector(getPageIdToBasePageIdMap);
   const basePageIdToPageIdMap = useSelector(getBasePageIdToPageIdMap);
+  const currentBasePageId = useSelector(getCurrentBasePageId);
 
   const toggleShow = () => {
     if (modalOpen) {
@@ -232,9 +231,9 @@ function GlobalSearch() {
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
       ...datasource,
-      pageId: basePageIdToPageIdMap[params?.basePageId],
+      pageId: basePageIdToPageIdMap[currentBasePageId],
     }));
-  }, [basePageIdToPageIdMap, params?.basePageId, reducerDatasources]);
+  }, [basePageIdToPageIdMap, currentBasePageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
     if (!query)

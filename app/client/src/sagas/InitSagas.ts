@@ -56,9 +56,10 @@ import {
   isEditorPath,
   isViewerPath,
   matchEditorPath,
+  matchViewerPathTyped,
 } from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
+import { GIT_BRANCH_QUERY_KEY } from "../constants/routes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -93,6 +94,7 @@ import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import { validateSessionToken } from "utils/SessionUtils";
 import { appsmithTelemetry } from "instrumentation";
+import { clearAllWidgetFactoryCache } from "WidgetProvider/factory/decorators";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -208,7 +210,7 @@ export function* reportSWStatus() {
   }
 }
 
-function* executeActionDuringUserDetailsInitialisation(
+export function* executeActionDuringUserDetailsInitialisation(
   actionType: string,
   shouldInitialiseUserDetails?: boolean,
 ) {
@@ -225,17 +227,25 @@ export function* getInitResponses({
   branch,
   mode,
   shouldInitialiseUserDetails,
+  staticApplicationSlug,
+  staticPageSlug,
 }: {
   applicationId?: string;
   basePageId?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
   branch?: string;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
 }) {
+  const isStaticPageUrl = staticApplicationSlug && staticPageSlug;
+
   const params = {
     applicationId,
     defaultPageId: basePageId,
     branchName: branch,
+    staticApplicationSlug,
+    staticPageSlug,
   };
   let response: InitConsolidatedApi | undefined;
 
@@ -247,10 +257,26 @@ export function* getInitResponses({
     );
 
     const rootSpan = startRootSpan("fetch-consolidated-api");
+    const consolidatedApiParams = isStaticPageUrl
+      ? {
+          branchName: branch,
+          applicationId: staticApplicationSlug,
+          defaultPageId: staticPageSlug,
+        }
+      : {
+          applicationId,
+          defaultPageId: basePageId,
+          branchName: branch,
+        };
+
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
-        ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
-        : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+        ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(
+            consolidatedApiParams,
+          )
+        : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(
+            consolidatedApiParams,
+          );
 
     endSpan(rootSpan);
 
@@ -309,11 +335,6 @@ export function* getInitResponses({
   yield put(getCurrentOrganization(false, organizationConfig));
 
   yield put(fetchProductAlertInit(productAlert));
-  yield call(
-    executeActionDuringUserDetailsInitialisation,
-    ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-    shouldInitialiseUserDetails,
-  );
 
   return rest;
 }
@@ -324,7 +345,11 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     pageId: action.payload.basePageId,
     applicationId: action.payload.applicationId,
     branch: action.payload.branch,
+    staticApplicationSlug: action.payload.staticApplicationSlug,
+    staticPageSlug: action.payload.staticPageSlug,
   });
+  const isStaticPageUrl =
+    action.payload.staticApplicationSlug && action.payload.staticPageSlug;
 
   try {
     const engine: AppEngine = AppEngineFactory.create(
@@ -346,6 +371,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     endSpan(getInitResponsesSpan);
 
     yield put({ type: ReduxActionTypes.LINT_SETUP });
+
+    // First, load app data to stabilize page states
     const { applicationId, toLoadBasePageId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
@@ -353,11 +380,20 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       rootSpan,
     );
 
-    yield call(engine.loadAppURL, {
-      basePageId: toLoadBasePageId,
-      basePageIdInUrl: action.payload.basePageId,
-      rootSpan,
-    });
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      action.payload.shouldInitialiseUserDetails,
+    );
+
+    if (!isStaticPageUrl) {
+      // Defer the load actions until after page states are stabilized
+      yield call(engine.loadAppURL, {
+        basePageId: toLoadBasePageId,
+        basePageIdInUrl: action.payload.basePageId,
+        rootSpan,
+      });
+    }
 
     yield call(
       engine.loadAppEntities,
@@ -371,6 +407,12 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield put(generateAutoHeightLayoutTreeAction(true, false));
   } catch (e) {
     log.error(e);
+
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      action.payload.shouldInitialiseUserDetails,
+    );
 
     if (e instanceof AppEngineApiError) return;
 
@@ -484,11 +526,17 @@ function* eagerPageInitSaga() {
 
     if (matchedEditorParams) {
       const {
-        params: { baseApplicationId, basePageId },
+        params: {
+          baseApplicationId,
+          basePageId,
+          staticApplicationSlug,
+          staticPageSlug,
+        },
       } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      const isStaticPageUrl = staticApplicationSlug && staticPageSlug;
 
-      if (basePageId) {
+      if (basePageId || isStaticPageUrl) {
         yield put(
           initEditorAction({
             basePageId,
@@ -496,6 +544,8 @@ function* eagerPageInitSaga() {
             branch,
             mode: APP_MODE.EDIT,
             shouldInitialiseUserDetails: true,
+            staticApplicationSlug,
+            staticPageSlug,
           }),
         );
 
@@ -503,15 +553,21 @@ function* eagerPageInitSaga() {
       }
     }
   } else if (isViewerPath(url)) {
-    const matchedViewerParams = matchViewerPath(url);
+    const matchedViewerParams = matchViewerPathTyped(url);
 
     if (matchedViewerParams) {
       const {
-        params: { baseApplicationId, basePageId },
+        params: {
+          baseApplicationId,
+          basePageId,
+          staticApplicationSlug,
+          staticPageSlug,
+        },
       } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+      const isStaticPageUrl = staticApplicationSlug && staticPageSlug;
 
-      if (baseApplicationId || basePageId) {
+      if (baseApplicationId || basePageId || isStaticPageUrl) {
         yield put(
           initAppViewerAction({
             baseApplicationId,
@@ -519,6 +575,8 @@ function* eagerPageInitSaga() {
             basePageId,
             mode: APP_MODE.PUBLISHED,
             shouldInitialiseUserDetails: true,
+            staticApplicationSlug,
+            staticPageSlug,
           }),
         );
 
@@ -532,7 +590,17 @@ function* eagerPageInitSaga() {
       shouldInitialiseUserDetails: true,
       mode: APP_MODE.PUBLISHED,
     });
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      true,
+    );
   } catch (e) {}
+}
+
+function handleWidgetInitSuccess() {
+  //every time a widget is initialized, we clear the cache so that all widgetFactory values are recomputed
+  clearAllWidgetFactoryCache();
 }
 
 export default function* watchInitSagas() {
@@ -547,5 +615,7 @@ export default function* watchInitSagas() {
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
     takeEvery(ReduxActionTypes.INITIALIZE_CURRENT_PAGE, eagerPageInitSaga),
+
+    takeLeading(ReduxActionTypes.WIDGET_INIT_SUCCESS, handleWidgetInitSuccess),
   ]);
 }

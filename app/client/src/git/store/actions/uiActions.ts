@@ -32,6 +32,22 @@ export const toggleConnectSuccessModalAction =
     return state;
   });
 
+// generate SSH key modal
+export interface ToggleGenerateSSHKeyModalPayload {
+  open: boolean;
+}
+
+export const toggleGenerateSSHKeyModalAction = (
+  state: GitGlobalReduxState,
+  action: PayloadAction<ToggleGenerateSSHKeyModalPayload>,
+) => {
+  const { open } = action.payload;
+
+  state.isGenerateSSHKeyModalOpen = open;
+
+  return state;
+};
+
 // import
 export interface ToggleImportModalPayload {
   open: boolean;

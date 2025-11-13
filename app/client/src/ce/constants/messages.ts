@@ -206,6 +206,7 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 export const BUSINESS_EDITION_TEXT = () => "business plan";
+export const ENTERPRISE_EDITION_TEXT = () => "enterprise plan";
 export const PARTNER_PROGRAM_CALLOUT = (
   email: string,
 ) => `${email} is outside your organisation. If you’re building this app
@@ -1127,6 +1128,14 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const GENERATE_DEPLOY_KEY_TITLE = () => "Deploy key";
+export const GENERATE_DEPLOY_KEY_MESSAGE = () =>
+  "Generate a new deploy key. Then, add the new key to your Git repository to restore this app’s connection.";
+export const GENERATE_DEPLOY_KEY_BTN = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_TITLE = () => "Generate deploy key";
+export const GENERATE_DEPLOY_KEY_MODAL_WAIT_TEXT = () => "Saving deploy key...";
+export const INVALID_DEPLOY_KEY_WARNING = () =>
+  "Your current deploy key may be invalid or outdated. Try generating a new key below and adding it to your Git repository.";
 export const AUTOCOMMIT = () => "Auto - commit";
 export const AUTOCOMMIT_MESSAGE = () =>
   "Enable/disable auto migrations from Appsmith.";
@@ -1698,13 +1707,13 @@ export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
-  `Uploaded file must have a max size of 32X32 pixels`;
+  `Uploaded file must have a max size of 48X48 pixels`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
   `Uploaded file must be less than 2MB`;
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
   `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
-  `.ICO, .PNG, or .JPG only • Max 32X32`;
+  `.ICO, .PNG, or .JPG only • Max 48X48`;
 export const PROFILE_DISPLAY_PICTURE_REQUIREMENT = () =>
   `.ICO, .PNG, or .JPG only • Max 32X32`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
@@ -1915,6 +1924,41 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
+export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
+export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
+  "Generating app slug";
+export const GENERAL_SETTINGS_APP_URL_INVALID_MESSAGE = () =>
+  "Slug can only contain lowercase letters, numbers, and hyphens.";
+export const GENERAL_SETTINGS_APP_URL_WARNING_MESSAGE = () =>
+  "Changing this application slug will affect both edit and deployed versions of the app.";
+export const GENERAL_SETTINGS_APP_URL_CHECKING_MESSAGE = () =>
+  "Checking availability...";
+export const GENERAL_SETTINGS_APP_URL_AVAILABLE_MESSAGE = () => "Available";
+export const GENERAL_SETTINGS_APP_URL_UNAVAILABLE_MESSAGE = () =>
+  "There is already an app with this slug.";
+export const GENERAL_SETTINGS_APP_URL_EMPTY_VALUE_MESSAGE = () =>
+  "Enter a value";
+export const ERROR_IN_DISABLING_STATIC_URL = () =>
+  "Error in disabling static URL. Please try again.";
+export const STATIC_URL_DISABLED_SUCCESS = () =>
+  "Static URL disabled. The app has reverted to default Appsmith URLs.";
+export const STATIC_URL_CHANGE_SUCCESS = () =>
+  "App slug updated. All pages now use the new base URL.";
+export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
+  "Error in fetching app slug suggestion. Please try again.";
+export const ERROR_IN_ENABLING_STATIC_URL = () =>
+  "Error in enabling static URL. Please try again.";
+
+export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
+  "Checking availability...";
+export const PAGE_SETTINGS_PAGE_SLUG_AVAILABLE_MESSAGE = () => "Available";
+export const PAGE_SETTINGS_PAGE_SLUG_UNAVAILABLE_MESSAGE = () =>
+  "There is already a page with this slug.";
+export const PAGE_SETTINGS_PAGE_SLUG_DEPLOY_MESSAGE = () =>
+  "Deploy app to apply this slug";
+export const PAGE_SETTINGS_PAGE_NAME_CONFLICTING_SLUG_MESSAGE = () =>
+  "This page name conflicts with an existing page slug.";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
 export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";
@@ -2678,6 +2722,8 @@ export const CUSTOM_ACTION_LABEL = () => "Custom Action";
 
 export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
   "Too many login attempts. Please try again after some time.";
+export const AUTH_ACCOUNT_SUSPENDED_FOR_RATE_LIMIT = () =>
+  "Your account is suspended for 24 hours. Please reset your password to continue";
 export const AUTH_INVALID_CREDENTIALS = () =>
   "Invalid credentials provided. Did you input the credentials correctly?";
 export const AUTH_UNAUTHORIZED = () => "Unauthorized access";

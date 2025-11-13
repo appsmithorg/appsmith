@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.appsmith.git.dto.CommitDTO;
+import com.appsmith.server.annotations.GitRoute;
 import com.appsmith.server.artifacts.base.ArtifactService;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
@@ -23,6 +24,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.git.autocommit.AutoCommitService;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.central.GitType;
+import com.appsmith.server.git.constants.GitRouteOperation;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +61,10 @@ public class GitApplicationControllerCE {
 
     @JsonView({Views.Metadata.class})
     @GetMapping("/{baseApplicationId}/metadata")
+    @GitRoute(
+            fieldName = "baseApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.METADATA)
     public Mono<ResponseDTO<GitArtifactMetadata>> getGitMetadata(@PathVariable String baseApplicationId) {
         return centralGitService
                 .getGitArtifactMetadata(baseApplicationId, ARTIFACT_TYPE)
@@ -67,6 +73,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{applicationId}/connect")
+    @GitRoute(
+            fieldName = "applicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.CONNECT)
     public Mono<ResponseDTO<? extends Artifact>> connectApplicationToRemoteRepo(
             @PathVariable String applicationId,
             @RequestBody GitConnectDTO gitConnectDTO,
@@ -79,6 +89,10 @@ public class GitApplicationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/commit")
     @ResponseStatus(HttpStatus.CREATED)
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.COMMIT)
     public Mono<ResponseDTO<String>> commit(
             @RequestBody CommitDTO commitDTO, @PathVariable String branchedApplicationId) {
         log.info("Going to commit branchedApplicationId {}", branchedApplicationId);
@@ -90,6 +104,10 @@ public class GitApplicationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/{referencedApplicationId}/create-ref")
     @ResponseStatus(HttpStatus.CREATED)
+    @GitRoute(
+            fieldName = "referencedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.CREATE_REF)
     public Mono<ResponseDTO<? extends Artifact>> createReference(
             @PathVariable String referencedApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String srcBranch,
@@ -105,6 +123,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{referencedApplicationId}/checkout-ref")
+    @GitRoute(
+            fieldName = "referencedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.CHECKOUT_REF)
     public Mono<ResponseDTO<? extends Artifact>> checkoutReference(
             @PathVariable String referencedApplicationId, @RequestBody GitRefDTO gitRefDTO) {
         return centralGitService
@@ -114,6 +136,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/disconnect")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.DISCONNECT)
     public Mono<ResponseDTO<? extends Artifact>> disconnectFromRemote(@PathVariable String branchedApplicationId) {
         log.info("Going to remove the remoteUrl for application {}", branchedApplicationId);
         return centralGitService
@@ -123,6 +149,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{branchedApplicationId}/pull")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.PULL)
     public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String branchedApplicationId) {
         log.info("Going to pull the latest for branchedApplicationId {}", branchedApplicationId);
         return centralGitService
@@ -132,6 +162,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{branchedApplicationId}/status")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.STATUS)
     public Mono<ResponseDTO<GitStatusDTO>> getStatus(
             @PathVariable String branchedApplicationId,
             @RequestParam(required = false, defaultValue = "true") Boolean compareRemote) {
@@ -143,6 +177,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{referencedApplicationId}/fetch/remote")
+    @GitRoute(
+            fieldName = "referencedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.FETCH_REMOTE_CHANGES)
     public Mono<ResponseDTO<BranchTrackingStatus>> fetchRemoteChanges(
             @PathVariable String referencedApplicationId,
             @RequestHeader(required = false, defaultValue = "branch") RefType refType) {
@@ -154,6 +192,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/merge")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.MERGE)
     public Mono<ResponseDTO<MergeStatusDTO>> merge(
             @PathVariable String branchedApplicationId, @RequestBody GitMergeDTO gitMergeDTO) {
         log.debug(
@@ -168,6 +210,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/merge/status")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.MERGE_STATUS)
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(
             @PathVariable String branchedApplicationId, @RequestBody GitMergeDTO gitMergeDTO) {
         log.info(
@@ -182,6 +228,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{baseArtifactId}/ref")
+    @GitRoute(
+            fieldName = "baseArtifactId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.DELETE_REF)
     public Mono<ResponseDTO<? extends Artifact>> deleteBranch(
             @PathVariable String baseArtifactId,
             @RequestParam String refName,
@@ -194,6 +244,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/{branchedApplicationId}/discard")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.DISCARD_CHANGES)
     public Mono<ResponseDTO<? extends Artifact>> discardChanges(@PathVariable String branchedApplicationId) {
         log.info("Going to discard changes for branchedApplicationId {}", branchedApplicationId);
         return centralGitService
@@ -203,6 +257,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{baseArtifactId}/protected-branches")
+    @GitRoute(
+            fieldName = "baseArtifactId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.UPDATE_PROTECTED_BRANCHES)
     public Mono<ResponseDTO<List<String>>> updateProtectedBranches(
             @PathVariable String baseArtifactId,
             @RequestBody @Valid BranchProtectionRequestDTO branchProtectionRequestDTO) {
@@ -213,6 +271,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{baseArtifactId}/protected-branches")
+    @GitRoute(
+            fieldName = "baseArtifactId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.GET_PROTECTED_BRANCHES)
     public Mono<ResponseDTO<List<String>>> getProtectedBranches(@PathVariable String baseArtifactId) {
         return centralGitService
                 .getProtectedBranches(baseArtifactId, ARTIFACT_TYPE)
@@ -221,6 +283,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/auto-commit")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.AUTO_COMMIT)
     public Mono<ResponseDTO<AutoCommitResponseDTO>> autoCommitApplication(@PathVariable String branchedApplicationId) {
         return autoCommitService
                 .autoCommitApplication(branchedApplicationId)
@@ -229,6 +295,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{baseApplicationId}/auto-commit/progress")
+    @GitRoute(
+            fieldName = "baseApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.GET_AUTO_COMMIT_PROGRESS)
     public Mono<ResponseDTO<AutoCommitResponseDTO>> getAutoCommitProgress(
             @PathVariable String baseApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -239,6 +309,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PatchMapping("/{baseArtifactId}/auto-commit/toggle")
+    @GitRoute(
+            fieldName = "baseArtifactId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.TOGGLE_AUTO_COMMIT)
     public Mono<ResponseDTO<Boolean>> toggleAutoCommitEnabled(@PathVariable String baseArtifactId) {
         return centralGitService
                 .toggleAutoCommitEnabled(baseArtifactId, ARTIFACT_TYPE)
@@ -247,6 +321,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{branchedApplicationId}/refs")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.LIST_REFS)
     public Mono<ResponseDTO<List<GitRefDTO>>> getReferences(
             @PathVariable String branchedApplicationId,
             @RequestParam(required = false, defaultValue = "branch") RefType refType,
@@ -259,6 +337,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{branchedApplicationId}/ssh-keypair")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.GET_SSH_KEY)
     public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String branchedApplicationId) {
         return artifactService
                 .getSshKey(ARTIFACT_TYPE, branchedApplicationId)
@@ -267,6 +349,10 @@ public class GitApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{branchedApplicationId}/ssh-keypair")
+    @GitRoute(
+            fieldName = "branchedApplicationId",
+            artifactType = ArtifactType.APPLICATION,
+            operation = GitRouteOperation.GENERATE_SSH_KEYPAIR)
     public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(
             @PathVariable String branchedApplicationId, @RequestParam(required = false) String keyType) {
         return artifactService

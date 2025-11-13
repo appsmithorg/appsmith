@@ -89,6 +89,7 @@ export interface UpdatePageRequest {
   name?: string;
   isHidden?: boolean;
   customSlug?: string;
+  uniqueSlug?: string;
 }
 
 export interface UpdatePageResponse {
@@ -97,6 +98,7 @@ export interface UpdatePageResponse {
   name: string;
   slug: string;
   customSlug?: string;
+  uniqueSlug?: string;
   applicationId: string;
   layouts: Array<PageLayout>;
   isHidden: boolean;
@@ -299,6 +301,20 @@ class PageApi extends Api {
     params: FetchAppAndPagesRequest,
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(PageApi.url, params);
+  }
+
+  static async persistPageSlug(request: {
+    branchedPageId: string;
+    uniquePageSlug: string;
+  }): Promise<AxiosPromise<ApiResponse>> {
+    return Api.patch(`${PageApi.url}/static-url`, request);
+  }
+
+  static async validatePageSlug(
+    pageId: string,
+    uniqueSlug: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.get(`${PageApi.url}/${pageId}/static-url/verify/${uniqueSlug}`);
   }
 }
 

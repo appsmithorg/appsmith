@@ -18,4 +18,5 @@ public class ActionCollectionSpanCE {
 
     // Getter spans
     public static final String GET_ACTION_COLLECTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.actionCollectionById";
+    public static final String GET_ACTION_COLLECTIONS_BY_IDS = APPSMITH_SPAN_PREFIX + "get.actionCollectionsByIds";
 }

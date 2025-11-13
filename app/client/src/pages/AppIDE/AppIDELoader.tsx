@@ -14,7 +14,11 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 type Props = {
   initEditor: (payload: InitEditorActionPayload) => void;
   clearCache: () => void;
-} & RouteComponentProps<{ basePageId: string }>;
+} & RouteComponentProps<{
+  basePageId?: string;
+  staticApplicationSlug?: string;
+  staticPageSlug?: string;
+}>;
 
 class AppIDELoader extends React.PureComponent<
   Props,
@@ -36,13 +40,15 @@ class AppIDELoader extends React.PureComponent<
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    const { basePageId } = params;
+    const { basePageId, staticApplicationSlug, staticPageSlug } = params;
 
-    if (basePageId) {
+    if (basePageId || (staticApplicationSlug && staticPageSlug)) {
       initEditor({
         basePageId,
         branch,
         mode: APP_MODE.EDIT,
+        staticApplicationSlug,
+        staticPageSlug,
       });
     }
   }

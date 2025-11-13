@@ -16,6 +16,7 @@ import {
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
+  getBasePageIdFromStaticSlug,
   getCurrentPageDescription,
   getIsAutoLayout,
   getPageList,
@@ -40,8 +41,6 @@ import {
   getAppThemeSettings,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
-import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -49,6 +48,10 @@ import {
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "ee/selectors/organizationSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getRenderPage } from "selectors/evaluationSelectors";
+import type { ReactNode } from "react";
+import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { widgetInitialisationSuccess } from "actions/widgetActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -80,28 +83,7 @@ type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
 
 const DEFAULT_FONT_NAME = "System Default";
 
-function AppViewer(props: Props) {
-  const dispatch = useDispatch();
-  const { pathname, search } = props.location;
-  const { baseApplicationId, basePageId } = props.match.params;
-  const isInitialized = useSelector(getIsInitialized);
-  const pages = useSelector(getPageList);
-  const selectedTheme = useSelector(getSelectedAppTheme);
-  const lightTheme = useSelector((state: DefaultRootState) =>
-    getThemeDetails(state, ThemeMode.LIGHT),
-  );
-  const headerHeight = useSelector(getAppViewHeaderHeight);
-  const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-  const prevValues = usePrevious({
-    branch,
-    location: props.location,
-    basePageId,
-  });
-  const hideWatermark = useSelector(getHideWatermark);
-  const pageDescription = useSelector(getCurrentPageDescription);
-  const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
-    getCurrentApplication,
-  );
+function WDSThemeProviderWithTheme({ children }: { children: ReactNode }) {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
   const wdsThemeProps = {
@@ -113,6 +95,50 @@ function AppViewer(props: Props) {
   } as Parameters<typeof useTheme>[0];
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
+  return <WDSThemeProvider theme={theme}>{children}</WDSThemeProvider>;
+}
+
+function AppViewer(props: Props) {
+  const dispatch = useDispatch();
+  const { pathname, search } = props.location;
+  const {
+    baseApplicationId,
+    basePageId,
+    staticApplicationSlug,
+    staticPageSlug,
+  } = props.match.params;
+  const isInitialized = useSelector(getIsInitialized);
+  const pages = useSelector(getPageList);
+  const resolvedBasePageIdFromSlug = useSelector((state) =>
+    staticPageSlug
+      ? getBasePageIdFromStaticSlug(state, staticPageSlug)
+      : undefined,
+  );
+
+  // Resolve basePageId from staticPageSlug if needed
+  const resolvedBasePageId =
+    !basePageId && staticPageSlug ? resolvedBasePageIdFromSlug : basePageId;
+
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const lightTheme = useSelector((state: DefaultRootState) =>
+    getThemeDetails(state, ThemeMode.LIGHT),
+  );
+  const headerHeight = useSelector(getAppViewHeaderHeight);
+  const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+  const prevValues = usePrevious({
+    branch,
+    location: props.location,
+    basePageId,
+    resolvedBasePageId,
+  });
+  const hideWatermark = useSelector(getHideWatermark);
+  const pageDescription = useSelector(getCurrentPageDescription);
+  const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
+    getCurrentApplication,
+  );
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
+  const renderPage = useSelector(getRenderPage);
+
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 
@@ -120,9 +146,9 @@ function AppViewer(props: Props) {
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
-    editorInitializer().then(() => {
-      dispatch(widgetInitialisationSuccess());
-    });
+    registerLayoutComponents();
+    // we want to intialise only the widgets relevant to the tab within the appViewer page first so that first evaluation is faster
+    dispatch(widgetInitialisationSuccess());
   }, []);
   /**
    * initialize the app if branch, pageId or application is changed
@@ -130,22 +156,28 @@ function AppViewer(props: Props) {
   useEffect(() => {
     const prevBranch = prevValues?.branch;
     const prevLocation = prevValues?.location;
-    const prevPageBaseId = prevValues?.basePageId;
+    const prevPageBaseId = prevValues?.resolvedBasePageId;
     let isBranchUpdated = false;
 
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
 
-    const isPageIdUpdated = basePageId !== prevPageBaseId;
+    const isPageIdUpdated = resolvedBasePageId !== prevPageBaseId;
 
-    if (prevBranch && isBranchUpdated && (baseApplicationId || basePageId)) {
+    if (
+      prevBranch &&
+      isBranchUpdated &&
+      (baseApplicationId || resolvedBasePageId)
+    ) {
       dispatch(
         initAppViewerAction({
           baseApplicationId,
           branch,
-          basePageId,
+          basePageId: resolvedBasePageId || "",
           mode: APP_MODE.PUBLISHED,
+          staticApplicationSlug,
+          staticPageSlug,
         }),
       );
     } else {
@@ -154,15 +186,15 @@ function AppViewer(props: Props) {
        * If we don't check for `prevPageId`: fetch page is retriggered
        * when redirected to the default page
        */
-      if (prevPageBaseId && basePageId && isPageIdUpdated) {
+      if (prevPageBaseId && resolvedBasePageId && isPageIdUpdated) {
         const pageId = pages.find(
-          (page) => page.basePageId === basePageId,
+          (page) => page.basePageId === resolvedBasePageId,
         )?.pageId;
 
         if (pageId) {
           dispatch(
             fetchPublishedPageResources({
-              basePageId,
+              basePageId: resolvedBasePageId,
               pageId,
               branch,
             }),
@@ -170,15 +202,28 @@ function AppViewer(props: Props) {
         }
       }
     }
-  }, [branch, basePageId, baseApplicationId, pathname]);
+  }, [
+    baseApplicationId,
+    branch,
+    dispatch,
+    pages,
+    prevValues?.resolvedBasePageId,
+    prevValues?.branch,
+    prevValues?.location,
+    props.location,
+    resolvedBasePageId,
+    staticApplicationSlug,
+    staticPageSlug,
+    pathname,
+  ]);
 
   useEffect(() => {
-    urlBuilder.setCurrentBasePageId(basePageId);
+    urlBuilder.setCurrentBasePageId(resolvedBasePageId);
 
     return () => {
       urlBuilder.setCurrentBasePageId(null);
     };
-  }, [basePageId]);
+  }, [resolvedBasePageId]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
@@ -204,6 +249,8 @@ function AppViewer(props: Props) {
       document.body.style.fontFamily = "inherit";
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
+
+  if (!renderPage) return null;
 
   const renderChildren = () => {
     return (
@@ -253,7 +300,7 @@ function AppViewer(props: Props) {
 
   if (isAnvilLayout) {
     return (
-      <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+      <WDSThemeProviderWithTheme>{renderChildren()}</WDSThemeProviderWithTheme>
     );
   }
 

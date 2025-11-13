@@ -2,7 +2,6 @@ import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { evaluateAndPushResponse } from "../evalTreeWithChanges";
-import { klona as klonaJson } from "klona/json";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -21,8 +20,6 @@ export default async function (request: EvalWorkerASyncRequest) {
 
   ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
 
-  const oldEvalTree = klonaJson(dataTreeEvaluator.getEvalTree());
-
   if (!triggerMeta.onPageLoad) {
     const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
@@ -37,7 +34,6 @@ export default async function (request: EvalWorkerASyncRequest) {
       { evalOrder, unEvalUpdates, jsUpdates: {} },
       [],
       [],
-      oldEvalTree,
     );
   }
 

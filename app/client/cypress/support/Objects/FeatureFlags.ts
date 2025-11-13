@@ -4,6 +4,8 @@ import { ObjectsRegistry } from "./Registry";
 const defaultFlags = {
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
   release_git_modularisation_enabled: true,
+  release_git_api_contracts_enabled: true,
+  release_static_url_enabled: true,
 };
 
 export const featureFlagIntercept = (

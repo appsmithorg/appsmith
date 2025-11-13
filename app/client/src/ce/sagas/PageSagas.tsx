@@ -149,11 +149,15 @@ import {
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
 import { appsmithTelemetry } from "instrumentation";
-import { getLayoutSavePayload } from "ee/sagas/helpers";
+import {
+  getLayoutSavePayload,
+  generateUIModuleInstanceSaga,
+} from "ee/sagas/helpers";
 import { apiFailureResponseInterceptor } from "api/interceptors/response";
 import type { AxiosError } from "axios";
 import { handleFetchApplicationError } from "./ApplicationSagas";
 import { getCurrentUser } from "actions/authActions";
+import { getIsFirstPageLoad } from "selectors/evaluationSelectors";
 
 export interface HandleWidgetNameUpdatePayload {
   newName: string;
@@ -271,6 +275,8 @@ export function* handleFetchedPage({
     yield put(fetchSnapshotDetailsAction());
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
+    // Generate UI module instances when page DSL is loaded
+    yield call(generateUIModuleInstanceSaga);
     // dispatch fetch page success
     yield put(fetchPageSuccess());
 
@@ -365,8 +371,14 @@ export function* postFetchedPublishedPage(
       response.data.userPermissions,
     ),
   );
-  // Clear any existing caches
-  yield call(clearEvalCache);
+  const isFirstLoad: boolean = yield select(getIsFirstPageLoad);
+
+  // Only the first page load we defer the clearing of caches
+  if (!isFirstLoad) {
+    // Clear any existing caches
+    yield call(clearEvalCache);
+  }
+
   // Set url params
   yield call(setDataUrl);
 
@@ -449,6 +461,11 @@ export function* fetchPublishedPageResourcesSaga(
       }
 
       yield call(postFetchedPublishedPage, pageWithMigratedDsl, pageId);
+      // In view mode, the fetchPublishedPageResourcesSaga is called only
+      // when page is switched. So, we need to generate UI module instances.
+      // Whereas, setupPublishedPageSaga gets called on first time app load in view mode.
+      // This is differently done for some reason when compared to edit mode.
+      yield call(generateUIModuleInstanceSaga);
 
       // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
@@ -1541,6 +1558,92 @@ export function* setupPublishedPageSaga(
     yield put({
       type: ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
       payload: { error },
+    });
+  }
+}
+
+export function* persistPageSlugSaga(
+  action: ReduxAction<{ pageId: string; slug: string }>,
+) {
+  try {
+    const request = {
+      branchedPageId: action.payload.pageId,
+      uniquePageSlug: action.payload.slug,
+    };
+
+    const response: ApiResponse = yield call(PageApi.persistPageSlug, request);
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.PERSIST_PAGE_SLUG_SUCCESS,
+        payload: {
+          pageId: action.payload.pageId,
+          slug: action.payload.slug,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.PERSIST_PAGE_SLUG_ERROR,
+      payload: {
+        error,
+        pageId: action.payload.pageId,
+        slug: action.payload.slug,
+      },
+    });
+  }
+}
+
+interface ValidatePageSlugResponse {
+  uniquePageSlug: string;
+  isUniqueSlugAvailable: boolean;
+}
+
+export function* validatePageSlugSaga(
+  action: ReduxAction<{ pageId: string; slug: string }>,
+) {
+  try {
+    const { pageId, slug } = action.payload;
+
+    const response: ApiResponse<ValidatePageSlugResponse> = yield call(
+      PageApi.validatePageSlug,
+      pageId,
+      slug,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const { isUniqueSlugAvailable } = response.data;
+
+      if (isUniqueSlugAvailable) {
+        yield put({
+          type: ReduxActionTypes.VALIDATE_PAGE_SLUG_SUCCESS,
+          payload: {
+            slug,
+            isValid: true,
+          },
+        });
+      } else {
+        yield put({
+          type: ReduxActionTypes.VALIDATE_PAGE_SLUG_ERROR,
+          payload: {
+            slug,
+            isValid: false,
+          },
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.VALIDATE_PAGE_SLUG_ERROR,
+      payload: {
+        error,
+        slug: action.payload.slug,
+        isValid: false,
+      },
     });
   }
 }

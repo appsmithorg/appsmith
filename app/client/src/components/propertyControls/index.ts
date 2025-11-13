@@ -6,8 +6,8 @@ import type { SwitchControlProps } from "components/propertyControls/SwitchContr
 import SwitchControl from "components/propertyControls/SwitchControl";
 import OptionControl from "components/propertyControls/OptionControl";
 import type { ControlProps } from "components/propertyControls/BaseControl";
-import type BaseControl from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
+import type BaseControl from "components/propertyControls/BaseControl";
 import type { DatePickerControlProps } from "components/propertyControls/DatePickerControl";
 import DatePickerControl from "components/propertyControls/DatePickerControl";
 import ChartDataControl from "components/propertyControls/ChartDataControl";

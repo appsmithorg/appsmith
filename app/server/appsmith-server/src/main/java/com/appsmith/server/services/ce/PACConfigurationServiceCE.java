@@ -5,6 +5,5 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import reactor.core.publisher.Mono;
 
 public interface PACConfigurationServiceCE {
-    Mono<UserProfileDTO> setRolesAndGroups(
-            UserProfileDTO profile, User user, boolean showUsersAndGroups, boolean isCloudHosting);
+    Mono<UserProfileDTO> setRolesAndGroups(UserProfileDTO profile, User user, boolean showUsersAndGroups);
 }

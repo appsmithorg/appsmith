@@ -42,7 +42,6 @@ const parts = []
 
 parts.push(`
 {
-  debug
   admin 0.0.0.0:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt

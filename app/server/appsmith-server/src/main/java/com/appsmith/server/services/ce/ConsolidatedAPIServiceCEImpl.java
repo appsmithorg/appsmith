@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -32,6 +33,7 @@ import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
@@ -102,6 +105,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     public static final String INTERNAL_SERVER_ERROR_CODE = AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode();
     public static final String EMPTY_WORKSPACE_ID_ON_ERROR = "";
 
+    protected Pattern objectIdPattern = Pattern.compile("^[0-9a-fA-F]+$", Pattern.CASE_INSENSITIVE);
+
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
@@ -116,6 +121,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final CustomJSLibService customJSLibService;
     private final PluginService pluginService;
     private final DatasourceService datasourceService;
+    protected final StaticUrlService staticUrlService;
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
@@ -223,22 +229,25 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .name(getQualifiedSpanName(PRODUCT_ALERT_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
-        if (isBlank(basePageId) && isBlank(baseApplicationId)) {
+        if (isBlank(basePageId)) {
             return fetches;
         }
 
         /* Get view mode - EDIT or PUBLISHED */
         boolean isViewMode = isViewMode(mode);
+        Boolean isStaticMode = isStaticMode(baseApplicationId, basePageId);
+        Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono;
 
-        /* Fetch default application id if not provided */
-        if (isBlank(basePageId)) {
-            return fetches;
+        if (isStaticMode) {
+            applicationAndPageTupleMono = staticUrlService.getApplicationAndPageTupleFromStaticNames(
+                    baseApplicationId, basePageId, refName, mode);
+
+        } else {
+            Mono<String> baseApplicationIdMono =
+                    getBaseApplicationIdMono(basePageId, baseApplicationId, mode, isViewMode);
+            applicationAndPageTupleMono = getApplicationAndPageTupleMono(
+                    basePageId, refType, refName, mode, baseApplicationIdMono, isViewMode);
         }
-
-        Mono<String> baseApplicationIdMono = getBaseApplicationIdMono(basePageId, baseApplicationId, mode, isViewMode);
-
-        Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono =
-                getApplicationAndPageTupleMono(basePageId, refType, refName, mode, baseApplicationIdMono, isViewMode);
 
         Mono<NewPage> branchedPageMonoCached =
                 applicationAndPageTupleMono.map(Tuple2::getT2).cache();
@@ -477,6 +486,15 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .tap(Micrometer.observation(observationRegistry)));
         }
         return fetches;
+    }
+
+    protected Boolean isStaticMode(String baseApplicationId, String basePageId) {
+        if (TextUtils.isSlugFormatValid(baseApplicationId)
+                && (isBlank(basePageId) || TextUtils.isSlugFormatValid(basePageId))) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
     }
 
     protected Mono<String> getBaseApplicationIdMono(

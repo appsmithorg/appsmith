@@ -30,6 +30,7 @@ import type { MainCanvasReduxState } from "ee/reducers/uiReducers/mainCanvasRedu
 import { getActionEditorSavingMap } from "PluginActionEditor/store";
 import {
   getCanvasWidgets,
+  getAllJSCollectionActions,
   getJSCollections,
 } from "ee/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
@@ -50,6 +51,8 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
+import { getWidgetConfigsVersion } from "WidgetProvider/factory/widgetConfigVersion";
 
 const getIsDraggingOrResizing = (state: DefaultRootState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -123,8 +126,22 @@ export const getPageSavingError = (state: DefaultRootState) => {
   return state.ui.editor.loadingStates.savingError;
 };
 
+export const getCurrentPageId = (state: DefaultRootState) =>
+  state.entities.pageList.currentPageId;
+
 export const getLayoutOnLoadActions = (state: DefaultRootState) =>
   state.ui.editor.pageActions || [];
+
+export const getLayoutOnUnloadActions = createSelector(
+  getCurrentPageId,
+  getAllJSCollectionActions,
+  (currentPageId, jsActions) =>
+    jsActions.filter(
+      (action) =>
+        action.runBehaviour === ActionRunBehaviour.ON_PAGE_UNLOAD &&
+        action.pageId === currentPageId,
+    ),
+);
 
 export const getLayoutOnLoadIssues = (state: DefaultRootState) => {
   return state.ui.editor.layoutOnLoadActionErrors || [];
@@ -156,11 +173,29 @@ export const getPageByBaseId = (basePageId: string) =>
     pages.find((page) => page.basePageId === basePageId),
   );
 
-export const getCurrentPageId = (state: DefaultRootState) =>
-  state.entities.pageList.currentPageId;
-
 export const getCurrentBasePageId = (state: DefaultRootState) =>
   state.entities.pageList.currentBasePageId;
+
+export const getBasePageIdFromStaticSlug = createSelector(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [getPageList, (_: any, staticPageSlug: string) => staticPageSlug],
+  (pages: Page[], staticPageSlug: string) => {
+    if (!staticPageSlug || !pages.length) {
+      return null;
+    }
+
+    // Find page by matching uniqueSlug property
+    const matchingPage = pages.find(
+      (page) => page.uniqueSlug === staticPageSlug,
+    );
+
+    if (matchingPage) {
+      return matchingPage.basePageId;
+    }
+
+    return null;
+  },
+);
 
 export const getCurrentPagePermissions = createSelector(
   getCurrentPageId,
@@ -215,6 +250,9 @@ export const selectApplicationVersion = (state: DefaultRootState) =>
   state.ui.applications.currentApplication?.applicationVersion ||
   ApplicationVersion.DEFAULT;
 
+export const getIsStaticUrlEnabled = (state: DefaultRootState) =>
+  !!state.ui.applications.currentApplication?.staticUrlSettings?.enabled;
+
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {
     const page = pages.find((page) => page.pageId === pageId);
@@ -246,6 +284,22 @@ export const getRenderMode = (state: DefaultRootState) => {
 
 export const getIsViewMode = (state: DefaultRootState) =>
   state.entities.app.mode === APP_MODE.PUBLISHED;
+
+export const getIsPersistingPageSlug = (
+  state: DefaultRootState,
+  pageId: string,
+) => state.entities.app.pageSlug[pageId]?.isPersisting || false;
+
+export const getIsErrorPersistingPageSlug = (
+  state: DefaultRootState,
+  pageId: string,
+) => state.entities.app.pageSlug[pageId]?.isError || false;
+
+export const getIsValidatingPageSlug = (state: DefaultRootState) =>
+  state.entities.app.pageSlugValidation.isValidating;
+
+export const getIsPageSlugValid = (state: DefaultRootState) =>
+  state.entities.app.pageSlugValidation.isValid;
 
 export const getViewModePageList = createSelector(
   getPageList,
@@ -385,6 +439,7 @@ const isModuleWidget = (
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
   getIsAnvilLayout,
+  getWidgetConfigsVersion, // Add dependency on widget configs version
   (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
     const widgetConfigsArray = Object.values(widgetConfigs);

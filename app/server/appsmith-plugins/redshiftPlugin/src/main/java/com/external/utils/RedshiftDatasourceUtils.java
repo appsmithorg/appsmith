@@ -9,7 +9,7 @@ import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.sql.Connection;

@@ -60,6 +60,7 @@ describe(
         _.gitSync.CommitAndPush();
 
         _.gitSync.ImportAppFromGit(ws2Name, repoName);
+        _.agHelper.WaitUntilEleAppear(_.gitSync.locators.quickActionsBranchBtn);
         _.gitSync.SwitchGitBranch(branchName);
         EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
         _.propPane.ValidatePropertyFieldValue("Text", "Hello World");

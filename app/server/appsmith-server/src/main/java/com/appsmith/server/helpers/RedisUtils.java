@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class RedisUtils {
     private final ReactiveRedisOperations<String, String> redisOperations;
+    private final GitServiceConfig gitServiceConfig;
 
     private static final String REDIS_FILE_LOCK_VALUE = "inUse";
 
@@ -47,7 +49,11 @@ public class RedisUtils {
         });
     }
 
+    @Deprecated
     public Mono<Boolean> addFileLock(String key, Duration expirationPeriod, AppsmithException exception) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
             if (Boolean.TRUE.equals(isKeyPresent)) {
                 return Mono.error(exception);
@@ -56,7 +62,11 @@ public class RedisUtils {
         });
     }
 
+    @Deprecated
     public Mono<Boolean> releaseFileLock(String key) {
+        if (gitServiceConfig.isGitInMemory()) {
+            return Mono.just(true);
+        }
         return redisOperations.opsForValue().delete(key);
     }
 

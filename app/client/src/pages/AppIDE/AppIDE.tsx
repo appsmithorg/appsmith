@@ -38,6 +38,7 @@ import type { Page } from "entities/Page";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 import { AppIDEModals } from "ee/pages/AppIDE/components/AppIDEModals";
+import { updateWindowDimensions } from "actions/windowActions";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -60,6 +61,7 @@ interface EditorProps {
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
   pages: Page[];
+  updateWindowDimensions: (height: number, width: number) => void;
 }
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -68,13 +70,27 @@ class Editor extends Component<Props> {
   prevPageId: string | null = null;
 
   componentDidMount() {
-    const { basePageId } = this.props.match.params || {};
+    const { basePageId, staticPageSlug } = this.props.match.params || {};
 
-    urlBuilder.setCurrentBasePageId(basePageId);
+    // If basePageId is not available but staticPageSlug is, try to find the basePageId from the slug
+    let resolvedBasePageId = basePageId;
+
+    if (!resolvedBasePageId && staticPageSlug) {
+      const matchingPage = this.props.pages.find(
+        (page) => page.uniqueSlug === staticPageSlug,
+      );
+
+      resolvedBasePageId = matchingPage?.basePageId;
+    }
+
+    urlBuilder.setCurrentBasePageId(resolvedBasePageId);
 
     editorInitializer().then(() => {
       this.props.widgetConfigBuildSuccess();
     });
+
+    // Set initial window dimensions
+    this.props.updateWindowDimensions(window.innerHeight, window.innerWidth);
   }
 
   shouldComponentUpdate(nextProps: Props) {
@@ -88,6 +104,8 @@ class Editor extends Component<Props> {
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.basePageId !==
         this.props.match?.params?.basePageId ||
+      nextProps.match?.params?.staticPageSlug !==
+        this.props.match?.params?.staticPageSlug ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -100,15 +118,38 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { baseApplicationId, basePageId } = this.props.match.params || {};
-    const { basePageId: prevBasePageId } = prevProps.match.params || {};
+    const { baseApplicationId, basePageId, staticPageSlug } =
+      this.props.match.params || {};
+    const { basePageId: prevBasePageId, staticPageSlug: prevStaticPageSlug } =
+      prevProps.match.params || {};
+
+    // Resolve basePageId from staticPageSlug if needed
+    let resolvedBasePageId = basePageId;
+
+    if (!resolvedBasePageId && staticPageSlug) {
+      const matchingPage = this.props.pages.find(
+        (page) => page.uniqueSlug === staticPageSlug,
+      );
+
+      resolvedBasePageId = matchingPage?.basePageId;
+    }
+
+    let prevResolvedBasePageId = prevBasePageId;
+
+    if (!prevResolvedBasePageId && prevStaticPageSlug) {
+      const matchingPage = prevProps.pages.find(
+        (page) => page.uniqueSlug === prevStaticPageSlug,
+      );
+
+      prevResolvedBasePageId = matchingPage?.basePageId;
+    }
 
     const pageId = this.props.pages.find(
-      (page) => page.basePageId === basePageId,
+      (page) => page.basePageId === resolvedBasePageId,
     )?.pageId;
 
     const prevPageId = prevProps.pages.find(
-      (page) => page.basePageId === prevBasePageId,
+      (page) => page.basePageId === prevResolvedBasePageId,
     )?.pageId;
 
     // caching value for prevPageId as it is required in future lifecycles
@@ -117,7 +158,7 @@ class Editor extends Component<Props> {
     }
 
     const isPageIdUpdated = pageId !== this.prevPageId;
-    const isBasePageIdUpdated = basePageId !== prevBasePageId;
+    const isBasePageIdUpdated = resolvedBasePageId !== prevResolvedBasePageId;
     const isPageUpdated = isPageIdUpdated || isBasePageIdUpdated;
 
     const isBranchUpdated = getIsBranchUpdated(
@@ -135,12 +176,14 @@ class Editor extends Component<Props> {
     );
 
     // to prevent re-init during connect
-    if (prevBranch && isBranchUpdated && basePageId) {
+    if (prevBranch && isBranchUpdated && resolvedBasePageId) {
       this.props.initEditor({
         baseApplicationId,
-        basePageId,
+        basePageId: resolvedBasePageId,
         branch,
         mode: APP_MODE.EDIT,
+        staticApplicationSlug: this.props.match.params.staticApplicationSlug,
+        staticPageSlug: this.props.match.params.staticPageSlug,
       });
     } else {
       /**
@@ -149,9 +192,27 @@ class Editor extends Component<Props> {
        * when redirected to the default page
        */
       if (pageId && this.prevPageId && isPageUpdated) {
-        this.props.updateCurrentPage(pageId);
-        this.props.setupPage(pageId);
-        urlBuilder.setCurrentBasePageId(basePageId);
+        // For static URLs, we need to call initEditor to trigger consolidated API
+        // with static slug parameters, not just updateCurrentPage and setupPage
+        if (
+          this.props.match.params.staticApplicationSlug &&
+          this.props.match.params.staticPageSlug
+        ) {
+          this.props.initEditor({
+            baseApplicationId,
+            basePageId: resolvedBasePageId,
+            branch,
+            mode: APP_MODE.EDIT,
+            staticApplicationSlug:
+              this.props.match.params.staticApplicationSlug,
+            staticPageSlug: this.props.match.params.staticPageSlug,
+          });
+        } else {
+          // For regular URLs, use the existing updateCurrentPage and setupPage
+          this.props.updateCurrentPage(pageId);
+          this.props.setupPage(pageId);
+          urlBuilder.setCurrentBasePageId(resolvedBasePageId);
+        }
       }
     }
   }
@@ -218,6 +279,8 @@ const mapDispatchToProps = (dispatch: any) => {
     setupPage: (pageId: string) => dispatch(setupPageAction({ id: pageId })),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
+    updateWindowDimensions: (height: number, width: number) =>
+      dispatch(updateWindowDimensions(height, width)),
   };
 };
 

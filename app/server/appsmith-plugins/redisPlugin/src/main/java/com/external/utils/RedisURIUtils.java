@@ -3,7 +3,7 @@ package com.external.utils;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.pf4j.util.StringUtils;
 
 import java.net.URI;

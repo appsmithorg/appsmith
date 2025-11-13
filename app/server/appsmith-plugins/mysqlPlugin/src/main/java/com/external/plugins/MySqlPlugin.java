@@ -49,7 +49,7 @@ import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;

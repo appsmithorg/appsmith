@@ -15,15 +15,15 @@ import {
 import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { DefaultRootState } from "react-redux";
-import { updatePageAction } from "actions/pageActions";
+import { navigateToAnotherPage, updatePageAction } from "actions/pageActions";
 import { useGetPageFocusUrl } from "./hooks/useGetPageFocusUrl";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import history, { NavigationMethod } from "utils/history";
 import { EntityItem } from "@appsmith/ads";
 import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { noop } from "lodash";
+import { NavigationMethod } from "utils/history";
 
 export const PageEntity = ({
   onClick,
@@ -90,9 +90,14 @@ export const PageEntity = ({
       toUrl: navigateToUrl,
     });
     dispatch(toggleInOnboardingWidgetSelection(true));
-    history.push(navigateToUrl, {
-      invokedBy: NavigationMethod.EntityExplorer,
-    });
+    dispatch(
+      navigateToAnotherPage({
+        pageURL: navigateToUrl,
+        state: {
+          invokedBy: NavigationMethod.EntityExplorer,
+        },
+      }),
+    );
 
     if (onClick) {
       onClick();

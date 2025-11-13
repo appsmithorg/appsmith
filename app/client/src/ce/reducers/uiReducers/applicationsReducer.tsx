@@ -45,6 +45,12 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
+  isPersistingAppSlug: false,
+  isErrorPersistingAppSlug: false,
+  isValidatingAppSlug: false,
+  isApplicationSlugValid: true,
+  isFetchingAppSlugSuggestion: false,
+  appSlugSuggestion: "",
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
@@ -744,6 +750,137 @@ export const handlers = {
       isSavingNavigationSetting: false,
     };
   },
+  [ReduxActionTypes.RESET_APP_SLUG_VALIDATION]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: true,
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isValidatingAppSlug: true,
+      isApplicationSlugValid: true, // Reset to valid while validating
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: action.payload.isValid,
+    };
+  },
+  [ReduxActionTypes.VALIDATE_APP_SLUG_ERROR]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ slug: string; isValid: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isValidatingAppSlug: false,
+      isApplicationSlugValid: action.payload.isValid,
+    };
+  },
+  [ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingAppSlugSuggestion: true,
+      appSlugSuggestion: "",
+    };
+  },
+  [ReduxActionTypes.FETCH_APP_SLUG_SUGGESTION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ uniqueApplicationSlug: string }>,
+  ) => {
+    return {
+      ...state,
+      isFetchingAppSlugSuggestion: false,
+      appSlugSuggestion: action.payload.uniqueApplicationSlug,
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_APP_SLUG_SUGGESTION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingAppSlugSuggestion: false,
+      appSlugSuggestion: "",
+    };
+  },
+  [ReduxActionTypes.ENABLE_STATIC_URL]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.ENABLE_STATIC_URL_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+      appSlugSuggestion: "",
+    };
+  },
+  [ReduxActionErrorTypes.ENABLE_STATIC_URL_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.DISABLE_STATIC_URL]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.DISABLE_STATIC_URL_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionErrorTypes.DISABLE_STATIC_URL_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isPersistingAppSlug: true,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
+  [ReduxActionTypes.PERSIST_APP_SLUG_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isPersistingAppSlug: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -775,6 +912,12 @@ export interface ApplicationsReduxState {
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
+  isPersistingAppSlug: boolean;
+  isErrorPersistingAppSlug: boolean;
+  isValidatingAppSlug: boolean;
+  isApplicationSlugValid: boolean;
+  isFetchingAppSlugSuggestion: boolean;
+  appSlugSuggestion: string;
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;

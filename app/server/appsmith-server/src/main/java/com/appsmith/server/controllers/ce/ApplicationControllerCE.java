@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.dtos.UniqueSlugDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -31,6 +32,7 @@ import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.UserReleaseNotes;
+import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -66,6 +68,7 @@ public class ApplicationControllerCE {
 
     protected final ArtifactService artifactService;
     protected final ApplicationService service;
+    protected final StaticUrlService staticUrlService;
     private final ApplicationPageService applicationPageService;
     private final UserReleaseNotes userReleaseNotes;
     private final ApplicationForkingService applicationForkingService;
@@ -130,7 +133,7 @@ public class ApplicationControllerCE {
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
-        return service.findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId)
+        return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
                 .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
     }
@@ -336,5 +339,48 @@ public class ApplicationControllerCE {
         return partialImportService
                 .importBuildingBlock(buildingBlockDTO)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED, fetchedResource));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping(value = "/{branchedApplicationId}/static-url/suggest-app-slug")
+    public Mono<ResponseDTO<String>> suggestUniqueApplicationSlug(@PathVariable String branchedApplicationId) {
+        return staticUrlService
+                .suggestUniqueApplicationSlug(branchedApplicationId)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping(value = "/{branchedApplicationId}/static-url")
+    public Mono<ResponseDTO<Application>> autoGenerateStaticUrl(
+            @PathVariable String branchedApplicationId, @RequestBody UniqueSlugDTO uniqueSlugDTO) {
+        return staticUrlService
+                .autoGenerateStaticUrl(branchedApplicationId, uniqueSlugDTO)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
+    }
+
+    @JsonView(Views.Public.class)
+    @PatchMapping(value = "/{branchedApplicationId}/static-url")
+    public Mono<ResponseDTO<Application>> updateApplicationSlug(
+            @PathVariable String branchedApplicationId, @RequestBody UniqueSlugDTO staticUrlDTO) {
+        return staticUrlService
+                .updateApplicationSlug(branchedApplicationId, staticUrlDTO)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping(value = "/{branchedApplicationId}/static-url")
+    public Mono<ResponseDTO<Application>> deleteUnique(@PathVariable String branchedApplicationId) {
+        return staticUrlService
+                .deleteStaticUrlSettings(branchedApplicationId)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping(value = "/{branchedApplicationId}/static-url/{uniqueSlugName}")
+    public Mono<ResponseDTO<UniqueSlugDTO>> isApplicationSlugUnique(
+            @PathVariable String branchedApplicationId, @PathVariable String uniqueSlugName) {
+        return staticUrlService
+                .isApplicationSlugUnique(branchedApplicationId, uniqueSlugName)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
     }
 }
