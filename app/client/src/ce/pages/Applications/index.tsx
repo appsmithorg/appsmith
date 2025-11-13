@@ -485,7 +485,7 @@ export function WorkspaceMenuItem({
   // Use custom component when there's a logo, otherwise use ListItem
   if (hasLogo && !isFetchingWorkspaces) {
     return (
-      <Tooltip content={workspace?.name} placement="bottom-left">
+      <Tooltip content={workspace?.name} placement="bottomLeft">
         <WorkspaceItemRow
           className={selected ? "selected-workspace" : ""}
           onClick={handleWorkspaceClick}
