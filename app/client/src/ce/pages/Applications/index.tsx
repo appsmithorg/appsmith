@@ -60,6 +60,7 @@ import {
   MenuItem as ListItem,
   Text,
   TextType,
+  FontWeight,
 } from "@appsmith/ads-old";
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import PageWrapper from "pages/common/PageWrapper";
@@ -395,6 +396,59 @@ export const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
+const WorkspaceItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  padding: 0px var(--ads-spaces-6);
+  background-color: ${(props) =>
+    props.selected ? "var(--ads-v2-color-bg-muted)" : "transparent"};
+  .${Classes.TEXT} {
+    color: var(--ads-v2-color-fg);
+  }
+  .${Classes.ICON} {
+    svg {
+      path {
+        fill: var(--ads-v2-color-fg);
+      }
+    }
+  }
+  height: 38px;
+
+  ${(props) =>
+    !props.disabled
+      ? `
+    &:hover {
+      text-decoration: none;
+      cursor: pointer;
+      background-color: var(--ads-v2-color-bg-subtle);
+      border-radius: var(--ads-v2-border-radius);
+    }`
+      : `
+    &:hover {
+      text-decoration: none;
+      cursor: default;
+    }
+    `}
+`;
+
+const WorkspaceIconContainer = styled.span`
+  display: flex;
+  align-items: center;
+
+  .${Classes.ICON} {
+    margin-right: var(--ads-spaces-5);
+  }
+`;
+
+const WorkspaceLogoImage = styled.img`
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: var(--ads-spaces-5);
+`;
+
 export function WorkspaceMenuItem({
   isFetchingWorkspaces,
   selected,
@@ -403,6 +457,7 @@ export function WorkspaceMenuItem({
 }: any) {
   const history = useHistory();
   const location = useLocation();
+  const [imageError, setImageError] = React.useState(false);
 
   const handleWorkspaceClick = () => {
     const workspaceId = workspace?.id;
@@ -414,7 +469,42 @@ export function WorkspaceMenuItem({
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   if (!workspace.id) return null;
+
+  const hasLogo = workspace?.logoUrl && !imageError;
+  const displayText = isFetchingWorkspaces
+    ? workspace?.name
+    : workspace?.name?.length > 22
+      ? workspace.name.slice(0, 22).concat(" ...")
+      : workspace?.name;
+
+  // Use custom component when there's a logo, otherwise use ListItem
+  if (hasLogo && !isFetchingWorkspaces) {
+    return (
+      <Tooltip content={workspace?.name} placement="bottom-left">
+        <WorkspaceItemRow
+          className={selected ? "selected-workspace" : ""}
+          onClick={handleWorkspaceClick}
+          selected={selected}
+        >
+          <WorkspaceIconContainer>
+            <WorkspaceLogoImage
+              alt={`${workspace.name} logo`}
+              onError={handleImageError}
+              src={workspace.logoUrl}
+            />
+            <Text type={TextType.H5} weight={FontWeight.NORMAL}>
+              {displayText}
+            </Text>
+          </WorkspaceIconContainer>
+        </WorkspaceItemRow>
+      </Tooltip>
+    );
+  }
 
   return (
     <ListItem
