@@ -68,12 +68,12 @@ export const TableWrapper = styled.div<{
       height: ${TABLE_SCROLLBAR_HEIGHT}px;
       .simplebar-scrollbar {
         /*this actual height of the scrollbar */
-        height: 14px;
+        height: 10px;
       }
       &.simplebar-hover {
-        height: 12px;
         & .simplebar-scrollbar {
-          height: 10px;
+          transition: height 0.15s ease-in-out;
+          height: 12px;
         }
       }
     }
