@@ -1,5 +1,12 @@
 package com.appsmith.server.configurations;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.RedisClusterClient;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,17 +18,37 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class RedisConfigTest {
 
     private RedisConfig redisConfig;
+    private List<AbstractRedisClient> clientsToCleanup;
 
     @BeforeEach
     void setUp() {
         redisConfig = new RedisConfig();
+        clientsToCleanup = new ArrayList<>();
     }
+
+    @AfterEach
+    void tearDown() {
+        // Cleanup any redis clients created during tests
+        for (AbstractRedisClient client : clientsToCleanup) {
+            try {
+                client.shutdown();
+            } catch (Exception e) {
+                // Ignore cleanup errors
+            }
+        }
+        clientsToCleanup.clear();
+    }
+
+    // Tests for reactiveRedisConnectionFactory() method
 
     @Test
     void testReactiveRedisConnectionFactory_WithStandaloneRedis_CreatesStandaloneConfiguration() {
@@ -289,5 +316,237 @@ class RedisConfigTest {
             redisConfig.reactiveRedisConnectionFactory();
             redisConfig.reactiveRedisConnectionFactory();
         });
+    }
+
+    // Tests for redisClient() method
+
+    @Test
+    void testRedisClient_WithStandaloneRedis_CreatesRedisClient() {
+        // Given
+        String redisUrl = "redis://localhost:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+
+        // Verify client options are set
+        RedisClient redisClient = (RedisClient) client;
+        ClientOptions options = redisClient.getOptions();
+        assertNotNull(options);
+        assertNotNull(options.getTimeoutOptions());
+    }
+
+    @Test
+    void testRedisClient_WithStandaloneSslRedis_CreatesRedisClient() {
+        // Given
+        String redisUrl = "rediss://localhost:6380";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+
+        // Verify client options are set
+        RedisClient redisClient = (RedisClient) client;
+        ClientOptions options = redisClient.getOptions();
+        assertNotNull(options);
+        assertNotNull(options.getTimeoutOptions());
+    }
+
+    @Test
+    void testRedisClient_WithStandaloneRedisAndAuth_CreatesRedisClientWithAuth() {
+        // Given
+        String redisUrl = "redis://username:password@localhost:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+
+        // Verify client options are set with timeout
+        RedisClient redisClient = (RedisClient) client;
+        ClientOptions options = redisClient.getOptions();
+        assertNotNull(options);
+        TimeoutOptions timeoutOptions = options.getTimeoutOptions();
+        assertNotNull(timeoutOptions);
+    }
+
+    @Test
+    void testRedisClient_WithClusterRedis_CreatesRedisClusterClient() {
+        // Given
+        String redisUrl = "redis-cluster://cluster-host:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClusterClient.class, client);
+
+        // Verify cluster client options are set
+        RedisClusterClient clusterClient = (RedisClusterClient) client;
+        ClientOptions options = clusterClient.getOptions();
+        assertNotNull(options);
+        assertInstanceOf(ClusterClientOptions.class, options);
+        ClusterClientOptions clusterOptions = (ClusterClientOptions) options;
+        assertNotNull(clusterOptions.getTimeoutOptions());
+    }
+
+    @Test
+    void testRedisClient_WithClusterRedisAndAuth_CreatesRedisClusterClientWithAuth() {
+        // Given
+        String redisUrl = "redis-cluster://username:password@cluster-host:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClusterClient.class, client);
+
+        // Verify cluster client options are set with timeout
+        RedisClusterClient clusterClient = (RedisClusterClient) client;
+        ClientOptions options = clusterClient.getOptions();
+        assertNotNull(options);
+        assertInstanceOf(ClusterClientOptions.class, options);
+        ClusterClientOptions clusterOptions = (ClusterClientOptions) options;
+        TimeoutOptions timeoutOptions = clusterOptions.getTimeoutOptions();
+        assertNotNull(timeoutOptions);
+    }
+
+    @Test
+    void testRedisClient_WithSentinelRedis_CreatesRedisClientWithSentinelConfig() {
+        // Given
+        String redisUrl = "redis-sentinel://sentinel-host:26379";
+        String sentinelMaster = "mymaster";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+        ReflectionTestUtils.setField(redisConfig, "redisSentinelMaster", sentinelMaster);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+
+        // Verify client options are set
+        RedisClient redisClient = (RedisClient) client;
+        ClientOptions options = redisClient.getOptions();
+        assertNotNull(options);
+        assertNotNull(options.getTimeoutOptions());
+    }
+
+    @Test
+    void testRedisClient_WithSentinelRedisAndAuth_CreatesRedisClientWithSentinelConfigAndAuth() {
+        // Given
+        String redisUrl = "redis-sentinel://username:password@sentinel-host:26379";
+        String sentinelMaster = "mymaster";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+        ReflectionTestUtils.setField(redisConfig, "redisSentinelMaster", sentinelMaster);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+
+        // Verify client options with timeout
+        RedisClient redisClient = (RedisClient) client;
+        ClientOptions options = redisClient.getOptions();
+        assertNotNull(options);
+        TimeoutOptions timeoutOptions = options.getTimeoutOptions();
+        assertNotNull(timeoutOptions);
+    }
+
+    @Test
+    void testRedisClient_WithSentinelRedisWithNullMaster_ThrowsException() {
+        // Given
+        String redisUrl = "redis-sentinel://sentinel-host:26379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+        ReflectionTestUtils.setField(redisConfig, "redisSentinelMaster", null);
+
+        // When & Then
+        Exception exception = assertThrows(IllegalStateException.class, () -> redisConfig.redisClient());
+        assertTrue(exception.getMessage().contains("Redis Sentinel Master is not configured"));
+    }
+
+    @Test
+    void testRedisClient_WithSentinelRedisWithEmptyMaster_ThrowsException() {
+        // Given - empty string is the production default from @Value("${appsmith.redis.sentinel.master:}")
+        String redisUrl = "redis-sentinel://sentinel-host:26379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+        ReflectionTestUtils.setField(redisConfig, "redisSentinelMaster", "");
+
+        // When & Then
+        Exception exception = assertThrows(IllegalStateException.class, () -> redisConfig.redisClient());
+        assertTrue(exception.getMessage().contains("Redis Sentinel Master is not configured"));
+    }
+
+    @Test
+    void testRedisClient_VerifiesSchemeConversionForCluster() {
+        // Given - Test that redis-cluster:// scheme is converted to redis://
+        String redisUrl = "redis-cluster://cluster-host:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClusterClient.class, client);
+    }
+
+    @Test
+    void testRedisClient_WithCustomPort_CreatesClientWithCustomPort() {
+        // Given
+        String redisUrl = "redis://localhost:9999";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client = redisConfig.redisClient();
+        clientsToCleanup.add(client);
+
+        // Then
+        assertNotNull(client);
+        assertInstanceOf(RedisClient.class, client);
+    }
+
+    @Test
+    void testRedisClient_MultipleInvocations_CreatesNewClientsEachTime() {
+        // Given
+        String redisUrl = "redis://localhost:6379";
+        ReflectionTestUtils.setField(redisConfig, "redisURL", redisUrl);
+
+        // When
+        AbstractRedisClient client1 = redisConfig.redisClient();
+        AbstractRedisClient client2 = redisConfig.redisClient();
+        clientsToCleanup.add(client1);
+        clientsToCleanup.add(client2);
+
+        // Then
+        assertNotNull(client1);
+        assertNotNull(client2);
+        assertNotSame(client1, client2); // Verify they are different instances
     }
 }
