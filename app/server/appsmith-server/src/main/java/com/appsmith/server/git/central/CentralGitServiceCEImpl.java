@@ -1987,6 +1987,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     importedBranchedArtifact
                                             .getGitArtifactMetadata()
                                             .getIsRepoPrivate()))
+                            .flatMap(importedArtifact ->
+                                    gitArtifactHelper.getArtifactById(importedArtifact.getId(), null))
                             .flatMap(importedBranchedArtifact -> {
                                 return gitArtifactHelper
                                         .publishArtifact(importedBranchedArtifact, false)
