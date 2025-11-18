@@ -1,0 +1,52 @@
+templates:
+  - persistentVolume.yaml
+  - persistentVolumeClaim.yaml
+tests:
+  # Test PersistentVolume creation
+  - name: PV and PVC should be created when persistence enabled, no existing claim, and autoscaling enabled
+    set:
+      persistence:
+        enabled: true
+        existingClaim:
+          enabled: false
+      autoscaling:
+        enabled: true
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+        template: persistentVolumeClaim.yaml
+      - isKind:
+          of: PersistentVolume
+        template: persistentVolume.yaml
+
+  - name: PVC should NOT be created when persistence is disabled
+    set:
+      persistence:
+        enabled: false
+        existingClaim:
+          enabled: false
+      autoscaling:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: PV and PVC should not be created when using existing claim
+    set:
+      persistence:
+        enabled: true
+        existingClaim:
+          enabled: true
+      autoscaling:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: PV and PVC should not be created when autoscaling is disabled
+    set:
+      autoscaling:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

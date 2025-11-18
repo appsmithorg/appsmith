@@ -271,6 +271,18 @@ resources:
      cpu: 500m
      memory: 3000Mi
 
+## @param workload.kind Select workload resource type: Deployment or StatefulSet
+## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
+## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).
+##
+workload:
+  kind: StatefulSet
+
+## @param replicas Number of replicas when autoscaling is disabled
+## Only used when workload.kind is Deployment and autoscaling.enabled is false
+##
+replicas: 1
+
 autoscaling:
   enabled: false
   minReplicas: 2

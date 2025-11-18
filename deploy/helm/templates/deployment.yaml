@@ -1,26 +1,30 @@
 {{- $updateStrategy := .Values.updateStrategy | default dict }}
 {{- $postgresuser := .Values.postgresql.auth.username }}
 {{- $postgrespass := .Values.postgresql.auth.password }}
-{{- $postgrespass := .Values.postgresql.auth.password }}
 {{- $releaseName := include "appsmith.fullname" . -}}
+{{- $workloadKind := upper (toString .Values.workload.kind) -}}
+{{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
 apiVersion: apps/v1
-kind: {{ if not .Values.autoscaling.enabled }}StatefulSet{{- else }}Deployment{{- end }}
+kind: {{ if $useDeployment }}Deployment{{- else }}StatefulSet{{- end }}
 metadata:
   name: {{ include "appsmith.fullname" . }}
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
 spec:
+  {{- if $useDeployment }}
   {{- if not .Values.autoscaling.enabled }}
-  replicas: 1
-  serviceName: {{ include "appsmith.fullname" . }}
-  updateStrategy:
-  {{- else }}
+  replicas: {{ .Values.replicas | default 1 }}
+  {{- end }}
   strategy:
     type: {{ .Values.strategyType | default "RollingUpdate" }}
     rollingUpdate:
       maxSurge: {{ dig "maxSurge" 1 $updateStrategy }}
       maxUnavailable: {{ dig "maxUnavailable" "0" $updateStrategy }}
+  {{- else }}
+  replicas: 1
+  serviceName: {{ include "appsmith.fullname" . }}
+  updateStrategy:
   {{- end }}
   selector:
     matchLabels:
@@ -182,7 +186,7 @@ spec:
   {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
-  {{- else if and (not .Values.autoscaling.enabled) (.Values.persistence.enabled) }}
+  {{- else if and (not $useDeployment) (.Values.persistence.enabled) }}
   volumeClaimTemplates:
     - metadata:
         name: data
