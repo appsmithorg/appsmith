@@ -102,6 +102,10 @@ class RefactoringServiceCEImplTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(new User()));
 
+        // Mock the bulk find by IDs method
+        Mockito.when(actionCollectionRepository.findAllByIds(Mockito.anyList(), Mockito.any()))
+                .thenReturn(Flux.empty());
+
         refactoringServiceCE = new RefactoringServiceCEImpl(
                 newPageService,
                 updateLayoutService,

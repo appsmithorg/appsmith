@@ -430,6 +430,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::bulkUpdate);
     }
 
+    /**
+     * General purpose bulk update method that directly saves actions to the database without validation.
+     * This method is optimized for scenarios where the actions are already validated or when
+     * validation is not required (e.g., refactoring operations, data migrations).
+     *
+     * @param newActionList List of NewAction objects to update
+     * @return Mono<Void> indicating completion of the bulk update operation
+     */
+    @Override
+    public Mono<Void> bulkUpdateActions(List<NewAction> newActionList) {
+        if (newActionList == null || newActionList.isEmpty()) {
+            return Mono.empty();
+        }
+
+        // Set git sync IDs for actions that don't have them
+        newActionList.stream().filter(action -> action.getGitSyncId() == null).forEach(this::setGitSyncIdInNewAction);
+
+        return repository.bulkUpdate(newActionList);
+    }
+
     protected boolean isValidActionName(ActionDTO action) {
         return entityValidationService.validateName(action.getName());
     }

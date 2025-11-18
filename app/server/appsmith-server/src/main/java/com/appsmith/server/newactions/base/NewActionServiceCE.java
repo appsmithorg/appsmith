@@ -40,6 +40,16 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList);
 
+    /**
+     * General purpose bulk update method that directly saves actions to the database without validation.
+     * This method is optimized for scenarios where the actions are already validated or when
+     * validation is not required (e.g., refactoring operations, data migrations).
+     *
+     * @param newActionList List of NewAction objects to update
+     * @return Mono<Void> indicating completion of the bulk update operation
+     */
+    Mono<Void> bulkUpdateActions(List<NewAction> newActionList);
+
     Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);

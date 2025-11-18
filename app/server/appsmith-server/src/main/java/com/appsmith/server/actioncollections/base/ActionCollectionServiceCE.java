@@ -52,6 +52,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollection> findById(String id, AclPermission aclPermission);
 
+    Flux<ActionCollection> findAllByIds(List<String> ids, AclPermission aclPermission);
+
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(
             String id, Boolean viewMode, AclPermission permission);
 
@@ -80,6 +82,16 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<Void> bulkValidateAndInsertActionCollectionInRepository(List<ActionCollection> actionCollectionList);
 
     Mono<Void> bulkValidateAndUpdateActionCollectionInRepository(List<ActionCollection> actionCollectionList);
+
+    /**
+     * General purpose bulk update method that directly saves action collections to the database without validation.
+     * This method is optimized for scenarios where the action collections are already validated or when
+     * validation is not required (e.g., refactoring operations, data migrations).
+     *
+     * @param actionCollectionList List of ActionCollection objects to update
+     * @return Mono<Void> indicating completion of the bulk update operation
+     */
+    Mono<Void> bulkUpdateActionCollections(List<ActionCollection> actionCollectionList);
 
     Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO);
 

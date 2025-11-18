@@ -27,7 +27,10 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -67,51 +70,104 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         CreatorContextType contextType = getDefaultContextIfNull(refactorEntityNameDTO.getContextType());
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
-        return getActionsByContextId(contextId, contextType)
-                .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
-                /*
-                 * Assuming that the datasource should not be dependent on the widget and hence not going through the same
-                 * to look for replacement pattern.
-                 */
-                .flatMap(tuple -> {
-                    final NewAction newAction = tuple.getT1();
-                    final Integer evalVersion = tuple.getT2();
-                    // We need actionDTO to be populated with pluginType from NewAction
-                    // so that we can check for the JS path
-                    ActionDTO action = newActionService.generateActionByViewMode(newAction, false);
 
-                    if (action.getActionConfiguration() == null) {
-                        return Mono.just(newAction);
-                    }
-                    // If this is a JS function rename, add this collection for rename
-                    // because the action configuration won't tell us this
-                    if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
-                        updatableCollectionIds.add(action.getCollectionId());
-                    }
-                    newAction.setUnpublishedAction(action);
-                    return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
-                            .flatMap(updates -> {
-                                if (updates.isEmpty()) {
-                                    return Mono.just(newAction);
-                                }
-                                updatedBindingPaths.addAll(updates);
-                                if (StringUtils.hasLength(action.getCollectionId())) {
-                                    updatableCollectionIds.add(action.getCollectionId());
-                                }
+        return getActionsByContextId(contextId, contextType).collectList().flatMap(actions -> {
+            if (actions.isEmpty()) {
+                return Mono.empty();
+            }
 
-                                return newActionService
-                                        .extractAndSetJsonPathKeys(newAction)
-                                        .then(newActionService.save(newAction));
-                            });
-                })
-                .map(savedAction -> savedAction.getUnpublishedAction().getName())
-                .collectList()
-                .doOnNext(updatedActionNames -> log.debug(
-                        "Actions updated due to refactor name in {} {} are : {}",
-                        contextType.toString().toLowerCase(),
-                        contextId,
-                        updatedActionNames))
-                .then();
+            log.debug("Processing {} actions for refactoring with bulk processing", actions.size());
+
+            // Process all actions in a single bulk operation
+            return processBulk(
+                    actions,
+                    evalVersionMono,
+                    oldName,
+                    newName,
+                    oldNamePattern,
+                    updatableCollectionIds,
+                    updatedBindingPaths,
+                    contextType,
+                    contextId);
+        });
+    }
+
+    /**
+     * Process all actions in a single bulk operation for refactoring
+     */
+    private Mono<Void> processBulk(
+            List<NewAction> actions,
+            Mono<Integer> evalVersionMono,
+            String oldName,
+            String newName,
+            Pattern oldNamePattern,
+            Set<String> updatableCollectionIds,
+            Set<String> updatedBindingPaths,
+            CreatorContextType contextType,
+            String contextId) {
+
+        return evalVersionMono.flatMap(evalVersion -> {
+            // Use thread-safe collections for concurrent access during flatMap processing
+            List<NewAction> actionsToUpdate = Collections.synchronizedList(new ArrayList<>());
+            List<String> updatedActionNames = Collections.synchronizedList(new ArrayList<>());
+
+            return Flux.fromIterable(actions)
+                    .flatMap(newAction -> {
+                        ActionDTO action = newActionService.generateActionByViewMode(newAction, false);
+
+                        if (action.getActionConfiguration() == null) {
+                            return Mono.just(newAction);
+                        }
+
+                        // If this is a JS function rename, add this collection for rename
+                        if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
+                            updatableCollectionIds.add(action.getCollectionId());
+                        }
+
+                        newAction.setUnpublishedAction(action);
+
+                        return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
+                                .map(updates -> {
+                                    if (!updates.isEmpty()) {
+                                        updatedBindingPaths.addAll(updates);
+                                        if (StringUtils.hasLength(action.getCollectionId())) {
+                                            updatableCollectionIds.add(action.getCollectionId());
+                                        }
+                                        actionsToUpdate.add(newAction);
+                                        updatedActionNames.add(action.getName());
+                                    }
+                                    return newAction;
+                                });
+                    })
+                    .collectList()
+                    .flatMap(processedActions -> {
+                        if (actionsToUpdate.isEmpty()) {
+                            log.debug(
+                                    "No actions require updates for refactoring in {} {}",
+                                    contextType.toString().toLowerCase(),
+                                    contextId);
+                            return Mono.empty();
+                        }
+
+                        log.debug(
+                                "Processing bulk operation for {} actions that require refactoring",
+                                actionsToUpdate.size());
+
+                        // Extract JSON path keys for all actions that need updating
+                        return Flux.fromIterable(actionsToUpdate)
+                                .flatMap(newActionService::extractAndSetJsonPathKeys)
+                                .collectList()
+                                .flatMap(updatedActions -> {
+                                    // Use general purpose bulk update for all actions at once
+                                    return newActionService.bulkUpdateActions(updatedActions);
+                                })
+                                .doOnSuccess(unused -> log.debug(
+                                        "Bulk refactoring completed for {} {} - updated actions: {}",
+                                        contextType.toString().toLowerCase(),
+                                        contextId,
+                                        updatedActionNames));
+                    });
+        });
     }
 
     protected String extractContextId(RefactorEntityNameDTO refactorEntityNameDTO) {

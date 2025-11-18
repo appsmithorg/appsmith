@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.external.constants.spans.ActionCollectionSpan.GET_ACTION_COLLECTION_BY_ID;
+import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.GET_ACTION_COLLECTIONS_BY_IDS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.TRUE;
 
@@ -370,6 +371,14 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
+    public Flux<ActionCollection> findAllByIds(List<String> ids, AclPermission aclPermission) {
+        return repository
+                .findAllByIds(ids, aclPermission)
+                .name(GET_ACTION_COLLECTIONS_BY_IDS)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(
             String id, Boolean viewMode, AclPermission permission) {
         return this.findById(id, permission)
@@ -620,6 +629,28 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(this::validateActionCollection)
                 .collectList()
                 .flatMap(repository::bulkUpdate);
+    }
+
+    /**
+     * General purpose bulk update method that directly saves action collections to the database without validation.
+     * This method is optimized for scenarios where the action collections are already validated or when
+     * validation is not required (e.g., refactoring operations, data migrations).
+     *
+     * @param actionCollectionList List of ActionCollection objects to update
+     * @return Mono<Void> indicating completion of the bulk update operation
+     */
+    @Override
+    public Mono<Void> bulkUpdateActionCollections(List<ActionCollection> actionCollectionList) {
+        if (actionCollectionList == null || actionCollectionList.isEmpty()) {
+            return Mono.empty();
+        }
+
+        // Set git sync IDs for action collections that don't have them
+        actionCollectionList.stream()
+                .filter(actionCollection -> actionCollection.getGitSyncId() == null)
+                .forEach(this::setGitSyncIdInActionCollection);
+
+        return repository.bulkUpdate(actionCollectionList);
     }
 
     @Override

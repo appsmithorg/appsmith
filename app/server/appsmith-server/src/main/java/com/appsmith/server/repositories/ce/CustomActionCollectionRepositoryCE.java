@@ -26,6 +26,8 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
+    Flux<ActionCollection> findAllByIds(List<String> ids, AclPermission permission);
+
     Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 
     Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
