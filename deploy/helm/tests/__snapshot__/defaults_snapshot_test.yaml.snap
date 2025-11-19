@@ -125,7 +125,6 @@
           securityContext: {}
           serviceAccountName: RELEASE-NAME-appsmith
           volumes: null
-      updateStrategy: null
       volumeClaimTemplates:
         - metadata:
             name: data
