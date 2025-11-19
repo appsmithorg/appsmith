@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.helpers.HostUrlHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -47,6 +48,7 @@ public class UserControllerCE {
 
     private final UserService service;
     private final SessionUserService sessionUserService;
+    private final HostUrlHelper hostUrlHelper;
     private final UserWorkspaceService userWorkspaceService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
@@ -82,15 +84,16 @@ public class UserControllerCE {
     }
 
     /**
-     * This function initiates the process to reset a user's password. We require the Origin header from the request
-     * in order to construct client facing URLs that will be sent to the user over email.
-     * @param originHeader    The Origin header in the request. This is a mandatory parameter.
+     * This function initiates the process to reset a user's password. The client-facing base URL is derived from the
+     * current request context to construct URLs that will be sent to the user over email.
      */
     @JsonView(Views.Public.class)
     @PostMapping("/forgotPassword")
     public Mono<ResponseDTO<Boolean>> forgotPasswordRequest(
-            @RequestBody ResetUserPasswordDTO userPasswordDTO, @RequestHeader("Origin") String originHeader) {
-        userPasswordDTO.setBaseUrl(originHeader);
+            @RequestBody ResetUserPasswordDTO userPasswordDTO,
+            @RequestHeader("Origin") String originHeader,
+            ServerWebExchange exchange) {
+        userPasswordDTO.setBaseUrl(hostUrlHelper.getClientFacingBaseUrl(originHeader, exchange));
         // We shouldn't leak information on whether this operation was successful or not to the client. This can enable
         // username scraping, where the response of this API can prove whether an email has an account or not.
         return service.forgotPasswordTokenGenerate(userPasswordDTO)
@@ -189,8 +192,9 @@ public class UserControllerCE {
     @PostMapping("/resendEmailVerification")
     public Mono<ResponseDTO<Boolean>> resendEmailVerification(
             @RequestBody ResendEmailVerificationDTO resendEmailVerificationDTO,
-            @RequestHeader("Origin") String originHeader) {
-        resendEmailVerificationDTO.setBaseUrl(originHeader);
+            @RequestHeader("Origin") String originHeader,
+            ServerWebExchange exchange) {
+        resendEmailVerificationDTO.setBaseUrl(hostUrlHelper.getClientFacingBaseUrl(originHeader, exchange));
         return service.resendEmailVerification(resendEmailVerificationDTO, null)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK, true));
     }
