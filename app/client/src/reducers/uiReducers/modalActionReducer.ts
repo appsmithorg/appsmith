@@ -22,6 +22,8 @@ const modalActionReducer = createReducer(initialState, {
 // different types of operations that involve using modals
 export enum ModalType {
   RUN_ACTION = "RUN_ACTION",
+  DISABLE_PREPARED_STATEMENT = "DISABLE_PREPARED_STATEMENT",
+  DISABLE_SMART_SUBSTITUTION = "DISABLE_SMART_SUBSTITUTION",
 }
 
 // some meta-data about the Modal.
@@ -29,6 +31,8 @@ export interface ModalInfo {
   name: string;
   modalOpen: boolean;
   modalType: ModalType;
+  onConfirm?: () => void;
+  onCancel?: () => void;
 }
 
 export interface ModalActionReduxState {

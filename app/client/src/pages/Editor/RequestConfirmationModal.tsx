@@ -9,6 +9,7 @@ import {
 } from "actions/pluginActionActions";
 import {
   Button,
+  Link,
   Modal,
   ModalBody,
   ModalContent,
@@ -18,8 +19,34 @@ import {
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
+  DISABLE_PREPARED_STATEMENT_CONFIRMATION_HEADING,
+  DISABLE_PREPARED_STATEMENT_CONFIRMATION_DESCRIPTION,
+  DISABLE_SMART_SUBSTITUTION_CONFIRMATION_HEADING,
+  DISABLE_SMART_SUBSTITUTION_CONFIRMATION_DESCRIPTION,
 } from "ee/constants/messages";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { Text } from "@appsmith/ads";
+
+type SecurityModalContent = {
+  heading: () => string;
+  description: () => string;
+  docLink?: string;
+};
+
+const SECURITY_MODAL_CONTENT: Partial<
+  Record<ModalType, SecurityModalContent>
+> = {
+  [ModalType.DISABLE_PREPARED_STATEMENT]: {
+    heading: DISABLE_PREPARED_STATEMENT_CONFIRMATION_HEADING,
+    description: DISABLE_PREPARED_STATEMENT_CONFIRMATION_DESCRIPTION,
+    docLink: "https://docs.appsmith.com/connect-data/concepts/how-to-use-prepared-statements",
+  },
+  [ModalType.DISABLE_SMART_SUBSTITUTION]: {
+    heading: DISABLE_SMART_SUBSTITUTION_CONFIRMATION_HEADING,
+    description: DISABLE_SMART_SUBSTITUTION_CONFIRMATION_DESCRIPTION,
+  },
+};
 
 interface Props {
   modals: ModalInfo[];
@@ -49,6 +76,11 @@ class RequestConfirmationModal extends React.Component<Props> {
 
   onConfirm = (modalInfo: ModalInfo) => {
     const { dispatch } = this.props;
+
+    // Call custom onConfirm callback if provided
+    if (modalInfo.onConfirm) {
+      modalInfo.onConfirm();
+    }
 
     dispatch(acceptActionConfirmationModal(modalInfo.name));
     this.handleClose(modalInfo);
@@ -90,28 +122,68 @@ class RequestConfirmationModal extends React.Component<Props> {
               data-testid="t--query-run-confirmation-modal"
               style={{ width: "600px" }}
             >
-              <ModalHeader>Confirmation dialog</ModalHeader>
+              <ModalHeader>
+                {SECURITY_MODAL_CONTENT[modalInfo.modalType]
+                  ? createMessage(
+                      SECURITY_MODAL_CONTENT[modalInfo.modalType]!.heading,
+                    )
+                  : "Confirmation dialog"}
+              </ModalHeader>
               <ModalBody>
-                {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
-                <b>{modalInfo.name}</b> ?
+                {SECURITY_MODAL_CONTENT[modalInfo.modalType] ? (
+                  <div>
+                    <Text kind="body-m">
+                      {createMessage(
+                        SECURITY_MODAL_CONTENT[modalInfo.modalType]!.description,
+                      )}
+                    </Text>
+                    {SECURITY_MODAL_CONTENT[modalInfo.modalType]?.docLink && (
+                      <Link
+                        kind="secondary"
+                        style={{ marginTop: "var(--ads-v2-spaces-3)" }}
+                        target="_blank"
+                        to={SECURITY_MODAL_CONTENT[modalInfo.modalType]!.docLink}
+                      >
+                        Learn more
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+                    <b>{modalInfo.name}</b> ?
+                  </>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button
                   kind="secondary"
                   onClick={() => {
+                    // Call custom onCancel callback if provided
+                    if (modalInfo.onCancel) {
+                      modalInfo.onCancel();
+                    }
                     dispatch(cancelActionConfirmationModal(modalInfo.name));
                     this.handleClose(modalInfo);
                   }}
                   size="md"
                 >
-                  No
+                  {SECURITY_MODAL_CONTENT[modalInfo.modalType]
+                    ? "Cancel"
+                    : "No"}
                 </Button>
                 <Button
-                  kind="primary"
+                  kind={
+                    SECURITY_MODAL_CONTENT[modalInfo.modalType]
+                      ? "error"
+                      : "primary"
+                  }
                   onClick={() => this.onConfirm(modalInfo)}
                   size="md"
                 >
-                  Yes
+                  {SECURITY_MODAL_CONTENT[modalInfo.modalType]
+                    ? "Disable anyway"
+                    : "Yes"}
                 </Button>
               </ModalFooter>
             </ModalContent>
