@@ -173,6 +173,11 @@ class RequestConfirmationModal extends React.Component<Props> {
                     : "No"}
                 </Button>
                 <Button
+                  data-testid={
+                    modalInfo.modalType === ModalType.DISABLE_PREPARED_STATEMENT
+                      ? "t--disable-prepared-statement-confirm-button"
+                      : undefined
+                  }
                   kind={
                     SECURITY_MODAL_CONTENT[modalInfo.modalType]
                       ? "error"

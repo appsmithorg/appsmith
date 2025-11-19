@@ -1187,8 +1187,19 @@ export class DataSources {
 
   ToggleUsePreparedStatement(enable = true || false) {
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
-    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    if (enable) {
+      this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    } else {
+      // When disabling, a confirmation modal will appear
+      this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+      // Wait for and confirm the security warning modal
+      this.agHelper.AssertElementVisibility(
+        "[data-testid='t--disable-prepared-statement-confirm-button']",
+      );
+      this.agHelper.GetNClick(
+        "[data-testid='t--disable-prepared-statement-confirm-button']",
+      );
+    }
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
