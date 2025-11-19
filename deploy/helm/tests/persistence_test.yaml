@@ -43,7 +43,19 @@ tests:
       - hasDocuments:
           count: 0
 
-  - name: PV and PVC should not be created when autoscaling is disabled
+  - name: PV and PVC should be created when setting workload kind to Deployment
+    set:
+      workload:
+        kind: Deployment
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+        template: persistentVolumeClaim.yaml
+      - isKind:
+          of: PersistentVolume
+        template: persistentVolume.yaml
+
+  - name: PV and PVC should not be created when autoscaling is disabled and workload kind not set
     set:
       autoscaling:
         enabled: false

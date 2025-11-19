@@ -24,7 +24,6 @@ spec:
   {{- else }}
   replicas: 1
   serviceName: {{ include "appsmith.fullname" . }}
-  updateStrategy:
   {{- end }}
   selector:
     matchLabels:
