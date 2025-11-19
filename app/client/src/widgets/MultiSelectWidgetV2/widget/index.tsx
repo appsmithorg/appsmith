@@ -776,6 +776,7 @@ class MultiSelectWidget extends BaseWidget<
       selectedOptions: undefined,
       filterText: "",
       isDirty: false,
+      selectedValuesByItem: {},
     };
   }
 
@@ -811,7 +812,7 @@ class MultiSelectWidget extends BaseWidget<
     }
 
     if (hasChanges) {
-      const itemId = String(this.props.currentIndex);
+      const itemId = String(this.props.currentIndex ?? 0);
       const updatedSelectedValuesByItem = {
         ...(this.props.selectedValuesByItem || {}),
         [itemId]: this.props.defaultOptionValue,
@@ -821,6 +822,64 @@ class MultiSelectWidget extends BaseWidget<
         "selectedValuesByItem",
         updatedSelectedValuesByItem,
       );
+    }
+
+    this.syncSelectionMapOnIndexChange(
+      prevProps.currentIndex,
+      this.props.currentIndex,
+    );
+  }
+
+  private syncSelectionMapOnIndexChange(
+    previousRowIndex?: number,
+    currentRowIndex?: number,
+  ) {
+    const { selectedValuesByItem, updateWidgetMetaProperty } = this.props;
+
+    if (currentRowIndex === undefined || !selectedValuesByItem) return;
+
+    const currentKey = String(currentRowIndex);
+    let nextState = selectedValuesByItem;
+
+    if (
+      previousRowIndex !== undefined &&
+      previousRowIndex > currentRowIndex &&
+      previousRowIndex in nextState &&
+      !(currentKey in nextState)
+    ) {
+      const previousKey = String(previousRowIndex);
+
+      nextState = {
+        ...nextState,
+        [currentKey]: nextState[previousKey],
+      };
+    }
+
+    if (!(currentKey in nextState)) {
+      const sortedItemKeys = Object.keys(nextState)
+        .map(Number)
+        .sort((a, b) => a - b);
+
+      const firstStoredKey = sortedItemKeys[0];
+
+      if (firstStoredKey !== undefined && firstStoredKey > currentRowIndex) {
+        const shiftAmount = firstStoredKey - currentRowIndex;
+
+        const updatedSelectionState: Record<string, LabelInValueType[]> = {};
+
+        for (const originalKey of sortedItemKeys) {
+          const newKey = originalKey - shiftAmount;
+
+          updatedSelectionState[String(newKey)] =
+            nextState[String(originalKey)];
+        }
+
+        nextState = updatedSelectionState;
+      }
+    }
+
+    if (nextState !== selectedValuesByItem) {
+      updateWidgetMetaProperty("selectedValuesByItem", nextState);
     }
   }
 
@@ -900,7 +959,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DraftValueType) => {
-    const itemId = this.props.currentIndex;
+    const itemId = String(this.props.currentIndex ?? 0);
     const updatedValue = {
       ...(this.props.selectedValuesByItem || {}),
       [itemId]: value,
@@ -922,20 +981,13 @@ class MultiSelectWidget extends BaseWidget<
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
     const {
-      currentIndex,
+      currentIndex = 0,
       defaultOptionValue = [],
       selectedValuesByItem = {},
-      updateWidgetMetaProperty,
     } = this.props;
-    const itemId = String(currentIndex);
-    const values = selectedValuesByItem[itemId] || defaultOptionValue;
 
-    if (!selectedValuesByItem[itemId] && defaultOptionValue) {
-      updateWidgetMetaProperty("selectedValuesByItem", {
-        ...selectedValuesByItem,
-        [itemId]: defaultOptionValue,
-      });
-    }
+    const itemId = String(currentIndex);
+    const values = selectedValuesByItem[itemId] ?? defaultOptionValue;
 
     return values;
   };
@@ -1016,6 +1068,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isDirty?: boolean;
   labelComponentWidth?: number;
   rtl?: boolean;
+  currentIndex?: number;
+  selectedValuesByItem?: Record<string, LabelInValueType[]>;
 }
 
 export default MultiSelectWidget;
