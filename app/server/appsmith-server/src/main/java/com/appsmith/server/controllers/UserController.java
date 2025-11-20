@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.UserControllerCE;
+import com.appsmith.server.helpers.HostUrlHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -20,6 +21,7 @@ public class UserController extends UserControllerCE {
     public UserController(
             UserService service,
             SessionUserService sessionUserService,
+            HostUrlHelper hostUrlHelper,
             UserWorkspaceService userWorkspaceService,
             UserSignup userSignup,
             UserDataService userDataService,
@@ -28,6 +30,7 @@ public class UserController extends UserControllerCE {
         super(
                 service,
                 sessionUserService,
+                hostUrlHelper,
                 userWorkspaceService,
                 userSignup,
                 userDataService,
