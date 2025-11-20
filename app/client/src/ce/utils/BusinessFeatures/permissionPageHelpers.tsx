@@ -179,5 +179,6 @@ export const hasCreateDSActionPermissionInApp = ({
   return !ideType || ideType === IDE_TYPE.App
     ? getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
         getHasCreateActionPermission(isEnabled, pagePermissions)
-    : getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);
+    : ideType !== IDE_TYPE.Workspace &&
+        getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);
 };

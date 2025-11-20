@@ -52,6 +52,7 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -365,14 +366,19 @@ const mapStateToProps = (
       ) as UpcomingIntegration[])
     : [];
 
+  // Check if we're on workspace datasources page
+  const isWorkspaceDatasourcesPage = urlBuilder.isWorkspaceContext();
+
   const restAPIVisible =
     !props.showSaasAPIs &&
+    !isWorkspaceDatasourcesPage &&
     filterSearch(
       [{ name: createMessage(CREATE_NEW_DATASOURCE_REST_API) }],
       searchedPlugin,
     ).length > 0;
   const graphQLAPIVisible =
     !props.showSaasAPIs &&
+    !isWorkspaceDatasourcesPage &&
     filterSearch(
       [{ name: createMessage(CREATE_NEW_DATASOURCE_GRAPHQL_API) }],
       searchedPlugin,
