@@ -18,7 +18,6 @@ describe(
 
     it("1. Table body should not have the scrollbar", function () {
       let tableHeight = 0;
-      const TABLE_SCROLLBAR_HEIGHT = 10; // From Constants.ts
 
       cy.get(".t--draggable-tablewidgetv2 .table").then(($table) => {
         tableHeight = $table[0].clientHeight;
@@ -26,13 +25,8 @@ describe(
 
       cy.get(".t--draggable-tablewidgetv2 .table .simplebar-content").then(
         ($scrollBox) => {
-          // The scroll container height calculation always accounts for the horizontal scrollbar
-          // by subtracting TABLE_SCROLLBAR_HEIGHT, even when the scrollbar is not visible.
-          // Therefore, we need to account for this in our comparison.
-          const expectedScrollBoxHeight = tableHeight - TABLE_SCROLLBAR_HEIGHT;
-          expect($scrollBox[0].clientHeight).to.be.equal(
-            expectedScrollBoxHeight,
-          );
+          // +2 is because of the SCROLL_BAR_OFFSET, which got added to the table height in PR: https://github.com/appsmithorg/appsmith/pull/41370
+          expect($scrollBox[0].clientHeight).to.be.equal(tableHeight + 2);
         },
       );
     });
