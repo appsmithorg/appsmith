@@ -19,7 +19,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>3.3.0</version>
+            <version>7.0.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
