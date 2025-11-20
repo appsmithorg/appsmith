@@ -21,24 +21,16 @@ export function Workspace() {
         path={`${path}/:workspaceId/settings`}
       />
       <SentryRoute
-        component={({
-          match,
-        }: {
-          match: { params: { workspaceId: string } };
-        }) => (
+        path={`${path}/:workspaceId/datasources`}
+        render={({ match }: { match: { params: { workspaceId: string } } }) => (
           <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
         )}
-        path={`${path}/:workspaceId/datasources`}
       />
       <SentryRoute
-        component={({
-          match,
-        }: {
-          match: { params: { workspaceId: string } };
-        }) => (
+        path={`${path}/:workspaceId/datasource`}
+        render={({ match }: { match: { params: { workspaceId: string } } }) => (
           <WorkspaceDatasourcesPage workspaceId={match.params.workspaceId} />
         )}
-        path={`${path}/:workspaceId/datasource`}
       />
       <SentryRoute
         component={() => (

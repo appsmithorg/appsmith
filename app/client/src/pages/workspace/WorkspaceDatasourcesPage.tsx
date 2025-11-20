@@ -34,7 +34,6 @@ const IDEContainer = styled.div`
   display: grid;
   grid-template-columns: 300px 1fr;
   grid-template-rows: 100%;
-  height: 100vh;
   overflow: hidden;
   flex: 1;
 `;
@@ -75,12 +74,12 @@ export const WorkspaceDatasourcesPage = (
     return workspaces.find((ws) => ws.id === workspaceId);
   });
 
-  // Initialize workspace IDE once when workspaceId changes
+  // Initialize workspace IDE whenever workspaceId changes
   useEffect(() => {
-    if (workspaceId && !isWorkspaceEditorInitialized) {
+    if (workspaceId) {
       dispatch(initWorkspaceIDE({ workspaceId }));
     }
-  }, [dispatch, workspaceId, isWorkspaceEditorInitialized]);
+  }, [dispatch, workspaceId]);
 
   // Fetch workspaces if not loaded (same pattern as settings.tsx)
   useEffect(() => {
