@@ -1187,19 +1187,44 @@ export class DataSources {
 
   ToggleUsePreparedStatement(enable = true || false) {
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) {
-      this.agHelper.CheckUncheck(this._usePreparedStatement, true);
-    } else {
-      // When disabling, a confirmation modal will appear
-      this.agHelper.CheckUncheck(this._usePreparedStatement, false);
-      // Wait for and confirm the security warning modal
-      this.agHelper.AssertElementVisibility(
-        "[data-testid='t--disable-prepared-statement-confirm-button']",
-      );
-      this.agHelper.GetNClick(
-        "[data-testid='t--disable-prepared-statement-confirm-button']",
-      );
-    }
+
+    // Determine current checkbox state before toggling to avoid unnecessary actions
+    this.agHelper
+      .GetElement(this._usePreparedStatement)
+      .then(($checkbox) => $checkbox.is(":checked"))
+      .then((isCurrentlyEnabled) => {
+        if (enable) {
+          if (!isCurrentlyEnabled) {
+            this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+          }
+          return;
+        }
+
+        // If already disabled, no modal will appear, so short-circuit here
+        if (!isCurrentlyEnabled) {
+          return;
+        }
+
+        // When disabling, a confirmation modal will appear
+        // Break up the chain to avoid DOM detachment issues when modal appears
+        this.agHelper.GetElement(this._usePreparedStatement).uncheck({
+          force: true,
+        });
+
+        // Small wait for modal to appear
+        this.agHelper.Sleep(200);
+
+        // Wait for and confirm the security warning modal
+        this.agHelper.AssertElementVisibility(
+          "[data-testid='t--disable-prepared-statement-confirm-button']",
+        );
+        this.agHelper.GetNClick(
+          "[data-testid='t--disable-prepared-statement-confirm-button']",
+        );
+
+        // Wait for modal to close and state to update
+        this.agHelper.Sleep(200);
+      });
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
