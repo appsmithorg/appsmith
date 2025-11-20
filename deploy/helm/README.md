@@ -96,6 +96,12 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `tolerations`								| Tolerations for pod assignment											| `[]`						|
 | `affinity`									| Affinity fod pod assignment													| `{}`						|
 
+#### Workload kind
+
+- `workload.kind`: Selects the workload resource to create. Allowed values: `Deployment`, `StatefulSet` (case-insensitive; default: `StatefulSet`).
+- Note: When `autoscaling.enabled` is `true`, `workload.kind` is ignored and a `Deployment` is used.
+- When using `Deployment` without autoscaling, control the number of replicas with `replicas`.
+
 ### Appsmith service account parameters
 | Name 											 		| Description 																																				 												| Value 	|
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
