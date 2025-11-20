@@ -35,6 +35,7 @@ import useActiveHoverIndex from "./hooks/useActiveHoverIndex";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { GitBranch } from "git/types";
+import RepositoryInfo from "../SettingsModal/TabGeneral/RepositoryInfo";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -364,6 +365,7 @@ export default function BranchListView({
           onClickClose={handleClickOnClose}
           onClickRefresh={handleClickOnRefresh}
         />
+        <RepositoryInfo />
         <Space size={3} />
         <div data-testid="t--git-branch-search-input" style={{ width: 300 }}>
           {isLoading && (

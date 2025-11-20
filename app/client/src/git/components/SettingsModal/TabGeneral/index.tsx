@@ -3,6 +3,7 @@ import LocalProfile from "../../LocalProfile";
 import DangerZone from "../../DangerZone";
 import styled from "styled-components";
 import InvalidKeyWarning from "./InvalidKeyWarning";
+import RepositoryInfo from "./RepositoryInfo";
 
 const Container = styled.div`
   overflow: auto;
@@ -23,6 +24,7 @@ function TabGeneral({
   return (
     <Container>
       <InvalidKeyWarning />
+      <RepositoryInfo />
       <LocalProfile />
       {showDangerZone && <DangerZone />}
     </Container>
