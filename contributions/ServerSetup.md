@@ -43,6 +43,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 
 - Java - OpenJDK 17.
 - Maven - Version 3+ (preferably 3.6).
+- Node.js - Version 20.11.1 (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
 - A MongoDB database - Refer to the [Setting up a local MongoDB instance](#setting-up-a-local-mongodb-instance) section to setup a MongoDB instance using `Docker`.
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development. To set it up, refer to the [Setting up IntelliJ IDEA](#setting-up-intellij-idea) section.
@@ -155,9 +156,58 @@ With the prerequisites met, let's build the code.
             sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
 
+8. To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
 
+```console
+APPSMITH_GIT_ROOT=./path/to/repo/directory
+```
 
-8. Start the Java server by running
+9. Running the RTS (Real-Time Server)
+
+    The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
+
+    ### When do you need to run RTS?
+
+    **You need RTS if you are:**
+    - Running the Java server locally and working on collaborative features
+    - Developing or testing real-time synchronization functionality
+    - Testing the full editor experience with live updates between multiple users
+    - Working on features that depend on WebSocket communication
+
+    **You can skip RTS if you are:**
+    - Only making backend changes that don't involve real-time features
+    - Working on individual components without multi-user synchronization requirements
+    - Testing basic API functionality that doesn't require live updates
+
+    ### Steps to run RTS:
+
+    1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+        ```console
+        nvm use 20.11.1
+        ```
+        or
+        ```console
+        fnm use 20.11.1
+        ```
+
+    2. Navigate to the RTS directory:
+        ```console
+        cd app/client/packages/rts
+        ```
+
+    3. Create the environment file:
+        ```console
+        cp .env.example .env
+        ```
+
+    4. Start the RTS server:
+        ```console
+        ./start-server.sh
+        ```
+
+        The RTS server will start and be ready to handle real-time WebSocket connections.
+
+10. Start the Java server by running
     ```console
     ./scripts/start-dev-server.sh
     ```
@@ -179,6 +229,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development.
 - Java - OpenJDK 17 in WSL.
 - Maven - Version 3+ (preferably 3.6) in WSL.
+- Node.js - Version 20.11.1 in WSL (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
 
 This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these.
 
@@ -283,7 +334,52 @@ Check failed: Docker environment should have more than 2GB free disk space.
 There are two ways to resolve this issue: (1) free up more space (2) change docker's data root path.
 
 
-7. Start the Java server by running
+7. Running the RTS (Real-Time Server)
+
+    The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
+
+    ### When do you need to run RTS?
+
+    **You need RTS if you are:**
+    - Running the Java server locally and working on collaborative features
+    - Developing or testing real-time synchronization functionality
+    - Testing the full editor experience with live updates between multiple users
+    - Working on features that depend on WebSocket communication
+
+    **You can skip RTS if you are:**
+    - Only making backend changes that don't involve real-time features
+    - Working on individual components without multi-user synchronization requirements
+    - Testing basic API functionality that doesn't require live updates
+
+    ### Steps to run RTS:
+
+    1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+        ```console
+        nvm use 20.11.1
+        ```
+        or
+        ```console
+        fnm use 20.11.1
+        ```
+
+    2. Navigate to the RTS directory:
+        ```console
+        cd app/client/packages/rts
+        ```
+
+    3. Create the environment file:
+        ```console
+        cp .env.example .env
+        ```
+
+    4. Start the RTS server:
+        ```console
+        ./start-server.sh
+        ```
+
+        The RTS server will start and be ready to handle real-time WebSocket connections.
+
+8. Start the Java server by running
 
 ```console
 ./scripts/start-dev-server.sh
@@ -291,9 +387,9 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
 By default, the server will start on port 8080.
 
-8. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
+9. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
 
-9. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.
+10. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.
 
 Now the last bit, let's get your Intellij IDEA up and running.
 
