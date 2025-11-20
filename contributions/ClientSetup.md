@@ -94,7 +94,7 @@ On your development machine, please ensure that:
    - Check below for installation and usage details:
 
      1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-     1. In the project's root, run `nvm use 18.17.1` or `fnm use 18.17.1`.
+     1. In the project's root, run `nvm use 20.11.1` or `fnm use 20.11.1`.
 
 ### Running Tests on Client
 
@@ -115,7 +115,7 @@ To setup the configurations for running integration tests via Cypress, use these
   yarn run setup
 ```
 
-**Prompt:**  
+**Prompt:**
  `Do you wish to continue without setting up the local server with docker? (yes/no):`
 
 **Options:**
@@ -123,14 +123,14 @@ To setup the configurations for running integration tests via Cypress, use these
 - **`yes`:** Selecting "yes" will skip the local server setup process.
 
 
-**Prompt:**  
+**Prompt:**
  `https://dev.appsmith.com is not accessible. Do you wish to continue without setting it up?  (yes/no):`
 
 **Options:**
 - **`no`:**  Simply close the process.
 - **`yes`:** Continue on the process for next stage
 
-**Prompt:**  
+**Prompt:**
  `TED (TestEventDriver) is not running. Do you want to pull & run the latest Docker container for TED (TestEventDriver)?  (yes/no):`
 
 **Options:**
