@@ -718,6 +718,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           path: "options",
           type: "array",
         },
+        setValue: {
+          path: "defaultOptionValue",
+          type: "string",
+          accessor: "selectedOptionValue",
+        },
       },
     };
   }
