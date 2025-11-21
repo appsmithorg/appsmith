@@ -687,6 +687,16 @@ export const REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION =
   () => `By turning off this setting, you won't be able to undo or turn on this setting again,
 as it has been deprecated. Are you sure you want to proceed?`;
 
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_HEADING = () =>
+  "⚠️ Security Warning: Disable Prepared Statements?";
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling prepared statements exposes your application to SQL injection attacks. This setting will be saved and apply to production queries. Only disable if you absolutely need dynamic SQL patterns that cannot be parameterized. Learn more about the risks in our documentation.";
+
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_HEADING = () =>
+  "⚠️ Security Warning: Disable Smart BSON Substitution?";
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling smart BSON substitution removes Appsmith’s automatic escaping and validation before sending commands to MongoDB. This increases the risk of malformed queries and injection vulnerabilities. Only disable if you fully understand the security implications.";
+
 // Import/Export Application features
 export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
   "Error importing application. No workspace found";
