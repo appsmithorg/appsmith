@@ -2716,9 +2716,13 @@ export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
 
 export const ADD_CUSTOM_ACTION = () => "Add custom action";
 
+export const ADD_CUSTOM_GRAPHQL_ACTION = () => "Add custom GraphQL action";
+
 export const CONFIG_PROPERTY_COMMAND = () => "command";
 
 export const CUSTOM_ACTION_LABEL = () => "Custom Action";
+
+export const CUSTOM_GRAPHQL_ACTION_LABEL = () => "Custom GraphQL Action";
 
 export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
   "Too many login attempts. Please try again after some time.";

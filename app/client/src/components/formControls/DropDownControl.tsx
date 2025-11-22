@@ -29,6 +29,11 @@ import type {
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import NoSearchCommandFound from "./CustomActionsConfigControl/NoSearchCommandFound";
+import NoSearchCommandFoundGraphQL from "./CustomGraphQLActionsConfigControl/NoSearchCommandFoundGraphQL";
+import {
+  CUSTOM_GRAPHQL_ACTION_LABEL,
+  createMessage,
+} from "ee/constants/messages";
 import styled from "styled-components";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
@@ -493,14 +498,36 @@ function renderDropdown(
       isMultiSelect={isMultiSelect}
       listHeight={240}
       maxTagCount={props.maxTagCount}
-      notFoundContent={
-        <NoSearchCommandFound
-          configProperty={props.configProperty}
-          onSelectOptions={onSelectOptions}
-          options={options}
-          pluginId={get(props.formValues, "pluginId")}
-        />
-      }
+      notFoundContent={(() => {
+        // Check if CUSTOM_GRAPHQL_ACTION is available in options
+        const hasCustomGraphQLAction = options.some((option) =>
+          option.label
+            .toLowerCase()
+            .includes(createMessage(CUSTOM_GRAPHQL_ACTION_LABEL).toLowerCase()),
+        );
+
+        // Show GraphQL component if CUSTOM_GRAPHQL_ACTION is available
+        if (hasCustomGraphQLAction) {
+          return (
+            <NoSearchCommandFoundGraphQL
+              configProperty={props.configProperty}
+              onSelectOptions={onSelectOptions}
+              options={options}
+              pluginId={get(props.formValues, "pluginId")}
+            />
+          );
+        }
+
+        // Fallback: NoSearchCommandFound will handle CUSTOM_ACTION detection internally
+        return (
+          <NoSearchCommandFound
+            configProperty={props.configProperty}
+            onSelectOptions={onSelectOptions}
+            options={options}
+            pluginId={get(props.formValues, "pluginId")}
+          />
+        );
+      })()}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onPopupScroll={handlePopupScroll}
