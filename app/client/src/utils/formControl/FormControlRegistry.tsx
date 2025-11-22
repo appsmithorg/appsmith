@@ -52,6 +52,7 @@ import {
   type DatasourceLinkControlProps,
 } from "components/formControls/DatasourceLinkControl";
 import { CustomActionsControl } from "components/formControls/CustomActionsConfigControl";
+import { CustomGraphQLActionsControl } from "components/formControls/CustomGraphQLActionsConfigControl";
 import {
   AiChatSystemInstructionsControl,
   type AiChatSystemInstructionsControlProps,
@@ -278,6 +279,15 @@ class FormControlRegistry {
       {
         buildPropertyControl(controlProps): JSX.Element {
           return <CustomActionsControl {...controlProps} />;
+        },
+      },
+    );
+
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.CUSTOM_GRAPHQL_ACTIONS_CONFIG_FORM,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <CustomGraphQLActionsControl {...controlProps} />;
         },
       },
     );
