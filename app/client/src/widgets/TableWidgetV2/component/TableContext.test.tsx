@@ -249,7 +249,7 @@ describe("TableContext", () => {
         .tableContext;
 
       expect(context.scrollContainerStyles).toEqual({
-        height: 352, // 400 - 40 - 8 (height - TABLE_HEADER_HEIGHT - TABLE_SCROLLBAR_HEIGHT)
+        height: 350, // 400 - 40 - 10 (height - TABLE_HEADER_HEIGHT - TABLE_SCROLLBAR_HEIGHT)
         width: 800,
       });
     });
@@ -267,7 +267,7 @@ describe("TableContext", () => {
         .tableContext;
 
       expect(context.scrollContainerStyles).toEqual({
-        height: 390, // 400 - 8 - 2 (height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET)
+        height: 388, // 400 - 10 - 2 (height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET)
         width: 800,
       });
     });
