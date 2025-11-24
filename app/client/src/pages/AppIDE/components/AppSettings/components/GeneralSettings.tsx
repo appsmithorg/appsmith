@@ -23,10 +23,21 @@ import {
   createMessage,
   STATIC_URL_CHANGE_SUCCESS,
   STATIC_URL_DISABLED_SUCCESS,
+  STATIC_URL_DOCS_LINK_TEXT,
 } from "ee/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Switch, Text, Icon, Flex, Button, toast } from "@appsmith/ads";
+import {
+  Input,
+  Switch,
+  Text,
+  Icon,
+  Flex,
+  Button,
+  toast,
+  Tooltip,
+  Link,
+} from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
 import React, { useCallback, useMemo, useState } from "react";
 import { useEffect } from "react";
@@ -35,6 +46,8 @@ import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 
 const APPLICATION_SLUG_REGEX = /^[a-z0-9-]+$/;
+const STATIC_URL_DOCS_URL =
+  "https://docs.appsmith.com/build-apps/how-to-guides/configure-static-app-urls";
 
 import {
   getCurrentApplication,
@@ -97,6 +110,17 @@ function GeneralSettings() {
   );
   const appSlugSuggestion = useSelector(getAppSlugSuggestion);
   const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
+
+  const staticUrlTooltipContent = useMemo(
+    () => (
+      <Link kind="primary" target="_blank" to={STATIC_URL_DOCS_URL}>
+        <Text color="var(--ads-v2-color-white)" kind="action-m">
+          {createMessage(STATIC_URL_DOCS_LINK_TEXT)}
+        </Text>
+      </Link>
+    ),
+    [],
+  );
 
   const [applicationName, setApplicationName] = useState(application?.name);
   const [isAppNameValid, setIsAppNameValid] = useState(true);
@@ -455,7 +479,16 @@ function GeneralSettings() {
             isSelected={isStaticUrlToggleEnabled}
             onChange={handleStaticUrlToggle}
           >
-            <Text kind="action-m">Static URL</Text>
+            <Flex alignItems="center" gap="spaces-2">
+              <Text kind="action-m">Static URL</Text>
+              <Tooltip content={staticUrlTooltipContent}>
+                <Icon
+                  color="var(--ads-v2-color-fg-muted)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            </Flex>
           </Switch>
         </div>
       )}
