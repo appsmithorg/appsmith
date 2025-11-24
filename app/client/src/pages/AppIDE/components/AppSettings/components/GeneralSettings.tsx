@@ -36,7 +36,6 @@ import {
   Button,
   toast,
   Tooltip,
-  Link,
 } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
 import React, { useCallback, useMemo, useState } from "react";
@@ -112,13 +111,7 @@ function GeneralSettings() {
   const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
 
   const staticUrlTooltipContent = useMemo(
-    () => (
-      <Link kind="primary" target="_blank" to={STATIC_URL_DOCS_URL}>
-        <Text color="var(--ads-v2-color-white)" kind="action-m">
-          {createMessage(STATIC_URL_DOCS_LINK_TEXT)}
-        </Text>
-      </Link>
-    ),
+    () => createMessage(STATIC_URL_DOCS_LINK_TEXT),
     [],
   );
 
@@ -217,6 +210,10 @@ function GeneralSettings() {
       setIsStaticUrlToggleEnabled(false);
     }
   }, [application?.staticUrlSettings?.uniqueSlug, dispatch]);
+
+  const openStaticUrlDocs = useCallback(() => {
+    window.open(STATIC_URL_DOCS_URL, "_blank");
+  }, []);
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -482,10 +479,12 @@ function GeneralSettings() {
             <Flex alignItems="center" gap="spaces-2">
               <Text kind="action-m">Static URL</Text>
               <Tooltip content={staticUrlTooltipContent}>
-                <Icon
-                  color="var(--ads-v2-color-fg-muted)"
-                  name="question-line"
-                  size="md"
+                <Button
+                  isIconButton
+                  kind="tertiary"
+                  onClick={openStaticUrlDocs}
+                  size="sm"
+                  startIcon="question-line"
                 />
               </Tooltip>
             </Flex>
