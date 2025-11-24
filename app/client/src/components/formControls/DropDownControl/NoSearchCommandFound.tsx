@@ -1,8 +1,10 @@
 import React from "react";
 import {
+  ADD_CUSTOM_ACTION,
   ADD_CUSTOM_GRAPHQL_ACTION,
   CONFIG_PROPERTY_COMMAND,
   createMessage,
+  CUSTOM_ACTION_LABEL,
   CUSTOM_GRAPHQL_ACTION_LABEL,
   NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS,
   NOT_FOUND,
@@ -11,7 +13,7 @@ import { Button, Flex, Text, type SelectOptionProps } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import { PluginType, type Plugin } from "entities/Plugin";
-export default function NoSearchCommandFoundGraphQL({
+export default function NoSearchCommandFound({
   configProperty,
   onSelectOptions,
   options,
@@ -30,6 +32,12 @@ export default function NoSearchCommandFoundGraphQL({
     plugin?.type === PluginType.EXTERNAL_SAAS &&
     configProperty.includes(createMessage(CONFIG_PROPERTY_COMMAND));
 
+  const customActionOption = options.find((option) =>
+    option.label
+      .toLowerCase()
+      .includes(createMessage(CUSTOM_ACTION_LABEL).toLowerCase()),
+  );
+
   const customGraphQLActionOption = options.find((option) =>
     option.label
       .toLowerCase()
@@ -37,11 +45,13 @@ export default function NoSearchCommandFoundGraphQL({
   );
 
   const onClick = () => {
-    onSelectOptions(customGraphQLActionOption!.value);
+    onSelectOptions(customActionOption!.value);
     document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   };
 
-  if (isExternalSaasPluginCommandDropdown && customGraphQLActionOption) {
+  const isCustom = !!customActionOption || !!customGraphQLActionOption;
+
+  if (isExternalSaasPluginCommandDropdown && isCustom) {
     return (
       <Flex
         alignItems="center"
@@ -53,13 +63,15 @@ export default function NoSearchCommandFoundGraphQL({
           {createMessage(NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS)}
         </Text>
         <Button
-          data-testid="t--select-custom-graphql-action"
+          data-testid="t--select-custom--action"
           kind="secondary"
           onClick={onClick}
           size="sm"
           startIcon="plus"
         >
-          {createMessage(ADD_CUSTOM_GRAPHQL_ACTION)}
+          {isCustom
+            ? createMessage(ADD_CUSTOM_ACTION)
+            : createMessage(ADD_CUSTOM_GRAPHQL_ACTION)}
         </Button>
       </Flex>
     );

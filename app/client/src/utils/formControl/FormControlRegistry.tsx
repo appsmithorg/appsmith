@@ -51,8 +51,8 @@ import {
   DatasourceLinkControl,
   type DatasourceLinkControlProps,
 } from "components/formControls/DatasourceLinkControl";
-import { CustomActionsControl } from "components/formControls/CustomActionsConfigControl";
-import { CustomGraphQLActionsControl } from "components/formControls/CustomGraphQLActionsConfigControl";
+import { CustomActionsControl } from "components/formControls/CustomActionControls/CustomActionsConfigControl";
+import { CustomGraphQLActionsControl } from "components/formControls/CustomActionControls/CustomGraphQLActionsConfigControl";
 import {
   AiChatSystemInstructionsControl,
   type AiChatSystemInstructionsControlProps,
