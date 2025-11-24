@@ -69,7 +69,7 @@ export default function NoSearchCommandFound({
           size="sm"
           startIcon="plus"
         >
-          {isCustom
+          {customActionOption
             ? createMessage(ADD_CUSTOM_ACTION)
             : createMessage(ADD_CUSTOM_GRAPHQL_ACTION)}
         </Button>
