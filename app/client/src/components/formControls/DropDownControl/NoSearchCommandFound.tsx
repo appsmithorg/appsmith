@@ -45,7 +45,11 @@ export default function NoSearchCommandFound({
   );
 
   const onClick = () => {
-    onSelectOptions(customActionOption!.value);
+    onSelectOptions(
+      customActionOption
+        ? customActionOption!.value
+        : customGraphQLActionOption!.value,
+    );
     document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   };
 
