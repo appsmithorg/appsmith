@@ -50,8 +50,8 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         if (null == usagePulseDTO.getViewMode()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
         } else if (FALSE.equals(usagePulseDTO.getViewMode()) && usagePulseDTO.getAnonymousUserId() != null) {
-            // We don't expect anonymous user to have access to edit mode
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
+            // Anonymous users shouldn't hit edit mode pulses; ignore silently to avoid noisy logs.
+            return Mono.empty();
         }
 
         // TODO remove this condition after multi-tenancy is introduced
@@ -75,9 +75,9 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
             usagePulse.setInstanceId(instanceId);
 
             if (user.isAnonymous()) {
-                if (null == usagePulseDTO.getAnonymousUserId()) {
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
+                if (StringUtils.isBlank(usagePulseDTO.getAnonymousUserId())) {
+                    // Anonymous usage pulses without an identifier are ignored to avoid noisy logs.
+                    return Mono.empty();
                 }
                 usagePulse.setIsAnonymousUser(true);
                 usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
