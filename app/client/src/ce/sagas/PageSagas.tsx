@@ -1583,6 +1583,11 @@ export function* persistPageSlugSaga(
           slug: action.payload.slug,
         },
       });
+
+      AnalyticsUtil.logEvent("STATIC_URL_PAGE_SLUG_PERSIST_SUCCESS", {
+        pageId: action.payload.pageId,
+        slug: action.payload.slug,
+      });
     }
   } catch (error) {
     yield put({
@@ -1592,6 +1597,12 @@ export function* persistPageSlugSaga(
         pageId: action.payload.pageId,
         slug: action.payload.slug,
       },
+    });
+
+    AnalyticsUtil.logEvent("STATIC_URL_PAGE_SLUG_PERSIST_ERROR", {
+      pageId: action.payload.pageId,
+      slug: action.payload.slug,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

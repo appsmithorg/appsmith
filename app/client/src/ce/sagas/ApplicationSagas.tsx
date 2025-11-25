@@ -1185,16 +1185,17 @@ export function* publishAnvilApplicationSaga(
 export function* persistAppSlugSaga(
   action: ReduxAction<{ slug: string; onSuccess?: () => void }>,
 ) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (!currentApplication) {
+    throw new Error("No current application found");
+  }
+
+  const applicationId = currentApplication.id;
+
   try {
-    const currentApplication: ApplicationPayload | undefined = yield select(
-      getCurrentApplication,
-    );
-
-    if (!currentApplication) {
-      throw new Error("No current application found");
-    }
-
-    const applicationId = currentApplication.id;
     const { onSuccess, slug } = action.payload;
 
     const request = {
@@ -1224,6 +1225,11 @@ export function* persistAppSlugSaga(
         },
       });
 
+      AnalyticsUtil.logEvent("STATIC_URL_APP_SLUG_PERSIST_SUCCESS", {
+        applicationId,
+        slug,
+      });
+
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
@@ -1236,6 +1242,12 @@ export function* persistAppSlugSaga(
         error,
         slug: action.payload.slug,
       },
+    });
+
+    AnalyticsUtil.logEvent("STATIC_URL_APP_SLUG_PERSIST_ERROR", {
+      applicationId,
+      slug: action.payload.slug,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -1302,16 +1314,17 @@ export function* validateAppSlugSaga(action: ReduxAction<{ slug: string }>) {
 export function* enableStaticUrlSaga(
   action: ReduxAction<{ slug: string; onSuccess?: () => void }>,
 ) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (!currentApplication) {
+    throw new Error("No current application found");
+  }
+
+  const applicationId = currentApplication.id;
+
   try {
-    const currentApplication: ApplicationPayload | undefined = yield select(
-      getCurrentApplication,
-    );
-
-    if (!currentApplication) {
-      throw new Error("No current application found");
-    }
-
-    const applicationId = currentApplication.id;
     const { onSuccess, slug } = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.enableStaticUrl,
@@ -1329,6 +1342,11 @@ export function* enableStaticUrlSaga(
         type: ReduxActionTypes.ENABLE_STATIC_URL_SUCCESS,
       });
 
+      AnalyticsUtil.logEvent("STATIC_URL_ENABLED_SUCCESS", {
+        applicationId,
+        slug,
+      });
+
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
@@ -1341,22 +1359,29 @@ export function* enableStaticUrlSaga(
         error,
       },
     });
+
+    AnalyticsUtil.logEvent("STATIC_URL_ENABLED_ERROR", {
+      applicationId,
+      slug: action.payload.slug,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
 export function* disableStaticUrlSaga(
   action: ReduxAction<{ onSuccess?: () => void }>,
 ) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (!currentApplication) {
+    throw new Error("No current application found");
+  }
+
+  const applicationId = currentApplication.id;
+
   try {
-    const currentApplication: ApplicationPayload | undefined = yield select(
-      getCurrentApplication,
-    );
-
-    if (!currentApplication) {
-      throw new Error("No current application found");
-    }
-
-    const applicationId = currentApplication.id;
     const { onSuccess } = action.payload || {};
 
     const response: ApiResponse = yield call(
@@ -1374,6 +1399,10 @@ export function* disableStaticUrlSaga(
         type: ReduxActionTypes.DISABLE_STATIC_URL_SUCCESS,
       });
 
+      AnalyticsUtil.logEvent("STATIC_URL_DISABLED_SUCCESS", {
+        applicationId,
+      });
+
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
@@ -1386,6 +1415,11 @@ export function* disableStaticUrlSaga(
         show: true,
         message: createMessage(ERROR_IN_DISABLING_STATIC_URL),
       },
+    });
+
+    AnalyticsUtil.logEvent("STATIC_URL_DISABLED_ERROR", {
+      applicationId,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }

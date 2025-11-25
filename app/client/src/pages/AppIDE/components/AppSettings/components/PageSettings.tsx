@@ -54,7 +54,6 @@ import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 // Patterns for pageSlug and customSlug from routes: (.*\-) followed by ID
 const PAGE_SLUG_WITH_MONGO_ID = /^.*\-[0-9a-f]{24}$/;
@@ -279,7 +278,14 @@ function PageSettings(props: { page: Page }) {
 
     setIsPageNameSaving(true);
     dispatch(updatePageAction(payload));
-  }, [page.pageId, page.pageName, pageName, pageNameError]);
+  }, [
+    canManagePages,
+    dispatch,
+    page.pageId,
+    page.pageName,
+    pageName,
+    pageNameError,
+  ]);
 
   const saveCustomSlug = useCallback(() => {
     if (!canManagePages || page.customSlug === customSlug) return;
@@ -303,12 +309,6 @@ function PageSettings(props: { page: Page }) {
     if (!isPageSlugValid) return;
 
     dispatch(persistPageSlug(page.pageId, staticPageSlug || ""));
-
-    AnalyticsUtil.logEvent("STATIC_URL_PAGE_SLUG_CHANGED", {
-      pageId: page.pageId,
-      oldSlug: page.uniqueSlug,
-      newSlug: staticPageSlug,
-    });
   }, [
     page.pageId,
     page.uniqueSlug,

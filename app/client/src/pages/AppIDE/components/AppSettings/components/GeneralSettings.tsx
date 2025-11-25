@@ -160,15 +160,9 @@ function GeneralSettings() {
   );
 
   const openStaticUrlConfirmationModal = useCallback(() => {
-    AnalyticsUtil.logEvent("STATIC_URL_APPLY_CLICK", {
-      applicationId,
-      oldSlug: application?.staticUrlSettings?.uniqueSlug,
-      newSlug: applicationSlug,
-    });
-
     setModalType("change");
     setIsStaticUrlConfirmationModalOpen(true);
-  }, [applicationId, application, applicationSlug]);
+  }, []);
 
   const closeStaticUrlConfirmationModal = useCallback(() => {
     setIsStaticUrlConfirmationModalOpen(false);
@@ -184,11 +178,6 @@ function GeneralSettings() {
       setIsStaticUrlConfirmationModalOpen(false);
       toast.show(createMessage(STATIC_URL_CHANGE_SUCCESS), {
         kind: "success",
-      });
-
-      AnalyticsUtil.logEvent("STATIC_URL_CHANGED", {
-        applicationId,
-        newSlug: applicationSlug,
       });
     };
 
@@ -210,7 +199,6 @@ function GeneralSettings() {
     application?.staticUrlSettings?.uniqueSlug,
     dispatch,
     application?.staticUrlSettings?.enabled,
-    applicationId,
   ]);
 
   const cancelSlugChange = useCallback(() => {
@@ -326,11 +314,14 @@ function GeneralSettings() {
       return `${application?.staticUrlSettings?.uniqueSlug || ""}/${pageSlug}`;
     }
   }, [
+    currentAppPage?.uniqueSlug,
+    currentAppPage?.slug,
+    currentAppPage?.customSlug,
     modalType,
     application?.staticUrlSettings?.uniqueSlug,
-    application?.slug,
     application?.staticUrlSettings?.enabled,
-    currentAppPage,
+    application?.slug,
+    currentBasePageId,
   ]);
 
   const modalNewSlug = useMemo(() => {
@@ -405,16 +396,10 @@ function GeneralSettings() {
       toast.show(createMessage(STATIC_URL_DISABLED_SUCCESS), {
         kind: "success",
       });
-
-      // Log analytics on successful disable
-      AnalyticsUtil.logEvent("STATIC_URL_DISABLED", {
-        applicationId,
-        previousSlug: application?.staticUrlSettings?.uniqueSlug,
-      });
     };
 
     dispatch(disableStaticUrl(onSuccess));
-  }, [dispatch, applicationId, application]);
+  }, [dispatch]);
 
   const applicationSlugErrorMessage = useMemo(() => {
     if (isFetchingAppSlugSuggestion) return undefined;
@@ -428,12 +413,7 @@ function GeneralSettings() {
     }
 
     return undefined;
-  }, [
-    isFetchingAppSlugSuggestion,
-    applicationSlug,
-    isClientSideSlugValid,
-    isApplicationSlugValid,
-  ]);
+  }, [isFetchingAppSlugSuggestion, applicationSlug, isClientSideSlugValid]);
 
   const isApplicationSlugInputValid = useMemo(() => {
     if (isFetchingAppSlugSuggestion) return true;
@@ -508,7 +488,7 @@ function GeneralSettings() {
         />
       </IconSelectorWrapper>
 
-      {true && (
+      {isStaticUrlFeatureEnabled && (
         <div className="flex content-center justify-between pt-2">
           <Switch
             className="mb-0"
