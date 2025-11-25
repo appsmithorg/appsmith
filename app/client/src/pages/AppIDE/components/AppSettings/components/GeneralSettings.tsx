@@ -43,6 +43,7 @@ import { useEffect } from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const APPLICATION_SLUG_REGEX = /^[a-z0-9-]+$/;
 const STATIC_URL_DOCS_URL =
@@ -159,9 +160,15 @@ function GeneralSettings() {
   );
 
   const openStaticUrlConfirmationModal = useCallback(() => {
+    AnalyticsUtil.logEvent("STATIC_URL_APPLY_CLICK", {
+      applicationId,
+      oldSlug: application?.staticUrlSettings?.uniqueSlug,
+      newSlug: applicationSlug,
+    });
+
     setModalType("change");
     setIsStaticUrlConfirmationModalOpen(true);
-  }, []);
+  }, [applicationId, application, applicationSlug]);
 
   const closeStaticUrlConfirmationModal = useCallback(() => {
     setIsStaticUrlConfirmationModalOpen(false);
@@ -177,6 +184,11 @@ function GeneralSettings() {
       setIsStaticUrlConfirmationModalOpen(false);
       toast.show(createMessage(STATIC_URL_CHANGE_SUCCESS), {
         kind: "success",
+      });
+
+      AnalyticsUtil.logEvent("STATIC_URL_CHANGED", {
+        applicationId,
+        newSlug: applicationSlug,
       });
     };
 
@@ -198,9 +210,15 @@ function GeneralSettings() {
     application?.staticUrlSettings?.uniqueSlug,
     dispatch,
     application?.staticUrlSettings?.enabled,
+    applicationId,
   ]);
 
   const cancelSlugChange = useCallback(() => {
+    AnalyticsUtil.logEvent("STATIC_URL_CANCEL_CLICK", {
+      applicationId,
+      discardedSlug: applicationSlug,
+    });
+
     setApplicationSlug(application?.staticUrlSettings?.uniqueSlug || "");
     setIsClientSideSlugValid(true);
     dispatch(resetAppSlugValidation());
@@ -209,11 +227,21 @@ function GeneralSettings() {
     if (!application?.staticUrlSettings?.uniqueSlug) {
       setIsStaticUrlToggleEnabled(false);
     }
-  }, [application?.staticUrlSettings?.uniqueSlug, dispatch]);
+  }, [
+    application?.staticUrlSettings?.uniqueSlug,
+    dispatch,
+    applicationId,
+    applicationSlug,
+  ]);
 
   const openStaticUrlDocs = useCallback(() => {
+    AnalyticsUtil.logEvent("STATIC_URL_DOCS_CLICK", {
+      source: "general_settings",
+      applicationId,
+    });
+
     window.open(STATIC_URL_DOCS_URL, "_blank");
-  }, []);
+  }, [applicationId]);
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -336,6 +364,12 @@ function GeneralSettings() {
 
   const handleStaticUrlToggle = useCallback(
     (isEnabled: boolean) => {
+      AnalyticsUtil.logEvent("STATIC_URL_TOGGLE_CLICK", {
+        action: isEnabled ? "enable" : "disable",
+        applicationId,
+        isCurrentlyEnabled: application?.staticUrlSettings?.enabled,
+      });
+
       if (!isEnabled && isStaticUrlToggleEnabled) {
         if (application?.staticUrlSettings?.enabled) {
           // Show confirmation modal when disabling
@@ -371,10 +405,16 @@ function GeneralSettings() {
       toast.show(createMessage(STATIC_URL_DISABLED_SUCCESS), {
         kind: "success",
       });
+
+      // Log analytics on successful disable
+      AnalyticsUtil.logEvent("STATIC_URL_DISABLED", {
+        applicationId,
+        previousSlug: application?.staticUrlSettings?.uniqueSlug,
+      });
     };
 
     dispatch(disableStaticUrl(onSuccess));
-  }, [dispatch]);
+  }, [dispatch, applicationId, application]);
 
   const applicationSlugErrorMessage = useMemo(() => {
     if (isFetchingAppSlugSuggestion) return undefined;
@@ -468,7 +508,7 @@ function GeneralSettings() {
         />
       </IconSelectorWrapper>
 
-      {isStaticUrlFeatureEnabled && (
+      {true && (
         <div className="flex content-center justify-between pt-2">
           <Switch
             className="mb-0"
