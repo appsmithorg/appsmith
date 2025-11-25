@@ -4,7 +4,6 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -64,17 +63,15 @@ public class UsagePulseServiceTest {
     }
 
     /**
-     * To verify anonymous usage pulse without anonymousUserId will fail
+     * To verify anonymous usage pulse without anonymousUserId is silently ignored
      */
     @Test
     @WithUserDetails(value = "anonymousUser")
-    public void test_AnonymousUserPulse_Invalid_AnonymousUserId_ThrowsException() {
+    public void test_AnonymousUserPulse_Invalid_AnonymousUserId_Ignored() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
         usagePulseDTO.setViewMode(false);
 
-        StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
-                .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ANONYMOUS_USER_ID))
-                .verify();
+        StepVerifier.create(usagePulseService.createPulse(usagePulseDTO)).verifyComplete();
     }
 
     /**
@@ -136,17 +133,11 @@ public class UsagePulseServiceTest {
     }
 
     @Test
-    public void createPulse_inEditMode_withAnonymousUser_throwException() {
+    public void createPulse_inEditMode_withAnonymousUser_ignored() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
         usagePulseDTO.setViewMode(false);
         usagePulseDTO.setAnonymousUserId(UUID.randomUUID().toString());
 
-        StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
-                .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(throwable.getMessage())
-                            .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ANONYMOUS_USER_ID));
-                })
-                .verify();
+        StepVerifier.create(usagePulseService.createPulse(usagePulseDTO)).verifyComplete();
     }
 }
