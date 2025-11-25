@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "test/testUtils";
-import DropDownControl from "./DropDownControl";
+import DropDownControl from "../DropDownControl";
 import { reduxForm } from "redux-form";
 import "@testing-library/jest-dom";
 import { Provider } from "react-redux";

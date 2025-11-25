@@ -1,9 +1,11 @@
 import React from "react";
 import {
   ADD_CUSTOM_ACTION,
+  ADD_CUSTOM_GRAPHQL_ACTION,
   CONFIG_PROPERTY_COMMAND,
   createMessage,
   CUSTOM_ACTION_LABEL,
+  CUSTOM_GRAPHQL_ACTION_LABEL,
   NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS,
   NOT_FOUND,
 } from "ee/constants/messages";
@@ -36,12 +38,24 @@ export default function NoSearchCommandFound({
       .includes(createMessage(CUSTOM_ACTION_LABEL).toLowerCase()),
   );
 
+  const customGraphQLActionOption = options.find((option) =>
+    option.label
+      .toLowerCase()
+      .includes(createMessage(CUSTOM_GRAPHQL_ACTION_LABEL).toLowerCase()),
+  );
+
   const onClick = () => {
-    onSelectOptions(customActionOption!.value);
+    onSelectOptions(
+      customActionOption
+        ? customActionOption!.value
+        : customGraphQLActionOption!.value,
+    );
     document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   };
 
-  if (isExternalSaasPluginCommandDropdown && customActionOption) {
+  const isCustom = !!customActionOption || !!customGraphQLActionOption;
+
+  if (isExternalSaasPluginCommandDropdown && isCustom) {
     return (
       <Flex
         alignItems="center"
@@ -59,7 +73,9 @@ export default function NoSearchCommandFound({
           size="sm"
           startIcon="plus"
         >
-          {createMessage(ADD_CUSTOM_ACTION)}
+          {customActionOption
+            ? createMessage(ADD_CUSTOM_ACTION)
+            : createMessage(ADD_CUSTOM_GRAPHQL_ACTION)}
         </Button>
       </Flex>
     );
