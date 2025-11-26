@@ -1,8 +1,9 @@
 name: LLM Issue Triage
 
 on:
-  issues:
-    types: [opened, labeled]
+  # TODO: Re-enable after testing is complete
+  # issues:
+  #   types: [opened, labeled]
   workflow_dispatch:
     inputs:
       filter_labels:
@@ -69,12 +70,9 @@ jobs:
   triage:
     needs: check-permissions
     runs-on: ubuntu-latest
-    # Only run if:
-    # 1. For workflow_dispatch: actor must be org member
-    # 2. For issue events: always run (will filter by label in the script)
-    if: |
-      (github.event_name == 'workflow_dispatch' && needs.check-permissions.outputs.is_org_member == 'true') ||
-      (github.event_name == 'issues')
+    # Only run if actor is org member (workflow_dispatch only for now)
+    # TODO: Add back issue event condition when re-enabling issues trigger
+    if: needs.check-permissions.outputs.is_org_member == 'true'
     
     steps:
       - name: Exit if not authorized (workflow_dispatch)
@@ -92,11 +90,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
-        working-directory: .github/scripts/llm-triage
+        working-directory: .github/workflows/scripts/llm-triage
         run: npm ci
 
       - name: Run LLM Triage
-        working-directory: .github/scripts/llm-triage
+        working-directory: .github/workflows/scripts/llm-triage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

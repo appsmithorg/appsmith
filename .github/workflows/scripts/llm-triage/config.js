@@ -39,8 +39,8 @@ const DEFAULT_CONFIG = {
 export function loadConfig() {
   let fileConfig = {};
 
-  // Try to load from YAML config file
-  const configPath = join(__dirname, '../../issue-triage-config.yml');
+  // Try to load from YAML config file (located at .github/issue-triage-config.yml)
+  const configPath = join(__dirname, '../../../issue-triage-config.yml');
   
   if (existsSync(configPath)) {
     try {
