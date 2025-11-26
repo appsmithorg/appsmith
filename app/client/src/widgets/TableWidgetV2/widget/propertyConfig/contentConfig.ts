@@ -247,6 +247,20 @@ export default [
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
       },
+      {
+        propertyName: "pageNo",
+        label: "Page number",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+            default: 1,
+          },
+        },
+      },
     ],
     expandedByDefault: false,
   },
