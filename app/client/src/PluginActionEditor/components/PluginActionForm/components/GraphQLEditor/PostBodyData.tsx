@@ -32,8 +32,7 @@ interface Props {
 
 const EXPECTED_VARIABLE = {
   type: "object",
-  example:
-    '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}',
+  example: '{\n  "name": "{{ inputName.property }}"\n}',
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
@@ -53,7 +52,7 @@ function PostBodyData(props: Props) {
               evaluatedPopUpLabel={"Query"}
               mode={EditorModes.GRAPHQL_WITH_BINDING}
               name="actionConfiguration.body"
-              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              placeholder={`query myQuery($name: String!) {\n  team(name: $name) {\n\tid\n\tname\n  }\n}`}
               showLineNumbers
               size={EditorSize.EXTENDED}
               tabBehaviour={TabBehaviour.INDENT}
