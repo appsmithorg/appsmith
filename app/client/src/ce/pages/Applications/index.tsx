@@ -443,8 +443,8 @@ const WorkspaceIconContainer = styled.span`
 `;
 
 const WorkspaceLogoImage = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
   margin-right: var(--ads-spaces-5);
 `;
@@ -485,24 +485,22 @@ export function WorkspaceMenuItem({
   // Use custom component when there's a logo, otherwise use ListItem
   if (hasLogo && !isFetchingWorkspaces) {
     return (
-      <Tooltip content={workspace?.name} placement="bottomLeft">
-        <WorkspaceItemRow
-          className={selected ? "selected-workspace" : ""}
-          onClick={handleWorkspaceClick}
-          selected={selected}
-        >
-          <WorkspaceIconContainer>
-            <WorkspaceLogoImage
-              alt={`${workspace.name} logo`}
-              onError={handleImageError}
-              src={workspace.logoUrl}
-            />
-            <Text type={TextType.H5} weight={FontWeight.NORMAL}>
-              {displayText}
-            </Text>
-          </WorkspaceIconContainer>
-        </WorkspaceItemRow>
-      </Tooltip>
+      <WorkspaceItemRow
+        className={selected ? "selected-workspace" : ""}
+        onClick={handleWorkspaceClick}
+        selected={selected}
+      >
+        <WorkspaceIconContainer>
+          <WorkspaceLogoImage
+            alt={`${workspace.name} logo`}
+            onError={handleImageError}
+            src={workspace.logoUrl}
+          />
+          <Text type={TextType.H5} weight={FontWeight.NORMAL}>
+            {displayText}
+          </Text>
+        </WorkspaceIconContainer>
+      </WorkspaceItemRow>
     );
   }
 
