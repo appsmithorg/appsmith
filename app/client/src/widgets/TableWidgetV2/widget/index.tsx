@@ -565,6 +565,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
         },
+        setPageNumber: {
+          path: "pageNo",
+          type: "number",
+        },
         setData: {
           path: "tableData",
           type: "array",
