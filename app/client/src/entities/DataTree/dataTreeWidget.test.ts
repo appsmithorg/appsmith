@@ -555,6 +555,10 @@ describe("generateDataTreeWidget", () => {
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
         },
+        setPageNumber: {
+          path: "pageNo",
+          type: "number",
+        },
         setData: {
           path: "tableData",
           type: "array",
@@ -596,6 +600,10 @@ describe("generateDataTreeWidget", () => {
           path: "Table1.defaultSelectedRowIndices",
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
+        },
+        setPageNumber: {
+          path: "Table1.pageNo",
+          type: "number",
         },
         setData: {
           path: "Table1.tableData",
