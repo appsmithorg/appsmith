@@ -780,6 +780,16 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  private getListItemId(index: number | undefined = this.props.currentIndex) {
+    const { listItemId } = this.props;
+
+    if (listItemId !== undefined && listItemId !== null) {
+      return String(listItemId);
+    }
+
+    return String(index ?? 0);
+  }
+
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
     // Check if defaultOptionValue is string
     let isStringArray = false;
@@ -812,10 +822,10 @@ class MultiSelectWidget extends BaseWidget<
     }
 
     if (hasChanges) {
-      const itemId = String(this.props.currentIndex ?? 0);
+      const listItemId = this.getListItemId(this.props.currentIndex);
       const updatedSelectedValuesByItem = {
         ...(this.props.selectedValuesByItem || {}),
-        [itemId]: this.props.defaultOptionValue,
+        [listItemId]: this.props.defaultOptionValue,
       };
 
       this.props.updateWidgetMetaProperty(
@@ -834,48 +844,25 @@ class MultiSelectWidget extends BaseWidget<
     previousRowIndex?: number,
     currentRowIndex?: number,
   ) {
-    const { selectedValuesByItem, updateWidgetMetaProperty } = this.props;
+    const {
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+      updateWidgetMetaProperty,
+    } = this.props;
 
-    if (currentRowIndex === undefined || !selectedValuesByItem) return;
+    if (currentRowIndex === undefined) return;
 
-    const currentKey = String(currentRowIndex);
+    const currentKey = this.getListItemId(currentRowIndex);
     let nextState = selectedValuesByItem;
 
-    if (
-      previousRowIndex !== undefined &&
-      previousRowIndex > currentRowIndex &&
-      previousRowIndex in nextState &&
-      !(currentKey in nextState)
-    ) {
-      const previousKey = String(previousRowIndex);
-
+    if (!(currentKey in nextState)) {
       nextState = {
         ...nextState,
-        [currentKey]: nextState[previousKey],
+        [currentKey]:
+          defaultOptionValue.length > 0
+            ? (defaultOptionValue as LabelInValueType[])
+            : [],
       };
-    }
-
-    if (!(currentKey in nextState)) {
-      const sortedItemKeys = Object.keys(nextState)
-        .map(Number)
-        .sort((a, b) => a - b);
-
-      const firstStoredKey = sortedItemKeys[0];
-
-      if (firstStoredKey !== undefined && firstStoredKey > currentRowIndex) {
-        const shiftAmount = firstStoredKey - currentRowIndex;
-
-        const updatedSelectionState: Record<string, LabelInValueType[]> = {};
-
-        for (const originalKey of sortedItemKeys) {
-          const newKey = originalKey - shiftAmount;
-
-          updatedSelectionState[String(newKey)] =
-            nextState[String(originalKey)];
-        }
-
-        nextState = updatedSelectionState;
-      }
     }
 
     if (nextState !== selectedValuesByItem) {
@@ -959,10 +946,10 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DraftValueType) => {
-    const itemId = String(this.props.currentIndex ?? 0);
+    const listItemId = this.getListItemId(this.props.currentIndex);
     const updatedValue = {
       ...(this.props.selectedValuesByItem || {}),
-      [itemId]: value,
+      [listItemId]: value,
     };
 
     this.props.updateWidgetMetaProperty("selectedValuesByItem", updatedValue, {
@@ -986,7 +973,7 @@ class MultiSelectWidget extends BaseWidget<
       selectedValuesByItem = {},
     } = this.props;
 
-    const itemId = String(currentIndex);
+    const itemId = this.getListItemId(currentIndex);
     const values = selectedValuesByItem[itemId] ?? defaultOptionValue;
 
     return values;
@@ -1070,6 +1057,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   rtl?: boolean;
   currentIndex?: number;
   selectedValuesByItem?: Record<string, LabelInValueType[]>;
+  listItemId?: string;
 }
 
 export default MultiSelectWidget;

@@ -62,6 +62,7 @@ describe("Bug 41210: MultiSelectWidgetV2 inside ListWidget - selected values and
       y: 50,
     });
 
+    _.propPane.EnterJSContext("Icon", "trash");
     _.propPane.EnterJSContext(
       "onClick",
       `{{JSObject1.deleteItemAtIndex(currentIndex)}}`,

@@ -81,6 +81,7 @@ type BaseMetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentView: string;
   currentItem: Record<string, unknown> | string;
+  listItemId?: string;
 };
 
 export type MetaWidget<TProps = void> = TProps extends void
@@ -723,6 +724,14 @@ class ListWidget extends BaseWidget<
 
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
+    }
+
+    if (metaWidget.currentIndex >= 0) {
+      const key = this.metaWidgetGenerator.getPrimaryKey(
+        metaWidget.currentIndex,
+      );
+
+      metaWidget.listItemId = key;
     }
   };
 
