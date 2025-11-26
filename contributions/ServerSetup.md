@@ -50,6 +50,20 @@ Before you can start to hack on the Appsmith server, your machine should have th
 
 This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MongoDB and Redis using `Docker`.
 
+#### Verify your Java and Maven versions
+Before continuing, make sure the binaries on your `PATH` point to Java 17:
+
+```bash
+java -version
+mvn -v
+echo $JAVA_HOME
+```
+
+You should see `17` in the `java -version` output, and `mvn -v` should report `Java version: 17`. If another major version (for example `25`) appears, Maven will fail to build the server because Appsmith targets Java 17.
+
+> If `java -version` or `mvn -v` show a newer JDK, switch your environment back to 17 before proceeding. On macOS you can run `export JAVA_HOME=$(/usr/libexec/java_home -v 17)` and restart the terminal; on Linux/Windows use your JDK manager (e.g. `sdkman`, `jenv`, OS package manager) to activate a Java 17 installation and update `JAVA_HOME`.
+
+After updating `JAVA_HOME`, confirm `echo $JAVA_HOME` points to the Java 17 directory and re-run the commands above until the outputs reference version 17.
 
 ### Setting up a local MongoDB instance
 * The following command will start a MongoDB docker instance locally:
@@ -209,7 +223,7 @@ APPSMITH_GIT_ROOT=./path/to/repo/directory
 
 10. Start the Java server by running
     ```console
-    ./scripts/start-dev-server.sh
+    ./app/server/scripts/start-dev-server.sh
     ```
 
     - By default, the server will start on port 8080.
