@@ -1,0 +1,39 @@
+# LLM Issue Triage Configuration
+# This file configures the automated issue triage system
+
+# Default LLM provider (can be overridden via workflow input)
+# Options: openai, gemini, anthropic
+provider: openai
+
+# Label added after successful triage to track analyzed issues
+trackingLabel: "AI-Triaged"
+
+# Labels applied based on complexity assessment
+complexityLabels:
+  low: "Good First Issue"
+  medium: "Inviting Contributions"
+  high: "Needs Engineering Review"
+
+# Issues with these labels will be skipped (not analyzed)
+skipLabels:
+  - "Epic"
+  - "Task"
+  - "AI-Triaged"
+  - "Needs More Info"
+  - "Duplicate"
+  - "Won't Fix"
+
+# Default labels to filter issues for bulk runs
+targetLabels:
+  - "Willing To Contribute"
+
+# Rate limiting to avoid API and GitHub limits
+rateLimiting:
+  # Maximum issues to process in a single bulk run
+  maxIssuesPerRun: 50
+  # Delay between processing issues (milliseconds)
+  delayBetweenIssuesMs: 2000
+
+# Timeout for LLM analysis per issue (milliseconds)
+timeoutMs: 60000
+

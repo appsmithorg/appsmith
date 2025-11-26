@@ -1,0 +1,151 @@
+name: LLM Issue Triage
+
+on:
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+    inputs:
+      filter_labels:
+        description: 'Comma-separated labels to filter issues (for bulk run)'
+        required: false
+        default: 'Willing To Contribute'
+      issue_number:
+        description: 'Specific issue number to analyze (leave empty for bulk)'
+        required: false
+        default: ''
+      force_reanalyze:
+        description: 'Re-analyze already triaged issues'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Comment only, do not apply labels'
+        type: boolean
+        default: false
+      llm_provider:
+        description: 'LLM provider to use'
+        type: choice
+        options:
+          - openai
+          - gemini
+          - anthropic
+        default: 'openai'
+
+env:
+  NODE_VERSION: '20'
+  TRACKING_LABEL: 'AI-Triaged'
+  TARGET_LABEL_ON_ISSUE_EVENT: 'Willing To Contribute'
+
+jobs:
+  check-permissions:
+    runs-on: ubuntu-latest
+    outputs:
+      is_org_member: ${{ steps.check-org.outputs.is_member }}
+    steps:
+      - name: Check if actor is org member
+        id: check-org
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const response = await github.rest.orgs.checkMembershipForUser({
+                org: 'appsmithorg',
+                username: context.actor
+              });
+              // 204 means member, 302 means public member
+              core.setOutput('is_member', 'true');
+              console.log(`${context.actor} is an Appsmith org member`);
+            } catch (error) {
+              if (error.status === 404) {
+                core.setOutput('is_member', 'false');
+                console.log(`${context.actor} is NOT an Appsmith org member`);
+              } else {
+                // For other errors, fail safely
+                core.setOutput('is_member', 'false');
+                console.log(`Error checking membership: ${error.message}`);
+              }
+            }
+
+  triage:
+    needs: check-permissions
+    runs-on: ubuntu-latest
+    # Only run if:
+    # 1. For workflow_dispatch: actor must be org member
+    # 2. For issue events: always run (will filter by label in the script)
+    if: |
+      (github.event_name == 'workflow_dispatch' && needs.check-permissions.outputs.is_org_member == 'true') ||
+      (github.event_name == 'issues')
+    
+    steps:
+      - name: Exit if not authorized (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch' && needs.check-permissions.outputs.is_org_member != 'true'
+        run: |
+          echo "::error::Only Appsmith organization members can trigger this workflow manually."
+          exit 1
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: .github/scripts/llm-triage
+        run: npm ci
+
+      - name: Run LLM Triage
+        working-directory: .github/scripts/llm-triage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Event context
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          # Issue event data
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_LABELS: ${{ toJson(github.event.issue.labels) }}
+          # Workflow dispatch inputs
+          INPUT_FILTER_LABELS: ${{ inputs.filter_labels }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          INPUT_FORCE_REANALYZE: ${{ inputs.force_reanalyze }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_LLM_PROVIDER: ${{ inputs.llm_provider }}
+          # Config
+          TRACKING_LABEL: ${{ env.TRACKING_LABEL }}
+          TARGET_LABEL_ON_ISSUE_EVENT: ${{ env.TARGET_LABEL_ON_ISSUE_EVENT }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: node index.js
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## LLM Triage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "- **Filter Labels:** ${{ inputs.filter_labels }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Specific Issue:** ${{ inputs.issue_number || 'N/A (bulk run)' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Force Reanalyze:** ${{ inputs.force_reanalyze }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Dry Run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **LLM Provider:** ${{ inputs.llm_provider }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Issue:** #${{ github.event.issue.number }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notify-unauthorized:
+    needs: check-permissions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && needs.check-permissions.outputs.is_org_member != 'true'
+    steps:
+      - name: Notify unauthorized access
+        run: |
+          echo "::error::Only Appsmith organization members can trigger this workflow."
+          echo "User ${{ github.actor }} attempted to run LLM Triage but is not an org member."
+          exit 1
+
