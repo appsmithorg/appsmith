@@ -109,7 +109,7 @@ public class GoogleAiPluginTest {
         apiKeyAuth.setValue("apiKey");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(apiKeyAuth);
-        String responseBody = "[\"gemini-pro\"]";
+        String responseBody = "[\"gemini-2.5-pro\"]";
         MockResponse mockResponse = new MockResponse().setBody(responseBody);
         mockResponse.setResponseCode(200);
         mockEndpoint.enqueue(mockResponse);
@@ -122,8 +122,15 @@ public class GoogleAiPluginTest {
         StepVerifier.create(datasourceTriggerResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getTrigger() instanceof List<?>);
-                    assertEquals(((List) result.getTrigger()).size(), 1);
-                    assertEquals(result.getTrigger(), getDataToMap(List.of("gemini-pro")));
+                    assertEquals(((List) result.getTrigger()).size(), 5);
+                    assertEquals(
+                            result.getTrigger(),
+                            getDataToMap(List.of(
+                                    "gemini-2.5-pro",
+                                    "gemini-2.5-flash",
+                                    "gemini-2.0-flash",
+                                    "gemini-flash-latest",
+                                    "gemini-flash-lite-latest")));
                 })
                 .verifyComplete();
     }
