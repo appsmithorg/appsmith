@@ -217,26 +217,26 @@ function Actions() {
             {totalRecordsCount ? (
               <TableHeaderContentWrapper>
                 Page&nbsp;
-                <PaginationItemWrapper
+                <PageNumberInput
                   accentColor={accentColor}
                   borderRadius={borderRadius}
-                  className="page-item"
-                  selected
-                >
-                  {pageNo + 1}
-                </PaginationItemWrapper>
+                  disabled={pageCount === 1}
+                  pageCount={pageCount}
+                  pageNo={pageNo + 1}
+                  updatePageNo={updatePageNo}
+                />
                 &nbsp;
                 <span>{`of ${pageCount}`}</span>
               </TableHeaderContentWrapper>
             ) : (
-              <PaginationItemWrapper
+              <PageNumberInput
                 accentColor={accentColor}
                 borderRadius={borderRadius}
-                className="page-item"
-                selected
-              >
-                {pageNo + 1}
-              </PaginationItemWrapper>
+                disabled={pageCount === 1}
+                pageCount={pageCount}
+                pageNo={pageNo + 1}
+                updatePageNo={updatePageNo}
+              />
             )}
             <PaginationItemWrapper
               accentColor={accentColor}

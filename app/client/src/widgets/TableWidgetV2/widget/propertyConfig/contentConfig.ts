@@ -249,8 +249,6 @@ export default [
       },
       {
         propertyName: "pageNo",
-        label: "Page number",
-        controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

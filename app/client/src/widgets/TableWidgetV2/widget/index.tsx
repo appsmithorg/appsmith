@@ -1067,6 +1067,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("pageNo", 1);
       this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     } else {
+      let pageNoWasClamped = false;
+
       //check if pageNo does not excede the max Page no, due to change of totalRecordsCount or change of pageSize
       if (serverSidePaginationEnabled && totalRecordsCount) {
         const maxAllowedPageNumber = Math.ceil(totalRecordsCount / pageSize);
@@ -1074,7 +1076,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         if (pageNo > maxAllowedPageNumber) {
           pushBatchMetaUpdates("pageNo", maxAllowedPageNumber);
           this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
+          pageNoWasClamped = true;
         }
+      }
+
+      // Detect when pageNo changes via setPageNumber (not through user interaction)
+      // and trigger onPageChange for server-side pagination
+      // Skip if pageNo was clamped above to avoid double-triggering
+      if (
+        !pageNoWasClamped &&
+        serverSidePaginationEnabled &&
+        this.props.onPageChange &&
+        pageNo !== prevProps.pageNo &&
+        pageNo >= 1 &&
+        prevProps.pageNo >= 1
+      ) {
+        // Determine event type based on page direction
+        const eventType =
+          pageNo > prevProps.pageNo
+            ? EventType.ON_NEXT_PAGE
+            : EventType.ON_PREV_PAGE;
+
+        // Trigger onPageChange to fetch new page data
+        this.updatePageNumber(pageNo, eventType);
       }
     }
 
