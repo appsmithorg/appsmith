@@ -32,7 +32,7 @@ interface Props {
 
 const EXPECTED_VARIABLE = {
   type: "object",
-  example: '{\n  "name": "{{ inputName.property }}"\n}',
+  example: '{\n  "name": "{{ inputName.text }}"\n}',
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
