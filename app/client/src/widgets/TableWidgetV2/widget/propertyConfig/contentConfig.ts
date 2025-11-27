@@ -258,6 +258,7 @@ export default [
           params: {
             min: 1,
             default: 1,
+            natural: true,
           },
         },
       },
