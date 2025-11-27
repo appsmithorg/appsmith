@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -107,6 +108,34 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
+
+    @Value("${APPSMITH_BASE_URL:}")
+    private String appsmithBaseUrl;
+
+    /**
+     * Validates that the provided base URL matches APPSMITH_BASE_URL if it is configured.
+     * This prevents account takeover attacks by ensuring password reset and email verification
+     * links are only sent to the configured base URL when APPSMITH_BASE_URL is set.
+     * If APPSMITH_BASE_URL is not configured, validation is skipped to maintain backwards compatibility.
+     *
+     * @param providedBaseUrl The base URL from the request (typically from Origin header)
+     * @return Mono that completes successfully if validation passes or is skipped, or errors if validation fails
+     */
+    private Mono<Void> validateBaseUrl(String providedBaseUrl) {
+        // If APPSMITH_BASE_URL is not configured, skip validation for backwards compatibility
+        if (!StringUtils.hasText(appsmithBaseUrl)) {
+            return Mono.empty();
+        }
+
+        // If APPSMITH_BASE_URL is configured, validate that Origin header matches it
+        if (!appsmithBaseUrl.equals(providedBaseUrl)) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.GENERIC_BAD_REQUEST,
+                    "Origin header does not match APPSMITH_BASE_URL configuration."));
+        }
+
+        return Mono.empty();
+    }
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -188,7 +217,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        String email = resetUserPasswordDTO.getEmail();
+        // Validate Origin header against APPSMITH_BASE_URL
+        return validateBaseUrl(resetUserPasswordDTO.getBaseUrl()).then(Mono.defer(() -> {
+            String email = resetUserPasswordDTO.getEmail();
+            return processForgotPasswordTokenGeneration(email, resetUserPasswordDTO);
+        }));
+    }
+
+    private Mono<Boolean> processForgotPasswordTokenGeneration(
+            String email, ResetUserPasswordDTO resetUserPasswordDTO) {
 
         // Create a random token to be sent out.
         final String token = UUID.randomUUID().toString();
@@ -811,7 +848,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        String email = resendEmailVerificationDTO.getEmail();
+        // Validate Origin header against APPSMITH_BASE_URL
+        return validateBaseUrl(resendEmailVerificationDTO.getBaseUrl()).then(Mono.defer(() -> {
+            String email = resendEmailVerificationDTO.getEmail();
+            return processResendEmailVerification(email, resendEmailVerificationDTO, redirectUrl);
+        }));
+    }
+
+    private Mono<Boolean> processResendEmailVerification(
+            String email, ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl) {
 
         // Create a random token to be sent out.
         final String token = UUID.randomUUID().toString();
