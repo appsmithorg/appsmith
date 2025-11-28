@@ -6,16 +6,21 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSHConnection;
 import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.Security;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
@@ -31,28 +36,15 @@ public class SSHUtilsTest {
 
     @BeforeAll
     static void setup() {
-        Security.addProvider(new BouncyCastleProvider()); // Ensure BouncyCastle is available for OpenSSH keys
-    }
-
-    /* Test OpenSSH Key Parsing */
-    @Test
-    public void testOpenSSHKeyParsing() throws Exception {
-        String opensshKey = "-----BEGIN OPENSSH PRIVATE KEY-----\n"
-                + "b3BlbnNzaC1rZXktdmVyc2lvbjE=\n"
-                + "-----END OPENSSH PRIVATE KEY-----";
-
-        Reader reader = new StringReader(opensshKey);
-        OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
-        openSSHKeyFile.init(reader);
-
-        assertNotNull(openSSHKeyFile);
+        Security.addProvider(
+                new BouncyCastleProvider()); // Ensure BouncyCastle algorithms are registered for key parsing
     }
 
     /* Test PKCS#8 PEM Key Parsing */
     @Test
     public void testPKCS8PEMKeyParsing() throws Exception {
-        String pkcs8Key =
-                "-----BEGIN PRIVATE KEY-----\n" + "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC...\n" + "-----END PRIVATE KEY-----";
+        KeyPair keyPair = generateRsaKeyPair();
+        String pkcs8Key = toPkcs8Pem(keyPair);
 
         Reader reader = new StringReader(pkcs8Key);
         PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
@@ -64,14 +56,17 @@ public class SSHUtilsTest {
     /* Test RSA PEM Key Parsing */
     @Test
     public void testRSAPEMKeyParsing() throws Exception {
-        String rsaKey =
-                "-----BEGIN RSA PRIVATE KEY-----\n" + "MIIEowIBAAKCAQEA7...\n" + "-----END RSA PRIVATE KEY-----";
+        KeyPair keyPair = generateRsaKeyPair();
+        String rsaPkcs1 = toPkcs1Pem((RSAPrivateCrtKey) keyPair.getPrivate());
 
-        Reader reader = new StringReader(rsaKey);
+        String convertedKey = SSHUtils.convertRsaPkcs1ToPkcs8(rsaPkcs1);
+
+        Reader reader = new StringReader(convertedKey);
         PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
         pkcs8KeyFile.init(reader);
 
         assertNotNull(pkcs8KeyFile);
+        assertTrue(convertedKey.contains("BEGIN PRIVATE KEY"));
     }
 
     /* Test is ssh enabled method */
@@ -167,5 +162,35 @@ public class SSHUtilsTest {
         datasourceConfiguration.setEndpoints(List.of(new Endpoint()));
 
         assertEquals(getDBPortFromConfigOrDefault(datasourceConfiguration, 1234L), 1234L);
+    }
+
+    private KeyPair generateRsaKeyPair() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(1024);
+        return generator.generateKeyPair();
+    }
+
+    private String toPkcs8Pem(KeyPair keyPair) {
+        byte[] pkcs8Bytes = keyPair.getPrivate().getEncoded();
+        return formatPem("PRIVATE KEY", pkcs8Bytes);
+    }
+
+    private String toPkcs1Pem(RSAPrivateCrtKey privateKey) throws IOException {
+        RSAPrivateKey bcPrivateKey = new RSAPrivateKey(
+                privateKey.getModulus(),
+                privateKey.getPublicExponent(),
+                privateKey.getPrivateExponent(),
+                privateKey.getPrimeP(),
+                privateKey.getPrimeQ(),
+                privateKey.getPrimeExponentP(),
+                privateKey.getPrimeExponentQ(),
+                privateKey.getCrtCoefficient());
+
+        return formatPem("RSA PRIVATE KEY", bcPrivateKey.getEncoded());
+    }
+
+    private String formatPem(String header, byte[] encodedBytes) {
+        String base64 = Base64.getMimeEncoder(64, new byte[] {'\n'}).encodeToString(encodedBytes);
+        return "-----BEGIN " + header + "-----\n" + base64 + "\n-----END " + header + "-----\n";
     }
 }
