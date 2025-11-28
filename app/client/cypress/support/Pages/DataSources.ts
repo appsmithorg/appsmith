@@ -1187,8 +1187,33 @@ export class DataSources {
 
   ToggleUsePreparedStatement(enable = true || false) {
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
-    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    this.agHelper
+      .GetElement(this._usePreparedStatement)
+      .then(($checkbox) => $checkbox.is(":checked"))
+      .then((isCurrentlyEnabled) => {
+        if (enable) {
+          if (!isCurrentlyEnabled) {
+            this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+          }
+          return;
+        }
+
+        if (!isCurrentlyEnabled) {
+          return;
+        }
+
+        this.agHelper.GetElement(this._usePreparedStatement).uncheck({
+          force: true,
+        });
+        this.agHelper.Sleep(200);
+        this.agHelper.AssertElementVisibility(
+          "[data-testid='t--disable-prepared-statement-confirm-button']",
+        );
+        this.agHelper.GetNClick(
+          "[data-testid='t--disable-prepared-statement-confirm-button']",
+        );
+        this.agHelper.Sleep(200);
+      });
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {

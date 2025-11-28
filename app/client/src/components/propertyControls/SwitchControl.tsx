@@ -9,6 +9,7 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import DisablePreparedStatementConfirmationModal from "pages/Editor/DisablePreparedStatementConfirmationModal";
 
 const SwitchContainer = styled.div`
   .ads-v2-switch__label {
@@ -17,9 +18,17 @@ const SwitchContainer = styled.div`
   }
 `;
 
-class SwitchControl extends BaseControl<ControlProps> {
+interface SwitchControlState {
+  showPreparedStatementConfirmation: boolean;
+}
+
+class SwitchControl extends BaseControl<ControlProps, SwitchControlState> {
   isUpdatedViaKeyboard = false;
   containerRef = React.createRef<HTMLDivElement>();
+
+  state: SwitchControlState = {
+    showPreparedStatementConfirmation: false,
+  };
 
   componentDidMount() {
     this.containerRef.current?.addEventListener(
@@ -48,19 +57,26 @@ class SwitchControl extends BaseControl<ControlProps> {
     }
   };
 
-  render() {
+  isPreparedStatementSwitch = (): boolean => {
+    const configProperty = this.props.propertyName || "";
     return (
-      <SwitchContainer ref={this.containerRef}>
-        <Switch
-          className={this.props.propertyValue ? "checked" : "unchecked"}
-          isSelected={this.props.propertyValue}
-          onChange={this.onToggle}
-        />
-      </SwitchContainer>
+      configProperty ===
+        "actionConfiguration.pluginSpecifiedTemplates[0].value" ||
+      configProperty === "actionConfiguration.formData.preparedStatement.data"
     );
-  }
+  };
 
   onToggle = () => {
+    const isPreparedStatement = this.isPreparedStatementSwitch();
+    const isTurningOff = this.props.propertyValue === true;
+
+    // Show confirmation dialog when disabling prepared statements
+    if (isPreparedStatement && isTurningOff) {
+      this.setState({ showPreparedStatementConfirmation: true });
+      return;
+    }
+
+    // Normal toggle behavior for other switches or when turning on
     this.updateProperty(
       this.props.propertyName,
       !this.props.propertyValue,
@@ -68,6 +84,39 @@ class SwitchControl extends BaseControl<ControlProps> {
     );
     this.isUpdatedViaKeyboard = false;
   };
+
+  handleConfirmDisable = () => {
+    this.updateProperty(
+      this.props.propertyName,
+      false,
+      this.isUpdatedViaKeyboard,
+    );
+    this.isUpdatedViaKeyboard = false;
+    this.setState({ showPreparedStatementConfirmation: false });
+  };
+
+  handleCancelDisable = () => {
+    this.setState({ showPreparedStatementConfirmation: false });
+  };
+
+  render() {
+    return (
+      <>
+        <SwitchContainer ref={this.containerRef}>
+          <Switch
+            className={this.props.propertyValue ? "checked" : "unchecked"}
+            isSelected={this.props.propertyValue}
+            onChange={this.onToggle}
+          />
+        </SwitchContainer>
+        <DisablePreparedStatementConfirmationModal
+          isOpen={this.state.showPreparedStatementConfirmation}
+          onCancel={this.handleCancelDisable}
+          onConfirm={this.handleConfirmDisable}
+        />
+      </>
+    );
+  }
 
   static getControlType() {
     return "SWITCH";
