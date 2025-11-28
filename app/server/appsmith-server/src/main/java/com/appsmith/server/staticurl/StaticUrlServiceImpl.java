@@ -269,8 +269,17 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                             return generateUniquePageSlugsForApplication(dbApplication)
                                                     .then(Mono.just(dbApplication));
                                         })
-                                        .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
-                                                AnalyticsEvents.STATIC_URL_ENABLED, savedApp, normalizedUniqueSlug));
+                                        .flatMap(savedApp -> staticUrlAnalyticsUtils
+                                                .sendApplicationStaticUrlEvent(
+                                                        AnalyticsEvents.STATIC_URL_ENABLED,
+                                                        savedApp,
+                                                        normalizedUniqueSlug)
+                                                .onErrorResume(error -> {
+                                                    log.error(
+                                                            "Failed to send analytics for STATIC_URL_ENABLED, continuing without analytics",
+                                                            error);
+                                                    return Mono.just(savedApp);
+                                                }));
                             });
                 })
                 .doOnSuccess(app ->
@@ -420,13 +429,18 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                 final String capturedPreviousSlug = previousSlug;
 
                 modifyStaticUrlSettings(appFromDB, uniqueSlugDTO);
-                return applicationService
-                        .save(appFromDB)
-                        .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
+                return applicationService.save(appFromDB).flatMap(savedApp -> staticUrlAnalyticsUtils
+                        .sendApplicationStaticUrlEvent(
                                 AnalyticsEvents.STATIC_URL_APP_SLUG_UPDATED,
                                 savedApp,
                                 normalizedSlug,
-                                capturedPreviousSlug));
+                                capturedPreviousSlug)
+                        .onErrorResume(error -> {
+                            log.error(
+                                    "Failed to send analytics for STATIC_URL_APP_SLUG_UPDATED, continuing without analytics",
+                                    error);
+                            return Mono.just(savedApp);
+                        }));
             });
         });
     }
@@ -547,8 +561,14 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                         });
                         return pageService.saveAll(pages).then(Mono.just(disabledStaticUrlApp));
                     })
-                    .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
-                            AnalyticsEvents.STATIC_URL_DISABLED, savedApp, null));
+                    .flatMap(savedApp -> staticUrlAnalyticsUtils
+                            .sendApplicationStaticUrlEvent(AnalyticsEvents.STATIC_URL_DISABLED, savedApp, null)
+                            .onErrorResume(error -> {
+                                log.error(
+                                        "Failed to send analytics for STATIC_URL_DISABLED, continuing without analytics",
+                                        error);
+                                return Mono.just(savedApp);
+                            }));
         });
     }
 
@@ -713,14 +733,19 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                         }
 
                         editPage.setUniqueSlug(null);
-                        return pageService
-                                .save(page)
-                                .flatMap(savedPage -> staticUrlAnalyticsUtils.sendPageStaticUrlEvent(
+                        return pageService.save(page).flatMap(savedPage -> staticUrlAnalyticsUtils
+                                .sendPageStaticUrlEvent(
                                         AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED,
                                         savedPage,
                                         applicationId,
                                         null,
-                                        capturedPreviousSlug));
+                                        capturedPreviousSlug)
+                                .onErrorResume(error -> {
+                                    log.error(
+                                            "Failed to send analytics for STATIC_URL_PAGE_SLUG_UPDATED, continuing without analytics",
+                                            error);
+                                    return Mono.just(savedPage);
+                                }));
                     }
 
                     return isUniquePageSlugAvailable(app, page, normalizedPageSlug)
@@ -745,14 +770,19 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                         editPage.setUniqueSlug(normalizedPageSlug);
                                     }
 
-                                    return pageService
-                                            .save(pageFromDB)
-                                            .flatMap(savedPage -> staticUrlAnalyticsUtils.sendPageStaticUrlEvent(
+                                    return pageService.save(pageFromDB).flatMap(savedPage -> staticUrlAnalyticsUtils
+                                            .sendPageStaticUrlEvent(
                                                     AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED,
                                                     savedPage,
                                                     applicationId,
                                                     normalizedPageSlug,
-                                                    capturedPrevSlugFromDB));
+                                                    capturedPrevSlugFromDB)
+                                            .onErrorResume(error -> {
+                                                log.error(
+                                                        "Failed to send analytics for STATIC_URL_PAGE_SLUG_UPDATED, continuing without analytics",
+                                                        error);
+                                                return Mono.just(savedPage);
+                                            }));
                                 });
                             });
                 })
