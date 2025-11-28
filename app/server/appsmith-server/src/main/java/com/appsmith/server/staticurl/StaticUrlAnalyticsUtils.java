@@ -41,15 +41,30 @@ public class StaticUrlAnalyticsUtils {
      */
     public Mono<Application> sendApplicationStaticUrlEvent(
             AnalyticsEvents event, Application application, String uniqueSlug) {
+        return sendApplicationStaticUrlEvent(event, application, uniqueSlug, null);
+    }
+
+    /**
+     * Sends an analytics event for application-level static URL operations with previous slug tracking.
+     *
+     * @param event        The analytics event to send
+     * @param application  The application for which the event is being sent
+     * @param uniqueSlug   The new unique slug associated with this operation (can be null for disable events)
+     * @param previousSlug The previous slug before update (can be null if not applicable)
+     * @return Mono&lt;Application&gt; the same application after sending the event
+     */
+    public Mono<Application> sendApplicationStaticUrlEvent(
+            AnalyticsEvents event, Application application, String uniqueSlug, String previousSlug) {
 
         return sessionUserService.getCurrentUser().flatMap(user -> {
-            Map<String, Object> analyticsProps = buildApplicationAnalyticsProps(application, uniqueSlug);
+            Map<String, Object> analyticsProps = buildApplicationAnalyticsProps(application, uniqueSlug, previousSlug);
 
             log.debug(
-                    "Sending static URL analytics event: {} for applicationId: {}, slug: {}",
+                    "Sending static URL analytics event: {} for applicationId: {}, slug: {}, previousSlug: {}",
                     event.getEventName(),
                     application.getId(),
-                    uniqueSlug);
+                    uniqueSlug,
+                    previousSlug);
 
             return analyticsService
                     .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)
@@ -68,16 +83,32 @@ public class StaticUrlAnalyticsUtils {
      */
     public Mono<NewPage> sendPageStaticUrlEvent(
             AnalyticsEvents event, NewPage page, String applicationId, String uniqueSlug) {
+        return sendPageStaticUrlEvent(event, page, applicationId, uniqueSlug, null);
+    }
+
+    /**
+     * Sends an analytics event for page-level static URL operations with previous slug tracking.
+     *
+     * @param event         The analytics event to send
+     * @param page          The page for which the event is being sent
+     * @param applicationId The application ID containing this page
+     * @param uniqueSlug    The new unique slug associated with this operation
+     * @param previousSlug  The previous slug before update (can be null if not applicable)
+     * @return Mono&lt;NewPage&gt; the same page after sending the event
+     */
+    public Mono<NewPage> sendPageStaticUrlEvent(
+            AnalyticsEvents event, NewPage page, String applicationId, String uniqueSlug, String previousSlug) {
 
         return sessionUserService.getCurrentUser().flatMap(user -> {
-            Map<String, Object> analyticsProps = buildPageAnalyticsProps(page, applicationId, uniqueSlug);
+            Map<String, Object> analyticsProps = buildPageAnalyticsProps(page, applicationId, uniqueSlug, previousSlug);
 
             log.debug(
-                    "Sending static URL analytics event: {} for pageId: {}, applicationId: {}, slug: {}",
+                    "Sending static URL analytics event: {} for pageId: {}, applicationId: {}, slug: {}, previousSlug: {}",
                     event.getEventName(),
                     page.getId(),
                     applicationId,
-                    uniqueSlug);
+                    uniqueSlug,
+                    previousSlug);
 
             return analyticsService
                     .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)
@@ -88,11 +119,13 @@ public class StaticUrlAnalyticsUtils {
     /**
      * Builds analytics properties for application-level static URL events.
      *
-     * @param application The application to extract properties from
-     * @param uniqueSlug  The unique slug being set/updated
+     * @param application  The application to extract properties from
+     * @param uniqueSlug   The unique slug being set/updated
+     * @param previousSlug The previous slug before update (can be null)
      * @return Map containing analytics properties
      */
-    private Map<String, Object> buildApplicationAnalyticsProps(Application application, String uniqueSlug) {
+    private Map<String, Object> buildApplicationAnalyticsProps(
+            Application application, String uniqueSlug, String previousSlug) {
         Map<String, Object> analyticsProps = new HashMap<>();
 
         // Application identifiers
@@ -102,6 +135,11 @@ public class StaticUrlAnalyticsUtils {
 
         // Slug information
         analyticsProps.put("uniqueSlug", defaultIfNull(uniqueSlug, ""));
+
+        // Previous slug for update tracking
+        if (previousSlug != null) {
+            analyticsProps.put("previousSlug", previousSlug);
+        }
 
         // Git connection status
         boolean isGitConnected = GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata());
@@ -119,9 +157,11 @@ public class StaticUrlAnalyticsUtils {
      * @param page          The page to extract properties from
      * @param applicationId The application ID containing this page
      * @param uniqueSlug    The unique slug being set/updated
+     * @param previousSlug  The previous slug before update (can be null)
      * @return Map containing analytics properties
      */
-    private Map<String, Object> buildPageAnalyticsProps(NewPage page, String applicationId, String uniqueSlug) {
+    private Map<String, Object> buildPageAnalyticsProps(
+            NewPage page, String applicationId, String uniqueSlug, String previousSlug) {
         Map<String, Object> analyticsProps = new HashMap<>();
 
         // Page identifiers
@@ -133,6 +173,11 @@ public class StaticUrlAnalyticsUtils {
 
         // Slug information
         analyticsProps.put("uniqueSlug", defaultIfNull(uniqueSlug, ""));
+
+        // Previous slug for update tracking
+        if (previousSlug != null) {
+            analyticsProps.put("previousSlug", previousSlug);
+        }
 
         // Page name for context
         String pageName = "";

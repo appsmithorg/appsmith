@@ -412,11 +412,21 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
             uniqueSlugDTO.setStaticUrlEnabled(Boolean.TRUE);
 
             return applicationService.findById(application.getId()).flatMap(appFromDB -> {
+                // Capture previous slug before update for analytics
+                String previousSlug = null;
+                if (appFromDB.getStaticUrlSettings() != null) {
+                    previousSlug = appFromDB.getStaticUrlSettings().getUniqueSlug();
+                }
+                final String capturedPreviousSlug = previousSlug;
+
                 modifyStaticUrlSettings(appFromDB, uniqueSlugDTO);
                 return applicationService
                         .save(appFromDB)
                         .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
-                                AnalyticsEvents.STATIC_URL_APP_SLUG_UPDATED, savedApp, normalizedSlug));
+                                AnalyticsEvents.STATIC_URL_APP_SLUG_UPDATED,
+                                savedApp,
+                                normalizedSlug,
+                                capturedPreviousSlug));
             });
         });
     }
@@ -688,6 +698,13 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                     Application app = pageAndAppTuple.getT2();
                     String applicationId = app.getId();
 
+                    // Capture previous slug for analytics
+                    String previousSlug = null;
+                    if (page.getUnpublishedPage() != null) {
+                        previousSlug = page.getUnpublishedPage().getUniqueSlug();
+                    }
+                    final String capturedPreviousSlug = previousSlug;
+
                     if (!StringUtils.hasText(normalizedPageSlug)) {
                         log.debug("Clearing page slug for pageId: {}", pageId);
                         PageDTO editPage = page.getUnpublishedPage();
@@ -699,7 +716,11 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                         return pageService
                                 .save(page)
                                 .flatMap(savedPage -> staticUrlAnalyticsUtils.sendPageStaticUrlEvent(
-                                        AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED, savedPage, applicationId, null));
+                                        AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED,
+                                        savedPage,
+                                        applicationId,
+                                        null,
+                                        capturedPreviousSlug));
                     }
 
                     return isUniquePageSlugAvailable(app, page, normalizedPageSlug)
@@ -711,6 +732,14 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                 }
 
                                 return pageService.findById(pageId, null).flatMap(pageFromDB -> {
+                                    // Capture previous slug from fresh DB fetch for analytics
+                                    String prevSlugFromDB = null;
+                                    if (pageFromDB.getUnpublishedPage() != null) {
+                                        prevSlugFromDB =
+                                                pageFromDB.getUnpublishedPage().getUniqueSlug();
+                                    }
+                                    final String capturedPrevSlugFromDB = prevSlugFromDB;
+
                                     PageDTO editPage = pageFromDB.getUnpublishedPage();
                                     if (editPage != null) {
                                         editPage.setUniqueSlug(normalizedPageSlug);
@@ -722,7 +751,8 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                                     AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED,
                                                     savedPage,
                                                     applicationId,
-                                                    normalizedPageSlug));
+                                                    normalizedPageSlug,
+                                                    capturedPrevSlugFromDB));
                                 });
                             });
                 })
