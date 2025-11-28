@@ -278,7 +278,14 @@ function PageSettings(props: { page: Page }) {
 
     setIsPageNameSaving(true);
     dispatch(updatePageAction(payload));
-  }, [page.pageId, page.pageName, pageName, pageNameError]);
+  }, [
+    canManagePages,
+    dispatch,
+    page.pageId,
+    page.pageName,
+    pageName,
+    pageNameError,
+  ]);
 
   const saveCustomSlug = useCallback(() => {
     if (!canManagePages || page.customSlug === customSlug) return;

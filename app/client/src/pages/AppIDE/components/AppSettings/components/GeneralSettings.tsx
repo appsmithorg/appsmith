@@ -23,18 +23,31 @@ import {
   createMessage,
   STATIC_URL_CHANGE_SUCCESS,
   STATIC_URL_DISABLED_SUCCESS,
+  STATIC_URL_DOCS_LINK_TEXT,
 } from "ee/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Switch, Text, Icon, Flex, Button, toast } from "@appsmith/ads";
+import {
+  Input,
+  Switch,
+  Text,
+  Icon,
+  Flex,
+  Button,
+  toast,
+  Tooltip,
+} from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
 import React, { useCallback, useMemo, useState } from "react";
 import { useEffect } from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const APPLICATION_SLUG_REGEX = /^[a-z0-9-]+$/;
+const STATIC_URL_DOCS_URL =
+  "https://docs.appsmith.com/build-apps/how-to-guides/configure-static-app-urls";
 
 import {
   getCurrentApplication,
@@ -97,6 +110,11 @@ function GeneralSettings() {
   );
   const appSlugSuggestion = useSelector(getAppSlugSuggestion);
   const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
+
+  const staticUrlTooltipContent = useMemo(
+    () => createMessage(STATIC_URL_DOCS_LINK_TEXT),
+    [],
+  );
 
   const [applicationName, setApplicationName] = useState(application?.name);
   const [isAppNameValid, setIsAppNameValid] = useState(true);
@@ -184,6 +202,11 @@ function GeneralSettings() {
   ]);
 
   const cancelSlugChange = useCallback(() => {
+    AnalyticsUtil.logEvent("STATIC_URL_CANCEL_CLICK", {
+      applicationId,
+      discardedSlug: applicationSlug,
+    });
+
     setApplicationSlug(application?.staticUrlSettings?.uniqueSlug || "");
     setIsClientSideSlugValid(true);
     dispatch(resetAppSlugValidation());
@@ -192,7 +215,21 @@ function GeneralSettings() {
     if (!application?.staticUrlSettings?.uniqueSlug) {
       setIsStaticUrlToggleEnabled(false);
     }
-  }, [application?.staticUrlSettings?.uniqueSlug, dispatch]);
+  }, [
+    application?.staticUrlSettings?.uniqueSlug,
+    dispatch,
+    applicationId,
+    applicationSlug,
+  ]);
+
+  const openStaticUrlDocs = useCallback(() => {
+    AnalyticsUtil.logEvent("STATIC_URL_DOCS_CLICK", {
+      source: "general_settings",
+      applicationId,
+    });
+
+    window.open(STATIC_URL_DOCS_URL, "_blank");
+  }, [applicationId]);
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -277,11 +314,14 @@ function GeneralSettings() {
       return `${application?.staticUrlSettings?.uniqueSlug || ""}/${pageSlug}`;
     }
   }, [
+    currentAppPage?.uniqueSlug,
+    currentAppPage?.slug,
+    currentAppPage?.customSlug,
     modalType,
     application?.staticUrlSettings?.uniqueSlug,
-    application?.slug,
     application?.staticUrlSettings?.enabled,
-    currentAppPage,
+    application?.slug,
+    currentBasePageId,
   ]);
 
   const modalNewSlug = useMemo(() => {
@@ -315,6 +355,12 @@ function GeneralSettings() {
 
   const handleStaticUrlToggle = useCallback(
     (isEnabled: boolean) => {
+      AnalyticsUtil.logEvent("STATIC_URL_TOGGLE_CLICK", {
+        action: isEnabled ? "enable" : "disable",
+        applicationId,
+        isCurrentlyEnabled: application?.staticUrlSettings?.enabled,
+      });
+
       if (!isEnabled && isStaticUrlToggleEnabled) {
         if (application?.staticUrlSettings?.enabled) {
           // Show confirmation modal when disabling
@@ -367,12 +413,7 @@ function GeneralSettings() {
     }
 
     return undefined;
-  }, [
-    isFetchingAppSlugSuggestion,
-    applicationSlug,
-    isClientSideSlugValid,
-    isApplicationSlugValid,
-  ]);
+  }, [isFetchingAppSlugSuggestion, applicationSlug, isClientSideSlugValid]);
 
   const isApplicationSlugInputValid = useMemo(() => {
     if (isFetchingAppSlugSuggestion) return true;
@@ -455,7 +496,18 @@ function GeneralSettings() {
             isSelected={isStaticUrlToggleEnabled}
             onChange={handleStaticUrlToggle}
           >
-            <Text kind="action-m">Static URL</Text>
+            <Flex alignItems="center" gap="spaces-2">
+              <Text kind="action-m">Static URL</Text>
+              <Tooltip content={staticUrlTooltipContent}>
+                <Button
+                  isIconButton
+                  kind="tertiary"
+                  onClick={openStaticUrlDocs}
+                  size="sm"
+                  startIcon="question-line"
+                />
+              </Tooltip>
+            </Flex>
           </Switch>
         </div>
       )}
