@@ -1,6 +1,7 @@
 package com.appsmith.server.staticurl;
 
 import com.appsmith.external.annotations.FeatureFlagged;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.UniqueSlugDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -65,6 +66,8 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
 
     protected final ApplicationService applicationService;
     protected final ApplicationPermission applicationPermission;
+
+    protected final StaticUrlAnalyticsUtils staticUrlAnalyticsUtils;
 
     private static final String SLUG_APPEND_FORMAT = "%s-%s";
     private static final List<String> pageFields = List.of(
@@ -265,7 +268,9 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                             // add static url to all pages for current app.
                                             return generateUniquePageSlugsForApplication(dbApplication)
                                                     .then(Mono.just(dbApplication));
-                                        });
+                                        })
+                                        .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
+                                                AnalyticsEvents.STATIC_URL_ENABLED, savedApp, normalizedUniqueSlug));
                             });
                 })
                 .doOnSuccess(app ->
@@ -408,7 +413,10 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
 
             return applicationService.findById(application.getId()).flatMap(appFromDB -> {
                 modifyStaticUrlSettings(appFromDB, uniqueSlugDTO);
-                return applicationService.save(appFromDB);
+                return applicationService
+                        .save(appFromDB)
+                        .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
+                                AnalyticsEvents.STATIC_URL_APP_SLUG_UPDATED, savedApp, normalizedSlug));
             });
         });
     }
@@ -528,7 +536,9 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                             }
                         });
                         return pageService.saveAll(pages).then(Mono.just(disabledStaticUrlApp));
-                    });
+                    })
+                    .flatMap(savedApp -> staticUrlAnalyticsUtils.sendApplicationStaticUrlEvent(
+                            AnalyticsEvents.STATIC_URL_DISABLED, savedApp, null));
         });
     }
 
@@ -676,6 +686,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                 .flatMap(pageAndAppTuple -> {
                     NewPage page = pageAndAppTuple.getT1();
                     Application app = pageAndAppTuple.getT2();
+                    String applicationId = app.getId();
 
                     if (!StringUtils.hasText(normalizedPageSlug)) {
                         log.debug("Clearing page slug for pageId: {}", pageId);
@@ -685,7 +696,10 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                         }
 
                         editPage.setUniqueSlug(null);
-                        return pageService.save(page);
+                        return pageService
+                                .save(page)
+                                .flatMap(savedPage -> staticUrlAnalyticsUtils.sendPageStaticUrlEvent(
+                                        AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED, savedPage, applicationId, null));
                     }
 
                     return isUniquePageSlugAvailable(app, page, normalizedPageSlug)
@@ -702,7 +716,13 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                         editPage.setUniqueSlug(normalizedPageSlug);
                                     }
 
-                                    return pageService.save(pageFromDB);
+                                    return pageService
+                                            .save(pageFromDB)
+                                            .flatMap(savedPage -> staticUrlAnalyticsUtils.sendPageStaticUrlEvent(
+                                                    AnalyticsEvents.STATIC_URL_PAGE_SLUG_UPDATED,
+                                                    savedPage,
+                                                    applicationId,
+                                                    normalizedPageSlug));
                                 });
                             });
                 })
