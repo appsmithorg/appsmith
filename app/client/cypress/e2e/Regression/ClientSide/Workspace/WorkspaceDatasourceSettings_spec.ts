@@ -70,7 +70,9 @@ describe(
         const workspaceId = String(uid);
         _.homePage.CreateNewWorkspace(workspaceId);
 
-        cy.intercept("POST", "/api/v1/datasources/mocks").as("addMockDatasource");
+        cy.intercept("POST", "/api/v1/datasources/mocks").as(
+          "addMockDatasource",
+        );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
         agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
@@ -119,7 +121,9 @@ describe(
         const workspaceId = String(uid);
         _.homePage.CreateNewWorkspace(workspaceId);
 
-        cy.intercept("POST", "/api/v1/datasources/mocks").as("addMockDatasource");
+        cy.intercept("POST", "/api/v1/datasources/mocks").as(
+          "addMockDatasource",
+        );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
         agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
@@ -159,7 +163,9 @@ describe(
         const workspaceId = String(uid);
         _.homePage.CreateNewWorkspace(workspaceId);
 
-        cy.intercept("POST", "/api/v1/datasources/mocks").as("addMockDatasource");
+        cy.intercept("POST", "/api/v1/datasources/mocks").as(
+          "addMockDatasource",
+        );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
         agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
@@ -170,7 +176,6 @@ describe(
           .click();
         cy.wait("@addMockDatasource");
 
-        
         cy.wait(100);
         cy.get(".t--add-datasource-button").first().click({ force: true });
         cy.get("#new-integrations-wrapper").should("be.visible");
@@ -200,8 +205,9 @@ describe(
           .type("application/json", { delay: 0 });
 
         cy.get(".t--cancel-edit-datasource").click();
-        cy.contains(".ads-v2-modal__content-header", "Are you sure?")
-          .should("be.visible");
+        cy.contains(".ads-v2-modal__content-header", "Are you sure?").should(
+          "be.visible",
+        );
         cy.get(".t--datasource-modal-save").click();
         cy.wait("@updateDatasource");
 
