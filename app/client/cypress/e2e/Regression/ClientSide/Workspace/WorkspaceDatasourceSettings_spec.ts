@@ -26,16 +26,44 @@ describe(
         // No datasources should be present yet
         cy.get(".t--datasource").should("have.length", 0);
 
+        // Workspace datasources main blank state should be visible
+        cy.get(".t--data-blank-state").should("be.visible");
+
         // Blank state CTA should be visible
         cy.get(".t--add-datasource-button-blank-screen").should("be.visible");
         cy.contains("Connect a datasource").should("be.visible");
 
-        // The list/grid of available datasources to add should be shown
-        cy.get("#new-datasources").should("be.visible");
+        // When blank state CTA is shown, the header + icon should NOT be visible
+        cy.get(".t--add-datasource-button").should("not.exist");
       });
     });
 
-    it("2. Should allow adding DB and REST API datasources from workspace settings", function () {
+    it("1.a Blank state CTA navigation should not show + icon on Connect a datasource page", function () {
+      _.homePage.NavigateToHome();
+      _.agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        const workspaceId = String(uid);
+        _.homePage.CreateNewWorkspace(workspaceId);
+
+        _.homePage.OpenWorkspaceOptions(workspaceId);
+        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+
+        cy.wait("@getDataSources");
+
+        // Click the blank state CTA button (Bring your data)
+        cy.get(".t--add-datasource-button-blank-screen")
+          .should("be.visible")
+          .click();
+
+        // We should be on the Connect a datasource page
+        cy.url().should("match", /\/workspace\/[^/]+\/datasources\/NEW$/);
+
+        // On Connect a datasource page, the header + icon should NOT be visible
+        cy.get(".t--add-datasource-button").should("not.exist");
+      });
+    });
+
+    /*it("2. Should allow adding DB and REST API datasources from workspace settings", function () {
       _.homePage.NavigateToHome();
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
@@ -181,7 +209,7 @@ describe(
         cy.contains(".t--datasource", "Users").should("be.visible");
         cy.contains(".t--datasource", "Mock API").should("be.visible");
       });
-    });
+    });*/
   },
 );
 

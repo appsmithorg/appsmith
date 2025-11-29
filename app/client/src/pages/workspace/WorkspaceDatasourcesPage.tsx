@@ -10,11 +10,13 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { WorkspaceDataSidePane } from "./WorkspaceDataSidePane";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import WorkspaceDatasourceEditor from "./WorkspaceDatasourceEditor";
+import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 import { initWorkspaceIDE } from "ee/actions/workspaceIDEActions";
 import type { DefaultRootState } from "react-redux";
+import { getDatasources } from "ee/selectors/entitiesSelector";
 import {
   WORKSPACE_DATASOURCES_PAGE_URL,
   WORKSPACE_DATASOURCE_EDITOR_PAGE_URL,
@@ -56,6 +58,16 @@ const MainPane = styled.div`
 interface WorkspaceDatasourcesPageProps {
   workspaceId: string;
 }
+
+const WorkspaceDatasourceDefaultView = () => {
+  const datasources = useSelector(getDatasources);
+
+  if (!datasources || datasources.length === 0) {
+    return <DatasourceBlankState />;
+  }
+
+  return <CreateNewDatasourceTab />;
+};
 
 export const WorkspaceDatasourcesPage = (
   props: WorkspaceDatasourcesPageProps,
@@ -124,7 +136,7 @@ export const WorkspaceDatasourcesPage = (
             {/* Default list view - show "Connect a datasource" page by default */}
             <SentryRoute
               path={WORKSPACE_DATASOURCES_PAGE_URL}
-              render={() => <CreateNewDatasourceTab />}
+              render={() => <WorkspaceDatasourceDefaultView />}
             />
           </Switch>
         </MainPane>

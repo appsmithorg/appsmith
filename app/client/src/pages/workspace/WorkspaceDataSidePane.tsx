@@ -137,8 +137,20 @@ export const WorkspaceDataSidePane = (props: WorkspaceDataSidePaneProps) => {
   return (
     <Flex flexDirection="column" height="100%" width="100%">
       <PaneHeader
-        rightIcon={
-          canCreateDatasource ? (
+        rightIcon={(() => {
+          const isConnectADatasourcePage =
+            location.pathname.indexOf("/datasources/NEW") !== -1;
+
+          if (!canCreateDatasource) return undefined;
+
+          // Do not show + icon when:
+          // - there are no datasources (blank state already shows "Bring your data" CTA), or
+          // - we are on the "Connect a datasource" page
+          if (datasources.length === 0 || isConnectADatasourcePage) {
+            return undefined;
+          }
+
+          return (
             <Button
               className={"t--add-datasource-button"}
               isIconButton
@@ -149,8 +161,8 @@ export const WorkspaceDataSidePane = (props: WorkspaceDataSidePaneProps) => {
               size="sm"
               startIcon="add-line"
             />
-          ) : undefined
-        }
+          );
+        })()}
         title={createMessage(DATA_PANE_TITLE)}
       />
       <PaneBody>
