@@ -114,7 +114,7 @@ export const WorkspaceDatasourcesPage = (
   }
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="t--workspace-datasources-page">
       <IDEContainer>
         <LeftPane>
           <WorkspaceDataSidePane workspaceId={workspaceId} />

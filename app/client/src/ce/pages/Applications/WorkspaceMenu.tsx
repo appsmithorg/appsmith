@@ -169,6 +169,7 @@ function WorkspaceMenu({
         {hasManageWorkspacePermissions && (
           <CustomMenuItem
             className="workspace-menu-item"
+            data-testid="t--workspace-datasources"
             onClick={() =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: `/workspace/${workspace.id}/datasources`,

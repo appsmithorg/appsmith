@@ -19,9 +19,13 @@ describe(
 
         // Open the workspace menu (triple dot) and click the Datasources option
         _.homePage.OpenWorkspaceOptions(workspaceId);
-        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+        cy.get("[data-testid='t--workspace-datasources']").click();
 
         cy.wait("@getDataSources");
+
+        cy.get("[data-testid='t--workspace-datasources-page']").should(
+          "be.visible",
+        );
 
         // No datasources should be present yet
         cy.get(".t--datasource").should("have.length", 0);
@@ -46,7 +50,7 @@ describe(
         _.homePage.CreateNewWorkspace(workspaceId);
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
-        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+        cy.get("[data-testid='t--workspace-datasources']").click();
 
         cy.wait("@getDataSources");
 
@@ -75,9 +79,13 @@ describe(
         );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
-        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+        cy.get("[data-testid='t--workspace-datasources']").click();
 
         cy.wait("@getDataSources");
+
+        cy.get(".t--add-datasource-button-blank-screen")
+          .should("be.visible")
+          .click();
 
         cy.contains("[data-testid='mockdatasource-name']", "Users")
           .should("be.visible")
@@ -91,7 +99,10 @@ describe(
         cy.contains("button", "Edit").should("be.visible");
 
         cy.wait(100);
-        cy.get(".t--add-datasource-button").first().click({ force: true });
+        cy.get(".t--add-datasource-button")
+          .first()
+          .should("be.visible")
+          .click({ force: true });
         cy.get("#new-integrations-wrapper").should("be.visible");
 
         cy.contains("[data-testid='datasource-name']", "Authenticated API")
@@ -126,8 +137,12 @@ describe(
         );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
-        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+        cy.get("[data-testid='t--workspace-datasources']").click();
         cy.wait("@getDataSources");
+
+        cy.get(".t--add-datasource-button-blank-screen")
+          .should("be.visible")
+          .click();
 
         cy.contains("[data-testid='mockdatasource-name']", "Users")
           .should("be.visible")
@@ -168,8 +183,12 @@ describe(
         );
 
         _.homePage.OpenWorkspaceOptions(workspaceId);
-        agHelper.GetNClickByContains(".workspace-menu-item", "Datasources");
+        cy.get("[data-testid='t--workspace-datasources']").click();
         cy.wait("@getDataSources");
+
+        cy.get(".t--add-datasource-button-blank-screen")
+          .should("be.visible")
+          .click();
 
         cy.contains("[data-testid='mockdatasource-name']", "Users")
           .should("be.visible")
@@ -177,7 +196,10 @@ describe(
         cy.wait("@addMockDatasource");
 
         cy.wait(100);
-        cy.get(".t--add-datasource-button").first().click({ force: true });
+        cy.get(".t--add-datasource-button")
+          .first()
+          .should("be.visible")
+          .click({ force: true });
         cy.get("#new-integrations-wrapper").should("be.visible");
 
         cy.contains("[data-testid='datasource-name']", "Authenticated API")
