@@ -63,7 +63,7 @@ describe(
       });
     });
 
-    /*it("2. Should allow adding DB and REST API datasources from workspace settings", function () {
+    it("2. Should allow adding DB and REST API datasources from workspace settings", function () {
       _.homePage.NavigateToHome();
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
@@ -209,7 +209,6 @@ describe(
         cy.contains(".t--datasource", "Users").should("be.visible");
         cy.contains(".t--datasource", "Mock API").should("be.visible");
       });
-    });*/
+    });
   },
 );
-
