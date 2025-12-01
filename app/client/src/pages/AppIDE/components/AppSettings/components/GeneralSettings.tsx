@@ -111,8 +111,6 @@ function GeneralSettings() {
   const appSlugSuggestion = useSelector(getAppSlugSuggestion);
   const isAppSlugSaving = useSelector(getIsPersistingAppSlug);
 
-  const staticUrlTooltipContent = createMessage(STATIC_URL_DOCS_LINK_TEXT);
-
   const [applicationName, setApplicationName] = useState(application?.name);
   const [isAppNameValid, setIsAppNameValid] = useState(true);
   const [applicationIcon, setApplicationIcon] = useState(
@@ -479,7 +477,7 @@ function GeneralSettings() {
           >
             <Flex alignItems="center" gap="spaces-2">
               <Text kind="action-m">Static URL</Text>
-              <Tooltip content={staticUrlTooltipContent}>
+              <Tooltip content={createMessage(STATIC_URL_DOCS_LINK_TEXT)}>
                 <Button
                   isIconButton
                   kind="tertiary"
