@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -132,4 +133,6 @@ public interface GitHandlingServiceCE {
      * @return a Mono that emits TRUE after the cleanup attempt has been scheduled
      */
     Mono<Boolean> removeDanglingLocks(ArtifactJsonTransformationDTO jsonTransformationDTO);
+
+    Mono<List<GitLogDTO>> getCommitHistory(Artifact branchedArtifact);
 }
