@@ -1949,6 +1949,7 @@ export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
   "Error in fetching app slug suggestion. Please try again.";
 export const ERROR_IN_ENABLING_STATIC_URL = () =>
   "Error in enabling static URL. Please try again.";
+export const STATIC_URL_DOCS_LINK_TEXT = () => "Learn more in docs";
 
 export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
   "Checking availability...";
