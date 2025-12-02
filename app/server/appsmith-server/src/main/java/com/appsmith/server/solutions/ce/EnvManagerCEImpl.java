@@ -323,35 +323,46 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param organizationConfiguration
      * @param key
      * @param value
+     * @return true if the configuration was successfully set, false otherwise
      */
-    private void setConfigurationByKey(OrganizationConfiguration organizationConfiguration, String key, String value) {
+    private boolean setConfigurationByKey(OrganizationConfiguration organizationConfiguration, String key, String value) {
         Stream<Field> fieldStream = AppsmithBeanUtils.getAllFields(OrganizationConfiguration.class);
-        fieldStream.forEach(field -> {
+        boolean success = false;
+
+        for (Field field : fieldStream.toList()) {
             JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
             if (jsonProperty != null && jsonProperty.value().equals(key)) {
                 try {
                     field.setAccessible(true);
                     Object typedValue = ConvertUtils.convert(value, field.getType());
                     field.set(organizationConfiguration, typedValue);
+                    success = true;
                 } catch (IllegalAccessException e) {
-                    // Catch the error, log it and then do nothing.
+                    // Log the error and continue trying other fields
                     log.error(
-                            "Got error while parsing the JSON annotations from OrganizationConfiguration class. Cause: ",
-                            e);
+                            "Got error while parsing the JSON annotations from OrganizationConfiguration class for key '{}'. Cause: ",
+                            key, e);
                 }
             } else if (field.getName().equals(key)) {
                 try {
                     field.setAccessible(true);
                     Object typedValue = ConvertUtils.convert(value, field.getType());
                     field.set(organizationConfiguration, typedValue);
+                    success = true;
                 } catch (IllegalAccessException e) {
-                    // Catch the error, log it and then do nothing.
+                    // Log the error and continue trying other fields
                     log.error(
-                            "Got error while attempting to save property to OrganizationConfiguration class. Cause: ",
-                            e);
+                            "Got error while attempting to save property '{}' to OrganizationConfiguration class. Cause: ",
+                            key, e);
                 }
             }
-        });
+        }
+
+        if (!success) {
+            log.warn("Failed to set configuration for key '{}'", key);
+        }
+
+        return success;
     }
 
     private Mono<Organization> updateOrganizationConfiguration(String organizationId, Map<String, String> changes) {
@@ -361,7 +372,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .map(map -> {
                     String key = map.getKey();
                     String value = map.getValue();
-                    setConfigurationByKey(organizationConfiguration, key, value);
+                    boolean success = setConfigurationByKey(organizationConfiguration, key, value);
+                    if (!success) {
+                        log.warn("Failed to apply configuration change for key '{}' in organization '{}'", key, organizationId);
+                    }
                     return map;
                 })
                 .then(Mono.just(organizationConfiguration))
@@ -825,3 +839,4 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         });
     }
 }
+
