@@ -817,10 +817,6 @@ class MultiSelectWidget extends BaseWidget<
           equal,
         ).length > 0;
 
-    if (hasChanges && this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-
     if (hasChanges && !this.props.isDirty) {
       const listItemId = this.getListItemId(this.props.currentIndex);
       const updatedSelectedValuesByItem = {
