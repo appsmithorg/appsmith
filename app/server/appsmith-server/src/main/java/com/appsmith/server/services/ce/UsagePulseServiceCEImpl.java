@@ -15,6 +15,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
+@Slf4j
 public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
     private final UsagePulseRepository repository;
@@ -50,8 +52,11 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         if (null == usagePulseDTO.getViewMode()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
         } else if (FALSE.equals(usagePulseDTO.getViewMode()) && usagePulseDTO.getAnonymousUserId() != null) {
-            // We don't expect anonymous user to have access to edit mode
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
+            log.warn(
+                    "Ignoring usage pulse: anonymous user attempted edit-mode pulse. viewMode={}, hasAnonymousId={}",
+                    usagePulseDTO.getViewMode(),
+                    usagePulseDTO.getAnonymousUserId() != null);
+            return Mono.empty();
         }
 
         // TODO remove this condition after multi-tenancy is introduced
@@ -75,9 +80,9 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
             usagePulse.setInstanceId(instanceId);
 
             if (user.isAnonymous()) {
-                if (null == usagePulseDTO.getAnonymousUserId()) {
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
+                if (StringUtils.isBlank(usagePulseDTO.getAnonymousUserId())) {
+                    log.warn("Ignoring usage pulse: missing anonymous user id for anonymous user.");
+                    return Mono.empty();
                 }
                 usagePulse.setIsAnonymousUser(true);
                 usagePulse.setUser(usagePulseDTO.getAnonymousUserId());

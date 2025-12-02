@@ -2,6 +2,7 @@ package com.appsmith.server.git.central;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -2884,6 +2885,18 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             gitDocsDTOList.add(gitDocsDTO);
         }
         return Mono.just(gitDocsDTOList);
+    }
+
+    @Override
+    public Mono<List<GitLogDTO>> getCommitHistory(
+            String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        return gitArtifactHelper
+                .getArtifactById(branchedArtifactId, artifactEditPermission)
+                .flatMap(gitHandlingService::getCommitHistory);
     }
 
     @Override

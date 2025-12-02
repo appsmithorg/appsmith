@@ -957,4 +957,27 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         return commonGitFileUtils.removeDanglingLocks(repoSuffix);
     }
+
+    @Override
+    public Mono<List<com.appsmith.external.dtos.GitLogDTO>> getCommitHistory(Artifact branchedArtifact) {
+        GitArtifactMetadata gitData = branchedArtifact.getGitArtifactMetadata();
+        if (gitData == null || !StringUtils.hasText(gitData.getRefName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        ArtifactType artifactType = branchedArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                branchedArtifact.getWorkspaceId(), gitData.getDefaultArtifactId(), gitData.getRepoName());
+
+        return fsGitHandler
+                .checkoutToBranch(repoSuffix, gitData.getRefName())
+                .onErrorResume(e ->
+                        Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage())))
+                .then(fsGitHandler
+                        .getCommitHistory(repoSuffix)
+                        .onErrorResume(e -> Mono.error(
+                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage()))));
+    }
 }

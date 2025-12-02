@@ -1,4 +1,6 @@
-{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) ( .Values.autoscaling.enabled) }}
+{{- $workloadKind := upper (toString .Values.workload.kind) -}}
+{{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) $useDeployment }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:

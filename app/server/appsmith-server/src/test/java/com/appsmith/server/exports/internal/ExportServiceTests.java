@@ -42,8 +42,10 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
@@ -189,6 +191,9 @@ public class ExportServiceTests {
 
     @Autowired
     JsonSchemaVersions jsonSchemaVersions;
+
+    @Autowired
+    PartialExportService partialExportService;
 
     @BeforeEach
     public void setup() {
@@ -2098,6 +2103,215 @@ public class ExportServiceTests {
                     updatedActionNames.forEach(actionName -> {
                         assertThat(actionName).contains("MyAction");
                     });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void partialExportApplication_withAllResources_exportedWithAllResources() {
+        // Create an application
+        Application testApplication = new Application();
+        testApplication.setName("PartialExportTestApplication");
+        testApplication.setWorkspaceId(workspaceId);
+
+        Application savedApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .block();
+
+        assert savedApplication != null;
+        final String appId = savedApplication.getId();
+
+        // Get the default page
+        final Mono<ApplicationJson> resultMono = Mono.zip(
+                        Mono.just(savedApplication),
+                        newPageService.findPageById(
+                                savedApplication.getPages().get(0).getId(), READ_PAGES, false))
+                .flatMap(tuple -> {
+                    Application testApp = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+
+                    // Create widgets in the layout
+                    Layout layout = testPage.getLayouts().get(0);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject dsl = new JSONObject();
+                    try {
+                        dsl = new JSONObject(objectMapper.readValue(
+                                DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        fail();
+                    }
+
+                    ArrayList children = (ArrayList) dsl.get("children");
+
+                    // Create first widget - Text widget
+                    JSONObject textWidget = new JSONObject();
+                    textWidget.put("widgetName", "TextWidget1");
+                    textWidget.put("type", "TEXT_WIDGET");
+                    textWidget.put("text", "Sample Text");
+                    children.add(textWidget);
+
+                    // Create second widget - Button widget
+                    JSONObject buttonWidget = new JSONObject();
+                    buttonWidget.put("widgetName", "ButtonWidget1");
+                    buttonWidget.put("type", "BUTTON_WIDGET");
+                    buttonWidget.put("text", "Click Me");
+                    children.add(buttonWidget);
+
+                    layout.setDsl(dsl);
+                    layout.setPublishedDsl(dsl);
+
+                    // Use existing datasource from setup
+                    Datasource testDatasource = datasourceMap.get("DS1");
+
+                    // Create an action (query) with the datasource
+                    ActionDTO action = new ActionDTO();
+                    action.setName("testQuery");
+                    action.setPageId(testPage.getId());
+                    action.setRunBehaviour(RunBehaviourEnum.ON_PAGE_LOAD);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(testDatasource);
+
+                    // Create ActionCollection (JSObject)
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("TestJSObject");
+                    actionCollectionDTO.setPageId(testPage.getId());
+                    actionCollectionDTO.setApplicationId(testApp.getId());
+                    actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
+                    actionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+                    ActionDTO jsAction = new ActionDTO();
+                    jsAction.setName("testJSMethod");
+                    jsAction.setActionConfiguration(new ActionConfiguration());
+                    jsAction.getActionConfiguration().setBody("return 'test';");
+                    actionCollectionDTO.setActions(List.of(jsAction));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
+                    // Create CustomJSLib using the pattern from createExportAppJsonWithCustomJSLibTest
+                    CustomJSLib customJSLib =
+                            new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
+
+                    return layoutActionService
+                            .createSingleAction(action, Boolean.FALSE)
+                            .flatMap(savedAction -> layoutCollectionService
+                                    .createCollection(actionCollectionDTO)
+                                    .flatMap(savedCollection -> customJSLibService
+                                            .addJSLibsToContext(
+                                                    appId, CreatorContextType.APPLICATION, Set.of(customJSLib), false)
+                                            .flatMap(isAdded -> updateLayoutService
+                                                    .updateLayout(
+                                                            testPage.getId(), testApp.getId(), layout.getId(), layout)
+                                                    .then(customJSLibService
+                                                            .getAllJSLibsInContext(
+                                                                    appId, CreatorContextType.APPLICATION, false)
+                                                            .map(libs -> libs.stream()
+                                                                    .filter(lib -> lib.getName()
+                                                                            .equals(customJSLib.getName()))
+                                                                    .findFirst()
+                                                                    .orElse(null))
+                                                            .flatMap(savedJSLib -> Mono.zip(
+                                                                    Mono.just(testDatasource),
+                                                                    Mono.just(savedAction),
+                                                                    Mono.just(savedCollection),
+                                                                    Mono.just(savedJSLib)))))))
+                            .flatMap(exportTuple -> {
+                                Datasource savedDatasource = exportTuple.getT1();
+                                ActionDTO savedActionDTO = exportTuple.getT2();
+                                ActionCollectionDTO savedCollectionDTO = exportTuple.getT3();
+                                CustomJSLib savedJSLib = exportTuple.getT4();
+
+                                // Create PartialExportFileDTO with all resources
+                                PartialExportFileDTO partialExportFileDTO = new PartialExportFileDTO();
+                                partialExportFileDTO.setActionList(List.of(savedActionDTO.getId()));
+                                partialExportFileDTO.setActionCollectionList(List.of(savedCollectionDTO.getId()));
+                                partialExportFileDTO.setDatasourceList(List.of(savedDatasource.getId()));
+                                partialExportFileDTO.setCustomJsLib(List.of(savedJSLib.getId()));
+
+                                // Create widget JSON string
+                                JSONObject widgetsJson = new JSONObject();
+                                widgetsJson.put("layoutSystemType", "FIXED");
+                                JSONArray widgetsArray = new JSONArray();
+                                JSONObject widget1 = new JSONObject();
+                                widget1.put("widgetId", "textWidget1");
+                                widget1.put("widgetName", "TextWidget1");
+                                widget1.put("type", "TEXT_WIDGET");
+                                JSONObject widget2 = new JSONObject();
+                                widget2.put("widgetId", "buttonWidget1");
+                                widget2.put("widgetName", "ButtonWidget1");
+                                widget2.put("type", "BUTTON_WIDGET");
+                                widgetsArray.add(widget1);
+                                widgetsArray.add(widget2);
+                                JSONObject widgetsList = new JSONObject();
+                                widgetsList.put("widgetId", "textWidget1");
+                                widgetsList.put("parentId", "0");
+                                widgetsList.put("list", widgetsArray);
+                                JSONArray widgetLists = new JSONArray();
+                                widgetLists.add(widgetsList);
+                                widgetsJson.put("widgets", widgetLists);
+                                widgetsJson.put("flexLayers", new JSONArray());
+
+                                partialExportFileDTO.setWidget(widgetsJson.toJSONString());
+
+                                // Call partial export
+                                return partialExportService.getPartialExportResources(
+                                        appId, testPage.getId(), partialExportFileDTO);
+                            });
+                })
+                .cache();
+
+        StepVerifier.create(resultMono)
+                .assertNext(applicationJson -> {
+                    // Verify datasource is present
+                    assertThat(applicationJson.getDatasourceList()).isNotNull();
+                    assertThat(applicationJson.getDatasourceList()).hasSize(1);
+                    assertThat(applicationJson.getDatasourceList().get(0).getName())
+                            .isEqualTo("DS1");
+                    assertThat(applicationJson.getDatasourceList().get(0).getPluginId())
+                            .isEqualTo(installedPlugin.getPackageName());
+
+                    // Verify action (query) is present
+                    assertThat(applicationJson.getActionList()).isNotNull();
+                    assertThat(applicationJson.getActionList()).hasSize(1);
+                    assertThat(applicationJson
+                                    .getActionList()
+                                    .get(0)
+                                    .getUnpublishedAction()
+                                    .getName())
+                            .isEqualTo("testQuery");
+                    assertThat(applicationJson.getActionList().get(0).getPluginType())
+                            .isEqualTo(PluginType.API);
+
+                    // Verify ActionCollection (JSObject) is present
+                    assertThat(applicationJson.getActionCollectionList()).isNotNull();
+                    assertThat(applicationJson.getActionCollectionList()).hasSize(1);
+                    assertThat(applicationJson
+                                    .getActionCollectionList()
+                                    .get(0)
+                                    .getUnpublishedCollection()
+                                    .getName())
+                            .isEqualTo("TestJSObject");
+                    assertThat(applicationJson
+                                    .getActionCollectionList()
+                                    .get(0)
+                                    .getUnpublishedCollection()
+                                    .getPluginType())
+                            .isEqualTo(PluginType.JS);
+
+                    // Verify CustomJSLib is present
+                    assertThat(applicationJson.getCustomJSLibList()).isNotNull();
+                    assertThat(applicationJson.getCustomJSLibList()).hasSize(1);
+                    assertThat(applicationJson.getCustomJSLibList().get(0).getName())
+                            .isEqualTo("TestLib");
+                    assertThat(applicationJson.getCustomJSLibList().get(0).getUrl())
+                            .isEqualTo("url");
+                    assertThat(applicationJson.getCustomJSLibList().get(0).getAccessor())
+                            .contains("accessor1");
+
+                    // Verify widgets are present
+                    assertThat(applicationJson.getWidgets()).isNotNull();
+                    assertThat(applicationJson.getWidgets()).isNotEmpty();
                 })
                 .verifyComplete();
     }

@@ -27,6 +27,7 @@ import "codemirror/addon/hint/sql-hint";
 import "codemirror/mode/css/css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/htmlmixed/htmlmixed";
+import "codemirror-graphql/mode";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";

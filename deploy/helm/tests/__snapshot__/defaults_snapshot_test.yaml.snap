@@ -25,7 +25,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.5
+        appsmith.sh/chart: appsmith-3.6.6
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
   3: |
@@ -36,7 +36,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.5
+        appsmith.sh/chart: appsmith-3.6.6
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -125,7 +125,6 @@
           securityContext: {}
           serviceAccountName: RELEASE-NAME-appsmith
           volumes: null
-      updateStrategy: null
       volumeClaimTemplates:
         - metadata:
             name: data
@@ -143,7 +142,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.5
+        appsmith.sh/chart: appsmith-3.6.6
       name: RELEASE-NAME-appsmith-headless
       namespace: NAMESPACE
     spec:
@@ -182,7 +181,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.5
+        appsmith.sh/chart: appsmith-3.6.6
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -203,7 +202,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.5
+        appsmith.sh/chart: appsmith-3.6.6
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     secrets:

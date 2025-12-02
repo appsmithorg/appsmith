@@ -24,8 +24,10 @@ describe(
       });
 
       cy.get(".t--draggable-tablewidgetv2 .table .simplebar-content").then(
-        ($scrollBox) =>
-          expect($scrollBox[0].clientHeight).to.be.equal(tableHeight),
+        ($scrollBox) => {
+          // +2 is because of the SCROLL_BAR_OFFSET, which got added to the table height in PR: https://github.com/appsmithorg/appsmith/pull/41370
+          expect($scrollBox[0].clientHeight).to.be.equal(tableHeight + 2);
+        },
       );
     });
   },

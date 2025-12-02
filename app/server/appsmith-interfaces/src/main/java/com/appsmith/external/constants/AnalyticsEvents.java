@@ -94,7 +94,13 @@ public enum AnalyticsEvents {
 
     PARTIAL_EXPORT,
 
-    COMMUNITY_TEMPLATE_PUBLISHED;
+    COMMUNITY_TEMPLATE_PUBLISHED,
+
+    // Static URL events
+    STATIC_URL_ENABLED,
+    STATIC_URL_DISABLED,
+    STATIC_URL_APP_SLUG_UPDATED,
+    STATIC_URL_PAGE_SLUG_UPDATED;
 
     private final String eventName;
 

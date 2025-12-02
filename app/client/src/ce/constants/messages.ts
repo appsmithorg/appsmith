@@ -1949,6 +1949,7 @@ export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
   "Error in fetching app slug suggestion. Please try again.";
 export const ERROR_IN_ENABLING_STATIC_URL = () =>
   "Error in enabling static URL. Please try again.";
+export const STATIC_URL_DOCS_LINK_TEXT = () => "Learn more in docs";
 
 export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
   "Checking availability...";
@@ -2716,9 +2717,13 @@ export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
 
 export const ADD_CUSTOM_ACTION = () => "Add custom action";
 
+export const ADD_CUSTOM_GRAPHQL_ACTION = () => "Add custom GraphQL action";
+
 export const CONFIG_PROPERTY_COMMAND = () => "command";
 
 export const CUSTOM_ACTION_LABEL = () => "Custom Action";
+
+export const CUSTOM_GRAPHQL_ACTION_LABEL = () => "Custom GraphQL Action";
 
 export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
   "Too many login attempts. Please try again after some time.";

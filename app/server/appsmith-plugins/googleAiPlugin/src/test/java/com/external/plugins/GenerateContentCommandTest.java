@@ -32,10 +32,11 @@ public class GenerateContentCommandTest {
     @Test
     public void testCreateExecutionUri() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setFormData(Map.of(GENERATE_CONTENT_MODEL, Map.of(DATA, "gemini-pro")));
+        actionConfiguration.setFormData(Map.of(GENERATE_CONTENT_MODEL, Map.of(DATA, "gemini-2.5-pro")));
         URI uri = generateContentCommand.createExecutionUri(actionConfiguration);
         Assertions.assertEquals(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent", uri.toString());
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+                uri.toString());
     }
 
     @Test

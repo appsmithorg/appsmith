@@ -10,8 +10,8 @@ import {
 } from "redux-form";
 import { connect } from "react-redux";
 import type { DefaultRootState } from "react-redux";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import type { ControlProps } from "../BaseControl";
+import BaseControl from "../BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import {
   FormDataPaths,
@@ -28,7 +28,7 @@ import type {
   ConditionalOutput,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import NoSearchCommandFound from "./CustomActionsConfigControl/NoSearchCommandFound";
+import NoSearchCommandFound from "./NoSearchCommandFound";
 import styled from "styled-components";
 import { ActionRunBehaviour } from "PluginActionEditor/types/PluginActionTypes";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";

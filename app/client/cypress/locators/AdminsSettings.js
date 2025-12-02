@@ -80,6 +80,7 @@ export default {
   smtpAppsmithMailUserNameInput: "[name='APPSMITH_MAIL_USERNAME']",
   smtpAppsmithMailPasswordInput: "[name='APPSMITH_MAIL_PASSWORD']",
   smtpAppsmithMailTestButton: "[data-testid='admin-settings-button']",
+  appsmithBaseUrlInput: "[name='APPSMITH_BASE_URL']",
   addEmailGhostInput:
     "[data-testid='admin-settings-tag-input'] .bp3-input-ghost",
   // Static URL related locators
