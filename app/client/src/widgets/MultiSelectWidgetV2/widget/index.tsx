@@ -899,7 +899,7 @@ class MultiSelectWidget extends BaseWidget<
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
-    const values = this.mergeLabelAndValue();
+    const values = this.getSelectedValues();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
@@ -965,7 +965,7 @@ class MultiSelectWidget extends BaseWidget<
   };
 
   // { label , value } is needed in the widget
-  mergeLabelAndValue = (): LabelInValueType[] => {
+  getSelectedValues = (): LabelInValueType[] => {
     const {
       currentIndex = 0,
       defaultOptionValue = [],
