@@ -817,17 +817,20 @@ class MultiSelectWidget extends BaseWidget<
           equal,
         ).length > 0;
 
-    if (hasChanges && !this.props.isDirty) {
+    if (hasChanges) {
       const listItemId = this.getListItemId(this.props.currentIndex);
-      const updatedSelectedValuesByItem = {
-        ...(this.props.selectedValuesByItem || {}),
-        [listItemId]: this.props.defaultOptionValue,
-      };
 
-      this.props.updateWidgetMetaProperty(
-        "selectedValuesByItem",
-        updatedSelectedValuesByItem,
-      );
+      if (!(listItemId in (this.props.selectedValuesByItem || {}))) {
+        const updatedSelectedValuesByItem = {
+          ...(this.props.selectedValuesByItem || {}),
+          [listItemId]: this.props.defaultOptionValue,
+        };
+
+        this.props.updateWidgetMetaProperty(
+          "selectedValuesByItem",
+          updatedSelectedValuesByItem,
+        );
+      }
     }
 
     this.syncSelectionMapOnIndexChange(
