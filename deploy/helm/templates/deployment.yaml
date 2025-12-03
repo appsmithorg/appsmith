@@ -14,7 +14,7 @@ metadata:
 spec:
   {{- if $useDeployment }}
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicas | default 1 }}
+  replicas: {{ .Values.replicas }}
   {{- end }}
   strategy:
     type: {{ .Values.strategyType | default "RollingUpdate" }}

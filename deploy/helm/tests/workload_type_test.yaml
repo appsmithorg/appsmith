@@ -31,3 +31,14 @@ tests:
       - equal:
           path: kind
           value: Deployment
+  - name: replica count should be 0 when set to 0
+    set:
+      workload:
+        kind: Deployment
+      autoscaling:
+        enabled: false
+      replicas: 0
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0
