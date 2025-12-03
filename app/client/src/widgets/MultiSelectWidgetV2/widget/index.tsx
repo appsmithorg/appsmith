@@ -833,16 +833,10 @@ class MultiSelectWidget extends BaseWidget<
       }
     }
 
-    this.syncSelectionMapOnIndexChange(
-      prevProps.currentIndex,
-      this.props.currentIndex,
-    );
+    this.syncSelectionMapOnIndexChange(this.props.currentIndex);
   }
 
-  private syncSelectionMapOnIndexChange(
-    previousRowIndex?: number,
-    currentRowIndex?: number,
-  ) {
+  private syncSelectionMapOnIndexChange(currentRowIndex?: number) {
     const {
       defaultOptionValue = [],
       selectedValuesByItem = {},
