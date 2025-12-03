@@ -593,7 +593,7 @@ public class GitRouteAspectCE {
      */
     protected Mono<?> clone(Context ctx) {
         List<String> metaArgs = List.of(
-                ctx.getGitProfile().getAuthorName(),
+                ctx.getGitProfile().getAuthorEmail(),
                 ctx.getGitProfile().getAuthorName(),
                 ctx.getGitKey(),
                 ctx.getGitMeta().getRemoteUrl(),

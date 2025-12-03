@@ -3,6 +3,7 @@ package com.appsmith.server.aspect;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.annotations.GitRoute;
 import com.appsmith.server.artifacts.gitRoute.GitRouteArtifact;
+import com.appsmith.server.aspect.ce.GitRouteAspectCE;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
@@ -66,7 +67,7 @@ class GitRouteAspectTest {
     // ---------------------- Helpers ----------------------
 
     private static Class<?> contextClass() throws Exception {
-        return Class.forName("com.appsmith.server.aspect.GitRouteAspect$Context");
+        return Class.forName("com.appsmith.server.aspect.ce.GitRouteAspectCE$Context");
     }
 
     private static Object newContext() throws Exception {
@@ -90,7 +91,8 @@ class GitRouteAspectTest {
 
     @SuppressWarnings("unchecked")
     private <T> Mono<T> invokeMono(String methodName, Class<?>[] paramTypes, Object... args) throws Exception {
-        Method m = GitRouteAspect.class.getDeclaredMethod(methodName, paramTypes);
+        // Methods are in GitRouteAspectCE, but accessible through GitRouteAspect
+        Method m = GitRouteAspectCE.class.getDeclaredMethod(methodName, paramTypes);
         m.setAccessible(true);
         return (Mono<T>) m.invoke(aspect, args);
     }
