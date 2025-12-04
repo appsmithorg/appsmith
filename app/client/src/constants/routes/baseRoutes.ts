@@ -28,6 +28,9 @@ export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
 export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
 export const WORKSPACE_SETTINGS_GENERAL_PAGE_URL = `${WORKSPACE_URL}/settings/general`;
 export const WORKSPACE_SETTINGS_MEMBERS_PAGE_URL = `${WORKSPACE_URL}/settings/members`;
+export const WORKSPACE_EDITOR_URL = "/workspace/:workspaceId";
+export const WORKSPACE_DATASOURCES_URL = `${WORKSPACE_EDITOR_URL}/datasources`;
+export const WORKSPACE_DATASOURCE_EDITOR_URL = `${WORKSPACE_EDITOR_URL}/datasource/:datasourceId`;
 export const WORKSPACE_SETTINGS_LICENSE_PAGE_URL = `/settings/license`;
 export const ORG_LOGIN_PATH = "/org";
 

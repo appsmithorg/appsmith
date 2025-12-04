@@ -15,6 +15,7 @@ import type { UpdateCanvasPayload } from "actions/pageActions";
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,
   initialized: false,
+  isWorkspaceDatasourceInitialized: false,
   loadingStates: {
     publishing: false,
     publishingError: false,
@@ -64,6 +65,16 @@ export const handlers = {
   },
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: true };
+  },
+  [ReduxActionTypes.INITIALIZE_WORKSPACE_DATASOURCE]: (
+    state: EditorReduxState,
+  ) => {
+    return { ...state, isWorkspaceDatasourceInitialized: false };
+  },
+  [ReduxActionTypes.INITIALIZE_WORKSPACE_DATASOURCE_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return { ...state, isWorkspaceDatasourceInitialized: true };
   },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: EditorReduxState,
@@ -318,6 +329,7 @@ const editorReducer = createReducer(initialState, handlers);
 export interface EditorReduxState {
   widgetConfigBuilt: boolean;
   initialized: boolean;
+  isWorkspaceDatasourceInitialized: boolean;
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;

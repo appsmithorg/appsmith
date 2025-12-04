@@ -358,4 +358,18 @@ export class CommonLocators {
   _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
   _homeIcon = "[data-testid='t--default-home-icon']";
   _widget = (widgetName: string) => `.t--widget-${widgetName}`;
+  workspaceDatasources = "[data-testid='t--workspace-datasources']";
+  workspaceDatasourcesPage = "[data-testid='t--workspace-datasources-page']";
+  _addDatasourceButtonBlankScreen = ".t--add-datasource-button-blank-screen";
+  _addDatasourceButton = ".t--add-datasource-button";
+  _datasource = ".t--datasource";
+  _dataBlankState = ".t--data-blank-state";
+  _datasourceOptionDelete = ".t--datasource-option-delete";
+  _cancelEditDatasource = ".t--cancel-edit-datasource";
+  _datasourceModalSave = ".t--datasource-modal-save";
+  _headersArray = ".t--headers-array";
+  _mockDatasourceName = "[data-testid='mockdatasource-name']";
+  _datasourceName = "[data-testid='datasource-name']";
+  _contextMenuTrigger = "[data-testid='t--context-menu-trigger']";
+  _newIntegrationsWrapper = "#new-integrations-wrapper";
 }

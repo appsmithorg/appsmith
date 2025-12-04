@@ -51,7 +51,8 @@ import {
   PluginType,
 } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { type IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
 import { filterSearch } from "./util";
 
 // This function remove the given key from queryParams and return string
@@ -314,6 +315,10 @@ const mapStateToProps = (
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
   ).toLocaleLowerCase();
+
+  // Check if we're on workspace datasources page
+  const isWorkspaceDatasourcesPage = isWorkspaceContext();
+
   const filteredMostPopularPlugins: Plugin[] = !!isAirgappedInstance
     ? mostPopularPlugins.filter(
         (plugin: Plugin) =>
@@ -321,8 +326,15 @@ const mapStateToProps = (
       )
     : mostPopularPlugins;
 
+  // Filter out REST API from most popular plugins when on workspace datasources page
+  const finalFilteredMostPopularPlugins = isWorkspaceDatasourcesPage
+    ? filteredMostPopularPlugins.filter(
+        (plugin: Plugin) => plugin?.packageName !== PluginPackageName.REST_API,
+      )
+    : filteredMostPopularPlugins;
+
   let plugins = !!props?.showMostPopularPlugins
-    ? filteredMostPopularPlugins
+    ? finalFilteredMostPopularPlugins
     : getDBPlugins(state);
 
   plugins = filterSearch(plugins, searchedPlugin) as Plugin[];
