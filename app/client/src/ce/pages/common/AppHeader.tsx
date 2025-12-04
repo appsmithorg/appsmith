@@ -18,10 +18,13 @@ import {
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
   CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
+  WORKSPACE_DATASOURCES_URL,
+  WORKSPACE_DATASOURCE_EDITOR_URL,
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
 import type { RouteComponentProps } from "react-router";
 import { Header as AppIDEHeader } from "pages/AppIDE/layouts/components/Header";
+import WorkspaceDatasourceHeader from "pages/workspace/WorkspaceDatasourceHeader";
 
 export type Props = RouteComponentProps;
 
@@ -44,6 +47,14 @@ export const Routes = () => {
         component={undefined}
         exact
         path={CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH}
+      />
+      <Route
+        component={WorkspaceDatasourceHeader}
+        path={WORKSPACE_DATASOURCES_URL}
+      />
+      <Route
+        component={WorkspaceDatasourceHeader}
+        path={WORKSPACE_DATASOURCE_EDITOR_URL}
       />
       <Route component={AppIDEHeader} path={BUILDER_PATH_DEPRECATED} />
       <Route component={Navigation} path={VIEWER_PATH_DEPRECATED} />

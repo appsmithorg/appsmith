@@ -47,7 +47,7 @@ const DatasourceIcon = styled.img`
 `;
 
 interface DataSidePaneProps {
-  dsUsageMap: Record<string, string>;
+  dsUsageMap?: Record<string, string>;
 }
 
 export const DataSidePane = (props: DataSidePaneProps) => {
