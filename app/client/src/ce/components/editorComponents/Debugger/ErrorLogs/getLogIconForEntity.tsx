@@ -47,7 +47,7 @@ export const getIconForEntity: IconEntityMapper = {
       );
     }
 
-    return <img alt="icon" />;
+    return <img alt="Plugin icon" />;
   },
   [DEBUGGER_ENTITY_TYPE.GIT]: () => {
     return <Icon name="git-repository" />;
