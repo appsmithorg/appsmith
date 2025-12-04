@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Switch } from "react-router";
+import { generatePath } from "react-router-dom";
 import { SentryRoute } from "components/SentryRoute";
 import styled from "styled-components";
 import { Spinner, IDE_HEADER_HEIGHT } from "@appsmith/ads";
@@ -18,6 +19,10 @@ import {
   WORKSPACE_DATASOURCES_URL,
   WORKSPACE_DATASOURCE_EDITOR_URL,
 } from "constants/routes";
+import history from "utils/history";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { PluginType } from "entities/Plugin";
 
 // Page container for full viewport layout
 const PageContainer = styled.div`
@@ -47,14 +52,18 @@ interface WorkspaceDatasourcesPageProps {
   workspaceId: string;
 }
 
-const WorkspaceDatasourceDefaultView = () => {
+const WorkspaceDatasourceDefaultView = ({
+  onIntegrationClick,
+}: {
+  onIntegrationClick?: (params: { pluginId: string; type: PluginType }) => void;
+}) => {
   const datasources = useSelector(getDatasources);
 
   if (!datasources || datasources.length === 0) {
     return <DatasourceBlankState />;
   }
 
-  return <CreateNewDatasourceTab />;
+  return <CreateNewDatasourceTab onIntegrationClick={onIntegrationClick} />;
 };
 
 export const WorkspaceDatasourcesPage = (
@@ -75,6 +84,43 @@ export const WorkspaceDatasourcesPage = (
       dispatch(initWorkspaceDatasource({ workspaceId }));
     }
   }, [dispatch, workspaceId]);
+
+  // Handler for add button click - navigate to /NEW
+  const handleAddButtonClick = useCallback(() => {
+    const url = generatePath(WORKSPACE_DATASOURCES_URL, { workspaceId });
+
+    history.push(`${url}/NEW`);
+  }, [workspaceId]);
+
+  // Handler for datasource click - navigate to datasource/:datasourceId
+  const handleDatasourceClick = useCallback(
+    (datasourceId: string) => {
+      const url = generatePath(WORKSPACE_DATASOURCE_EDITOR_URL, {
+        workspaceId,
+        datasourceId,
+      });
+
+      history.push(url);
+    },
+    [workspaceId],
+  );
+
+  // Handler for integration click - create temp datasource and navigate to editor
+  const handleIntegrationClick = useCallback(
+    (params: { pluginId: string; type: PluginType }) => {
+      // Create temp datasource
+      dispatch(createTempDatasourceFromForm(params));
+
+      // Navigate to workspace datasource editor with temp ID and pluginId as query param
+      const url = generatePath(WORKSPACE_DATASOURCE_EDITOR_URL, {
+        workspaceId,
+        datasourceId: TEMP_DATASOURCE_ID,
+      });
+
+      history.push(`${url}?pluginId=${params.pluginId}`);
+    },
+    [workspaceId, dispatch],
+  );
 
   // Show loading state while workspace editor is initializing
   if (!isWorkspaceDatasourceInitialized) {
@@ -100,7 +146,10 @@ export const WorkspaceDatasourcesPage = (
         }}
       >
         <LeftPane>
-          <DataSidePane />
+          <DataSidePane
+            onAddButtonClick={handleAddButtonClick}
+            onDatasourceClick={handleDatasourceClick}
+          />
         </LeftPane>
         <MainPane>
           <Switch>
@@ -108,7 +157,11 @@ export const WorkspaceDatasourcesPage = (
             <SentryRoute
               exact
               path={`${WORKSPACE_DATASOURCES_URL}/NEW`}
-              render={() => <CreateNewDatasourceTab />}
+              render={() => (
+                <CreateNewDatasourceTab
+                  onIntegrationClick={handleIntegrationClick}
+                />
+              )}
             />
             {/* Edit existing datasource - using DataSourceEditor */}
             <SentryRoute
@@ -125,7 +178,11 @@ export const WorkspaceDatasourcesPage = (
             {/* Default list view - show "Connect a datasource" page by default */}
             <SentryRoute
               path={WORKSPACE_DATASOURCES_URL}
-              render={() => <WorkspaceDatasourceDefaultView />}
+              render={() => (
+                <WorkspaceDatasourceDefaultView
+                  onIntegrationClick={handleIntegrationClick}
+                />
+              )}
             />
           </Switch>
         </MainPane>

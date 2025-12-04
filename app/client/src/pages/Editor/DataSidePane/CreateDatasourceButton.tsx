@@ -9,7 +9,12 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
-const CreateDatasourceButton = () => {
+interface CreateDatasourceButtonProps {
+  onClick?: () => void;
+}
+
+const CreateDatasourceButton = (props: CreateDatasourceButtonProps) => {
+  const { onClick } = props;
   const userWorkspacePermissions = useSelector(
     (state: DefaultRootState) =>
       getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -26,18 +31,24 @@ const CreateDatasourceButton = () => {
     return null;
   }
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      history.push(
+        builderURL({
+          suffix: "datasources/NEW",
+        }),
+      );
+    }
+  };
+
   return (
     <Button
       className={"t--add-datasource-button"}
       isIconButton
       kind="tertiary"
-      onClick={() =>
-        history.push(
-          builderURL({
-            suffix: "datasources/NEW",
-          }),
-        )
-      }
+      onClick={handleClick}
       size="sm"
       startIcon="add-line"
     />

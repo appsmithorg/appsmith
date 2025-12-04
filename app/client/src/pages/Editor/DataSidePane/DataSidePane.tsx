@@ -48,10 +48,12 @@ const DatasourceIcon = styled.img`
 
 interface DataSidePaneProps {
   dsUsageMap?: Record<string, string>;
+  onAddButtonClick?: () => void;
+  onDatasourceClick?: (datasourceId: string) => void;
 }
 
 export const DataSidePane = (props: DataSidePaneProps) => {
-  const { dsUsageMap } = props;
+  const { dsUsageMap, onAddButtonClick, onDatasourceClick } = props;
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
@@ -69,9 +71,16 @@ export const DataSidePane = (props: DataSidePaneProps) => {
     ),
   );
 
-  const goToDatasource = useCallback((id: string) => {
-    history.push(datasourcesEditorIdURL({ datasourceId: id }));
-  }, []);
+  const goToDatasource = useCallback(
+    (id: string) => {
+      if (onDatasourceClick) {
+        onDatasourceClick(id);
+      } else {
+        history.push(datasourcesEditorIdURL({ datasourceId: id }));
+      }
+    },
+    [onDatasourceClick],
+  );
 
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
@@ -90,13 +99,17 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   );
 
   const addButtonClickHandler = useCallback(() => {
-    history.push(
-      integrationEditorURL({
-        basePageId,
-        selectedTab: INTEGRATION_TABS.NEW,
-      }),
-    );
-  }, [basePageId]);
+    if (onAddButtonClick) {
+      onAddButtonClick();
+    } else {
+      history.push(
+        integrationEditorURL({
+          basePageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+    }
+  }, [basePageId, onAddButtonClick]);
 
   const blankStateButtonProps = useMemo(
     () => ({
@@ -131,7 +144,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
-            <CreateDatasourceButton />
+            <CreateDatasourceButton onClick={addButtonClickHandler} />
           ) : undefined
         }
         title={createMessage(DATA_PANE_TITLE)}
