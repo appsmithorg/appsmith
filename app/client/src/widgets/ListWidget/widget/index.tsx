@@ -848,6 +848,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     };
   }
 
+  scrollToTop = () => {
+    // Find the scrollable container using the widget's generated class name
+    const scrollableElement = document.querySelector(
+      `.${this.props.widgetId}`,
+    );
+
+    if (scrollableElement) {
+      scrollableElement.scrollTop = 0;
+    }
+  };
+
   onPageChange = (page: number) => {
     const currentPage = this.props.pageNo;
     const eventType =
@@ -860,6 +871,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         type: eventType,
       },
     });
+
+    // Scroll to top after page change
+    setTimeout(() => this.scrollToTop(), 0);
   };
 
   /**
@@ -1527,7 +1541,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               boxShadow={this.props.boxShadow}
               current={this.state.page}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              onChange={(page: number) => this.setState({ page })}
+              onChange={(page: number) => {
+                this.setState({ page });
+                setTimeout(() => this.scrollToTop(), 0);
+              }}
               perPage={perPage}
               total={(this.props.listData || []).length}
             />
