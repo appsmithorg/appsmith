@@ -108,6 +108,21 @@ export const handlers = {
 
     draftState.loadingStates.isSavingWorkspaceInfo = false;
     draftState.list = [...workspaces];
+
+    // Also update searchEntities if they exist to keep search results in sync
+    if (draftState.searchEntities?.workspaces) {
+      const searchWorkspaceIndex =
+        draftState.searchEntities.workspaces.findIndex(
+          (workspace: Workspace) => workspace.id === action.payload.id,
+        );
+
+      if (searchWorkspaceIndex !== -1) {
+        draftState.searchEntities.workspaces[searchWorkspaceIndex] = {
+          ...draftState.searchEntities.workspaces[searchWorkspaceIndex],
+          ...action.payload,
+        };
+      }
+    }
   },
   [ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR]: (
     draftState: WorkspaceReduxState,
