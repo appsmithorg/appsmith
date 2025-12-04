@@ -25,7 +25,8 @@ public abstract class GitRouteArtifactCE {
         return switch (artifactType) {
             case APPLICATION -> applicationRepository
                     .findById(artifactId)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)))
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, artifactType, artifactId)))
                     .map(app -> (Artifact) app);
             default -> Mono.error(new AppsmithException(AppsmithError.GIT_ROUTE_HANDLER_NOT_FOUND, artifactType));
         };
