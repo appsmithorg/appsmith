@@ -8,7 +8,7 @@ import type {
   UseFormResetField,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
+import { Button, Icon, NumberInput, Text, Tooltip } from "@appsmith/ads";
 
 import type { Inputs } from "./BrandingPage";
 import {
@@ -29,6 +29,8 @@ import { useBrandingForm } from "ee/pages/AdminSettings/Branding/useBrandingForm
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import styled from "styled-components";
 import { HelperText } from "pages/AdminSettings/components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const Wrapper = styled.form`
   .help-icon {
@@ -60,6 +62,9 @@ function SettingsForm(props: SettingsFormProps) {
   const { onSubmit } = useBrandingForm({
     dirtyFields: formState.dirtyFields,
   });
+  const isLogoSizeEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_branding_logo_size,
+  );
 
   return (
     <Wrapper
@@ -99,6 +104,84 @@ function SettingsForm(props: SettingsFormProps) {
           * {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
         </HelperText>
       </div>
+
+      {/* LOGO DIMENSIONS */}
+      {isLogoSizeEnabled && (
+        <div className="flex flex-col gap-2">
+          <StyledText
+            color="var(--ads-v2-color-fg)"
+            kind="body-m"
+            renderAs="label"
+          >
+            Logo Dimensions
+          </StyledText>
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-1 flex-1">
+              <Text
+                color="var(--ads-v2-color-fg-muted)"
+                htmlFor="logoWidth"
+                kind="body-s"
+                renderAs="label"
+              >
+                Width (px)
+              </Text>
+              <Controller
+                control={control}
+                name="logoWidth"
+                render={({ field: { onChange, value } }) => (
+                  <NumberInput
+                    className="t--settings-brand-logo-width-input"
+                    onChange={(val) => {
+                      const numVal = val ? parseInt(val, 10) : undefined;
+
+                      onChange(isNaN(numVal as number) ? undefined : numVal);
+                      AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                        propertyName: "logoWidth",
+                      });
+                    }}
+                    placeholder="160"
+                    value={value?.toString() || ""}
+                  />
+                )}
+              />
+            </div>
+            <div className="flex flex-col gap-1 flex-1">
+              <Text
+                color="var(--ads-v2-color-fg-muted)"
+                htmlFor="logoHeight"
+                kind="body-s"
+                renderAs="label"
+              >
+                Height (px)
+              </Text>
+              <Controller
+                control={control}
+                name="logoHeight"
+                render={({ field: { onChange, value } }) => (
+                  <NumberInput
+                    className="t--settings-brand-logo-height-input"
+                    onChange={(val) => {
+                      const numVal = val ? parseInt(val, 10) : undefined;
+
+                      onChange(isNaN(numVal as number) ? undefined : numVal);
+                      AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                        propertyName: "logoHeight",
+                      });
+                    }}
+                    placeholder="24"
+                    value={value?.toString() || ""}
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <HelperText renderAs="p">
+            Optional: Set maximum width and height for the logo in pixels.
+            Defaults to 10rem (160px) width and 1.5rem (24px) height if not
+            specified.
+          </HelperText>
+        </div>
+      )}
 
       {/* FAVICON */}
       <div className="flex flex-col gap-2">
