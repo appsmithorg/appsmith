@@ -63,7 +63,7 @@ function SettingsForm(props: SettingsFormProps) {
     dirtyFields: formState.dirtyFields,
   });
   const isLogoSizeEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_branding_logo_size,
+    FEATURE_FLAG.release_branding_logo_resize_enabled,
   );
 
   return (
