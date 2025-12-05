@@ -27,6 +27,7 @@ interface CreateAIPluginsProps {
 
   plugins: Plugin[];
   createTempDatasourceFromForm: typeof createTempDatasourceFromForm;
+  onIntegrationClick?: (params: { pluginId: string; type: PluginType }) => void;
 }
 
 function AIDataSources(props: CreateAIPluginsProps) {
@@ -38,10 +39,18 @@ function AIDataSources(props: CreateAIPluginsProps) {
       pluginPackageName: plugin.packageName,
     });
 
-    props.createTempDatasourceFromForm({
-      pluginId: plugin.id,
-      type: plugin.type,
-    });
+    // Use custom handler if provided, otherwise use default
+    if (props.onIntegrationClick) {
+      props.onIntegrationClick({
+        pluginId: plugin.id,
+        type: plugin.type,
+      });
+    } else {
+      props.createTempDatasourceFromForm({
+        pluginId: plugin.id,
+        type: plugin.type,
+      });
+    }
   };
 
   return (

@@ -79,6 +79,7 @@ interface CreateAPIOrSaasPluginsProps {
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
   isIntegrationsEnabledForPaid?: boolean;
+  onIntegrationClick?: (params: { pluginId: string; type: PluginType }) => void;
 }
 
 export const API_ACTION = {
@@ -108,12 +109,25 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         pluginName: authApiPlugin.name,
         pluginPackageName: authApiPlugin.packageName,
       });
-      props.createTempDatasourceFromForm({
-        pluginId: authApiPlugin.id,
-        type: authApiPlugin.type,
-      });
+
+      // Use custom handler if provided, otherwise use default
+      if (props.onIntegrationClick) {
+        props.onIntegrationClick({
+          pluginId: authApiPlugin.id,
+          type: authApiPlugin.type,
+        });
+      } else {
+        props.createTempDatasourceFromForm({
+          pluginId: authApiPlugin.id,
+          type: authApiPlugin.type,
+        });
+      }
     }
-  }, [authApiPlugin, props.createTempDatasourceFromForm]);
+  }, [
+    authApiPlugin,
+    props.createTempDatasourceFromForm,
+    props.onIntegrationClick,
+  ]);
 
   const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -166,10 +180,18 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         break;
       case API_ACTION.CREATE_DATASOURCE_FORM: {
         if (params) {
-          props.createTempDatasourceFromForm({
-            pluginId: params.pluginId!,
-            type: params.type!,
-          });
+          // Use custom handler if provided, otherwise use default
+          if (props.onIntegrationClick) {
+            props.onIntegrationClick({
+              pluginId: params.pluginId!,
+              type: params.type!,
+            });
+          } else {
+            props.createTempDatasourceFromForm({
+              pluginId: params.pluginId!,
+              type: params.type!,
+            });
+          }
         }
 
         break;

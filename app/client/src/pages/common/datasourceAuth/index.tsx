@@ -39,6 +39,9 @@ import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import { PluginType } from "entities/Plugin";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
+import { generatePath } from "react-router-dom";
+import { WORKSPACE_DATASOURCES_URL } from "constants/routes";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -389,6 +392,19 @@ function DatasourceAuth({
                   "ONBOARDING_FLOW_DATASOURCE_FORM_CANCEL_CLICK",
                 );
                 dispatch(resetCurrentPluginIdForCreateNewApp());
+              } else if (isWorkspaceContext()) {
+                // Extract workspaceId from URL path
+                const pathMatch =
+                  window.location.pathname.match(/\/workspace\/([^/]+)/);
+                const workspaceId = pathMatch?.[1];
+
+                if (workspaceId) {
+                  const url = generatePath(WORKSPACE_DATASOURCES_URL, {
+                    workspaceId,
+                  });
+
+                  history.push(url);
+                }
               } else {
                 const URL = integrationEditorURL({
                   basePageId: baseParentEntityId,

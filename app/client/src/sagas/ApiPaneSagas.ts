@@ -58,6 +58,9 @@ import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { apiEditorIdURL, datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { WORKSPACE_DATASOURCE_EDITOR_URL } from "constants/routes";
+import { generatePath } from "react-router-dom";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
 import { validateResponse } from "./ErrorSagas";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { removeTempDatasource } from "actions/datasourceActions";
@@ -583,21 +586,43 @@ export function* handleDatasourceCreatedSaga(
     (!!currentApplicationIdForCreateNewApp &&
       actionPayload.payload.id !== TEMP_DATASOURCE_ID)
   ) {
-    const basePageId: string = !!currentApplicationIdForCreateNewApp
-      ? application?.defaultBasePageId
-      : yield select(getCurrentBasePageId);
+    // Check if we're in workspace context
+    if (isWorkspaceContext()) {
+      // Extract workspaceId from URL path
+      const pathMatch = window.location.pathname.match(/\/workspace\/([^/]+)/);
+      const workspaceId = pathMatch?.[1];
 
-    history.push(
-      datasourcesEditorIdURL({
-        basePageId,
-        datasourceId: actionPayload.payload.id,
-        params: {
+      if (workspaceId) {
+        const url = generatePath(WORKSPACE_DATASOURCE_EDITOR_URL, {
+          workspaceId,
+          datasourceId: actionPayload.payload.id,
+        });
+        const queryParams = getQueryParams();
+        const queryString = new URLSearchParams({
+          ...queryParams,
           from: "datasources",
-          ...getQueryParams(),
-          pluginId: plugin?.id,
-        },
-      }),
-    );
+          pluginId: plugin?.id || "",
+        }).toString();
+
+        history.push(`${url}?${queryString}`);
+      }
+    } else {
+      const basePageId: string = !!currentApplicationIdForCreateNewApp
+        ? application?.defaultBasePageId
+        : yield select(getCurrentBasePageId);
+
+      history.push(
+        datasourcesEditorIdURL({
+          basePageId,
+          datasourceId: actionPayload.payload.id,
+          params: {
+            from: "datasources",
+            ...getQueryParams(),
+            pluginId: plugin?.id,
+          },
+        }),
+      );
+    }
   }
 }
 

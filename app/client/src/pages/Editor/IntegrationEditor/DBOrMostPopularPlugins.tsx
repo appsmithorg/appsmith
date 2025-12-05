@@ -122,6 +122,7 @@ interface CreateDBOrMostPopularPluginsProps {
   active?: boolean;
   pageId: string;
   addDivider?: boolean;
+  onIntegrationClick?: (params: { pluginId: string; type: PluginType }) => void;
 }
 
 type CreateDBOrMostPopularPluginsType = ReduxStateProps &
@@ -181,10 +182,18 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
       }
     }
 
-    this.props.createTempDatasource({
-      pluginId,
-      type: params!.type!,
-    });
+    // Use custom handler if provided, otherwise use default
+    if (this.props.onIntegrationClick) {
+      this.props.onIntegrationClick({
+        pluginId,
+        type: params!.type!,
+      });
+    } else {
+      this.props.createTempDatasource({
+        pluginId,
+        type: params!.type!,
+      });
+    }
   };
 
   handleOnClick = () => {

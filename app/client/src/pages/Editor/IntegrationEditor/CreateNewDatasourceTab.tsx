@@ -17,6 +17,7 @@ import {
 } from "selectors/editorSelectors";
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
+import type { PluginType } from "entities/Plugin";
 import MockDataSources from "./MockDataSources";
 import APIOrSaasPlugins from "./APIOrSaasPlugins";
 import DBPluginsOrMostPopular from "./DBOrMostPopularPlugins";
@@ -57,6 +58,7 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isOnboardingScreen?: boolean;
+  onIntegrationClick?: (params: { pluginId: string; type: PluginType }) => void;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -116,6 +118,7 @@ class CreateNewDatasourceTab extends React.Component<
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
             location={location}
+            onIntegrationClick={this.props.onIntegrationClick}
             pageId={pageId}
             showMostPopularPlugins
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
@@ -125,6 +128,7 @@ class CreateNewDatasourceTab extends React.Component<
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
             location={location}
+            onIntegrationClick={this.props.onIntegrationClick}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
@@ -133,6 +137,7 @@ class CreateNewDatasourceTab extends React.Component<
             addDivider
             isCreating={isCreating}
             location={location}
+            onIntegrationClick={this.props.onIntegrationClick}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
@@ -140,12 +145,14 @@ class CreateNewDatasourceTab extends React.Component<
             active={false}
             isCreating={isCreating}
             location={location}
+            onIntegrationClick={this.props.onIntegrationClick}
             pageId={pageId}
             showSaasAPIs
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           <AIPlugins
             isCreating={isCreating}
+            onIntegrationClick={this.props.onIntegrationClick}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
