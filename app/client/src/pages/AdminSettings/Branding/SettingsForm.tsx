@@ -115,7 +115,7 @@ function SettingsForm(props: SettingsFormProps) {
           >
             Logo Dimensions
           </StyledText>
-          <div className="flex gap-4">
+          <div className="flex flex-row lg:flex-col 2xl:flex-row gap-4">
             <div className="flex flex-col gap-1 flex-1">
               <Text
                 color="var(--ads-v2-color-fg-muted)"
