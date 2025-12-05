@@ -79,6 +79,8 @@ import {
   INTEGRATION_TABS,
   RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
+  WORKSPACE_DATASOURCES_URL,
+  WORKSPACE_DATASOURCE_EDITOR_URL,
 } from "constants/routes";
 import history from "utils/history";
 import {
@@ -174,6 +176,8 @@ import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import FocusRetention from "../../sagas/FocusRetentionSaga";
 import { identifyEntityFromPath } from "../../navigation/FocusEntity";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
+import { generatePath } from "react-router-dom";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import {
   getFromServerWhenNoPrefetchedResult,
@@ -399,11 +403,30 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
     (d) => d.id !== deletedDatasourceId,
   );
 
+  // Check if we're in workspace context
+  const isWorkspace = isWorkspaceContext();
+
   // Go to the add datasource if the last item is deleted
   if (remainingDatasources.length === 0) {
-    yield call(() =>
-      history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW })),
-    );
+    if (isWorkspace) {
+      // Extract workspaceId from URL path
+      const pathMatch = window.location.pathname.match(/\/workspace\/([^/]+)/);
+      const workspaceId = pathMatch?.[1];
+
+      if (workspaceId) {
+        const url = generatePath(WORKSPACE_DATASOURCES_URL, {
+          workspaceId,
+        });
+
+        yield call(() => history.push(`${url}/NEW`));
+      }
+    } else {
+      yield call(() =>
+        history.push(
+          integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW }),
+        ),
+      );
+    }
 
     return;
   }
@@ -427,14 +450,26 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
     (d) => d.id !== deletedDatasourceId,
   );
 
-  if (remainingGroupDatasources.length === 0) {
-    history.push(
-      datasourcesEditorIdURL({ datasourceId: remainingDatasources[0].id }),
-    );
+  const targetDatasourceId =
+    remainingGroupDatasources.length === 0
+      ? remainingDatasources[0].id
+      : remainingGroupDatasources[0].id;
+
+  if (isWorkspace) {
+    // Extract workspaceId from URL path
+    const pathMatch = window.location.pathname.match(/\/workspace\/([^/]+)/);
+    const workspaceId = pathMatch?.[1];
+
+    if (workspaceId) {
+      const url = generatePath(WORKSPACE_DATASOURCE_EDITOR_URL, {
+        workspaceId,
+        datasourceId: targetDatasourceId,
+      });
+
+      history.push(url);
+    }
   } else {
-    history.push(
-      datasourcesEditorIdURL({ datasourceId: remainingGroupDatasources[0].id }),
-    );
+    history.push(datasourcesEditorIdURL({ datasourceId: targetDatasourceId }));
   }
 }
 

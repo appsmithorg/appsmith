@@ -20,8 +20,14 @@ import {
 import { getDynamicTriggers, getFormData } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import history from "utils/history";
-import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  INTEGRATION_TABS,
+  WORKSPACE_DATASOURCE_EDITOR_URL,
+} from "constants/routes";
+import { generatePath } from "react-router-dom";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
@@ -483,17 +489,39 @@ function* handleDatasourceCreatedSaga(
     !currentApplicationIdForCreateNewApp ||
     (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
   ) {
-    history.push(
-      datasourcesEditorIdURL({
-        basePageId,
-        datasourceId: payload.id,
-        params: {
+    // Check if we're in workspace context
+    if (isWorkspaceContext()) {
+      // Extract workspaceId from URL path
+      const pathMatch = window.location.pathname.match(/\/workspace\/([^/]+)/);
+      const workspaceId = pathMatch?.[1];
+
+      if (workspaceId) {
+        const url = generatePath(WORKSPACE_DATASOURCE_EDITOR_URL, {
+          workspaceId,
+          datasourceId: payload.id,
+        });
+        const queryParams = getQueryParams();
+        const queryString = new URLSearchParams({
+          ...queryParams,
           from: "datasources",
-          ...getQueryParams(),
-          pluginId: plugin?.id,
-        },
-      }),
-    );
+          pluginId: plugin?.id || "",
+        }).toString();
+
+        history.push(`${url}?${queryString}`);
+      }
+    } else {
+      history.push(
+        datasourcesEditorIdURL({
+          basePageId,
+          datasourceId: payload.id,
+          params: {
+            from: "datasources",
+            ...getQueryParams(),
+            pluginId: plugin?.id,
+          },
+        }),
+      );
+    }
   }
 
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
