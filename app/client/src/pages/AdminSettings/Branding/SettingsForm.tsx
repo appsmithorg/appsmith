@@ -132,9 +132,7 @@ function SettingsForm(props: SettingsFormProps) {
                   <NumberInput
                     className="t--settings-brand-logo-width-input"
                     onChange={(val) => {
-                      const numVal = val ? parseInt(val, 10) : undefined;
-
-                      onChange(isNaN(numVal as number) ? undefined : numVal);
+                      onChange(val ? parseInt(val, 10) : 160);
                       AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
                         propertyName: "logoWidth",
                       });
@@ -161,9 +159,7 @@ function SettingsForm(props: SettingsFormProps) {
                   <NumberInput
                     className="t--settings-brand-logo-height-input"
                     onChange={(val) => {
-                      const numVal = val ? parseInt(val, 10) : undefined;
-
-                      onChange(isNaN(numVal as number) ? undefined : numVal);
+                      onChange(val ? parseInt(val, 10) : 24);
                       AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
                         propertyName: "logoHeight",
                       });
