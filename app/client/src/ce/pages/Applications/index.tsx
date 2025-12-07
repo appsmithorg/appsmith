@@ -484,7 +484,8 @@ export function WorkspaceMenuItem({
 
   // Use custom component when there's a logo, otherwise use ListItem
   if (hasLogo && !isFetchingWorkspaces) {
-    return (
+    const showTooltip = workspace?.name && workspace.name.length > 22;
+    const itemContent = (
       <WorkspaceItemRow
         className={selected ? "selected-workspace" : ""}
         onClick={handleWorkspaceClick}
@@ -501,6 +502,14 @@ export function WorkspaceMenuItem({
           </Text>
         </WorkspaceIconContainer>
       </WorkspaceItemRow>
+    );
+
+    return showTooltip ? (
+      <Tooltip content={workspace?.name} placement="bottomLeft">
+        {itemContent}
+      </Tooltip>
+    ) : (
+      itemContent
     );
   }
 
