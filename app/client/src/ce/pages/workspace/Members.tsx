@@ -68,6 +68,14 @@ export const MembersWrapper = styled.div<{
             color: var(--ads-v2-color-fg);
             padding: 8px 20px;
 
+            &:nth-child(2) {
+              width: 140px;
+            }
+
+            &:nth-child(3) {
+              width: 110px;
+            }
+
             &:last-child {
               width: 120px;
             }
@@ -187,6 +195,14 @@ export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
 export const StyledText = styled(Text)`
   padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3) var(--ads-v2-spaces-2)
     0;
+`;
+
+export const DisplayNameText = styled.div`
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ads-v2-color-fg);
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -351,6 +367,22 @@ export default function MemberSettings(props: PageProps) {
               <HighlightText highlight={searchValue} text={member.username} />
             </>
           </EachUser>
+        );
+      },
+    },
+    {
+      Header: "Display Name",
+      accessor: "name",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Cell: function DisplayNameCell(props: any) {
+        const member = props.cell.row.original;
+        const displayName = member.name || "-";
+
+        return (
+          <RowWrapper>
+            <DisplayNameText title={displayName}>{displayName}</DisplayNameText>
+          </RowWrapper>
         );
       },
     },
