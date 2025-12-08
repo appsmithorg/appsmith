@@ -180,7 +180,7 @@ APPSMITH_GIT_ROOT=./path/to/repo/directory
 
     The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
 
-    ### When do you need to run RTS?
+    **When do you need to run RTS?**
 
     **You need RTS if you are:**
     - Running the Java server locally and working on collaborative features
@@ -193,7 +193,7 @@ APPSMITH_GIT_ROOT=./path/to/repo/directory
     - Working on individual components without multi-user synchronization requirements
     - Testing basic API functionality that doesn't require live updates
 
-    ### Steps to run RTS:
+    **Steps to run RTS:**
 
     1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
         ```console
@@ -352,7 +352,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
     The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
 
-    ### When do you need to run RTS?
+    **When do you need to run RTS?**
 
     **You need RTS if you are:**
     - Running the Java server locally and working on collaborative features
@@ -365,7 +365,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
     - Working on individual components without multi-user synchronization requirements
     - Testing basic API functionality that doesn't require live updates
 
-    ### Steps to run RTS:
+    **Steps to run RTS:**
 
     1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
         ```console
