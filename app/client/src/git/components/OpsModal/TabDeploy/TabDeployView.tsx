@@ -16,6 +16,7 @@ import {
   DISCARDING_AND_PULLING_CHANGES,
   GIT_NO_UPDATED_TOOLTIP,
   PULL_CHANGES,
+  REDEPLOY_MENU_OPTION,
 } from "ee/constants/messages";
 import styled from "styled-components";
 import {
@@ -83,8 +84,11 @@ interface TabDeployViewProps {
   isFetchStatusLoading: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
+  isRedeploying: boolean;
   lastDeployedAt: string | null;
+  modifiedAt: string | null;
   pull: () => void;
+  redeploy: () => void;
   remoteUrl: string | null;
   statusBehindCount: number;
   statusIsClean: boolean;
@@ -103,8 +107,11 @@ function TabDeployView({
   isFetchStatusLoading = false,
   isPullFailing = false,
   isPullLoading = false,
+  isRedeploying = false,
   lastDeployedAt = null,
+  modifiedAt = null,
   pull = noop,
+  redeploy = noop,
   remoteUrl = null,
   statusBehindCount = 0,
   statusIsClean = false,
@@ -137,6 +144,22 @@ function TabDeployView({
     !isFetchStatusLoading &&
     !isCommitLoading &&
     !isDiscarding;
+
+  const shouldShowRedeploy = useMemo(() => {
+    if (!hasChangesToCommit && commitButtonDisabled) {
+      if (!modifiedAt || !lastDeployedAt) {
+        return false;
+      }
+
+      const modifiedAtMs = new Date(modifiedAt).getTime();
+      const lastDeployedAtMs = new Date(lastDeployedAt).getTime();
+      const timeDifference = modifiedAtMs - lastDeployedAtMs;
+
+      return timeDifference > 1000; // Greater than 1 second (1000ms)
+    }
+
+    return false;
+  }, [hasChangesToCommit, commitButtonDisabled, modifiedAt, lastDeployedAt]);
 
   const isCommitting =
     !!commitButtonLoading &&
@@ -261,6 +284,13 @@ function TabDeployView({
     setShowDiscardWarning(false);
     setShouldDiscard(false);
   }, []);
+
+  const handleRedeploy = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_REDEPLOY_APPLICATION_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
+    redeploy();
+  }, [redeploy]);
 
   function handleCommitAndPushErrorClose() {
     clearCommitError();
@@ -393,21 +423,33 @@ function TabDeployView({
           </Button>
         )}
         {showCommitButton && (
-          <Tooltip
-            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-            isDisabled={showCommitButton && !commitButtonLoading}
-            placement="top"
-          >
-            <Button
-              data-testid="t--git-ops-commit-btn"
-              isDisabled={commitButtonDisabled}
-              isLoading={commitButtonLoading}
-              onClick={triggerCommit}
-              size="md"
+          <>
+            <Tooltip
+              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+              isDisabled={showCommitButton && !commitButtonLoading}
+              placement="top"
             >
-              {createMessage(COMMIT_AND_PUSH)}
-            </Button>
-          </Tooltip>
+              <Button
+                data-testid="t--git-ops-commit-btn"
+                isDisabled={commitButtonDisabled}
+                isLoading={commitButtonLoading}
+                onClick={triggerCommit}
+                size="md"
+              >
+                {createMessage(COMMIT_AND_PUSH)}
+              </Button>
+            </Tooltip>
+            {shouldShowRedeploy && (
+              <Button
+                data-testid="t--git-ops-redeploy-btn"
+                isLoading={isRedeploying}
+                onClick={handleRedeploy}
+                size="md"
+              >
+                {createMessage(REDEPLOY_MENU_OPTION)}
+              </Button>
+            )}
+          </>
         )}
       </StyledModalFooter>
     </>
