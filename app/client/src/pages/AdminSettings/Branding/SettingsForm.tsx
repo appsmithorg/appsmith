@@ -20,6 +20,7 @@ import {
   ADMIN_BRANDING_COLOR_TOOLTIP_HOVER,
   ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
   ADMIN_BRANDING_COLOR_TOOLTIP,
+  ADMIN_BRANDING_LOGO_SIZE_HELP,
   createMessage,
 } from "ee/constants/messages";
 import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
@@ -172,9 +173,7 @@ function SettingsForm(props: SettingsFormProps) {
             </div>
           </div>
           <HelperText renderAs="p">
-            Optional: Set maximum width and height for the logo in pixels.
-            Defaults to 10rem (160px) width and 1.5rem (24px) height if not
-            specified.
+            {createMessage(ADMIN_BRANDING_LOGO_SIZE_HELP)}
           </HelperText>
         </div>
       )}
