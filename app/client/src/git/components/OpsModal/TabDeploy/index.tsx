@@ -11,7 +11,7 @@ import useStatus from "git/hooks/useStatus";
 import type { GitApplicationArtifact } from "git/types";
 
 export default function TabDeploy() {
-  const { artifact } = useGitContext();
+  const { artifact, artifactDef } = useGitContext();
   const { clearCommitError, commit, commitError, isCommitLoading } =
     useCommit();
 
@@ -35,6 +35,7 @@ export default function TabDeploy() {
 
   return (
     <TabDeployView
+      artifactType={artifactDef?.artifactType ?? null}
       clearCommitError={clearCommitError}
       clearDiscardError={clearDiscardError}
       commit={commit}

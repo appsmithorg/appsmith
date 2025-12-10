@@ -43,6 +43,7 @@ import ConflictError from "git/components/ConflictError";
 import SubmitWrapper from "./SubmitWrapper";
 import noop from "lodash/noop";
 import type { GitApiError } from "git/store/types";
+import { GitArtifactType } from "git/constants/enums";
 
 const Section = styled.div`
   margin-top: 0;
@@ -72,6 +73,7 @@ const FIRST_COMMIT = "First Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
 interface TabDeployViewProps {
+  artifactType: GitArtifactType | null;
   clearCommitError: () => void;
   clearDiscardError: () => void;
   commit: (commitMessage: string) => void;
@@ -95,6 +97,7 @@ interface TabDeployViewProps {
 }
 
 function TabDeployView({
+  artifactType = null,
   clearCommitError = noop,
   clearDiscardError = noop,
   commit = noop,
@@ -146,9 +149,18 @@ function TabDeployView({
     !isDiscarding;
 
   const shouldShowRedeploy = useMemo(() => {
+    // Only show redeploy button for applications
+    if (artifactType !== GitArtifactType.Application) {
+      return false;
+    }
+
     if (!hasChangesToCommit && commitButtonDisabled) {
-      if (!modifiedAt || !lastDeployedAt) {
+      if (!modifiedAt) {
         return false;
+      }
+
+      if (!lastDeployedAt) {
+        return true;
       }
 
       const modifiedAtMs = new Date(modifiedAt).getTime();
@@ -159,7 +171,13 @@ function TabDeployView({
     }
 
     return false;
-  }, [hasChangesToCommit, commitButtonDisabled, modifiedAt, lastDeployedAt]);
+  }, [
+    artifactType,
+    hasChangesToCommit,
+    commitButtonDisabled,
+    modifiedAt,
+    lastDeployedAt,
+  ]);
 
   const isCommitting =
     !!commitButtonLoading &&
