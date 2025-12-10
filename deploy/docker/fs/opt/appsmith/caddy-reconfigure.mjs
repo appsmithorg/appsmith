@@ -55,7 +55,9 @@ parts.push(`
 
 (file_server) {
   file_server {
-    precompressed br gzip
+    # temporarily disabling precompressed files to deal with with https://github.com/appsmithorg/appsmith/issues/41313
+    # uncomment the next line and remove this one when Caddy 2.10.3+ is released.
+    # precompressed br gzip
     disable_canonical_uris
   }
 }

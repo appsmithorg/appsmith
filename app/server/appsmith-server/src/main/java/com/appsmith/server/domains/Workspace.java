@@ -71,6 +71,11 @@ public class Workspace extends BaseDomain {
 
     @JsonView(Views.Public.class)
     public String getLogoUrl() {
+        // If there's no logo, return null instead of constructing a URL like "/api/v1/assets/null"
+        // This prevents the frontend from making pointless requests to load a non-existent image
+        if (logoAssetId == null || logoAssetId.isEmpty()) {
+            return null;
+        }
         return Url.ASSET_URL + "/" + logoAssetId;
     }
 
