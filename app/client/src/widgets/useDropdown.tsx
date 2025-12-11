@@ -91,7 +91,7 @@ const useDropdown = ({
         selectRef.current?.blur();
       }
     },
-    [renderMode, handleOnDropdownOpen, handleOnDropdownOpen],
+    [renderMode, handleOnDropdownOpen, handleOnDropdownClose],
   );
 
   const closeBackDrop = useCallback(() => {
