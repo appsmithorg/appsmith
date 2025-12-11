@@ -776,7 +776,18 @@ class MultiSelectWidget extends BaseWidget<
       selectedOptions: undefined,
       filterText: "",
       isDirty: false,
+      selectedValuesByItem: {},
     };
+  }
+
+  private getListItemId(index: number | undefined = this.props.currentIndex) {
+    const { listItemId } = this.props;
+
+    if (listItemId !== undefined && listItemId !== null) {
+      return String(listItemId);
+    }
+
+    return String(index ?? 0);
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
@@ -806,8 +817,49 @@ class MultiSelectWidget extends BaseWidget<
           equal,
         ).length > 0;
 
-    if (hasChanges && this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+    if (hasChanges) {
+      const listItemId = this.getListItemId(this.props.currentIndex);
+
+      if (!(listItemId in (this.props.selectedValuesByItem || {}))) {
+        const updatedSelectedValuesByItem = {
+          ...(this.props.selectedValuesByItem || {}),
+          [listItemId]: this.props.defaultOptionValue,
+        };
+
+        this.props.updateWidgetMetaProperty(
+          "selectedValuesByItem",
+          updatedSelectedValuesByItem,
+        );
+      }
+    }
+
+    this.syncSelectionMapOnIndexChange(this.props.currentIndex);
+  }
+
+  private syncSelectionMapOnIndexChange(currentRowIndex?: number) {
+    const {
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+      updateWidgetMetaProperty,
+    } = this.props;
+
+    if (currentRowIndex === undefined) return;
+
+    const currentKey = this.getListItemId(currentRowIndex);
+    let nextState = selectedValuesByItem;
+
+    if (!(currentKey in nextState)) {
+      nextState = {
+        ...nextState,
+        [currentKey]:
+          defaultOptionValue.length > 0
+            ? (defaultOptionValue as LabelInValueType[])
+            : [],
+      };
+    }
+
+    if (nextState !== selectedValuesByItem) {
+      updateWidgetMetaProperty("selectedValuesByItem", nextState);
     }
   }
 
@@ -841,7 +893,7 @@ class MultiSelectWidget extends BaseWidget<
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
-    const values = this.mergeLabelAndValue();
+    const values = this.getSelectedValues();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
 
@@ -887,7 +939,13 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DraftValueType) => {
-    this.props.updateWidgetMetaProperty("selectedOptions", value, {
+    const listItemId = this.getListItemId(this.props.currentIndex);
+    const updatedValue = {
+      ...(this.props.selectedValuesByItem || {}),
+      [listItemId]: value,
+    };
+
+    this.props.updateWidgetMetaProperty("selectedValuesByItem", updatedValue, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
@@ -901,18 +959,17 @@ class MultiSelectWidget extends BaseWidget<
   };
 
   // { label , value } is needed in the widget
-  mergeLabelAndValue = (): LabelInValueType[] => {
-    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
-      return [];
-    }
+  getSelectedValues = (): LabelInValueType[] => {
+    const {
+      currentIndex = 0,
+      defaultOptionValue = [],
+      selectedValuesByItem = {},
+    } = this.props;
 
-    const labels = [...this.props.selectedOptionLabels];
-    const values = [...this.props.selectedOptionValues];
+    const itemId = this.getListItemId(currentIndex);
+    const values = selectedValuesByItem[itemId] ?? defaultOptionValue;
 
-    return values.map((value, index) => ({
-      value,
-      label: labels[index],
-    }));
+    return values;
   };
 
   onFilterChange = (value: string) => {
@@ -991,6 +1048,9 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isDirty?: boolean;
   labelComponentWidth?: number;
   rtl?: boolean;
+  currentIndex?: number;
+  selectedValuesByItem?: Record<string, LabelInValueType[]>;
+  listItemId?: string;
 }
 
 export default MultiSelectWidget;
