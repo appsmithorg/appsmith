@@ -1,0 +1,22 @@
+{
+  "name": "llm-triage",
+  "version": "1.0.0",
+  "description": "LLM-powered issue triage for Appsmith",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@google/generative-ai": "^0.12.0",
+    "@octokit/rest": "^20.0.2",
+    "openai": "^4.47.0",
+    "yaml": "^2.4.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+
