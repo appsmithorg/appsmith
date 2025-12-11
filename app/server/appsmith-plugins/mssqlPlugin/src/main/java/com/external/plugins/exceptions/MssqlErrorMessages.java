@@ -11,8 +11,11 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Your query failed to execute. Please check more information in the error details.";
 
-    public static final String QUERY_PREPARATION_FAILED_ERROR_MSG = "Query preparation failed while inserting value: %s"
-            + " for binding: {{%s}}. Please check the query again.";
+    public static final String QUERY_PREPARATION_FAILED_ERROR_MSG =
+        "Query preparation failed while inserting value: %s"
+                + " for binding: {{%s}}. "
+                + "This may happen when a value that looks numeric (for example, starts with a leading zero) "
+                + "is treated as a number instead of a string. Please double-check the query and the widget configuration.";
 
     public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG =
             "Exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid. Please check your datasource configuration.";
