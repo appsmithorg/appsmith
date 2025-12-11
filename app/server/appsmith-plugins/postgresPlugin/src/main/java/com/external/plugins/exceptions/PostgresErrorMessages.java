@@ -16,7 +16,10 @@ public class PostgresErrorMessages extends BasePluginErrorMessages {
             "The Appsmith server has failed to fetch the structure of your schema.";
 
     public static final String QUERY_PREPARATION_FAILED_ERROR_MSG =
-            "Query preparation failed while inserting value: %s" + " for binding: {{%s}}.";
+            "Query preparation failed while inserting value: %s"
+                    + " for binding: {{%s}}. "
+                    + "This may happen when a value that looks numeric (for example, starts with a leading zero) "
+                    + "is treated as a number instead of a string. Please double-check the query and the widget configuration.";
 
     public static final String SSL_CONFIGURATION_ERROR_MSG =
             "The Appsmith server has failed to fetch SSL configuration from datasource configuration form. ";
