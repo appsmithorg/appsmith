@@ -44,6 +44,7 @@ import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "ee/
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "ee/utils/permissionHelpers";
 import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { isWorkspaceContext } from "ee/utils/workspaceHelpers";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
@@ -176,8 +177,21 @@ export const hasCreateDSActionPermissionInApp = ({
   isEnabled: boolean;
   pagePermissions?: string[];
 }) => {
-  return !ideType || ideType === IDE_TYPE.App
-    ? getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
-        getHasCreateActionPermission(isEnabled, pagePermissions)
-    : getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);
+  const hasDatasourcePermission = getHasCreateDatasourceActionPermission(
+    isEnabled,
+    dsPermissions,
+  );
+
+  if (isWorkspaceContext()) {
+    return false;
+  }
+
+  if (!ideType || ideType === IDE_TYPE.App) {
+    return (
+      hasDatasourcePermission &&
+      getHasCreateActionPermission(isEnabled, pagePermissions)
+    );
+  }
+
+  return hasDatasourcePermission;
 };

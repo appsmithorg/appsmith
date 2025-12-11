@@ -166,6 +166,20 @@ function WorkspaceMenu({
           workspaceId={workspace.id}
           workspacePermissions={workspace.userPermissions || []}
         />
+        {hasManageWorkspacePermissions && (
+          <CustomMenuItem
+            className="workspace-menu-item"
+            data-testid="t--workspace-datasources"
+            onClick={() =>
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: `/workspace/${workspace.id}/datasources`,
+              })
+            }
+          >
+            <Icon name="database-2-line" size="md" />
+            Datasources
+          </CustomMenuItem>
+        )}
         {canInviteToWorkspace && (
           <CustomMenuItem
             className="error-menuitem workspace-menu-item"

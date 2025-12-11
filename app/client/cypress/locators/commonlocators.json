@@ -246,5 +246,19 @@
   "tostifyIcon": ".Toastify--animate-icon > span",
   "downloadFileType": "button[class*='t--open-dropdown-Select-file-type'] > span:first-of-type",
   "listToggle": "[data-testid='t--list-toggle']",
-  "showBindingsMenu": "//*[@id='entity-properties-container']"
+  "showBindingsMenu": "//*[@id='entity-properties-container']",
+  "workspaceDatasources": "[data-testid='t--workspace-datasources']",
+  "workspaceDatasourcesPage": "[data-testid='t--workspace-datasources-page']",
+  "addDatasourceButtonBlankScreen": ".t--add-datasource-button-blank-screen",
+  "addDatasourceButton": ".t--add-datasource-button",
+  "datasource": ".t--datasource",
+  "dataBlankState": ".t--data-blank-state",
+  "datasourceOptionDelete": ".t--datasource-option-delete",
+  "cancelEditDatasource": ".t--cancel-edit-datasource",
+  "datasourceModalSave": ".t--datasource-modal-save",
+  "headersArray": ".t--headers-array",
+  "mockDatasourceName": "[data-testid='mockdatasource-name']",
+  "datasourceName": "[data-testid='datasource-name']",
+  "contextMenuTrigger": "[data-testid='t--context-menu-trigger']",
+  "newIntegrationsWrapper": "#new-integrations-wrapper"
 }

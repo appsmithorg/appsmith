@@ -27,3 +27,13 @@ export const getWorkspaceEntitiesActions = (workspaceId: string = "") => {
     errorActions,
   };
 };
+
+/**
+ * Checks if the current context is a workspace context
+ * by checking if the pathname starts with /workspace
+ *
+ * @returns true if pathname starts with /workspace
+ */
+export const isWorkspaceContext = (): boolean => {
+  return window.location.pathname.startsWith("/workspace");
+};
