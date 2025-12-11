@@ -22,6 +22,8 @@ export interface Inputs {
   brandColors: Record<brandColorsKeys, string>;
   brandLogo: string;
   brandFavicon: string;
+  logoWidth?: number;
+  logoHeight?: number;
 }
 
 interface BrandingPageProps {
@@ -36,6 +38,8 @@ function BrandingPage(props: BrandingPageProps) {
     brandColors: organizationConfig.brandColors,
     brandLogo: organizationConfig.brandLogoUrl,
     brandFavicon: organizationConfig.brandFaviconUrl,
+    logoWidth: organizationConfig.logoWidth,
+    logoHeight: organizationConfig.logoHeight,
   };
   const {
     control,
@@ -60,6 +64,8 @@ function BrandingPage(props: BrandingPageProps) {
       brandColors: organizationConfig.brandColors,
       brandLogo: organizationConfig.brandLogoUrl,
       brandFavicon: organizationConfig.brandFaviconUrl,
+      logoWidth: organizationConfig.logoWidth,
+      logoHeight: organizationConfig.logoHeight,
     });
   }, [organizationConfig, reset]);
 
