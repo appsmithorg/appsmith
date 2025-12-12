@@ -59,6 +59,24 @@ export const handlers = {
   ) => {
     draftState.loadingStates.isFetchingApplications = false;
   },
+  // Handle favorites workspace - populate applications with favorite apps
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingApplications = true;
+  },
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_SUCCESS]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => {
+    draftState.loadingStates.isFetchingApplications = false;
+    draftState.applications = action.payload;
+  },
+  [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingApplications = false;
+  },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,
     action: ReduxAction<ApplicationPayload>,
@@ -241,6 +259,25 @@ export const handlers = {
     draftState: SelectedWorkspaceReduxState,
   ) => {
     draftState.loadingStates.isFetchingCurrentWorkspace = false;
+  },
+  [ReduxActionTypes.TOGGLE_FAVORITE_APPLICATION_SUCCESS]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
+  ) => {
+    const { applicationId, isFavorited } = action.payload;
+    const isFavoritesWorkspace = draftState.workspace.id === "__favorites__";
+
+    if (isFavoritesWorkspace && !isFavorited) {
+      // If we're in the favorites workspace and the app is unfavorited, remove it from the list
+      draftState.applications = draftState.applications.filter(
+        (app) => app.id !== applicationId,
+      );
+    } else {
+      // Otherwise, just update the isFavorited status
+      draftState.applications = draftState.applications.map((app) =>
+        app.id === applicationId ? { ...app, isFavorited } : app,
+      );
+    }
   },
 };
 

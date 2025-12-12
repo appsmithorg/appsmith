@@ -50,6 +50,7 @@ import history from "utils/history";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { toast } from "@appsmith/ads";
 import { getCurrentUser } from "actions/authActions";
+import { toggleFavoriteApplication } from "ee/actions/applicationActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
@@ -521,6 +522,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
     dispatch(getCurrentUser());
   }, [setURLParams, viewModeURL, dispatch]);
 
+  const handleToggleFavorite = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      dispatch(toggleFavoriteApplication(application.id));
+    },
+    [application.id, dispatch],
+  );
+
   return (
     <Card
       backgroundColor={selectedColor}
@@ -530,9 +539,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
       hasReadPermission={hasReadPermission}
       icon={appIcon}
       isContextMenuOpen={isMenuOpen}
+      isFavorited={application.isFavorited}
       isFetching={isFetchingApplications}
       isMobile={props.isMobile}
       moreActionItems={moreActionItems}
+      onToggleFavorite={handleToggleFavorite}
       primaryAction={props.isMobile ? launchMobileApp : noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}

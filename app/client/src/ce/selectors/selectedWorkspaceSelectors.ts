@@ -4,7 +4,16 @@ export const getIsFetchingApplications = (state: DefaultRootState): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingApplications;
 
 export const getApplicationsOfWorkspace = (state: DefaultRootState) => {
-  return state.ui.selectedWorkspace.applications;
+  const applications = state.ui.selectedWorkspace.applications;
+  const favoriteApplicationIds =
+    state.ui.applications.favoriteApplicationIds || [];
+
+  // Compute isFavorited for each application based on favoriteApplicationIds
+  // This ensures favorites persist when switching between workspaces
+  return applications.map((app) => ({
+    ...app,
+    isFavorited: favoriteApplicationIds.includes(app.id),
+  }));
 };
 
 export const getAllUsersOfWorkspace = (state: DefaultRootState) =>
