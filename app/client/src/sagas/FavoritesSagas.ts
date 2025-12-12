@@ -6,7 +6,7 @@ import {
   toggleFavoriteApplicationSuccess,
   toggleFavoriteApplicationError,
   fetchFavoriteApplicationsSuccess,
-} from "ce/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import { validateResponse } from "sagas/ErrorSagas";
 import { toast } from "@appsmith/ads";
 import { findDefaultPage } from "pages/utils";
