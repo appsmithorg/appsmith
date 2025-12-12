@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, type MenuItemProps } from "@appsmith/ads";
+import { Button, Icon, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 import { GitCardBadge } from "git";
@@ -32,6 +32,8 @@ type CardProps = PropsWithChildren<{
   titleTestId: string;
   isSelected?: boolean;
   hasEditPermission?: boolean;
+  isFavorited?: boolean;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }>;
 
 interface NameWrapperProps {
@@ -102,6 +104,27 @@ const CircleAppIcon = styled(AppIcon)`
     path {
       fill: var(--ads-v2-color-fg);
     }
+  }
+`;
+
+const FavoriteIconWrapper = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
   }
 `;
 
@@ -321,9 +344,11 @@ function Card({
   hasReadPermission,
   icon,
   isContextMenuOpen,
+  isFavorited,
   isFetching,
   isMobile,
   moreActionItems,
+  onToggleFavorite,
   primaryAction,
   setShowOverlay,
   showGitBadge,
@@ -365,6 +390,17 @@ function Card({
           hasReadPermission={hasReadPermission}
           isMobile={isMobile}
         >
+          {onToggleFavorite && (
+            <FavoriteIconWrapper
+              data-testid="t--favorite-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(e);
+              }}
+            >
+              <Icon name={isFavorited ? "star-fill" : "star-line"} size="md" />
+            </FavoriteIconWrapper>
+          )}
           {/*@ts-expect-error fix this the next time the file is edited*/}
           <CircleAppIcon name={icon} size={Size.large} />
           <AppNameWrapper
@@ -376,10 +412,12 @@ function Card({
             </Text>
           </AppNameWrapper>
           {showOverlay && !isMobile && (
-            <div className="overlay">
+            <div className="overlay" style={{ pointerEvents: "auto" }}>
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
-                <Control className="control">{children}</Control>
+                <Control className="control" style={{ pointerEvents: "auto" }}>
+                  {children}
+                </Control>
               </ApplicationImage>
             </div>
           )}

@@ -63,6 +63,10 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 
+    // List of application IDs favorited by the user
+    @JsonView(Views.Public.class)
+    private List<String> favoriteApplicationIds;
+
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
     @JsonView(Views.Internal.class)

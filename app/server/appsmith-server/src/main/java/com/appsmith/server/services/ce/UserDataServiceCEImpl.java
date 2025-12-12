@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
@@ -34,8 +35,11 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
@@ -61,6 +65,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     private static final int MAX_RECENT_WORKSPACES_LIMIT = 10;
 
     private static final int MAX_RECENT_WORKSPACE_RESOURCE_LIMIT = 20;
+
+    private static final int MAX_FAVORITE_APPLICATIONS_LIMIT = 50;
 
     @Autowired
     public UserDataServiceCEImpl(
@@ -409,5 +415,83 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     }
                     return authorProfile;
                 });
+    }
+
+    /**
+     * Toggle favorite status for an application
+     * @param applicationId Application ID to toggle
+     * @return Updated UserData with modified favorites list
+     */
+    @Override
+    public Mono<UserData> toggleFavoriteApplication(String applicationId) {
+        return sessionUserService.getCurrentUser().zipWhen(this::getForUser).flatMap(tuple -> {
+            User user = tuple.getT1();
+            UserData userData = tuple.getT2();
+
+            List<String> favorites = userData.getFavoriteApplicationIds();
+            if (favorites == null) {
+                favorites = new ArrayList<>();
+            }
+
+            // Toggle: remove if exists, add if doesn't
+            if (favorites.contains(applicationId)) {
+                favorites.remove(applicationId);
+            } else {
+                favorites.add(applicationId);
+            }
+
+            userData.setFavoriteApplicationIds(favorites);
+            return repository.save(userData);
+        });
+    }
+
+    /**
+     * Get all favorite applications for current user
+     * Filters out deleted applications and applications user no longer has access to
+     * @return List of favorite applications
+     */
+    @Override
+    public Mono<List<Application>> getFavoriteApplications() {
+        return getForCurrentUser().flatMap(userData -> {
+            List<String> favoriteIds = userData.getFavoriteApplicationIds();
+            if (CollectionUtils.isNullOrEmpty(favoriteIds)) {
+                return Mono.just(Collections.emptyList());
+            }
+
+            // Fetch applications by IDs
+            return applicationRepository.findAllById(favoriteIds).collectList().flatMap(applications -> {
+                // Clean up favorites list if any apps were not found
+                if (applications.size() < favoriteIds.size()) {
+                    return cleanupMissingFavorites(userData, applications).thenReturn(applications);
+                }
+                return Mono.just(applications);
+            });
+        });
+    }
+
+    /**
+     * Remove missing/inaccessible applications from user's favorites
+     * @param userData User data containing favorites
+     * @param validApps List of valid applications that still exist
+     * @return Updated UserData
+     */
+    private Mono<UserData> cleanupMissingFavorites(UserData userData, List<Application> validApps) {
+        Set<String> validIds = validApps.stream().map(Application::getId).collect(Collectors.toSet());
+
+        List<String> cleanedFavorites = userData.getFavoriteApplicationIds().stream()
+                .filter(validIds::contains)
+                .collect(Collectors.toList());
+
+        userData.setFavoriteApplicationIds(cleanedFavorites);
+        return repository.save(userData);
+    }
+
+    /**
+     * Remove application from all users' favorites when app is deleted
+     * @param applicationId ID of deleted application
+     */
+    @Override
+    public Mono<Void> removeApplicationFromAllFavorites(String applicationId) {
+        return repository.removeApplicationFromFavorites(applicationId);
     }
 }

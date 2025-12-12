@@ -45,4 +45,12 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                             : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
                 });
     }
+
+    @Override
+    public Mono<Void> removeApplicationFromFavorites(String applicationId) {
+        // MongoDB update query to pull applicationId from all users' favoriteApplicationIds arrays
+        BridgeUpdate update = new BridgeUpdate();
+        update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
+        return queryBuilder().updateAll(update).then();
+    }
 }

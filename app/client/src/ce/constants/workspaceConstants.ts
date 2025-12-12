@@ -13,6 +13,7 @@ export interface Workspace {
   logoUrl?: string;
   uploadProgress?: number;
   userPermissions?: string[];
+  isVirtual?: boolean;
 }
 
 export interface WorkspaceUserRoles {

@@ -11,4 +11,6 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
     Mono<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId);
 
     Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId);
+
+    Mono<Void> removeApplicationFromFavorites(String applicationId);
 }

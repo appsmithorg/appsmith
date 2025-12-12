@@ -35,10 +35,12 @@ import {
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "ee/selectors/applicationSelectors";
+import { getHasFavorites } from "ee/selectors/favoriteSelectors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { leaveWorkspace } from "actions/userActions";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
+import HeartIconRed from "assets/icons/ads/heart-fill-red.svg";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import {
   thinScrollbar,
@@ -475,12 +477,31 @@ export function WorkspaceMenuItem({
 
   if (!workspace.id) return null;
 
+  const isFavoritesWorkspace = workspace.id === "__favorites__";
   const hasLogo = workspace?.logoUrl && !imageError;
   const displayText = isFetchingWorkspaces
     ? workspace?.name
     : workspace?.name?.length > 22
       ? workspace.name.slice(0, 22).concat(" ...")
       : workspace?.name;
+
+  // Use custom component for favorites workspace with heart icon
+  if (isFavoritesWorkspace && !isFetchingWorkspaces) {
+    return (
+      <WorkspaceItemRow
+        className={selected ? "selected-workspace" : ""}
+        onClick={handleWorkspaceClick}
+        selected={selected}
+      >
+        <WorkspaceIconContainer>
+          <WorkspaceLogoImage alt="Favorites" src={HeartIconRed} />
+          <Text type={TextType.H5} weight={FontWeight.NORMAL}>
+            {displayText}
+          </Text>
+        </WorkspaceIconContainer>
+      </WorkspaceItemRow>
+    );
+  }
 
   // Use custom component when there's a logo, otherwise use ListItem
   if (hasLogo && !isFetchingWorkspaces) {
@@ -1120,6 +1141,7 @@ export const ApplictionsMainPage = (props: any) => {
   const isFetchingOrganizations = useSelector(getIsFetchingMyOrganizations);
   const currentOrganizationId = useSelector(activeOrganizationId);
   const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const hasFavorites = useSelector(getHasFavorites);
 
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1133,6 +1155,18 @@ export const ApplictionsMainPage = (props: any) => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as any;
+  }
+
+  // Inject virtual Favorites workspace at the top if user has favorites
+  if (hasFavorites && !isFetchingWorkspaces) {
+    const favoritesWorkspace = {
+      id: "__favorites__",
+      name: "Favorites",
+      isVirtual: true,
+      userPermissions: [],
+    };
+
+    workspaces = [favoritesWorkspace, ...workspaces];
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
