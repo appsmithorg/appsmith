@@ -38,6 +38,7 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import DiscardChangesWarning from "./DiscardChangesWarning";
 import PushFailedError from "./PushFailedError";
 import DiscardFailedError from "./DiscardFailedError";
+import RedeployWarning from "./RedeployWarning";
 import StatusChanges from "git/components/StatusChanges";
 import ConflictError from "git/components/ConflictError";
 import SubmitWrapper from "./SubmitWrapper";
@@ -351,6 +352,7 @@ function TabDeployView({
           ref={scrollWrapperRef}
           style={{ minHeight: 360 }}
         >
+          {shouldShowRedeploy && <RedeployWarning />}
           <Section>
             <StatusChanges />
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
@@ -409,7 +411,7 @@ function TabDeployView({
           )}
 
           {!pullRequired && !isConflicting && (
-            <DeployPreview isCommitSuccess={isCommitSuccess} />
+            <DeployPreview isCommitSuccess={isCommitSuccess || isRedeploying} />
           )}
         </div>
       </ModalBody>
@@ -440,34 +442,32 @@ function TabDeployView({
               : createMessage(DISCARD_CHANGES)}
           </Button>
         )}
-        {showCommitButton && (
-          <>
-            <Tooltip
-              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-              isDisabled={showCommitButton && !commitButtonLoading}
-              placement="top"
+        {showCommitButton && !shouldShowRedeploy && (
+          <Tooltip
+            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+            isDisabled={showCommitButton && !commitButtonLoading}
+            placement="top"
+          >
+            <Button
+              data-testid="t--git-ops-commit-btn"
+              isDisabled={commitButtonDisabled}
+              isLoading={commitButtonLoading}
+              onClick={triggerCommit}
+              size="md"
             >
-              <Button
-                data-testid="t--git-ops-commit-btn"
-                isDisabled={commitButtonDisabled}
-                isLoading={commitButtonLoading}
-                onClick={triggerCommit}
-                size="md"
-              >
-                {createMessage(COMMIT_AND_PUSH)}
-              </Button>
-            </Tooltip>
-            {shouldShowRedeploy && (
-              <Button
-                data-testid="t--git-ops-redeploy-btn"
-                isLoading={isRedeploying}
-                onClick={handleRedeploy}
-                size="md"
-              >
-                {createMessage(REDEPLOY_MENU_OPTION)}
-              </Button>
-            )}
-          </>
+              {createMessage(COMMIT_AND_PUSH)}
+            </Button>
+          </Tooltip>
+        )}
+        {shouldShowRedeploy && (
+          <Button
+            data-testid="t--git-ops-redeploy-btn"
+            isLoading={isRedeploying}
+            onClick={handleRedeploy}
+            size="md"
+          >
+            {createMessage(REDEPLOY_MENU_OPTION)}
+          </Button>
         )}
       </StyledModalFooter>
     </>

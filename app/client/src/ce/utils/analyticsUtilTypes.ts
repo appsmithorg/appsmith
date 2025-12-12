@@ -42,6 +42,7 @@ export type EventName =
   | "DELETE_PAGE"
   | "SIDEBAR_NAVIGATION"
   | "PUBLISH_APP"
+  | "REDEPLOY_APP"
   | "PREVIEW_APP"
   | "APP_VIEWED_WITH_NAVBAR"
   | "EDITOR_OPEN"
