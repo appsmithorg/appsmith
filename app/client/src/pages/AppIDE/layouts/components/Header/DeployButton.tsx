@@ -11,6 +11,7 @@ import {
   PACKAGE_UPGRADING_ACTION_STATUS,
 } from "ee/constants/messages";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
+import { getRedeployApplicationTrigger } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useGitOps } from "git/hooks";
 import {
@@ -42,6 +43,7 @@ function DeployButton() {
   const isGitConnected = useGitConnected();
   const isGitModEnabled = useGitModEnabled();
   const { toggleOpsModal } = useGitOps();
+  const redeployTrigger = useSelector(getRedeployApplicationTrigger);
 
   const deployTooltipText = isPackageUpgrading
     ? createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app")
@@ -88,7 +90,7 @@ function DeployButton() {
           kind="tertiary"
           onClick={handleClickDeploy}
           size="md"
-          startIcon={"rocket"}
+          startIcon={redeployTrigger ? "rocket-dot" : "rocket"}
         >
           {createMessage(DEPLOY_MENU_OPTION)}
         </Button>

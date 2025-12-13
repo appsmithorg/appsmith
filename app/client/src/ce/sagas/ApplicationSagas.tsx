@@ -224,6 +224,87 @@ export function* publishApplicationSaga(
   }
 }
 
+export function* redeployApplicationSaga(
+  requestAction: ReduxAction<PublishApplicationRequest>,
+) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (currentApplication) {
+    const appName = currentApplication.name;
+    const appId = currentApplication?.id;
+    const pageCount = currentApplication?.pages?.length;
+    const navigationSettingsWithPrefix: Record<
+      string,
+      NavigationSetting[keyof NavigationSetting]
+    > = {};
+
+    if (currentApplication.applicationDetail?.navigationSetting) {
+      const settingKeys = objectKeys(
+        currentApplication.applicationDetail.navigationSetting,
+      ) as Array<keyof NavigationSetting>;
+
+      settingKeys.map((key: keyof NavigationSetting) => {
+        if (currentApplication.applicationDetail?.navigationSetting?.[key]) {
+          const value: NavigationSetting[keyof NavigationSetting] =
+            currentApplication.applicationDetail.navigationSetting[key];
+
+          navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
+        }
+      });
+    }
+
+    AnalyticsUtil.logEvent("REDEPLOY_APP", {
+      appId,
+      appName,
+      pageCount,
+      ...navigationSettingsWithPrefix,
+      isPublic: !!currentApplication?.isPublic,
+      templateTitle: currentApplication?.forkedFromTemplateTitle,
+    });
+  }
+
+  try {
+    const request = requestAction.payload;
+    const response: PublishApplicationResponse = yield call(
+      ApplicationApi.publishApplication,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.REDEPLOY_APPLICATION_SUCCESS,
+      });
+
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const currentPageId: string = yield select(getCurrentPageId);
+
+      yield put(
+        fetchApplication({
+          applicationId,
+          pageId: currentPageId,
+          mode: APP_MODE.EDIT,
+        }),
+      );
+
+      // Wait for the fetch application success or error to ensure the application is fetched
+      yield take([
+        ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ]);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REDEPLOY_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* fetchAllApplicationsOfWorkspaceSaga(
   action?: ReduxAction<string>,
 ) {

@@ -1054,6 +1054,12 @@ export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
 export const DISCARD_MESSAGE = () =>
   `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
+export const REDEPLOY_WARNING_MESSAGE = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  redeployTrigger?: string,
+) =>
+  "We have noticed some changes and require you to redeploy your application to see the latest updates.";
+
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1474,6 +1480,7 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
+export const REDEPLOY_MENU_OPTION = () => "Redeploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
