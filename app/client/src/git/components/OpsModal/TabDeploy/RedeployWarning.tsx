@@ -7,7 +7,13 @@ const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
-export default function RedeployWarning() {
+interface RedeployWarningProps {
+  redeployTrigger: string | null;
+}
+
+const RedeployWarning: React.FC<RedeployWarningProps> = ({
+  redeployTrigger,
+}) => {
   const redeployDocUrl =
     "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";
 
@@ -25,8 +31,12 @@ export default function RedeployWarning() {
           },
         ]}
       >
-        <Text kind="heading-xs">{createMessage(REDEPLOY_WARNING_MESSAGE)}</Text>
+        <Text kind="heading-xs">
+          {createMessage(REDEPLOY_WARNING_MESSAGE, redeployTrigger)}
+        </Text>
       </Callout>
     </Container>
   );
-}
+};
+
+export default RedeployWarning;

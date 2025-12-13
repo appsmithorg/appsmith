@@ -214,3 +214,29 @@ export const getIsFetchingAppSlugSuggestion = (state: DefaultRootState) =>
 
 export const getAppSlugSuggestion = (state: DefaultRootState) =>
   state.ui.applications.appSlugSuggestion;
+
+export const getRedeployApplicationTrigger = (
+  state: DefaultRootState,
+): string | null => {
+  const currentApplication = getCurrentApplication(state);
+
+  if (!currentApplication?.modifiedAt) {
+    return null;
+  }
+
+  if (!currentApplication?.lastDeployedAt) {
+    return "PENDING_DEPLOYMENT";
+  }
+
+  const lastDeployedAtMs = new Date(
+    currentApplication.lastDeployedAt,
+  ).getTime();
+  const modifiedAtMs = new Date(currentApplication.modifiedAt).getTime();
+
+  // If modifiedAt is greater than lastDeployedAt by more than 1 second, deployment is needed
+  if (modifiedAtMs - lastDeployedAtMs > 1000) {
+    return "PENDING_DEPLOYMENT";
+  }
+
+  return null;
+};

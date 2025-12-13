@@ -44,7 +44,6 @@ import ConflictError from "git/components/ConflictError";
 import SubmitWrapper from "./SubmitWrapper";
 import noop from "lodash/noop";
 import type { GitApiError } from "git/store/types";
-import { GitArtifactType } from "git/constants/enums";
 
 const Section = styled.div`
   margin-top: 0;
@@ -74,7 +73,6 @@ const FIRST_COMMIT = "First Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
 interface TabDeployViewProps {
-  artifactType: GitArtifactType | null;
   clearCommitError: () => void;
   clearDiscardError: () => void;
   commit: (commitMessage: string) => void;
@@ -89,16 +87,15 @@ interface TabDeployViewProps {
   isPullLoading: boolean;
   isRedeploying: boolean;
   lastDeployedAt: string | null;
-  modifiedAt: string | null;
   pull: () => void;
   redeploy: () => void;
   remoteUrl: string | null;
+  redeployTrigger: string | null;
   statusBehindCount: number;
   statusIsClean: boolean;
 }
 
 function TabDeployView({
-  artifactType = null,
   clearCommitError = noop,
   clearDiscardError = noop,
   commit = noop,
@@ -113,9 +110,9 @@ function TabDeployView({
   isPullLoading = false,
   isRedeploying = false,
   lastDeployedAt = null,
-  modifiedAt = null,
   pull = noop,
   redeploy = noop,
+  redeployTrigger = null,
   remoteUrl = null,
   statusBehindCount = 0,
   statusIsClean = false,
@@ -149,36 +146,8 @@ function TabDeployView({
     !isCommitLoading &&
     !isDiscarding;
 
-  const shouldShowRedeploy = useMemo(() => {
-    // Only show redeploy button for applications
-    if (artifactType !== GitArtifactType.Application) {
-      return false;
-    }
-
-    if (!hasChangesToCommit && commitButtonDisabled) {
-      if (!modifiedAt) {
-        return false;
-      }
-
-      if (!lastDeployedAt) {
-        return true;
-      }
-
-      const modifiedAtMs = new Date(modifiedAt).getTime();
-      const lastDeployedAtMs = new Date(lastDeployedAt).getTime();
-      const timeDifference = modifiedAtMs - lastDeployedAtMs;
-
-      return timeDifference > 1000; // Greater than 1 second (1000ms)
-    }
-
-    return false;
-  }, [
-    artifactType,
-    hasChangesToCommit,
-    commitButtonDisabled,
-    modifiedAt,
-    lastDeployedAt,
-  ]);
+  const shouldShowRedeploy =
+    !isFetchStatusLoading && !hasChangesToCommit && !!redeployTrigger;
 
   const isCommitting =
     !!commitButtonLoading &&
@@ -352,7 +321,9 @@ function TabDeployView({
           ref={scrollWrapperRef}
           style={{ minHeight: 360 }}
         >
-          {shouldShowRedeploy && <RedeployWarning />}
+          {shouldShowRedeploy && (
+            <RedeployWarning redeployTrigger={redeployTrigger} />
+          )}
           <Section>
             <StatusChanges />
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
