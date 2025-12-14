@@ -35,7 +35,7 @@ import {
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "ee/selectors/applicationSelectors";
-import { getHasFavorites } from "ee/selectors/favoriteSelectors";
+import { getHasFavorites } from "selectors/favoriteSelectors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { leaveWorkspace } from "actions/userActions";
