@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.WorkspaceResourceContext;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
@@ -23,6 +24,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
@@ -58,6 +60,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final ApplicationRepository applicationRepository;
 
+    private final ApplicationPermission applicationPermission;
+
     private final OrganizationService organizationService;
 
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
@@ -66,6 +70,12 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private static final int MAX_RECENT_WORKSPACE_RESOURCE_LIMIT = 20;
 
+    /**
+     * Maximum number of applications a user can favorite.
+     * This limit helps manage data size and UI performance.
+     * To change this limit, update this constant value.
+     * Default: 50
+     */
     private static final int MAX_FAVORITE_APPLICATIONS_LIMIT = 50;
 
     @Autowired
@@ -79,6 +89,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             ApplicationRepository applicationRepository,
+            ApplicationPermission applicationPermission,
             OrganizationService organizationService) {
         super(validator, repository, analyticsService);
         this.userRepository = userRepository;
@@ -87,6 +98,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
         this.applicationRepository = applicationRepository;
+        this.applicationPermission = applicationPermission;
         this.organizationService = organizationService;
     }
 
@@ -421,6 +433,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * Toggle favorite status for an application
      * @param applicationId Application ID to toggle
      * @return Updated UserData with modified favorites list
+     * @throws AppsmithException if the maximum favorite limit is reached when trying to add a favorite
      */
     @Override
     public Mono<UserData> toggleFavoriteApplication(String applicationId) {
@@ -437,6 +450,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             if (favorites.contains(applicationId)) {
                 favorites.remove(applicationId);
             } else {
+                // Check if adding this favorite would exceed the limit
+                if (favorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.INVALID_PARAMETER,
+                            String.format(
+                                    "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                    MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                }
                 favorites.add(applicationId);
             }
 
@@ -458,14 +479,23 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 return Mono.just(Collections.emptyList());
             }
 
-            // Fetch applications by IDs
-            return applicationRepository.findAllById(favoriteIds).collectList().flatMap(applications -> {
-                // Clean up favorites list if any apps were not found
-                if (applications.size() < favoriteIds.size()) {
-                    return cleanupMissingFavorites(userData, applications).thenReturn(applications);
-                }
-                return Mono.just(applications);
-            });
+            // Fetch applications by IDs with READ permission to populate userPermissions
+            // This ensures permissions are properly set so the edit button shows when user has edit permission
+            AclPermission readPermission = applicationPermission.getReadPermission();
+            return applicationRepository
+                    .queryBuilder()
+                    .criteria(Bridge.in(Application.Fields.id, favoriteIds))
+                    .permission(readPermission)
+                    .all()
+                    .collectList()
+                    .flatMap(applications -> {
+                        // Clean up favorites list if any apps were not found or are inaccessible
+                        if (applications.size() < favoriteIds.size()) {
+                            return cleanupMissingFavorites(userData, applications)
+                                    .thenReturn(applications);
+                        }
+                        return Mono.just(applications);
+                    });
         });
     }
 
