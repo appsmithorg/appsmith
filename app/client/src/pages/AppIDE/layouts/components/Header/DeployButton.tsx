@@ -55,7 +55,7 @@ function DeployButton() {
       return createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app");
     }
 
-    if (isGitConnected) {
+    if (isGitConnected && !gitStatusState?.loading) {
       const hasPendingCommits =
         gitStatusState?.value && !gitStatusState.value.isClean;
 
@@ -101,7 +101,7 @@ function DeployButton() {
   ]);
 
   const getStartIcon = useCallback(() => {
-    if (isGitConnected) {
+    if (isGitConnected && !gitStatusState?.loading) {
       const hasPendingCommits =
         gitStatusState?.value && !gitStatusState.value.isClean;
 
