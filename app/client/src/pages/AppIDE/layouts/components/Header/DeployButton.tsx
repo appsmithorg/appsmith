@@ -9,11 +9,15 @@ import {
   DEPLOY_BUTTON_TOOLTIP,
   DEPLOY_MENU_OPTION,
   PACKAGE_UPGRADING_ACTION_STATUS,
+  UNCOMMITTED_CHANGES,
+  REDEPLOY_BUTTON_TOOLTIP,
 } from "ee/constants/messages";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
 import { getRedeployApplicationTrigger } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useGitOps } from "git/hooks";
+import useArtifactSelector from "git/hooks/useArtifactSelector";
+import { selectStatusState } from "git/store/selectors/gitArtifactSelectors";
 import {
   useGitProtectedMode,
   useGitConnected,
@@ -43,11 +47,29 @@ function DeployButton() {
   const isGitConnected = useGitConnected();
   const isGitModEnabled = useGitModEnabled();
   const { toggleOpsModal } = useGitOps();
+  const gitStatusState = useArtifactSelector(selectStatusState);
   const redeployTrigger = useSelector(getRedeployApplicationTrigger);
 
-  const deployTooltipText = isPackageUpgrading
-    ? createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app")
-    : createMessage(DEPLOY_BUTTON_TOOLTIP);
+  const getTooltipText = useCallback(() => {
+    if (isPackageUpgrading) {
+      return createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app");
+    }
+
+    if (isGitConnected) {
+      const hasPendingCommits =
+        gitStatusState?.value && !gitStatusState.value.isClean;
+
+      if (hasPendingCommits) {
+        return createMessage(UNCOMMITTED_CHANGES);
+      }
+
+      if (redeployTrigger) {
+        return REDEPLOY_BUTTON_TOOLTIP(redeployTrigger);
+      }
+    }
+
+    return createMessage(DEPLOY_BUTTON_TOOLTIP);
+  }, [isPackageUpgrading, isGitConnected, gitStatusState, redeployTrigger]);
 
   const dispatch = useDispatch();
 
@@ -78,8 +100,25 @@ function DeployButton() {
     toggleOpsModal,
   ]);
 
+  const getStartIcon = useCallback(() => {
+    if (isGitConnected) {
+      const hasPendingCommits =
+        gitStatusState?.value && !gitStatusState.value.isClean;
+
+      if (!hasPendingCommits && redeployTrigger) {
+        return "rocket-dot";
+      }
+
+      if (hasPendingCommits) {
+        return "rocket-dot";
+      }
+    }
+
+    return "rocket";
+  }, [isGitConnected, gitStatusState, redeployTrigger]);
+
   return (
-    <Tooltip content={deployTooltipText} placement="bottomRight">
+    <Tooltip content={getTooltipText()} placement="bottomRight">
       <StyledTooltipTarget>
         <Button
           className="t--application-publish-btn"
@@ -90,7 +129,7 @@ function DeployButton() {
           kind="tertiary"
           onClick={handleClickDeploy}
           size="md"
-          startIcon={redeployTrigger ? "rocket-dot" : "rocket"}
+          startIcon={getStartIcon()}
         >
           {createMessage(DEPLOY_MENU_OPTION)}
         </Button>
