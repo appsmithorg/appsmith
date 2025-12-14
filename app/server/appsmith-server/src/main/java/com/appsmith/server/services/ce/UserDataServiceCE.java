@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.WorkspaceResourceContext;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface UserDataServiceCE {
@@ -51,4 +53,10 @@ public interface UserDataServiceCE {
     Mono<Void> removeRecentWorkspaceAndChildEntities(String userId, String workspaceId);
 
     Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
+
+    Mono<UserData> toggleFavoriteApplication(String applicationId);
+
+    Mono<List<Application>> getFavoriteApplications();
+
+    Mono<Void> removeApplicationFromAllFavorites(String applicationId);
 }
