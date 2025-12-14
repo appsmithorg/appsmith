@@ -50,7 +50,7 @@ import history from "utils/history";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { toast } from "@appsmith/ads";
 import { getCurrentUser } from "actions/authActions";
-import { toggleFavoriteApplication } from "ee/actions/applicationActions";
+import { toggleFavoriteApplication } from "actions/applicationActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
