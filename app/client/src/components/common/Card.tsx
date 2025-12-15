@@ -116,8 +116,10 @@ const FavoriteIconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  /* Slightly smaller footprint so the favorite icon feels less crowded
+     next to long application names. */
+  width: 20px;
+  height: 20px;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   transition: all 0.2s ease;
