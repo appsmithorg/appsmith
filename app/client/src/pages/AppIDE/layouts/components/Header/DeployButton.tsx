@@ -23,7 +23,7 @@ import {
   useGitConnected,
   useGitModEnabled,
 } from "pages/Editor/gitSync/hooks/modHooks";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -50,7 +50,7 @@ function DeployButton() {
   const gitStatusState = useArtifactSelector(selectStatusState);
   const redeployTrigger = useSelector(getRedeployApplicationTrigger);
 
-  const getTooltipText = useCallback(() => {
+  const tooltipText = useMemo(() => {
     if (isPackageUpgrading) {
       return createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app");
     }
@@ -100,7 +100,7 @@ function DeployButton() {
     toggleOpsModal,
   ]);
 
-  const getStartIcon = useCallback(() => {
+  const startIcon = useMemo(() => {
     if (isGitConnected && !gitStatusState?.loading) {
       const hasPendingCommits =
         gitStatusState?.value && !gitStatusState.value.isClean;
@@ -118,7 +118,7 @@ function DeployButton() {
   }, [isGitConnected, gitStatusState, redeployTrigger]);
 
   return (
-    <Tooltip content={getTooltipText()} placement="bottomRight">
+    <Tooltip content={tooltipText} placement="bottomRight">
       <StyledTooltipTarget>
         <Button
           className="t--application-publish-btn"
@@ -129,7 +129,7 @@ function DeployButton() {
           kind="tertiary"
           onClick={handleClickDeploy}
           size="md"
-          startIcon={getStartIcon()}
+          startIcon={startIcon}
         >
           {createMessage(DEPLOY_MENU_OPTION)}
         </Button>

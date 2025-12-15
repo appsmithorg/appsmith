@@ -215,28 +215,32 @@ export const getIsFetchingAppSlugSuggestion = (state: DefaultRootState) =>
 export const getAppSlugSuggestion = (state: DefaultRootState) =>
   state.ui.applications.appSlugSuggestion;
 
-export const getRedeployApplicationTrigger = (
-  state: DefaultRootState,
-): string | null => {
-  const currentApplication = getCurrentApplication(state);
+export enum RedeployTrigger {
+  PendingDeployment = "PENDING_DEPLOYMENT",
+  PendingDeploymentWithPackage = "PENDING_DEPLOYMENT_WITH_PACKAGE",
+}
 
-  if (!currentApplication?.modifiedAt) {
+export const getRedeployApplicationTrigger = createSelector(
+  getCurrentApplication,
+  (currentApplication): RedeployTrigger | null => {
+    if (!currentApplication?.modifiedAt) {
+      return null;
+    }
+
+    if (!currentApplication?.lastDeployedAt) {
+      return RedeployTrigger.PendingDeployment;
+    }
+
+    const lastDeployedAtMs = new Date(
+      currentApplication.lastDeployedAt,
+    ).getTime();
+    const modifiedAtMs = new Date(currentApplication.modifiedAt).getTime();
+
+    // If modifiedAt is greater than lastDeployedAt by more than 1 second, deployment is needed
+    if (modifiedAtMs - lastDeployedAtMs > 1000) {
+      return RedeployTrigger.PendingDeployment;
+    }
+
     return null;
-  }
-
-  if (!currentApplication?.lastDeployedAt) {
-    return "PENDING_DEPLOYMENT";
-  }
-
-  const lastDeployedAtMs = new Date(
-    currentApplication.lastDeployedAt,
-  ).getTime();
-  const modifiedAtMs = new Date(currentApplication.modifiedAt).getTime();
-
-  // If modifiedAt is greater than lastDeployedAt by more than 1 second, deployment is needed
-  if (modifiedAtMs - lastDeployedAtMs > 1000) {
-    return "PENDING_DEPLOYMENT";
-  }
-
-  return null;
-};
+  },
+);
