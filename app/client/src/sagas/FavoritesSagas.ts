@@ -5,6 +5,7 @@ import ApplicationApi from "ee/api/ApplicationApi";
 import {
   toggleFavoriteApplicationSuccess,
   toggleFavoriteApplicationError,
+  fetchFavoriteApplicationsError,
   fetchFavoriteApplicationsSuccess,
 } from "actions/applicationActions";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -96,9 +97,13 @@ function* fetchFavoriteApplicationsSaga() {
       );
 
       yield put(fetchFavoriteApplicationsSuccess(applications));
+    } else {
+      // Non-successful API response – notify reducers so loading state is cleared.
+      yield put(fetchFavoriteApplicationsError());
     }
   } catch (error) {
-    // Silent fail - favorites are not critical
+    // On error, dispatch the error action so reducers can clear loading state.
+    yield put(fetchFavoriteApplicationsError());
   }
 }
 

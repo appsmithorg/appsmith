@@ -70,7 +70,13 @@ export const handlers = {
     action: ReduxAction<ApplicationPayload[]>,
   ) => {
     draftState.loadingStates.isFetchingApplications = false;
-    draftState.applications = action.payload;
+
+    // Only replace applications when we're in the virtual favorites workspace.
+    // This prevents overwriting a real workspace's applications when favorites
+    // are fetched in the background.
+    if (draftState.workspace.id === "__favorites__") {
+      draftState.applications = action.payload;
+    }
   },
   [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
     draftState: SelectedWorkspaceReduxState,
