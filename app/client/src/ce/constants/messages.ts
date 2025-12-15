@@ -1468,8 +1468,10 @@ export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
   "Deploy the current version of the application";
-export const REDEPLOY_BUTTON_TOOLTIP = () =>
-  "Redeploy to see the latest updates";
+export const REDEPLOY_BUTTON_TOOLTIP = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  redeployTrigger?: string,
+) => "Redeploy to see the latest updates";
 export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;
