@@ -19,8 +19,11 @@ export function useWidgetSelectionBlockListener() {
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
 
+    // Block or unblock widget selection based only on the focused entity type.
+    // We depend on `currentFocus.entity` instead of the full object to avoid
+    // re-dispatching on every render with a new object reference.
     dispatch(setWidgetSelectionBlock(!inUIMode));
-  }, [currentFocus, dispatch]);
+  }, [currentFocus.entity, dispatch]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
