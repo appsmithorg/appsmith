@@ -10,6 +10,7 @@ import {
 import { validateResponse } from "sagas/ErrorSagas";
 import { toast } from "@appsmith/ads";
 import { findDefaultPage } from "pages/utils";
+import type { ApplicationPayload } from "entities/Application";
 
 function* toggleFavoriteApplicationSaga(
   action: ReduxAction<{ applicationId: string }>,
@@ -64,6 +65,13 @@ function* fetchFavoriteApplicationsSaga() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawApplications = (response as any).data;
 
+      // Merge in userPermissions from the main application list when available
+      // so favorites behave exactly like the standard workspace view for edit/delete/etc.
+      const allApplications: ApplicationPayload[] = yield select(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (state: any) => state.ui.applications.applicationList,
+      );
+
       // Transform applications to include defaultBasePageId (needed for Launch button)
       // This matches the transformation done in ApplicationSagas.tsx
       const applications = rawApplications.map(
@@ -71,8 +79,17 @@ function* fetchFavoriteApplicationsSaga() {
         (application: any) => {
           const defaultPage = findDefaultPage(application.pages);
 
+          // Find the corresponding application from the main list (if loaded)
+          const existing = allApplications?.find(
+            (app) => app.id === application.id,
+          );
+
           return {
             ...application,
+            // Prefer userPermissions from the main application list so edit
+            // permissions match the regular workspace cards.
+            userPermissions:
+              existing?.userPermissions ?? application.userPermissions,
             defaultPageId: defaultPage?.id,
             defaultBasePageId: defaultPage?.baseId,
           };

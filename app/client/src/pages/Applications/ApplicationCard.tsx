@@ -40,6 +40,7 @@ import type {
   UpdateApplicationPayload,
 } from "ee/api/ApplicationApi";
 import {
+  getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "ee/selectors/applicationSelectors";
@@ -106,6 +107,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const allApplications = useSelector(getApplicationList);
   const currentUser = useSelector(getCurrentUserSelector);
   const initialsAndColorCode = getInitialsAndColorCode(
     application.name,
@@ -211,20 +213,29 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const appIcon = (application.icon ||
     getApplicationIcon(applicationId)) as AppIconName;
+
+  // Some views (like Favorites) may receive applications without populated userPermissions.
+  // Fall back to the main application list so permissions match the standard workspace cards.
+  const fallbackApp = allApplications?.find((app) => app.id === applicationId);
+  const effectiveUserPermissions =
+    (application.userPermissions && application.userPermissions.length > 0
+      ? application.userPermissions
+      : fallbackApp?.userPermissions) ?? [];
+
   const hasEditPermission = isPermitted(
-    application.userPermissions ?? [],
+    effectiveUserPermissions,
     PERMISSION_TYPE.MANAGE_APPLICATION,
   );
   const hasReadPermission = isPermitted(
-    application.userPermissions ?? [],
+    effectiveUserPermissions,
     PERMISSION_TYPE.READ_APPLICATION,
   );
   const hasExportPermission = isPermitted(
-    application.userPermissions ?? [],
+    effectiveUserPermissions,
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
   const hasDeletePermission = hasDeleteApplicationPermission(
-    application.userPermissions,
+    effectiveUserPermissions,
   );
 
   const updateColor = (color: string) => {
