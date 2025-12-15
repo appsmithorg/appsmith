@@ -227,44 +227,6 @@ export function* publishApplicationSaga(
 export function* redeployApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
-  const currentApplication: ApplicationPayload | undefined = yield select(
-    getCurrentApplication,
-  );
-
-  if (currentApplication) {
-    const appName = currentApplication.name;
-    const appId = currentApplication?.id;
-    const pageCount = currentApplication?.pages?.length;
-    const navigationSettingsWithPrefix: Record<
-      string,
-      NavigationSetting[keyof NavigationSetting]
-    > = {};
-
-    if (currentApplication.applicationDetail?.navigationSetting) {
-      const settingKeys = objectKeys(
-        currentApplication.applicationDetail.navigationSetting,
-      ) as Array<keyof NavigationSetting>;
-
-      settingKeys.map((key: keyof NavigationSetting) => {
-        if (currentApplication.applicationDetail?.navigationSetting?.[key]) {
-          const value: NavigationSetting[keyof NavigationSetting] =
-            currentApplication.applicationDetail.navigationSetting[key];
-
-          navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
-        }
-      });
-    }
-
-    AnalyticsUtil.logEvent("REDEPLOY_APP", {
-      appId,
-      appName,
-      pageCount,
-      ...navigationSettingsWithPrefix,
-      isPublic: !!currentApplication?.isPublic,
-      templateTitle: currentApplication?.forkedFromTemplateTitle,
-    });
-  }
-
   try {
     const request = requestAction.payload;
     const response: PublishApplicationResponse = yield call(
