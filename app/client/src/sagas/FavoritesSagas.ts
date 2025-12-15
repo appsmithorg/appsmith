@@ -16,13 +16,16 @@ function* toggleFavoriteApplicationSaga(
   action: ReduxAction<{ applicationId: string }>,
 ) {
   const { applicationId } = action.payload;
+  // Track the original favorite state so we can reliably roll back on error.
+  let isFavorited: boolean = false;
 
   try {
     // Optimistic update - get current state
     const currentFavoriteIds: string[] = yield select(
       (state) => state.ui.applications.favoriteApplicationIds,
     );
-    const isFavorited = currentFavoriteIds.includes(applicationId);
+
+    isFavorited = currentFavoriteIds.includes(applicationId);
     const newIsFavorited = !isFavorited;
 
     // Immediate UI update (optimistic)

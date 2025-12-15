@@ -359,9 +359,17 @@ export function* createWorkspaceSaga(
       yield call(resolve);
     }
 
-    // get created workspace in focus
+    // Get created workspace in focus
     // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
+
+    // Refresh workspaces and entities for the newly created workspace so that
+    // the left panel and applications list reflect the new workspace instead of
+    // staying on the previous (e.g. Favorites) virtual workspace.
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+      payload: { workspaceId, fetchEntities: true },
+    });
 
     history.push(`${window.location.pathname}?workspaceId=${workspaceId}`);
   } catch (error) {
