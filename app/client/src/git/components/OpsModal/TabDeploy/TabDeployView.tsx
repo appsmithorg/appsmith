@@ -18,6 +18,7 @@ import {
   PULL_CHANGES,
   REDEPLOY_MENU_OPTION,
 } from "ee/constants/messages";
+import { type RedeployTriggerValue } from "ee/constants/DeploymentConstants";
 import styled from "styled-components";
 import {
   Button,
@@ -90,7 +91,7 @@ interface TabDeployViewProps {
   pull: () => void;
   redeploy: () => void;
   remoteUrl: string | null;
-  redeployTrigger: string | null;
+  redeployTrigger: RedeployTriggerValue | null;
   statusBehindCount: number;
   statusIsClean: boolean;
 }

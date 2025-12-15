@@ -10,8 +10,8 @@ import {
   DEPLOY_MENU_OPTION,
   PACKAGE_UPGRADING_ACTION_STATUS,
   UNCOMMITTED_CHANGES,
-  REDEPLOY_BUTTON_TOOLTIP,
 } from "ee/constants/messages";
+import { REDEPLOY_BUTTON_TOOLTIP } from "ee/constants/DeploymentConstants";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
 import { getRedeployApplicationTrigger } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -64,7 +64,7 @@ function DeployButton() {
       }
 
       if (redeployTrigger) {
-        return REDEPLOY_BUTTON_TOOLTIP(redeployTrigger);
+        return createMessage(REDEPLOY_BUTTON_TOOLTIP[redeployTrigger]);
       }
     }
 

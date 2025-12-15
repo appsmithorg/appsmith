@@ -1,5 +1,9 @@
 import React from "react";
-import { createMessage, REDEPLOY_WARNING_MESSAGE } from "ee/constants/messages";
+import { createMessage } from "ee/constants/messages";
+import {
+  REDEPLOY_WARNING_MESSAGE,
+  type RedeployTriggerValue,
+} from "ee/constants/DeploymentConstants";
 import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
@@ -8,7 +12,7 @@ const Container = styled.div`
 `;
 
 interface RedeployWarningProps {
-  redeployTrigger: string | null;
+  redeployTrigger: RedeployTriggerValue | null;
 }
 
 const RedeployWarning: React.FC<RedeployWarningProps> = ({
@@ -32,7 +36,8 @@ const RedeployWarning: React.FC<RedeployWarningProps> = ({
         ]}
       >
         <Text kind="heading-xs">
-          {createMessage(REDEPLOY_WARNING_MESSAGE, redeployTrigger)}
+          {redeployTrigger &&
+            createMessage(REDEPLOY_WARNING_MESSAGE[redeployTrigger])}
         </Text>
       </Callout>
     </Container>

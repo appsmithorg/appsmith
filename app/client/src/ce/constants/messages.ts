@@ -1054,10 +1054,7 @@ export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
 export const DISCARD_MESSAGE = () =>
   `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
-export const REDEPLOY_WARNING_MESSAGE = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  redeployTrigger?: string,
-) =>
+export const REDEPLOY_APP_WARNING = () =>
   "We have noticed some changes and require you to redeploy your application to see the latest updates.";
 
 // GIT DEPLOY end
@@ -1468,10 +1465,8 @@ export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
   "Deploy the current version of the application";
-export const REDEPLOY_BUTTON_TOOLTIP = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  redeployTrigger?: string,
-) => "Redeploy to see the latest updates";
+export const REDEPLOY_APP_BUTTON_TOOLTIP = () =>
+  "Redeploy to see the latest updates";
 export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;

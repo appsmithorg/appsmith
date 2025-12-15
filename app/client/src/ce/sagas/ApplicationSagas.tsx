@@ -224,11 +224,26 @@ export function* publishApplicationSaga(
   }
 }
 
-export function* redeployApplicationSaga(
-  requestAction: ReduxAction<PublishApplicationRequest>,
-) {
+export function* redeployApplicationSaga() {
   try {
-    const request = requestAction.payload;
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("Current Application is missing while redeploying App");
+    }
+
+    const applicationId: string = currentApplication.id;
+    const appName: string = currentApplication.name;
+
+    AnalyticsUtil.logEvent("REDEPLOY_APP", {
+      appId: applicationId,
+      appName,
+    });
+    const request: PublishApplicationRequest = {
+      applicationId,
+    };
     const response: PublishApplicationResponse = yield call(
       ApplicationApi.publishApplication,
       request,
@@ -236,11 +251,6 @@ export function* redeployApplicationSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.REDEPLOY_APPLICATION_SUCCESS,
-      });
-
-      const applicationId: string = yield select(getCurrentApplicationId);
       const currentPageId: string = yield select(getCurrentPageId);
 
       yield put(
@@ -256,6 +266,10 @@ export function* redeployApplicationSaga(
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ]);
+
+      yield put({
+        type: ReduxActionTypes.REDEPLOY_APPLICATION_SUCCESS,
+      });
     }
   } catch (error) {
     yield put({

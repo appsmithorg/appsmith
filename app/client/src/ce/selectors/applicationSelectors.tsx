@@ -11,6 +11,10 @@ import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { type ThemeSetting, defaultThemeSetting } from "constants/AppConstants";
 import { DEFAULT_EVALUATION_VERSION } from "constants/EvalConstants";
+import {
+  REDEPLOY_TRIGGERS,
+  type RedeployTriggerValue,
+} from "ee/constants/DeploymentConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -215,20 +219,15 @@ export const getIsFetchingAppSlugSuggestion = (state: DefaultRootState) =>
 export const getAppSlugSuggestion = (state: DefaultRootState) =>
   state.ui.applications.appSlugSuggestion;
 
-export enum RedeployTrigger {
-  PendingDeployment = "PENDING_DEPLOYMENT",
-  PendingDeploymentWithPackage = "PENDING_DEPLOYMENT_WITH_PACKAGE",
-}
-
 export const getRedeployApplicationTrigger = createSelector(
   getCurrentApplication,
-  (currentApplication): RedeployTrigger | null => {
+  (currentApplication): RedeployTriggerValue | null => {
     if (!currentApplication?.modifiedAt) {
       return null;
     }
 
     if (!currentApplication?.lastDeployedAt) {
-      return RedeployTrigger.PendingDeployment;
+      return REDEPLOY_TRIGGERS.PendingDeployment;
     }
 
     const lastDeployedAtMs = new Date(
@@ -238,7 +237,7 @@ export const getRedeployApplicationTrigger = createSelector(
 
     // If modifiedAt is greater than lastDeployedAt by more than 1 second, deployment is needed
     if (modifiedAtMs - lastDeployedAtMs > 1000) {
-      return RedeployTrigger.PendingDeployment;
+      return REDEPLOY_TRIGGERS.PendingDeployment;
     }
 
     return null;
