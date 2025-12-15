@@ -41,12 +41,8 @@ function* toggleFavoriteApplicationSaga(
       yield put(toggleFavoriteApplicationError(applicationId));
     }
   } catch (error) {
-    // Rollback on error
-    const currentFavoriteIds: string[] = yield select(
-      (state) => state.ui.applications.favoriteApplicationIds,
-    );
-    const isFavorited = currentFavoriteIds.includes(applicationId);
-
+    // Rollback on error using the original isFavorited value captured above.
+    // Do NOT re-read state here, since the optimistic update has already modified it.
     yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
     yield put(toggleFavoriteApplicationError(applicationId));
 
