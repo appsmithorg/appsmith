@@ -1988,30 +1988,29 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     importedBranchedArtifact
                                             .getGitArtifactMetadata()
                                             .getIsRepoPrivate()))
-                            .flatMap(importedArtifact ->
-                                    gitArtifactHelper.getArtifactById(importedArtifact.getId(), null))
                             .flatMap(importedBranchedArtifact -> {
-                                return gitArtifactHelper
-                                        .publishArtifact(importedBranchedArtifact, false)
-                                        .then(getGitUserForArtifactId(baseArtifactId))
-                                        .flatMap(gitAuthor -> {
-                                            CommitDTO commitDTO = new CommitDTO();
-                                            commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
-                                                    + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
-                                            commitDTO.setAuthor(gitAuthor);
+                                return gitArtifactHelper.publishArtifact(importedBranchedArtifact, false);
+                            })
+                            .flatMap(publishedArtifact -> {
+                                return getGitUserForArtifactId(baseArtifactId).flatMap(gitAuthor -> {
+                                    CommitDTO commitDTO = new CommitDTO();
+                                    commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
+                                            + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+                                    commitDTO.setAuthor(gitAuthor);
 
-                                            GitPullDTO gitPullDTO = new GitPullDTO();
-                                            gitPullDTO.setMergeStatus(status);
-                                            gitPullDTO.setArtifact(importedBranchedArtifact);
+                                    GitPullDTO gitPullDTO = new GitPullDTO();
+                                    gitPullDTO.setMergeStatus(status);
+                                    gitPullDTO.setArtifact(publishedArtifact);
 
-                                            return Mono.defer(() -> commitArtifact(
-                                                            commitDTO,
-                                                            baseArtifact,
-                                                            importedBranchedArtifact,
-                                                            gitType,
-                                                            false))
-                                                    .thenReturn(gitPullDTO);
-                                        });
+                                    // TODO: this can be done async as well.
+                                    return Mono.defer(() -> commitArtifact(
+                                                    commitDTO,
+                                                    publishedArtifact.getId(),
+                                                    publishedArtifact.getArtifactType(),
+                                                    gitType,
+                                                    false))
+                                            .thenReturn(gitPullDTO);
+                                });
                             });
                 });
     }
