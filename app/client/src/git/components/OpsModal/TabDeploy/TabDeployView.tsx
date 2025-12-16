@@ -383,7 +383,7 @@ function TabDeployView({
           )}
 
           {!pullRequired && !isConflicting && (
-            <DeployPreview isCommitSuccess={isCommitSuccess || isRedeploying} />
+            <DeployPreview isSuccess={isCommitSuccess || isRedeploying} />
           )}
         </div>
       </ModalBody>

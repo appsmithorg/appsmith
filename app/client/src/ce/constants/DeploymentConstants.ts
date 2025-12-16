@@ -1,7 +1,4 @@
-import {
-  REDEPLOY_APP_BUTTON_TOOLTIP,
-  REDEPLOY_APP_WARNING,
-} from "ee/constants/messages";
+import { REDEPLOY_APP_WARNING } from "ee/constants/messages";
 
 export const REDEPLOY_TRIGGERS = {
   PendingDeployment: "PENDING_DEPLOYMENT",
@@ -15,11 +12,4 @@ export const REDEPLOY_WARNING_MESSAGE: Record<
   () => string
 > = {
   [REDEPLOY_TRIGGERS.PendingDeployment]: REDEPLOY_APP_WARNING,
-};
-
-export const REDEPLOY_BUTTON_TOOLTIP: Record<
-  RedeployTriggerValue,
-  () => string
-> = {
-  [REDEPLOY_TRIGGERS.PendingDeployment]: REDEPLOY_APP_BUTTON_TOOLTIP,
 };
