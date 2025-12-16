@@ -68,12 +68,8 @@ export const MembersWrapper = styled.div<{
             color: var(--ads-v2-color-fg);
             padding: 8px 20px;
 
-            &:nth-child(2) {
-              width: 140px;
-            }
-
-            &:nth-child(3) {
-              width: 110px;
+            &:first-child {
+              width: 240px;
             }
 
             &:last-child {
