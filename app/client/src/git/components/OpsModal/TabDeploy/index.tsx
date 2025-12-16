@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import TabDeployView from "./TabDeployView";
 import { useGitContext } from "git/components/GitContextProvider";
 import useMetadata from "git/hooks/useMetadata";
@@ -6,11 +7,14 @@ import useBranches from "git/hooks/useBranches";
 import useCommit from "git/hooks/useCommit";
 import useDiscard from "git/hooks/useDiscard";
 import usePull from "git/hooks/usePull";
+import useRedeploy from "git/hooks/useRedeploy";
 import useStatus from "git/hooks/useStatus";
 import type { GitApplicationArtifact } from "git/types";
+import { getRedeployApplicationTrigger } from "ee/selectors/applicationSelectors";
 
 export default function TabDeploy() {
   const { artifact } = useGitContext();
+  const redeployTrigger = useSelector(getRedeployApplicationTrigger);
   const { clearCommitError, commit, commitError, isCommitLoading } =
     useCommit();
 
@@ -18,6 +22,7 @@ export default function TabDeploy() {
     useDiscard();
 
   const { isPullLoading, pull, pullError } = usePull();
+  const { isRedeploying, redeploy } = useRedeploy();
   const { isFetchStatusLoading, status } = useStatus();
   const { currentBranch } = useBranches();
   const { metadata } = useMetadata();
@@ -44,8 +49,11 @@ export default function TabDeploy() {
       isFetchStatusLoading={isFetchStatusLoading}
       isPullFailing={isPullFailing}
       isPullLoading={isPullLoading}
+      isRedeploying={isRedeploying}
       lastDeployedAt={lastDeployedAt}
       pull={pull}
+      redeploy={redeploy}
+      redeployTrigger={redeployTrigger}
       remoteUrl={remoteUrl}
       statusBehindCount={statusBehindCount}
       statusIsClean={statusIsClean}

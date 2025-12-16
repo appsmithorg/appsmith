@@ -156,6 +156,12 @@ export const getIsPublishingApplication = (state: DefaultRootState) =>
 export const getPublishingError = (state: DefaultRootState) =>
   state.ui.editor.loadingStates.publishingError;
 
+export const getIsRedeployingApplication = (state: DefaultRootState) =>
+  state.ui.editor.loadingStates.redeploying;
+
+export const getRedeployingError = (state: DefaultRootState) =>
+  state.ui.editor.loadingStates.redeployingError;
+
 export const getCurrentLayoutId = (
   state: DefaultRootState,
 ): string | undefined => state.ui.editor.currentLayoutId;

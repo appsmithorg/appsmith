@@ -32,15 +32,15 @@ const Container = styled.div`
 `;
 
 interface DeployPreviewProps {
-  isCommitSuccess: boolean;
+  isSuccess: boolean;
 }
 
-export default function DeployPreview({ isCommitSuccess }: DeployPreviewProps) {
+export default function DeployPreview({ isSuccess }: DeployPreviewProps) {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(
     function startTimerForCommitSuccessEffect() {
-      if (isCommitSuccess) {
+      if (isSuccess) {
         setShowSuccess(true);
         const timer = setTimeout(() => {
           setShowSuccess(false);
@@ -49,7 +49,7 @@ export default function DeployPreview({ isCommitSuccess }: DeployPreviewProps) {
         return () => clearTimeout(timer);
       }
     },
-    [isCommitSuccess],
+    [isSuccess],
   );
 
   const basePageId = useSelector(getCurrentBasePageId);

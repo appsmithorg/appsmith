@@ -16,7 +16,9 @@ import {
   DISCARDING_AND_PULLING_CHANGES,
   GIT_NO_UPDATED_TOOLTIP,
   PULL_CHANGES,
+  REDEPLOY_MENU_OPTION,
 } from "ee/constants/messages";
+import { type RedeployTriggerValue } from "ee/constants/DeploymentConstants";
 import styled from "styled-components";
 import {
   Button,
@@ -37,6 +39,7 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import DiscardChangesWarning from "./DiscardChangesWarning";
 import PushFailedError from "./PushFailedError";
 import DiscardFailedError from "./DiscardFailedError";
+import RedeployWarning from "./RedeployWarning";
 import StatusChanges from "git/components/StatusChanges";
 import ConflictError from "git/components/ConflictError";
 import SubmitWrapper from "./SubmitWrapper";
@@ -83,9 +86,12 @@ interface TabDeployViewProps {
   isFetchStatusLoading: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
+  isRedeploying: boolean;
   lastDeployedAt: string | null;
   pull: () => void;
+  redeploy: () => void;
   remoteUrl: string | null;
+  redeployTrigger: RedeployTriggerValue | null;
   statusBehindCount: number;
   statusIsClean: boolean;
 }
@@ -103,8 +109,11 @@ function TabDeployView({
   isFetchStatusLoading = false,
   isPullFailing = false,
   isPullLoading = false,
+  isRedeploying = false,
   lastDeployedAt = null,
   pull = noop,
+  redeploy = noop,
+  redeployTrigger = null,
   remoteUrl = null,
   statusBehindCount = 0,
   statusIsClean = false,
@@ -137,6 +146,9 @@ function TabDeployView({
     !isFetchStatusLoading &&
     !isCommitLoading &&
     !isDiscarding;
+
+  const shouldShowRedeploy =
+    !isFetchStatusLoading && !hasChangesToCommit && !!redeployTrigger;
 
   const isCommitting =
     !!commitButtonLoading &&
@@ -262,6 +274,13 @@ function TabDeployView({
     setShouldDiscard(false);
   }, []);
 
+  const handleRedeploy = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_REDEPLOY_APPLICATION_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
+    redeploy();
+  }, [redeploy]);
+
   function handleCommitAndPushErrorClose() {
     clearCommitError();
   }
@@ -303,6 +322,9 @@ function TabDeployView({
           ref={scrollWrapperRef}
           style={{ minHeight: 360 }}
         >
+          {shouldShowRedeploy && (
+            <RedeployWarning redeployTrigger={redeployTrigger} />
+          )}
           <Section>
             <StatusChanges />
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
@@ -361,7 +383,7 @@ function TabDeployView({
           )}
 
           {!pullRequired && !isConflicting && (
-            <DeployPreview isCommitSuccess={isCommitSuccess} />
+            <DeployPreview isSuccess={isCommitSuccess || isRedeploying} />
           )}
         </div>
       </ModalBody>
@@ -392,7 +414,7 @@ function TabDeployView({
               : createMessage(DISCARD_CHANGES)}
           </Button>
         )}
-        {showCommitButton && (
+        {showCommitButton && !shouldShowRedeploy && (
           <Tooltip
             content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
             isDisabled={showCommitButton && !commitButtonLoading}
@@ -408,6 +430,16 @@ function TabDeployView({
               {createMessage(COMMIT_AND_PUSH)}
             </Button>
           </Tooltip>
+        )}
+        {shouldShowRedeploy && (
+          <Button
+            data-testid="t--git-ops-redeploy-btn"
+            isLoading={isRedeploying}
+            onClick={handleRedeploy}
+            size="md"
+          >
+            {createMessage(REDEPLOY_MENU_OPTION)}
+          </Button>
         )}
       </StyledModalFooter>
     </>

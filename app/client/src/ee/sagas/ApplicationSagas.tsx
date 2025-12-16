@@ -1,6 +1,7 @@
 export * from "ce/sagas/ApplicationSagas";
 import {
   publishApplicationSaga,
+  redeployApplicationSaga,
   updateApplicationLayoutSaga,
   updateApplicationSaga,
   changeAppViewAccessSaga,
@@ -32,6 +33,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       publishApplicationSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.REDEPLOY_APPLICATION_INIT,
+      redeployApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayoutSaga),
     takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
