@@ -422,13 +422,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       this.props.isChecked !== prevProps.isChecked &&
       this.props.onCheckChange
     ) {
-      this.props.updateWidgetMetaProperty("isChecked", this.props.isChecked, {
-        triggerPropertyName: "onCheckChange",
-        dynamicString: this.props.onCheckChange,
-        event: {
-          type: EventType.ON_CHECK_CHANGE,
-        },
-      });
+      this.props.updateWidgetMetaProperty("isChecked", this.props.isChecked);
     }
   }
 

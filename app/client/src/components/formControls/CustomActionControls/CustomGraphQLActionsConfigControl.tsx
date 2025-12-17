@@ -46,8 +46,7 @@ const StyledFormLabel = styled(FormLabel)`
 
 const EXPECTED_VARIABLE = {
   type: "object",
-  example:
-    '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}',
+  example: '{\n  "name": "{{ inputName.text }}"\n}',
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
@@ -121,7 +120,7 @@ const TabbedControls = (props: ControlProps) => {
                   evaluatedPopUpLabel={"Query"}
                   mode={EditorModes.GRAPHQL_WITH_BINDING}
                   name={`${props.configProperty}.body`}
-                  placeholder={`{{\n\tquery {\n\t\tname: inputName.property\n\t}\n}}`}
+                  placeholder={`query myQuery($name: String!) {\n  team(name: $name) {\n\tid\n\tname\n  }\n}`}
                   showLineNumbers
                   size={EditorSize.EXTENDED}
                   tabBehaviour={TabBehaviour.INDENT}

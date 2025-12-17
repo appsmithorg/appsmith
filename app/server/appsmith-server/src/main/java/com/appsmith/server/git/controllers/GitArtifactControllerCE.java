@@ -133,4 +133,21 @@ public class GitArtifactControllerCE {
                 .saveSshKeyPair(artifactType, artifactId)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
+
+    /**
+     * Get commit history for a git-connected artifact in chronological order (latest first).
+     *
+     * @param artifactId The ID of the artifact (can be base or branched artifact)
+     * @param artifactType The type of artifact (APPLICATION or PACKAGE)
+     * @return List of commit logs with commit details
+     */
+    @JsonView(Views.Public.class)
+    @GetMapping("/{artifactId}/commits")
+    public Mono<ResponseDTO<List<com.appsmith.external.dtos.GitLogDTO>>> getCommitHistory(
+            @PathVariable String artifactId, @RequestParam ArtifactType artifactType) {
+        log.info("Getting commit history for artifact: {}, type: {}", artifactId, artifactType);
+        return centralGitService
+                .getCommitHistory(artifactId, artifactType, GIT_TYPE)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
+    }
 }

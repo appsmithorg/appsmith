@@ -414,26 +414,39 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .canCreatePage(importedApplication)
                 .cache();
 
-        Mono<Map<String, NewPage>> gitSyncToPagesFromAllBranchesMono = Mono.just(new HashMap<>());
+        Mono<Map<String, NewPage>> gitSyncToPagesFromOtherBranchesMono = Mono.just(Map.of());
         if (GitUtils.isArtifactConnectedToGit(importedApplication.getGitArtifactMetadata())) {
-            // Git Applications only
-            // TODO: add projections
-            gitSyncToPagesFromAllBranchesMono = newPageService
-                    .findAllByApplicationIds(importingMetaDTO.getBranchedArtifactIds(), null)
-                    .filter(page -> page.getGitSyncId() != null)
+            final List<String> projectionForOtherBranches = List.of(
+                    NewPage.Fields.id,
+                    NewPage.Fields.baseId,
+                    NewPage.Fields.applicationId,
+                    NewPage.Fields.gitSyncId,
+                    NewPage.Fields.policies);
+
+            List<String> allOtherBranches = importingMetaDTO.getBranchedArtifactIds().stream()
+                    .filter(branchedAppId -> !branchedAppId.equals(importingMetaDTO.getArtifactId())
+                            && !branchedAppId.equals(importedApplication.getId()))
+                    .toList();
+
+            gitSyncToPagesFromOtherBranchesMono = newPageService
+                    .findAllByApplicationIds(allOtherBranches, projectionForOtherBranches)
+                    .filter(page -> hasText(page.getGitSyncId()))
                     .collectMap(NewPage::getGitSyncId)
                     .cache();
         }
 
+        List<NewPage> pagesToEdit = new ArrayList<>();
+        List<NewPage> pagesToCreate = new ArrayList<>();
+
         return Mono.zip(
-                        gitSyncToPagesFromAllBranchesMono,
+                        gitSyncToPagesFromOtherBranchesMono,
                         pagesWithUpdatedUniqueSlugMono,
                         hasPageCreatePermissionMonoCached)
                 .flatMapMany(tuple3 -> {
                     List<NewPage> updatedSlugPagesToImport = tuple3.getT2();
                     Boolean canCreatePage = tuple3.getT3();
 
-                    Map<String, NewPage> gitSyncToPagesFromAllBranches = tuple3.getT1();
+                    Map<String, NewPage> gitSyncToPagesFromOtherBranches = tuple3.getT1();
                     Map<String, NewPage> gitSyncToDbPagesFromCurrentApp = new HashMap<>();
 
                     dbPagesFromCurrentApp.stream()
@@ -441,26 +454,16 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             .forEach(pageFromDb ->
                                     gitSyncToDbPagesFromCurrentApp.put(pageFromDb.getGitSyncId(), pageFromDb));
 
-                    return Flux.fromIterable(updatedSlugPagesToImport).flatMap(pageToImport -> {
+                    for (NewPage pageToImport : updatedSlugPagesToImport) {
                         log.info(
                                 "Importing page: {}",
                                 pageToImport.getUnpublishedPage().getName());
                         String gitSyncId = pageToImport.getGitSyncId();
 
                         // If git sync id of page to import doesn't match any existing page, insert this into db
-                        if (!hasText(gitSyncId)
-                                || (!gitSyncToDbPagesFromCurrentApp.containsKey(gitSyncId)
-                                        && !gitSyncToPagesFromAllBranches.containsKey(gitSyncId))) {
-                            // Insert this resource
-                            if (!canCreatePage) {
-                                log.error(
-                                        "User does not have permission to create page in application with id: {}",
-                                        importedApplication.getId());
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, createPage));
-                            }
-
-                            return saveNewPageAndUpdateBaseId(pageToImport, importingMetaDTO);
+                        if (!hasText(gitSyncId)) {
+                            pagesToCreate.add(pageToImport);
+                            continue;
                         }
 
                         // check if the current app pages has this git sync id present
@@ -489,30 +492,35 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                             pageToImport.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(pageToImport.getDeletedAt());
                             existingPage.setPolicies(existingPagePolicy);
-                            return newPageService.save(existingPage);
+                            pagesToEdit.add(existingPage);
+                            continue;
                         }
 
-                        // check if user has permission to add new page to the application
-                        if (!canCreatePage) {
-                            log.error(
-                                    "User does not have permission to create page in application with id: {}",
-                                    importedApplication.getId());
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create page"));
+                        if (gitSyncToPagesFromOtherBranches.containsKey(pageToImport.getGitSyncId())) {
+                            NewPage branchedPage = gitSyncToPagesFromOtherBranches.get(pageToImport.getGitSyncId());
+                            pageToImport.setRefType(importingMetaDTO.getRefType());
+                            pageToImport.setRefName(importingMetaDTO.getRefName());
+                            pageToImport.setBaseId(branchedPage.getBaseId());
+                            // Set policies from existing branch object
+                            // Note: the branched page object has only projected policies attribute from
+                            // database. For PolicyMap, please add policy map attribute as well in above projection.
+                            pageToImport.setPolicies(branchedPage.getPolicies());
                         }
 
-                        NewPage branchedPage = gitSyncToPagesFromAllBranches.get(pageToImport.getGitSyncId());
-                        pageToImport.setBaseId(branchedPage.getBaseId());
-                        pageToImport.setRefType(importingMetaDTO.getRefType());
-                        pageToImport.setRefName(importingMetaDTO.getRefName());
-                        pageToImport
-                                .getUnpublishedPage()
-                                .setDeletedAt(branchedPage.getUnpublishedPage().getDeletedAt());
-                        pageToImport.setDeletedAt(branchedPage.getDeletedAt());
-                        // Set policies from existing branch object
-                        pageToImport.setPolicies(branchedPage.getPolicies());
-                        return newPageService.save(pageToImport);
-                    });
+                        pagesToCreate.add(pageToImport);
+                    }
+
+                    // check if user has permission to add new page to the application
+                    if (!CollectionUtils.isEmpty(pagesToCreate) && !canCreatePage) {
+                        log.error(
+                                "User does not have permission to create page in application with id: {}",
+                                importedApplication.getId());
+                        return Flux.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, createPage));
+                    }
+
+                    Flux<NewPage> pagesToCreateFlux = insertPagesInBulkFlux(pagesToCreate, importingMetaDTO);
+                    Flux<NewPage> pagesToEditFlux = saveExistingPageInBulk(pagesToEdit, importingMetaDTO);
+                    return Flux.merge(pagesToCreateFlux, pagesToEditFlux);
                 })
                 .onErrorResume(error -> {
                     log.error("Error importing page", error);
@@ -532,6 +540,15 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 return Mono.just(page);
             }
         });
+    }
+
+    private Flux<NewPage> saveExistingPageInBulk(List<NewPage> pagesToSave, ImportingMetaDTO importingMetaDTO) {
+        pagesToSave.forEach(page -> {
+            page.setRefType(importingMetaDTO.getRefType());
+            page.setRefName(importingMetaDTO.getRefName());
+        });
+
+        return newPageService.saveAll(pagesToSave);
     }
 
     private Flux<NewPage> insertPagesInBulkFlux(List<NewPage> pages, ImportingMetaDTO importingMetaDTO) {

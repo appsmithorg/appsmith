@@ -1054,6 +1054,9 @@ export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
 export const DISCARD_MESSAGE = () =>
   `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
+export const REDEPLOY_APP_WARNING = () =>
+  "The deployed version of this app is not using the latest versions of some packages. Redeploy to apply the latest package versions to the app.";
+
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1462,6 +1465,8 @@ export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
   "Deploy the current version of the application";
+export const REDEPLOY_APP_BUTTON_TOOLTIP = () =>
+  "Redeploy needed to sync changes from edit mode";
 export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;
@@ -1474,6 +1479,7 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
+export const REDEPLOY_MENU_OPTION = () => "Redeploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
@@ -1706,6 +1712,8 @@ export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
   `Uploaded file must be in .SVG .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
+export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
+  "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
   `Uploaded file must have a max size of 48X48 pixels`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
@@ -1949,6 +1957,7 @@ export const ERROR_IN_FETCHING_APP_SLUG_SUGGESTION = () =>
   "Error in fetching app slug suggestion. Please try again.";
 export const ERROR_IN_ENABLING_STATIC_URL = () =>
   "Error in enabling static URL. Please try again.";
+export const STATIC_URL_DOCS_LINK_TEXT = () => "Learn more in docs";
 
 export const PAGE_SETTINGS_PAGE_SLUG_CHECKING_MESSAGE = () =>
   "Checking availability...";

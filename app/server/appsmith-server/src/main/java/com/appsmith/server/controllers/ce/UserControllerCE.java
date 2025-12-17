@@ -95,7 +95,6 @@ public class UserControllerCE {
         // username scraping, where the response of this API can prove whether an email has an account or not.
         return service.forgotPasswordTokenGenerate(userPasswordDTO)
                 .defaultIfEmpty(true)
-                .onErrorReturn(true)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK, true));
     }
 

@@ -28,6 +28,7 @@ export interface GitApplicationArtifact {
   name: string;
   pages: GitApplicationArtifactPage[];
   lastDeployedAt?: string;
+  modifiedAt?: string;
   gitApplicationMetadata?: {
     branchName: string;
     defaultBranchName: string;

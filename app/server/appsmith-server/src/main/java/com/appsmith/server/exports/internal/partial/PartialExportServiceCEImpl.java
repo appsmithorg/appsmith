@@ -192,7 +192,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 .getAllJSLibsInContext(branchedApplicationId, CreatorContextType.APPLICATION, false)
                 .flatMap(customJSLibs -> {
                     List<CustomJSLib> updatedCustomJSLibList = customJSLibs.stream()
-                            .filter(customJSLib -> customJSLibSet.contains(customJSLib.getId()))
+                            .filter(customJSLib -> customJSLibSet.contains(customJSLib.getId())
+                                    || customJSLibSet.contains(customJSLib.getName()))
                             .peek(CustomJSLib::sanitiseToExportDBObject)
                             .toList();
                     applicationJson.setCustomJSLibList(updatedCustomJSLibList);

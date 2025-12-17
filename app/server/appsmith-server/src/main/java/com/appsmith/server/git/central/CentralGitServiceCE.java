@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -101,4 +102,6 @@ public interface CentralGitServiceCE {
     Mono<GitArtifactMetadata> getGitArtifactMetadata(String baseArtifactId, ArtifactType artifactType);
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
+
+    Mono<List<GitLogDTO>> getCommitHistory(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 }

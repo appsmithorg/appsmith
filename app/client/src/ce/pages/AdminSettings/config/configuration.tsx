@@ -38,6 +38,26 @@ export const APPSMITH_REDIS_URL: Setting = {
     "* Appsmith internally uses Redis for session storage. Change this to an external redis for clustering",
 };
 
+export const APPSMITH_BASE_URL: Setting = {
+  id: "APPSMITH_BASE_URL",
+  category: SettingCategories.CONFIGURATION,
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Appsmith Base URL",
+  subText:
+    "* The base URL where Appsmith is accessible. This is required for password reset and email verification links to work correctly.",
+  placeholder: "https://appsmith.example.com",
+  validate: (value: string) => {
+    if (!value || value.trim() === "") {
+      return "This field cannot be empty";
+    }
+
+    if (!value.startsWith("http://") && !value.startsWith("https://")) {
+      return "Base URL must start with http:// or https://";
+    }
+  },
+};
+
 export const APPSMITH_POOL_SIZE_CONFIG: Setting = {
   id: "connectionMaxPoolSize",
   category: SettingCategories.CONFIGURATION,
@@ -136,6 +156,7 @@ export const config: AdminConfigType = {
   settings: [
     APPSMITH_DB_URL,
     APPSMITH_REDIS_URL,
+    APPSMITH_BASE_URL,
     APPSMITH_POOL_SIZE_CONFIG,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],

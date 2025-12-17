@@ -1,6 +1,6 @@
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { Icon, Text } from "@appsmith/ads";
-import React from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 
@@ -15,14 +15,68 @@ export const SearchListItem = styled.div`
   }
 `;
 
+const WorkspaceLogoImage = styled.img`
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  object-fit: contain;
+  margin-right: 8px;
+`;
+
 interface Props {
   workspacesList: Workspace[] | undefined;
   setIsDropdownOpen: (isOpen: boolean) => void;
 }
 
+interface WorkspaceItemProps {
+  workspace: Workspace;
+  setIsDropdownOpen: (isOpen: boolean) => void;
+}
+
+const WorkspaceItem = ({
+  setIsDropdownOpen,
+  workspace,
+}: WorkspaceItemProps) => {
+  const history = useHistory();
+  const [imageError, setImageError] = useState(false);
+  const hasLogo = workspace.logoUrl && !imageError;
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  return (
+    <SearchListItem
+      data-testid={workspace.name}
+      onClick={() => {
+        setIsDropdownOpen(false);
+        history.push(`/applications?workspaceId=${workspace?.id}`);
+      }}
+    >
+      {hasLogo ? (
+        <WorkspaceLogoImage
+          alt={`${workspace.name} logo`}
+          onError={handleImageError}
+          src={workspace.logoUrl}
+        />
+      ) : (
+        <Icon
+          className="!mr-2"
+          color="var(--ads-v2-color-fg)"
+          name="group-2-line"
+          size="md"
+        />
+      )}
+      <Text className="truncate" kind="body-m">
+        {workspace.name}
+      </Text>
+    </SearchListItem>
+  );
+};
+
 const WorkspaceSearchItems = (props: Props) => {
   const { setIsDropdownOpen, workspacesList } = props;
-  const history = useHistory();
 
   if (!workspacesList || workspacesList?.length === 0) return null;
 
@@ -32,24 +86,11 @@ const WorkspaceSearchItems = (props: Props) => {
         Workspaces
       </Text>
       {workspacesList.map((workspace: Workspace) => (
-        <SearchListItem
-          data-testid={workspace.name}
+        <WorkspaceItem
           key={workspace.id}
-          onClick={() => {
-            setIsDropdownOpen(false);
-            history.push(`/applications?workspaceId=${workspace?.id}`);
-          }}
-        >
-          <Icon
-            className="!mr-2"
-            color="var(--ads-v2-color-fg)"
-            name="group-2-line"
-            size="md"
-          />
-          <Text className="truncate" kind="body-m">
-            {workspace.name}
-          </Text>
-        </SearchListItem>
+          setIsDropdownOpen={setIsDropdownOpen}
+          workspace={workspace}
+        />
       ))}
     </div>
   );

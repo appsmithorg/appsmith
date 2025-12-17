@@ -2,6 +2,7 @@ package com.appsmith.server.git.central;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -1987,30 +1988,29 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     importedBranchedArtifact
                                             .getGitArtifactMetadata()
                                             .getIsRepoPrivate()))
-                            .flatMap(importedArtifact ->
-                                    gitArtifactHelper.getArtifactById(importedArtifact.getId(), null))
                             .flatMap(importedBranchedArtifact -> {
-                                return gitArtifactHelper
-                                        .publishArtifact(importedBranchedArtifact, false)
-                                        .then(getGitUserForArtifactId(baseArtifactId))
-                                        .flatMap(gitAuthor -> {
-                                            CommitDTO commitDTO = new CommitDTO();
-                                            commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
-                                                    + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
-                                            commitDTO.setAuthor(gitAuthor);
+                                return gitArtifactHelper.publishArtifact(importedBranchedArtifact, false);
+                            })
+                            .flatMap(publishedArtifact -> {
+                                return getGitUserForArtifactId(baseArtifactId).flatMap(gitAuthor -> {
+                                    CommitDTO commitDTO = new CommitDTO();
+                                    commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
+                                            + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+                                    commitDTO.setAuthor(gitAuthor);
 
-                                            GitPullDTO gitPullDTO = new GitPullDTO();
-                                            gitPullDTO.setMergeStatus(status);
-                                            gitPullDTO.setArtifact(importedBranchedArtifact);
+                                    GitPullDTO gitPullDTO = new GitPullDTO();
+                                    gitPullDTO.setMergeStatus(status);
+                                    gitPullDTO.setArtifact(publishedArtifact);
 
-                                            return Mono.defer(() -> commitArtifact(
-                                                            commitDTO,
-                                                            baseArtifact,
-                                                            importedBranchedArtifact,
-                                                            gitType,
-                                                            false))
-                                                    .thenReturn(gitPullDTO);
-                                        });
+                                    // TODO: this can be done async as well.
+                                    return Mono.defer(() -> commitArtifact(
+                                                    commitDTO,
+                                                    publishedArtifact.getId(),
+                                                    publishedArtifact.getArtifactType(),
+                                                    gitType,
+                                                    false))
+                                            .thenReturn(gitPullDTO);
+                                });
                             });
                 });
     }
@@ -2268,6 +2268,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     protected Mono<? extends Artifact> discardChanges(
             Artifact branchedArtifact, GitType gitType, Boolean isValidateAndPublish) {
+        return discardChanges(branchedArtifact, gitType, isValidateAndPublish, FALSE);
+    }
+
+    protected Mono<? extends Artifact> discardChanges(
+            Artifact branchedArtifact, GitType gitType, Boolean isValidateAndPublish, Boolean shouldHydratePackages) {
         ArtifactType artifactType = branchedArtifact.getArtifactType();
         GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
 
@@ -2318,8 +2323,15 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             return gitArtifactHelper.publishArtifact(artifactFromLastCommit, true);
                                         }
 
-                                        return gitArtifactHelper.validateAndPublishArtifact(
-                                                artifactFromLastCommit, true);
+                                        // Hydrate missing package versions before validation only if requested
+                                        // This is typically needed for CI/CD auto-deployment to ensure all required
+                                        // package artifacts are available when validateAndPublishArtifact runs
+                                        Mono<Void> hydrationMono = TRUE.equals(shouldHydratePackages)
+                                                ? hydrateMissingPackageVersions(artifactFromLastCommit, gitType)
+                                                : Mono.empty();
+
+                                        return hydrationMono.then(gitArtifactHelper.validateAndPublishArtifact(
+                                                artifactFromLastCommit, true));
                                     })
                                     .flatMap(publishedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null))
@@ -2860,10 +2872,59 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission editPermission = gitArtifactHelper.getArtifactEditPermission();
 
+        String artifactId = branchedArtifact.getId();
+        log.info(
+                "[GENERATE_ARTIFACT] Starting generateArtifactForRefCreation - artifactId: {}, refName: {}, refType: {}, artifactType: {}, permission: {}",
+                artifactId,
+                refName,
+                refType,
+                artifactType,
+                editPermission);
+
         return gitArtifactHelper
-                .getArtifactById(branchedArtifact.getId(), editPermission)
-                .flatMap(sourceArtifact ->
-                        gitArtifactHelper.createNewArtifactForCheckout(sourceArtifact, refName, refType));
+                .getArtifactById(artifactId, editPermission)
+                .doOnSuccess(artifact -> log.info(
+                        "[GENERATE_ARTIFACT] Successfully fetched artifact by ID - artifactId: {}, refName: {}, artifactNotNull: {}",
+                        artifactId,
+                        refName,
+                        artifact != null))
+                .doOnError(error -> log.error(
+                        "[GENERATE_ARTIFACT] Failed to fetch artifact by ID - artifactId: {}, refName: {}, error: {}",
+                        artifactId,
+                        refName,
+                        error.getMessage(),
+                        error))
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error(
+                            "[GENERATE_ARTIFACT] getArtifactById returned empty - artifactId: {}, refName: {}, refType: {}. This indicates the artifact was not found or permission check failed.",
+                            artifactId,
+                            refName,
+                            refType);
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND,
+                            artifactType,
+                            artifactId + " (refName: " + refName + ", refType: " + refType + ")"));
+                }))
+                .flatMap(sourceArtifact -> {
+                    log.info(
+                            "[GENERATE_ARTIFACT] Creating new artifact for checkout - artifactId: {}, refName: {}, refType: {}",
+                            artifactId,
+                            refName,
+                            refType);
+                    return gitArtifactHelper
+                            .createNewArtifactForCheckout(sourceArtifact, refName, refType)
+                            .doOnSuccess(newArtifact -> log.info(
+                                    "[GENERATE_ARTIFACT] Successfully created new artifact for checkout - artifactId: {}, refName: {}, newArtifactId: {}",
+                                    artifactId,
+                                    refName,
+                                    newArtifact != null ? newArtifact.getId() : "null"))
+                            .doOnError(error -> log.error(
+                                    "[GENERATE_ARTIFACT] Failed to create new artifact for checkout - artifactId: {}, refName: {}, error: {}",
+                                    artifactId,
+                                    refName,
+                                    error.getMessage(),
+                                    error));
+                });
     }
 
     /**
@@ -2884,6 +2945,18 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             gitDocsDTOList.add(gitDocsDTO);
         }
         return Mono.just(gitDocsDTOList);
+    }
+
+    @Override
+    public Mono<List<GitLogDTO>> getCommitHistory(
+            String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        return gitArtifactHelper
+                .getArtifactById(branchedArtifactId, artifactEditPermission)
+                .flatMap(gitHandlingService::getCommitHistory);
     }
 
     @Override
@@ -3300,5 +3373,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         return Mono.create(
                 sink -> mergeableStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Void> hydrateMissingPackageVersions(Artifact branchedArtifact, GitType gitType) {
+        return Mono.empty();
     }
 }
