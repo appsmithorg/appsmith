@@ -1055,7 +1055,7 @@ export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
 export const DISCARD_MESSAGE = () =>
   `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
 export const REDEPLOY_APP_WARNING = () =>
-  "The deployed version of this app is not using the latest versions of some packages. Redeploy to apply the latest package versions to the app.";
+  "The deployed version of this app may be out of sync with what you see in edit mode. Redeploy to apply the latest state.";
 
 // GIT DEPLOY end
 

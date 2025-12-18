@@ -147,9 +147,6 @@ function TabDeployView({
     !isCommitLoading &&
     !isDiscarding;
 
-  const shouldShowRedeploy =
-    !isFetchStatusLoading && !hasChangesToCommit && !!redeployTrigger;
-
   const isCommitting =
     !!commitButtonLoading &&
     (commitRequired || showCommitButton) &&
@@ -170,6 +167,12 @@ function TabDeployView({
     !isFetchStatusLoading &&
     ((pullRequired && !isConflicting) ||
       (statusBehindCount > 0 && statusIsClean));
+
+  const shouldShowRedeploy =
+    !isFetchStatusLoading &&
+    !hasChangesToCommit &&
+    !showPullButton &&
+    !!redeployTrigger;
 
   const isCommitSuccess = useMemo(() => {
     return hasSubmitted && !isCommitLoading;
