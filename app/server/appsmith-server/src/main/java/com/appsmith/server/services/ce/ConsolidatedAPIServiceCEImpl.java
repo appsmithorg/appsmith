@@ -650,10 +650,11 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         // and the base branch is not same as the default branch.
                         // we need to find return the default branch from here.
 
+                        String defaultArtifactId = gitMetadata.getDefaultArtifactId();
                         String defaultBranchName = gitMetadata.getDefaultBranchName();
 
                         return applicationService
-                                .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
+                                .findByBaseIdBranchNameAndApplicationMode(defaultArtifactId, defaultBranchName, mode)
                                 .zipWith(newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
                                         RefType.branch, defaultBranchName, basePageId, mode));
                     });

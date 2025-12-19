@@ -1508,7 +1508,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         doReturn(Mono.just(defaultBranchApplication))
                 .when(spyApplicationService)
-                .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(DEFAULT_BRANCH), any());
+                .findByBaseIdBranchNameAndApplicationMode(eq(DEFAULT_APPLICATION_ID), eq(DEFAULT_BRANCH), any());
 
         NewPage featureBranchPage = new NewPage();
         featureBranchPage.setId(FEATURE_PAGE_ID);
