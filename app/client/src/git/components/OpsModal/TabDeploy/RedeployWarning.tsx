@@ -2,6 +2,7 @@ import React from "react";
 import { createMessage } from "ee/constants/messages";
 import {
   REDEPLOY_WARNING_MESSAGE,
+  REDEPLOY_DOC_URL,
   type RedeployTriggerValue,
 } from "ee/constants/DeploymentConstants";
 import { Callout, Text } from "@appsmith/ads";
@@ -18,8 +19,9 @@ interface RedeployWarningProps {
 const RedeployWarning: React.FC<RedeployWarningProps> = ({
   redeployTrigger,
 }) => {
-  const redeployDocUrl =
-    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";
+  if (!redeployTrigger) {
+    return null;
+  }
 
   return (
     <Container>
@@ -30,14 +32,13 @@ const RedeployWarning: React.FC<RedeployWarningProps> = ({
           {
             children: "Learn more",
             endIcon: "right-arrow",
-            to: redeployDocUrl,
+            to: REDEPLOY_DOC_URL[redeployTrigger],
             target: "_blank",
           },
         ]}
       >
         <Text kind="heading-xs">
-          {redeployTrigger &&
-            createMessage(REDEPLOY_WARNING_MESSAGE[redeployTrigger])}
+          {createMessage(REDEPLOY_WARNING_MESSAGE[redeployTrigger])}
         </Text>
       </Callout>
     </Container>
