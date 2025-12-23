@@ -1,5 +1,3 @@
-specs/quick-fixes/**
-.cursor/rules/quick-fix.mdc
 .DS_Store
 *.iml
 .env
