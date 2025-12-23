@@ -170,28 +170,15 @@ With the prerequisites met, let's build the code.
             sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
 
-8. To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
+8. Create a folder named `git-storage` (or another name you prefer) anywhere on your machine. Then set `APPSMITH_GIT_ROOT` to the absolute path of that folder so Git data persists outside the repo and works from any working directory.
 
 ```console
-APPSMITH_GIT_ROOT=./path/to/repo/directory
+APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
 ```
 
-9. Running the RTS (Real-Time Server)
+9. Start the RTS (Real-Time Server) **before** the Java server (required).
 
-    The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
-
-    **When do you need to run RTS?**
-
-    **You need RTS if you are:**
-    - Running the Java server locally and working on collaborative features
-    - Developing or testing real-time synchronization functionality
-    - Testing the full editor experience with live updates between multiple users
-    - Working on features that depend on WebSocket communication
-
-    **You can skip RTS if you are:**
-    - Only making backend changes that don't involve real-time features
-    - Working on individual components without multi-user synchronization requirements
-    - Testing basic API functionality that doesn't require live updates
+    The backend server expects RTS to be running; without it, backend startup and collaborative/WebSocket flows will fail.
 
     **Steps to run RTS:**
 
@@ -219,7 +206,7 @@ APPSMITH_GIT_ROOT=./path/to/repo/directory
         ./start-server.sh
         ```
 
-        The RTS server will start and be ready to handle real-time WebSocket connections.
+        Keep this terminal running; RTS must stay up while the Java server is running.
 
 10. Start the Java server by running
     ```console
@@ -299,10 +286,10 @@ Note that you have to execute further steps into WSL terminal not in CMD.
 
 ### Setting up local file path for the git
 
-To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
+Create a folder named `git-storage` (or another name you prefer) on your system drive, then set `APPSMITH_GIT_ROOT` to that folder’s absolute path so Git data persists outside the repo and resolves correctly across shells (WSL vs Windows CMD).
 
 ```console
-APPSMITH_GIT_ROOT=./path/to/repo/directory
+APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
 ```
 
 ## Building and running the code
@@ -348,22 +335,9 @@ Check failed: Docker environment should have more than 2GB free disk space.
 There are two ways to resolve this issue: (1) free up more space (2) change docker's data root path.
 
 
-7. Running the RTS (Real-Time Server)
+7. Start the RTS (Real-Time Server) **before** the Java server (required).
 
-    The RTS Server enables real-time communication features in Appsmith, such as collaborative editing and live synchronization via WebSockets.
-
-    **When do you need to run RTS?**
-
-    **You need RTS if you are:**
-    - Running the Java server locally and working on collaborative features
-    - Developing or testing real-time synchronization functionality
-    - Testing the full editor experience with live updates between multiple users
-    - Working on features that depend on WebSocket communication
-
-    **You can skip RTS if you are:**
-    - Only making backend changes that don't involve real-time features
-    - Working on individual components without multi-user synchronization requirements
-    - Testing basic API functionality that doesn't require live updates
+    The backend server expects RTS to be running; without it, backend startup and collaborative/WebSocket flows will fail.
 
     **Steps to run RTS:**
 
@@ -391,7 +365,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
         ./start-server.sh
         ```
 
-        The RTS server will start and be ready to handle real-time WebSocket connections.
+        Keep this terminal running; RTS must stay up while the Java server is running.
 
 8. Start the Java server by running
 
