@@ -22,6 +22,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -272,13 +273,18 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
-        for (ApplicationPage applicationPage : this.getPages()) {
-            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
-            applicationPage.setDefaultPageId(null);
+        if (!CollectionUtils.isEmpty(this.getPages())) {
+            for (ApplicationPage applicationPage : this.getPages()) {
+                applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
+                applicationPage.setDefaultPageId(null);
+            }
         }
-        for (ApplicationPage applicationPage : this.getPublishedPages()) {
-            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
-            applicationPage.setDefaultPageId(null);
+
+        if (!CollectionUtils.isEmpty(this.getPublishedPages())) {
+            for (ApplicationPage applicationPage : this.getPublishedPages()) {
+                applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+                applicationPage.setDefaultPageId(null);
+            }
         }
     }
 

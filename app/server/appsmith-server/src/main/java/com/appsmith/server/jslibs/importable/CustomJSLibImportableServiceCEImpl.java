@@ -55,10 +55,10 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
                 .collectList()
                 .doOnNext(mappedImportableResourcesDTO::setInstalledJsLibsList)
                 .elapsed()
-                .doOnNext(objects -> log.debug("time to import custom jslibs: {}", objects.getT1()))
+                .doOnNext(objects -> log.debug("time to import custom JSLibs: {}", objects.getT1()))
                 .then()
                 .onErrorResume(e -> {
-                    log.error("Error importing custom jslibs", e);
+                    log.error("Error importing custom JSLibs", e);
                     return Mono.error(e);
                 });
     }

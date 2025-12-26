@@ -1015,7 +1015,6 @@ public class ImportServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
@@ -1233,7 +1232,6 @@ public class ImportServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
 
@@ -1506,8 +1504,8 @@ public class ImportServiceTests {
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList(),
-                            applicationService.findById(
-                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
+                            applicationPageService.publishWithoutPermissionChecks(
+                                    applicationImportDTO.getApplication().getId(), false));
                 }))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT6();
@@ -1527,7 +1525,6 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 
@@ -1620,7 +1617,11 @@ public class ImportServiceTests {
                 .block();
 
         assert importedApplication != null;
-        Mono<List<NewPage>> pageList = Flux.fromIterable(importedApplication.getPages().stream()
+        Application publishedApplication = applicationPageService
+                .publishWithoutPermissionChecks(importedApplication.getId(), true)
+                .block();
+
+        Mono<List<NewPage>> pageList = Flux.fromIterable(publishedApplication.getPages().stream()
                         .map(ApplicationPage::getId)
                         .collect(Collectors.toList()))
                 .flatMap(s -> newPageService.findById(s, MANAGE_PAGES))
@@ -1851,7 +1852,6 @@ public class ImportServiceTests {
                     assertThat(application.getName()).isEqualTo("discard-change-page-added");
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
-                    assertThat(application.getPublishedPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
@@ -1907,7 +1907,6 @@ public class ImportServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(1);
 
                     assertThat(pageList).hasSize(2);
                     for (PageDTO page : pageList) {
@@ -2232,8 +2231,7 @@ public class ImportServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(1);
-
+                    assertThat(application.getPublishedPages()).isNull();
                     assertThat(pageList).hasSize(2);
                 })
                 .verifyComplete();
@@ -2578,7 +2576,6 @@ public class ImportServiceTests {
                 .assertNext(application -> {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getUnpublishedAppLayout()).isNull();
-                    assertThat(application.getPublishedAppLayout()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2691,8 +2688,6 @@ public class ImportServiceTests {
                                     .getType())
                             .isEqualTo(Application.AppPositioning.Type.AUTO);
                     assertThat(application.getUnpublishedApplicationDetail().getNavigationSetting())
-                            .isNull();
-                    assertThat(application.getPublishedApplicationDetail().getNavigationSetting())
                             .isNull();
                 })
                 .verifyComplete();
@@ -3209,6 +3204,10 @@ public class ImportServiceTests {
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
+        application = applicationPageService
+                .publishWithoutPermissionChecks(application.getId(), true)
+                .block();
+
         // Get the unpublished pages and verify the order
         List<ApplicationPage> pageDTOS = application.getPages();
         Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
@@ -3435,6 +3434,10 @@ public class ImportServiceTests {
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
+        application = applicationPageService
+                .publishWithoutPermissionChecks(application.getId(), true)
+                .block();
+
         // Get the unpublished pages and verify the order
         application.setViewMode(false);
         List<ApplicationPage> pageDTOS = application.getPages();
@@ -3471,9 +3474,9 @@ public class ImportServiceTests {
                     NewPage newPage1 = objects.getT1();
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
-                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("Page1");
-                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage1");
-                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("testPage2");
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage2");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("Page1");
 
                     assertThat(newPage1.getId())
                             .isEqualTo(publishedPageDTOs.get(0).getId());
@@ -4661,7 +4664,8 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
-                    assertThat(pageList).hasSize(2);
+                    // One page is still in published section
+                    assertThat(pageList).hasSize(3);
                     assertThat(actionList).hasSize(3);
 
                     List<String> pageNames = pageList.stream()
@@ -4735,7 +4739,6 @@ public class ImportServiceTests {
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
-                    assertThat(application.getPublishedPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
@@ -4782,8 +4785,6 @@ public class ImportServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(1);
-
                     assertThat(pageList).hasSize(2);
 
                     List<String> pageNames = new ArrayList<>();
@@ -5296,7 +5297,7 @@ public class ImportServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(1);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(0);
+                    assertThat(application.getPublishedPages()).isNull();
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();

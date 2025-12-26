@@ -1364,6 +1364,10 @@ public class ExportServiceTests {
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
+        application = applicationPageService
+                .publishWithoutPermissionChecks(application.getId(), true)
+                .block();
+
         // Get the unpublished pages and verify the order
         List<ApplicationPage> pageDTOS = application.getPages();
         Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
@@ -1592,6 +1596,10 @@ public class ExportServiceTests {
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
+        application = applicationPageService
+                .publishWithoutPermissionChecks(application.getId(), true)
+                .block();
+
         // Get the unpublished pages and verify the order
         application.setViewMode(false);
         List<ApplicationPage> pageDTOS = application.getPages();
@@ -1628,9 +1636,9 @@ public class ExportServiceTests {
                     NewPage newPage1 = objects.getT1();
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
-                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("Page1");
-                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage1");
-                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("testPage2");
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage2");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("Page1");
 
                     assertThat(newPage1.getId())
                             .isEqualTo(publishedPageDTOs.get(0).getId());
