@@ -110,6 +110,7 @@ type StyledTextProps = React.PropsWithChildren<{
   fontStyle?: string;
   fontSize?: TextSize;
   minHeight?: number;
+  rtl?: boolean;
 }>;
 
 export const StyledText = styled(Text)<StyledTextProps>`
@@ -153,6 +154,7 @@ export const StyledText = styled(Text)<StyledTextProps>`
     line-height: 1.2;
     white-space: pre-wrap;
     text-align: ${(props) => props.textAlign.toLowerCase()};
+    direction: ${(props) => props.rtl ? "rtl" : "ltr"};
   }
   ${({ minHeight }) => `
     span {
@@ -224,6 +226,7 @@ export interface TextComponentProps extends ComponentProps {
   borderWidth?: number;
   overflow: OverflowTypes;
   minHeight?: number;
+  rtl?: boolean;
 }
 
 interface State {
@@ -305,6 +308,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       textAlign,
       textColor,
       truncateButtonColor,
+      rtl,
     } = this.props;
 
     return (
@@ -313,6 +317,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           fontFamily={fontFamily !== "System Default" ? fontFamily : undefined}
         >
           <StyledText
+            rtl={rtl}
             backgroundColor={backgroundColor}
             className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
             ellipsize={ellipsize}

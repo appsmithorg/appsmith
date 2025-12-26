@@ -242,6 +242,7 @@ export const WIDGET_TAGS = {
   CONTENT: "Content",
   EXTERNAL: "External",
   BUILDING_BLOCKS: "Building Blocks",
+  PERSIAN_DATE_PICKERS : "MyDatePicker",
 } as const;
 
 export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];

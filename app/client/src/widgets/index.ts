@@ -3,6 +3,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { anvilWidgets } from "./wds/constants";
 import { EEWDSWidgets } from "ee/widgets/wds";
 import { EEWidgets } from "ee/widgets";
+import MyDatePickerWidget from './MyDatePickerWidget';
 
 // Create widget loader map
 const WidgetLoaders = new Map<string, () => Promise<typeof BaseWidget>>([

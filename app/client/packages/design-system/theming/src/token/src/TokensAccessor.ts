@@ -8,6 +8,7 @@ import type {
   TokenSource,
   TokenType,
   Typography,
+  FontFamily,
 } from "./types";
 
 export class TokensAccessor {
@@ -24,6 +25,7 @@ export class TokensAccessor {
   private zIndex?: TokenObj;
   private strokeWidth?: TokenObj;
   private iconSize?: TokenObj;
+  private fontFamily?: FontFamily;
 
   constructor({
     borderRadiusElevation,
@@ -39,6 +41,7 @@ export class TokensAccessor {
     strokeWidth,
     typography,
     zIndex,
+    fontFamily,
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
@@ -53,11 +56,18 @@ export class TokensAccessor {
     this.zIndex = zIndex;
     this.strokeWidth = strokeWidth;
     this.iconSize = iconSize;
+    this.fontFamily = fontFamily;
   }
 
   updateTypography = (typography: Typography) => {
     this.typography = typography;
   };
+
+
+  updateFontFamily = (fontFamily?: FontFamily) => {
+    this.fontFamily = fontFamily;
+  };
+  
 
   updateSeedColor = (color: ColorTypes) => {
     this.seedColor = color;
@@ -131,7 +141,12 @@ export class TokensAccessor {
       ...this.getStrokeWidth(),
       ...this.getIconSize(),
       colorMode: this.getColorMode(),
+      fontFamily: this.getFontFamily(),
     };
+  };
+
+  getFontFamily = () => {
+    return this.fontFamily;
   };
 
   getTypography = () => {

@@ -254,6 +254,7 @@ function AppViewer(props: Props) {
 
   const renderChildren = () => {
     return (
+    <div style={{ direction: "rtl" }}>
       <EditorContextProvider renderMode="PAGE">
         {!isAnvilLayout && (
           <WidgetGlobaStyles
@@ -293,6 +294,7 @@ function AppViewer(props: Props) {
           </div>
         </AppViewerBodyContainer>
       </EditorContextProvider>
+    </div>
     );
   };
 
