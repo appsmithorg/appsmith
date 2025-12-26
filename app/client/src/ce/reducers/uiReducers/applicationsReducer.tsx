@@ -35,6 +35,8 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
+  favoriteApplicationIds: [],
+  isFetchingFavorites: false,
   importingApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
@@ -881,6 +883,42 @@ export const handlers = {
       isPersistingAppSlug: false,
     };
   },
+  [ReduxActionTypes.TOGGLE_FAVORITE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
+  ) => {
+    const { applicationId, isFavorited } = action.payload;
+
+    return {
+      ...state,
+      favoriteApplicationIds: isFavorited
+        ? [...state.favoriteApplicationIds, applicationId]
+        : state.favoriteApplicationIds.filter((id) => id !== applicationId),
+      applicationList: state.applicationList.map((app) =>
+        app.id === applicationId ? { ...app, isFavorited } : app,
+      ),
+    };
+  },
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isFetchingFavorites: true,
+  }),
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => ({
+    ...state,
+    isFetchingFavorites: false,
+    favoriteApplicationIds: action.payload.map((app) => app.id),
+  }),
+  [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isFetchingFavorites: false,
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -898,6 +936,8 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
+  favoriteApplicationIds: string[];
+  isFetchingFavorites: boolean;
   currentApplication?: ApplicationPayload;
   importingApplication: boolean;
   importedApplication: unknown;
