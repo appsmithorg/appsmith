@@ -425,7 +425,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         Mono<? extends ArtifactExchangeJson> migratedArtifactJsonMono = artifactBasedImportService
                 .migrateArtifactExchangeJson(branchedArtifactId, artifactExchangeJson)
                 .flatMap(importedDoc -> {
-                    // Step 2: Validation of artifact Json
+                    // Step 2: Validation of artifact JSON
                     // check for validation error and raise exception if error found
                     String errorField = validateArtifactExchangeJson(importedDoc);
                     if (!errorField.isEmpty()) {
@@ -521,13 +521,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             importableArtifactMono,
                             importedDoc)))
                     .then(importableArtifactMono)
-                    .flatMap(importableArtifact -> updateImportableEntities(
-                            artifactBasedImportService,
-                            importableArtifact,
-                            mappedImportableResourcesDTO,
-                            importingMetaDTO))
-                    .flatMap(importableArtifact ->
-                            updateImportableArtifact(artifactBasedImportService, importableArtifact))
+                    .flatMap(importedArtifact -> {
+                        return artifactBasedImportService.updateImportableEntities(
+                                importedArtifact, mappedImportableResourcesDTO, importingMetaDTO);
+                    })
+                    .flatMap(artifactBasedImportService::updateImportableArtifact)
                     .onErrorResume(throwable -> {
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
@@ -540,20 +538,25 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                                 AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                     })
                     // execute dry run for datasource
-                    .flatMap(importableArtifact -> dryOperationRepository
+                    .flatMap(importedArtifact -> dryOperationRepository
                             .executeAllDbOps(mappedImportableResourcesDTO)
-                            .thenReturn(importableArtifact))
+                            .thenReturn(importedArtifact))
                     .as(transactionalOperator::transactional);
 
             return importMono
                     .flatMap(importableArtifact -> {
-                        return Mono.defer(
-                                        () -> postImportHook(importableArtifact).onErrorResume(error -> {
-                                            log.error("Post import hook failed: {}", error.getMessage(), error);
-                                            return Mono.empty();
-                                        }))
-                                .then(sendImportedContextAnalyticsEvent(
-                                        artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT));
+                        return artifactBasedImportService
+                                .getImportedArtifactFromDatabase(importableArtifact.getId())
+                                .flatMap(importedArtifactFromDB -> Mono.defer(() -> postImportHook(
+                                                        importedArtifactFromDB)
+                                                .onErrorResume(error -> {
+                                                    log.error("Post import hook failed: {}", error.getMessage(), error);
+                                                    return Mono.empty();
+                                                }))
+                                        .then(sendImportedContextAnalyticsEvent(
+                                                artifactBasedImportService,
+                                                importedArtifactFromDB,
+                                                AnalyticsEvents.IMPORT)));
                     })
                     .zipWith(currUserMono)
                     .flatMap(tuple -> {
@@ -599,36 +602,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         }
 
         return errorField;
-    }
-
-    /**
-     * Updates importable entities with the contextDetails.
-     *
-     * @param contextBasedImportService
-     * @param importableArtifact
-     * @param mappedImportableResourcesDTO
-     * @param importingMetaDTO
-     * @return
-     */
-    private Mono<? extends Artifact> updateImportableEntities(
-            ArtifactBasedImportService<?, ?, ?> contextBasedImportService,
-            Artifact importableArtifact,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportingMetaDTO importingMetaDTO) {
-        return contextBasedImportService.updateImportableEntities(
-                importableArtifact, mappedImportableResourcesDTO, importingMetaDTO);
-    }
-
-    /**
-     * update the importable context with contextSpecific entities after the entities has been created.
-     *
-     * @param contextBasedImportService
-     * @param importableArtifact
-     * @return
-     */
-    private Mono<? extends Artifact> updateImportableArtifact(
-            ArtifactBasedImportService<?, ?, ?> contextBasedImportService, Artifact importableArtifact) {
-        return contextBasedImportService.updateImportableArtifact(importableArtifact);
     }
 
     /**

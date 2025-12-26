@@ -155,4 +155,6 @@ public interface ArtifactBasedImportServiceCE<
     Flux<String> getBranchedArtifactIdsByBranchedArtifactId(String branchedArtifactId);
 
     Mono<V> migrateArtifactExchangeJson(String branchedArtifactId, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<T> getImportedArtifactFromDatabase(String artifactId);
 }

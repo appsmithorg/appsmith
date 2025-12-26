@@ -344,6 +344,6 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
             return Mono.just(application);
         }
 
-        return Mono.just(application);
+        return publishArtifact(artifact, isPublishedManually);
     }
 }
