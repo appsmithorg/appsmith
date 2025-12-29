@@ -1630,6 +1630,36 @@ export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
 
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
+
+// Security feature disable confirmation modal
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Prepared Statements?";
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling prepared statements exposes your application to SQL injection attacks. This setting will be saved and apply to production queries. Only disable if you absolutely need dynamic SQL patterns that cannot be parameterized.";
+
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/concepts/how-to-use-prepared-statements",
+};
+
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Smart Substitution?";
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling smart substitution removes Appsmith's automatic escaping and validation. This increases the risk of malformed queries and injection vulnerabilities. Only disable if you fully understand the security implications.";
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/reference/query-settings#smart-json-substitution",
+};
+
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Smart BSON Substitution?";
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling smart BSON substitution removes Appsmith's automatic escaping and validation before sending commands to MongoDB. This increases the risk of malformed queries and injection vulnerabilities. Only disable if you fully understand the security implications.";
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/reference/query-settings#smart-bson-substitution",
+};
+
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
