@@ -60,7 +60,8 @@ export const APPSMITH_CUSTOM_DOMAINS: Setting = {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Custom domain",
-  subText: "* Custom domain for your Appsmith instance",
+  subText:
+    "* Custom domain for your Appsmith instance without the protocol (HTTP/HTTPS).",
 };
 
 export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
