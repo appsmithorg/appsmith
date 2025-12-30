@@ -14,6 +14,7 @@ import { anvilLocators } from "./Anvil/Locators";
 import { PluginActionForm } from "./PluginActionForm";
 import ApiEditor from "../../locators/ApiEditor";
 import BottomTabs from "./IDE/BottomTabs";
+import commonlocators from "../../locators/commonlocators.json";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -912,7 +913,7 @@ export class DataSources {
 
   public DeleteDatasourceFromWithinDS(
     datasourceName: string,
-    expectedRes: number | number[] = 200 || 409 || [200, 409],
+    expectedRes: number | number[] = [200, 409],
   ) {
     EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     this.agHelper.Sleep(); //for the Datasource page to open
@@ -935,7 +936,7 @@ export class DataSources {
   }
 
   public DeleteDSDirectly(
-    expectedRes: number | number[] = 200 || 409 || [200, 409],
+    expectedRes: number | number[] = [200, 409],
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
@@ -1187,8 +1188,32 @@ export class DataSources {
 
   ToggleUsePreparedStatement(enable = true || false) {
     this.pluginActionForm.toolbar.toggleSettings();
-    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
-    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    if (enable) {
+      this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    } else {
+      // When disabling, click the switch which will trigger the modal
+      this.agHelper
+        .GetElement(this._usePreparedStatement)
+        .click({ force: true });
+
+      // Wait for and handle the confirmation modal
+      this.agHelper.AssertElementVisibility(
+        commonlocators.confirmationModal,
+        true,
+        0,
+        5000,
+      );
+      this.agHelper.GetNClick(commonlocators.confirmationModalConfirm);
+      this.agHelper.AssertElementAbsence(
+        commonlocators.confirmationModal,
+        5000,
+      );
+
+      // Now verify the switch is actually unchecked
+      this.agHelper
+        .GetElement(this._usePreparedStatement)
+        .should("not.be.checked");
+    }
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
