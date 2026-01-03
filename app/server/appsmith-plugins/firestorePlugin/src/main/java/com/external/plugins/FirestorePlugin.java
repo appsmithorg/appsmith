@@ -955,14 +955,13 @@ public class FirestorePlugin extends BasePlugin {
                     .onErrorMap(Exceptions::unwrap)
                     .map(options -> {
                         try {
-                            if (options != null) {
-                                
-                                return FirebaseApp.initializeApp(options, projectId);
-                            }
-                            return FirebaseApp.getInstance(projectId);
+                            
+                            return FirebaseApp.initializeApp(options, projectId);
                         } catch (IllegalStateException e) {
                             
-                            return FirebaseApp.getInstance(projectId);
+                            FirebaseApp existingApp = FirebaseApp.getInstance(projectId);
+                            existingApp.delete();
+                            return FirebaseApp.initializeApp(options, projectId);
                         }
                     })
                     .map(FirestoreClient::getFirestore)
@@ -992,10 +991,16 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Firestore connection) {
-            // This is empty because there's no concept of destroying a Firestore connection
-            // here.
-            // When the datasource is updated, the FirebaseApp instance will delete &
-            // re-create the app
+            
+            try {
+                String projectId = connection.getOptions().getProjectId();
+                if (projectId != null) {
+                    FirebaseApp.getInstance(projectId).delete();
+                }
+            } catch (IllegalStateException e) {
+                
+                log.debug("FirebaseApp already deleted or not found during datasource destroy");
+            }
         }
 
         @Override
