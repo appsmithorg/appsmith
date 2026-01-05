@@ -14,6 +14,9 @@ on:
 jobs:
   build-docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     defaults:
       run:
@@ -60,5 +63,3 @@ jobs:
           platforms: linux/arm64,linux/amd64
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.tag.outputs.tag }}
-        env:
-          DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}
