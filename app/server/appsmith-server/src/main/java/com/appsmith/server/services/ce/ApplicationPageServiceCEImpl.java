@@ -1144,9 +1144,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Mono<Boolean> archivePageMono;
 
-                    Mono<Boolean> evictDeletedDefaultPageIdsMono =
-                            cacheableRepositoryHelper.evictCachedBasePageIds(new ArrayList<>(publishedPageIds));
-
                     if (!publishedPageIds.isEmpty()) {
                         archivePageMono = newPageService.archiveByIds(publishedPageIds);
                     } else {
@@ -1166,11 +1163,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published; In addition invalidate the cache for the deleted page Ids
-                    return Mono.when(
-                                    archivePageMono,
-                                    publishPagesMono,
-                                    applicationService.save(application),
-                                    evictDeletedDefaultPageIdsMono)
+                    return Mono.when(archivePageMono, publishPagesMono, applicationService.save(application))
                             .thenReturn(pages);
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app

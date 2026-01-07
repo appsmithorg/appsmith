@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -38,7 +39,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConsolidatedAPIService;
@@ -141,9 +141,6 @@ public class ConsolidatedAPIServiceImplTest {
 
     @SpyBean
     FeatureFlagService featureFlagService;
-
-    @Autowired
-    CacheableRepositoryHelper cacheableRepositoryHelper;
 
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {
@@ -934,9 +931,17 @@ public class ConsolidatedAPIServiceImplTest {
         mockNewPage.setApplicationId("mockApplicationId");
         mockNewPage.setId("mockPageId");
 
+        // First call with branch - throws error (non-git app, page not found with branch)
+        doReturn(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, "mockPageId, branch")))
+                .when(spyNewPageService)
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                        eq(RefType.branch), eq("branch"), eq("mockPageId"), any());
+
+        // Fallback call without branch - returns the page
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
-                .findByRefTypeAndRefNameAndBasePageId(any(), eq(null), eq("mockPageId"), any(), any());
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(eq(null), eq(null), eq("mockPageId"), any());
 
         doReturn(Mono.just(List.of(mockNewPage)))
                 .when(spyApplicationPageService)
@@ -1121,6 +1126,7 @@ public class ConsolidatedAPIServiceImplTest {
         baseMetadata.setRefName("master");
         baseMetadata.setDefaultBranchName("newDefaultBranch");
         baseMetadata.setDefaultApplicationId("mockBaseId");
+        baseMetadata.setRemoteUrl("remoteUrl");
         mockApplicationBaseBranch.setGitArtifactMetadata(baseMetadata);
         mockApplicationBaseBranch.setId("mockId");
 
@@ -1134,6 +1140,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Application mockDefaultApplication = new Application();
         GitArtifactMetadata defaultMetadata = new GitArtifactMetadata();
+        defaultMetadata.setRemoteUrl("remoteUrl");
         defaultMetadata.setRefName("newDefaultBranch");
         defaultMetadata.setDefaultApplicationId("mockBaseId");
         mockDefaultApplication.setGitArtifactMetadata(defaultMetadata);
@@ -1147,6 +1154,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         NewPage basePage = new NewPage();
         basePage.setApplicationId("mockBaseId");
+        basePage.setBaseId("basePageId"); // Set baseId for branch switching logic
 
         PageDTO unpublishedPage = new PageDTO();
         NewPage defaultAppDefaultPage = new NewPage();
@@ -1154,13 +1162,16 @@ public class ConsolidatedAPIServiceImplTest {
         defaultAppDefaultPage.setApplicationId("defaultApplicationId");
         defaultAppDefaultPage.setUnpublishedPage(unpublishedPage);
 
+        // Initial page search with null refName - returns page on master branch
         doReturn(Mono.just(basePage))
                 .when(spyNewPageService)
-                .findByRefTypeAndRefNameAndBasePageId(any(), eq(null), anyString(), any(), any());
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(eq(null), eq(null), eq("pageId"), any());
 
+        // After branch switch, search for page in newDefaultBranch
         doReturn(Mono.just(defaultAppDefaultPage))
                 .when(spyNewPageService)
-                .findByRefTypeAndRefNameAndBasePageId(any(), anyString(), anyString(), any(), any());
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                        eq(RefType.branch), eq("newDefaultBranch"), eq("basePageId"), any());
 
         doReturn(Mono.just(List.of(defaultAppDefaultPage)))
                 .when(spyApplicationPageService)
@@ -1434,8 +1445,16 @@ public class ConsolidatedAPIServiceImplTest {
                 .verifyComplete();
     }
 
+    /**
+     * Tests the scenario where a page from a feature branch is accessed without providing a refName.
+     * The new routing logic should:
+     * 1. Find the page using the provided ID
+     * 2. Discover it belongs to a git app on a feature branch
+     * 3. Route to the default branch since no refName was specified
+     * 4. Return an error if the page doesn't exist in the default branch
+     */
     @Test
-    public void testPageLoadWhenPageFromFeatureBranchAndCacheableRepositoryReturnsBaseApplicationId() {
+    public void testPageLoadWhenPageFromFeatureBranchWithoutRefName_shouldRouteToDefaultBranch() {
         User sampleUser = new User();
         when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
 
@@ -1446,9 +1465,6 @@ public class ConsolidatedAPIServiceImplTest {
         Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
-
-        when(mockUserDataService.updateLastUsedResourceAndWorkspaceList(any(), any(), any()))
-                .thenReturn(Mono.just(new UserData()));
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
@@ -1461,44 +1477,35 @@ public class ConsolidatedAPIServiceImplTest {
 
         final String WORKSPACE_ID = "sampleWorkspaceId";
         final String DEFAULT_APPLICATION_ID = "defaultApplicationId";
-        final String BASE_APPLICATION_ID = "baseApplicationId";
         final String FEATURE_APPLICATION_ID = "featureApplicationId";
+        final String FEATURE_BRANCH = "featureBranch";
         final String DEFAULT_BRANCH = "defaultBranch";
-        final String BASE_BRANCH = "baseBranch";
         final String FEATURE_PAGE_ID = "featurePageId";
+        final String BASE_PAGE_ID = "basePageId";
+        final String REMOTE_URL = "remoteUrl";
 
-        ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
-        sampleApplicationPagesDTO.setWorkspaceId(WORKSPACE_ID);
+        // Feature branch application metadata
+        GitArtifactMetadata featureMetadata = new GitArtifactMetadata();
+        featureMetadata.setRefName(FEATURE_BRANCH);
+        featureMetadata.setDefaultBranchName(DEFAULT_BRANCH);
+        featureMetadata.setDefaultArtifactId(DEFAULT_APPLICATION_ID);
+        featureMetadata.setRemoteUrl(REMOTE_URL);
 
-        // base metadata
-        GitArtifactMetadata baseMetadata = new GitArtifactMetadata();
-        baseMetadata.setRefName(BASE_BRANCH);
-        baseMetadata.setDefaultBranchName(DEFAULT_BRANCH);
-        baseMetadata.setDefaultApplicationId(DEFAULT_APPLICATION_ID);
+        Application featureBranchApplication = new Application();
+        featureBranchApplication.setGitArtifactMetadata(featureMetadata);
+        featureBranchApplication.setWorkspaceId(WORKSPACE_ID);
+        featureBranchApplication.setId(FEATURE_APPLICATION_ID);
 
-        Application baseBranchApplication = new Application();
-        baseBranchApplication.setGitArtifactMetadata(baseMetadata);
-        baseBranchApplication.setWorkspaceId(WORKSPACE_ID);
-        baseBranchApplication.setId(BASE_APPLICATION_ID);
-
-        // caching the base application id for the test case.
-        cacheableRepositoryHelper
-                .fetchBaseApplicationId(FEATURE_PAGE_ID, BASE_APPLICATION_ID)
-                .block();
-
-        doReturn(Mono.just(baseBranchApplication))
-                .when(spyApplicationService)
-                .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(null), any());
-
+        // Default branch application
         ApplicationPage defaultApplicationPage = new ApplicationPage();
         defaultApplicationPage.setIsDefault(true);
         defaultApplicationPage.setId("defaultPageId");
 
-        // default metadata
         GitArtifactMetadata defaultMetadata = new GitArtifactMetadata();
         defaultMetadata.setRefName(DEFAULT_BRANCH);
         defaultMetadata.setDefaultBranchName(DEFAULT_BRANCH);
-        defaultMetadata.setDefaultApplicationId(DEFAULT_APPLICATION_ID);
+        defaultMetadata.setDefaultArtifactId(DEFAULT_APPLICATION_ID);
+        defaultMetadata.setRemoteUrl(REMOTE_URL);
 
         Application defaultBranchApplication = new Application();
         defaultBranchApplication.setGitArtifactMetadata(defaultMetadata);
@@ -1506,99 +1513,34 @@ public class ConsolidatedAPIServiceImplTest {
         defaultBranchApplication.setId(DEFAULT_APPLICATION_ID);
         defaultBranchApplication.setPages(List.of(defaultApplicationPage));
 
+        // Page from feature branch
+        NewPage featureBranchPage = new NewPage();
+        featureBranchPage.setId(FEATURE_PAGE_ID);
+        featureBranchPage.setApplicationId(FEATURE_APPLICATION_ID);
+        featureBranchPage.setBaseId(BASE_PAGE_ID); // Set baseId for branch switching
+        featureBranchPage.setPublishedPage(new PageDTO());
+
+        // Step 1: Page search without refName finds the feature branch page
+        doReturn(Mono.just(featureBranchPage))
+                .when(spyNewPageService)
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(eq(null), eq(null), eq(FEATURE_PAGE_ID), any());
+
+        // Step 2: Find application from the feature branch page
+        doReturn(Mono.just(featureBranchApplication))
+                .when(spyApplicationService)
+                .findByBranchedApplicationIdAndApplicationMode(eq(FEATURE_APPLICATION_ID), any());
+
+        // Step 3: Find application in default branch (for branch switching)
         doReturn(Mono.just(defaultBranchApplication))
                 .when(spyApplicationService)
                 .findByBaseIdBranchNameAndApplicationMode(eq(DEFAULT_APPLICATION_ID), eq(DEFAULT_BRANCH), any());
 
-        NewPage featureBranchPage = new NewPage();
-        featureBranchPage.setId(FEATURE_PAGE_ID);
-        featureBranchPage.setApplicationId(FEATURE_APPLICATION_ID);
-        featureBranchPage.setUnpublishedPage(new PageDTO());
-
-        doReturn(Mono.just(featureBranchPage))
+        // Step 4: Page NOT found in default branch - throws error (simulates page doesn't exist in default branch)
+        doReturn(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, BASE_PAGE_ID + ", " + DEFAULT_BRANCH)))
                 .when(spyNewPageService)
-                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(any(), eq(null), eq(FEATURE_PAGE_ID), any());
-
-        doReturn(Mono.just(new PageDTO()))
-                .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
-
-        Theme sampleTheme = new Theme();
-        sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString());
-
-        CustomJSLib sampleCustomJSLib = new CustomJSLib();
-        sampleCustomJSLib.setName("sampleJSLib");
-        doReturn(Mono.just(List.of(sampleCustomJSLib)))
-                .when(spyCustomJSLibService)
-                .getAllJSLibsInContext(anyString(), any(), anyBoolean());
-
-        PageDTO samplePageDTO = new PageDTO();
-        samplePageDTO.setName("samplePageDTO");
-        doReturn(Mono.just(samplePageDTO))
-                .doReturn(Mono.just(samplePageDTO))
-                .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
-
-        doReturn(Mono.just(samplePageDTO))
-                .doReturn(Mono.just(samplePageDTO))
-                .when(spyApplicationPageService)
-                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
-
-        doReturn(Mono.just(samplePageDTO))
-                .doReturn(Mono.just(samplePageDTO))
-                .when(spyApplicationPageService)
-                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
-
-        ActionDTO sampleActionDTO = new ActionDTO();
-        sampleActionDTO.setName("sampleActionDTO");
-        sampleActionDTO.setUpdatedAt(Instant.now());
-        doReturn(Flux.just(sampleActionDTO)).when(spyNewActionService).getUnpublishedActions(any(), anyBoolean());
-
-        ActionCollectionDTO sampleActionCollectionDTO = new ActionCollectionDTO();
-        sampleActionCollectionDTO.setName("sampleActionCollectionDTO");
-        doReturn(Flux.just(sampleActionCollectionDTO))
-                .when(spyActionCollectionService)
-                .getPopulatedActionCollectionsByViewMode(any(), anyBoolean());
-
-        PageNameIdDTO samplePageNameIdDTO = new PageNameIdDTO();
-        samplePageNameIdDTO.setName("samplePageNameIdDTO");
-        sampleApplicationPagesDTO.setPages(List.of(samplePageNameIdDTO));
-
-        Plugin samplePlugin = new Plugin();
-        samplePlugin.setName("samplePlugin");
-        samplePlugin.setId("samplePluginId");
-        samplePlugin.setPackageName("sample-plugin");
-        Plugin sampleRestApiPlugin = new Plugin();
-        sampleRestApiPlugin.setName("sampleRestApiPlugin");
-        sampleRestApiPlugin.setId("sampleRestApiPluginId");
-        sampleRestApiPlugin.setPackageName(REST_API_PLUGIN);
-        Plugin sampleGraphqlPlugin = new Plugin();
-        sampleGraphqlPlugin.setName("sampleGraphqlPlugin");
-        sampleGraphqlPlugin.setId("sampleGraphqlPluginId");
-        sampleGraphqlPlugin.setPackageName(GRAPHQL_PLUGIN);
-        Plugin sampleAiPlugin = new Plugin();
-        sampleAiPlugin.setName("sampleAiPlugin");
-        sampleAiPlugin.setId("sampleAiPluginId");
-        sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
-        when(mockPluginService.getInWorkspace(anyString()))
-                .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
-
-        Datasource sampleDatasource = new Datasource();
-        sampleDatasource.setName("sampleDatasource");
-        sampleDatasource.setPluginId("samplePluginId");
-        when(mockDatasourceService.getAllWithStorages(any())).thenReturn(Flux.just(sampleDatasource));
-
-        Map<String, Map<?, ?>> sampleFormConfig = new HashMap<>();
-        sampleFormConfig.put("key", Map.of());
-        when(mockPluginService.getFormConfig(anyString())).thenReturn(Mono.just(sampleFormConfig));
-
-        MockDataSet sampleMockDataSet = new MockDataSet();
-        sampleMockDataSet.setName("sampleMockDataSet");
-        MockDataDTO sampleMockDataDTO = new MockDataDTO();
-        sampleMockDataDTO.setMockdbs(List.of(sampleMockDataSet));
-        when(mockMockDataService.getMockDataSet()).thenReturn(Mono.just(sampleMockDataDTO));
+                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                        eq(RefType.branch), eq(DEFAULT_BRANCH), eq(BASE_PAGE_ID), any());
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
@@ -1610,23 +1552,18 @@ public class ConsolidatedAPIServiceImplTest {
                     ResponseDTO<ApplicationPagesDTO> pages = consolidatedAPIResponseDTO.getPages();
                     ResponseDTO<PageDTO> pageWithMigratedDsl = consolidatedAPIResponseDTO.getPageWithMigratedDsl();
 
+                    // Verify error responses - page not found in default branch
                     assertNull(pages.getData());
                     assertNotNull(pages.getResponseMeta());
                     assertNotNull(pages.getResponseMeta().getError());
-
                     assertThat(pages.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
-                    assertThat(pages.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
 
                     assertNull(pageWithMigratedDsl.getData());
                     assertNotNull(pageWithMigratedDsl.getResponseMeta());
                     assertNotNull(pageWithMigratedDsl.getResponseMeta().getError());
-
                     assertThat(pageWithMigratedDsl.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
-                    assertThat(pageWithMigratedDsl.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
                 })
                 .verifyComplete();
     }
