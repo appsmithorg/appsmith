@@ -39,9 +39,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     }
 
     .${LABEL_CONTAINER_CLASS} {
-      margin-right: 0px;
       max-width: 100%;
-      width: 100%;
       flex: 1 1 auto;
       flex-wrap: wrap;
       justify-content: ${({ alignWidget }) =>
