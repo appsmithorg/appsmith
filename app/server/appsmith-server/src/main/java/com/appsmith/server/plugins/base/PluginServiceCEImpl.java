@@ -466,8 +466,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     ? filename.replaceFirst("\\.\\w+$", "")
                     : template.getTitle();
 
-            try {
-                templates.put(title, StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset()));
+            try (InputStream inputStream = resource.getInputStream()) {
+                templates.put(title, StreamUtils.copyToString(inputStream, Charset.defaultCharset()));
 
             } catch (IOException e) {
                 log.error("Error loading template {} for plugin {}", filename, plugin.getId());
