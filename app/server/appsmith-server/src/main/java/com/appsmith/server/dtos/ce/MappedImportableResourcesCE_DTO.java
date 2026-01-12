@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @NoArgsConstructor
 @Data
@@ -27,8 +26,8 @@ public class MappedImportableResourcesCE_DTO {
 
     // Artifacts independent entities
     Map<String, String> pluginMap = new HashMap<>();
-    Map<String, String> datasourceNameToIdMap = new ConcurrentHashMap<>();
-    Map<String, Datasource> idToDatasourceMap = new ConcurrentHashMap<>();
+    Map<String, String> datasourceNameToIdMap = new HashMap<>();
+    Map<String, Datasource> idToDatasourceMap = new HashMap<>();
 
     // Artifact dependent
     // This attribute is re-usable across artifacts according to the needs

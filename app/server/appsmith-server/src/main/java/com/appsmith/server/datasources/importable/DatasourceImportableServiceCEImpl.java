@@ -240,7 +240,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     log.error(
                                             "Unauthorized to create datasource in workspace: {}", workspace.getName());
                                     return Flux.error(new AppsmithException(
-                                            AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.DATASOURCE));
+                                            AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create " + FieldName.DATASOURCE));
                                 }
 
                                 return Flux.fromIterable(incomingStoragesForDsCreation)
