@@ -27,6 +27,7 @@ public class MappedImportableResourcesCE_DTO {
     // Artifacts independent entities
     Map<String, String> pluginMap = new HashMap<>();
     Map<String, String> datasourceNameToIdMap = new HashMap<>();
+    Map<String, Datasource> idToDatasourceMap = new HashMap<>();
 
     // Artifact dependent
     // This attribute is re-usable across artifacts according to the needs
