@@ -157,4 +157,28 @@ public interface ArtifactBasedImportServiceCE<
     Mono<V> migrateArtifactExchangeJson(String branchedArtifactId, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<T> getImportedArtifactFromDatabase(String artifactId);
+
+    /**
+     * Performs post-import processing for an artifact after it has been successfully imported
+     * and the database transaction has been committed.
+     *
+     * <p>This hook is called outside the main import transaction, allowing for operations that:
+     * <ul>
+     *   <li>May require the imported entities to be fully persisted in the database</li>
+     *   <li>Can safely fail without rolling back the import transaction</li>
+     *   <li>Need to trigger additional workflows based on the imported artifact</li>
+     * </ul>
+     *
+     * <p><b>CE Implementation (Applications):</b> Updates all page layouts to ensure DSL
+     * bindings are correctly resolved with the newly imported actions and widgets.</p>
+     *
+     * <p><b>EE Implementation (Applications):</b> Additionally performs a Just-In-Time (JIT)
+     * package pull before updating layouts, ensuring module instances from connected packages
+     * are available when computing layouts.</p>
+     *
+     * @param artifact The imported artifact that requires post-processing.
+     * @return A {@link Mono} that completes when the post-import processing is finished.
+     *         Errors are logged but do not fail the overall import operation.
+     */
+    Mono<Void> postImportHook(Artifact artifact);
 }
