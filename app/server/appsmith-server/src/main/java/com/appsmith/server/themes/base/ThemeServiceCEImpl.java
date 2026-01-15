@@ -94,19 +94,22 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                 .findById(branchedApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
-                .flatMap(application -> {
-                    String themeId = application.getEditModeThemeId();
-                    if (applicationMode == ApplicationMode.PUBLISHED) {
-                        themeId = application.getPublishedModeThemeId();
-                    }
-                    if (StringUtils.hasLength(themeId)) {
-                        return repository
-                                .findById(themeId, READ_THEMES)
-                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
-                    } else { // theme id is not present, return default theme
-                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
-                    }
-                });
+                .flatMap(application -> getApplicationTheme(application, applicationMode));
+    }
+
+    @Override
+    public Mono<Theme> getApplicationTheme(Application application, ApplicationMode applicationMode) {
+        String themeId = application.getEditModeThemeId();
+        if (applicationMode == ApplicationMode.PUBLISHED) {
+            themeId = application.getPublishedModeThemeId();
+        }
+        if (StringUtils.hasLength(themeId)) {
+            return repository
+                    .findById(themeId, READ_THEMES)
+                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
+        } else { // theme id is not present, return default theme
+            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
+        }
     }
 
     @Override
@@ -121,7 +124,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     public Flux<Theme> getApplicationThemes(String branchedApplicationId) {
         return applicationService
                 .findById(branchedApplicationId, applicationPermission.getReadPermission())
-                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
+                .flatMapMany(this::getApplicationThemes);
+    }
+
+    @Override
+    public Flux<Theme> getApplicationThemes(Application application) {
+        return repository.getApplicationThemes(application.getId(), READ_THEMES);
     }
 
     @Override

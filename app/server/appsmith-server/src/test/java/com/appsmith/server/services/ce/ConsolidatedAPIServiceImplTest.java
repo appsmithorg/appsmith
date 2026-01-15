@@ -263,8 +263,8 @@ public class ConsolidatedAPIServiceImplTest {
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
@@ -454,8 +454,8 @@ public class ConsolidatedAPIServiceImplTest {
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
@@ -953,8 +953,8 @@ public class ConsolidatedAPIServiceImplTest {
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
@@ -1183,8 +1183,8 @@ public class ConsolidatedAPIServiceImplTest {
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
-        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(anyString(), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(anyString());
+        doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
+        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");

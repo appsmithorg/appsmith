@@ -277,7 +277,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Get current theme */
         fetches.add(branchedApplicationMonoCached
-                .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication.getId(), mode))
+                .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication, mode))
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching current theme", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setCurrentTheme)
@@ -286,9 +286,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Get all themes */
         fetches.add(branchedApplicationMonoCached
-                .flatMap(branchedApplication -> themeService
-                        .getApplicationThemes(branchedApplication.getId())
-                        .collectList())
+                .flatMapMany(themeService::getApplicationThemes)
+                .collectList()
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching themes", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setThemes)
@@ -569,7 +568,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
             pageSearchMono = newPageService
                     .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(refType, refName, pageIdentifier, mode)
-                    .onErrorResume(error -> fallbackSearch); // Fallback on error (method throws when page not found)
+                    .onErrorResume(error -> {
+                        if (error instanceof AppsmithException appsmithException
+                                && AppsmithError.NO_RESOURCE_FOUND.equals(appsmithException.getError())) {
+                            return fallbackSearch;
+                        }
+                        return Mono.error(error);
+                    });
         } else {
             pageSearchMono = newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
                     null, null, pageIdentifier, mode);
