@@ -113,18 +113,25 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private String appsmithBaseUrl;
 
     /**
-     * Validates that the provided base URL matches APPSMITH_BASE_URL if it is configured.
-     * This prevents account takeover attacks by ensuring password reset and email verification
-     * links are only sent to the configured base URL when APPSMITH_BASE_URL is set.
-     * If APPSMITH_BASE_URL is not configured, validation is skipped to maintain backwards compatibility.
+     * Resolves and validates the base URL for security-sensitive operations like password reset
+     * and email verification. This method ensures that URLs in emails point to trusted domains.
+     *
+     * <p>In single-org (CE) mode:
+     * <ul>
+     *   <li>If APPSMITH_BASE_URL is configured, validates that the provided URL matches it</li>
+     *   <li>If APPSMITH_BASE_URL is not configured, uses the provided URL (backward compatibility)</li>
+     * </ul>
+     *
+     * <p>This method can be overridden in EE to handle multi-org setups where each organization
+     * has its own base URL.
      *
      * @param providedBaseUrl The base URL from the request (typically from Origin header)
-     * @return Mono that completes successfully if validation passes or is skipped, or errors if validation fails
+     * @return Mono<String> The validated/resolved base URL to use for constructing email links
      */
-    private Mono<Void> validateBaseUrl(String providedBaseUrl) {
-        // If APPSMITH_BASE_URL is not configured, skip validation for backwards compatibility
+    protected Mono<String> resolveSecureBaseUrl(String providedBaseUrl) {
+        // If APPSMITH_BASE_URL is not configured, use provided URL for backwards compatibility
         if (!StringUtils.hasText(appsmithBaseUrl)) {
-            return Mono.empty();
+            return Mono.just(providedBaseUrl);
         }
 
         // If APPSMITH_BASE_URL is configured, validate that Origin header matches it
@@ -134,7 +141,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     "Origin header does not match APPSMITH_BASE_URL configuration."));
         }
 
-        return Mono.empty();
+        return Mono.just(appsmithBaseUrl);
     }
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
@@ -217,11 +224,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Validate Origin header against APPSMITH_BASE_URL
-        return validateBaseUrl(resetUserPasswordDTO.getBaseUrl()).then(Mono.defer(() -> {
+        // Resolve the secure base URL (validates in single-org, may be overridden for multi-org)
+        return resolveSecureBaseUrl(resetUserPasswordDTO.getBaseUrl()).flatMap(secureBaseUrl -> {
+            // Use the resolved secure base URL instead of the client-provided one
+            resetUserPasswordDTO.setBaseUrl(secureBaseUrl);
             String email = resetUserPasswordDTO.getEmail();
             return processForgotPasswordTokenGeneration(email, resetUserPasswordDTO);
-        }));
+        });
     }
 
     private Mono<Boolean> processForgotPasswordTokenGeneration(
@@ -848,11 +857,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Validate Origin header against APPSMITH_BASE_URL
-        return validateBaseUrl(resendEmailVerificationDTO.getBaseUrl()).then(Mono.defer(() -> {
+        // Resolve the secure base URL (validates in single-org, may be overridden for multi-org)
+        return resolveSecureBaseUrl(resendEmailVerificationDTO.getBaseUrl()).flatMap(secureBaseUrl -> {
+            // Use the resolved secure base URL instead of the client-provided one
+            resendEmailVerificationDTO.setBaseUrl(secureBaseUrl);
             String email = resendEmailVerificationDTO.getEmail();
             return processResendEmailVerification(email, resendEmailVerificationDTO, redirectUrl);
-        }));
+        });
     }
 
     private Mono<Boolean> processResendEmailVerification(

@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -14,7 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<CustomJSLib> {
@@ -44,21 +47,32 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
             customJSLibs = new ArrayList<>();
         }
 
+        // Local map to collect JS libs that need to be saved
+        Map<DBOpsType, List<CustomJSLib>> jsLibsDryOpsMap = new HashMap<>();
+
         return Flux.fromIterable(customJSLibs)
                 .flatMap(customJSLib -> {
                     customJSLib.setId(null);
                     customJSLib.setCreatedAt(null);
                     customJSLib.setUpdatedAt(null);
                     return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
-                            customJSLib, false, mappedImportableResourcesDTO.getCustomJSLibsDryOps(), true);
+                            customJSLib, false, jsLibsDryOpsMap, true);
                 })
                 .collectList()
                 .doOnNext(mappedImportableResourcesDTO::setInstalledJsLibsList)
+                .flatMap(installedJsLibs -> {
+                    // Bulk save all JS libs that were collected for saving
+                    List<CustomJSLib> jsLibsToSave = jsLibsDryOpsMap.get(DBOpsType.SAVE);
+                    return customJSLibService
+                            .bulkSave(jsLibsToSave)
+                            .collectList()
+                            .thenReturn(installedJsLibs);
+                })
                 .elapsed()
-                .doOnNext(objects -> log.debug("time to import custom jslibs: {}", objects.getT1()))
+                .doOnNext(objects -> log.debug("time to import custom JSLibs: {}", objects.getT1()))
                 .then()
                 .onErrorResume(e -> {
-                    log.error("Error importing custom jslibs", e);
+                    log.error("Error importing custom JSLibs", e);
                     return Mono.error(e);
                 });
     }
