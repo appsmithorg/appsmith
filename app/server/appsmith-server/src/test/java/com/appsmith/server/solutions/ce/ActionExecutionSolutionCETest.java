@@ -28,11 +28,13 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -86,6 +88,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -168,7 +171,7 @@ public class ActionExecutionSolutionCETest {
     @Autowired
     ApplicationPermission applicationPermission;
 
-    @Autowired
+    @SpyBean
     SessionUserService sessionUserService;
 
     @Autowired
@@ -1977,5 +1980,80 @@ public class ActionExecutionSolutionCETest {
             assertThat(actionExecutionResult.getErrorType())
                     .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getErrorType());
         });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAnonymousUserCannotExecuteUnpublishedAction() {
+        // Mock plugin executor helper FIRST - needed for action creation (datasource validation)
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
+
+        // Setup: Use existing testApp and testPage from @BeforeEach
+        // Create an action in the existing test app
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testAnonymousUserCannotExecuteUnpublishedAction");
+        action.setDatasource(datasource);
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        // Publish the application to make it public
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        Application publishedApp = applicationService
+                .changeViewAccessForSingleBranchByBranchedApplicationId(testApp.getId(), applicationAccessDTO)
+                .block();
+
+        // Verify the app is public
+        assertThat(publishedApp.getIsPublic()).isTrue();
+
+        // Mock anonymous user - use doReturn for SpyBean
+        User anonymousUser = new User();
+        anonymousUser.setEmail(ANONYMOUS_USER);
+        anonymousUser.setName(ANONYMOUS_USER);
+        anonymousUser.setIsAnonymous(true);
+        Mockito.doReturn(Mono.just(anonymousUser)).when(sessionUserService).getCurrentUser();
+
+        // Test getValidActionForExecution directly - this is where the security check should happen
+        // Try to get action with viewMode=false (edit mode) as anonymous user
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false); // Attempting to access unpublished action
+
+        ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
+                .environmentId(defaultEnvironmentId)
+                .build();
+
+        // Test the security check at getValidActionForExecution level
+        // This method calls findActionDTObyIdAndViewMode which should enforce the security boundary
+        Mono<ActionDTO> actionDTOMono =
+                actionExecutionSolution.getValidActionForExecution(executeActionDTO, executeActionMetaDTO);
+
+        // Expect error: Anonymous users should not be able to access unpublished actions
+        // The fix should either:
+        // 1. Force viewMode=true for anonymous users (in which case published action is returned), OR
+        // 2. Return an error/exception (ACL_NO_RESOURCE_FOUND or NO_RESOURCE_FOUND)
+        StepVerifier.create(actionDTOMono)
+                .expectErrorMatches(error -> {
+                    // Expect either:
+                    // - AppsmithException with ACL_NO_RESOURCE_FOUND (no permission for unpublished action)
+                    // - Or NO_RESOURCE_FOUND if unpublished action is not accessible to anonymous user
+                    if (error instanceof AppsmithException) {
+                        AppsmithException appsmithException = (AppsmithException) error;
+                        return appsmithException.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND
+                                || appsmithException.getError() == AppsmithError.NO_RESOURCE_FOUND;
+                    }
+                    return false;
+                })
+                .verify();
     }
 }

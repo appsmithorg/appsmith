@@ -551,40 +551,55 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
         }
 
-        dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
+        // Security: Force viewMode=true for anonymous users early in the request processing
+        // This prevents anonymous users from executing unpublished actions
+        // Note: Full security validation happens in getValidActionForExecution()
+        Mono<ExecuteActionDTO> dtoWithSecurityCheck = sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> {
+                    if (Boolean.TRUE.equals(user.getIsAnonymous())) {
+                        dto.setViewMode(TRUE);
+                    }
+                    return Mono.just(dto);
+                })
+                .switchIfEmpty(Mono.just(dto));
 
-        final Set<String> visitedBindings = new HashSet<>();
-        /*
-           Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
-           along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
-           Ref: https://github.com/appsmithorg/appsmith/issues/16722
-        */
-        params.forEach(param -> {
-            String pseudoBindingName = param.getPseudoBindingName();
-            String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
-            param.setKey(bindingValue);
-            visitedBindings.add(bindingValue);
-            // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
-            ParamProperty paramProperty = dto.getParamProperties().get(pseudoBindingName);
-            if (paramProperty != null) {
-                this.identifyExecutionParamDatatype(param, paramProperty);
+        return dtoWithSecurityCheck.flatMap(enrichedDto -> {
+            enrichedDto.setTotalReadableByteCount(totalReadableByteCount.longValue());
 
-                this.substituteBlobValuesInParam(dto, param, paramProperty);
-            }
-        });
+            final Set<String> visitedBindings = new HashSet<>();
+            /*
+               Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+               along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+               Ref: https://github.com/appsmithorg/appsmith/issues/16722
+            */
+            params.forEach(param -> {
+                String pseudoBindingName = param.getPseudoBindingName();
+                String bindingValue = enrichedDto.getInvertParameterMap().get(pseudoBindingName);
+                param.setKey(bindingValue);
+                visitedBindings.add(bindingValue);
+                // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                ParamProperty paramProperty = enrichedDto.getParamProperties().get(pseudoBindingName);
+                if (paramProperty != null) {
+                    this.identifyExecutionParamDatatype(param, paramProperty);
 
-        // In case there are parameters that did not receive a value in the multipart request,
-        // initialize these bindings with empty strings
-        if (dto.getParameterMap() != null) {
-            dto.getParameterMap().keySet().stream().forEach(parameter -> {
-                if (!visitedBindings.contains(parameter)) {
-                    Param newParam = new Param(parameter, "");
-                    params.add(newParam);
+                    this.substituteBlobValuesInParam(enrichedDto, param, paramProperty);
                 }
             });
-        }
-        dto.setParams(params);
-        return Mono.just(dto);
+
+            // In case there are parameters that did not receive a value in the multipart request,
+            // initialize these bindings with empty strings
+            if (enrichedDto.getParameterMap() != null) {
+                enrichedDto.getParameterMap().keySet().stream().forEach(parameter -> {
+                    if (!visitedBindings.contains(parameter)) {
+                        Param newParam = new Param(parameter, "");
+                        params.add(newParam);
+                    }
+                });
+            }
+            enrichedDto.setParams(params);
+            return Mono.just(enrichedDto);
+        });
     }
 
     private void substituteBlobValuesInParam(ExecuteActionDTO dto, Param param, ParamProperty paramProperty) {
@@ -966,28 +981,51 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     public Mono<ActionDTO> getValidActionForExecution(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
         AclPermission executePermission = getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
-        return newActionService
-                .findActionDTObyIdAndViewMode(
-                        executeActionDTO.getActionId(), executeActionDTO.getViewMode(), executePermission)
+
+        // Security: Enforce that anonymous users can only execute published actions (viewMode=true)
+        // This is the primary security validation point for action execution
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> {
+                    if (Boolean.TRUE.equals(user.getIsAnonymous())) {
+                        // Reject explicit attempts to access unpublished actions
+                        if (FALSE.equals(executeActionDTO.getViewMode())) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                    "Anonymous users can only execute published actions"));
+                        }
+                        // Default to published mode if viewMode is not specified
+                        if (executeActionDTO.getViewMode() == null) {
+                            executeActionDTO.setViewMode(TRUE);
+                        }
+                    }
+
+                    return newActionService
+                            .findActionDTObyIdAndViewMode(
+                                    executeActionDTO.getActionId(), executeActionDTO.getViewMode(), executePermission)
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, executeActionDTO.getActionId())))
+                            .flatMap(action -> {
+                                // Now check for erroneous situations which would deter the execution of the action
+
+                                // Error out with in case of an invalid action
+                                if (FALSE.equals(action.getIsValid())) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INVALID_ACTION,
+                                            action.getName(),
+                                            ArrayUtils.toString(
+                                                    action.getInvalids().toArray())));
+                                }
+
+                                // Error out in case of JS Plugin (this is currently client side execution only)
+                                if (action.getPluginType() == PluginType.JS) {
+                                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                                }
+                                return Mono.just(action);
+                            });
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, executeActionDTO.getActionId())))
-                .flatMap(action -> {
-                    // Now check for erroneous situations which would deter the execution of the action
-
-                    // Error out with in case of an invalid action
-                    if (FALSE.equals(action.getIsValid())) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_ACTION,
-                                action.getName(),
-                                ArrayUtils.toString(action.getInvalids().toArray())));
-                    }
-
-                    // Error out in case of JS Plugin (this is currently client side execution only)
-                    if (action.getPluginType() == PluginType.JS) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                    return Mono.just(action);
-                });
+                        AppsmithError.UNAUTHORIZED_ACCESS, "Unable to determine user context for action execution")));
     }
 
     /**
