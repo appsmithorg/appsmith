@@ -10,6 +10,7 @@ import type {
   WorkspaceUser,
   WorkspaceUserRoles,
 } from "ee/constants/workspaceConstants";
+import { FAVORITES_KEY } from "ee/constants/workspaceConstants";
 import type { Package } from "ee/constants/PackageConstants";
 import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
 
@@ -74,7 +75,7 @@ export const handlers = {
     // Only replace applications when we're in the virtual favorites workspace.
     // This prevents overwriting a real workspace's applications when favorites
     // are fetched in the background.
-    if (draftState.workspace.id === "__favorites__") {
+    if (draftState.workspace.id === FAVORITES_KEY) {
       draftState.applications = action.payload;
     }
   },
@@ -271,7 +272,7 @@ export const handlers = {
     action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
   ) => {
     const { applicationId, isFavorited } = action.payload;
-    const isFavoritesWorkspace = draftState.workspace.id === "__favorites__";
+    const isFavoritesWorkspace = draftState.workspace.id === FAVORITES_KEY;
 
     if (isFavoritesWorkspace && !isFavorited) {
       // If we're in the favorites workspace and the app is unfavorited, remove it from the list

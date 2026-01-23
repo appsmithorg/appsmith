@@ -30,6 +30,10 @@ import WorkspaceApi from "ee/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  DEFAULT_FAVORITES_WORKSPACE,
+  FAVORITES_KEY,
+} from "ee/constants/workspaceConstants";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -88,15 +92,10 @@ export function* fetchEntitiesOfWorkspaceSaga(
     const workspaceId = action?.payload?.workspaceId || allWorkspaces[0]?.id;
 
     // Handle virtual favorites workspace specially
-    if (workspaceId === "__favorites__") {
+    if (workspaceId === FAVORITES_KEY) {
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
-        payload: {
-          id: "__favorites__",
-          name: "Favorites",
-          isVirtual: true,
-          userPermissions: [],
-        },
+        payload: DEFAULT_FAVORITES_WORKSPACE,
       });
       yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
 

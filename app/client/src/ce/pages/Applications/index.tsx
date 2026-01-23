@@ -35,7 +35,11 @@ import {
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "ee/selectors/applicationSelectors";
-import { getHasFavorites } from "selectors/favoriteSelectors";
+import { getHasFavorites } from "ee/selectors/applicationSelectors";
+import {
+  DEFAULT_FAVORITES_WORKSPACE,
+  FAVORITES_KEY,
+} from "ee/constants/workspaceConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { leaveWorkspace } from "actions/userActions";
@@ -477,7 +481,7 @@ export function WorkspaceMenuItem({
 
   if (!workspace.id) return null;
 
-  const isFavoritesWorkspace = workspace.id === "__favorites__";
+  const isFavoritesWorkspace = workspace.id === FAVORITES_KEY;
   const hasLogo = workspace?.logoUrl && !imageError;
   const displayText = isFetchingWorkspaces
     ? workspace?.name
@@ -1159,14 +1163,7 @@ export const ApplictionsMainPage = (props: any) => {
 
   // Inject virtual Favorites workspace at the top if user has favorites
   if (hasFavorites && !isFetchingWorkspaces) {
-    const favoritesWorkspace = {
-      id: "__favorites__",
-      name: "Favorites",
-      isVirtual: true,
-      userPermissions: [],
-    };
-
-    workspaces = [favoritesWorkspace, ...workspaces];
+    workspaces = [DEFAULT_FAVORITES_WORKSPACE, ...workspaces];
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
