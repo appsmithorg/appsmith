@@ -249,9 +249,16 @@ export const getFavoriteApplicationIds = (state: DefaultRootState) =>
 
 export const getFavoriteApplications = createSelector(
   [getApplications, getFavoriteApplicationIds],
-  (allApps: ApplicationPayload[], favoriteIds: string[]) => {
-    return allApps
-      .filter((app: ApplicationPayload) => favoriteIds.includes(app.id))
+  (
+    allApps: ApplicationPayload[] | undefined,
+    favoriteIds: string[] | undefined,
+  ) => {
+    const apps = allApps ?? [];
+    const ids = favoriteIds ?? [];
+    const favoriteIdSet = new Set(ids);
+
+    return apps
+      .filter((app: ApplicationPayload) => favoriteIdSet.has(app.id))
       .sort((a: ApplicationPayload, b: ApplicationPayload) =>
         a.name.localeCompare(b.name),
       );
@@ -260,5 +267,5 @@ export const getFavoriteApplications = createSelector(
 
 export const getHasFavorites = createSelector(
   [getFavoriteApplicationIds],
-  (favoriteIds: string[]) => favoriteIds.length > 0,
+  (favoriteIds: string[] | undefined) => (favoriteIds ?? []).length > 0,
 );
