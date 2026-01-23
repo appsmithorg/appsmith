@@ -1,3 +1,12 @@
+export const FAVORITES_KEY = "__favorites__";
+
+export const DEFAULT_FAVORITES_WORKSPACE = {
+  id: FAVORITES_KEY,
+  name: "Favorites",
+  isVirtual: true,
+  userPermissions: [] as string[],
+};
+
 export interface WorkspaceRole {
   id: string;
   name: string;

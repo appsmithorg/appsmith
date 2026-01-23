@@ -214,3 +214,22 @@ export const getIsFetchingAppSlugSuggestion = (state: DefaultRootState) =>
 
 export const getAppSlugSuggestion = (state: DefaultRootState) =>
   state.ui.applications.appSlugSuggestion;
+
+export const getFavoriteApplicationIds = (state: DefaultRootState) =>
+  state.ui.applications.favoriteApplicationIds;
+
+export const getFavoriteApplications = createSelector(
+  [getApplications, getFavoriteApplicationIds],
+  (allApps: ApplicationPayload[], favoriteIds: string[]) => {
+    return allApps
+      .filter((app: ApplicationPayload) => favoriteIds.includes(app.id))
+      .sort((a: ApplicationPayload, b: ApplicationPayload) =>
+        a.name.localeCompare(b.name),
+      );
+  },
+);
+
+export const getHasFavorites = createSelector(
+  [getFavoriteApplicationIds],
+  (favoriteIds: string[]) => favoriteIds.length > 0,
+);
