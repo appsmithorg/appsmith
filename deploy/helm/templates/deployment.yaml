@@ -136,6 +136,9 @@ spec:
             - name: ca-cert
               mountPath: "/appsmith-stacks/ca-certs"
           {{- end }}
+          {{- with .Values.extraVolumeMounts }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
           {{- if .Values.HTTPContainerPort }}
             - name: PORT
@@ -181,6 +184,9 @@ spec:
           - key: {{ $key }}
             path: {{ $key }}.crt
           {{- end }}
+      {{- end }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
   {{- if not .Values.persistence.enabled }}
       - name: data

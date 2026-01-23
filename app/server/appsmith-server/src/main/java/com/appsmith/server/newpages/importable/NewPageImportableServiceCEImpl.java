@@ -2,7 +2,6 @@ package com.appsmith.server.newpages.importable;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Artifact;
@@ -43,8 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.constants.ResourceModes.EDIT;
-import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
@@ -76,7 +73,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         List<NewPage> pagesToImport = applicationJson.getPageList();
 
-        // Import and save pages, also update the pages related fields in saved application
+        // Import and save pages, also update the pages related fields in saved
+        // application
         assert pagesToImport != null : "Unable to find pages in the imported application";
 
         Mono<? extends Artifact> importableArtifactMonoCached = importableArtifactMono.cache();
@@ -218,46 +216,27 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<String, String> newNameForClashingPageNames,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        /**
-         * After generalisation of export and import flow,
-         * this method gets executed later than it was previously getting executed.
-         * Hence, there was a need to create another source to capture the pages.
-         */
-        List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
+        List<ApplicationPage> applicationPagesFromJson = (List<ApplicationPage>) mappedImportableResourcesDTO
                 .getResourceStoreFromArtifactExchangeJson()
                 .get(FieldName.UNPUBLISHED);
 
-        // this conditional is being placed just for compatibility of the PR #29691
-        if (CollectionUtils.isEmpty(editModeApplicationPages)) {
-            editModeApplicationPages = CollectionUtils.isEmpty(applicationFromJson.getPages())
+        if (CollectionUtils.isEmpty(applicationPagesFromJson)) {
+            applicationPagesFromJson = CollectionUtils.isEmpty(applicationFromJson.getPages())
                     ? new ArrayList<>()
                     : applicationFromJson.getPages();
         }
 
-        List<ApplicationPage> publishedModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
-                .getResourceStoreFromArtifactExchangeJson()
-                .get(FieldName.PUBLISHED);
-
-        // this conditional is being placed just for compatibility of the PR #29691
-        if (CollectionUtils.isEmpty(publishedModeApplicationPages)) {
-            publishedModeApplicationPages = CollectionUtils.isEmpty(applicationFromJson.getPublishedPages())
-                    ? new ArrayList<>()
-                    : applicationFromJson.getPublishedPages();
-        }
+        List<ApplicationPage> unPublishedApplicationPages = applicationPagesFromJson;
 
         if (appendToApp) {
-            editModeApplicationPages = updateEditModeApplicationPageNamesOldToNew(
-                    editModeApplicationPages, importedPages, newNameForClashingPageNames, importedApplication);
+            updateEditModeApplicationPageNamesOldToNew(
+                    unPublishedApplicationPages, importedPages, newNameForClashingPageNames, importedApplication);
         }
 
         mappedImportableResourcesDTO.setContextMap(pageNameToPageMap);
         log.info("New pages imported for application: {}", importedApplication.getId());
 
-        Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
-        applicationPages.put(EDIT, editModeApplicationPages);
-        applicationPages.put(VIEW, publishedModeApplicationPages);
-
-        Iterator<ApplicationPage> unpublishedPageItr = editModeApplicationPages.iterator();
+        Iterator<ApplicationPage> unpublishedPageItr = unPublishedApplicationPages.iterator();
         while (unpublishedPageItr.hasNext()) {
             ApplicationPage applicationPage = unpublishedPageItr.next();
             NewPage newPage = pageNameToPageMap.get(applicationPage.getId());
@@ -283,57 +262,17 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             }
         }
 
-        Iterator<ApplicationPage> publishedPagesItr;
-        // Remove the newly added pages from merge app flow. Keep only the existing page from the old app
-        if (appendToApp) {
-            Set<String> existingPagesId = importedApplication.getPublishedPages().stream()
-                    .map(applicationPage -> applicationPage.getId())
-                    .collect(Collectors.toSet());
-
-            List<ApplicationPage> publishedApplicationPages = publishedModeApplicationPages.stream()
-                    .filter(applicationPage -> existingPagesId.contains(applicationPage.getId()))
-                    .collect(Collectors.toList());
-
-            applicationPages.replace(VIEW, publishedApplicationPages);
-            publishedPagesItr = publishedApplicationPages.iterator();
-        } else {
-            publishedPagesItr = publishedModeApplicationPages.iterator();
-        }
-
-        while (publishedPagesItr.hasNext()) {
-            ApplicationPage applicationPage = publishedPagesItr.next();
-            NewPage newPage = pageNameToPageMap.get(applicationPage.getId());
-            if (newPage == null) {
-                log.info(
-                        "Unable to find the page during import for appId {}, with name {}",
-                        applicationId,
-                        applicationPage.getId());
-                if (!appendToApp) {
-                    publishedPagesItr.remove();
-                }
-            } else {
-                applicationPage.setId(newPage.getId());
-                applicationPage.setDefaultPageId(newPage.getBaseId());
-                if (appendToApp) {
-                    applicationPage.setIsDefault(false);
-                }
-            }
-        }
-
         // Normal file import or partial import
         if (!hasText(applicationId) || appendToApp) {
-            importedApplication.setPages(applicationPages.get(EDIT));
-            importedApplication.setPublishedPages(applicationPages.get(VIEW));
+            importedApplication.setPages(unPublishedApplicationPages);
             return Mono.just(importedApplication);
         }
 
-        // Git applications
-
-        Set<String> validPageIds =
-                applicationPages.get(EDIT).stream().map(ApplicationPage::getId).collect(Collectors.toSet());
-
+        Set<String> validPageIds = new HashSet<>();
+        // Git applications - only check edit mode pages
+        // Published/view mode should not be touched during import
         validPageIds.addAll(
-                applicationPages.get(VIEW).stream().map(ApplicationPage::getId).collect(Collectors.toSet()));
+                unPublishedApplicationPages.stream().map(ApplicationPage::getId).collect(Collectors.toSet()));
 
         Set<String> invalidPageIds = new HashSet<>();
         for (NewPage newPage : dbPagesFromCurrentApp) {
@@ -342,22 +281,16 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             }
         }
 
-        // Delete the pages which were removed during git merge operation
+        // Delete the unpublished pages which were removed during git merge operation
+        // This only affects edit mode - published/view mode remains untouched
         // This does not apply to the traditional import via file approach
         return Flux.fromIterable(invalidPageIds)
                 .flatMap(pageId -> {
                     return applicationPageService.deleteUnpublishedPage(pageId, null, null, null, null);
                 })
-                .flatMap(page -> newPageService
-                        .archiveByIdWithoutPermission(page.getId())
-                        .onErrorResume(e -> {
-                            log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
-                            return Mono.empty();
-                        }))
                 .collectList()
                 .map(deletedPageList -> {
-                    importedApplication.setPages(applicationPages.get(EDIT));
-                    importedApplication.setPublishedPages(applicationPages.get(VIEW));
+                    importedApplication.setPages(unPublishedApplicationPages);
                     return importedApplication;
                 });
     }
@@ -367,11 +300,13 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
      * - save imported pages
      * - update the mongoEscapedWidgets if present in the page
      * - set the policies for the page
-     * - update default resource ids along with branch-name if the application is connected to git
+     * - update default resource ids along with branch-name if the application is
+     * connected to git
      *
      * @param pagesToImport         pagelist extracted from the imported JSON file
      * @param importedApplication   saved application where pages needs to be added
-     * @param dbPagesFromCurrentApp existing pages in DB if the application is connected to git
+     * @param dbPagesFromCurrentApp existing pages in DB if the application is
+     *                              connected to git
      * @return flux of saved pages in DB
      */
     private Flux<NewPage> importAndSavePages(
@@ -382,25 +317,14 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
         final String createPage = "create page";
 
-        Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pagesToImport.forEach(newPage -> {
             newPage.setApplicationId(importedApplication.getId());
+            newPage.setPublishedPage(null);
             if (newPage.getUnpublishedPage() != null) {
                 applicationPageService.generateAndSetPagePolicies(importedApplication, newPage.getUnpublishedPage());
                 newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
                 newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                     String layoutId = new ObjectId().toString();
-                    oldToNewLayoutIds.put(layout.getId(), layoutId);
-                    layout.setId(layoutId);
-                });
-            }
-
-            if (newPage.getPublishedPage() != null) {
-                applicationPageService.generateAndSetPagePolicies(importedApplication, newPage.getPublishedPage());
-                newPage.getPublishedPage().getLayouts().forEach(layout -> {
-                    String layoutId = oldToNewLayoutIds.containsKey(layout.getId())
-                            ? oldToNewLayoutIds.get(layout.getId())
-                            : new ObjectId().toString();
                     layout.setId(layoutId);
                 });
             }
@@ -460,7 +384,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 pageToImport.getUnpublishedPage().getName());
                         String gitSyncId = pageToImport.getGitSyncId();
 
-                        // If git sync id of page to import doesn't match any existing page, insert this into db
+                        // If git sync id of page to import doesn't match any existing page, insert this
+                        // into db
                         if (!hasText(gitSyncId)) {
                             pagesToCreate.add(pageToImport);
                             continue;
@@ -503,7 +428,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             pageToImport.setBaseId(branchedPage.getBaseId());
                             // Set policies from existing branch object
                             // Note: the branched page object has only projected policies attribute from
-                            // database. For PolicyMap, please add policy map attribute as well in above projection.
+                            // database. For PolicyMap, please add policy map attribute as well in above
+                            // projection.
                             pageToImport.setPolicies(branchedPage.getPolicies());
                         }
 
@@ -526,20 +452,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     log.error("Error importing page", error);
                     return Mono.error(error);
                 });
-    }
-
-    private Mono<NewPage> saveNewPageAndUpdateBaseId(NewPage newPage, ImportingMetaDTO importingMetaDTO) {
-        NewPage update = new NewPage();
-        newPage.setRefType(importingMetaDTO.getRefType());
-        newPage.setRefName(importingMetaDTO.getRefName());
-        return newPageService.save(newPage).flatMap(page -> {
-            if (StringUtils.isEmpty(page.getBaseId())) {
-                update.setBaseId(page.getId());
-                return newPageService.update(page.getId(), update);
-            } else {
-                return Mono.just(page);
-            }
-        });
     }
 
     private Flux<NewPage> saveExistingPageInBulk(List<NewPage> pagesToSave, ImportingMetaDTO importingMetaDTO) {
@@ -606,7 +518,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         editModeApplicationPages.addAll(importedApplication.getPages());
         for (NewPage newPage : importedPages) {
             // we need to map the newly created page with old name
-            // because other related resources e.g. actions will refer the page with old name
+            // because other related resources e.g. actions will refer the page with old
+            // name
             String newPageName = newPage.getUnpublishedPage().getName();
             if (!newNameForClashingOldPageNames.containsKey(newPageName)) {
                 continue;

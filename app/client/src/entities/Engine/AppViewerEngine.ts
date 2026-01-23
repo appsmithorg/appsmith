@@ -33,6 +33,8 @@ import {
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { getIsFirstPageLoad } from "selectors/evaluationSelectors";
+import { updateBranchParam } from "git/helpers/updateBranchParam";
+import type { DefaultRootState } from "react-redux";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -45,8 +47,23 @@ export default class AppViewerEngine extends AppEngine {
     this.completeChore = this.completeChore.bind(this);
   }
 
-  *loadGit() {
-    return;
+  *loadGit(applicationId: string, rootSpan: Span) {
+    const loadGitSpan = startNestedSpan("AppViewerEngine.loadGit", rootSpan);
+
+    // Extract branch from application's gitApplicationMetadata (populated from consolidated API response)
+    // Inline selector to avoid cyclic dependency with applicationSelectors
+    const branchName: string | undefined = yield select(
+      (state: DefaultRootState) =>
+        state.ui.applications.currentApplication?.gitApplicationMetadata
+          ?.branchName,
+    );
+
+    // Update URL with branch parameter if branch exists
+    if (branchName) {
+      updateBranchParam(branchName);
+    }
+
+    endSpan(loadGitSpan);
   }
 
   *completeChore(rootSpan: Span) {

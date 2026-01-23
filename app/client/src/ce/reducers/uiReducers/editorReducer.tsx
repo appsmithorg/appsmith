@@ -18,6 +18,8 @@ export const initialState: EditorReduxState = {
   loadingStates: {
     publishing: false,
     publishingError: false,
+    redeploying: false,
+    redeployingError: false,
     saving: false,
     savingError: false,
     savingEntity: false,
@@ -114,6 +116,28 @@ export const handlers = {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
     state.loadingStates.published = moment().format();
+
+    return { ...state };
+  },
+  [ReduxActionTypes.REDEPLOY_APPLICATION_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.redeploying = true;
+    state.loadingStates.redeployingError = false;
+
+    return { ...state };
+  },
+  [ReduxActionErrorTypes.REDEPLOY_APPLICATION_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    state.loadingStates.redeploying = false;
+    state.loadingStates.redeployingError = true;
+
+    return { ...state };
+  },
+  [ReduxActionTypes.REDEPLOY_APPLICATION_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    state.loadingStates.redeploying = false;
+    state.loadingStates.redeployingError = false;
 
     return { ...state };
   },
@@ -338,6 +362,8 @@ export interface EditorReduxState {
     publishing: boolean;
     published?: string;
     publishingError: boolean;
+    redeploying: boolean;
+    redeployingError: boolean;
     loading: boolean;
     loadingError: boolean;
     isPageSwitching: boolean;

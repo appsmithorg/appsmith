@@ -8,6 +8,8 @@ import type { DropDownControlProps } from "components/formControls/DropDownContr
 import DropDownControl from "components/formControls/DropDownControl";
 import type { SwitchControlProps } from "components/formControls/SwitchControl";
 import SwitchControl from "components/formControls/SwitchControl";
+import type { SwitchWithConfirmationControlProps } from "components/formControls/SwitchWithConfirmationControl";
+import SwitchWithConfirmationControl from "components/formControls/SwitchWithConfirmationControl";
 import type { KeyValueArrayControlProps } from "components/formControls/KeyValueArrayControl";
 import KeyValueArrayControl from "components/formControls/KeyValueArrayControl";
 import type { FilePickerControlProps } from "components/formControls/FilePickerControl";
@@ -99,6 +101,16 @@ class FormControlRegistry {
         return <SwitchControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.SWITCH_WITH_CONFIRMATION,
+      {
+        buildPropertyControl(
+          controlProps: SwitchWithConfirmationControlProps,
+        ): JSX.Element {
+          return <SwitchWithConfirmationControl {...controlProps} />;
+        },
+      },
+    );
     FormControlFactory.registerControlBuilder(formControlTypes.KEYVALUE_ARRAY, {
       buildPropertyControl(
         controlProps: KeyValueArrayControlProps,

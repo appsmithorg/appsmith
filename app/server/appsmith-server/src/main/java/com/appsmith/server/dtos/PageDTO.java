@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
@@ -117,7 +118,9 @@ public class PageDTO implements LayoutContainer {
 
     public void sanitiseToExportDBObject() {
         this.setDependencyMap(null);
-        this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
+        if (!CollectionUtils.isEmpty(this.getLayouts())) {
+            this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
+        }
     }
 
     @JsonView(Views.Internal.class)

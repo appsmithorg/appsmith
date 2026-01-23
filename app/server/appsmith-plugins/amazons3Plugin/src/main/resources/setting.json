@@ -37,8 +37,9 @@
           "label": "Smart JSON substitution",
           "tooltipText": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.formData.smartSubstitution.data",
-          "controlType": "SWITCH",
-          "initialValue": true
+          "controlType": "SWITCH_WITH_CONFIRMATION",
+          "initialValue": true,
+          "modalType": "SMART_SUBSTITUTION"
         },
         {
           "label": "Query timeout (in milliseconds)",

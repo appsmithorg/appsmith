@@ -414,6 +414,9 @@ const RightArrowIcon2 = importRemixIcon(
 const RocketIcon = importRemixIcon(
   async () => import("remixicon-react/RocketLineIcon"),
 );
+const RocketDotIcon = importSvg(
+  async () => import("../assets/icons/ads/rocket-dot.svg"),
+);
 const SearchIcon = importRemixIcon(
   async () => import("remixicon-react/SearchLineIcon"),
 );
@@ -869,6 +872,7 @@ const ICON_LOOKUP = {
   reaction: <Reaction />,
   refresh: <RefreshLineIcon />,
   rocket: <RocketIcon />,
+  "rocket-dot": <RocketDotIcon />,
   search: <SearchIcon />,
   setting: <SettingIcon />,
   share: <ShareForwardIcon />,

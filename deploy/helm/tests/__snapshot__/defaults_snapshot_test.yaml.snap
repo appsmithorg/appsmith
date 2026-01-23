@@ -25,7 +25,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.7
+        appsmith.sh/chart: appsmith-3.6.8
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
   3: |
@@ -36,7 +36,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.7
+        appsmith.sh/chart: appsmith-3.6.8
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -114,7 +114,7 @@
                 - sh
                 - -c
                 - until mongosh --host appsmith-mongodb.NAMESPACE.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done
-              image: docker.io/bitnamilegacy/mongodb:6.0.13
+              image: docker.io/appsmith/mongodb:6.0.27
               name: mongo-init-container
             - command:
                 - sh
@@ -142,7 +142,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.7
+        appsmith.sh/chart: appsmith-3.6.8
       name: RELEASE-NAME-appsmith-headless
       namespace: NAMESPACE
     spec:
@@ -181,7 +181,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.7
+        appsmith.sh/chart: appsmith-3.6.8
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -202,7 +202,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.6.7
+        appsmith.sh/chart: appsmith-3.6.8
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     secrets:

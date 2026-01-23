@@ -173,4 +173,12 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             dryRunOpsMap.put(queryType, customJsLibList);
         }
     }
+
+    @Override
+    public Flux<CustomJSLib> bulkSave(List<CustomJSLib> customJSLibs) {
+        if (customJSLibs == null || customJSLibs.isEmpty()) {
+            return Flux.empty();
+        }
+        return repository.saveAll(customJSLibs);
+    }
 }

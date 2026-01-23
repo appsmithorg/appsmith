@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -54,6 +55,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -71,7 +73,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
 import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_FETCH_REDIS_SPAN;
-import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_UPDATE_REDIS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.APPLICATION_ID_SPAN;
@@ -91,9 +92,10 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PRO
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
-import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
-import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
-import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
+import static com.appsmith.server.constants.FieldName.APPLICATION_ID;
+import static com.appsmith.server.constants.FieldName.APP_MODE;
+import static com.appsmith.server.constants.FieldName.PAGE;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ID;
 import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -243,10 +245,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     baseApplicationId, basePageId, refName, mode);
 
         } else {
-            Mono<String> baseApplicationIdMono =
-                    getBaseApplicationIdMono(basePageId, baseApplicationId, mode, isViewMode);
-            applicationAndPageTupleMono = getApplicationAndPageTupleMono(
-                    basePageId, refType, refName, mode, baseApplicationIdMono, isViewMode);
+            applicationAndPageTupleMono = getApplicationAndPageTupleMono(basePageId, refType, refName, mode);
         }
 
         Mono<NewPage> branchedPageMonoCached =
@@ -278,7 +277,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Get current theme */
         fetches.add(branchedApplicationMonoCached
-                .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication.getId(), mode))
+                .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication, mode))
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching current theme", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setCurrentTheme)
@@ -287,9 +286,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Get all themes */
         fetches.add(branchedApplicationMonoCached
-                .flatMap(branchedApplication -> themeService
-                        .getApplicationThemes(branchedApplication.getId())
-                        .collectList())
+                .flatMapMany(themeService::getApplicationThemes)
+                .collectList()
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching themes", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setThemes)
@@ -497,6 +495,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         return Boolean.FALSE;
     }
 
+    /**
+     * @deprecated This method is deprecated and will be removed in a future release.
+     * The caching mechanism caused inconsistency issues when page id was passed instead of basePageId.
+     * Use {@link #getApplicationAndPageTupleMono(String, RefType, String, ApplicationMode)} instead,
+     * which handles both id and basePageId correctly.
+     */
+    @Deprecated(forRemoval = true)
     protected Mono<String> getBaseApplicationIdMono(
             String basePageId, String baseApplicationId, ApplicationMode mode, boolean isViewMode) {
         Mono<String> baseApplicationIdMono = Mono.just("");
@@ -531,135 +536,132 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         return branchedApplicationMonoCached;
     }
 
+    /**
+     * Finds the application and page based on the provided identifier and branch.
+     *
+     * This method handles both cases where pageIdentifier could be an actual basePageId
+     * or a branch-specific page id.
+     *
+     * Flow:
+     * 1. Search for page with pageIdentifier + refName, fallback to search without refName
+     * 2. Find application from the found page
+     * 3. For non-git apps: return directly (log warning if refName was provided)
+     * 4. For git apps: ensure we return the page from the correct target branch
+     *
+     * @param pageIdentifier Could be basePageId or branch-specific page id
+     * @param refType The reference type (e.g., branch)
+     * @param refName The branch name (can be null for default branch)
+     * @param mode PUBLISHED or EDIT mode
+     * @return Tuple of Application and NewPage for the target branch
+     */
     protected Mono<Tuple2<Application, NewPage>> getApplicationAndPageTupleMono(
-            String basePageId,
-            RefType refType,
-            String refName,
-            ApplicationMode mode,
-            Mono<String> baseApplicationIdMono,
-            boolean isViewMode) {
-        Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono = baseApplicationIdMono
-                .flatMap(cachedBaseApplicationId -> {
-                    Mono<Application> applicationMono;
-                    Mono<NewPage> branchedPageMonoCached;
+            String pageIdentifier, RefType refType, String refName, ApplicationMode mode) {
 
-                    branchedPageMonoCached = newPageService
-                            .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(refType, refName, basePageId, mode)
-                            .cache();
+        // Step 1: Search for page
+        // First try with pageIdentifier + refName (if refName provided)
+        Mono<NewPage> pageSearchMono;
+        if (StringUtils.hasText(refName)) {
+            // Fallback Mono to search without refName (pageIdentifier might be an id, not basePageId)
+            Mono<NewPage> fallbackSearch =
+                    Mono.defer(() -> newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                            null, null, pageIdentifier, mode));
 
-                    if (StringUtils.hasText(cachedBaseApplicationId)) {
-                        // Handle non-empty baseApplicationId
-                        applicationMono = applicationService.findByBaseIdBranchNameAndApplicationMode(
-                                cachedBaseApplicationId, refName, mode);
-                    } else {
-                        // Handle empty or null baseApplicationId
-                        applicationMono = branchedPageMonoCached.flatMap(branchedPage ->
-                                // Use the application ID to find the complete application details.
-                                applicationService
-                                        .findByBranchedApplicationIdAndApplicationMode(
-                                                branchedPage.getApplicationId(), mode)
-                                        .flatMap(application -> {
-                                            if (isViewMode) {
-                                                // Update the cache with the new application’s base ID for future
-                                                // queries.
-                                                return cacheableRepositoryHelper
-                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
-                                                        .thenReturn(application)
-                                                        .name(getQualifiedSpanName(
-                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
-                                                        .tap(Micrometer.observation(observationRegistry));
-                                            }
-                                            return Mono.just(application);
-                                        }));
-                    }
-
-                    if (StringUtils.hasText(refName)) {
-
-                        // If in case the application is a non git connected application and the branch name url param
-                        // is present, then we must default to the app without any branches.
-                        return applicationMono.zipWith(branchedPageMonoCached).onErrorResume(error -> {
-                            // This situation would arise if page or application is not returned.
-                            // here we would land on error instead of empty because both apis which are being
-                            // called errors out on empty returns.
-
-                            log.info(
-                                    "application or page has for base pageId {} and refName {} has not been found.",
-                                    basePageId,
-                                    refName);
-                            if (error instanceof AppsmithException) {
-                                Mono<NewPage> basePageMono =
-                                        newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
-                                                null, null, basePageId, mode);
-
-                                return basePageMono.flatMap(basePage -> {
-                                    if (StringUtils.hasText(basePage.getRefName())) {
-                                        // If the branch name is present then the application is git connected
-                                        // the error should be thrown.
-                                        // TODO: verify if branch name could be residue from old git connection
-                                        // Application metadata is absolute check for the same.
-                                        return Mono.error(error);
-                                    }
-
-                                    return applicationService
-                                            .findByBranchedApplicationIdAndApplicationMode(
-                                                    basePage.getApplicationId(), mode)
-                                            .zipWith(basePageMono)
-                                            .map(tuple2 -> {
-                                                log.info(
-                                                        "The refName url param should not be associated with application {} as this is not a git connected application",
-                                                        tuple2.getT1().getId());
-                                                return tuple2;
-                                            });
-                                });
-                            }
-
-                            return Mono.error(error);
-                        });
-                    }
-
-                    return applicationMono.zipWith(branchedPageMonoCached).flatMap(tuple2 -> {
-                        Application application = tuple2.getT1();
-                        NewPage branchedPage = tuple2.getT2();
-
-                        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
-
-                        boolean isNotAGitApp = gitMetadata == null;
-                        boolean isDefaultBranchNameAbsent =
-                                isNotAGitApp || !StringUtils.hasText(gitMetadata.getDefaultBranchName());
-                        boolean isBranchDefault = !isDefaultBranchNameAbsent
-                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getRefName());
-
-                        // This last check is specially for view mode, when a queried page which is not present
-                        // in default branch, and cacheable repository refers to the base application
-                        // from given page id. then the branched page may not belong to the base application
-                        // hence a validation is required.
-                        // This condition is always true for a non git app
-                        boolean isPageFromSameApplication = application.getId().equals(branchedPage.getApplicationId());
-
-                        if ((isNotAGitApp || isDefaultBranchNameAbsent || isBranchDefault)
-                                && (!isViewMode || isPageFromSameApplication)) {
-                            return applicationMono.zipWith(branchedPageMonoCached);
+            pageSearchMono = newPageService
+                    .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(refType, refName, pageIdentifier, mode)
+                    .onErrorResume(error -> {
+                        if (error instanceof AppsmithException appsmithException
+                                && AppsmithError.NO_RESOURCE_FOUND.equals(appsmithException.getError())) {
+                            return fallbackSearch;
                         }
-
-                        log.info(
-                                "ConsolidatedApi for page id {}, and application id {} has been queried without a branch url param",
-                                branchedPage.getId(),
-                                application.getId());
-
-                        // The git connected application has not been queried with branch param,
-                        // and the base branch is not same as the default branch.
-                        // we need to find return the default branch from here.
-
-                        String defaultBranchName = gitMetadata.getDefaultBranchName();
-
-                        return applicationService
-                                .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
-                                .zipWith(newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
-                                        RefType.branch, defaultBranchName, basePageId, mode));
+                        return Mono.error(error);
                     });
-                })
+        } else {
+            pageSearchMono = newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                    null, null, pageIdentifier, mode);
+        }
+
+        return pageSearchMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, PAGE, pageIdentifier)))
+                .flatMap(foundPage ->
+                        // Step 2: Find application from page
+                        applicationService
+                                .findByBranchedApplicationIdAndApplicationMode(foundPage.getApplicationId(), mode)
+                                .flatMap(application ->
+                                        resolveTargetBranchPageAndApplication(foundPage, application, refName, mode)))
+                // TODO: Add observation spans for monitoring (similar to previous implementation)
                 .cache();
-        return applicationAndPageTupleMono;
+    }
+
+    /**
+     * Resolves the correct page and application for the target branch.
+     *
+     * For non-git apps: returns the found page directly.
+     * For git apps: ensures we return the page from the correct branch.
+     *
+     * @param foundPage The page found in the initial search
+     * @param application The application associated with the found page
+     * @param refName The requested branch name (can be null)
+     * @param mode PUBLISHED or EDIT mode
+     * @return Tuple of Application and NewPage for the target branch
+     */
+    private Mono<Tuple2<Application, NewPage>> resolveTargetBranchPageAndApplication(
+            NewPage foundPage, Application application, String refName, ApplicationMode mode) {
+
+        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
+
+        // Step 3: Check if non-git app
+        boolean isNonGitApp = !GitUtils.isArtifactConnectedToGit(gitMetadata);
+
+        if (isNonGitApp) {
+            // Non-git app
+            if (StringUtils.hasText(refName)) {
+                // Log warning - refName provided for non-git app
+                log.warn("refName '{}' provided for non-git application {}, ignoring", refName, application.getId());
+            }
+            // Skip Step 4, return as-is
+            return Mono.just(Tuples.of(application, foundPage));
+        }
+
+        // Git app - Determine target branch
+        String targetRefName;
+        if (!StringUtils.hasText(refName)) {
+            // No refName provided - use default branch
+            targetRefName = gitMetadata.getDefaultBranchName();
+        } else {
+            // refName provided - use it as target
+            targetRefName = refName;
+        }
+
+        // Check if we're already on the target branch
+        // Always use application's gitMetadata.refName as source of truth
+        String currentRefName = gitMetadata.getRefName();
+        if (targetRefName.equals(currentRefName)) {
+            // Already on correct branch
+            return Mono.just(Tuples.of(application, foundPage));
+        }
+
+        // Step 4: Need to switch to target branch
+        // Use getBaseIdOrFallback() to handle cases where basePageId might be the page id
+        String basePageId = foundPage.getBaseIdOrFallback();
+        String defaultArtifactId = gitMetadata.getDefaultArtifactId();
+
+        log.info(
+                "Switching from branch '{}' to target branch '{}' for page with baseId '{}'",
+                currentRefName,
+                targetRefName,
+                basePageId);
+
+        // Find application in target branch
+        return applicationService
+                .findByBaseIdBranchNameAndApplicationMode(defaultArtifactId, targetRefName, mode)
+                .flatMap(targetApplication ->
+                        // Find page in target branch using basePageId
+                        // Note: findByRefTypeAndRefNameAndBasePageIdAndApplicationMode already throws
+                        // AppsmithException when page not found, no need for additional switchIfEmpty
+                        newPageService
+                                .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                                        RefType.branch, targetRefName, basePageId, mode)
+                                .map(targetPage -> Tuples.of(targetApplication, targetPage)));
     }
 
     private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {

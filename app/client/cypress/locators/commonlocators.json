@@ -246,5 +246,8 @@
   "tostifyIcon": ".Toastify--animate-icon > span",
   "downloadFileType": "button[class*='t--open-dropdown-Select-file-type'] > span:first-of-type",
   "listToggle": "[data-testid='t--list-toggle']",
-  "showBindingsMenu": "//*[@id='entity-properties-container']"
+  "showBindingsMenu": "//*[@id='entity-properties-container']",
+  "confirmationModal": "[data-testid='t--confirmation-modal']",
+  "confirmationModalConfirm": "[data-testid='t--confirmation-modal-confirm']",
+  "confirmationModalCancel": "[data-testid='t--confirmation-modal-cancel']"
 }

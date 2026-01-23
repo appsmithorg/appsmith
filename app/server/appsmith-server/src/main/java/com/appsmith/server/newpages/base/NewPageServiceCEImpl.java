@@ -10,6 +10,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.NewPage.Fields;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -571,7 +572,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         refName,
                         basePageId,
                         permission,
-                        List.of(NewPage.Fields.id, NewPage.Fields.applicationId))
+                        List.of(
+                                NewPage.Fields.id,
+                                Fields.baseId,
+                                NewPage.Fields.applicationId,
+                                NewPage.Fields.refName,
+                                NewPage.Fields.branchName))
                 .name(getQualifiedSpanName(GET_PAGE, mode))
                 .tap(Micrometer.observation(observationRegistry));
     }

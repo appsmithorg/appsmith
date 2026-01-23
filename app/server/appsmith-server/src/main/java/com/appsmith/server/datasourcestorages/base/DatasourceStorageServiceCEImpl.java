@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,6 +87,15 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> save(DatasourceStorage datasourceStorage) {
         return repository.save(datasourceStorage);
+    }
+
+    @Override
+    public Flux<DatasourceStorage> saveAll(List<DatasourceStorage> datasourceStorageList) {
+        if (CollectionUtils.isEmpty(datasourceStorageList)) {
+            return Flux.empty();
+        }
+
+        return repository.saveAll(datasourceStorageList);
     }
 
     @Override

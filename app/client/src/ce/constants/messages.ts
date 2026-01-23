@@ -1054,6 +1054,9 @@ export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
 export const DISCARD_MESSAGE = () =>
   `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
+export const REDEPLOY_APP_WARNING = () =>
+  "The deployed version of this app may be out of sync with what you see in edit mode. Redeploy to apply the latest state.";
+
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1462,6 +1465,8 @@ export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
   "Deploy the current version of the application";
+export const REDEPLOY_APP_BUTTON_TOOLTIP = () =>
+  "Redeploy needed to sync changes from edit mode";
 export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;
@@ -1474,6 +1479,7 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
+export const REDEPLOY_MENU_OPTION = () => "Redeploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
@@ -1624,6 +1630,36 @@ export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
 
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
+
+// Security feature disable confirmation modal
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Prepared Statements?";
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling prepared statements exposes your application to SQL injection attacks. This setting will be saved and apply to production queries. Only disable if you absolutely need dynamic SQL patterns that cannot be parameterized.";
+
+export const DISABLE_PREPARED_STATEMENT_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/concepts/how-to-use-prepared-statements",
+};
+
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Smart Substitution?";
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling smart substitution removes Appsmith's automatic escaping and validation. This increases the risk of malformed queries and injection vulnerabilities. Only disable if you fully understand the security implications.";
+export const DISABLE_SMART_SUBSTITUTION_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/reference/query-settings#smart-json-substitution",
+};
+
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_HEADING = () =>
+  "Security Warning: Disable Smart BSON Substitution?";
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_DESCRIPTION = () =>
+  "Disabling smart BSON substitution removes Appsmith's automatic escaping and validation before sending commands to MongoDB. This increases the risk of malformed queries and injection vulnerabilities. Only disable if you fully understand the security implications.";
+export const DISABLE_BSON_SUBSTITUTION_CONFIRMATION_LEARN_MORE = {
+  TEXT: () => "Learn more",
+  URL: "https://docs.appsmith.com/connect-data/reference/query-settings#smart-bson-substitution",
+};
+
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
@@ -1706,6 +1742,8 @@ export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
   `Uploaded file must be in .SVG .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
+export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
+  "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
   `Uploaded file must have a max size of 48X48 pixels`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>

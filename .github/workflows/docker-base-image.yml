@@ -14,6 +14,9 @@ on:
 jobs:
   build-docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     defaults:
       run:
@@ -28,12 +31,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Get tag
         id: tag
@@ -60,5 +57,3 @@ jobs:
           platforms: linux/arm64,linux/amd64
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.tag.outputs.tag }}
-        env:
-          DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}

@@ -41,10 +41,11 @@ export default [
       {
         label: "Smart JSON substitution",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[0].value",
-        controlType: "SWITCH",
+        controlType: "SWITCH_WITH_CONFIRMATION",
         tooltipText:
           "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
         initialValue: true,
+        modalType: "SMART_SUBSTITUTION",
       },
       {
         label: "Protocol",

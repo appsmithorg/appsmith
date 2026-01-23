@@ -84,7 +84,6 @@ public class ImportExportUtils {
         importedApplication.setId(existingApplication.getId());
 
         // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
-        existingApplication.setPublishedApplicationDetail(importedApplication.getPublishedApplicationDetail());
         existingApplication.setUnpublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
 
         // For the existing application we don't need to default
@@ -98,26 +97,11 @@ public class ImportExportUtils {
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
         // copyNestedNonNullProperties ignore these properties and the changes are not discarded
-        if (importedApplication.getPublishedAppLayout() == null) {
-            existingApplication.setPublishedAppLayout(null);
-        }
         if (importedApplication.getUnpublishedAppLayout() == null) {
             existingApplication.setUnpublishedAppLayout(null);
         }
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
-    }
-
-    /**
-     * This method sets the published mode properties in the imported application.
-     * When a user imports an application from the git repository, since the git only stores the unpublished version,
-     * the current deployed version in the newly imported app is not updated. This function sets the initial deployed
-     * version to the same as the edit mode one.
-     * @param importedApplication
-     */
-    public static void setPublishedApplicationProperties(Application importedApplication) {
-        importedApplication.setPublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
-        importedApplication.setPublishedAppLayout(importedApplication.getUnpublishedAppLayout());
     }
 
     public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {

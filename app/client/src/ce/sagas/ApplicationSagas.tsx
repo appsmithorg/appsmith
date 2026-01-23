@@ -224,6 +224,63 @@ export function* publishApplicationSaga(
   }
 }
 
+export function* redeployApplicationSaga() {
+  try {
+    const currentApplication: ApplicationPayload | undefined = yield select(
+      getCurrentApplication,
+    );
+
+    if (!currentApplication) {
+      throw new Error("Current Application is missing while redeploying App");
+    }
+
+    const applicationId: string = currentApplication.id;
+    const appName: string = currentApplication.name;
+
+    AnalyticsUtil.logEvent("REDEPLOY_APP", {
+      appId: applicationId,
+      appName,
+    });
+    const request: PublishApplicationRequest = {
+      applicationId,
+    };
+    const response: PublishApplicationResponse = yield call(
+      ApplicationApi.publishApplication,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const currentPageId: string = yield select(getCurrentPageId);
+
+      yield put(
+        fetchApplication({
+          applicationId,
+          pageId: currentPageId,
+          mode: APP_MODE.EDIT,
+        }),
+      );
+
+      // Wait for the fetch application success or error to ensure the application is fetched
+      yield take([
+        ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ]);
+
+      yield put({
+        type: ReduxActionTypes.REDEPLOY_APPLICATION_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REDEPLOY_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* fetchAllApplicationsOfWorkspaceSaga(
   action?: ReduxAction<string>,
 ) {

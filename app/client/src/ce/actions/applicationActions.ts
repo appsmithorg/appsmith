@@ -185,6 +185,15 @@ export const publishApplication = (applicationId: string) => {
   };
 };
 
+export const redeployApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.REDEPLOY_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
 export const publishAnvilApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_ANVIL_APPLICATION_INIT,

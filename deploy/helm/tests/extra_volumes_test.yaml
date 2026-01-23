@@ -1,0 +1,55 @@
+templates:
+  - deployment.yaml
+tests:
+  - name: extra volumes should be mounted in deployment
+    set:
+      workload:
+        kind: Deployment
+      extraVolumes:
+        - name: extra-volume
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: extra-volume
+          mountPath: /appsmith-extra
+          readOnly: true
+    asserts:
+      - equal:
+          path: kind
+          value: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-volume
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].volumeMounts
+          content:
+            name: extra-volume
+            mountPath: /appsmith-extra
+            readOnly: true
+  - name: extra volumes should be mounted in statefulset
+    set:
+      workload:
+        kind: StatefulSet
+      extraVolumes:
+        - name: extra-volume
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: extra-volume
+          mountPath: /appsmith-extra
+          readOnly: true
+    asserts:
+      - equal:
+          path: kind
+          value: StatefulSet
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-volume
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].volumeMounts
+          content:
+            name: extra-volume
+            mountPath: /appsmith-extra
+            readOnly: true

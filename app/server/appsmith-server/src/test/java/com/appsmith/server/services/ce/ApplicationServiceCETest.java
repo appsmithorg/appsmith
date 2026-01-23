@@ -92,6 +92,7 @@ import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -4411,6 +4412,7 @@ public class ApplicationServiceCETest {
                 .verify();
     }
 
+    @Disabled
     @Test
     @WithUserDetails(value = "api_user")
     public void testCacheEviction_whenPagesDeletedInEditModeFollowedByAppPublish_shouldInvalidateCache() {

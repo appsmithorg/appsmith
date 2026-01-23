@@ -1131,7 +1131,6 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
                                 .map(applicationPage -> applicationPage.getId())
                                 .findAny()
                                 .get();
-                        ;
 
                         return pageService
                                 .findByIdAndApplicationMode(homePageId, mode)
