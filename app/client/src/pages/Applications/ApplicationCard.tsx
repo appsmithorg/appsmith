@@ -536,9 +536,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const handleToggleFavorite = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      dispatch(toggleFavoriteApplication(application.id));
+      dispatch(toggleFavoriteApplication(application.baseId || application.id));
     },
-    [application.id, dispatch],
+    [application.baseId, application.id, dispatch],
   );
 
   return (

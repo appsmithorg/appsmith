@@ -895,7 +895,9 @@ export const handlers = {
         ? [...state.favoriteApplicationIds, applicationId]
         : state.favoriteApplicationIds.filter((id) => id !== applicationId),
       applicationList: state.applicationList.map((app) =>
-        app.id === applicationId ? { ...app, isFavorited } : app,
+        (app.baseId || app.id) === applicationId
+          ? { ...app, isFavorited }
+          : app,
       ),
     };
   },
