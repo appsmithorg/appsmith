@@ -52,6 +52,11 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
         overflow: auto;
         text-overflow: unset;
         word-break: break-word;
+        pointer-events: none;
+        margin-bottom: 0;
+      }
+      div {
+        margin-bottom: 0;
       }
     }
   }
