@@ -258,7 +258,9 @@ export const getFavoriteApplications = createSelector(
     const favoriteIdSet = new Set(ids);
 
     return apps
-      .filter((app: ApplicationPayload) => favoriteIdSet.has(app.id))
+      .filter((app: ApplicationPayload) =>
+        favoriteIdSet.has(app.baseId || app.id),
+      )
       .sort((a: ApplicationPayload, b: ApplicationPayload) =>
         a.name.localeCompare(b.name),
       );

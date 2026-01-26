@@ -40,8 +40,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
@@ -438,7 +436,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> toggleFavoriteApplication(String applicationId) {
         return sessionUserService.getCurrentUser().zipWhen(this::getForUser).flatMap(tuple -> {
-            User user = tuple.getT1();
             UserData userData = tuple.getT2();
 
             List<String> favorites = userData.getFavoriteApplicationIds();
@@ -446,23 +443,39 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 favorites = new ArrayList<>();
             }
 
-            // Toggle: remove if exists, add if doesn't
-            if (favorites.contains(applicationId)) {
+            boolean isRemoving = favorites.contains(applicationId);
+
+            if (isRemoving) {
                 favorites.remove(applicationId);
-            } else {
-                // Check if adding this favorite would exceed the limit
-                if (favorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_PARAMETER,
-                            String.format(
-                                    "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
-                                    MAX_FAVORITE_APPLICATIONS_LIMIT)));
-                }
-                favorites.add(applicationId);
+                userData.setFavoriteApplicationIds(favorites);
+                return repository.save(userData);
             }
 
-            userData.setFavoriteApplicationIds(favorites);
-            return repository.save(userData);
+            // When adding a favorite, verify user has access to the application
+            AclPermission readPermission = applicationPermission.getReadPermission();
+            List<String> finalFavorites = favorites;
+            return applicationRepository
+                    .queryBuilder()
+                    .criteria(Bridge.equal(Application.Fields.id, applicationId))
+                    .permission(readPermission)
+                    .first()
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                    .flatMap(application -> {
+                        if (finalFavorites.contains(applicationId)) {
+                            return Mono.just(userData);
+                        }
+                        if (finalFavorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.INVALID_PARAMETER,
+                                    String.format(
+                                            "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                            MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                        }
+                        finalFavorites.add(applicationId);
+                        userData.setFavoriteApplicationIds(finalFavorites);
+                        return repository.save(userData);
+                    });
         });
     }
 
@@ -479,41 +492,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 return Mono.just(Collections.emptyList());
             }
 
-            // Fetch applications by IDs with READ permission to populate userPermissions
-            // This ensures permissions are properly set so the edit button shows when user has edit permission
             AclPermission readPermission = applicationPermission.getReadPermission();
             return applicationRepository
                     .queryBuilder()
                     .criteria(Bridge.in(Application.Fields.id, favoriteIds))
                     .permission(readPermission)
                     .all()
-                    .collectList()
-                    .flatMap(applications -> {
-                        // Clean up favorites list if any apps were not found or are inaccessible
-                        if (applications.size() < favoriteIds.size()) {
-                            return cleanupMissingFavorites(userData, applications)
-                                    .thenReturn(applications);
-                        }
-                        return Mono.just(applications);
-                    });
+                    .collectList();
         });
-    }
-
-    /**
-     * Remove missing/inaccessible applications from user's favorites
-     * @param userData User data containing favorites
-     * @param validApps List of valid applications that still exist
-     * @return Updated UserData
-     */
-    private Mono<UserData> cleanupMissingFavorites(UserData userData, List<Application> validApps) {
-        Set<String> validIds = validApps.stream().map(Application::getId).collect(Collectors.toSet());
-
-        List<String> cleanedFavorites = userData.getFavoriteApplicationIds().stream()
-                .filter(validIds::contains)
-                .collect(Collectors.toList());
-
-        userData.setFavoriteApplicationIds(cleanedFavorites);
-        return repository.save(userData);
     }
 
     /**

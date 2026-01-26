@@ -53,6 +53,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -140,6 +141,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     private final PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService;
+    private final UserDataService userDataService;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -572,6 +574,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<AclPermission> actionPermissionMono =
                 actionPermission.getDeletePermission().cache();
         Mono<AclPermission> pagePermissionMono = pagePermission.getDeletePermission();
+        String favoriteId = application.getBaseId() != null ? application.getBaseId() : application.getId();
         return actionPermissionMono
                 .flatMap(actionDeletePermission -> actionCollectionService.archiveActionCollectionByApplicationId(
                         application.getId(), actionDeletePermission))
@@ -580,7 +583,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(pagePermissionMono.flatMap(pageDeletePermission ->
                         newPageService.archivePagesByApplicationId(application.getId(), pageDeletePermission)))
                 .then(themeService.archiveApplicationThemes(application))
-                .flatMap(applicationService::archive);
+                .then(userDataService.removeApplicationFromAllFavorites(favoriteId))
+                .then(applicationService.archive(application));
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {

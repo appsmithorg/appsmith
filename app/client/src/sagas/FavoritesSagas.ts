@@ -14,6 +14,8 @@ import { findDefaultPage } from "pages/utils";
 import type { ApplicationPayload } from "entities/Application";
 import type { ApiResponse } from "api/ApiResponses";
 
+const MAX_FAVORITE_APPLICATIONS_LIMIT = 50;
+
 function* toggleFavoriteApplicationSaga(
   action: ReduxAction<{ applicationId: string }>,
 ) {
@@ -26,6 +28,19 @@ function* toggleFavoriteApplicationSaga(
     );
 
     isFavorited = currentFavoriteIds.includes(applicationId);
+
+    if (
+      !isFavorited &&
+      currentFavoriteIds.length >= MAX_FAVORITE_APPLICATIONS_LIMIT
+    ) {
+      toast.show(
+        `Maximum favorite applications limit (${MAX_FAVORITE_APPLICATIONS_LIMIT}) reached`,
+        { kind: "error" },
+      );
+
+      return;
+    }
+
     const newIsFavorited = !isFavorited;
 
     yield put(toggleFavoriteApplicationSuccess(applicationId, newIsFavorited));
@@ -40,11 +55,16 @@ function* toggleFavoriteApplicationSaga(
       yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
       yield put(toggleFavoriteApplicationError(applicationId));
     }
-  } catch (error) {
+  } catch (error: unknown) {
     yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
     yield put(toggleFavoriteApplicationError(applicationId));
 
-    toast.show("Failed to update favorite status", { kind: "error" });
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to update favorite status";
+
+    toast.show(message, { kind: "error" });
   }
 }
 

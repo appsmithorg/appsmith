@@ -275,14 +275,14 @@ export const handlers = {
     const isFavoritesWorkspace = draftState.workspace.id === FAVORITES_KEY;
 
     if (isFavoritesWorkspace && !isFavorited) {
-      // If we're in the favorites workspace and the app is unfavorited, remove it from the list
       draftState.applications = draftState.applications.filter(
-        (app) => app.id !== applicationId,
+        (app) => (app.baseId || app.id) !== applicationId,
       );
     } else {
-      // Otherwise, just update the isFavorited status
       draftState.applications = draftState.applications.map((app) =>
-        app.id === applicationId ? { ...app, isFavorited } : app,
+        (app.baseId || app.id) === applicationId
+          ? { ...app, isFavorited }
+          : app,
       );
     }
   },
