@@ -76,7 +76,7 @@ public class BashService {
     // Builds complete bash command with args
     private String buildFullCommand(String scriptContent, String functionName, String... args) {
         String variableAssignments = IntStream.range(0, args.length)
-                .mapToObj(i -> String.format("arg%d=\"%s\"", i + 1, args[i]))
+                .mapToObj(i -> String.format("arg%d=%s", i + 1, shellEscape(args[i])))
                 .collect(Collectors.joining("\n"));
 
         String functionCall = functionName
@@ -86,6 +86,35 @@ public class BashService {
                         .collect(Collectors.joining(" "));
 
         return scriptContent + "\n" + variableAssignments + "\n" + functionCall;
+    }
+
+    /**
+     * Escapes a string for safe use in a Bash single-quoted context.
+     * Uses POSIX standard escaping: wraps the value in single quotes and escapes
+     * any single quotes within the value as '\'' (end quote, escaped quote, start quote).
+     *
+     * This prevents OS command injection via:
+     * - Command substitution: $(...) and `...`
+     * - Variable expansion: $VAR, ${VAR}
+     * - Arithmetic expansion: $((...))
+     * - Process substitution: <(...), >(...)
+     * - Glob patterns: *, ?, [...]
+     * - History expansion: !...
+     *
+     * Security Note: Single quotes in Bash prevent ALL interpretation of special
+     * characters, making this the most secure way to pass untrusted data to shell commands.
+     *
+     * @param value the string to escape (may be null)
+     * @return the shell-escaped string safe for bash argument assignment
+     */
+    String shellEscape(String value) {
+        if (value == null) {
+            return "''";
+        }
+        // Replace each single quote with: '\'' (end current quote, add escaped quote, start new quote)
+        // This is the standard POSIX way to include a single quote in a single-quoted string
+        String escaped = value.replace("'", "'\\''");
+        return "'" + escaped + "'";
     }
 
     // Returns fallback if string is blank
