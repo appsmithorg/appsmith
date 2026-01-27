@@ -2605,6 +2605,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@betterbugs/web-sdk@npm:^0.0.38":
+  version: 0.0.38
+  resolution: "@betterbugs/web-sdk@npm:0.0.38"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  peerDependenciesMeta:
+    react:
+      optional: false
+    react-dom:
+      optional: false
+  checksum: bb6d99e97373ffdf2ea4b59ed16b6b16054b99b817f614e7b2c64cfdc91ba946c388c200ad2b438b0ebee26c99900d2bb4ed6c7bd845eb8e9ef334896c9401c4
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/core@npm:3.47.0":
   version: 3.47.0
   resolution: "@blueprintjs/core@npm:3.47.0"
@@ -13638,6 +13653,7 @@ __metadata:
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/core": ^7.26.10
     "@babel/standalone": ^7.26.10
+    "@betterbugs/web-sdk": ^0.0.38
     "@blueprintjs/core": ^3.43.0
     "@blueprintjs/datetime": ^3.23.6
     "@blueprintjs/icons": 3.22.0
