@@ -51,4 +51,8 @@ public interface UserDataServiceCE {
     Mono<Void> removeRecentWorkspaceAndChildEntities(String userId, String workspaceId);
 
     Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
+
+    Mono<UserData> updateAIApiKey(String provider, String apiKey);
+
+    Mono<String> getAIApiKey(String provider);
 }

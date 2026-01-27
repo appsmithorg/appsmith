@@ -138,6 +138,7 @@ export const SettingCategories = {
   VERSION: "version",
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",
+  AI: "ai",
 };
 
 export enum CategoryType {

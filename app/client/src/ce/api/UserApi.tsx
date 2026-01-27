@@ -196,6 +196,39 @@ export class UserApi extends Api {
   static async resendEmailVerification(email: string) {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
+
+  static async updateAIApiKey(
+    provider: string,
+    apiKey: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.put(`${UserApi.usersURL}/ai-api-key?provider=${provider}`, {
+      apiKey,
+    });
+  }
+
+  static async getAIApiKey(
+    provider: string,
+  ): Promise<AxiosPromise<ApiResponse<{ provider: string; hasApiKey: boolean }>>> {
+    return Api.get(`${UserApi.usersURL}/ai-api-key?provider=${provider}`);
+  }
+
+  static async requestAIResponse(
+    provider: string,
+    prompt: string,
+    context: {
+      functionName?: string;
+      cursorLineNumber?: number;
+      functionString?: string;
+      mode?: string;
+      currentValue?: string;
+    },
+  ): Promise<AxiosPromise<ApiResponse<{ response: string; provider: string }>>> {
+    return Api.post(`${UserApi.usersURL}/ai-assistant/request`, {
+      provider,
+      prompt,
+      context,
+    });
+  }
 }
 
 export default UserApi;

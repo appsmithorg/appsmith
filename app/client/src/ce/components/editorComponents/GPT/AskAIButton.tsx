@@ -1,7 +1,11 @@
+import React from "react";
+import { Button } from "@appsmith/ads";
 import type {
   FieldEntityInformation,
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { useSelector } from "react-redux";
+import { getIsAIEnabled } from "ce/selectors/aiAssistantSelectors";
 
 interface AskAIButtonProps {
   mode: TEditorModes;
@@ -9,7 +13,21 @@ interface AskAIButtonProps {
   entity: FieldEntityInformation;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function AskAIButton(props: AskAIButtonProps) {
-  return null;
+  const isAIEnabled = useSelector(getIsAIEnabled);
+
+  if (!isAIEnabled) {
+    return null;
+  }
+
+  return (
+    <Button
+      kind="tertiary"
+      onClick={props.onClick}
+      size="sm"
+      startIcon="sparkles"
+    >
+      Ask AI
+    </Button>
+  );
 }

@@ -31,12 +31,13 @@ class DynamicTextField extends React.Component<
     }
 > {
   render() {
+    const isSQLMode = this.props.mode && Object.values(editorSQLModes).includes(this.props.mode as TEditorModes);
     const editorProps = {
       mode: this.props.mode || EditorModes.TEXT_WITH_BINDING,
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      AIAssisted: this.props.mode === editorSQLModes.POSTGRESQL_WITH_BINDING,
+      AIAssisted: isSQLMode,
     };
 
     return (
