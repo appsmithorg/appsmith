@@ -41,6 +41,8 @@ import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
+import BetterbugsUtil from "utils/Analytics/betterbugs";
+
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
@@ -140,6 +142,14 @@ const HomepageHeaderAction = ({
                   startIcon="book-line"
                 >
                   {createMessage(DOCUMENTATION)}
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    BetterbugsUtil.show(user);
+                  }}
+                  startIcon="support"
+                >
+                  Send support info
                 </MenuItem>
                 {intercomAppID && window.Intercom && !isAirgapped() && (
                   <MenuItem

@@ -39,6 +39,7 @@ import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
+import BetterbugsUtil from "utils/Analytics/betterbugs";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -84,6 +85,11 @@ let HELP_MENU_ITEMS: HelpItem[] = [
     icon: "bug-line",
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
+  },
+  {
+    icon: "support",
+    label: "Send support info",
+    id: "betterbugs-trigger",
   },
 ];
 
@@ -291,6 +297,11 @@ function HelpButton() {
                           setShowIntercomConsent(true);
                         }
                       }
+                    }
+
+                    if (item.id === "betterbugs-trigger") {
+                      e?.preventDefault();
+                      BetterbugsUtil.show(user);
                     }
                   }}
                   startIcon={item.icon}
