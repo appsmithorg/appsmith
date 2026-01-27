@@ -16,7 +16,7 @@
     <description>This is the API server for the Appsmith project</description>
 
     <properties>
-        <jmh.version>1.35</jmh.version>
+        <jmh.version>1.37</jmh.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
     </properties>
 
