@@ -1,4 +1,5 @@
 import { call, put, select, takeLatest } from "redux-saga/effects";
+import type { SagaIterator } from "redux-saga";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
@@ -14,17 +15,19 @@ import { toast } from "@appsmith/ads";
 
 function* fetchAIResponseSaga(
   action: ReduxAction<FetchAIResponsePayload>,
-) {
+): SagaIterator {
   try {
-    const { prompt, context } = action.payload;
+    const { context, prompt } = action.payload;
     const aiState = yield select(getAIAssistantState);
 
     if (!aiState.isEnabled || !aiState.provider) {
       yield put(
         fetchAIResponseError({
-          error: "AI Assistant is disabled. Please contact your administrator to enable it.",
+          error:
+            "AI Assistant is disabled. Please contact your administrator to enable it.",
         }),
       );
+
       return;
     }
 
@@ -36,43 +39,69 @@ function* fetchAIResponseSaga(
     );
 
     if (response.data.responseMeta.success) {
-      yield put(fetchAIResponseSuccess({
-        response: response.data.data.response,
-      }));
+      yield put(
+        fetchAIResponseSuccess({
+          response: response.data.data.response,
+        }),
+      );
     } else {
-      yield put(fetchAIResponseError({
-        error: response.data.responseMeta.error?.message || "Failed to get AI response",
-      }));
-      toast.show(response.data.responseMeta.error?.message || "Failed to get AI response", { kind: "error" });
+      yield put(
+        fetchAIResponseError({
+          error:
+            response.data.responseMeta.error?.message ||
+            "Failed to get AI response",
+        }),
+      );
+      toast.show(
+        response.data.responseMeta.error?.message ||
+          "Failed to get AI response",
+        { kind: "error" },
+      );
     }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to get AI response";
+
     yield put(fetchAIResponseError({ error: errorMessage }));
     toast.show(errorMessage, { kind: "error" });
   }
 }
 
-function* loadAISettingsSaga() {
+function* loadAISettingsSaga(): SagaIterator {
   try {
     const response = yield call(OrganizationApi.getAIConfig);
 
     if (response.data.responseMeta.success) {
       const config = response.data.data;
-      yield put(updateAISettings({
-        provider: config.provider || undefined,
-        hasApiKey: config.hasClaudeApiKey || config.hasOpenaiApiKey,
-        isEnabled: config.isAIAssistantEnabled || false,
-      }));
+
+      yield put(
+        updateAISettings({
+          provider: config.provider || undefined,
+          hasApiKey: config.hasClaudeApiKey || config.hasOpenaiApiKey,
+          isEnabled: config.isAIAssistantEnabled || false,
+        }),
+      );
     } else {
-      yield put(updateAISettings({ provider: undefined, hasApiKey: false, isEnabled: false }));
+      yield put(
+        updateAISettings({
+          provider: undefined,
+          hasApiKey: false,
+          isEnabled: false,
+        }),
+      );
     }
   } catch (error) {
-    yield put(updateAISettings({ provider: undefined, hasApiKey: false, isEnabled: false }));
+    yield put(
+      updateAISettings({
+        provider: undefined,
+        hasApiKey: false,
+        isEnabled: false,
+      }),
+    );
   }
 }
 
-export default function* aiAssistantSagasListener() {
+export default function* aiAssistantSagasListener(): SagaIterator {
   yield takeLatest(ReduxActionTypes.FETCH_AI_RESPONSE, fetchAIResponseSaga);
   yield takeLatest(
     ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
