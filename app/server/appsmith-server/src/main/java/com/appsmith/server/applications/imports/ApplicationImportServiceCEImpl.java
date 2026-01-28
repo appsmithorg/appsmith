@@ -499,36 +499,39 @@ public class ApplicationImportServiceCEImpl
                 });
     }
 
+    protected Mono<Application> updateAllPageLayouts(Application application) {
+        return Flux.fromIterable(application.getPages())
+                .map(ApplicationPage::getId)
+                .flatMap(pageId -> {
+                    return updateLayoutService.updatePageLayoutsByPageId(pageId).onErrorResume(throwable -> {
+                        // the error would most probably arise because of update layout error,
+                        // this shouldn't stop the application from getting imported.
+                        String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                        log.error("Error while updating layout. Error: {}", errorMessage, throwable);
+                        // continuing the execution
+                        return Mono.just("");
+                    });
+                })
+                .collectList()
+                .thenReturn(application);
+    }
+
     @Override
     public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
-        return Mono.just((Application) importableArtifact)
-                .flatMap(application -> {
-                    log.info("Imported application with id {}", application.getId());
-                    // Need to update the application object with updated pages and publishedPages
-                    Application updateApplication = new Application();
-                    updateApplication.setPages(application.getPages());
-                    updateApplication.setUnpublishedThemeId(application.getUnpublishedThemeId());
-                    return applicationService.update(application.getId(), updateApplication);
-                }) // TODO: move the update layout after everything.
-                .flatMap(application -> {
-                    return Flux.fromIterable(application.getPages())
-                            .map(ApplicationPage::getId)
-                            .flatMap(pageId -> {
-                                return updateLayoutService
-                                        .updatePageLayoutsByPageId(pageId)
-                                        .onErrorResume(throwable -> {
-                                            // the error would most probably arise because of update layout error,
-                                            // this shouldn't stop the application from getting imported.
-                                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                                            log.error(
-                                                    "Error while updating layout. Error: {}", errorMessage, throwable);
-                                            // continuing the execution
-                                            return Mono.just("");
-                                        });
-                            })
-                            .collectList()
-                            .thenReturn(application);
-                });
+        return Mono.just((Application) importableArtifact).flatMap(application -> {
+            log.info("Imported application with id {}", application.getId());
+            // Need to update the application object with updated pages
+            Application updateApplication = new Application();
+            updateApplication.setPages(application.getPages());
+            updateApplication.setUnpublishedThemeId(application.getUnpublishedThemeId());
+            return applicationService.update(application.getId(), updateApplication);
+        });
+    }
+
+    @Override
+    public Mono<Void> postImportHook(Artifact artifact) {
+        Application application = (Application) artifact;
+        return updateAllPageLayouts(application).then();
     }
 
     @Override

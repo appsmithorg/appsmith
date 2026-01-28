@@ -53,6 +53,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -270,6 +271,7 @@ class ActionExecutionSolutionCEImplTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void testExecuteAPIWithUsualOrderingOfTheParts() {
         String usualOrderOfParts =
                 """
@@ -328,6 +330,7 @@ class ActionExecutionSolutionCEImplTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void testExecuteAPIWithParameterMapAsLastPart() {
         String parameterMapAtLast =
                 """

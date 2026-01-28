@@ -34,8 +34,8 @@ mongodb:
   tolerations: []
   image:
     registry: docker.io
-    repository: bitnamilegacy/mongodb
-    tag: 6.0.13
+    repository: appsmith/mongodb
+    tag: 6.0.27
   arbiter:
     nodeSelector: {}
     affinity: {}
@@ -161,6 +161,14 @@ securityContext: {}
   # For non-root user
   # runAsNonRoot: true
   # runAsUser: 1000
+
+## @param extraVolumes Additional volumes to add to the pod
+##
+extraVolumes: []
+
+## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
+##
+extraVolumeMounts: []
 
 service:
   ## @param service.type Kubernetes Service type

@@ -9,7 +9,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.services.SequenceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,13 +35,14 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
     WorkspaceService workspaceService;
 
     @Mock
-    SequenceService sequenceService;
+    DatasourceStorageService datasourceStorageService;
 
     DatasourceImportableServiceCEImpl importService;
 
     @BeforeEach
     void setUp() {
-        importService = new DatasourceImportableServiceCEImpl(datasourceService, workspaceService, sequenceService);
+        importService =
+                new DatasourceImportableServiceCEImpl(datasourceService, workspaceService, datasourceStorageService);
     }
 
     // Helper to call the private method using reflection

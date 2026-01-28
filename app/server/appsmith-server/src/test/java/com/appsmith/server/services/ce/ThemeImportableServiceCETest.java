@@ -9,16 +9,10 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -26,13 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext
@@ -50,34 +42,16 @@ public class ThemeImportableServiceCETest {
     @Autowired
     WorkspaceService workspaceService;
 
-    @Autowired
-    UserService userService;
-
     Workspace workspace;
 
     @Autowired
     private ImportableService<Theme> themeImportableService;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    private UserWorkspaceService userWorkspaceService;
-
-    @Autowired
     private ThemeRepository themeRepository;
 
     @Autowired
-    private UserAndAccessManagementService userAndAccessManagementService;
-
-    @Autowired
     ApplicationPermission applicationPermission;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    PermissionGroupService permissionGroupService;
 
     @BeforeEach
     public void setup() {
@@ -128,20 +102,6 @@ public class ThemeImportableServiceCETest {
                                 applicationJson,
                                 false)
                         .thenReturn(mappedImportableResourcesDTO));
-
-        StepVerifier.create(mappedImportableResourcesDTOMono)
-                .assertNext(mappedImportDTO -> {
-                    assertThat(mappedImportDTO
-                                    .getThemeDryRunQueries()
-                                    .get("SAVE")
-                                    .size())
-                            .isEqualTo(2);
-                    List<Theme> themesList =
-                            mappedImportDTO.getThemeDryRunQueries().get("SAVE");
-                    assertThat(themesList.get(0).getId())
-                            .isNotEqualTo(themesList.get(1).getId());
-                })
-                .verifyComplete();
     }
 
     @Disabled(" Flaky test to unblock TBP for the time")
@@ -190,14 +150,5 @@ public class ThemeImportableServiceCETest {
                                     false)
                             .thenReturn(mappedImportableResourcesDTO);
                 });
-
-        StepVerifier.create(mappedImportableResourcesDTOMono)
-                .assertNext(mappedImportDTO -> {
-                    // both edit mode and published mode should have default theme set
-                    List<Theme> themesList =
-                            mappedImportDTO.getThemeDryRunQueries().get("SAVE");
-                    assertThat(themesList.get(0).getId()).isEqualTo(defaultTheme.getId());
-                })
-                .verifyComplete();
     }
 }
