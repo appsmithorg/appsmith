@@ -2,11 +2,14 @@ import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidgetTypes } from "WidgetProvider/types";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Checkbox } from "./Checkbox";
+import LabelWithTooltip, {
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 
 interface StyledCheckboxContainerProps {
   isValid: boolean;
@@ -14,6 +17,7 @@ interface StyledCheckboxContainerProps {
   labelPosition?: LabelPosition;
   minHeight?: number;
   $isFullWidth?: boolean;
+  alignWidget?: AlignWidgetTypes;
 }
 
 const DEFAULT_BORDER_RADIUS = "0";
@@ -32,6 +36,28 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
 
     .${Classes.CHECKBOX} {
       width: 100%;
+    }
+
+    .${LABEL_CONTAINER_CLASS} {
+      max-width: 100%;
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      justify-content: ${({ alignWidget }) =>
+        alignWidget === AlignWidgetTypes.RIGHT ? "flex-end" : "flex-start"};
+
+      label {
+        text-align: ${({ alignWidget }) =>
+          alignWidget === AlignWidgetTypes.RIGHT ? "right" : "left"};
+        white-space: normal;
+        overflow: auto;
+        text-overflow: unset;
+        word-break: break-word;
+        pointer-events: none;
+        margin-bottom: 0;
+      }
+      div {
+        margin-bottom: 0;
+      }
     }
   }
 `;
@@ -104,6 +130,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
     return (
       <CheckboxContainer
         $isFullWidth={this.props.isFullWidth}
+        alignWidget={this.props.alignWidget}
         isValid={isValid}
         minHeight={this.props.minHeight}
         noContainerPadding={this.props.noContainerPadding}
@@ -120,18 +147,26 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           hasError={!isValid}
           inputRef={this.props.inputRef}
           labelElement={
-            <CheckboxLabel
-              alignment={this.props.alignWidget || AlignWidgetTypes.LEFT}
+            <LabelWithTooltip
+              alignment={
+                this.props.alignWidget === AlignWidgetTypes.RIGHT
+                  ? Alignment.RIGHT
+                  : Alignment.LEFT
+              }
               className="t--checkbox-widget-label"
+              color={this.props.labelTextColor}
+              compact
               disabled={this.props.isDisabled}
+              fontSize={this.props.labelTextSize}
+              fontStyle={this.props.labelStyle}
+              helpText={this.props.labelTooltip}
+              inline={this.props.isLabelInline}
               isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
-              isLabelInline={this.props.isLabelInline}
-              labelStyle={this.props.labelStyle}
-              labelTextColor={this.props.labelTextColor}
-              labelTextSize={this.props.labelTextSize}
-            >
-              {this.props.label}
-            </CheckboxLabel>
+              loading={this.props.isLoading}
+              optionCount={1}
+              position={this.props.labelPosition}
+              text={this.props.label}
+            />
           }
           onChange={this.onCheckChange}
         />
@@ -166,6 +201,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   isLabelInline?: boolean;
   minHeight?: number;
   isFullWidth?: boolean;
+  labelTooltip?: string;
 }
 
 export default CheckboxComponent;

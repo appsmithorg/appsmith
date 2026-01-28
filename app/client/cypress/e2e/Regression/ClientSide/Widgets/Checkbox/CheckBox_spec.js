@@ -38,7 +38,7 @@ describe(
       cy.getAlert("onCheckChange");
       _.deployMode.DeployApp();
       //Checkbox Functionality To Check Label
-      cy.get(publish.checkboxWidget + " " + "label").should(
+      cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
         "have.text",
         this.dataSet.checkbocInputName,
       );

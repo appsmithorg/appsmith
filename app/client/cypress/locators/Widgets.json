@@ -46,7 +46,7 @@
   "Regex": ".t--property-control-regex .CodeMirror-lines",
   "RadioInput": ".t--property-control-options input",
   "checkboxInput": ".t--draggable-checkboxwidget span.t--widget-name",
-  "checkboxLabel": ".t--draggable-checkboxwidget label",
+  "checkboxLabel": ".t--draggable-checkboxwidget .t--checkbox-widget-label",
   "containerD": ".t--widget-containerwidget div.style-container",
   "containerWrapper": "div[data-testid='container-wrapper']",
   "defaultInput": ".t--property-control-defaultvalue .CodeMirror-code",
