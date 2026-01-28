@@ -919,6 +919,58 @@ function CameraComponent(props: CameraComponentProps) {
 
   const isAirgappedInstance = isAirgapped();
 
+  const updateMediaTracksEnabled = useCallback(
+    (stream: MediaStream) => {
+      stream.getAudioTracks()[0].enabled = !isAudioMuted;
+      stream.getVideoTracks()[0].enabled = !isVideoMuted;
+    },
+    [isAudioMuted, isVideoMuted],
+  );
+
+  const handleDataAvailable = useCallback(
+    ({ data }) => {
+      if (data.size > 0) {
+        onRecordingStop(data);
+      }
+    },
+    [onRecordingStop],
+  );
+
+  const resetMedia = useCallback(() => {
+    setIsReadyPlayerTimer(false);
+    reset(0, false);
+
+    if (mode === CameraModeTypes.CAMERA) {
+      setImage(null);
+
+      return;
+    }
+
+    onRecordingStop(null);
+  }, [mode, onRecordingStop, reset, setImage, setIsReadyPlayerTimer]);
+
+  const handlePlayerEnded = useCallback(() => {
+    setMediaCaptureStatus((prevStatus) => {
+      switch (prevStatus) {
+        case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
+          return MediaCaptureStatusTypes.VIDEO_SAVED;
+        default:
+          return MediaCaptureStatusTypes.VIDEO_CAPTURED;
+      }
+    });
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoElementRef.current) {
+      const totalSeconds = Math.ceil(videoElementRef.current.currentTime);
+
+      setPlayerDays(Math.floor(totalSeconds / (60 * 60 * 24)));
+      setPlayerHours(Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60)));
+      setPlayerMinutes(Math.floor((totalSeconds % (60 * 60)) / 60));
+      setPlayerSeconds(Math.floor(totalSeconds % 60));
+    }
+  }, []);
+
   useEffect(
     function syncMediaTracksWithMuteState() {
       if (webcamRef.current && webcamRef.current.stream) {
@@ -1041,14 +1093,6 @@ function CameraComponent(props: CameraComponentProps) {
     [isMobile, videoConstraints],
   );
 
-  const updateMediaTracksEnabled = useCallback(
-    (stream: MediaStream) => {
-      stream.getAudioTracks()[0].enabled = !isAudioMuted;
-      stream.getVideoTracks()[0].enabled = !isVideoMuted;
-    },
-    [isAudioMuted, isVideoMuted],
-  );
-
   const captureImage = useCallback(() => {
     if (webcamRef.current) {
       const capturedImage = webcamRef.current.getScreenshot();
@@ -1056,19 +1100,6 @@ function CameraComponent(props: CameraComponentProps) {
       setImage(capturedImage);
     }
   }, [webcamRef, setImage]);
-
-  const resetMedia = useCallback(() => {
-    setIsReadyPlayerTimer(false);
-    reset(0, false);
-
-    if (mode === CameraModeTypes.CAMERA) {
-      setImage(null);
-
-      return;
-    }
-
-    onRecordingStop(null);
-  }, [mode, onRecordingStop, reset, setImage, setIsReadyPlayerTimer]);
 
   const handleStatusChange = useCallback(
     (status: MediaCaptureStatus) => {
@@ -1100,15 +1131,6 @@ function CameraComponent(props: CameraComponentProps) {
     webcamRef,
   ]);
 
-  const handleDataAvailable = useCallback(
-    ({ data }) => {
-      if (data.size > 0) {
-        onRecordingStop(data);
-      }
-    },
-    [onRecordingStop],
-  );
-
   const handleRecordingStop = useCallback(() => {
     mediaRecorderRef.current?.stop();
     pause();
@@ -1126,28 +1148,6 @@ function CameraComponent(props: CameraComponentProps) {
   const handleVideoPause = () => {
     videoElementRef.current?.pause();
   };
-
-  const handlePlayerEnded = useCallback(() => {
-    setMediaCaptureStatus((prevStatus) => {
-      switch (prevStatus) {
-        case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
-          return MediaCaptureStatusTypes.VIDEO_SAVED;
-        default:
-          return MediaCaptureStatusTypes.VIDEO_CAPTURED;
-      }
-    });
-  }, []);
-
-  const handleTimeUpdate = useCallback(() => {
-    if (videoElementRef.current) {
-      const totalSeconds = Math.ceil(videoElementRef.current.currentTime);
-
-      setPlayerDays(Math.floor(totalSeconds / (60 * 60 * 24)));
-      setPlayerHours(Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60)));
-      setPlayerMinutes(Math.floor((totalSeconds % (60 * 60)) / 60));
-      setPlayerSeconds(Math.floor(totalSeconds % 60));
-    }
-  }, []);
 
   const handleUserMedia = (stream: MediaStream) => {
     updateDeviceInputs();

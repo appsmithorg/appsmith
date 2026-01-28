@@ -20,7 +20,7 @@ export const groupAndSortEntitySegmentList = <T extends EntityItem>(
   return sortBy(
     objectKeys(groups).map((group) => {
       return {
-        group: group,
+        group: String(group),
         items: sortBy(groups[group], "title"),
       };
     }),

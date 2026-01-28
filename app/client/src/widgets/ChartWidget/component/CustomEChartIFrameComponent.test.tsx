@@ -82,7 +82,7 @@ describe("CustomEChartIFrameComponent", () => {
     expect(iFrameElement).toHaveAttribute("sandbox", "allow-scripts");
 
     const overlay = container.querySelector(
-      "div[data-testid='iframe-overlay']",
+      "div[data-testid='t--iframe-overlay']",
     );
 
     expect(overlay).not.toBeInTheDocument();
@@ -101,7 +101,7 @@ describe("CustomEChartIFrameComponent", () => {
     expect(iFrameElement).toBeInTheDocument();
 
     const overlay = container.querySelector(
-      "div[data-testid='iframe-overlay']",
+      "div[data-testid='t--iframe-overlay']",
     );
 
     expect(overlay).toBeInTheDocument();
