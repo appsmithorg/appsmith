@@ -208,7 +208,9 @@ export class UserApi extends Api {
 
   static async getAIApiKey(
     provider: string,
-  ): Promise<AxiosPromise<ApiResponse<{ provider: string; hasApiKey: boolean }>>> {
+  ): Promise<
+    AxiosPromise<ApiResponse<{ provider: string; hasApiKey: boolean }>>
+  > {
     return Api.get(`${UserApi.usersURL}/ai-api-key?provider=${provider}`);
   }
 
@@ -222,7 +224,9 @@ export class UserApi extends Api {
       mode?: string;
       currentValue?: string;
     },
-  ): Promise<AxiosPromise<ApiResponse<{ response: string; provider: string }>>> {
+  ): Promise<
+    AxiosPromise<ApiResponse<{ response: string; provider: string }>>
+  > {
     return Api.post(`${UserApi.usersURL}/ai-assistant/request`, {
       provider,
       prompt,

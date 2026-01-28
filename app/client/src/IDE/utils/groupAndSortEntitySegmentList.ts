@@ -1,4 +1,5 @@
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { objectKeys } from "@appsmith/utils";
 import { groupBy, sortBy } from "lodash";
 
 export type EditorSegmentList<T> = Array<{
@@ -17,7 +18,7 @@ export const groupAndSortEntitySegmentList = <T extends EntityItem>(
 
   // Entity Segment Lists are sorted alphabetically at both group and item level
   return sortBy(
-    Object.keys(groups).map((group) => {
+    objectKeys(groups).map((group) => {
       return {
         group: group,
         items: sortBy(groups[group], "title"),

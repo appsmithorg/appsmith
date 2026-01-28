@@ -236,6 +236,22 @@ const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
       : `none`} !important;
 `;
 
+const IMAGE_CAPTURE_ICON_PROPS = {
+  color: "white",
+  icon: "full-circle" as const,
+};
+const IMAGE_SAVE_ICON_PROPS = { color: "white", icon: "tick" as const };
+const IMAGE_DISCARD_ICON_PROPS = { color: "white", icon: "cross" as const };
+const IMAGE_REFRESH_ICON_PROPS = { color: "white", icon: "refresh" as const };
+const VIDEO_RECORD_ICON_PROPS = {
+  color: "#F22B2B",
+  icon: "full-circle" as const,
+};
+const VIDEO_STOP_ICON_PROPS = { color: "#F22B2B", icon: "stop" as const };
+const VIDEO_PLAY_ICON_PROPS = { color: "white", icon: "play" as const };
+const VIDEO_PAUSE_ICON_PROPS = { color: "white", icon: "pause" as const };
+const CARET_DOWN_ICON_PROPS = { color: "white", icon: "caret-down" as const };
+
 export interface ControlPanelProps {
   mode: CameraMode;
   audioInputs: MediaDeviceInfo[];
@@ -296,30 +312,36 @@ function ControlPanel(props: ControlPanelProps) {
   }, [mode, status]);
 
   // Close the device menu by user click anywhere on the screen when fullscreen is true
-  useEffect(() => {
-    if (fullScreenHandle.active) {
-      const handleClickOutside = () => {
-        if (fullScreenHandle.node.current) {
-          isOpenVideoDeviceMenu && setIsOpenVideoDeviceMenu(false);
-          isOpenAudioDeviceMenu && setIsOpenAudioDeviceMenu(false);
-        }
-      };
+  useEffect(
+    function closeDeviceMenusOnFullscreenClickOutside() {
+      if (fullScreenHandle.active) {
+        const handleClickOutside = () => {
+          if (fullScreenHandle.node.current) {
+            isOpenVideoDeviceMenu && setIsOpenVideoDeviceMenu(false);
+            isOpenAudioDeviceMenu && setIsOpenAudioDeviceMenu(false);
+          }
+        };
 
-      document.addEventListener("click", handleClickOutside, false);
+        document.addEventListener("click", handleClickOutside, false);
 
-      return () => {
-        document.removeEventListener("click", handleClickOutside, false);
-      };
-    }
-  }, [fullScreenHandle, isOpenVideoDeviceMenu, isOpenAudioDeviceMenu]);
+        return () => {
+          document.removeEventListener("click", handleClickOutside, false);
+        };
+      }
+    },
+    [fullScreenHandle, isOpenVideoDeviceMenu, isOpenAudioDeviceMenu],
+  );
 
   // Close the device menu when user exit from full screen mode
-  useEffect(() => {
-    if (fullScreenHandle.active) {
-      setIsOpenVideoDeviceMenu(false);
-      setIsOpenAudioDeviceMenu(false);
-    }
-  }, [fullScreenHandle]);
+  useEffect(
+    function resetDeviceMenusOnFullscreenChange() {
+      if (fullScreenHandle.active) {
+        setIsOpenVideoDeviceMenu(false);
+        setIsOpenAudioDeviceMenu(false);
+      }
+    },
+    [fullScreenHandle],
+  );
 
   const handleOnAudioCaretClick = (isMenuOpen: boolean) => {
     isOpenVideoDeviceMenu && setIsOpenVideoDeviceMenu(false);
@@ -439,7 +461,7 @@ function ControlPanel(props: ControlPanelProps) {
         return (
           <StyledButton
             borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-            icon={<Icon color="white" icon="full-circle" iconSize={20} />}
+            icon={<Icon {...IMAGE_CAPTURE_ICON_PROPS} iconSize={20} />}
             onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_CAPTURE)}
             variant={ButtonVariantTypes.SECONDARY}
           />
@@ -450,13 +472,13 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.SHARP}
-              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              icon={<Icon {...IMAGE_SAVE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_SAVE)}
               variant={ButtonVariantTypes.PRIMARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              icon={<Icon {...IMAGE_DISCARD_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.IMAGE_DISCARD,
               )}
@@ -469,7 +491,7 @@ function ControlPanel(props: ControlPanelProps) {
         return (
           <StyledButton
             borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-            icon={<Icon color="white" icon="refresh" iconSize={20} />}
+            icon={<Icon {...IMAGE_REFRESH_ICON_PROPS} iconSize={20} />}
             onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_REFRESH)}
             variant={ButtonVariantTypes.TERTIARY}
           />
@@ -479,7 +501,7 @@ function ControlPanel(props: ControlPanelProps) {
         return (
           <StyledButton
             borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-            icon={<Icon color="#F22B2B" icon="full-circle" iconSize={20} />}
+            icon={<Icon {...VIDEO_RECORD_ICON_PROPS} iconSize={20} />}
             onClick={handleControlClick(
               MediaCaptureActionTypes.RECORDING_START,
             )}
@@ -492,7 +514,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="#F22B2B" icon="stop" iconSize={20} />}
+              icon={<Icon {...VIDEO_STOP_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_STOP,
               )}
@@ -500,7 +522,7 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              icon={<Icon {...IMAGE_DISCARD_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
@@ -514,7 +536,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.SHARP}
-              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              icon={<Icon {...IMAGE_SAVE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
@@ -522,13 +544,13 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="play" iconSize={20} />}
+              icon={<Icon {...VIDEO_PLAY_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
               variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              icon={<Icon {...IMAGE_DISCARD_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
@@ -542,7 +564,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.SHARP}
-              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              icon={<Icon {...IMAGE_SAVE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
@@ -550,13 +572,13 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="pause" iconSize={20} />}
+              icon={<Icon {...VIDEO_PAUSE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PAUSE)}
               variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              icon={<Icon {...IMAGE_DISCARD_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
@@ -570,7 +592,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.SHARP}
-              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              icon={<Icon {...IMAGE_SAVE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
@@ -578,13 +600,13 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="play" iconSize={20} />}
+              icon={<Icon {...VIDEO_PLAY_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
               variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              icon={<Icon {...IMAGE_DISCARD_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
@@ -598,7 +620,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="play" iconSize={20} />}
+              icon={<Icon {...VIDEO_PLAY_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
               )}
@@ -606,7 +628,7 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              icon={<Icon {...IMAGE_REFRESH_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
@@ -620,7 +642,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="pause" iconSize={20} />}
+              icon={<Icon {...VIDEO_PAUSE_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_PAUSE_AFTER_SAVE,
               )}
@@ -628,7 +650,7 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              icon={<Icon {...IMAGE_REFRESH_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
@@ -642,7 +664,7 @@ function ControlPanel(props: ControlPanelProps) {
           <>
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="play" iconSize={20} />}
+              icon={<Icon {...VIDEO_PLAY_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
               )}
@@ -650,7 +672,7 @@ function ControlPanel(props: ControlPanelProps) {
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              icon={<Icon {...IMAGE_REFRESH_ICON_PROPS} iconSize={20} />}
               onClick={handleControlClick(
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
@@ -820,7 +842,7 @@ function DevicePopover(props: DevicePopoverProps) {
           <Button
             disabled={disabledMenu}
             minimal
-            rightIcon={<Icon color="white" icon="caret-down" />}
+            rightIcon={<Icon {...CARET_DOWN_ICON_PROPS} />}
           />
         </Popover2>
       ) : (
@@ -829,7 +851,7 @@ function DevicePopover(props: DevicePopoverProps) {
             disabled={disabledMenu}
             minimal
             onClick={() => onMenuClick(!isMenuOpen)}
-            rightIcon={<Icon color="white" icon="caret-down" />}
+            rightIcon={<Icon {...CARET_DOWN_ICON_PROPS} />}
           />
           {isMenuOpen && (
             <DeviceMenuContainer>
@@ -897,80 +919,91 @@ function CameraComponent(props: CameraComponentProps) {
 
   const isAirgappedInstance = isAirgapped();
 
-  useEffect(() => {
-    if (webcamRef.current && webcamRef.current.stream) {
-      updateMediaTracksEnabled(webcamRef.current.stream);
-    }
-  }, [isAudioMuted, isVideoMuted]);
+  useEffect(
+    function syncMediaTracksWithMuteState() {
+      if (webcamRef.current && webcamRef.current.stream) {
+        updateMediaTracksEnabled(webcamRef.current.stream);
+      }
+    },
+    [isAudioMuted, isVideoMuted, updateMediaTracksEnabled],
+  );
 
-  useEffect(() => {
-    // Clean up
-    resetMedia();
+  useEffect(
+    function resetMediaOnModeChange() {
+      // Clean up
+      resetMedia();
 
-    if (mode === CameraModeTypes.CAMERA) {
-      setMediaCaptureStatus(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+      if (mode === CameraModeTypes.CAMERA) {
+        setMediaCaptureStatus(MediaCaptureStatusTypes.IMAGE_DEFAULT);
 
-      return;
-    }
+        return;
+      }
 
-    setMediaCaptureStatus(MediaCaptureStatusTypes.VIDEO_DEFAULT);
+      setMediaCaptureStatus(MediaCaptureStatusTypes.VIDEO_DEFAULT);
 
-    return () => {
-      mediaRecorderRef.current?.removeEventListener(
-        "dataavailable",
-        handleDataAvailable,
-      );
-    };
-  }, [mode]);
+      return () => {
+        mediaRecorderRef.current?.removeEventListener(
+          "dataavailable",
+          handleDataAvailable,
+        );
+      };
+    },
+    [handleDataAvailable, mediaRecorderRef, mode, resetMedia],
+  );
 
-  useEffect(() => {
-    onImageCapture(image);
-  }, [image]);
+  useEffect(
+    function notifyImageCapture() {
+      onImageCapture(image);
+    },
+    [image, onImageCapture],
+  );
 
-  useEffect(() => {
-    if (videoBlobURL && videoElementRef.current) {
-      videoElementRef.current.src = videoBlobURL;
-      videoElementRef.current.addEventListener("ended", handlePlayerEnded);
-      videoElementRef.current.addEventListener("timeupdate", handleTimeUpdate);
-    }
+  useEffect(
+    function syncVideoElementWithBlobUrl() {
+      const videoElement = videoElementRef.current;
 
-    return () => {
-      videoElementRef.current?.removeEventListener("ended", handlePlayerEnded);
-      videoElementRef.current?.removeEventListener(
-        "timeupdate",
-        handleTimeUpdate,
-      );
-    };
-  }, [videoBlobURL, videoElementRef.current]);
+      if (videoBlobURL && videoElement) {
+        videoElement.src = videoBlobURL;
+        videoElement.addEventListener("ended", handlePlayerEnded);
+        videoElement.addEventListener("timeupdate", handleTimeUpdate);
+      }
 
-  useEffect(() => {
-    // Set the flags for previewing the captured photo and video
-    const photoReadyStates: MediaCaptureStatus[] = [
-      MediaCaptureStatusTypes.IMAGE_CAPTURED,
-      MediaCaptureStatusTypes.IMAGE_SAVED,
-    ];
-    const videoReadyStates: MediaCaptureStatus[] = [
-      MediaCaptureStatusTypes.VIDEO_CAPTURED,
-      MediaCaptureStatusTypes.VIDEO_PLAYING,
-      MediaCaptureStatusTypes.VIDEO_PAUSED,
-      MediaCaptureStatusTypes.VIDEO_SAVED,
-      MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE,
-      MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE,
-    ];
+      return () => {
+        videoElement?.removeEventListener("ended", handlePlayerEnded);
+        videoElement?.removeEventListener("timeupdate", handleTimeUpdate);
+      };
+    },
+    [handlePlayerEnded, handleTimeUpdate, videoBlobURL],
+  );
 
-    setIsPhotoViewerReady(photoReadyStates.includes(mediaCaptureStatus));
-    setIsVideoPlayerReady(videoReadyStates.includes(mediaCaptureStatus));
-  }, [mediaCaptureStatus]);
+  useEffect(
+    function updateViewerReadyStates() {
+      // Set the flags for previewing the captured photo and video
+      const photoReadyStates: MediaCaptureStatus[] = [
+        MediaCaptureStatusTypes.IMAGE_CAPTURED,
+        MediaCaptureStatusTypes.IMAGE_SAVED,
+      ];
+      const videoReadyStates: MediaCaptureStatus[] = [
+        MediaCaptureStatusTypes.VIDEO_CAPTURED,
+        MediaCaptureStatusTypes.VIDEO_PLAYING,
+        MediaCaptureStatusTypes.VIDEO_PAUSED,
+        MediaCaptureStatusTypes.VIDEO_SAVED,
+        MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE,
+        MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE,
+      ];
+
+      setIsPhotoViewerReady(photoReadyStates.includes(mediaCaptureStatus));
+      setIsVideoPlayerReady(videoReadyStates.includes(mediaCaptureStatus));
+    },
+    [mediaCaptureStatus, setIsPhotoViewerReady, setIsVideoPlayerReady],
+  );
 
   const appLayout = useSelector(getCurrentApplicationLayout);
 
-  const handleDeviceInputs = useCallback(
-    (mediaInputs: MediaDeviceInfo[]) => {
-      setAudioInputs(mediaInputs.filter(({ kind }) => kind === "audioinput"));
-      setVideoInputs(mediaInputs.filter(({ kind }) => kind === "videoinput"));
-    },
-    [setAudioInputs, setVideoInputs],
-  );
+  const handleDeviceInputs = useCallback((mediaInputs: MediaDeviceInfo[]) => {
+    setAudioInputs(mediaInputs.filter(({ kind }) => kind === "audioinput"));
+    setVideoInputs(mediaInputs.filter(({ kind }) => kind === "videoinput"));
+  }, []);
 
   const updateDeviceInputs = useCallback(() => {
     try {
@@ -988,10 +1021,10 @@ function CameraComponent(props: CameraComponentProps) {
   const handleMediaDeviceChange = useCallback(
     (mediaDeviceInfo: MediaDeviceInfo) => {
       if (mediaDeviceInfo.kind === "audioinput") {
-        setAudioConstraints({
-          ...audioConstraints,
+        setAudioConstraints((prev) => ({
+          ...prev,
           deviceId: mediaDeviceInfo.deviceId,
-        });
+        }));
       }
 
       if (mediaDeviceInfo.kind === "videoinput") {
@@ -1005,13 +1038,16 @@ function CameraComponent(props: CameraComponentProps) {
         setVideoConstraints(constraints);
       }
     },
-    [],
+    [isMobile, videoConstraints],
   );
 
-  const updateMediaTracksEnabled = (stream: MediaStream) => {
-    stream.getAudioTracks()[0].enabled = !isAudioMuted;
-    stream.getVideoTracks()[0].enabled = !isVideoMuted;
-  };
+  const updateMediaTracksEnabled = useCallback(
+    (stream: MediaStream) => {
+      stream.getAudioTracks()[0].enabled = !isAudioMuted;
+      stream.getVideoTracks()[0].enabled = !isVideoMuted;
+    },
+    [isAudioMuted, isVideoMuted],
+  );
 
   const captureImage = useCallback(() => {
     if (webcamRef.current) {
@@ -1032,7 +1068,7 @@ function CameraComponent(props: CameraComponentProps) {
     }
 
     onRecordingStop(null);
-  }, [mode]);
+  }, [mode, onRecordingStop, reset, setImage, setIsReadyPlayerTimer]);
 
   const handleStatusChange = useCallback(
     (status: MediaCaptureStatus) => {
@@ -1056,7 +1092,13 @@ function CameraComponent(props: CameraComponentProps) {
       start();
       onRecordingStart();
     }
-  }, [webcamRef, mediaRecorderRef]);
+  }, [
+    handleDataAvailable,
+    mediaRecorderRef,
+    onRecordingStart,
+    start,
+    webcamRef,
+  ]);
 
   const handleDataAvailable = useCallback(
     ({ data }) => {
@@ -1070,7 +1112,7 @@ function CameraComponent(props: CameraComponentProps) {
   const handleRecordingStop = useCallback(() => {
     mediaRecorderRef.current?.stop();
     pause();
-  }, [mediaRecorderRef, webcamRef]);
+  }, [mediaRecorderRef, pause]);
 
   const handleVideoPlay = useCallback(() => {
     if (!isReadyPlayerTimer) {
@@ -1079,13 +1121,13 @@ function CameraComponent(props: CameraComponentProps) {
     }
 
     videoElementRef.current?.play();
-  }, [videoElementRef]);
+  }, [isReadyPlayerTimer, reset, setIsReadyPlayerTimer, videoElementRef]);
 
   const handleVideoPause = () => {
     videoElementRef.current?.pause();
   };
 
-  const handlePlayerEnded = () => {
+  const handlePlayerEnded = useCallback(() => {
     setMediaCaptureStatus((prevStatus) => {
       switch (prevStatus) {
         case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
@@ -1094,9 +1136,9 @@ function CameraComponent(props: CameraComponentProps) {
           return MediaCaptureStatusTypes.VIDEO_CAPTURED;
       }
     });
-  };
+  }, []);
 
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = useCallback(() => {
     if (videoElementRef.current) {
       const totalSeconds = Math.ceil(videoElementRef.current.currentTime);
 
@@ -1105,7 +1147,7 @@ function CameraComponent(props: CameraComponentProps) {
       setPlayerMinutes(Math.floor((totalSeconds % (60 * 60)) / 60));
       setPlayerSeconds(Math.floor(totalSeconds % 60));
     }
-  };
+  }, []);
 
   const handleUserMedia = (stream: MediaStream) => {
     updateDeviceInputs();

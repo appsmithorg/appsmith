@@ -40,52 +40,58 @@ export function CustomEChartIFrameComponent(
   const prevProps = usePrevious(props);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
 
-  const postMessageFn = (data: CustomEChartIFrameMessageData) => {
-    const iFrameWindow = iFrameRef.current?.contentWindow;
+  const postMessageFn = React.useCallback(
+    (data: CustomEChartIFrameMessageData) => {
+      const iFrameWindow = iFrameRef.current?.contentWindow;
 
-    iFrameWindow?.postMessage(data, "*");
-  };
+      iFrameWindow?.postMessage(data, "*");
+    },
+    [],
+  );
 
-  const onMessage = (event: MessageEvent) => {
-    const iFrameWindow = iFrameRef.current?.contentWindow;
+  const onMessage = React.useCallback(
+    (event: MessageEvent) => {
+      const iFrameWindow = iFrameRef.current?.contentWindow;
 
-    if (!iFrameWindow || event.source != iFrameWindow) {
-      return;
-    }
-
-    const message: CustomEChartIFrameMessage = event.data;
-
-    switch (message.type) {
-      case "click-event": {
-        const messageData: CustomEChartClickEventData =
-          message.data as CustomEChartClickEventData;
-
-        dataClickCallbackHelper(messageData.event, props, "CUSTOM_ECHART");
-        break;
-      }
-      case "load-complete": {
-        postMessageFn({
-          options: chartOptions("CUSTOM_ECHART", props),
-          shouldUpdateOptions: true,
-          shouldResize: false,
-          width: props.dimensions.componentWidth,
-          height: props.dimensions.componentHeight,
-        });
-        break;
-      }
-      case "error": {
-        const errorMessage: CustomEChartErrorData =
-          message.data as CustomEChartErrorData;
-
-        setErrorMsg(errorMessage.message);
-        setErrorStack(errorMessage.stack);
-        break;
-      }
-      default: {
+      if (!iFrameWindow || event.source != iFrameWindow) {
         return;
       }
-    }
-  };
+
+      const message: CustomEChartIFrameMessage = event.data;
+
+      switch (message.type) {
+        case "click-event": {
+          const messageData: CustomEChartClickEventData =
+            message.data as CustomEChartClickEventData;
+
+          dataClickCallbackHelper(messageData.event, props, "CUSTOM_ECHART");
+          break;
+        }
+        case "load-complete": {
+          postMessageFn({
+            options: chartOptions("CUSTOM_ECHART", props),
+            shouldUpdateOptions: true,
+            shouldResize: false,
+            width: props.dimensions.componentWidth,
+            height: props.dimensions.componentHeight,
+          });
+          break;
+        }
+        case "error": {
+          const errorMessage: CustomEChartErrorData =
+            message.data as CustomEChartErrorData;
+
+          setErrorMsg(errorMessage.message);
+          setErrorStack(errorMessage.stack);
+          break;
+        }
+        default: {
+          return;
+        }
+      }
+    },
+    [postMessageFn, props],
+  );
 
   function shouldResizeECharts(
     echartsInstance: echarts.ECharts,
@@ -249,43 +255,54 @@ export function CustomEChartIFrameComponent(
         </body>
         `;
 
-  useEffect(() => {
-    window.addEventListener("message", onMessage);
+  useEffect(
+    function subscribeToWindowMessages() {
+      window.addEventListener("message", onMessage);
 
-    return () => {
-      window.removeEventListener("message", onMessage);
-    };
-  });
+      return () => {
+        window.removeEventListener("message", onMessage);
+      };
+    },
+    [onMessage],
+  );
 
-  useEffect(() => {
-    let shouldUpdateOptions = true;
+  useEffect(
+    function syncCustomEChartConfig() {
+      let shouldUpdateOptions = true;
 
-    const propsEqual = equal(
-      prevProps?.customEChartConfig,
-      props.customEChartConfig,
-    );
+      const propsEqual = equal(
+        prevProps?.customEChartConfig,
+        props.customEChartConfig,
+      );
 
-    if (errorMsg) {
-      if (propsEqual) {
-        shouldUpdateOptions = false;
+      if (errorMsg) {
+        if (propsEqual) {
+          shouldUpdateOptions = false;
+        } else {
+          setErrorMsg(undefined);
+          setErrorStack(undefined);
+        }
       } else {
-        setErrorMsg(undefined);
-        setErrorStack(undefined);
+        if (propsEqual) {
+          shouldUpdateOptions = false;
+        }
       }
-    } else {
-      if (propsEqual) {
-        shouldUpdateOptions = false;
-      }
-    }
 
-    postMessageFn({
-      options: chartOptions("CUSTOM_ECHART", props),
-      shouldUpdateOptions: shouldUpdateOptions,
-      shouldResize: true,
-      width: props.dimensions.componentWidth,
-      height: props.dimensions.componentHeight,
-    });
-  });
+      postMessageFn({
+        options: chartOptions("CUSTOM_ECHART", props),
+        shouldUpdateOptions: shouldUpdateOptions,
+        shouldResize: true,
+        width: props.dimensions.componentWidth,
+        height: props.dimensions.componentHeight,
+      });
+    },
+    [errorMsg, postMessageFn, prevProps?.customEChartConfig, props],
+  );
+
+  const iframeStyle = React.useMemo(
+    () => ({ height: "100%", width: "100%" }),
+    [],
+  );
 
   return (
     <>
@@ -299,9 +316,9 @@ export function CustomEChartIFrameComponent(
             sandbox="allow-scripts"
             scrolling="no"
             srcDoc={defaultHTMLSrcDoc}
-            style={{ height: "100%", width: "100%" }}
+            style={iframeStyle}
           />
-          {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
+          {props.needsOverlay && <OverlayDiv data-testid="t--iframe-overlay" />}
         </>
       )}
     </>

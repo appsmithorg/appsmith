@@ -253,6 +253,12 @@ class CategorySliderWidget extends BaseWidget<
     }
   };
 
+  getSliderTooltip = (val: number) => {
+    const { sliderOptions } = this.getSliderOptions();
+
+    return sliderOptions.find((option) => option.value === val)?.label || "";
+  };
+
   getWidgetView() {
     const { sliderOptions, stepSize } = this.getSliderOptions();
 
@@ -280,9 +286,7 @@ class CategorySliderWidget extends BaseWidget<
         onChangeEnd={this.onChangeEnd}
         showMarksLabel={this.props.showMarksLabel || sliderOptions.length === 0}
         sliderSize={this.props.sliderSize || "m"}
-        sliderTooltip={(val: number) =>
-          sliderOptions.find((option) => option.value === val)?.label || ""
-        }
+        sliderTooltip={this.getSliderTooltip}
         sliderValue={sliderValue || stepSize}
         step={stepSize}
         tooltipAlwaysOn={false}

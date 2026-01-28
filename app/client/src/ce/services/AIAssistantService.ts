@@ -1,4 +1,4 @@
-import type { AIEditorContext } from "ce/components/editorComponents/GPT";
+import type { AIEditorContext } from "ee/components/editorComponents/GPT";
 
 export interface AIRequestPayload {
   prompt: string;
@@ -58,10 +58,10 @@ export class AIAssistantService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      const errorMessage = error.error?.message || "Failed to get AI response";
       if (response.status === 401 || response.status === 403) {
-        throw new Error("Invalid API key. Please check your API key in settings.");
+        throw new Error(
+          "Invalid API key. Please check your API key in settings.",
+        );
       } else if (response.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       } else {
@@ -70,6 +70,7 @@ export class AIAssistantService {
     }
 
     const data = await response.json();
+
     return data.content[0]?.text || "";
   }
 
@@ -106,9 +107,10 @@ export class AIAssistantService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
       if (response.status === 401 || response.status === 403) {
-        throw new Error("Invalid API key. Please check your API key in settings.");
+        throw new Error(
+          "Invalid API key. Please check your API key in settings.",
+        );
       } else if (response.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       } else {
@@ -117,6 +119,7 @@ export class AIAssistantService {
     }
 
     const data = await response.json();
+
     return data.choices[0]?.message?.content || "";
   }
 
@@ -141,9 +144,11 @@ Consider the datasource type and ensure the query is syntactically correct.`;
     if (context.functionName) {
       contextInfo += `Function: ${context.functionName}\n`;
     }
+
     if (context.functionString) {
       contextInfo += `Current function code:\n\`\`\`\n${context.functionString}\n\`\`\`\n`;
     }
+
     if (context.cursorLineNumber !== undefined) {
       contextInfo += `Cursor at line: ${context.cursorLineNumber + 1}\n`;
     }

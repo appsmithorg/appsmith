@@ -41,6 +41,10 @@ class AppErrorBoundary extends Component {
     });
   }
 
+  handleRetry = () => {
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -53,7 +57,7 @@ class AppErrorBoundary extends Component {
               If the issue persists, please contact us
             </p>
             <br />
-            <Button onClick={() => window.location.reload()} size="md">
+            <Button onClick={this.handleRetry} size="md">
               Retry
             </Button>
           </div>
