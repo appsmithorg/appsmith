@@ -46,6 +46,7 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.HashSet;
@@ -349,9 +350,11 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "031-a", id = "create-system-themes-v3", author = "", runAlways = true)
     public void createSystemThemes3(MongoTemplate mongoTemplate) throws IOException {
 
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset());
+        final String themesJson;
+        try (InputStream inputStream =
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream()) {
+            themesJson = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
+        }
 
         Theme[] themes = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())

@@ -64,6 +64,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -590,8 +591,11 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            3. Store the data in the application resource format
         */
         log.debug("Going to fetch template application");
-        final String jsonContent = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource(filePath).getInputStream(), Charset.defaultCharset());
+        final String jsonContent;
+        try (InputStream inputStream =
+                new DefaultResourceLoader().getResource(filePath).getInputStream()) {
+            jsonContent = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
+        }
 
         return gson.fromJson(jsonContent, ApplicationJson.class);
     }
