@@ -1,5 +1,5 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface UpdateAISettingsPayload {
   provider?: string;

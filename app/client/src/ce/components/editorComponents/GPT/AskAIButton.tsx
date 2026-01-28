@@ -5,7 +5,7 @@ import type {
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { useSelector } from "react-redux";
-import { getIsAIEnabled } from "ce/selectors/aiAssistantSelectors";
+import { getIsAIEnabled } from "ee/selectors/aiAssistantSelectors";
 
 interface AskAIButtonProps {
   mode: TEditorModes;
