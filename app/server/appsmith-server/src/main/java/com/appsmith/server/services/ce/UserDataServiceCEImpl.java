@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
@@ -409,5 +410,53 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     }
                     return authorProfile;
                 });
+    }
+
+    @Override
+    public Mono<UserData> updateAIApiKey(String provider, String apiKey) {
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "API key cannot be empty"));
+        }
+
+        if (apiKey.length() > 500) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "API key is too long"));
+        }
+
+        AIProvider providerEnum;
+        try {
+            providerEnum = AIProvider.valueOf(provider.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider));
+        }
+
+        return getForCurrentUser().flatMap(userData -> {
+            if (providerEnum == AIProvider.CLAUDE) {
+                userData.setClaudeApiKey(apiKey.trim());
+                userData.setAiProvider(AIProvider.CLAUDE);
+            } else if (providerEnum == AIProvider.OPENAI) {
+                userData.setOpenaiApiKey(apiKey.trim());
+                userData.setAiProvider(AIProvider.OPENAI);
+            }
+            return repository.save(userData);
+        });
+    }
+
+    @Override
+    public Mono<String> getAIApiKey(String provider) {
+        AIProvider providerEnum;
+        try {
+            providerEnum = AIProvider.valueOf(provider.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider));
+        }
+
+        return getForCurrentUser().map(userData -> {
+            if (providerEnum == AIProvider.CLAUDE) {
+                return userData.getClaudeApiKey();
+            } else if (providerEnum == AIProvider.OPENAI) {
+                return userData.getOpenaiApiKey();
+            }
+            return null;
+        });
     }
 }

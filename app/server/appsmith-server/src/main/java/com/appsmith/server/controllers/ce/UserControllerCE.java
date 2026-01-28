@@ -4,19 +4,25 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.AIRequestDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UpdateAIApiKeyDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.ce.AIAssistantServiceCE;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,6 +43,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +58,7 @@ public class UserControllerCE {
     private final UserSignup userSignup;
     private final UserDataService userDataService;
     private final UserAndAccessManagementService userAndAccessManagementService;
+    private final AIAssistantServiceCE aiAssistantService;
 
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
@@ -205,5 +213,59 @@ public class UserControllerCE {
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
         return service.verifyEmailVerificationToken(exchange);
+    }
+
+    @Deprecated(forRemoval = true, since = "v1.0")
+    @JsonView(Views.Public.class)
+    @PutMapping("/ai-api-key")
+    public Mono<ResponseDTO<UserData>> updateAIApiKey(
+            @RequestParam String provider, @RequestBody @Valid UpdateAIApiKeyDTO request) {
+        return userDataService
+                .updateAIApiKey(provider, request.getApiKey())
+                .map(userData -> new ResponseDTO<>(HttpStatus.OK, userData));
+    }
+
+    @Deprecated(forRemoval = true, since = "v1.0")
+    @JsonView(Views.Public.class)
+    @GetMapping("/ai-api-key")
+    public Mono<ResponseDTO<Map<String, Object>>> getAIApiKey(@RequestParam String provider) {
+        return userDataService
+                .getAIApiKey(provider)
+                .map(apiKey -> {
+                    Map<String, Object> response = new java.util.HashMap<>();
+                    response.put("provider", provider);
+                    response.put("hasApiKey", apiKey != null && !apiKey.isEmpty());
+                    return response;
+                })
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/ai-assistant/request")
+    public Mono<ResponseDTO<Map<String, String>>> requestAIResponse(@RequestBody @Valid AIRequestDTO request) {
+        return aiAssistantService
+                .getAIResponse(request.getProvider(), request.getPrompt(), request.getContext())
+                .map(response -> {
+                    Map<String, String> result = new HashMap<>();
+                    result.put("response", response);
+                    result.put("provider", request.getProvider());
+                    return result;
+                })
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
+                .onErrorResume(error -> {
+                    String errorMessage = "Failed to get AI response";
+                    if (error instanceof AppsmithException) {
+                        AppsmithException appsmithError = (AppsmithException) error;
+                        if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
+                            errorMessage = "Invalid API key. Please check your API key in settings.";
+                        } else if (appsmithError.getError().getMessage().contains("Rate limit")) {
+                            errorMessage = "Rate limit exceeded. Please try again later.";
+                        } else {
+                            errorMessage = appsmithError.getError().getMessage();
+                        }
+                    }
+                    return Mono.just(
+                            new ResponseDTO<Map<String, String>>(HttpStatus.BAD_REQUEST.value(), null, errorMessage));
+                });
     }
 }

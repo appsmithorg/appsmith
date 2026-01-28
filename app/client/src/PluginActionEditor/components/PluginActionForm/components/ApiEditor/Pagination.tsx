@@ -21,6 +21,21 @@ interface PaginationProps {
   paginationType: PaginationType;
   theme?: EditorTheme;
 }
+
+const PAGINATION_TYPE_OPTIONS = [
+  {
+    label: "None",
+    value: PaginationType.NONE,
+  },
+  {
+    label: "Paginate with table page number",
+    value: PaginationType.PAGE_NO,
+  },
+  {
+    label: "Paginate with response URL",
+    value: PaginationType.URL,
+  },
+];
 const PaginationFieldWrapper = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
@@ -96,120 +111,108 @@ const GifContainer = styled.div`
 `;
 
 export default function Pagination(props: PaginationProps) {
+  const handlePrevTestClick = React.useCallback(() => {
+    props.onTestClick("PREV");
+  }, [props]);
+
+  const handleNextTestClick = React.useCallback(() => {
+    props.onTestClick("NEXT");
+  }, [props]);
+
+  const selectedOptionElements = React.useMemo(
+    () => [
+      null,
+      <PaginationTypeView key={PaginationType.PAGE_NO}>
+        <div>
+          <StepTitle>
+            <Text type={TextType.P1}>1. Configure table for pagination</Text>
+          </StepTitle>
+          <StepTitle>
+            <Text type={TextType.P1}>2. Configure request parameters</Text>
+          </StepTitle>
+          <Step type={TextType.P1}>
+            1. Map appropriate parameter or header in your request to
+            UsersTable’s page number property
+          </Step>
+          <Example type={TextType.P2}>
+            Example - Map key <i>pageNo</i> or similar to value
+          </Example>
+          <BindingKey>
+            <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
+          </BindingKey>
+        </div>
+      </PaginationTypeView>,
+      <PaginationTypeView key={PaginationType.URL}>
+        <div>
+          <StepTitle>
+            <Text type={TextType.P1}>1. Configure table for pagination</Text>
+          </StepTitle>
+          <StepTitle>
+            <Text type={TextType.P1}>2. Configure Request Parameters</Text>
+          </StepTitle>
+          <Step type={TextType.P1}>Configure next and previous URL </Step>
+          <Step type={TextType.P1}>Previous URL</Step>
+          <PaginationFieldWrapper
+            data-location-id={btoa("actionConfiguration.prev")}
+          >
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              className="t--apiFormPaginationPrev"
+              evaluatedPopUpLabel="Previous URL"
+              fill={!!true}
+              focusElementName={`${props.actionName}.actionConfiguration.prev`}
+              height="100%"
+              name="actionConfiguration.prev"
+              theme={props.theme}
+            />
+            <Button
+              className="t--apiFormPaginationPrevTest"
+              kind="secondary"
+              onClick={handlePrevTestClick}
+              size="md"
+            >
+              Test
+            </Button>
+          </PaginationFieldWrapper>
+          <Step type={TextType.P1}>Next URL</Step>
+          <PaginationFieldWrapper
+            data-location-id={btoa("actionConfiguration.next")}
+          >
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              className="t--apiFormPaginationNext"
+              evaluatedPopUpLabel="Next URL"
+              fill={!!true}
+              focusElementName={`${props.actionName}.actionConfiguration.next`}
+              height="100%"
+              name="actionConfiguration.next"
+              theme={props.theme}
+            />
+            <Button
+              className="t--apiFormPaginationNextTest"
+              kind="secondary"
+              onClick={handleNextTestClick}
+              size="md"
+            >
+              Test
+            </Button>
+          </PaginationFieldWrapper>
+        </div>
+      </PaginationTypeView>,
+    ],
+    [handleNextTestClick, handlePrevTestClick, props.actionName, props.theme],
+  );
+
   return (
     <PaginationSection>
       <FormRow>
         <RadioFieldGroup
           className="t--apiFormPaginationType"
           name="actionConfiguration.paginationType"
-          options={[
-            {
-              label: "None",
-              value: PaginationType.NONE,
-            },
-            {
-              label: "Paginate with table page number",
-              value: PaginationType.PAGE_NO,
-            },
-            {
-              label: "Paginate with response URL",
-              value: PaginationType.URL,
-            },
-          ]}
+          options={PAGINATION_TYPE_OPTIONS}
           placeholder="Method"
           rows={3}
-          selectedOptionElements={[
-            null,
-            <PaginationTypeView key={PaginationType.PAGE_NO}>
-              <div>
-                <StepTitle>
-                  <Text type={TextType.P1}>
-                    1. Configure table for pagination
-                  </Text>
-                </StepTitle>
-                <StepTitle>
-                  <Text type={TextType.P1}>
-                    2. Configure request parameters
-                  </Text>
-                </StepTitle>
-                <Step type={TextType.P1}>
-                  1. Map appropriate parameter or header in your request to
-                  UsersTable’s page number property
-                </Step>
-                <Example type={TextType.P2}>
-                  Example - Map key <i>pageNo</i> or similar to value
-                </Example>
-                <BindingKey>
-                  <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
-                </BindingKey>
-              </div>
-            </PaginationTypeView>,
-            <PaginationTypeView key={PaginationType.URL}>
-              <div>
-                <StepTitle>
-                  <Text type={TextType.P1}>
-                    1. Configure table for pagination
-                  </Text>
-                </StepTitle>
-                <StepTitle>
-                  <Text type={TextType.P1}>
-                    2. Configure Request Parameters
-                  </Text>
-                </StepTitle>
-                <Step type={TextType.P1}>Configure next and previous URL </Step>
-                <Step type={TextType.P1}>Previous URL</Step>
-                <PaginationFieldWrapper
-                  data-location-id={btoa("actionConfiguration.prev")}
-                >
-                  <DynamicTextField
-                    border={CodeEditorBorder.ALL_SIDE}
-                    className="t--apiFormPaginationPrev"
-                    evaluatedPopUpLabel="Previous URL"
-                    fill={!!true}
-                    focusElementName={`${props.actionName}.actionConfiguration.prev`}
-                    height="100%"
-                    name="actionConfiguration.prev"
-                    theme={props.theme}
-                  />
-                  <Button
-                    className="t--apiFormPaginationPrevTest"
-                    kind="secondary"
-                    onClick={() => {
-                      props.onTestClick("PREV");
-                    }}
-                    size="md"
-                  >
-                    Test
-                  </Button>
-                </PaginationFieldWrapper>
-                <Step type={TextType.P1}>Next URL</Step>
-                <PaginationFieldWrapper
-                  data-location-id={btoa("actionConfiguration.next")}
-                >
-                  <DynamicTextField
-                    border={CodeEditorBorder.ALL_SIDE}
-                    className="t--apiFormPaginationNext"
-                    evaluatedPopUpLabel="Next URL"
-                    fill={!!true}
-                    focusElementName={`${props.actionName}.actionConfiguration.next`}
-                    height="100%"
-                    name="actionConfiguration.next"
-                    theme={props.theme}
-                  />
-                  <Button
-                    className="t--apiFormPaginationNextTest"
-                    kind="secondary"
-                    onClick={() => {
-                      props.onTestClick("NEXT");
-                    }}
-                    size="md"
-                  >
-                    Test
-                  </Button>
-                </PaginationFieldWrapper>
-              </div>
-            </PaginationTypeView>,
-          ]}
+          selectedOptionElements={selectedOptionElements}
         />
       </FormRow>
       {props.paginationType !== PaginationType.NONE ? (

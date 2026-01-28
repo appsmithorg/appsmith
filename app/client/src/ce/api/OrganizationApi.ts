@@ -20,6 +20,20 @@ export interface UpdateOrganizationConfigRequest {
   apiConfig?: AxiosRequestConfig;
 }
 
+export interface AIConfigResponse {
+  isAIAssistantEnabled: boolean;
+  provider: string | null;
+  hasClaudeApiKey: boolean;
+  hasOpenaiApiKey: boolean;
+}
+
+export interface AIConfigRequest {
+  claudeApiKey?: string;
+  openaiApiKey?: string;
+  provider: string;
+  isAIAssistantEnabled: boolean;
+}
+
 export type FetchMyOrganizationsResponse = ApiResponse<{
   organizations: Organization[];
 }>;
@@ -58,6 +72,18 @@ export class OrganizationApi extends Api {
     AxiosPromise<FetchMyOrganizationsResponse>
   > {
     return Api.get(`${OrganizationApi.meUrl}/organizations`);
+  }
+
+  static async getAIConfig(): Promise<
+    AxiosPromise<ApiResponse<AIConfigResponse>>
+  > {
+    return Api.get(`${OrganizationApi.tenantsUrl}/ai-config`);
+  }
+
+  static async updateAIConfig(
+    request: AIConfigRequest,
+  ): Promise<AxiosPromise<ApiResponse<AIConfigResponse>>> {
+    return Api.put(`${OrganizationApi.tenantsUrl}/ai-config`, request);
   }
 }
 

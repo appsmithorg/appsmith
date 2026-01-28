@@ -8,9 +8,12 @@ export const useCurrentAppState = () => {
   const { pathname } = useLocation();
   const entityInfo = identifyEntityFromPath(pathname);
 
-  useEffect(() => {
-    setAppState(entityInfo.appState);
-  }, [entityInfo.appState]);
+  useEffect(
+    function updateCurrentAppState() {
+      setAppState(entityInfo.appState);
+    },
+    [entityInfo.appState],
+  );
 
   return appState;
 };

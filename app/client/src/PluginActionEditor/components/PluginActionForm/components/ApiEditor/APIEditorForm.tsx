@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import CommonEditorForm from "../CommonEditorForm";
 import { usePluginActionContext } from "../../../../PluginActionContext";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -27,32 +27,49 @@ const APIEditorForm = () => {
     action.userPermissions,
   );
 
-  const onTestClick = () => {
+  const onTestClick = useCallback(() => {
     callRunActionAnalytics();
     handleRunClick();
-  };
+  }, [callRunActionAnalytics, handleRunClick]);
+
+  const bodyUIComponent = useMemo(
+    () => (
+      <PostBodyData
+        dataTreePath={`${action.name}.config`}
+        theme={EditorTheme.LIGHT}
+      />
+    ),
+    [action.name],
+  );
+
+  const paginationUiComponent = useMemo(
+    () => (
+      <Pagination
+        actionName={action.name}
+        onTestClick={onTestClick}
+        paginationType={action.actionConfiguration.paginationType}
+        theme={theme}
+      />
+    ),
+    [
+      action.actionConfiguration.paginationType,
+      action.name,
+      onTestClick,
+      theme,
+    ],
+  );
 
   return (
     <CommonEditorForm
       action={action}
-      bodyUIComponent={
-        <PostBodyData
-          dataTreePath={`${action.name}.config`}
-          theme={EditorTheme.LIGHT}
-        />
-      }
+      // eslint-disable-next-line react-perf/jsx-no-jsx-as-prop
+      bodyUIComponent={bodyUIComponent}
       dataTestId="t--api-editor-form"
       formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}
-      paginationUiComponent={
-        <Pagination
-          actionName={action.name}
-          onTestClick={onTestClick}
-          paginationType={action.actionConfiguration.paginationType}
-          theme={theme}
-        />
-      }
+      // eslint-disable-next-line react-perf/jsx-no-jsx-as-prop
+      paginationUiComponent={paginationUiComponent}
     />
   );
 };

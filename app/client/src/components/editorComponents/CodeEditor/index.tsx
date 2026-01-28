@@ -139,6 +139,7 @@ import { AIWindow } from "ee/components/editorComponents/GPT";
 import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
 import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
+import { getHasAIApiKey } from "ee/selectors/aiAssistantSelectors";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -333,12 +334,12 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
-    /**
-     * Decides if AI is enabled by looking at repo, feature flags, props and environment
-     */
     this.AIEnabled =
-      isAIEnabled(this.props.featureFlags, this.props.mode) &&
-      Boolean(this.props.AIAssisted);
+      isAIEnabled(
+        this.props.featureFlags,
+        this.props.mode,
+        this.props.hasAIApiKey,
+      ) && Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -1885,6 +1886,7 @@ const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
     datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
     installedLibraries: selectInstalledLibraries(state),
     focusedProperty: getFocusablePropertyPaneField(state),
+    hasAIApiKey: getHasAIApiKey(state),
   };
 };
 

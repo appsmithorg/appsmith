@@ -1,9 +1,9 @@
 import { Button, Text } from "@appsmith/ads";
-import FormControl from "pages/Editor/FormControl";
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { change } from "redux-form";
 import styled from "styled-components";
+import FormControlFactory from "utils/formControl/FormControlFactory";
 import type { FunctionCallingEntityType } from "../types";
 import FunctionCallingMenuField from "./FunctionCallingMenuField";
 
@@ -86,6 +86,24 @@ export const FunctionCallingConfigToolField = ({
     [props.fieldPath, props.formName],
   );
 
+  const renderFormControl = useCallback(
+    (config: {
+      controlType: string;
+      configProperty: string;
+      formName: string;
+      id: string;
+      [key: string]: unknown;
+    }) =>
+      FormControlFactory.createControl(
+        {
+          ...config,
+          formName: props.formName,
+        } as never,
+        props.formName,
+      ),
+    [props.formName],
+  );
+
   return (
     <ConfigItemRoot>
       <ConfigItemRow>
@@ -107,12 +125,9 @@ export const FunctionCallingConfigToolField = ({
             onValueChange={handleFunctionChange}
           />
         </ConfigItemSelectWrapper>
-        <FormControl config={ApprovalSwitchConfig} formName={props.formName} />
+        {renderFormControl(ApprovalSwitchConfig)}
       </ConfigItemRow>
-      <FormControl
-        config={FunctionDescriptionInputConfig}
-        formName={props.formName}
-      />
+      {renderFormControl(FunctionDescriptionInputConfig)}
     </ConfigItemRoot>
   );
 };

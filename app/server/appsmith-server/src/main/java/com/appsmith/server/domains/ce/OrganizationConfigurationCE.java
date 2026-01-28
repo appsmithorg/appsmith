@@ -1,11 +1,15 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
@@ -63,6 +67,20 @@ public class OrganizationConfigurationCE implements Serializable {
 
     private Boolean isAtomicPushAllowed = false;
 
+    @JsonView(Views.Internal.class)
+    @Encrypted private String claudeApiKey;
+
+    @JsonView(Views.Internal.class)
+    @Encrypted private String openaiApiKey;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private AIProvider aiProvider;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private Boolean isAIAssistantEnabled = false;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -90,6 +108,11 @@ public class OrganizationConfigurationCE implements Serializable {
         migrationStatus = organizationConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
+        claudeApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeApiKey(), claudeApiKey);
+        openaiApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiApiKey(), openaiApiKey);
+        aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
+        isAIAssistantEnabled =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {

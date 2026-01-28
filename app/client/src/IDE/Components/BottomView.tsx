@@ -91,15 +91,18 @@ const ViewHide = (props: ViewHideProps) => {
       : "arrow-down-s-line";
   });
 
-  useEffect(() => {
-    if (props.hideBehaviour === ViewHideBehaviour.COLLAPSE) {
-      if (props.isHidden) {
-        setIcon("arrow-up-s-line");
-      } else {
-        setIcon("arrow-down-s-line");
+  useEffect(
+    function updateViewHideIcon() {
+      if (props.hideBehaviour === ViewHideBehaviour.COLLAPSE) {
+        if (props.isHidden) {
+          setIcon("arrow-up-s-line");
+        } else {
+          setIcon("arrow-down-s-line");
+        }
       }
-    }
-  }, [props.isHidden]);
+    },
+    [props.hideBehaviour, props.isHidden],
+  );
 
   return (
     <ViewHideButton
@@ -119,17 +122,20 @@ const BottomView = (props: Props) => {
   const { className = "" } = props;
 
   // Handle the height of the view when toggling the hidden state
-  useEffect(() => {
-    const panel = panelRef.current;
+  useEffect(
+    function syncPanelHeightWithVisibility() {
+      const panel = panelRef.current;
 
-    if (!panel) return;
+      if (!panel) return;
 
-    if (props.hidden) {
-      panel.style.height = MIN_HEIGHT[props.behaviour];
-    } else {
-      panel.style.height = `${props.height}px`;
-    }
-  }, [props.hidden, props.behaviour]);
+      if (props.hidden) {
+        panel.style.height = MIN_HEIGHT[props.behaviour];
+      } else {
+        panel.style.height = `${props.height}px`;
+      }
+    },
+    [props.behaviour, props.height, props.hidden],
+  );
 
   return (
     <Container
