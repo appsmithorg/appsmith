@@ -142,7 +142,9 @@ describe(
 
     it("7. Input label renders if label prop is not empty", () => {
       //Input label wrapper do not show if lable and tooltip is empty
-      cy.get("[data-testid='label-container']").should("not.exist");
+      cy.get(
+        `${publish.inputWidget} [data-testid='label-container']`,
+      ).should("not.exist");
 
       cy.openPropertyPane("inputwidgetv2");
       // enter label in property pan
