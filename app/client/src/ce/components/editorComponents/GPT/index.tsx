@@ -4,7 +4,7 @@ import type {
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type CodeMirror from "codemirror";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Text } from "@appsmith/ads";
@@ -129,11 +129,7 @@ export function AIWindow(props: TAIWrapperProps) {
     [lastResponse, update],
   );
 
-  if (!enableAIAssistance || !isOpen) {
-    return children as React.ReactElement;
-  }
-
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!prompt.trim()) return;
 
     const cursorPosition = editor.getCursor();
@@ -152,14 +148,29 @@ export function AIWindow(props: TAIWrapperProps) {
         },
       }),
     );
-  };
+  }, [currentValue, dispatch, editor, mode, prompt]);
 
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     if (lastResponse && update) {
       update(lastResponse);
       onOpenChanged(false);
     }
-  };
+  }, [lastResponse, onOpenChanged, update]);
+
+  const handleClose = useCallback(() => {
+    onOpenChanged(false);
+  }, [onOpenChanged]);
+
+  const handlePromptChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setPrompt(event.target.value);
+    },
+    [],
+  );
+
+  if (!enableAIAssistance || !isOpen) {
+    return children as React.ReactElement;
+  }
 
   return (
     <>
@@ -167,11 +178,7 @@ export function AIWindow(props: TAIWrapperProps) {
       <AIWindowContainer isOpen={isOpen}>
         <AIWindowHeader>
           <Text kind="heading-s">AI Assistant</Text>
-          <Button
-            kind="tertiary"
-            onClick={() => onOpenChanged(false)}
-            size="sm"
-          >
+          <Button kind="tertiary" onClick={handleClose} size="sm">
             Close
           </Button>
         </AIWindowHeader>
@@ -188,9 +195,7 @@ export function AIWindow(props: TAIWrapperProps) {
           </ResponseArea>
           <InputArea>
             <PromptTextarea
-              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setPrompt(event.target.value)
-              }
+              onChange={handlePromptChange}
               placeholder="Describe what you want the code to do..."
               rows={3}
               value={prompt}
