@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.0.1-jre</version>
+            <version>33.5.0-jre</version>
         </dependency>
 
         <!--
