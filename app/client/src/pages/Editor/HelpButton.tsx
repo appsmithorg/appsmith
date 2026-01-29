@@ -40,8 +40,10 @@ import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
-const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { appVersion, betterbugs, cloudHosting, intercomAppID } =
+  getAppsmithConfigs();
 
 const HelpFooter = styled.div`
   display: flex;
@@ -86,12 +88,15 @@ let HELP_MENU_ITEMS: HelpItem[] = [
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
-  {
+];
+
+if (betterbugs.enabled && !isAirgapped()) {
+  HELP_MENU_ITEMS.push({
     icon: "support",
     label: "Send support info",
     id: "betterbugs-trigger",
-  },
-];
+  });
+}
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({

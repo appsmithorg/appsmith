@@ -4,6 +4,7 @@ import log from "loglevel";
 import store from "store";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 interface BetterbugsInstance {
   destroy?: () => void;
@@ -37,6 +38,12 @@ class BetterbugsUtil {
 
     if (this.instance) {
       log.warn("BetterBugs is already initialised.");
+
+      return;
+    }
+
+    if (!betterbugs.enabled || isAirgapped()) {
+      log.warn("BetterBugs is disabled.");
 
       return;
     }
@@ -86,6 +93,12 @@ class BetterbugsUtil {
   }
 
   public static async show(user?: User) {
+    if (isAirgapped() || !getAppsmithConfigs().betterbugs.enabled) {
+      log.warn("BetterBugs is disabled.");
+
+      return;
+    }
+
     // Destroy existing instance to clear previous state
     if (this.instance) {
       this.destroy();

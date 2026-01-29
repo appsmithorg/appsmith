@@ -44,7 +44,7 @@ import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
 
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { betterbugs, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
   display: flex;
@@ -144,14 +144,16 @@ const HomepageHeaderAction = ({
                 >
                   {createMessage(DOCUMENTATION)}
                 </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    BetterbugsUtil.show(user);
-                  }}
-                  startIcon="support"
-                >
-                  {createMessage(SEND_SUPPORT_INFO)}
-                </MenuItem>
+                {betterbugs.enabled && !isAirgapped() && (
+                  <MenuItem
+                    onClick={() => {
+                      BetterbugsUtil.show(user);
+                    }}
+                    startIcon="support"
+                  >
+                    {createMessage(SEND_SUPPORT_INFO)}
+                  </MenuItem>
+                )}
                 {intercomAppID && window.Intercom && !isAirgapped() && (
                   <MenuItem
                     onSelect={(e) => {
