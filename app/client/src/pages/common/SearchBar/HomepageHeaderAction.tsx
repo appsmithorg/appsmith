@@ -5,6 +5,7 @@ import {
   CHAT_WITH_US,
   DOCUMENTATION,
   HELP,
+  SEND_SUPPORT_INFO,
   WHATS_NEW,
   createMessage,
 } from "ee/constants/messages";
@@ -149,7 +150,7 @@ const HomepageHeaderAction = ({
                   }}
                   startIcon="support"
                 >
-                  Send support info
+                  {createMessage(SEND_SUPPORT_INFO)}
                 </MenuItem>
                 {intercomAppID && window.Intercom && !isAirgapped() && (
                   <MenuItem

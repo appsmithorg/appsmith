@@ -899,6 +899,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
+export const SEND_SUPPORT_INFO = () => "Send support info";
 export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
