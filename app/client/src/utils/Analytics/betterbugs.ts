@@ -3,6 +3,10 @@ import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 import store from "store";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
@@ -12,6 +16,10 @@ interface BetterbugsInstance {
   hide?: () => void;
   openWidget?: () => void;
   closeWidget?: () => void;
+  getMetadata?: () => Record<string | number, string | number | null>;
+  setMetadata?: (
+    metaData: Record<string | number, string | number | null>,
+  ) => void;
 }
 
 class BetterbugsUtil {
@@ -25,6 +33,30 @@ class BetterbugsUtil {
       theme: "light" as const,
       primaryColor: APPSMITH_BRAND_PRIMARY_COLOR,
       primaryTextColor: "#ffffff",
+    };
+  }
+
+  private static getRuntimeMetadata(): Record<
+    string | number,
+    string | number | null
+  > {
+    if (typeof window === "undefined") {
+      return {
+        url_path: null,
+        application_id: null,
+        page_id: null,
+      };
+    }
+
+    const state = store.getState();
+    const applicationId = getCurrentApplicationId(state);
+    const pageId = getCurrentPageId(state);
+    const urlPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    return {
+      url_path: urlPath,
+      application_id: applicationId || null,
+      page_id: pageId || null,
     };
   }
 
@@ -73,6 +105,7 @@ class BetterbugsUtil {
           commit_sha: appVersion.sha,
           edition: appVersion.edition,
           release_date: appVersion.releaseDate,
+          ...this.getRuntimeMetadata(),
         },
       });
 
@@ -107,11 +140,39 @@ class BetterbugsUtil {
     // Initialize fresh instance
     await this.init(user);
 
+    this.updateMetadata();
+
     if (this.instance?.openWidget) {
       this.instance.openWidget();
     } else {
       log.warn("BetterBugs openWidget() is not available.");
     }
+  }
+
+  public static updateMetadata() {
+    if (!this.instance) {
+      return;
+    }
+
+    if (!this.instance?.setMetadata) {
+      return;
+    }
+
+    if (
+      typeof window === "undefined" ||
+      isAirgapped() ||
+      !getAppsmithConfigs().betterbugs.enabled
+    ) {
+      return;
+    }
+
+    const existingMeta = this.instance.getMetadata?.() || {};
+    const nextMeta = {
+      ...existingMeta,
+      ...this.getRuntimeMetadata(),
+    };
+
+    this.instance.setMetadata(nextMeta);
   }
 
   public static async hide() {
