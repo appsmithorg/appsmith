@@ -109,12 +109,18 @@ describe(
       cy.get("body").type(`{${modifierKey}}z`);
       cy.wait(100);
       cy.get(widgetsPage.inputLabelControl).contains("Label");
-      cy.get(`${publish.checkboxWidget} label`).should("have.text", "Label");
+      cy.get(`${publish.checkboxWidget} .t--checkbox-widget-label`).should(
+        "have.text",
+        "Label",
+      );
 
       cy.get("body").type(`{${modifierKey}}{shift}z`);
       cy.wait(100);
       cy.get(widgetsPage.inputLabelControl).contains("Label1");
-      cy.get(`${publish.checkboxWidget} label`).should("have.text", "Label1");
+      cy.get(`${publish.checkboxWidget} .t--checkbox-widget-label`).should(
+        "have.text",
+        "Label1",
+      );
     });
 
     it("4. checks undo/redo for deletion of widgets", function () {

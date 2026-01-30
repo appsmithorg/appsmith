@@ -201,6 +201,16 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add hints to guide the user",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "defaultCheckedState",
             label: "Default state",
             helpText: "Sets the default checked state of the widget",
@@ -468,6 +478,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         minHeight={this.props.minHeight}
         onCheckChange={this.onCheckChange}
         widgetId={this.props.widgetId}
@@ -504,6 +515,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  labelTooltip?: string;
 }
 
 export default CheckboxWidget;
