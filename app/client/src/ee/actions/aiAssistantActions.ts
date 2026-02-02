@@ -45,3 +45,8 @@ export const fetchAIResponseError = (payload: {
   type: ReduxActionTypes.FETCH_AI_RESPONSE_ERROR,
   payload,
 });
+
+export const loadAISettings = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.LOAD_AI_SETTINGS,
+  payload: undefined,
+});

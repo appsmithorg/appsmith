@@ -22,14 +22,12 @@ export const aiAssistantReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_AI_SETTINGS]: (
     state: AIAssistantReduxState,
     action: ReduxAction<UpdateAISettingsPayload>,
-  ) => {
-    return {
-      ...state,
-      provider: action.payload.provider || state.provider,
-      hasApiKey: action.payload.hasApiKey ?? state.hasApiKey,
-      isEnabled: action.payload.isEnabled ?? state.isEnabled,
-    };
-  },
+  ) => ({
+    ...state,
+    provider: action.payload.provider || state.provider,
+    hasApiKey: action.payload.hasApiKey ?? state.hasApiKey,
+    isEnabled: action.payload.isEnabled ?? state.isEnabled,
+  }),
   [ReduxActionTypes.FETCH_AI_RESPONSE]: (state: AIAssistantReduxState) => {
     return {
       ...state,

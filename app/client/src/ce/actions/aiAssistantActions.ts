@@ -1,5 +1,5 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface UpdateAISettingsPayload {
   provider?: string;
@@ -44,4 +44,9 @@ export const fetchAIResponseError = (payload: {
 }): ReduxAction<{ error: string }> => ({
   type: ReduxActionTypes.FETCH_AI_RESPONSE_ERROR,
   payload,
+});
+
+export const loadAISettings = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.LOAD_AI_SETTINGS,
+  payload: undefined,
 });

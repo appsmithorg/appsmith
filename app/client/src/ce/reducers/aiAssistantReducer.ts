@@ -1,7 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import type { UpdateAISettingsPayload } from "ce/actions/aiAssistantActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { UpdateAISettingsPayload } from "ee/actions/aiAssistantActions";
 
 export interface AIAssistantReduxState {
   provider?: string;

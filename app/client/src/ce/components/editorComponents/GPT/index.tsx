@@ -4,18 +4,13 @@ import type {
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import type CodeMirror from "codemirror";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Text, Textarea } from "@appsmith/ads";
 import styled from "styled-components";
-import { fetchAIResponse } from "ce/actions/aiAssistantActions";
-import {
-  getAILastResponse,
-  getIsAILoading,
-  getAIError,
-} from "ce/selectors/aiAssistantSelectors";
-import { getAIContext } from "./trigger";
+import { AISidePanel } from "./AISidePanel";
+
+// Re-export the new components
+export { AISidePanel } from "./AISidePanel";
 
 export type AIEditorContext = Partial<{
   functionName: string;
@@ -45,162 +40,83 @@ export interface TAIWrapperProps {
   onOpenChanged: (isOpen: boolean) => void;
 }
 
-const AIWindowContainer = styled.div<{ isOpen: boolean }>`
-  display: ${(props) => (props.isOpen ? "flex" : "none")};
-  position: absolute;
-  top: ${(props) => (props.isOpen ? "0" : "-100%")};
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--ads-v2-color-bg);
-  border: 1px solid var(--ads-v2-color-border);
-  border-radius: var(--ads-v2-border-radius);
-  z-index: 1000;
-  flex-direction: column;
-`;
+// ============================================================================
+// Styled Components - Side Panel Layout
+// ============================================================================
 
-const AIWindowHeader = styled.div`
-  padding: var(--ads-v2-spaces-3);
-  border-bottom: 1px solid var(--ads-v2-color-border);
+const LayoutContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
 `;
 
-const AIWindowContent = styled.div`
+const EditorSection = styled.div`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: var(--ads-v2-spaces-4);
-  gap: var(--ads-v2-spaces-3);
-  overflow-y: auto;
+  min-width: 0;
+  height: 100%;
+  position: relative;
 `;
 
-const ResponseArea = styled.div`
-  flex: 1;
-  padding: var(--ads-v2-spaces-3);
-  background: var(--ads-v2-color-bg-subtle);
-  border-radius: var(--ads-v2-border-radius);
-  min-height: 200px;
-  white-space: pre-wrap;
-  font-family: monospace;
-`;
-
-const InputArea = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-2);
-  align-items: flex-end;
-`;
+// ============================================================================
+// AIWindow Component - Now uses side panel layout
+// ============================================================================
 
 export function AIWindow(props: TAIWrapperProps) {
   const {
     children,
-    isOpen,
     currentValue,
-    update,
-    enableAIAssistance,
-    mode,
     editor,
+    enableAIAssistance,
+    isOpen,
+    mode,
     onOpenChanged,
+    update,
   } = props;
 
-  const dispatch = useDispatch();
-  const [prompt, setPrompt] = useState("");
-  const lastResponse = useSelector(getAILastResponse);
-  const isLoading = useSelector(getIsAILoading);
-  const error = useSelector(getAIError);
+  // Handle applying code from AI response
+  const handleApplyCode = (code: string) => {
+    if (update) {
+      // Get current editor content and cursor position
+      if (editor) {
+        // If there's a selection, replace it
+        if (editor.somethingSelected()) {
+          editor.replaceSelection(code);
+        } else {
+          // Insert at cursor position
+          const cursor = editor.getCursor();
 
-  useEffect(() => {
-    if (lastResponse && update) {
-      setPrompt("");
+          editor.replaceRange(code, cursor);
+        }
+
+        // Focus the editor after insertion
+        editor.focus();
+      } else {
+        // Fallback: replace entire content
+        update(code);
+      }
     }
-  }, [lastResponse, update]);
+  };
 
-  if (!enableAIAssistance || !isOpen) {
-    return <>{children}</>;
+  // If AI assistance is not enabled, just render children
+  if (!enableAIAssistance) {
+    return children as React.ReactElement;
   }
 
-  const handleSend = () => {
-    if (!prompt.trim()) return;
-
-    const cursorPosition = editor.getCursor();
-    const context = getAIContext({
-      cursorPosition,
-      editor,
-      mode: editor.getMode().name,
-    });
-
-    dispatch(
-      fetchAIResponse({
-        prompt: prompt.trim(),
-        context: {
-          ...context,
-          currentValue,
-          mode,
-        },
-      }),
-    );
-  };
-
-  const handleApply = () => {
-    if (lastResponse && update) {
-      update(lastResponse);
-      onOpenChanged(false);
-    }
-  };
-
   return (
-    <>
-      {children}
-      <AIWindowContainer isOpen={isOpen}>
-        <AIWindowHeader>
-          <Text kind="heading-s">AI Assistant</Text>
-          <Button
-            kind="tertiary"
-            onClick={() => onOpenChanged(false)}
-            size="sm"
-          >
-            Close
-          </Button>
-        </AIWindowHeader>
-        <AIWindowContent>
-          <ResponseArea>
-            {isLoading && <Text>Thinking...</Text>}
-            {error && (
-              <Text color="var(--ads-v2-color-fg-error)">{error}</Text>
-            )}
-            {lastResponse && !isLoading && (
-              <Text>{lastResponse}</Text>
-            )}
-            {!lastResponse && !isLoading && !error && (
-              <Text color="var(--ads-v2-color-fg-muted)">
-                Ask me anything about your code...
-              </Text>
-            )}
-          </ResponseArea>
-          <InputArea>
-            <Textarea
-              value={prompt}
-              onChange={(value) => setPrompt(value)}
-              placeholder="Describe what you want the code to do..."
-              rows={3}
-            />
-            <Button
-              kind="primary"
-              onClick={handleSend}
-              isLoading={isLoading}
-              size="md"
-            >
-              Send
-            </Button>
-            {lastResponse && (
-              <Button kind="secondary" onClick={handleApply} size="md">
-                Apply
-              </Button>
-            )}
-          </InputArea>
-        </AIWindowContent>
-      </AIWindowContainer>
-    </>
+    <LayoutContainer>
+      <EditorSection>{children}</EditorSection>
+
+      {editor && (
+        <AISidePanel
+          currentValue={currentValue}
+          editor={editor}
+          isOpen={isOpen}
+          mode={mode}
+          onApplyCode={handleApplyCode}
+          onClose={() => onOpenChanged(false)}
+        />
+      )}
+    </LayoutContainer>
   );
 }

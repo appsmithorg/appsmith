@@ -139,7 +139,11 @@ import { AIWindow } from "ee/components/editorComponents/GPT";
 import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
 import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
-import { getHasAIApiKey } from "ee/selectors/aiAssistantSelectors";
+import {
+  getHasAIApiKey,
+  getIsAIEnabled,
+} from "ee/selectors/aiAssistantSelectors";
+import { loadAISettings } from "ee/actions/aiAssistantActions";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -343,6 +347,11 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentDidMount(): void {
+    // Load AI settings if this is an AI-assisted editor and settings aren't loaded yet
+    if (this.props.AIAssisted && !this.props.isAIConfigLoaded) {
+      this.props.loadAISettings();
+    }
+
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         autoRefresh: true,
@@ -572,6 +581,16 @@ class CodeEditor extends Component<Props, State> {
   }, 200);
 
   componentDidUpdate(prevProps: Props): void {
+    // Recalculate AIEnabled when hasAIApiKey changes (e.g., after saga loads settings)
+    if (prevProps.hasAIApiKey !== this.props.hasAIApiKey) {
+      this.AIEnabled =
+        isAIEnabled(
+          this.props.featureFlags,
+          this.props.mode,
+          this.props.hasAIApiKey,
+        ) && Boolean(this.props.AIAssisted);
+    }
+
     const identifierHasChanged =
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
@@ -1887,6 +1906,7 @@ const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
     installedLibraries: selectInstalledLibraries(state),
     focusedProperty: getFocusablePropertyPaneField(state),
     hasAIApiKey: getHasAIApiKey(state),
+    isAIConfigLoaded: getIsAIEnabled(state) !== undefined,
   };
 };
 
@@ -1900,6 +1920,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setEditorFieldFocusAction(payload)),
   setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
   resetActiveField: () => dispatch(resetActiveEditorField()),
+  loadAISettings: () => dispatch(loadAISettings()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CodeEditor);

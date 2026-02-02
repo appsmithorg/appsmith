@@ -4,6 +4,26 @@ import styled from "styled-components";
 import OrganizationApi from "ee/api/OrganizationApi";
 import { toast } from "@appsmith/ads";
 
+// Response types (unwrapped by axios interceptors)
+interface AIConfigData {
+  isAIAssistantEnabled?: boolean;
+  provider?: string;
+  hasClaudeApiKey?: boolean;
+  hasOpenaiApiKey?: boolean;
+  localLlmUrl?: string;
+  localLlmContextSize?: number;
+}
+
+interface ApiResponseMeta {
+  success: boolean;
+  error?: { message: string };
+}
+
+interface UnwrappedApiResponse<T> {
+  responseMeta: ApiResponseMeta;
+  data: T;
+}
+
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   padding: var(--ads-v2-spaces-7);
@@ -146,9 +166,10 @@ function AISettings() {
   useEffect(function fetchAIConfigOnMount() {
     const fetchAIConfig = async () => {
       try {
-        const response = await OrganizationApi.getAIConfig();
-
         // Note: response interceptor unwraps axios response, so response = { responseMeta, data }
+        const response =
+          (await OrganizationApi.getAIConfig()) as unknown as UnwrappedApiResponse<AIConfigData>;
+
         if (response.responseMeta.success) {
           const config = response.data;
 
@@ -220,9 +241,11 @@ function AISettings() {
         }
       }
 
-      const response = await OrganizationApi.updateAIConfig(request);
-
       // Note: response interceptor unwraps axios response
+      const response = (await OrganizationApi.updateAIConfig(
+        request,
+      )) as unknown as UnwrappedApiResponse<AIConfigData>;
+
       if (response.responseMeta.success) {
         toast.show("AI configuration saved successfully", { kind: "success" });
 
@@ -254,12 +277,12 @@ function AISettings() {
     setTestResult(null);
 
     try {
-      const response = await OrganizationApi.testLlmConnection(
+      const response = (await OrganizationApi.testLlmConnection(
         localLlmUrl.trim(),
-      );
+      )) as unknown as UnwrappedApiResponse<TestResult>;
 
       if (response.responseMeta.success) {
-        setTestResult(response.data as TestResult);
+        setTestResult(response.data);
       } else {
         setTestResult({
           success: false,
@@ -291,10 +314,13 @@ function AISettings() {
             ? openaiApiKey
             : undefined;
 
-      const response = await OrganizationApi.testApiKey(provider, keyToTest);
+      const response = (await OrganizationApi.testApiKey(
+        provider,
+        keyToTest,
+      )) as unknown as UnwrappedApiResponse<TestResult>;
 
       if (response.responseMeta.success) {
-        setApiKeyTestResult(response.data as TestResult);
+        setApiKeyTestResult(response.data);
       } else {
         setApiKeyTestResult({
           success: false,

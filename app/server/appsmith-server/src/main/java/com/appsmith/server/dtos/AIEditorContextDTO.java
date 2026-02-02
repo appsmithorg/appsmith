@@ -2,7 +2,6 @@ package com.appsmith.server.dtos;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -18,8 +17,7 @@ public class AIEditorContextDTO {
     @Size(max = 50000, message = "Function string cannot exceed 50000 characters")
     private String functionString;
 
-    @Pattern(regexp = "^(javascript|sql|query)?$", message = "Invalid mode")
-    @Size(max = 50, message = "Mode cannot exceed 50 characters")
+    @Size(max = 100, message = "Mode cannot exceed 100 characters")
     private String mode;
 
     @Size(max = 100000, message = "Current value cannot exceed 100000 characters")

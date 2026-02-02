@@ -13,7 +13,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
+import { isSqlMode } from "components/editorComponents/CodeEditor/sql/config";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps &
@@ -31,13 +31,21 @@ class DynamicTextField extends React.Component<
     }
 > {
   render() {
-    const isSQLMode = this.props.mode && Object.values(editorSQLModes).includes(this.props.mode as TEditorModes);
+    const isSQLMode = this.props.mode && isSqlMode(this.props.mode);
+    const isGraphQLMode =
+      this.props.mode === EditorModes.GRAPHQL ||
+      this.props.mode === EditorModes.GRAPHQL_WITH_BINDING;
+    const isJavaScriptMode = this.props.mode === EditorModes.JAVASCRIPT;
+    const isJSONMode =
+      this.props.mode === EditorModes.JSON ||
+      this.props.mode === EditorModes.JSON_WITH_BINDING;
+
     const editorProps = {
       mode: this.props.mode || EditorModes.TEXT_WITH_BINDING,
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      AIAssisted: isSQLMode,
+      AIAssisted: isSQLMode || isGraphQLMode || isJavaScriptMode || isJSONMode,
     };
 
     return (
