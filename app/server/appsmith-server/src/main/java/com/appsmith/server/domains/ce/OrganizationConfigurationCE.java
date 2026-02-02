@@ -81,6 +81,14 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonInclude
     private Boolean isAIAssistantEnabled = false;
 
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private String localLlmUrl;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private Integer localLlmContextSize;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -113,6 +121,9 @@ public class OrganizationConfigurationCE implements Serializable {
         aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
         isAIAssistantEnabled =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);
+        localLlmUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmUrl(), localLlmUrl);
+        localLlmContextSize =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmContextSize(), localLlmContextSize);
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {

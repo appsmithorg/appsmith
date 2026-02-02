@@ -16,4 +16,9 @@ public class AIConfigDTO {
     @NotNull(message = "Provider is required") private AIProvider provider;
 
     @NotNull(message = "Enabled flag is required") private Boolean isAIAssistantEnabled;
+
+    @Size(max = 2000, message = "URL is too long")
+    private String localLlmUrl;
+
+    private Integer localLlmContextSize;
 }

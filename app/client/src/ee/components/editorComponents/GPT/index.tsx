@@ -7,7 +7,7 @@ import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
 import React, { useState, useEffect } from "react";
 import type CodeMirror from "codemirror";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Text, Textarea } from "@appsmith/ads";
+import { Button, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import { fetchAIResponse } from "ee/actions/aiAssistantActions";
 import {
@@ -92,16 +92,38 @@ const InputArea = styled.div`
   align-items: flex-end;
 `;
 
+const StyledTextarea = styled.textarea`
+  flex: 1;
+  padding: var(--ads-v2-spaces-3);
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg);
+  color: var(--ads-v2-color-fg);
+  font-family: inherit;
+  font-size: var(--ads-v2-font-size-4);
+  resize: vertical;
+  min-height: 80px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--ads-v2-color-border-emphasis);
+  }
+
+  &::placeholder {
+    color: var(--ads-v2-color-fg-muted);
+  }
+`;
+
 export function AIWindow(props: TAIWrapperProps) {
   const {
     children,
-    isOpen,
     currentValue,
-    update,
-    enableAIAssistance,
-    mode,
     editor,
+    enableAIAssistance,
+    isOpen,
+    mode,
     onOpenChanged,
+    update,
   } = props;
 
   const dispatch = useDispatch();
@@ -110,11 +132,14 @@ export function AIWindow(props: TAIWrapperProps) {
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
 
-  useEffect(function handleResponseChange() {
-    if (lastResponse && update) {
-      setPrompt("");
-    }
-  }, [lastResponse, update]);
+  useEffect(
+    function handleResponseChange() {
+      if (lastResponse && update) {
+        setPrompt("");
+      }
+    },
+    [lastResponse, update],
+  );
 
   if (!enableAIAssistance || !isOpen) {
     return children as React.ReactElement;
@@ -166,12 +191,8 @@ export function AIWindow(props: TAIWrapperProps) {
         <AIWindowContent>
           <ResponseArea>
             {isLoading && <Text>Thinking...</Text>}
-            {error && (
-              <Text color="var(--ads-v2-color-fg-error)">{error}</Text>
-            )}
-            {lastResponse && !isLoading && (
-              <Text>{lastResponse}</Text>
-            )}
+            {error && <Text color="var(--ads-v2-color-fg-error)">{error}</Text>}
+            {lastResponse && !isLoading && <Text>{lastResponse}</Text>}
             {!lastResponse && !isLoading && !error && (
               <Text color="var(--ads-v2-color-fg-muted)">
                 Ask me anything about your code...
@@ -179,16 +200,16 @@ export function AIWindow(props: TAIWrapperProps) {
             )}
           </ResponseArea>
           <InputArea>
-            <Textarea
-              value={prompt}
-              onChange={(value) => setPrompt(value)}
+            <StyledTextarea
+              onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe what you want the code to do..."
               rows={3}
+              value={prompt}
             />
             <Button
+              isLoading={isLoading}
               kind="primary"
               onClick={handleSend}
-              isLoading={isLoading}
               size="md"
             >
               Send

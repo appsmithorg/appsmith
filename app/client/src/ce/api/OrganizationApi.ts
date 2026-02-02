@@ -25,11 +25,15 @@ export interface AIConfigResponse {
   provider: string | null;
   hasClaudeApiKey: boolean;
   hasOpenaiApiKey: boolean;
+  localLlmUrl?: string;
+  localLlmContextSize?: number;
 }
 
 export interface AIConfigRequest {
   claudeApiKey?: string;
   openaiApiKey?: string;
+  localLlmUrl?: string;
+  localLlmContextSize?: number;
   provider: string;
   isAIAssistantEnabled: boolean;
 }
@@ -84,6 +88,24 @@ export class OrganizationApi extends Api {
     request: AIConfigRequest,
   ): Promise<AxiosPromise<ApiResponse<AIConfigResponse>>> {
     return Api.put(`${OrganizationApi.tenantsUrl}/ai-config`, request);
+  }
+
+  static async testLlmConnection(
+    url: string,
+  ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-connection`, {
+      url,
+    });
+  }
+
+  static async testApiKey(
+    provider: string,
+    apiKey?: string,
+  ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-api-key`, {
+      provider,
+      apiKey,
+    });
   }
 }
 
