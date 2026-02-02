@@ -43,6 +43,7 @@ function AISettings() {
         if (claudeResponse.data.responseMeta.success) {
           setClaudeApiKey(claudeResponse.data.data.hasApiKey ? "••••••••" : "");
         }
+
         if (openaiResponse.data.responseMeta.success) {
           setOpenaiApiKey(openaiResponse.data.data.hasApiKey ? "••••••••" : "");
         }
@@ -65,6 +66,7 @@ function AISettings() {
       if (response.data.responseMeta.success) {
         dispatch(updateAISettings({ provider, hasApiKey: true }));
         toast.show("AI API key saved successfully", { kind: "success" });
+
         if (provider === "CLAUDE") {
           setClaudeApiKey("••••••••");
         } else {
@@ -89,9 +91,9 @@ function AISettings() {
       <Text kind="heading-s" renderAs="h2">
         AI Assistant Settings
       </Text>
-      <Text kind="body-m" color="var(--ads-v2-color-fg-muted)">
-        Configure your API keys to enable AI assistance in JavaScript modules and queries.
-        Your API keys are encrypted and stored securely.
+      <Text color="var(--ads-v2-color-fg-muted)" kind="body-m">
+        Configure your API keys to enable AI assistance in JavaScript modules
+        and queries. Your API keys are encrypted and stored securely.
       </Text>
 
       <FieldWrapper>
@@ -99,12 +101,12 @@ function AISettings() {
           <Text kind="body-m">AI Provider</Text>
         </LabelWrapper>
         <Select
+          onChange={(value) => setProvider(value as string)}
           options={[
             { label: "Claude (Anthropic)", value: "CLAUDE" },
             { label: "OpenAI (ChatGPT)", value: "OPENAI" },
           ]}
           value={provider}
-          onChange={(value) => setProvider(value as string)}
         />
       </FieldWrapper>
 
@@ -115,8 +117,6 @@ function AISettings() {
           </Text>
         </LabelWrapper>
         <Input
-          type="password"
-          value={provider === "CLAUDE" ? claudeApiKey : openaiApiKey}
           onChange={(value) => {
             if (provider === "CLAUDE") {
               setClaudeApiKey(value);
@@ -129,8 +129,10 @@ function AISettings() {
               ? "Enter your Claude API key"
               : "Enter your OpenAI API key"
           }
+          type="password"
+          value={provider === "CLAUDE" ? claudeApiKey : openaiApiKey}
         />
-        <Text kind="body-s" color="var(--ads-v2-color-fg-muted)">
+        <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
           {provider === "CLAUDE"
             ? "Get your API key from https://console.anthropic.com/"
             : "Get your API key from https://platform.openai.com/api-keys"}
@@ -139,9 +141,9 @@ function AISettings() {
 
       <FieldWrapper>
         <Button
+          isLoading={isSaving}
           kind="primary"
           onClick={handleSave}
-          isLoading={isSaving}
           size="md"
         >
           Save API Key
