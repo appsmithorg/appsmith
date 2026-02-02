@@ -1,7 +1,6 @@
 import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
-import { getJSFunctionLocationFromCursor } from "pages/Editor/JSEditor/utils";
 
 export const APPSMITH_AI = "Appsmith AI";
 
@@ -47,18 +46,16 @@ export const getAIContext = ({
   const code = editor.getValue();
   const mode = editor.getMode().name;
 
-  let functionName = "";
+  const functionName = "";
   let functionString = "";
 
   if (mode === "javascript") {
-    try {
-      const location = getJSFunctionLocationFromCursor(code, cursorPosition);
+    // Use a window around the cursor for context
+    const lines = code.split("\n");
+    const startLine = Math.max(0, cursorPosition.line - 15);
+    const endLine = Math.min(lines.length, cursorPosition.line + 15);
 
-      functionName = location.functionName;
-      functionString = location.functionString;
-    } catch (e) {
-      // Error handling - removed console.error per linter
-    }
+    functionString = lines.slice(startLine, endLine).join("\n");
   } else if (mode?.includes("sql")) {
     const lines = code.split("\n");
     const startLine = Math.max(0, cursorPosition.line - 10);
