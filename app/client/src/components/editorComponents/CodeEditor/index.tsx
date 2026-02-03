@@ -142,8 +142,9 @@ import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
 import {
   getHasAIApiKey,
   getIsAIEnabled,
+  getIsAIPanelOpen,
 } from "ee/selectors/aiAssistantSelectors";
-import { loadAISettings } from "ee/actions/aiAssistantActions";
+import { loadAISettings, closeAIPanel } from "ee/actions/aiAssistantActions";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -589,6 +590,17 @@ class CodeEditor extends Component<Props, State> {
           this.props.mode,
           this.props.hasAIApiKey,
         ) && Boolean(this.props.AIAssisted);
+    }
+
+    // Open AI panel when triggered via slash command (Redux state changed to true)
+    if (
+      this.props.isAIPanelOpen &&
+      !prevProps.isAIPanelOpen &&
+      !this.state.showAIWindow
+    ) {
+      this.setState({ showAIWindow: true });
+      // Reset Redux state after consuming the open signal
+      this.props.closeAIPanel();
     }
 
     const identifierHasChanged =
@@ -1907,6 +1919,7 @@ const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
     focusedProperty: getFocusablePropertyPaneField(state),
     hasAIApiKey: getHasAIApiKey(state),
     isAIConfigLoaded: getIsAIEnabled(state) !== undefined,
+    isAIPanelOpen: getIsAIPanelOpen(state),
   };
 };
 
@@ -1921,6 +1934,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
   resetActiveField: () => dispatch(resetActiveEditorField()),
   loadAISettings: () => dispatch(loadAISettings()),
+  closeAIPanel: () => dispatch(closeAIPanel()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CodeEditor);

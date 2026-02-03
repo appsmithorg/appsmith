@@ -35,3 +35,7 @@ export function getAIError(state: DefaultRootState): string | undefined {
 export function getIsAIEnabled(state: DefaultRootState): boolean {
   return state.aiAssistant.isEnabled;
 }
+
+export function getIsAIPanelOpen(state: DefaultRootState): boolean {
+  return state.aiAssistant.isPanelOpen;
+}

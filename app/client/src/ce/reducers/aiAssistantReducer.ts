@@ -16,6 +16,7 @@ export interface AIAssistantReduxState {
   isLoading: boolean;
   messages: AIMessage[];
   error?: string;
+  isPanelOpen: boolean;
 }
 
 const initialState: AIAssistantReduxState = {
@@ -23,6 +24,7 @@ const initialState: AIAssistantReduxState = {
   isEnabled: false,
   isLoading: false,
   messages: [],
+  isPanelOpen: false,
 };
 
 function appendMessage(
@@ -82,5 +84,13 @@ export const aiAssistantReducer = createReducer(initialState, {
     ...state,
     messages: [],
     error: undefined,
+  }),
+  [ReduxActionTypes.OPEN_AI_PANEL]: (state: AIAssistantReduxState) => ({
+    ...state,
+    isPanelOpen: true,
+  }),
+  [ReduxActionTypes.CLOSE_AI_PANEL]: (state: AIAssistantReduxState) => ({
+    ...state,
+    isPanelOpen: false,
   }),
 });

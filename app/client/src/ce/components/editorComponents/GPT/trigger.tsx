@@ -2,7 +2,7 @@ import type { TEditorModes } from "components/editorComponents/CodeEditor/Editor
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 
-export const APPSMITH_AI = "Appsmith AI";
+export const APPSMITH_AI = "Ask AI";
 
 export function isAIEnabled(
   ff: FeatureFlags,

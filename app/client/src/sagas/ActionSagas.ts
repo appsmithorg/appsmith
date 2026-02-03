@@ -1195,6 +1195,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           context,
         },
       });
+
+      // Open the AI panel when triggered via slash command
+      yield put({
+        type: ReduxActionTypes.OPEN_AI_PANEL,
+      });
       break;
     }
   }

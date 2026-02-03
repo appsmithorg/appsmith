@@ -61,3 +61,13 @@ export const clearAIResponse = (): ReduxAction<undefined> => ({
   type: ReduxActionTypes.CLEAR_AI_RESPONSE,
   payload: undefined,
 });
+
+export const openAIPanel = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.OPEN_AI_PANEL,
+  payload: undefined,
+});
+
+export const closeAIPanel = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.CLOSE_AI_PANEL,
+  payload: undefined,
+});
