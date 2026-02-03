@@ -401,6 +401,7 @@ const QUICK_ACTIONS: QuickAction[] = [
 
 function extractCodeBlocks(
   text: string,
+  defaultLanguage: string = "javascript",
 ): Array<{ type: "text" | "code"; content: string; language?: string }> {
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
   const parts: Array<{
@@ -425,7 +426,7 @@ function extractCodeBlocks(
     parts.push({
       type: "code",
       content: match[2].trim(),
-      language: match[1] || "javascript",
+      language: match[1] || defaultLanguage,
     });
 
     lastIndex = match.index + match[0].length;
@@ -497,8 +498,21 @@ export function AISidePanel(props: AISidePanelProps) {
   const responseParts = useMemo(() => {
     if (!lastResponse) return [];
 
-    return extractCodeBlocks(lastResponse);
-  }, [lastResponse]);
+    // Convert mode to a simple language name for code blocks
+    const languageMap: Record<string, string> = {
+      javascript: "javascript",
+      "text/x-sql": "sql",
+      sql: "sql",
+      "text/x-pgsql": "sql",
+      "text/x-mysql": "sql",
+      graphql: "graphql",
+      "application/json": "json",
+      json: "json",
+    };
+    const defaultLang = languageMap[mode] || mode || "javascript";
+
+    return extractCodeBlocks(lastResponse, defaultLang);
+  }, [lastResponse, mode]);
 
   const handleSend = useCallback(() => {
     if (!prompt.trim() || !editor) return;
