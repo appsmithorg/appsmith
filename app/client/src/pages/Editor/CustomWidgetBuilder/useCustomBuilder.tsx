@@ -244,8 +244,11 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
     });
 
     // if connection cannot be made, redirect to editor
+    // Preserve query params (branch, environment, etc.) when redirecting back
     connectionTimeout = setTimeout(() => {
-      history.replace(window.location.pathname.replace("/builder", ""));
+      const newPath = window.location.pathname.replace("/builder", "");
+
+      history.replace(`${newPath}${window.location.search}`);
     }, 4000);
   }, []);
 
