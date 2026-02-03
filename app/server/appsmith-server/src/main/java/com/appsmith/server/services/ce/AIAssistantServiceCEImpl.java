@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.AIEditorContextDTO;
 import com.appsmith.server.dtos.AIMessageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private final OrganizationService organizationService;
+    private final AIReferenceService aiReferenceService;
 
     private static final WebClient claudeWebClient = WebClientUtils.builder()
             .baseUrl("https://api.anthropic.com")
@@ -80,6 +82,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     switch (providerEnum) {
                         case CLAUDE -> orgConfig.getClaudeApiKey();
                         case OPENAI -> orgConfig.getOpenaiApiKey();
+                        default -> null;
                     };
 
             if (apiKey == null || apiKey.trim().isEmpty()) {
@@ -90,6 +93,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return switch (providerEnum) {
                 case CLAUDE -> callClaudeAPI(apiKey, prompt, context, conversationHistory);
                 case OPENAI -> callOpenAIAPI(apiKey, prompt, context, conversationHistory);
+                default -> Mono.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, "Provider not supported: " + provider));
             };
         });
     }
@@ -132,7 +137,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "claude-3-5-sonnet-20241022");
-        requestBody.put("max_tokens", 4096);
+        requestBody.put("max_tokens", 8192);
         requestBody.put("messages", messages);
         // Add system prompt as separate field for Claude
         if (!messages.isEmpty() && conversationHistory != null && !conversationHistory.isEmpty()) {
@@ -173,8 +178,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                             JsonNode textNode = firstContent.path("text");
                             if (textNode != null && textNode.isTextual()) {
                                 String response = textNode.asText();
-                                if (response != null && response.length() > 100000) {
-                                    return response.substring(0, 100000);
+                                if (response != null && response.length() > 200000) {
+                                    return response.substring(0, 200000);
                                 }
                                 return response;
                             }
@@ -250,8 +255,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 JsonNode contentNode = messageNode.path("content");
                                 if (contentNode != null && contentNode.isTextual()) {
                                     String response = contentNode.asText();
-                                    if (response != null && response.length() > 100000) {
-                                        return response.substring(0, 100000);
+                                    if (response != null && response.length() > 200000) {
+                                        return response.substring(0, 200000);
                                     }
                                     return response;
                                 }
@@ -269,19 +274,30 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 });
     }
 
-    private static final String JS_SYSTEM_PROMPT = "You are an expert JavaScript developer helping with Appsmith code. "
-            + "Appsmith is a low-code platform. Provide clean, efficient JavaScript code that follows best practices. "
-            + "Focus on the specific function or code block the user is working on.";
-
-    private static final String SQL_SYSTEM_PROMPT =
-            "You are an expert SQL/query developer helping with database queries in Appsmith. "
-                    + "Provide optimized, correct SQL queries that follow best practices. "
-                    + "Consider the datasource type and ensure the query is syntactically correct.";
-
     private String buildSystemPrompt(AIEditorContextDTO context) {
         String mode = context != null ? context.getMode() : null;
-        boolean isJavaScript = mode != null && "javascript".equals(mode.trim());
-        return isJavaScript ? JS_SYSTEM_PROMPT : SQL_SYSTEM_PROMPT;
+
+        // Get mode-specific reference content
+        String modeReference = aiReferenceService.getReferenceContent(mode);
+
+        // Get common issues content (appended for all modes)
+        String commonIssues = aiReferenceService.getCommonIssuesContent();
+
+        // Build complete system prompt
+        StringBuilder systemPrompt = new StringBuilder();
+
+        if (modeReference != null && !modeReference.isEmpty()) {
+            systemPrompt.append(modeReference);
+        }
+
+        if (commonIssues != null && !commonIssues.isEmpty()) {
+            if (systemPrompt.length() > 0) {
+                systemPrompt.append("\n\n## Common Issues\n\n");
+            }
+            systemPrompt.append(commonIssues);
+        }
+
+        return systemPrompt.toString();
     }
 
     private String buildUserPrompt(String prompt, AIEditorContextDTO context) {
