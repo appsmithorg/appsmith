@@ -52,27 +52,27 @@ export const getAIContext = ({
   if (mode === "javascript") {
     // Use a window around the cursor for context
     const lines = code.split("\n");
-    const startLine = Math.max(0, cursorPosition.line - 15);
-    const endLine = Math.min(lines.length, cursorPosition.line + 15);
+    const startLine = Math.max(0, cursorPosition.line - 50);
+    const endLine = Math.min(lines.length, cursorPosition.line + 50);
 
     functionString = lines.slice(startLine, endLine).join("\n");
   } else if (mode?.includes("sql")) {
     const lines = code.split("\n");
-    const startLine = Math.max(0, cursorPosition.line - 10);
-    const endLine = Math.min(lines.length, cursorPosition.line + 10);
+    const startLine = Math.max(0, cursorPosition.line - 40);
+    const endLine = Math.min(lines.length, cursorPosition.line + 40);
 
     functionString = lines.slice(startLine, endLine).join("\n");
   } else if (mode === "graphql" || mode?.includes("graphql")) {
     const lines = code.split("\n");
-    const startLine = Math.max(0, cursorPosition.line - 10);
-    const endLine = Math.min(lines.length, cursorPosition.line + 10);
+    const startLine = Math.max(0, cursorPosition.line - 40);
+    const endLine = Math.min(lines.length, cursorPosition.line + 40);
 
     functionString = lines.slice(startLine, endLine).join("\n");
   } else if (mode === "application/json" || mode?.includes("json")) {
     // JSON mode (MongoDB, REST API bodies, etc.)
     const lines = code.split("\n");
-    const startLine = Math.max(0, cursorPosition.line - 10);
-    const endLine = Math.min(lines.length, cursorPosition.line + 10);
+    const startLine = Math.max(0, cursorPosition.line - 40);
+    const endLine = Math.min(lines.length, cursorPosition.line + 40);
 
     functionString = lines.slice(startLine, endLine).join("\n");
   }
