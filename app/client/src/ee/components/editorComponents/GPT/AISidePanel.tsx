@@ -1,9 +1,12 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 import type CodeMirror from "codemirror";
-import { fetchAIResponse } from "ee/actions/aiAssistantActions";
+import {
+  fetchAIResponse,
+  clearAIResponse,
+} from "ee/actions/aiAssistantActions";
 import {
   getAILastResponse,
   getIsAILoading,
@@ -476,6 +479,12 @@ export function AISidePanel(props: AISidePanelProps) {
   const lastResponse = useSelector(getAILastResponse);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
+
+  // Clear AI response when mode changes (switching between editors)
+  useEffect(() => {
+    dispatch(clearAIResponse());
+    setPrompt("");
+  }, [mode, dispatch]);
 
   // Get current context info
   const contextInfo = useMemo(() => {

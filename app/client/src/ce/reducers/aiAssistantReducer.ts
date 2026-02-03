@@ -58,4 +58,11 @@ export const aiAssistantReducer = createReducer(initialState, {
       error: action.payload.error,
     };
   },
+  [ReduxActionTypes.CLEAR_AI_RESPONSE]: (state: AIAssistantReduxState) => {
+    return {
+      ...state,
+      lastResponse: undefined,
+      error: undefined,
+    };
+  },
 });

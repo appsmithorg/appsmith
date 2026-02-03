@@ -50,3 +50,8 @@ export const loadAISettings = (): ReduxAction<undefined> => ({
   type: ReduxActionTypes.LOAD_AI_SETTINGS,
   payload: undefined,
 });
+
+export const clearAIResponse = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.CLEAR_AI_RESPONSE,
+  payload: undefined,
+});
