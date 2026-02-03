@@ -224,6 +224,7 @@ export class UserApi extends Api {
       mode?: string;
       currentValue?: string;
     },
+    conversationHistory?: Array<{ role: string; content: string }>,
   ): Promise<
     AxiosPromise<ApiResponse<{ response: string; provider: string }>>
   > {
@@ -231,6 +232,7 @@ export class UserApi extends Api {
       provider,
       prompt,
       context,
+      conversationHistory,
     });
   }
 }

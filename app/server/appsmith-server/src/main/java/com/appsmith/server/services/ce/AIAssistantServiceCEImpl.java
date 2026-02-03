@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.dtos.AIEditorContextDTO;
+import com.appsmith.server.dtos.AIMessageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.OrganizationService;
@@ -46,6 +47,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     @Override
     public Mono<String> getAIResponse(String provider, String prompt, AIEditorContextDTO context) {
+        return getAIResponse(provider, prompt, context, null);
+    }
+
+    @Override
+    public Mono<String> getAIResponse(
+            String provider, String prompt, AIEditorContextDTO context, List<AIMessageDTO> conversationHistory) {
         if (provider == null || provider.trim().isEmpty() || provider.length() > 50) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider"));
         }
@@ -62,33 +69,33 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Organization not found"));
             }
 
-            if (!Boolean.TRUE.equals(organization.getOrganizationConfiguration().getIsAIAssistantEnabled())) {
+            var orgConfig = organization.getOrganizationConfiguration();
+            if (!Boolean.TRUE.equals(orgConfig.getIsAIAssistantEnabled())) {
                 return Mono.error(new AppsmithException(
                         AppsmithError.INVALID_PARAMETER,
                         "AI Assistant is disabled. Please contact your administrator."));
             }
 
-            String apiKey = null;
-            if (providerEnum == AIProvider.CLAUDE) {
-                apiKey = organization.getOrganizationConfiguration().getClaudeApiKey();
-            } else if (providerEnum == AIProvider.OPENAI) {
-                apiKey = organization.getOrganizationConfiguration().getOpenaiApiKey();
-            }
+            String apiKey =
+                    switch (providerEnum) {
+                        case CLAUDE -> orgConfig.getClaudeApiKey();
+                        case OPENAI -> orgConfig.getOpenaiApiKey();
+                    };
 
             if (apiKey == null || apiKey.trim().isEmpty()) {
                 return Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
             }
 
-            if (providerEnum == AIProvider.CLAUDE) {
-                return callClaudeAPI(apiKey, prompt, context);
-            } else {
-                return callOpenAIAPI(apiKey, prompt, context);
-            }
+            return switch (providerEnum) {
+                case CLAUDE -> callClaudeAPI(apiKey, prompt, context, conversationHistory);
+                case OPENAI -> callOpenAIAPI(apiKey, prompt, context, conversationHistory);
+            };
         });
     }
 
-    private Mono<String> callClaudeAPI(String apiKey, String prompt, AIEditorContextDTO context) {
+    private Mono<String> callClaudeAPI(
+            String apiKey, String prompt, AIEditorContextDTO context, List<AIMessageDTO> conversationHistory) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
 
@@ -100,17 +107,37 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Prompt is too long"));
         }
 
+        List<Map<String, Object>> messages = new ArrayList<>();
+
+        // Add conversation history if present
+        if (conversationHistory != null && !conversationHistory.isEmpty()) {
+            for (AIMessageDTO msg : conversationHistory) {
+                Map<String, Object> historyMsg = new HashMap<>();
+                historyMsg.put("role", msg.getRole());
+                historyMsg.put("content", msg.getContent());
+                messages.add(historyMsg);
+            }
+        }
+
+        // Add current user message with system context
         Map<String, Object> messageContent = new HashMap<>();
         messageContent.put("role", "user");
-        messageContent.put("content", systemPrompt + "\n\n" + userPrompt);
-
-        List<Map<String, Object>> messages = new ArrayList<>();
+        // Include system prompt only in first message or if no history
+        if (messages.isEmpty()) {
+            messageContent.put("content", systemPrompt + "\n\n" + userPrompt);
+        } else {
+            messageContent.put("content", userPrompt);
+        }
         messages.add(messageContent);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "claude-3-5-sonnet-20241022");
         requestBody.put("max_tokens", 4096);
         requestBody.put("messages", messages);
+        // Add system prompt as separate field for Claude
+        if (!messages.isEmpty() && conversationHistory != null && !conversationHistory.isEmpty()) {
+            requestBody.put("system", systemPrompt);
+        }
 
         return claudeWebClient
                 .post()
@@ -164,12 +191,23 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 });
     }
 
-    private Mono<String> callOpenAIAPI(String apiKey, String prompt, AIEditorContextDTO context) {
+    private Mono<String> callOpenAIAPI(
+            String apiKey, String prompt, AIEditorContextDTO context, List<AIMessageDTO> conversationHistory) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
 
         List<Map<String, Object>> messages = new ArrayList<>();
+        // Always add system prompt first for OpenAI
         messages.add(Map.of("role", "system", "content", systemPrompt));
+
+        // Add conversation history if present
+        if (conversationHistory != null && !conversationHistory.isEmpty()) {
+            for (AIMessageDTO msg : conversationHistory) {
+                messages.add(Map.of("role", msg.getRole(), "content", msg.getContent()));
+            }
+        }
+
+        // Add current user message
         messages.add(Map.of("role", "user", "content", userPrompt));
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -231,17 +269,19 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 });
     }
 
-    private String buildSystemPrompt(AIEditorContextDTO context) {
-        String mode = context != null ? context.getMode() : null;
-        if (mode != null && mode.trim().equals("javascript")) {
-            return "You are an expert JavaScript developer helping with Appsmith code. "
-                    + "Appsmith is a low-code platform. Provide clean, efficient JavaScript code that follows best practices. "
-                    + "Focus on the specific function or code block the user is working on.";
-        } else {
-            return "You are an expert SQL/query developer helping with database queries in Appsmith. "
+    private static final String JS_SYSTEM_PROMPT = "You are an expert JavaScript developer helping with Appsmith code. "
+            + "Appsmith is a low-code platform. Provide clean, efficient JavaScript code that follows best practices. "
+            + "Focus on the specific function or code block the user is working on.";
+
+    private static final String SQL_SYSTEM_PROMPT =
+            "You are an expert SQL/query developer helping with database queries in Appsmith. "
                     + "Provide optimized, correct SQL queries that follow best practices. "
                     + "Consider the datasource type and ensure the query is syntactically correct.";
-        }
+
+    private String buildSystemPrompt(AIEditorContextDTO context) {
+        String mode = context != null ? context.getMode() : null;
+        boolean isJavaScript = mode != null && "javascript".equals(mode.trim());
+        return isJavaScript ? JS_SYSTEM_PROMPT : SQL_SYSTEM_PROMPT;
     }
 
     private String buildUserPrompt(String prompt, AIEditorContextDTO context) {

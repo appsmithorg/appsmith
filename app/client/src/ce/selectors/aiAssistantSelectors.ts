@@ -1,21 +1,37 @@
 import type { DefaultRootState } from "react-redux";
+import type { AIMessage } from "ee/actions/aiAssistantActions";
 
-export const getAIAssistantState = (state: DefaultRootState) =>
-  state.aiAssistant;
+export function getAIAssistantState(state: DefaultRootState) {
+  return state.aiAssistant;
+}
 
-export const getHasAIApiKey = (state: DefaultRootState) =>
-  state.aiAssistant.hasApiKey;
+export function getHasAIApiKey(state: DefaultRootState): boolean {
+  return state.aiAssistant.hasApiKey;
+}
 
-export const getAIProvider = (state: DefaultRootState) =>
-  state.aiAssistant.provider;
+export function getAIProvider(state: DefaultRootState): string | undefined {
+  return state.aiAssistant.provider;
+}
 
-export const getIsAILoading = (state: DefaultRootState) =>
-  state.aiAssistant.isLoading;
+export function getIsAILoading(state: DefaultRootState): boolean {
+  return state.aiAssistant.isLoading;
+}
 
-export const getAILastResponse = (state: DefaultRootState) =>
-  state.aiAssistant.lastResponse;
+export function getAIMessages(state: DefaultRootState): AIMessage[] {
+  return state.aiAssistant.messages || [];
+}
 
-export const getAIError = (state: DefaultRootState) => state.aiAssistant.error;
+/** @deprecated Use getAIMessages instead */
+export function getAILastResponse(state: DefaultRootState): string | undefined {
+  const messages = state.aiAssistant.messages || [];
 
-export const getIsAIEnabled = (state: DefaultRootState) =>
-  state.aiAssistant.isEnabled;
+  return messages.findLast((m) => m.role === "assistant")?.content;
+}
+
+export function getAIError(state: DefaultRootState): string | undefined {
+  return state.aiAssistant.error;
+}
+
+export function getIsAIEnabled(state: DefaultRootState): boolean {
+  return state.aiAssistant.isEnabled;
+}

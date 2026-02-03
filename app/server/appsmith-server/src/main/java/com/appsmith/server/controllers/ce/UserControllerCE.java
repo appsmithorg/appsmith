@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -231,12 +230,8 @@ public class UserControllerCE {
     public Mono<ResponseDTO<Map<String, Object>>> getAIApiKey(@RequestParam String provider) {
         return userDataService
                 .getAIApiKey(provider)
-                .map(apiKey -> {
-                    Map<String, Object> response = new java.util.HashMap<>();
-                    response.put("provider", provider);
-                    response.put("hasApiKey", apiKey != null && !apiKey.isEmpty());
-                    return response;
-                })
+                .map(apiKey ->
+                        Map.<String, Object>of("provider", provider, "hasApiKey", apiKey != null && !apiKey.isEmpty()))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
@@ -244,28 +239,30 @@ public class UserControllerCE {
     @PostMapping("/ai-assistant/request")
     public Mono<ResponseDTO<Map<String, String>>> requestAIResponse(@RequestBody @Valid AIRequestDTO request) {
         return aiAssistantService
-                .getAIResponse(request.getProvider(), request.getPrompt(), request.getContext())
-                .map(response -> {
-                    Map<String, String> result = new HashMap<>();
-                    result.put("response", response);
-                    result.put("provider", request.getProvider());
-                    return result;
-                })
+                .getAIResponse(
+                        request.getProvider(),
+                        request.getPrompt(),
+                        request.getContext(),
+                        request.getConversationHistory())
+                .map(response -> Map.of("response", response, "provider", request.getProvider()))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
                 .onErrorResume(error -> {
-                    String errorMessage = "Failed to get AI response";
-                    if (error instanceof AppsmithException) {
-                        AppsmithException appsmithError = (AppsmithException) error;
-                        if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
-                            errorMessage = "Invalid API key. Please check your API key in settings.";
-                        } else if (appsmithError.getError().getMessage().contains("Rate limit")) {
-                            errorMessage = "Rate limit exceeded. Please try again later.";
-                        } else {
-                            errorMessage = appsmithError.getError().getMessage();
-                        }
-                    }
+                    String errorMessage = getAIErrorMessage(error);
                     return Mono.just(
                             new ResponseDTO<Map<String, String>>(HttpStatus.BAD_REQUEST.value(), null, errorMessage));
                 });
+    }
+
+    private String getAIErrorMessage(Throwable error) {
+        if (!(error instanceof AppsmithException appsmithError)) {
+            return "Failed to get AI response";
+        }
+        if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
+            return "Invalid API key. Please check your API key in settings.";
+        }
+        if (appsmithError.getError().getMessage().contains("Rate limit")) {
+            return "Rate limit exceeded. Please try again later.";
+        }
+        return appsmithError.getError().getMessage();
     }
 }

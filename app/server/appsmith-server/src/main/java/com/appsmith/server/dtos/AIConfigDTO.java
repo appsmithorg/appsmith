@@ -13,6 +13,9 @@ public class AIConfigDTO {
     @Size(max = 500, message = "API key is too long")
     private String openaiApiKey;
 
+    @Size(max = 500, message = "API key is too long")
+    private String copilotApiKey;
+
     @NotNull(message = "Provider is required") private AIProvider provider;
 
     @NotNull(message = "Enabled flag is required") private Boolean isAIAssistantEnabled;

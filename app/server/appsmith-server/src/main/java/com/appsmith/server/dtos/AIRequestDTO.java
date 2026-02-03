@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class AIRequestDTO {
     @NotBlank(message = "Provider is required")
@@ -17,4 +19,9 @@ public class AIRequestDTO {
 
     @NotNull(message = "Context is required") @Valid
     private AIEditorContextDTO context;
+
+    // Optional conversation history for multi-turn chat
+    @Valid
+    @Size(max = 20, message = "Conversation history cannot exceed 20 messages")
+    private List<AIMessageDTO> conversationHistory;
 }

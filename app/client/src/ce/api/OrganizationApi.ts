@@ -25,6 +25,7 @@ export interface AIConfigResponse {
   provider: string | null;
   hasClaudeApiKey: boolean;
   hasOpenaiApiKey: boolean;
+  hasCopilotApiKey: boolean;
   localLlmUrl?: string;
   localLlmContextSize?: number;
 }
@@ -32,6 +33,7 @@ export interface AIConfigResponse {
 export interface AIConfigRequest {
   claudeApiKey?: string;
   openaiApiKey?: string;
+  copilotApiKey?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   provider: string;

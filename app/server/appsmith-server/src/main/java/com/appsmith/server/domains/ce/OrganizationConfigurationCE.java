@@ -73,6 +73,9 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonView(Views.Internal.class)
     @Encrypted private String openaiApiKey;
 
+    @JsonView(Views.Internal.class)
+    @Encrypted private String copilotApiKey;
+
     @JsonView(Views.Public.class)
     @JsonInclude
     private AIProvider aiProvider;
@@ -118,6 +121,7 @@ public class OrganizationConfigurationCE implements Serializable {
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
         claudeApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeApiKey(), claudeApiKey);
         openaiApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiApiKey(), openaiApiKey);
+        copilotApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotApiKey(), copilotApiKey);
         aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
         isAIAssistantEnabled =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);

@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
@@ -6,9 +12,10 @@ import type CodeMirror from "codemirror";
 import {
   fetchAIResponse,
   clearAIResponse,
+  type AIMessage,
 } from "ee/actions/aiAssistantActions";
 import {
-  getAILastResponse,
+  getAIMessages,
   getIsAILoading,
   getAIError,
 } from "ee/selectors/aiAssistantSelectors";
@@ -371,6 +378,57 @@ const EmptyStateText = styled.div`
   max-width: 240px;
 `;
 
+const ChatMessages = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+`;
+
+const MessageBubble = styled.div<{ isUser: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 95%;
+  align-self: ${(props) => (props.isUser ? "flex-end" : "flex-start")};
+  animation: ${fadeIn} 0.2s ease-out;
+`;
+
+const MessageHeader = styled.div<{ isUser: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ads-v2-color-fg-muted);
+  ${(props) => props.isUser && "justify-content: flex-end;"}
+`;
+
+const MessageContent = styled.div<{ isUser: boolean }>`
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  ${(props) =>
+    props.isUser
+      ? `
+    background: var(--ads-v2-color-bg-brand);
+    color: white;
+    border-bottom-right-radius: 4px;
+  `
+      : `
+    background: var(--ads-v2-color-bg-subtle);
+    color: var(--ads-v2-color-fg);
+    border-bottom-left-radius: 4px;
+  `}
+`;
+
+const ClearChatButton = styled(Button)`
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 // ============================================================================
 // Quick Actions Configuration
 // ============================================================================
@@ -452,18 +510,18 @@ function extractCodeBlocks(
   return parts;
 }
 
-function getModeLabel(mode: string): string {
-  const modeMap: Record<string, string> = {
-    javascript: "JavaScript",
-    "text/x-sql": "SQL",
-    sql: "SQL",
-    "text/x-pgsql": "PostgreSQL",
-    "text/x-mysql": "MySQL",
-    graphql: "GraphQL",
-    json: "JSON",
-  };
+const MODE_LABELS: Record<string, string> = {
+  javascript: "JavaScript",
+  "text/x-sql": "SQL",
+  sql: "SQL",
+  "text/x-pgsql": "PostgreSQL",
+  "text/x-mysql": "MySQL",
+  graphql: "GraphQL",
+  json: "JSON",
+};
 
-  return modeMap[mode] || mode;
+function getModeLabel(mode: string): string {
+  return MODE_LABELS[mode] || mode;
 }
 
 // ============================================================================
@@ -476,15 +534,23 @@ export function AISidePanel(props: AISidePanelProps) {
   const dispatch = useDispatch();
   const [prompt, setPrompt] = useState("");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const lastResponse = useSelector(getAILastResponse);
+  const messages = useSelector(getAIMessages);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Clear AI response when mode changes (switching between editors)
   useEffect(() => {
     dispatch(clearAIResponse());
     setPrompt("");
   }, [mode, dispatch]);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   // Get current context info
   const contextInfo = useMemo(() => {
@@ -503,12 +569,9 @@ export function AISidePanel(props: AISidePanelProps) {
     };
   }, [editor, mode]);
 
-  // Parse response into text and code blocks
-  const responseParts = useMemo(() => {
-    if (!lastResponse) return [];
-
-    // Convert mode to a simple language name for code blocks
-    const languageMap: Record<string, string> = {
+  // Get default language for code blocks based on mode
+  const defaultLang = useMemo(() => {
+    const CODE_LANGUAGES: Record<string, string> = {
       javascript: "javascript",
       "text/x-sql": "sql",
       sql: "sql",
@@ -518,10 +581,14 @@ export function AISidePanel(props: AISidePanelProps) {
       "application/json": "json",
       json: "json",
     };
-    const defaultLang = languageMap[mode] || mode || "javascript";
 
-    return extractCodeBlocks(lastResponse, defaultLang);
-  }, [lastResponse, mode]);
+    return CODE_LANGUAGES[mode] || mode || "javascript";
+  }, [mode]);
+
+  const handleClearChat = useCallback(() => {
+    dispatch(clearAIResponse());
+    setPrompt("");
+  }, [dispatch]);
 
   const handleSend = useCallback(() => {
     if (!prompt.trim() || !editor) return;
@@ -580,9 +647,7 @@ export function AISidePanel(props: AISidePanelProps) {
   }, []);
 
   const handleInsertCode = useCallback(
-    (code: string) => {
-      onApplyCode(code);
-    },
+    (code: string) => onApplyCode(code),
     [onApplyCode],
   );
 
@@ -605,15 +670,28 @@ export function AISidePanel(props: AISidePanelProps) {
           <Icon className="sparkle-icon" name="sparkling-filled" size="md" />
           <Text kind="heading-xs">AI Assistant</Text>
         </HeaderTitle>
-        <Tooltip content="Close (Esc)" placement="bottom">
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={onClose}
-            size="sm"
-            startIcon="close-line"
-          />
-        </Tooltip>
+        <div style={{ display: "flex", gap: "4px" }}>
+          {messages.length > 0 && (
+            <Tooltip content="Clear chat" placement="bottom">
+              <ClearChatButton
+                isIconButton
+                kind="tertiary"
+                onClick={handleClearChat}
+                size="sm"
+                startIcon="delete-bin-line"
+              />
+            </Tooltip>
+          )}
+          <Tooltip content="Close (Esc)" placement="bottom">
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={onClose}
+              size="sm"
+              startIcon="close-line"
+            />
+          </Tooltip>
+        </div>
       </PanelHeader>
 
       <PanelContent>
@@ -676,8 +754,102 @@ export function AISidePanel(props: AISidePanelProps) {
           </ContextSection>
         )}
 
-        {/* Response Section */}
+        {/* Messages Section */}
         <ResponseSection>
+          {messages.length === 0 && !isLoading && !error && (
+            <EmptyState>
+              <Icon className="empty-icon" name="ai-chat" size="lg" />
+              <EmptyStateText>
+                Ask me anything about your code. I can explain, fix errors,
+                refactor, or help you write new functionality.
+              </EmptyStateText>
+            </EmptyState>
+          )}
+
+          {messages.length > 0 && (
+            <ChatMessages>
+              {messages.map((message: AIMessage, msgIndex: number) => (
+                <MessageBubble isUser={message.role === "user"} key={msgIndex}>
+                  <MessageHeader isUser={message.role === "user"}>
+                    <Icon
+                      name={message.role === "user" ? "user-3-line" : "robot"}
+                      size="sm"
+                    />
+                    {message.role === "user" ? "You" : "AI Assistant"}
+                  </MessageHeader>
+                  {message.role === "user" ? (
+                    <MessageContent isUser>{message.content}</MessageContent>
+                  ) : (
+                    <ResponseContent>
+                      {extractCodeBlocks(message.content, defaultLang).map(
+                        (part, partIndex) =>
+                          part.type === "text" ? (
+                            <ResponseText key={partIndex}>
+                              {part.content}
+                            </ResponseText>
+                          ) : (
+                            <CodeBlock key={partIndex}>
+                              <CodeBlockHeader>
+                                <CodeBlockLanguage>
+                                  {part.language || "code"}
+                                </CodeBlockLanguage>
+                                <CodeBlockActions>
+                                  <Tooltip
+                                    content={
+                                      copiedIndex === msgIndex * 100 + partIndex
+                                        ? "Copied!"
+                                        : "Copy"
+                                    }
+                                    placement="top"
+                                  >
+                                    <Button
+                                      isIconButton
+                                      kind="tertiary"
+                                      onClick={() =>
+                                        void handleCopyCode(
+                                          part.content,
+                                          msgIndex * 100 + partIndex,
+                                        )
+                                      }
+                                      size="sm"
+                                      startIcon={
+                                        copiedIndex ===
+                                        msgIndex * 100 + partIndex
+                                          ? "check-line"
+                                          : "copy-control"
+                                      }
+                                    />
+                                  </Tooltip>
+                                  <Tooltip
+                                    content="Insert at cursor"
+                                    placement="top"
+                                  >
+                                    <Button
+                                      isIconButton
+                                      kind="tertiary"
+                                      onClick={() =>
+                                        handleInsertCode(part.content)
+                                      }
+                                      size="sm"
+                                      startIcon="download-line"
+                                    />
+                                  </Tooltip>
+                                </CodeBlockActions>
+                              </CodeBlockHeader>
+                              <CodeBlockContent>
+                                <code>{part.content}</code>
+                              </CodeBlockContent>
+                            </CodeBlock>
+                          ),
+                      )}
+                    </ResponseContent>
+                  )}
+                </MessageBubble>
+              ))}
+              <div ref={messagesEndRef} />
+            </ChatMessages>
+          )}
+
           {isLoading && (
             <LoadingState>
               <LoadingText>
@@ -688,75 +860,6 @@ export function AISidePanel(props: AISidePanelProps) {
           )}
 
           {error && !isLoading && <ErrorState>{error}</ErrorState>}
-
-          {!isLoading && !error && responseParts.length > 0 && (
-            <ResponseContent>
-              {responseParts.map((part, index) =>
-                part.type === "text" ? (
-                  <ResponseText key={index}>{part.content}</ResponseText>
-                ) : (
-                  <CodeBlock key={index}>
-                    <CodeBlockHeader>
-                      <CodeBlockLanguage>
-                        {part.language || "code"}
-                      </CodeBlockLanguage>
-                      <CodeBlockActions>
-                        <Tooltip
-                          content={copiedIndex === index ? "Copied!" : "Copy"}
-                          placement="top"
-                        >
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() =>
-                              void handleCopyCode(part.content, index)
-                            }
-                            size="sm"
-                            startIcon={
-                              copiedIndex === index
-                                ? "check-line"
-                                : "copy-control"
-                            }
-                          />
-                        </Tooltip>
-                        <Tooltip content="Insert at cursor" placement="top">
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() => handleInsertCode(part.content)}
-                            size="sm"
-                            startIcon="download-line"
-                          />
-                        </Tooltip>
-                        <Tooltip content="Replace selection" placement="top">
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() => handleInsertCode(part.content)}
-                            size="sm"
-                            startIcon="restart-line"
-                          />
-                        </Tooltip>
-                      </CodeBlockActions>
-                    </CodeBlockHeader>
-                    <CodeBlockContent>
-                      <code>{part.content}</code>
-                    </CodeBlockContent>
-                  </CodeBlock>
-                ),
-              )}
-            </ResponseContent>
-          )}
-
-          {!isLoading && !error && responseParts.length === 0 && (
-            <EmptyState>
-              <Icon className="empty-icon" name="ai-chat" size="lg" />
-              <EmptyStateText>
-                Ask me anything about your code. I can explain, fix errors,
-                refactor, or help you write new functionality.
-              </EmptyStateText>
-            </EmptyState>
-          )}
         </ResponseSection>
       </PanelContent>
     </PanelContainer>

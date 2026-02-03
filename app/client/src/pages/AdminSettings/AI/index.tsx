@@ -10,6 +10,7 @@ interface AIConfigData {
   provider?: string;
   hasClaudeApiKey?: boolean;
   hasOpenaiApiKey?: boolean;
+  hasCopilotApiKey?: boolean;
   localLlmUrl?: string;
   localLlmContextSize?: number;
 }
@@ -50,6 +51,16 @@ const LabelWrapper = styled.div`
 
 const HintText = styled(Text)`
   font-style: italic;
+`;
+
+const EnabledSwitch = styled.div`
+  /* Override switch track color when checked to use green for better visibility */
+  input:checked {
+    background-color: var(--ads-v2-color-green-600) !important;
+  }
+  input:checked:hover {
+    background-color: var(--ads-v2-color-green-700, #047857) !important;
+  }
 `;
 
 const TestResultBox = styled.div<{ success?: boolean }>`
@@ -150,6 +161,7 @@ function AISettings() {
   const [provider, setProvider] = useState<string>("CLAUDE");
   const [claudeApiKey, setClaudeApiKey] = useState<string>("");
   const [openaiApiKey, setOpenaiApiKey] = useState<string>("");
+  const [copilotApiKey, setCopilotApiKey] = useState<string>("");
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
   const [isAIAssistantEnabled, setIsAIAssistantEnabled] =
@@ -182,6 +194,7 @@ function AISettings() {
           );
           setClaudeApiKey(config.hasClaudeApiKey ? "••••••••" : "");
           setOpenaiApiKey(config.hasOpenaiApiKey ? "••••••••" : "");
+          setCopilotApiKey(config.hasCopilotApiKey ? "••••••••" : "");
           setLocalLlmUrl(config.localLlmUrl || "");
           // -1 is sentinel value meaning "not set"
           const contextSize = config.localLlmContextSize;
@@ -208,6 +221,7 @@ function AISettings() {
         isAIAssistantEnabled: boolean;
         claudeApiKey?: string;
         openaiApiKey?: string;
+        copilotApiKey?: string;
         localLlmUrl?: string;
         localLlmContextSize?: number;
       } = {
@@ -229,6 +243,14 @@ function AISettings() {
         openaiApiKey !== "••••••••"
       ) {
         request.openaiApiKey = openaiApiKey;
+      }
+
+      if (
+        provider === "COPILOT" &&
+        copilotApiKey &&
+        copilotApiKey !== "••••••••"
+      ) {
+        request.copilotApiKey = copilotApiKey;
       }
 
       if (provider === "LOCAL_LLM") {
@@ -255,6 +277,10 @@ function AISettings() {
 
         if (openaiApiKey && openaiApiKey !== "••••••••") {
           setOpenaiApiKey("••••••••");
+        }
+
+        if (copilotApiKey && copilotApiKey !== "••••••••") {
+          setCopilotApiKey("••••••••");
         }
       } else {
         toast.show("Failed to save AI configuration", { kind: "error" });
@@ -305,14 +331,15 @@ function AISettings() {
 
     try {
       // Pass the current key if it's been modified (not the masked placeholder)
-      const keyToTest =
-        provider === "CLAUDE"
-          ? claudeApiKey !== "••••••••"
-            ? claudeApiKey
-            : undefined
-          : openaiApiKey !== "••••••••"
-            ? openaiApiKey
-            : undefined;
+      let keyToTest: string | undefined;
+
+      if (provider === "CLAUDE") {
+        keyToTest = claudeApiKey !== "••••••••" ? claudeApiKey : undefined;
+      } else if (provider === "OPENAI") {
+        keyToTest = openaiApiKey !== "••••••••" ? openaiApiKey : undefined;
+      } else if (provider === "COPILOT") {
+        keyToTest = copilotApiKey !== "••••••••" ? copilotApiKey : undefined;
+      }
 
       const response = (await OrganizationApi.testApiKey(
         provider,
@@ -355,14 +382,16 @@ function AISettings() {
 
         <FieldWrapper>
           <LabelWrapper>
-            <Switch
-              isSelected={isAIAssistantEnabled}
-              onChange={function handleAIToggle(value) {
-                setIsAIAssistantEnabled(value);
-              }}
-            >
-              <Text kind="body-m">Enable AI Assistant</Text>
-            </Switch>
+            <EnabledSwitch>
+              <Switch
+                isSelected={isAIAssistantEnabled}
+                onChange={function handleAIToggle(value) {
+                  setIsAIAssistantEnabled(value);
+                }}
+              >
+                <Text kind="body-m">Enable AI Assistant</Text>
+              </Switch>
+            </EnabledSwitch>
           </LabelWrapper>
           <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
             When enabled, all users in your organization can use AI assistance
@@ -383,6 +412,7 @@ function AISettings() {
             options={[
               { label: "Claude (Anthropic)", value: "CLAUDE" },
               { label: "OpenAI (ChatGPT)", value: "OPENAI" },
+              { label: "MS Copilot (Azure)", value: "COPILOT" },
               { label: "Use Local LLM", value: "LOCAL_LLM" },
             ]}
             value={provider}
@@ -564,6 +594,161 @@ function AISettings() {
             <ButtonRow style={{ marginTop: "8px" }}>
               <Button
                 isDisabled={!openaiApiKey}
+                isLoading={isTestingApiKey}
+                kind="secondary"
+                onClick={handleTestApiKey}
+                size="sm"
+              >
+                Test Key
+              </Button>
+              {isTestingApiKey && (
+                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                  Testing API key...
+                </Text>
+              )}
+            </ButtonRow>
+
+            {apiKeyTestResult && (
+              <TestResultBox success={apiKeyTestResult.success}>
+                <Text
+                  color={
+                    apiKeyTestResult.success
+                      ? "var(--ads-v2-color-fg-success)"
+                      : "var(--ads-v2-color-fg-error)"
+                  }
+                  kind="heading-s"
+                >
+                  {apiKeyTestResult.success
+                    ? "✓ API Key Valid"
+                    : "✗ API Key Test Failed"}
+                </Text>
+
+                {apiKeyTestResult.steps &&
+                  apiKeyTestResult.steps.length > 0 && (
+                    <StepList>
+                      {apiKeyTestResult.steps.map((step, index) => (
+                        <StepItem key={index} status={step.status}>
+                          <span>
+                            {step.status === "success"
+                              ? "✓"
+                              : step.status === "error"
+                                ? "✗"
+                                : "○"}
+                          </span>
+                          <span>
+                            {step.name}
+                            {step.detail && ` - ${step.detail}`}
+                          </span>
+                        </StepItem>
+                      ))}
+                    </StepList>
+                  )}
+
+                {apiKeyTestResult.message && (
+                  <Text kind="body-s" style={{ marginTop: "8px" }}>
+                    {apiKeyTestResult.message}
+                  </Text>
+                )}
+
+                {(apiKeyTestResult as TestResult & { testResponse?: string })
+                  .testResponse && (
+                  <Text
+                    color="var(--ads-v2-color-fg-muted)"
+                    kind="body-s"
+                    style={{ marginTop: "4px" }}
+                  >
+                    Response: &quot;
+                    {
+                      (
+                        apiKeyTestResult as TestResult & {
+                          testResponse?: string;
+                        }
+                      ).testResponse
+                    }
+                    &quot;
+                  </Text>
+                )}
+
+                {apiKeyTestResult.error && (
+                  <ErrorMessage>
+                    <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
+                      {apiKeyTestResult.error}
+                    </Text>
+                  </ErrorMessage>
+                )}
+
+                {apiKeyTestResult.responseTimeMs !== undefined && (
+                  <TestResultDetails>
+                    <div>
+                      Response Time: {apiKeyTestResult.responseTimeMs}ms
+                    </div>
+                    {apiKeyTestResult.httpStatus && (
+                      <div>HTTP Status: {apiKeyTestResult.httpStatus}</div>
+                    )}
+                  </TestResultDetails>
+                )}
+
+                {apiKeyTestResult.responsePreview && (
+                  <>
+                    <Text
+                      kind="body-s"
+                      style={{ marginTop: "8px", fontWeight: 500 }}
+                    >
+                      Response from API:
+                    </Text>
+                    <ResponsePreview>
+                      {apiKeyTestResult.responsePreview}
+                    </ResponsePreview>
+                  </>
+                )}
+
+                {apiKeyTestResult.suggestions &&
+                  apiKeyTestResult.suggestions.length > 0 && (
+                    <>
+                      <Text
+                        kind="body-s"
+                        style={{ marginTop: "12px", fontWeight: 500 }}
+                      >
+                        Suggestions:
+                      </Text>
+                      <SuggestionList>
+                        {apiKeyTestResult.suggestions.map(
+                          (suggestion, index) => (
+                            <li key={index}>
+                              <Text kind="body-s">{suggestion}</Text>
+                            </li>
+                          ),
+                        )}
+                      </SuggestionList>
+                    </>
+                  )}
+              </TestResultBox>
+            )}
+          </FieldWrapper>
+        )}
+
+        {provider === "COPILOT" && (
+          <FieldWrapper>
+            <LabelWrapper>
+              <Text kind="body-m">MS Copilot API Key</Text>
+            </LabelWrapper>
+            <Input
+              onChange={function handleCopilotKeyChange(value) {
+                setCopilotApiKey(value);
+                setApiKeyTestResult(null);
+              }}
+              placeholder="Enter MS Copilot API key (leave blank to keep existing)"
+              type="password"
+              value={copilotApiKey}
+            />
+            <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+              Get your API key from https://portal.azure.com/ (Azure OpenAI
+              Service)
+            </Text>
+
+            <ButtonRow style={{ marginTop: "8px" }}>
+              <Button
+                isDisabled={!copilotApiKey}
                 isLoading={isTestingApiKey}
                 kind="secondary"
                 onClick={handleTestApiKey}

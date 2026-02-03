@@ -1,6 +1,12 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
+export interface AIMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
+}
+
 export interface UpdateAISettingsPayload {
   provider?: string;
   hasApiKey?: boolean;

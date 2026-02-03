@@ -10,15 +10,34 @@ import {
 import UserApi from "ee/api/UserApi";
 import OrganizationApi from "ee/api/OrganizationApi";
 import { getAIAssistantState } from "ee/selectors/aiAssistantSelectors";
+import type { AIAssistantReduxState } from "ee/reducers/aiAssistantReducer";
 import { toast } from "@appsmith/ads";
+
+interface AIResponseBody {
+  responseMeta?: { success?: boolean; error?: { message?: string } };
+  data?: { response?: string; error?: string };
+  errorMessage?: string;
+  message?: string;
+}
+
+function extractErrorMessage(responseBody: AIResponseBody): string {
+  return (
+    responseBody?.responseMeta?.error?.message ||
+    responseBody?.data?.error ||
+    responseBody?.errorMessage ||
+    responseBody?.message ||
+    "Failed to get AI response. Please check your AI settings."
+  );
+}
 
 function* fetchAIResponseSaga(
   action: ReduxAction<FetchAIResponsePayload>,
 ): Generator<unknown, void, unknown> {
   try {
     const { context, prompt } = action.payload;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const aiState: any = yield select(getAIAssistantState);
+    const aiState = (yield select(
+      getAIAssistantState,
+    )) as AIAssistantReduxState;
 
     if (!aiState.isEnabled || !aiState.provider) {
       yield put(
@@ -31,37 +50,35 @@ function* fetchAIResponseSaga(
       return;
     }
 
+    // Build conversation history from state, excluding the just-added user message
+    const messages = aiState.messages || [];
+
+    const conversationHistory = messages.slice(0, -1).map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = yield call(
       UserApi.requestAIResponse,
       aiState.provider,
       prompt,
       context,
+      conversationHistory.length > 0 ? conversationHistory : undefined,
     );
 
-    // Handle both wrapped (axios raw) and unwrapped (interceptor) response formats
-    // If response has responseMeta at root, it's already unwrapped
-    // Otherwise, the actual API response is in response.data
-    const hasResponseMeta = response?.responseMeta !== undefined;
-    const responseBody = hasResponseMeta ? response : response?.data;
+    // Normalize response format (axios raw vs interceptor unwrapped)
+    const responseBody: AIResponseBody =
+      response?.responseMeta !== undefined ? response : response?.data;
 
-    const responseMeta = responseBody?.responseMeta;
-    const isSuccess = responseMeta?.success ?? false;
+    const isSuccess = responseBody?.responseMeta?.success ?? false;
 
     if (isSuccess && responseBody?.data?.response) {
       yield put(
-        fetchAIResponseSuccess({
-          response: responseBody.data.response,
-        }),
+        fetchAIResponseSuccess({ response: responseBody.data.response }),
       );
     } else {
-      // Extract error message from various possible locations
-      const errorMsg =
-        responseMeta?.error?.message ||
-        responseBody?.data?.error ||
-        responseBody?.errorMessage ||
-        responseBody?.message ||
-        "Failed to get AI response. Please check your AI settings.";
+      const errorMsg = extractErrorMessage(responseBody);
 
       yield put(fetchAIResponseError({ error: errorMsg }));
       toast.show(errorMsg, { kind: "error" });
@@ -75,27 +92,32 @@ function* fetchAIResponseSaga(
   }
 }
 
+interface AIConfigResponse {
+  provider?: string;
+  hasClaudeApiKey?: boolean;
+  hasOpenaiApiKey?: boolean;
+  isAIAssistantEnabled?: boolean;
+}
+
 function* loadAISettingsSaga(): Generator<unknown, void, unknown> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = yield call(OrganizationApi.getAIConfig);
 
-    // The API can return data in two formats:
-    // 1. Standard format: { responseMeta: { success: true }, data: { ... } }
-    // 2. Direct format: { hasClaudeApiKey, hasOpenaiApiKey, ... } (from /ai-config endpoint)
+    // Normalize response format (standard wrapped vs direct)
     const responseData = response.data;
-    const hasStandardFormat =
-      responseData.responseMeta && responseData.responseMeta.success;
-    const config = hasStandardFormat ? responseData.data : responseData;
+    const config: AIConfigResponse = responseData?.responseMeta?.success
+      ? responseData.data
+      : responseData;
 
     yield put(
       updateAISettings({
-        provider: config.provider || undefined,
-        hasApiKey: config.hasClaudeApiKey || config.hasOpenaiApiKey,
-        isEnabled: config.isAIAssistantEnabled || false,
+        provider: config.provider,
+        hasApiKey: Boolean(config.hasClaudeApiKey || config.hasOpenaiApiKey),
+        isEnabled: Boolean(config.isAIAssistantEnabled),
       }),
     );
-  } catch (error) {
+  } catch {
     yield put(
       updateAISettings({
         provider: undefined,
