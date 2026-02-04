@@ -92,6 +92,10 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonInclude
     private Integer localLlmContextSize;
 
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private String localLlmModel;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -128,6 +132,7 @@ public class OrganizationConfigurationCE implements Serializable {
         localLlmUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmUrl(), localLlmUrl);
         localLlmContextSize =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmContextSize(), localLlmContextSize);
+        localLlmModel = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmModel(), localLlmModel);
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {

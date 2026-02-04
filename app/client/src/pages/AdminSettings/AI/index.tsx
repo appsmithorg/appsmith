@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, Select, Switch, Text } from "@appsmith/ads";
+import { Button, Input, Select, Spinner, Switch, Text } from "@appsmith/ads";
 import styled from "styled-components";
-import OrganizationApi from "ee/api/OrganizationApi";
+import OrganizationApi, { type OllamaModel } from "ee/api/OrganizationApi";
 import { toast } from "@appsmith/ads";
 
 // Response types (unwrapped by axios interceptors)
@@ -18,6 +18,7 @@ interface AIConfigData {
   hasCopilotApiKey?: boolean;
   localLlmUrl?: string;
   localLlmContextSize?: number;
+  localLlmModel?: string;
   hasExternalReferenceFiles?: boolean;
   externalReferenceFiles?: ExternalReferenceFile[];
 }
@@ -212,12 +213,97 @@ const FileChip = styled.span`
   color: var(--ads-v2-color-fg);
 `;
 
+// Context size preset styles
+const ContextSizeGroup = styled.div`
+  display: flex;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--ads-v2-color-border);
+  width: fit-content;
+`;
+
+const ContextPresetButton = styled.button<{ isActive: boolean }>`
+  padding: 8px 16px;
+  border: none;
+  background: ${(props) =>
+    props.isActive
+      ? "var(--ads-v2-color-bg-emphasis)"
+      : "var(--ads-v2-color-bg)"};
+  color: ${(props) =>
+    props.isActive
+      ? "var(--ads-v2-color-fg-on-emphasis)"
+      : "var(--ads-v2-color-fg)"};
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-right: 1px solid var(--ads-v2-color-border);
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover:not(:disabled) {
+    background: ${(props) =>
+      props.isActive
+        ? "var(--ads-v2-color-bg-emphasis-plus)"
+        : "var(--ads-v2-color-bg-subtle)"};
+  }
+`;
+
+const CustomContextInput = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-2);
+  margin-top: var(--ads-v2-spaces-2);
+`;
+
+// Model selector styles
+const ModelSelectWrapper = styled.div<{ isLoading?: boolean }>`
+  position: relative;
+  opacity: ${(props) => (props.isLoading ? 0.6 : 1)};
+  transition: opacity 0.2s ease;
+`;
+
+const ModelLoadingOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ads-v2-spaces-2);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--ads-v2-border-radius);
+`;
+
+const ModelRevealWrapper = styled.div<{ isVisible: boolean }>`
+  max-height: ${(props) => (props.isVisible ? "200px" : "0")};
+  opacity: ${(props) => (props.isVisible ? 1 : 0)};
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+`;
+
+const CONTEXT_PRESETS = [
+  { label: "4K", value: 4096 },
+  { label: "8K", value: 8192 },
+  { label: "16K", value: 16384 },
+  { label: "32K", value: 32768 },
+  { label: "128K", value: 131072 },
+  { label: "Custom", value: "custom" },
+] as const;
+
+const STEP_ICONS: Record<"success" | "error" | "pending", string> = {
+  success: "\u2713",
+  error: "\u2717",
+  pending: "\u25CB",
+};
+
 function getStepIcon(status: "success" | "error" | "pending"): string {
-  if (status === "success") return "\u2713";
-
-  if (status === "error") return "\u2717";
-
-  return "\u25CB";
+  return STEP_ICONS[status];
 }
 
 interface TestResultDisplayProps {
@@ -358,6 +444,7 @@ function AISettings() {
   const [copilotApiKey, setCopilotApiKey] = useState<string>("");
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
+  const [localLlmModel, setLocalLlmModel] = useState<string>("");
   const [isAIAssistantEnabled, setIsAIAssistantEnabled] =
     useState<boolean>(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -371,6 +458,12 @@ function AISettings() {
   const [externalReferenceFiles, setExternalReferenceFiles] = useState<
     ExternalReferenceFile[]
   >([]);
+  // New state for model selection and context presets
+  const [availableModels, setAvailableModels] = useState<OllamaModel[]>([]);
+  const [isFetchingModels, setIsFetchingModels] = useState(false);
+  const [contextSizePreset, setContextSizePreset] = useState<string | null>(
+    null,
+  );
 
   useEffect(function fetchAIConfigOnMount() {
     const fetchAIConfig = async () => {
@@ -399,6 +492,20 @@ function AISettings() {
           setLocalLlmContextSize(
             contextSize && contextSize > 0 ? contextSize.toString() : "",
           );
+          setLocalLlmModel(config.localLlmModel || "");
+
+          // Determine context size preset from saved value
+          if (contextSize && contextSize > 0) {
+            const matchingPreset = CONTEXT_PRESETS.find(
+              (p) => p.value === contextSize,
+            );
+
+            if (matchingPreset && matchingPreset.value !== "custom") {
+              setContextSizePreset(null);
+            } else {
+              setContextSizePreset("custom");
+            }
+          }
 
           // Set external reference files if present
           if (
@@ -418,6 +525,32 @@ function AISettings() {
     fetchAIConfig();
   }, []);
 
+  const fetchAvailableModels = async (url: string) => {
+    if (!url.trim()) return;
+
+    setIsFetchingModels(true);
+    try {
+      const response = (await OrganizationApi.fetchLlmModels(
+        url.trim(),
+      )) as unknown as UnwrappedApiResponse<{
+        success: boolean;
+        models: OllamaModel[];
+      }>;
+
+      if (response.responseMeta.success && response.data.success) {
+        setAvailableModels(response.data.models || []);
+      } else {
+        toast.show("Could not fetch available models", { kind: "warning" });
+        setAvailableModels([]);
+      }
+    } catch (error) {
+      toast.show("Could not fetch available models", { kind: "warning" });
+      setAvailableModels([]);
+    } finally {
+      setIsFetchingModels(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -429,6 +562,7 @@ function AISettings() {
         copilotApiKey?: string;
         localLlmUrl?: string;
         localLlmContextSize?: number;
+        localLlmModel?: string;
       } = {
         provider,
         isAIAssistantEnabled,
@@ -465,6 +599,10 @@ function AISettings() {
 
         if (localLlmContextSize) {
           request.localLlmContextSize = parseInt(localLlmContextSize, 10);
+        }
+
+        if (localLlmModel) {
+          request.localLlmModel = localLlmModel;
         }
       }
 
@@ -514,6 +652,11 @@ function AISettings() {
 
       if (response.responseMeta.success) {
         setTestResult(response.data);
+
+        // Auto-fetch models on successful connection
+        if (response.data.success) {
+          await fetchAvailableModels(localLlmUrl);
+        }
       } else {
         setTestResult({
           success: false,
@@ -774,40 +917,26 @@ function AISettings() {
               <Input
                 onChange={function handleLocalLlmUrlChange(value) {
                   setLocalLlmUrl(value);
+                  // Reset models when URL changes
+                  setAvailableModels([]);
+                  setLocalLlmModel("");
+                  setTestResult(null);
                 }}
                 placeholder="http://localhost:11434/api/generate"
                 type="text"
                 value={localLlmUrl}
               />
               <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                The URL should typically end with /generate or /chat (e.g.,
-                Ollama uses /api/generate), but this may vary by provider.
+                Enter your Ollama endpoint URL (e.g.,
+                http://localhost:11434/api/generate)
               </HintText>
-            </FieldWrapper>
-
-            <FieldWrapper>
-              <LabelWrapper>
-                <Text kind="body-m">Context Size</Text>
-              </LabelWrapper>
-              <Input
-                onChange={function handleContextSizeChange(value) {
-                  setLocalLlmContextSize(value);
-                }}
-                placeholder="4096"
-                type="number"
-                value={localLlmContextSize}
-              />
-              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                Maximum context window size in tokens. Check your model
-                documentation for recommended values.
-              </Text>
             </FieldWrapper>
 
             <FieldWrapper>
               <ButtonRow>
                 <Button
                   isDisabled={!localLlmUrl.trim()}
-                  isLoading={isTesting}
+                  isLoading={isTesting || isFetchingModels}
                   kind="secondary"
                   onClick={handleTestConnection}
                   size="md"
@@ -829,6 +958,107 @@ function AISettings() {
                   successLabel={"\u2713 Connection Successful"}
                 />
               )}
+            </FieldWrapper>
+
+            {/* Model Selection - Only shown after successful connection */}
+            <ModelRevealWrapper
+              isVisible={testResult?.success || availableModels.length > 0}
+            >
+              <FieldWrapper>
+                <LabelWrapper>
+                  <Text kind="body-m">Model</Text>
+                </LabelWrapper>
+                <ModelSelectWrapper isLoading={isFetchingModels}>
+                  <Select
+                    isDisabled={
+                      isFetchingModels || availableModels.length === 0
+                    }
+                    onChange={function handleModelChange(value) {
+                      setLocalLlmModel(value as string);
+                    }}
+                    options={availableModels.map((model) => ({
+                      label: model.details?.parameter_size
+                        ? `${model.name} (${model.details.parameter_size})`
+                        : model.name,
+                      value: model.name,
+                    }))}
+                    placeholder={
+                      isFetchingModels ? "Loading models..." : "Select a model"
+                    }
+                    value={localLlmModel}
+                  />
+                  {isFetchingModels && (
+                    <ModelLoadingOverlay>
+                      <Spinner size="sm" />
+                      <Text kind="body-s">Fetching models...</Text>
+                    </ModelLoadingOverlay>
+                  )}
+                </ModelSelectWrapper>
+                {availableModels.length === 0 &&
+                  !isFetchingModels &&
+                  testResult?.success && (
+                    <Text color="var(--ads-v2-color-fg-warning)" kind="body-s">
+                      No models found. Make sure Ollama has models installed
+                      (run: ollama pull llama3.2)
+                    </Text>
+                  )}
+              </FieldWrapper>
+            </ModelRevealWrapper>
+
+            {/* Context Size with Presets */}
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Context Size</Text>
+              </LabelWrapper>
+              <ContextSizeGroup>
+                {CONTEXT_PRESETS.map((preset) => (
+                  <ContextPresetButton
+                    isActive={
+                      preset.value === "custom"
+                        ? contextSizePreset === "custom"
+                        : localLlmContextSize === String(preset.value)
+                    }
+                    key={preset.label}
+                    onClick={function handlePresetClick() {
+                      if (preset.value === "custom") {
+                        setContextSizePreset("custom");
+                      } else {
+                        setContextSizePreset(null);
+                        setLocalLlmContextSize(String(preset.value));
+                      }
+                    }}
+                    type="button"
+                  >
+                    {preset.label}
+                  </ContextPresetButton>
+                ))}
+              </ContextSizeGroup>
+
+              {contextSizePreset === "custom" && (
+                <CustomContextInput>
+                  <Input
+                    onChange={function handleCustomContextChange(value) {
+                      setLocalLlmContextSize(value);
+                    }}
+                    placeholder="Enter custom size (tokens)"
+                    style={{ width: "200px" }}
+                    type="number"
+                    value={localLlmContextSize}
+                  />
+                  <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    tokens
+                  </Text>
+                </CustomContextInput>
+              )}
+
+              <Text
+                color="var(--ads-v2-color-fg-muted)"
+                kind="body-s"
+                style={{ marginTop: "8px" }}
+              >
+                Maximum context window size. Larger values use more memory but
+                allow longer conversations.
+              </Text>
             </FieldWrapper>
           </>
         )}

@@ -24,4 +24,7 @@ public class AIConfigDTO {
     private String localLlmUrl;
 
     private Integer localLlmContextSize;
+
+    @Size(max = 200, message = "Model name is too long")
+    private String localLlmModel;
 }

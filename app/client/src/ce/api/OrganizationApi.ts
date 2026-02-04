@@ -20,6 +20,15 @@ export interface UpdateOrganizationConfigRequest {
   apiConfig?: AxiosRequestConfig;
 }
 
+export interface OllamaModel {
+  name: string;
+  size?: number;
+  details?: {
+    parameter_size?: string;
+    quantization_level?: string;
+  };
+}
+
 export interface AIConfigResponse {
   isAIAssistantEnabled: boolean;
   provider: string | null;
@@ -28,6 +37,7 @@ export interface AIConfigResponse {
   hasCopilotApiKey: boolean;
   localLlmUrl?: string;
   localLlmContextSize?: number;
+  localLlmModel?: string;
 }
 
 export interface AIConfigRequest {
@@ -36,6 +46,7 @@ export interface AIConfigRequest {
   copilotApiKey?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
+  localLlmModel?: string;
   provider: string;
   isAIAssistantEnabled: boolean;
 }
@@ -107,6 +118,16 @@ export class OrganizationApi extends Api {
     return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-api-key`, {
       provider,
       apiKey,
+    });
+  }
+
+  static async fetchLlmModels(
+    url: string,
+  ): Promise<
+    AxiosPromise<ApiResponse<{ success: boolean; models: OllamaModel[] }>>
+  > {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/fetch-models`, {
+      url,
     });
   }
 }

@@ -10,13 +10,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.ssl.SslHandshakeTimeoutException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -86,106 +86,56 @@ public class OrganizationControllerCE {
                                 config = new OrganizationConfiguration();
                             }
 
-                            if (aiConfig.getClaudeApiKey() != null
-                                    && !aiConfig.getClaudeApiKey().trim().isEmpty()) {
-                                String trimmedKey = aiConfig.getClaudeApiKey().trim();
-                                if (trimmedKey.length() > 500) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_PARAMETER, "API key is too long"));
-                                }
-                                config.setClaudeApiKey(trimmedKey);
+                            // Set API keys with validation
+                            String claudeKeyError = setApiKeyIfPresent(
+                                    aiConfig.getClaudeApiKey(), config::setClaudeApiKey, 500, "Claude API key");
+                            if (claudeKeyError != null) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, claudeKeyError));
                             }
-                            if (aiConfig.getOpenaiApiKey() != null
-                                    && !aiConfig.getOpenaiApiKey().trim().isEmpty()) {
-                                String trimmedKey = aiConfig.getOpenaiApiKey().trim();
-                                if (trimmedKey.length() > 500) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_PARAMETER, "API key is too long"));
-                                }
-                                config.setOpenaiApiKey(trimmedKey);
+
+                            String openaiKeyError = setApiKeyIfPresent(
+                                    aiConfig.getOpenaiApiKey(), config::setOpenaiApiKey, 500, "OpenAI API key");
+                            if (openaiKeyError != null) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, openaiKeyError));
                             }
-                            if (aiConfig.getCopilotApiKey() != null
-                                    && !aiConfig.getCopilotApiKey().trim().isEmpty()) {
-                                String trimmedKey = aiConfig.getCopilotApiKey().trim();
-                                if (trimmedKey.length() > 500) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_PARAMETER, "API key is too long"));
-                                }
-                                config.setCopilotApiKey(trimmedKey);
+
+                            String copilotKeyError = setApiKeyIfPresent(
+                                    aiConfig.getCopilotApiKey(), config::setCopilotApiKey, 500, "Copilot API key");
+                            if (copilotKeyError != null) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, copilotKeyError));
                             }
+
                             if (aiConfig.getProvider() != null) {
                                 config.setAiProvider(aiConfig.getProvider());
                             }
                             if (aiConfig.getIsAIAssistantEnabled() != null) {
                                 config.setIsAIAssistantEnabled(aiConfig.getIsAIAssistantEnabled());
                             }
-                            if (aiConfig.getLocalLlmUrl() != null) {
-                                String trimmedUrl = aiConfig.getLocalLlmUrl().trim();
-                                if (trimmedUrl.length() > 2000) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.INVALID_PARAMETER, "URL is too long"));
-                                }
-                                config.setLocalLlmUrl(trimmedUrl.isEmpty() ? null : trimmedUrl);
+
+                            // Set Local LLM URL with validation
+                            String urlError = setTrimmedStringIfPresent(
+                                    aiConfig.getLocalLlmUrl(), config::setLocalLlmUrl, 2000, "URL");
+                            if (urlError != null) {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, urlError));
                             }
+
                             if (aiConfig.getLocalLlmContextSize() != null) {
                                 config.setLocalLlmContextSize(aiConfig.getLocalLlmContextSize());
                             }
 
+                            // Set Local LLM model with validation
+                            String modelError = setTrimmedStringIfPresent(
+                                    aiConfig.getLocalLlmModel(), config::setLocalLlmModel, 200, "Model name");
+                            if (modelError != null) {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, modelError));
+                            }
+
                             return service.updateOrganizationConfiguration(organizationId, config)
-                                    .map(updatedOrg -> {
-                                        Map<String, Object> response = new HashMap<>();
-                                        response.put(
-                                                "isAIAssistantEnabled",
-                                                updatedOrg
-                                                        .getOrganizationConfiguration()
-                                                        .getIsAIAssistantEnabled());
-                                        response.put(
-                                                "provider",
-                                                updatedOrg
-                                                        .getOrganizationConfiguration()
-                                                        .getAiProvider());
-                                        response.put(
-                                                "hasClaudeApiKey",
-                                                updatedOrg
-                                                                        .getOrganizationConfiguration()
-                                                                        .getClaudeApiKey()
-                                                                != null
-                                                        && !updatedOrg
-                                                                .getOrganizationConfiguration()
-                                                                .getClaudeApiKey()
-                                                                .isEmpty());
-                                        response.put(
-                                                "hasOpenaiApiKey",
-                                                updatedOrg
-                                                                        .getOrganizationConfiguration()
-                                                                        .getOpenaiApiKey()
-                                                                != null
-                                                        && !updatedOrg
-                                                                .getOrganizationConfiguration()
-                                                                .getOpenaiApiKey()
-                                                                .isEmpty());
-                                        response.put(
-                                                "hasCopilotApiKey",
-                                                updatedOrg
-                                                                        .getOrganizationConfiguration()
-                                                                        .getCopilotApiKey()
-                                                                != null
-                                                        && !updatedOrg
-                                                                .getOrganizationConfiguration()
-                                                                .getCopilotApiKey()
-                                                                .isEmpty());
-                                        response.put(
-                                                "localLlmUrl",
-                                                updatedOrg
-                                                        .getOrganizationConfiguration()
-                                                        .getLocalLlmUrl());
-                                        response.put(
-                                                "localLlmContextSize",
-                                                updatedOrg
-                                                        .getOrganizationConfiguration()
-                                                        .getLocalLlmContextSize());
-                                        return response;
-                                    });
+                                    .map(updatedOrg ->
+                                            buildAIConfigResponse(updatedOrg.getOrganizationConfiguration()));
                         }))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
                 .onErrorResume(error -> {
@@ -208,45 +158,8 @@ public class OrganizationControllerCE {
     public Mono<ResponseDTO<Map<String, Object>>> getAIConfig() {
         return service.getCurrentUserOrganization()
                 .map(organization -> {
-                    Map<String, Object> response = new HashMap<>();
-                    if (organization.getOrganizationConfiguration() != null) {
-                        OrganizationConfiguration config = organization.getOrganizationConfiguration();
-                        response.put(
-                                "isAIAssistantEnabled",
-                                config.getIsAIAssistantEnabled() != null ? config.getIsAIAssistantEnabled() : false);
-                        // Use string representation to avoid null (Jackson strips null values)
-                        response.put(
-                                "provider",
-                                config.getAiProvider() != null
-                                        ? config.getAiProvider().name()
-                                        : "");
-                        response.put(
-                                "hasClaudeApiKey",
-                                config.getClaudeApiKey() != null
-                                        && !config.getClaudeApiKey().isEmpty());
-                        response.put(
-                                "hasOpenaiApiKey",
-                                config.getOpenaiApiKey() != null
-                                        && !config.getOpenaiApiKey().isEmpty());
-                        response.put(
-                                "hasCopilotApiKey",
-                                config.getCopilotApiKey() != null
-                                        && !config.getCopilotApiKey().isEmpty());
-                        // Use empty string instead of null to avoid Jackson stripping
-                        response.put("localLlmUrl", config.getLocalLlmUrl() != null ? config.getLocalLlmUrl() : "");
-                        // Use -1 as sentinel value for "not set" since Jackson strips null
-                        response.put(
-                                "localLlmContextSize",
-                                config.getLocalLlmContextSize() != null ? config.getLocalLlmContextSize() : -1);
-                    } else {
-                        response.put("isAIAssistantEnabled", false);
-                        response.put("provider", "");
-                        response.put("hasClaudeApiKey", false);
-                        response.put("hasOpenaiApiKey", false);
-                        response.put("hasCopilotApiKey", false);
-                        response.put("localLlmUrl", "");
-                        response.put("localLlmContextSize", -1);
-                    }
+                    Map<String, Object> response =
+                            buildAIConfigResponseForGet(organization.getOrganizationConfiguration());
 
                     // Add AI reference files info
                     List<Map<String, Object>> externalFiles =
@@ -254,8 +167,10 @@ public class OrganizationControllerCE {
                                     .filter(entry ->
                                             "external".equals(entry.getValue().source()))
                                     .map(entry -> Map.<String, Object>of(
-                                            "filename", entry.getKey(),
-                                            "path", entry.getValue().path()))
+                                            "filename",
+                                            entry.getKey(),
+                                            "path",
+                                            entry.getValue().path()))
                                     .toList();
 
                     response.put("hasExternalReferenceFiles", !externalFiles.isEmpty());
@@ -332,14 +247,12 @@ public class OrganizationControllerCE {
 
         final String resolvedIp = resolvedAddress.getHostAddress();
 
-        // Create WebClient with timeout
+        // Create WebClient with timeout and SSRF protection
         HttpClient httpClient = HttpClient.create()
                 .responseTimeout(Duration.ofSeconds(10))
                 .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
 
-        WebClient webClient = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
+        WebClient webClient = WebClientUtils.builder(httpClient).build();
 
         final long startTime = System.currentTimeMillis();
         final List<Map<String, String>> finalSteps = new ArrayList<>(steps);
@@ -580,6 +493,220 @@ public class OrganizationControllerCE {
     }
 
     @JsonView(Views.Public.class)
+    @PostMapping("/ai-config/fetch-models")
+    public Mono<ResponseDTO<Map<String, Object>>> fetchLlmModels(@RequestBody Map<String, String> request) {
+        String rawUrl = request.get("url");
+        if (rawUrl == null || rawUrl.trim().isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", "URL is required");
+            response.put("models", List.of());
+            return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST, response));
+        }
+
+        // Extract base URL - remove /api/generate, /api/chat, etc.
+        String baseUrl = rawUrl.trim();
+        if (baseUrl.contains("/api/")) {
+            int apiIndex = baseUrl.indexOf("/api/");
+            baseUrl = baseUrl.substring(0, apiIndex);
+        }
+        // Ensure no trailing slash
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
+
+        final String tagsUrl = baseUrl + "/api/tags";
+
+        // Create WebClient with timeout and SSRF protection
+        HttpClient httpClient = HttpClient.create()
+                .responseTimeout(Duration.ofSeconds(10))
+                .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+
+        WebClient webClient = WebClientUtils.builder(httpClient).build();
+
+        return webClient
+                .get()
+                .uri(tagsUrl)
+                .exchangeToMono(clientResponse -> {
+                    int statusCode = clientResponse.statusCode().value();
+
+                    return clientResponse
+                            .bodyToMono(String.class)
+                            .defaultIfEmpty("")
+                            .map(responseBody -> {
+                                Map<String, Object> response = new HashMap<>();
+
+                                if (statusCode == 200) {
+                                    // Parse the Ollama response to extract models
+                                    List<Map<String, Object>> models = parseOllamaModels(responseBody);
+                                    response.put("success", true);
+                                    response.put("models", models);
+                                } else {
+                                    response.put("success", false);
+                                    response.put("error", "Failed to fetch models: HTTP " + statusCode);
+                                    response.put("models", List.of());
+                                }
+
+                                return new ResponseDTO<>(HttpStatus.OK, response);
+                            });
+                })
+                .onErrorResume(error -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("error", "Failed to connect to Ollama: " + error.getMessage());
+                    response.put("models", List.of());
+                    return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
+                });
+    }
+
+    private List<Map<String, Object>> parseOllamaModels(String responseBody) {
+        List<Map<String, Object>> models = new ArrayList<>();
+        try {
+            // Simple JSON parsing for Ollama's /api/tags response
+            // Response format: {"models":[{"name":"llama3.2:latest","model":"llama3.2:latest","size":2019393189,...}]}
+            if (responseBody.contains("\"models\"")) {
+                int modelsStart = responseBody.indexOf('[', responseBody.indexOf("\"models\""));
+                int modelsEnd = findMatchingBracket(responseBody, modelsStart);
+                if (modelsStart > 0 && modelsEnd > modelsStart) {
+                    String modelsArray = responseBody.substring(modelsStart, modelsEnd + 1);
+                    // Parse each model object
+                    int index = 0;
+                    while (index < modelsArray.length()) {
+                        int objStart = modelsArray.indexOf('{', index);
+                        if (objStart < 0) break;
+                        int objEnd = findMatchingBrace(modelsArray, objStart);
+                        if (objEnd < 0) break;
+
+                        String modelObj = modelsArray.substring(objStart, objEnd + 1);
+                        Map<String, Object> model = parseModelObject(modelObj);
+                        if (model != null && model.containsKey("name")) {
+                            models.add(model);
+                        }
+                        index = objEnd + 1;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse Ollama models response: {}", e.getMessage());
+        }
+        return models;
+    }
+
+    private Map<String, Object> parseModelObject(String json) {
+        Map<String, Object> model = new HashMap<>();
+        try {
+            // Extract name
+            String name = extractJsonString(json, "name");
+            if (name != null) {
+                model.put("name", name);
+            }
+
+            // Extract size
+            String sizeStr = extractJsonNumber(json, "size");
+            if (sizeStr != null) {
+                try {
+                    model.put("size", Long.parseLong(sizeStr));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
+            // Extract details if present
+            int detailsStart = json.indexOf("\"details\"");
+            if (detailsStart > 0) {
+                int detailsObjStart = json.indexOf('{', detailsStart);
+                int detailsObjEnd = findMatchingBrace(json, detailsObjStart);
+                if (detailsObjStart > 0 && detailsObjEnd > detailsObjStart) {
+                    String detailsJson = json.substring(detailsObjStart, detailsObjEnd + 1);
+                    Map<String, String> details = new HashMap<>();
+                    String paramSize = extractJsonString(detailsJson, "parameter_size");
+                    if (paramSize != null) {
+                        details.put("parameter_size", paramSize);
+                    }
+                    String quantLevel = extractJsonString(detailsJson, "quantization_level");
+                    if (quantLevel != null) {
+                        details.put("quantization_level", quantLevel);
+                    }
+                    if (!details.isEmpty()) {
+                        model.put("details", details);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse model object: {}", e.getMessage());
+        }
+        return model.isEmpty() ? null : model;
+    }
+
+    private String extractJsonString(String json, String key) {
+        String pattern = "\"" + key + "\"";
+        int keyIndex = json.indexOf(pattern);
+        if (keyIndex < 0) return null;
+
+        int colonIndex = json.indexOf(':', keyIndex);
+        if (colonIndex < 0) return null;
+
+        int valueStart = json.indexOf("\"", colonIndex);
+        if (valueStart < 0) return null;
+
+        int valueEnd = json.indexOf("\"", valueStart + 1);
+        if (valueEnd < 0) return null;
+
+        return json.substring(valueStart + 1, valueEnd);
+    }
+
+    private String extractJsonNumber(String json, String key) {
+        String pattern = "\"" + key + "\"";
+        int keyIndex = json.indexOf(pattern);
+        if (keyIndex < 0) return null;
+
+        int colonIndex = json.indexOf(':', keyIndex);
+        if (colonIndex < 0) return null;
+
+        int start = colonIndex + 1;
+        while (start < json.length() && Character.isWhitespace(json.charAt(start))) {
+            start++;
+        }
+
+        int end = start;
+        while (end < json.length() && (Character.isDigit(json.charAt(end)) || json.charAt(end) == '.')) {
+            end++;
+        }
+
+        if (end > start) {
+            return json.substring(start, end);
+        }
+        return null;
+    }
+
+    private int findMatchingBracket(String str, int start) {
+        if (start < 0 || start >= str.length() || str.charAt(start) != '[') return -1;
+        int count = 1;
+        for (int i = start + 1; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '[') count++;
+            else if (c == ']') {
+                count--;
+                if (count == 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    private int findMatchingBrace(String str, int start) {
+        if (start < 0 || start >= str.length() || str.charAt(start) != '{') return -1;
+        int count = 1;
+        for (int i = start + 1; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '{') count++;
+            else if (c == '}') {
+                count--;
+                if (count == 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    @JsonView(Views.Public.class)
     @PostMapping("/ai-config/test-api-key")
     public Mono<ResponseDTO<Map<String, Object>>> testApiKey(@RequestBody Map<String, String> request) {
         String provider = request.get("provider");
@@ -629,9 +756,8 @@ public class OrganizationControllerCE {
     private Mono<ResponseDTO<Map<String, Object>>> testApiKeyWithProvider(String provider, String apiKey) {
         HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(30));
 
-        WebClient webClient = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
+        // Use SSRF-protected WebClient for consistency
+        WebClient webClient = WebClientUtils.builder(httpClient).build();
 
         final long startTime = System.currentTimeMillis();
         List<Map<String, String>> steps = new ArrayList<>();
@@ -953,5 +1079,91 @@ public class OrganizationControllerCE {
             suggestions.add("Verify the server has enough resources (memory, disk)");
         }
         return suggestions;
+    }
+
+    /**
+     * Sets an API key on the config if present and valid. Returns error message if validation fails, null otherwise.
+     */
+    private String setApiKeyIfPresent(
+            String value, java.util.function.Consumer<String> setter, int maxLength, String fieldName) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() > maxLength) {
+            return fieldName + " is too long";
+        }
+        setter.accept(trimmed);
+        return null;
+    }
+
+    /**
+     * Sets a trimmed string value on the config if present and valid.
+     * Empty strings are converted to null. Returns error message if validation fails, null otherwise.
+     */
+    private String setTrimmedStringIfPresent(
+            String value, java.util.function.Consumer<String> setter, int maxLength, String fieldName) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() > maxLength) {
+            return fieldName + " is too long";
+        }
+        setter.accept(trimmed.isEmpty() ? null : trimmed);
+        return null;
+    }
+
+    /**
+     * Builds the AI config response map from an organization configuration (for update responses).
+     */
+    private Map<String, Object> buildAIConfigResponse(OrganizationConfiguration config) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isAIAssistantEnabled", config.getIsAIAssistantEnabled());
+        response.put("provider", config.getAiProvider());
+        response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
+        response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
+        response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
+        response.put("localLlmUrl", config.getLocalLlmUrl());
+        response.put("localLlmContextSize", config.getLocalLlmContextSize());
+        response.put("localLlmModel", config.getLocalLlmModel());
+        return response;
+    }
+
+    /**
+     * Builds the AI config response map for GET requests, with proper defaults for null values.
+     */
+    private Map<String, Object> buildAIConfigResponseForGet(OrganizationConfiguration config) {
+        Map<String, Object> response = new HashMap<>();
+        if (config != null) {
+            response.put(
+                    "isAIAssistantEnabled",
+                    config.getIsAIAssistantEnabled() != null ? config.getIsAIAssistantEnabled() : false);
+            response.put(
+                    "provider",
+                    config.getAiProvider() != null ? config.getAiProvider().name() : "");
+            response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
+            response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
+            response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
+            response.put("localLlmUrl", config.getLocalLlmUrl() != null ? config.getLocalLlmUrl() : "");
+            response.put(
+                    "localLlmContextSize",
+                    config.getLocalLlmContextSize() != null ? config.getLocalLlmContextSize() : -1);
+            response.put("localLlmModel", config.getLocalLlmModel() != null ? config.getLocalLlmModel() : "");
+        } else {
+            response.put("isAIAssistantEnabled", false);
+            response.put("provider", "");
+            response.put("hasClaudeApiKey", false);
+            response.put("hasOpenaiApiKey", false);
+            response.put("hasCopilotApiKey", false);
+            response.put("localLlmUrl", "");
+            response.put("localLlmContextSize", -1);
+            response.put("localLlmModel", "");
+        }
+        return response;
+    }
+
+    private boolean hasValue(String value) {
+        return value != null && !value.isEmpty();
     }
 }
