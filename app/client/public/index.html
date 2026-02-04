@@ -160,6 +160,7 @@
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
         parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
       const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
+      const DISABLE_BETTERBUGS = parseConfig('{{env "APPSMITH_DISABLE_BETTERBUGS"}}');
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -209,7 +210,7 @@
           id: parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}'),
         },
         betterbugs: {
-          apiKey: parseConfig('{{env "APPSMITH_BETTERBUGS_API_KEY"}}'),
+          apiKey: DISABLE_BETTERBUGS ? '' : parseConfig('{{env "APPSMITH_BETTERBUGS_API_KEY"}}'),
         },
         segment: {
           apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),

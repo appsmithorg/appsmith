@@ -95,6 +95,8 @@ class BetterbugsUtil {
         ...(user?.email ? { email: user.email } : {}),
         showActionButton: false,
         styles: this.getDefaultStyles(),
+        mainHeading: "Send support info",
+        recordType: "domRecord",
         position: { bottom: "30px", right: "20px" },
         metaData: {
           ...(user?.email ? { user_email: user.email } : {}),
