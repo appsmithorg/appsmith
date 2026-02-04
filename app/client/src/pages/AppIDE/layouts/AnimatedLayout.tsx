@@ -15,6 +15,7 @@ import MainPane from "./routers/MainPane";
 import RightPane from "./routers/RightPane";
 import { Areas } from "./constants";
 import { ProtectedCallout } from "../components/ProtectedCallout";
+import { GlobalAISidePanel } from "ee/components/editorComponents/GlobalAISidePanel";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();
@@ -61,6 +62,7 @@ function AnimatedLayout() {
           <LayoutArea name={Areas.PropertyPane}>
             <RightPane />
           </LayoutArea>
+          <GlobalAISidePanel />
         </AnimatedGridLayout>
       </EditorWrapperContainer>
       <BottomBar />

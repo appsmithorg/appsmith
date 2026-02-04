@@ -22,12 +22,12 @@ export const updateAISettings = (
 
 export interface FetchAIResponsePayload {
   prompt: string;
-  context: {
+  context?: {
     functionName?: string;
     cursorLineNumber?: number;
     functionString?: string;
-    mode: string;
-    currentValue: string;
+    mode?: string;
+    currentValue?: string;
   };
 }
 
@@ -70,4 +70,30 @@ export const openAIPanel = (): ReduxAction<undefined> => ({
 export const closeAIPanel = (): ReduxAction<undefined> => ({
   type: ReduxActionTypes.CLOSE_AI_PANEL,
   payload: undefined,
+});
+
+export interface AIEditorContextPayload {
+  functionName?: string;
+  cursorLineNumber?: number;
+  functionString?: string;
+  mode?: string;
+  currentValue?: string;
+  editorId?: string;
+  entityName?: string;
+  propertyPath?: string;
+}
+
+export const updateAIContext = (
+  context: AIEditorContextPayload,
+): ReduxAction<{ context: AIEditorContextPayload }> => ({
+  type: ReduxActionTypes.UPDATE_AI_CONTEXT,
+  payload: { context },
+});
+
+// Combined action: updates context and opens panel
+export const openAIPanelWithContext = (
+  context: AIEditorContextPayload,
+): ReduxAction<{ context: AIEditorContextPayload }> => ({
+  type: ReduxActionTypes.OPEN_AI_PANEL_WITH_CONTEXT,
+  payload: { context },
 });

@@ -1,5 +1,6 @@
 import type { DefaultRootState } from "react-redux";
 import type { AIMessage } from "ee/actions/aiAssistantActions";
+import type { AIEditorContext } from "ee/reducers/aiAssistantReducer";
 
 export function getAIAssistantState(state: DefaultRootState) {
   return state.aiAssistant;
@@ -38,4 +39,10 @@ export function getIsAIEnabled(state: DefaultRootState): boolean {
 
 export function getIsAIPanelOpen(state: DefaultRootState): boolean {
   return state.aiAssistant.isPanelOpen;
+}
+
+export function getAIEditorContext(
+  state: DefaultRootState,
+): AIEditorContext | null {
+  return state.aiAssistant.editorContext;
 }

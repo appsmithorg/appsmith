@@ -63,7 +63,7 @@ function* fetchAIResponseSaga(
       UserApi.requestAIResponse,
       aiState.provider,
       prompt,
-      context,
+      context || {},
       conversationHistory.length > 0 ? conversationHistory : undefined,
     );
 

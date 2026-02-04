@@ -2,147 +2,247 @@
 
 ## Binding Syntax
 
-Appsmith uses mustache-style bindings with double curly braces `{{ }}` for dynamic values. Bindings can be used in widget properties, query parameters, and anywhere dynamic values are needed.
+Appsmith uses mustache-style bindings with double curly braces `{{ }}` to dynamically bind data to widget properties, query parameters, and other elements within the application. This allows for seamless integration of dynamic values throughout the application.
+
+### Basic Bindings
 
 ```javascript
-// Basic binding to widget property
+// Bind the text property of an input widget
 {{Input1.text}}
 
-// Binding to query data
-{{Query1.data}}
+// Bind the selected option value of a dropdown
+{{Select1.selectedOptionValue}}
 
-// Binding with expression
+// Bind the selected row's id from a table
+{{Table1.selectedRow.id}}
+```
+
+### Expression Bindings
+
+```javascript
+// Concatenate strings and variables
+{{"Hello, " + Input1.text}}
+
+// Perform arithmetic operations
 {{Table1.selectedRow.id * 2}}
 
-// Conditional binding
-{{Checkbox1.isChecked ? "Yes" : "No"}}
+// Conditional logic
+{{Checkbox1.isChecked ? "Checked" : "Unchecked"}}
+```
+
+### Theme Properties
+
+Appsmith allows you to access theme properties to ensure consistency across your application.
+
+```javascript
+// Access the primary color from the theme
+{{appsmith.theme.colors.primaryColor}}
+
+// Access the border radius setting
+{{appsmith.theme.borderRadius.appBorderRadius}}
+```
+
+### Dynamic Visibility and Validation
+
+```javascript
+// Make a widget visible based on a condition
+{{Select1.selectedOptionValue === "Yes"}}
+
+// Validate input length and content
+{{Input1.text.length > 10 && /\d/.test(Input1.text) ? true : false}}
+
+// Error message for validation
+{{Input1.text.length > 10 || !/\d/.test(Input1.text) ? "Error: Length should be at least 10 characters and contain at least one digit" : ""}}
 ```
 
 ## Data Access Patterns
 
 ### Query and API Data
-- `{{Query1.data}}` - Returns array of rows from database query
-- `{{API1.data}}` - Returns response body from REST API
-- `{{Query1.data[0]}}` - First row of query results
-- `{{Query1.data.map(row => row.name)}}` - Transform query data
+
+Accessing data from queries and APIs is straightforward in Appsmith. The `.data` property is commonly used to retrieve the results.
+
+```javascript
+// Access all data from a query
+{{fetchUserData.data}}
+
+// Access the first row of data from a query
+{{fetchUserData.data[0]}}
+
+// Map over query data to transform it
+{{fetchUserData.data.map(user => ({label: user.name, value: user.id}))}}
+```
 
 ### Widget References
-- `{{Input1.text}}` - Text input value
-- `{{Select1.selectedOptionValue}}` - Selected dropdown value
-- `{{Table1.selectedRow}}` - Currently selected table row
-- `{{Table1.selectedRows}}` - All selected rows (multi-select)
-- `{{Table1.tableData}}` - All data in table
-- `{{Checkbox1.isChecked}}` - Boolean checkbox state
-- `{{DatePicker1.selectedDate}}` - Selected date value
+
+Widgets in Appsmith can be referenced directly to access their properties.
+
+```javascript
+// Access the text of an input widget
+{{Input1.text}}
+
+// Access the selected option of a dropdown
+{{Select1.selectedOptionValue}}
+
+// Access the selected row in a table
+{{Table1.selectedRow}}
+
+// Access all selected rows in a multi-select table
+{{Table1.selectedRows}}
+
+// Check if a checkbox is checked
+{{Checkbox1.isChecked}}
+```
 
 ### JSObject Functions
-- `{{JsObject1.myFunction()}}` - Call JSObject function
-- `{{JsObject1.myVariable}}` - Access JSObject variable
+
+JSObjects allow you to define reusable functions and variables.
+
+```javascript
+// Call a function defined in a JSObject
+{{JsObject1.myFunction()}}
+
+// Access a variable defined in a JSObject
+{{JsObject1.myVariable}}
+```
 
 ## Async Patterns
 
-All JavaScript code in Appsmith runs asynchronously. Use `async/await` in JSObjects.
+JavaScript in Appsmith is inherently asynchronous. Using `async/await` ensures that operations like API calls and database queries are handled correctly.
+
+### Async Functions
 
 ```javascript
-// JSObject async function
 export default {
-    async fetchAndProcess() {
+    async fetchData() {
         try {
-            const result = await Query1.run();
-            const processed = result.map(item => ({
-                ...item,
-                fullName: `${item.firstName} ${item.lastName}`
-            }));
-            return processed;
+            const data = await Api1.run();
+            return data;
         } catch (error) {
-            showAlert("Error: " + error.message, "error");
-            return [];
+            showAlert("Error fetching data", "error");
         }
     }
 }
 ```
 
 ### Running Queries Programmatically
+
 ```javascript
-// With await
-const data = await Query1.run();
+// Execute a query and handle the result
+const result = await Query1.run();
+console.log(result);
 
-// With parameters
-const data = await Query1.run({ userId: 123 });
+// Execute a query with parameters
+const user = await getUser.run({ id: Input1.text });
+```
 
-// With .then()
-Query1.run().then(data => {
-    showAlert("Loaded " + data.length + " records");
-});
+### Conditional Execution
+
+```javascript
+// Execute different queries based on a condition
+{{ Select_Category.selectedOptionValue === 'Movies' ? fetchMovies.run() : fetchUsers.run(); }}
 ```
 
 ## Global APIs
 
-Appsmith provides built-in functions available everywhere:
+Appsmith provides several built-in functions to perform common tasks like navigation, storing values, and displaying alerts.
+
+### Navigation
 
 ```javascript
-// Alerts and modals
-showAlert("Message", "success"); // types: success, info, warning, error
-showModal("Modal1");
-closeModal("Modal1");
+// Navigate to a different page
+{{navigateTo('HomePage')}}
 
-// Navigation
-navigateTo("PageName");
-navigateTo("PageName", { param: "value" }); // with query params
+// Navigate with parameters
+{{navigateTo('DetailsPage', { id: Table1.selectedRow.id }, 'SAME_WINDOW')}}
+```
 
-// Storage (persists across sessions)
-storeValue("key", value);
-await storeValue("key", value); // async version
+### Storing Values
 
-// Clipboard
-copyToClipboard("text to copy");
+```javascript
+// Store a value in the app's store
+{{storeValue('userName', Input1.text)}}
 
-// Download
-download(data, "filename.csv", "text/csv");
+// Retrieve a stored value
+{{appsmith.store.userName}}
+```
 
-// Reset widget
-resetWidget("Input1", true); // true = reset children too
+### Alerts
+
+```javascript
+// Show an alert with a message
+{{showAlert("Operation successful", "success")}}
+
+// Show an alert after a delay
+setTimeout(() => { showAlert("5 seconds have passed") }, 5000);
 ```
 
 ## Appsmith Object
 
-Access application context through the global `appsmith` object:
+The `appsmith` object provides access to various properties and methods that give context about the application and user.
+
+### User Information
 
 ```javascript
-// Current user
-appsmith.user.email
-appsmith.user.name
-appsmith.user.username
+// Access the current user's email
+{{appsmith.user.email}}
 
-// URL and query parameters
-appsmith.URL.queryParams.paramName
-appsmith.URL.fullPath
-appsmith.URL.host
+// Access the current user's username
+{{appsmith.user.username}}
+```
 
-// Persistent storage
-appsmith.store.myKey
+### URL Parameters
 
-// App mode
-appsmith.mode // "EDIT" or "PUBLISHED"
+```javascript
+// Access query parameters from the URL
+{{appsmith.URL.queryParams.id}}
 
-// Theme
-appsmith.theme.colors.primaryColor
+// Access the full path of the URL
+{{appsmith.URL.fullPath}}
+```
+
+### Store and Context
+
+```javascript
+// Access a value stored in the app's store
+{{appsmith.store.userName}}
+
+// Check if a stored value is null
+{{appsmith.store.data == null ? false : true}}
 ```
 
 ## Error Handling
 
-Always wrap async operations in try/catch:
+Proper error handling ensures that your application can gracefully handle unexpected situations.
+
+### Try/Catch Patterns
 
 ```javascript
 export default {
-    async saveData() {
+    async fetchData() {
         try {
-            await InsertQuery.run();
-            showAlert("Saved successfully!", "success");
-            await DataQuery.run(); // Refresh data
+            const data = await Api1.run();
+            return data;
         } catch (error) {
-            console.error(error);
-            showAlert("Save failed: " + error.message, "error");
+            console.error("Error fetching data:", error);
+            showAlert("Failed to fetch data", "error");
+        }
+    }
+}
+```
+
+### Workflow Error Handling
+
+```javascript
+export default {
+    async executeWorkflow(data) {
+        try {
+            const response = await approvalRequest.run();
+            if (response.resolution === "Approve") {
+                await initiateRefund.run({ id: data.order_id });
+                await notifyUser.run({ email: data.customer_email });
+            }
+        } catch (error) {
+            console.error("Error executing workflow:", error);
         }
     }
 }
@@ -151,24 +251,40 @@ export default {
 ## Common Patterns
 
 ### Form Submission
+
 ```javascript
-async submitForm() {
-    if (!Input1.text) {
-        showAlert("Name is required", "warning");
-        return;
+// Submit form data to an API
+export default {
+    async submitForm() {
+        try {
+            const response = await submitApi.run({ data: Form1.data });
+            showAlert("Form submitted successfully", "success");
+        } catch (error) {
+            showAlert("Error submitting form", "error");
+        }
     }
-    await InsertQuery.run();
-    resetWidget("Form1");
-    closeModal("FormModal");
-    await DataQuery.run();
 }
 ```
 
-### Conditional Logic in Bindings
-```javascript
-// Ternary for simple conditions
-{{Table1.selectedRow ? Table1.selectedRow.name : "No selection"}}
+### Data Transformation
 
-// Nullish coalescing for defaults
-{{Input1.text ?? "Default value"}}
+```javascript
+// Transform data before displaying
+export default {
+    formatUserData(users) {
+        return users.map(user => ({
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.email
+        }));
+    }
+}
 ```
+
+### Conditional Logic
+
+```javascript
+// Display a message based on a condition
+{{Input1.text.length > 5 ? "Valid input" : "Input too short"}}
+```
+
+This comprehensive reference document provides a detailed overview of the various JavaScript patterns and practices within Appsmith, enabling developers to effectively utilize the platform's capabilities. By leveraging these patterns, you can build dynamic, responsive, and robust applications with ease.

@@ -1166,11 +1166,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
 
       const noOfTimesAIPromptTriggered: number = yield select(
-        (state) => state.ai.noOfTimesAITriggered,
+        (state) => state.aiAssistant.noOfTimesAITriggered,
       );
 
       const noOfTimesAIPromptTriggeredForQuery: number = yield select(
-        (state) => state.ai.noOfTimesAITriggeredForQuery,
+        (state) => state.aiAssistant.noOfTimesAITriggeredForQuery,
       );
 
       const triggerCount = isJavascriptMode

@@ -151,3 +151,77 @@ For advanced users with large knowledge bases, see the [appsmith-ai-helper](http
 - Documentation directories
 - OpenAI vector stores
 - Helpdesk solution exports
+
+## Architecture
+
+### Service Classes
+
+The AI reference system follows Appsmith's CE/EE pattern:
+
+| Class | Location | Purpose |
+|-------|----------|---------|
+| `AIReferenceServiceCE` | `services/ce/` | Interface defining `getReferenceContent(mode)` and `getCommonIssuesContent()` |
+| `AIReferenceServiceCEImpl` | `services/ce/` | Implementation with three-tier fallback loading |
+| `AIReferenceService` | `services/` | EE wrapper interface |
+| `AIReferenceServiceImpl` | `services/` | EE wrapper implementation |
+
+### How References Are Used
+
+The `AIAssistantServiceCEImpl.buildSystemPrompt()` method constructs the AI system prompt:
+
+```java
+private String buildSystemPrompt(AIEditorContextDTO context) {
+    String mode = context != null ? context.getMode() : null;
+
+    // Get mode-specific reference (javascript, sql, or graphql)
+    String modeReference = aiReferenceService.getReferenceContent(mode);
+
+    // Get common issues (appended for all modes)
+    String commonIssues = aiReferenceService.getCommonIssuesContent();
+
+    // Combine into system prompt
+    StringBuilder systemPrompt = new StringBuilder();
+    if (modeReference != null && !modeReference.isEmpty()) {
+        systemPrompt.append(modeReference);
+    }
+    if (commonIssues != null && !commonIssues.isEmpty()) {
+        if (systemPrompt.length() > 0) {
+            systemPrompt.append("\n\n## Common Issues\n\n");
+        }
+        systemPrompt.append(commonIssues);
+    }
+    return systemPrompt.toString();
+}
+```
+
+### Request Flow
+
+```
+Frontend (AI Panel)
+       ↓
+POST /api/v1/users/ai-assistant/request
+       ↓
+UserControllerCE.requestAIResponse()
+       ↓
+AIAssistantServiceCEImpl.getAIResponse()
+       ├── Extract mode from AIEditorContextDTO
+       ├── Load mode-specific reference via AIReferenceService
+       ├── Load common issues via AIReferenceService
+       ├── Build system prompt (mode reference + common issues)
+       ├── Call AI provider (Claude or OpenAI)
+       └── Return response
+```
+
+### Caching
+
+The `AIReferenceServiceCEImpl` uses `ConcurrentHashMap` to cache loaded references in memory, avoiding repeated file I/O on each request.
+
+### Configuration
+
+Set via `application-ce.properties`:
+
+```properties
+appsmith.ai.references.path=${APPSMITH_AI_REFERENCES_PATH:/appsmith/config/ai-references}
+```
+
+Environment variable: `APPSMITH_AI_REFERENCES_PATH`

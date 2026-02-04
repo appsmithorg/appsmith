@@ -6,8 +6,20 @@ import type {
   AIMessage,
   FetchAIResponsePayload,
 } from "ee/actions/aiAssistantActions";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const MAX_MESSAGES = 20;
+
+export interface AIEditorContext {
+  functionName?: string;
+  cursorLineNumber?: number;
+  functionString?: string;
+  mode?: string;
+  currentValue?: string;
+  editorId?: string;
+  entityName?: string;
+  propertyPath?: string;
+}
 
 export interface AIAssistantReduxState {
   provider?: string;
@@ -17,6 +29,9 @@ export interface AIAssistantReduxState {
   messages: AIMessage[];
   error?: string;
   isPanelOpen: boolean;
+  noOfTimesAITriggered: number;
+  noOfTimesAITriggeredForQuery: number;
+  editorContext: AIEditorContext | null;
 }
 
 const initialState: AIAssistantReduxState = {
@@ -25,6 +40,9 @@ const initialState: AIAssistantReduxState = {
   isLoading: false,
   messages: [],
   isPanelOpen: false,
+  noOfTimesAITriggered: 0,
+  noOfTimesAITriggeredForQuery: 0,
+  editorContext: null,
 };
 
 function appendMessage(
@@ -92,5 +110,37 @@ export const aiAssistantReducer = createReducer(initialState, {
   [ReduxActionTypes.CLOSE_AI_PANEL]: (state: AIAssistantReduxState) => ({
     ...state,
     isPanelOpen: false,
+  }),
+  [ReduxActionTypes.UPDATE_AI_TRIGGERED]: (
+    state: AIAssistantReduxState,
+    action: ReduxAction<{ value: number; mode: string }>,
+  ) => {
+    const isJavascriptMode =
+      action.payload.mode === EditorModes.TEXT_WITH_BINDING;
+
+    return {
+      ...state,
+      noOfTimesAITriggered: isJavascriptMode
+        ? action.payload.value
+        : state.noOfTimesAITriggered,
+      noOfTimesAITriggeredForQuery: !isJavascriptMode
+        ? action.payload.value
+        : state.noOfTimesAITriggeredForQuery,
+    };
+  },
+  [ReduxActionTypes.UPDATE_AI_CONTEXT]: (
+    state: AIAssistantReduxState,
+    action: ReduxAction<{ context: AIEditorContext }>,
+  ) => ({
+    ...state,
+    editorContext: action.payload.context,
+  }),
+  [ReduxActionTypes.OPEN_AI_PANEL_WITH_CONTEXT]: (
+    state: AIAssistantReduxState,
+    action: ReduxAction<{ context: AIEditorContext }>,
+  ) => ({
+    ...state,
+    editorContext: action.payload.context,
+    isPanelOpen: true,
   }),
 });

@@ -35,6 +35,10 @@ This is the main entry point for Cursor AI rules for the Appsmith codebase. Thes
 
 ## Available Rules
 
+### 0. [Appsmith Project Guide](mdc:appsmith-project-guide.mdc)
+
+Project overview, tech stack, EE/CE architecture, code style, and conventions. **Always applied** so Cursor follows Appsmith patterns (directory structure, EE vs CE, imports, Java backend pattern, testing, and common commands).
+
 ### 1. [Semantic PR Validator](mdc:semantic_pr_validator.mdc)
 
 Ensures pull request titles follow the Conventional Commits specification.

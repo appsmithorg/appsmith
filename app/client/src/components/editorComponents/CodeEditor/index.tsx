@@ -135,16 +135,23 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { AIWindow } from "ee/components/editorComponents/GPT";
 import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
-import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
+import {
+  isAIEnabled,
+  getAIContext,
+} from "ee/components/editorComponents/GPT/trigger";
 import {
   getHasAIApiKey,
   getIsAIEnabled,
   getIsAIPanelOpen,
 } from "ee/selectors/aiAssistantSelectors";
-import { loadAISettings, closeAIPanel } from "ee/actions/aiAssistantActions";
+import {
+  loadAISettings,
+  openAIPanelWithContext,
+  closeAIPanel,
+} from "ee/actions/aiAssistantActions";
+import type { AIEditorContextPayload } from "ee/actions/aiAssistantActions";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -284,7 +291,6 @@ interface State {
       })
     | undefined;
   isDynamic: boolean;
-  showAIWindow: boolean;
   ternToolTipActive: boolean;
 }
 
@@ -322,7 +328,6 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
-      showAIWindow: false,
       ternToolTipActive: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
@@ -592,37 +597,10 @@ class CodeEditor extends Component<Props, State> {
         ) && Boolean(this.props.AIAssisted);
     }
 
-    // Open AI panel when triggered via slash command (Redux state changed to true)
-    if (
-      this.props.isAIPanelOpen &&
-      !prevProps.isAIPanelOpen &&
-      !this.state.showAIWindow
-    ) {
-      this.setState({ showAIWindow: true });
-      // Reset Redux state after consuming the open signal
-      this.props.closeAIPanel();
-    }
-
     const identifierHasChanged =
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
-    const entityInformation = this.getEntityInformation();
-    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
-
-    const hasFocusedValueChanged =
-      getEditorIdentifier(this.props) !== this.props.focusedProperty;
-
-    if (hasFocusedValueChanged && isWidgetType) {
-      if (this.state.showAIWindow) {
-        this.setState({ showAIWindow: false });
-      }
-    }
-
     if (identifierHasChanged) {
-      if (this.state.showAIWindow) {
-        this.setState({ showAIWindow: false });
-      }
-
       if (shouldFocusOnPropertyControl()) {
         setTimeout(() => {
           if (this.props.editorIsFocused) {
@@ -1714,9 +1692,7 @@ class CodeEditor extends Component<Props, State> {
     }
 
     const showSlashCommandButton =
-      showLightningMenu !== false &&
-      !this.state.isFocused &&
-      !this.state.showAIWindow;
+      showLightningMenu !== false && !this.state.isFocused;
 
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
@@ -1730,7 +1706,6 @@ class CodeEditor extends Component<Props, State> {
     const showEvaluatedValue =
       this.showFeatures() &&
       (this.state.isDynamic || isInvalid) &&
-      !this.state.showAIWindow &&
       !this.state.peekOverlayProps &&
       !this.editor.state.completionActive &&
       !this.state.ternToolTipActive;
@@ -1771,7 +1746,47 @@ class CodeEditor extends Component<Props, State> {
             entity={entityInformation}
             mode={this.props.mode}
             onClick={() => {
-              this.setState({ showAIWindow: true });
+              try {
+                const currentValue =
+                  typeof this.props.input.value === "string"
+                    ? this.props.input.value
+                    : "";
+
+                // Get cursor and context if editor is available
+                let aiContext = {
+                  functionName: "",
+                  cursorLineNumber: 0,
+                  functionString: "",
+                };
+
+                if (this.editor) {
+                  const cursorPosition = this.editor.getCursor();
+
+                  aiContext = getAIContext({
+                    cursorPosition,
+                    editor: this.editor,
+                  });
+                }
+
+                this.props.openAIPanelWithContext({
+                  functionName: aiContext.functionName,
+                  cursorLineNumber: aiContext.cursorLineNumber,
+                  functionString: aiContext.functionString,
+                  mode: this.props.mode,
+                  currentValue,
+                  editorId: getEditorIdentifier(this.props),
+                  entityName: entityInformation?.entityName,
+                  propertyPath: entityInformation?.propertyPath,
+                });
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Error opening AI panel:", error);
+                // Still try to open the panel without context
+                this.props.openAIPanelWithContext({
+                  mode: this.props.mode,
+                  currentValue: "",
+                });
+              }
             }}
           />
         </div>
@@ -1793,97 +1808,81 @@ class CodeEditor extends Component<Props, State> {
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
-          <AIWindow
-            currentValue={this.props.input.value}
-            dataTreePath={dataTreePath}
-            editor={this.editor}
-            enableAIAssistance={this.AIEnabled}
-            entitiesForNavigation={this.props.entitiesForNavigation}
-            entity={entityInformation}
-            isOpen={this.state.showAIWindow}
+          <EditorWrapper
+            AIEnabled={this.AIEnabled}
+            border={border}
+            borderLess={borderLess}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            } w-full`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
+            disabled={disabled}
+            editorTheme={this.props.theme}
+            fillUp={fill}
+            hasError={isInvalid}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
+            isReadOnly={this.props.isReadOnly}
+            maxHeight={maxHeight}
             mode={this.props.mode}
-            onOpenChanged={(showAIWindow: boolean) => {
-              this.setState({ showAIWindow });
-            }}
-            triggerContext={this.props.expected}
-            update={this.updateValueWithAIResponse}
+            onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
+            ref={this.editorWrapperRef}
+            removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
+            showFocusVisible={!this.props.isJSObject}
+            size={size}
           >
-            <EditorWrapper
-              AIEnabled
-              border={border}
-              borderLess={borderLess}
-              className={`${className} ${replayHighlightClass} ${
-                isInvalid ? "t--codemirror-has-error" : ""
-              } w-full`}
-              codeEditorVisibleOverflow={codeEditorVisibleOverflow}
-              ctrlPressed={this.state.ctrlPressed}
-              disabled={disabled}
-              editorTheme={this.props.theme}
-              fillUp={fill}
-              hasError={isInvalid}
-              height={height}
-              hoverInteraction={hoverInteraction}
-              isFocused={this.state.isFocused}
-              isNotHover={this.state.isFocused || this.state.isOpened}
-              isRawView={this.props.isRawView}
-              isReadOnly={this.props.isReadOnly}
-              maxHeight={maxHeight}
-              mode={this.props.mode}
-              onMouseMove={this.handleLintTooltip}
-              onMouseOver={this.handleMouseMove}
-              ref={this.editorWrapperRef}
-              removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
-              showFocusVisible={!this.props.isJSObject}
-              size={size}
+            {this.state.peekOverlayProps && (
+              <PeekOverlayPopUp
+                hidePeekOverlay={() => this.hidePeekOverlay()}
+                {...this.state.peekOverlayProps}
+              />
+            )}
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
+
+            {this.props.leftImage && (
+              <img
+                alt="img"
+                className="leftImageStyles"
+                src={getAssetUrl(this.props.leftImage)}
+              />
+            )}
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
             >
-              {this.state.peekOverlayProps && (
-                <PeekOverlayPopUp
-                  hidePeekOverlay={() => this.hidePeekOverlay()}
-                  {...this.state.peekOverlayProps}
-                />
-              )}
-              {this.props.leftIcon && (
-                <IconContainer>{this.props.leftIcon}</IconContainer>
-              )}
+              <CodeEditorSignPosting
+                editorTheme={this.props.theme}
+                forComp="editor"
+                isOpen={this.isBindingPromptOpen()}
+                mode={this.props.mode}
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
 
-              {this.props.leftImage && (
-                <img
-                  alt="img"
-                  className="leftImageStyles"
-                  src={getAssetUrl(this.props.leftImage)}
-                />
-              )}
-              <div
-                className="CodeEditorTarget"
-                data-testid="code-editor-target"
-                ref={this.codeEditorTarget}
-                tabIndex={0}
+            {this.props.link && (
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <CodeEditorSignPosting
-                  editorTheme={this.props.theme}
-                  forComp="editor"
-                  isOpen={this.isBindingPromptOpen()}
-                  mode={this.props.mode}
-                  promptMessage={this.props.promptMessage}
-                  showLightningMenu={this.props.showLightningMenu}
-                />
-              </div>
-
-              {this.props.link && (
-                <a
-                  className="linkStyles"
-                  href={this.props.link}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  API documentation
-                </a>
-              )}
-              {this.props.rightIcon && (
-                <IconContainer>{this.props.rightIcon}</IconContainer>
-              )}
-            </EditorWrapper>
-          </AIWindow>
+                API documentation
+              </a>
+            )}
+            {this.props.rightIcon && (
+              <IconContainer>{this.props.rightIcon}</IconContainer>
+            )}
+          </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
     );
@@ -1935,6 +1934,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetActiveField: () => dispatch(resetActiveEditorField()),
   loadAISettings: () => dispatch(loadAISettings()),
   closeAIPanel: () => dispatch(closeAIPanel()),
+  openAIPanelWithContext: (context: AIEditorContextPayload) =>
+    dispatch(openAIPanelWithContext(context)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CodeEditor);

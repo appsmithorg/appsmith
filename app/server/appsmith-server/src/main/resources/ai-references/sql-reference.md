@@ -1,81 +1,84 @@
 # Appsmith SQL Reference
 
-## Binding Syntax in SQL Queries
+## Binding Syntax in SQL
 
-Use `{{ }}` bindings to inject dynamic values into SQL queries. Appsmith automatically parameterizes these bindings, protecting against SQL injection.
+In Appsmith, dynamic values can be injected into SQL queries using the `{{ }}` binding syntax. This allows for the creation of dynamic queries that can adapt to user inputs or other variables within the application. Appsmith automatically parameterizes these bindings to protect against SQL injection.
 
+### Basic Binding
 ```sql
--- Basic binding from widget
+-- Bind a text input value to a query
 SELECT * FROM users WHERE id = {{Input1.text}}
 
--- Binding from table selection
-SELECT * FROM orders WHERE user_id = {{Table1.selectedRow.id}}
-
--- Multiple bindings
-SELECT * FROM products
-WHERE category = {{Select1.selectedOptionValue}}
-AND price <= {{Input_MaxPrice.text}}
+-- Bind a dropdown selected value to a query
+SELECT * FROM orders WHERE status = {{Select_Status.selectedOptionValue}}
 ```
 
-## Parameterized Queries (SQL Injection Safe)
-
-Appsmith uses prepared statements automatically. Bindings are parameterized, not string-concatenated:
-
+### Conditional Binding
 ```sql
--- SAFE: Appsmith parameterizes this automatically
-SELECT * FROM users WHERE email = {{Input1.text}}
+-- Use conditional logic within bindings
+SELECT * FROM users WHERE {{ Input1.text ? "name = '" + Input1.text + "'" : "1=1" }}
 
--- The binding {{Input1.text}} becomes a prepared statement parameter
--- NOT concatenated as: WHERE email = 'user@example.com'
+-- Dynamic table name binding
+SELECT * FROM {{ TableNamePicker.selectedOptionValue }}
+```
+
+### Complex Expressions
+```sql
+-- Use complex expressions in bindings
+SELECT * FROM users WHERE age > {{AgeInput.text}} AND city = '{{CitySelect.selectedOptionValue}}'
 ```
 
 ## SELECT Patterns
 
 ### Basic Selection
+The `SELECT` statement is used to fetch data from a database. It can be used to retrieve all columns or specific columns from a table.
+
 ```sql
--- All columns
+-- Retrieve all columns from the users table
 SELECT * FROM users
 
--- Specific columns
+-- Retrieve specific columns
 SELECT id, name, email FROM users
-
--- With conditions
-SELECT * FROM users WHERE status = {{Select_Status.selectedOptionValue}}
 ```
 
 ### Pagination
+Pagination is essential for handling large datasets by breaking them into manageable chunks.
+
 ```sql
--- Standard pagination pattern
-SELECT * FROM products
-ORDER BY created_at DESC
+-- Implement pagination with LIMIT and OFFSET
+SELECT * FROM users
+ORDER BY id
 LIMIT {{Table1.pageSize}}
 OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}}
 ```
 
 ### Search and Filtering
-```sql
--- Text search with LIKE
-SELECT * FROM users
-WHERE name ILIKE {{'%' + Input_Search.text + '%'}}
+Search and filtering allow users to narrow down results based on specific criteria.
 
--- Conditional WHERE clause
-SELECT * FROM orders
-WHERE 1=1
-{{Select_Status.selectedOptionValue ? "AND status = '" + Select_Status.selectedOptionValue + "'" : ""}}
+```sql
+-- Text search using ILIKE for case-insensitive matching
+SELECT * FROM users WHERE name ILIKE '%' || {{Input_Search.text}} || '%'
+
+-- Filter based on multiple conditions
+SELECT * FROM orders WHERE status = {{Select_Status.selectedOptionValue}} AND total > {{Input_MinTotal.text}}
 ```
 
 ### Sorting
+Sorting is used to order query results based on one or more columns.
+
 ```sql
--- Dynamic sort (be careful with SQL injection for column names)
+-- Sort results dynamically based on user selection
 SELECT * FROM users
-ORDER BY {{Select_SortBy.selectedOptionValue || 'created_at'}}
-{{Select_SortDir.selectedOptionValue || 'DESC'}}
+ORDER BY {{Select_SortBy.selectedOptionValue || 'created_at'}} {{Select_SortDir.selectedOptionValue || 'DESC'}}
 ```
 
 ## INSERT Patterns
 
 ### Insert from Form Inputs
+Inserting data into a table can be done using values from form inputs or other widgets.
+
 ```sql
+-- Insert a new user record
 INSERT INTO users (name, email, role)
 VALUES (
     {{Input_Name.text}},
@@ -84,108 +87,111 @@ VALUES (
 )
 ```
 
-### Insert with Returning (PostgreSQL)
+### Bulk Insert
+Bulk insert allows multiple records to be inserted in a single query, which can be more efficient.
+
 ```sql
-INSERT INTO users (name, email)
-VALUES ({{Input_Name.text}}, {{Input_Email.text}})
-RETURNING id, name, email
+-- Insert multiple records from a JSON array
+INSERT INTO users (id, name, email)
+SELECT id, name, email
+FROM json_populate_recordset(null::users, '{{FilePicker1.files[0].data}}')
 ```
 
 ## UPDATE Patterns
 
-### Update Selected Row
+### Update Single Record
+Updating records involves modifying existing data in a table.
+
 ```sql
+-- Update a user's email based on their ID
 UPDATE users
-SET
-    name = {{Input_Name.text}},
-    email = {{Input_Email.text}},
-    updated_at = NOW()
-WHERE id = {{Table1.selectedRow.id}}
+SET email = {{EmailInput.text}}
+WHERE id = {{UsersTable.selectedRow.id}}
 ```
 
-### Conditional Update
+### Update Multiple Records
+Updating multiple records can be achieved using conditional logic within the query.
+
 ```sql
-UPDATE orders
-SET status = {{Select_NewStatus.selectedOptionValue}}
-WHERE id = {{Table1.selectedRow.id}}
-AND status != 'completed'
+-- Update multiple users' names conditionally
+UPDATE users
+SET name = CASE
+  {{Table2.updatedRows.map((user) => `WHEN id = ${user.id} THEN '${user.updatedFields.name}'`).join('\n')}}
+END
+WHERE id IN ({{Table2.updatedRows.map((user) => user.allFields.id).join(',')}})
 ```
 
 ## DELETE Patterns
 
-```sql
--- Delete selected row
-DELETE FROM users WHERE id = {{Table1.selectedRow.id}}
+### Safe Deletion
+Deleting records should be done carefully to avoid accidental data loss.
 
--- Soft delete pattern
-UPDATE users SET deleted_at = NOW() WHERE id = {{Table1.selectedRow.id}}
+```sql
+-- Delete a user based on their ID
+DELETE FROM users WHERE id = {{UsersTable.selectedRow.id}}
+```
+
+### Conditional Deletion
+Use conditions to ensure only specific records are deleted.
+
+```sql
+-- Delete products with a specific condition
+DELETE FROM products WHERE category = {{Select_Category.selectedOptionValue}} AND price < {{Input_MaxPrice.text}}
 ```
 
 ## Database-Specific Tips
 
 ### PostgreSQL
+- Use `ILIKE` for case-insensitive searches.
+- Utilize `jsonb` data type for storing JSON data efficiently.
+
 ```sql
--- JSONB queries
-SELECT * FROM users WHERE metadata->>'role' = {{Select1.selectedOptionValue}}
-
--- Array contains
-SELECT * FROM products WHERE tags @> ARRAY[{{Input1.text}}]
-
--- Upsert
-INSERT INTO users (email, name) VALUES ({{email}}, {{name}})
-ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
+-- PostgreSQL case-insensitive search
+SELECT * FROM users WHERE name ILIKE '%{{Input_Search.text}}%'
 ```
 
 ### MySQL
-```sql
--- Insert or update
-INSERT INTO users (email, name) VALUES ({{email}}, {{name}})
-ON DUPLICATE KEY UPDATE name = VALUES(name)
+- Use `LIKE` for pattern matching.
+- Consider using `ENUM` for fields with a limited set of values.
 
--- LIMIT with offset
-SELECT * FROM users LIMIT {{offset}}, {{limit}}
+```sql
+-- MySQL pattern matching
+SELECT * FROM users WHERE name LIKE '%{{Input_Search.text}}%'
 ```
 
 ### SQL Server
+- Use `TOP` for limiting results instead of `LIMIT`.
+- Use `CONVERT` for date formatting.
+
 ```sql
--- Pagination with OFFSET/FETCH
-SELECT * FROM users
-ORDER BY id
-OFFSET {{offset}} ROWS
-FETCH NEXT {{limit}} ROWS ONLY
+-- SQL Server limit results
+SELECT TOP {{Input_Limit.text}} * FROM users
 ```
 
 ## Working with Dates
 
-```sql
--- Date comparison
-SELECT * FROM orders
-WHERE created_at >= {{DatePicker_Start.selectedDate}}
-AND created_at <= {{DatePicker_End.selectedDate}}
-
--- Current date/time (database function)
-SELECT * FROM events WHERE event_date = CURRENT_DATE
-```
-
-## Aggregate Queries
+### Date Comparisons
+Date comparisons are crucial for filtering records based on time.
 
 ```sql
--- Count with grouping
-SELECT status, COUNT(*) as count
-FROM orders
-GROUP BY status
-
--- Sum with conditions
-SELECT SUM(amount) as total
-FROM orders
-WHERE user_id = {{Table1.selectedRow.id}}
-AND status = 'completed'
+-- Select records within a date range
+SELECT * FROM events WHERE event_date BETWEEN {{DatePicker_Start.selectedDate}} AND {{DatePicker_End.selectedDate}}
 ```
 
-## Best Practices
+### Date Formatting
+Formatting dates can be necessary for display purposes or further processing.
 
-1. **Always use bindings** for user input to prevent SQL injection
-2. **Use LIMIT** on SELECT queries to avoid loading excessive data
-3. **Add WHERE clauses** to UPDATE/DELETE to avoid affecting all rows
-4. **Use RETURNING** (PostgreSQL) or OUTPUT (SQL Server) to get affected rows
-5. **Test with sample data** before running destructive queries
+```sql
+-- Format a date in SQL Server
+SELECT CONVERT(varchar, event_date, 101) AS formatted_date FROM events
+```
+
+### Using Moment.js
+Appsmith supports Moment.js for date manipulation in queries.
+
+```sql
+-- Use Moment.js to format dates
+SELECT * FROM users WHERE dob > {{moment(DatePicker1.selectedDate).format('YYYY-MM-DD')}}
+```
+
+This reference document provides a comprehensive guide to using SQL within Appsmith, covering common patterns and best practices for dynamic queries, data manipulation, and database-specific tips. By following these guidelines, developers can efficiently build and manage data-driven applications on the Appsmith platform.
