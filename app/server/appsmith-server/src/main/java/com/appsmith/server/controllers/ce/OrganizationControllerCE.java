@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.AIConfigDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.netty.channel.ConnectTimeoutException;
@@ -42,9 +43,11 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 public class OrganizationControllerCE {
 
     private final OrganizationService service;
+    private final AIReferenceService aiReferenceService;
 
-    public OrganizationControllerCE(OrganizationService service) {
+    public OrganizationControllerCE(OrganizationService service, AIReferenceService aiReferenceService) {
         this.service = service;
+        this.aiReferenceService = aiReferenceService;
     }
 
     /**
@@ -244,6 +247,20 @@ public class OrganizationControllerCE {
                         response.put("localLlmUrl", "");
                         response.put("localLlmContextSize", -1);
                     }
+
+                    // Add AI reference files info
+                    List<Map<String, Object>> externalFiles =
+                            aiReferenceService.getReferenceFilesInfo().entrySet().stream()
+                                    .filter(entry ->
+                                            "external".equals(entry.getValue().source()))
+                                    .map(entry -> Map.<String, Object>of(
+                                            "filename", entry.getKey(),
+                                            "path", entry.getValue().path()))
+                                    .toList();
+
+                    response.put("hasExternalReferenceFiles", !externalFiles.isEmpty());
+                    response.put("externalReferenceFiles", externalFiles);
+
                     return response;
                 })
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result));

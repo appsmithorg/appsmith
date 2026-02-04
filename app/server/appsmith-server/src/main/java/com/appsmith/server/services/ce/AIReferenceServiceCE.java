@@ -1,5 +1,7 @@
 package com.appsmith.server.services.ce;
 
+import java.util.Map;
+
 /**
  * Service for loading AI reference documentation files.
  * These files contain mode-specific context (JavaScript, SQL, GraphQL patterns)
@@ -26,4 +28,21 @@ public interface AIReferenceServiceCE {
      * @return The common issues content, or empty string if unavailable
      */
     String getCommonIssuesContent();
+
+    /**
+     * Get information about which AI reference files are being used.
+     * Returns a map with file names as keys and source info as values.
+     *
+     * @return Map of filename to source (e.g., "external:/path/to/file" or "bundled" or "inline-fallback")
+     */
+    Map<String, ReferenceFileInfo> getReferenceFilesInfo();
+
+    /**
+     * Information about a reference file source.
+     */
+    record ReferenceFileInfo(
+            String source, // "external", "bundled", or "inline-fallback"
+            String path, // Full path for external files, null otherwise
+            boolean exists // Whether the file exists
+            ) {}
 }

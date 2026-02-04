@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,9 +41,7 @@ public class AIReferenceServiceCEImpl implements AIReferenceServiceCE {
 
     private static final String COMMON_ISSUES_KEY = "common-issues";
 
-    public AIReferenceServiceCEImpl() {
-        // Default constructor
-    }
+    public AIReferenceServiceCEImpl() {}
 
     @Override
     public String getReferenceContent(String mode) {
@@ -182,5 +181,59 @@ public class AIReferenceServiceCEImpl implements AIReferenceServiceCE {
             log.warn("Failed to read bundled AI reference resource {}: {}", resourcePath, e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public Map<String, ReferenceFileInfo> getReferenceFilesInfo() {
+        Map<String, ReferenceFileInfo> result = new LinkedHashMap<>();
+
+        // Check each known reference file type
+        String[] modes = {"javascript", "sql", "graphql"};
+        for (String mode : modes) {
+            String filename = mode + "-reference.md";
+            ReferenceFileInfo info = checkFileSource(filename, "ai-references/" + filename, mode);
+            result.put(filename, info);
+        }
+
+        // Check common-issues.md
+        ReferenceFileInfo commonIssuesInfo = checkFileSource(
+                "common-issues.md", "ai-references/common-issues.md", null // No inline fallback for common issues
+                );
+        result.put("common-issues.md", commonIssuesInfo);
+
+        return result;
+    }
+
+    /**
+     * Check where a reference file will be loaded from.
+     */
+    private ReferenceFileInfo checkFileSource(String filename, String bundledPath, String modeForFallback) {
+        // Check external file first
+        try {
+            Path filePath = Paths.get(externalReferencesPath, filename);
+            if (Files.exists(filePath) && Files.isReadable(filePath)) {
+                return new ReferenceFileInfo("external", filePath.toString(), true);
+            }
+        } catch (Exception e) {
+            // Ignore - will fall through to bundled check
+        }
+
+        // Check bundled resource
+        try {
+            ClassPathResource resource = new ClassPathResource(bundledPath);
+            if (resource.exists()) {
+                return new ReferenceFileInfo("bundled", null, true);
+            }
+        } catch (Exception e) {
+            // Ignore - will fall through to inline fallback
+        }
+
+        // Check if there's an inline fallback
+        if (modeForFallback != null && INLINE_FALLBACKS.containsKey(modeForFallback)) {
+            return new ReferenceFileInfo("inline-fallback", null, true);
+        }
+
+        // File doesn't exist anywhere
+        return new ReferenceFileInfo("none", null, false);
     }
 }

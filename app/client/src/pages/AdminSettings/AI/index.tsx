@@ -5,6 +5,11 @@ import OrganizationApi from "ee/api/OrganizationApi";
 import { toast } from "@appsmith/ads";
 
 // Response types (unwrapped by axios interceptors)
+interface ExternalReferenceFile {
+  filename: string;
+  path: string;
+}
+
 interface AIConfigData {
   isAIAssistantEnabled?: boolean;
   provider?: string;
@@ -13,6 +18,8 @@ interface AIConfigData {
   hasCopilotApiKey?: boolean;
   localLlmUrl?: string;
   localLlmContextSize?: number;
+  hasExternalReferenceFiles?: boolean;
+  externalReferenceFiles?: ExternalReferenceFile[];
 }
 
 interface ApiResponseMeta {
@@ -141,6 +148,7 @@ interface TestResult {
   suggestions?: string[];
   steps?: DiagnosticStep[];
   responsePreview?: string;
+  testResponse?: string;
 }
 
 const ResponsePreview = styled.div`
@@ -156,6 +164,192 @@ const ResponsePreview = styled.div`
   max-height: 150px;
   overflow-y: auto;
 `;
+
+const ExternalFilesNotice = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ads-v2-spaces-3);
+  padding: var(--ads-v2-spaces-4);
+  background: linear-gradient(
+    135deg,
+    var(--ads-v2-color-bg-information) 0%,
+    var(--ads-v2-color-bg-information-secondary, var(--ads-v2-color-bg-subtle))
+      100%
+  );
+  border: 1px solid var(--ads-v2-color-border-information);
+  border-radius: var(--ads-v2-border-radius);
+  margin-bottom: var(--ads-v2-spaces-2);
+`;
+
+const NoticeIcon = styled.span`
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+`;
+
+const NoticeContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-1);
+`;
+
+const FileList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ads-v2-spaces-2);
+  margin-top: var(--ads-v2-spaces-1);
+`;
+
+const FileChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--ads-v2-color-bg);
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--ads-v2-color-fg);
+`;
+
+function getStepIcon(status: "success" | "error" | "pending"): string {
+  if (status === "success") return "\u2713";
+
+  if (status === "error") return "\u2717";
+
+  return "\u25CB";
+}
+
+interface TestResultDisplayProps {
+  result: TestResult;
+  successLabel: string;
+  failureLabel: string;
+  showConnectionDetails?: boolean;
+}
+
+function TestResultDisplay({
+  failureLabel,
+  result,
+  showConnectionDetails = false,
+  successLabel,
+}: TestResultDisplayProps): JSX.Element {
+  return (
+    <TestResultBox success={result.success}>
+      <Text
+        color={
+          result.success
+            ? "var(--ads-v2-color-fg-success)"
+            : "var(--ads-v2-color-fg-error)"
+        }
+        kind="heading-s"
+      >
+        {result.success ? successLabel : failureLabel}
+      </Text>
+
+      {result.steps && result.steps.length > 0 && (
+        <StepList>
+          {result.steps.map((step, index) => (
+            <StepItem key={index} status={step.status}>
+              <span>{getStepIcon(step.status)}</span>
+              <span>
+                {step.name}
+                {step.detail && ` - ${step.detail}`}
+              </span>
+            </StepItem>
+          ))}
+        </StepList>
+      )}
+
+      {result.message && (
+        <Text kind="body-s" style={{ marginTop: "8px" }}>
+          {result.message}
+        </Text>
+      )}
+
+      {result.testResponse && (
+        <Text
+          color="var(--ads-v2-color-fg-muted)"
+          kind="body-s"
+          style={{ marginTop: "4px" }}
+        >
+          Response: &quot;{result.testResponse}&quot;
+        </Text>
+      )}
+
+      {result.error && (
+        <ErrorMessage>
+          <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
+            {result.error}
+          </Text>
+        </ErrorMessage>
+      )}
+
+      {result.warning && (
+        <Text
+          color="var(--ads-v2-color-fg-warning)"
+          kind="body-s"
+          style={{ marginTop: "8px" }}
+        >
+          {"\u26A0"} {result.warning}
+        </Text>
+      )}
+
+      {showConnectionDetails &&
+        (result.host || result.responseTimeMs !== undefined) && (
+          <TestResultDetails>
+            {result.host && <div>Host: {result.host}</div>}
+            {result.resolvedIp && <div>Resolved IP: {result.resolvedIp}</div>}
+            {result.port && <div>Port: {result.port}</div>}
+            {result.httpStatus && <div>HTTP Status: {result.httpStatus}</div>}
+            {result.responseTimeMs !== undefined && (
+              <div>Response Time: {result.responseTimeMs}ms</div>
+            )}
+          </TestResultDetails>
+        )}
+
+      {!showConnectionDetails && result.responseTimeMs !== undefined && (
+        <TestResultDetails>
+          <div>Response Time: {result.responseTimeMs}ms</div>
+          {result.httpStatus && <div>HTTP Status: {result.httpStatus}</div>}
+        </TestResultDetails>
+      )}
+
+      {result.responsePreview && (
+        <>
+          <Text kind="body-s" style={{ marginTop: "8px", fontWeight: 500 }}>
+            Response from {showConnectionDetails ? "server" : "API"}:
+          </Text>
+          <ResponsePreview>{result.responsePreview}</ResponsePreview>
+        </>
+      )}
+
+      {result.suggestions && result.suggestions.length > 0 && (
+        <>
+          <Text kind="body-s" style={{ marginTop: "12px", fontWeight: 500 }}>
+            Suggestions:
+          </Text>
+          <SuggestionList>
+            {result.suggestions.map((suggestion, index) => (
+              <li key={index}>
+                <Text kind="body-s">{suggestion}</Text>
+              </li>
+            ))}
+          </SuggestionList>
+        </>
+      )}
+    </TestResultBox>
+  );
+}
+
+function ApiKeyTestResult({ result }: { result: TestResult }): JSX.Element {
+  return (
+    <TestResultDisplay
+      failureLabel={"\u2717 API Key Test Failed"}
+      result={result}
+      successLabel={"\u2713 API Key Valid"}
+    />
+  );
+}
 
 function AISettings() {
   const [provider, setProvider] = useState<string>("CLAUDE");
@@ -174,6 +368,9 @@ function AISettings() {
   const [apiKeyTestResult, setApiKeyTestResult] = useState<TestResult | null>(
     null,
   );
+  const [externalReferenceFiles, setExternalReferenceFiles] = useState<
+    ExternalReferenceFile[]
+  >([]);
 
   useEffect(function fetchAIConfigOnMount() {
     const fetchAIConfig = async () => {
@@ -202,6 +399,14 @@ function AISettings() {
           setLocalLlmContextSize(
             contextSize && contextSize > 0 ? contextSize.toString() : "",
           );
+
+          // Set external reference files if present
+          if (
+            config.hasExternalReferenceFiles &&
+            config.externalReferenceFiles
+          ) {
+            setExternalReferenceFiles(config.externalReferenceFiles);
+          }
         }
       } catch (error) {
         toast.show("Failed to load AI settings", { kind: "error" });
@@ -380,6 +585,29 @@ function AISettings() {
           these settings.
         </Text>
 
+        {externalReferenceFiles.length > 0 && (
+          <ExternalFilesNotice>
+            <NoticeIcon>📁</NoticeIcon>
+            <NoticeContent>
+              <Text kind="body-m" style={{ fontWeight: 500 }}>
+                Custom AI Context Files Active
+              </Text>
+              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                External reference files are being used instead of system
+                defaults. These customize the AI assistant&apos;s knowledge for
+                your environment.
+              </Text>
+              <FileList>
+                {externalReferenceFiles.map((file) => (
+                  <FileChip key={file.filename} title={file.path}>
+                    {file.filename}
+                  </FileChip>
+                ))}
+              </FileList>
+            </NoticeContent>
+          </ExternalFilesNotice>
+        )}
+
         <FieldWrapper>
           <LabelWrapper>
             <EnabledSwitch>
@@ -454,122 +682,7 @@ function AISettings() {
               )}
             </ButtonRow>
 
-            {apiKeyTestResult && (
-              <TestResultBox success={apiKeyTestResult.success}>
-                <Text
-                  color={
-                    apiKeyTestResult.success
-                      ? "var(--ads-v2-color-fg-success)"
-                      : "var(--ads-v2-color-fg-error)"
-                  }
-                  kind="heading-s"
-                >
-                  {apiKeyTestResult.success
-                    ? "✓ API Key Valid"
-                    : "✗ API Key Test Failed"}
-                </Text>
-
-                {apiKeyTestResult.steps &&
-                  apiKeyTestResult.steps.length > 0 && (
-                    <StepList>
-                      {apiKeyTestResult.steps.map((step, index) => (
-                        <StepItem key={index} status={step.status}>
-                          <span>
-                            {step.status === "success"
-                              ? "✓"
-                              : step.status === "error"
-                                ? "✗"
-                                : "○"}
-                          </span>
-                          <span>
-                            {step.name}
-                            {step.detail && ` - ${step.detail}`}
-                          </span>
-                        </StepItem>
-                      ))}
-                    </StepList>
-                  )}
-
-                {apiKeyTestResult.message && (
-                  <Text kind="body-s" style={{ marginTop: "8px" }}>
-                    {apiKeyTestResult.message}
-                  </Text>
-                )}
-
-                {(apiKeyTestResult as TestResult & { testResponse?: string })
-                  .testResponse && (
-                  <Text
-                    color="var(--ads-v2-color-fg-muted)"
-                    kind="body-s"
-                    style={{ marginTop: "4px" }}
-                  >
-                    Response: &quot;
-                    {
-                      (
-                        apiKeyTestResult as TestResult & {
-                          testResponse?: string;
-                        }
-                      ).testResponse
-                    }
-                    &quot;
-                  </Text>
-                )}
-
-                {apiKeyTestResult.error && (
-                  <ErrorMessage>
-                    <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
-                      {apiKeyTestResult.error}
-                    </Text>
-                  </ErrorMessage>
-                )}
-
-                {apiKeyTestResult.responseTimeMs !== undefined && (
-                  <TestResultDetails>
-                    <div>
-                      Response Time: {apiKeyTestResult.responseTimeMs}ms
-                    </div>
-                    {apiKeyTestResult.httpStatus && (
-                      <div>HTTP Status: {apiKeyTestResult.httpStatus}</div>
-                    )}
-                  </TestResultDetails>
-                )}
-
-                {apiKeyTestResult.responsePreview && (
-                  <>
-                    <Text
-                      kind="body-s"
-                      style={{ marginTop: "8px", fontWeight: 500 }}
-                    >
-                      Response from API:
-                    </Text>
-                    <ResponsePreview>
-                      {apiKeyTestResult.responsePreview}
-                    </ResponsePreview>
-                  </>
-                )}
-
-                {apiKeyTestResult.suggestions &&
-                  apiKeyTestResult.suggestions.length > 0 && (
-                    <>
-                      <Text
-                        kind="body-s"
-                        style={{ marginTop: "12px", fontWeight: 500 }}
-                      >
-                        Suggestions:
-                      </Text>
-                      <SuggestionList>
-                        {apiKeyTestResult.suggestions.map(
-                          (suggestion, index) => (
-                            <li key={index}>
-                              <Text kind="body-s">{suggestion}</Text>
-                            </li>
-                          ),
-                        )}
-                      </SuggestionList>
-                    </>
-                  )}
-              </TestResultBox>
-            )}
+            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
           </FieldWrapper>
         )}
 
@@ -608,122 +721,7 @@ function AISettings() {
               )}
             </ButtonRow>
 
-            {apiKeyTestResult && (
-              <TestResultBox success={apiKeyTestResult.success}>
-                <Text
-                  color={
-                    apiKeyTestResult.success
-                      ? "var(--ads-v2-color-fg-success)"
-                      : "var(--ads-v2-color-fg-error)"
-                  }
-                  kind="heading-s"
-                >
-                  {apiKeyTestResult.success
-                    ? "✓ API Key Valid"
-                    : "✗ API Key Test Failed"}
-                </Text>
-
-                {apiKeyTestResult.steps &&
-                  apiKeyTestResult.steps.length > 0 && (
-                    <StepList>
-                      {apiKeyTestResult.steps.map((step, index) => (
-                        <StepItem key={index} status={step.status}>
-                          <span>
-                            {step.status === "success"
-                              ? "✓"
-                              : step.status === "error"
-                                ? "✗"
-                                : "○"}
-                          </span>
-                          <span>
-                            {step.name}
-                            {step.detail && ` - ${step.detail}`}
-                          </span>
-                        </StepItem>
-                      ))}
-                    </StepList>
-                  )}
-
-                {apiKeyTestResult.message && (
-                  <Text kind="body-s" style={{ marginTop: "8px" }}>
-                    {apiKeyTestResult.message}
-                  </Text>
-                )}
-
-                {(apiKeyTestResult as TestResult & { testResponse?: string })
-                  .testResponse && (
-                  <Text
-                    color="var(--ads-v2-color-fg-muted)"
-                    kind="body-s"
-                    style={{ marginTop: "4px" }}
-                  >
-                    Response: &quot;
-                    {
-                      (
-                        apiKeyTestResult as TestResult & {
-                          testResponse?: string;
-                        }
-                      ).testResponse
-                    }
-                    &quot;
-                  </Text>
-                )}
-
-                {apiKeyTestResult.error && (
-                  <ErrorMessage>
-                    <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
-                      {apiKeyTestResult.error}
-                    </Text>
-                  </ErrorMessage>
-                )}
-
-                {apiKeyTestResult.responseTimeMs !== undefined && (
-                  <TestResultDetails>
-                    <div>
-                      Response Time: {apiKeyTestResult.responseTimeMs}ms
-                    </div>
-                    {apiKeyTestResult.httpStatus && (
-                      <div>HTTP Status: {apiKeyTestResult.httpStatus}</div>
-                    )}
-                  </TestResultDetails>
-                )}
-
-                {apiKeyTestResult.responsePreview && (
-                  <>
-                    <Text
-                      kind="body-s"
-                      style={{ marginTop: "8px", fontWeight: 500 }}
-                    >
-                      Response from API:
-                    </Text>
-                    <ResponsePreview>
-                      {apiKeyTestResult.responsePreview}
-                    </ResponsePreview>
-                  </>
-                )}
-
-                {apiKeyTestResult.suggestions &&
-                  apiKeyTestResult.suggestions.length > 0 && (
-                    <>
-                      <Text
-                        kind="body-s"
-                        style={{ marginTop: "12px", fontWeight: 500 }}
-                      >
-                        Suggestions:
-                      </Text>
-                      <SuggestionList>
-                        {apiKeyTestResult.suggestions.map(
-                          (suggestion, index) => (
-                            <li key={index}>
-                              <Text kind="body-s">{suggestion}</Text>
-                            </li>
-                          ),
-                        )}
-                      </SuggestionList>
-                    </>
-                  )}
-              </TestResultBox>
-            )}
+            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
           </FieldWrapper>
         )}
 
@@ -763,122 +761,7 @@ function AISettings() {
               )}
             </ButtonRow>
 
-            {apiKeyTestResult && (
-              <TestResultBox success={apiKeyTestResult.success}>
-                <Text
-                  color={
-                    apiKeyTestResult.success
-                      ? "var(--ads-v2-color-fg-success)"
-                      : "var(--ads-v2-color-fg-error)"
-                  }
-                  kind="heading-s"
-                >
-                  {apiKeyTestResult.success
-                    ? "✓ API Key Valid"
-                    : "✗ API Key Test Failed"}
-                </Text>
-
-                {apiKeyTestResult.steps &&
-                  apiKeyTestResult.steps.length > 0 && (
-                    <StepList>
-                      {apiKeyTestResult.steps.map((step, index) => (
-                        <StepItem key={index} status={step.status}>
-                          <span>
-                            {step.status === "success"
-                              ? "✓"
-                              : step.status === "error"
-                                ? "✗"
-                                : "○"}
-                          </span>
-                          <span>
-                            {step.name}
-                            {step.detail && ` - ${step.detail}`}
-                          </span>
-                        </StepItem>
-                      ))}
-                    </StepList>
-                  )}
-
-                {apiKeyTestResult.message && (
-                  <Text kind="body-s" style={{ marginTop: "8px" }}>
-                    {apiKeyTestResult.message}
-                  </Text>
-                )}
-
-                {(apiKeyTestResult as TestResult & { testResponse?: string })
-                  .testResponse && (
-                  <Text
-                    color="var(--ads-v2-color-fg-muted)"
-                    kind="body-s"
-                    style={{ marginTop: "4px" }}
-                  >
-                    Response: &quot;
-                    {
-                      (
-                        apiKeyTestResult as TestResult & {
-                          testResponse?: string;
-                        }
-                      ).testResponse
-                    }
-                    &quot;
-                  </Text>
-                )}
-
-                {apiKeyTestResult.error && (
-                  <ErrorMessage>
-                    <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
-                      {apiKeyTestResult.error}
-                    </Text>
-                  </ErrorMessage>
-                )}
-
-                {apiKeyTestResult.responseTimeMs !== undefined && (
-                  <TestResultDetails>
-                    <div>
-                      Response Time: {apiKeyTestResult.responseTimeMs}ms
-                    </div>
-                    {apiKeyTestResult.httpStatus && (
-                      <div>HTTP Status: {apiKeyTestResult.httpStatus}</div>
-                    )}
-                  </TestResultDetails>
-                )}
-
-                {apiKeyTestResult.responsePreview && (
-                  <>
-                    <Text
-                      kind="body-s"
-                      style={{ marginTop: "8px", fontWeight: 500 }}
-                    >
-                      Response from API:
-                    </Text>
-                    <ResponsePreview>
-                      {apiKeyTestResult.responsePreview}
-                    </ResponsePreview>
-                  </>
-                )}
-
-                {apiKeyTestResult.suggestions &&
-                  apiKeyTestResult.suggestions.length > 0 && (
-                    <>
-                      <Text
-                        kind="body-s"
-                        style={{ marginTop: "12px", fontWeight: 500 }}
-                      >
-                        Suggestions:
-                      </Text>
-                      <SuggestionList>
-                        {apiKeyTestResult.suggestions.map(
-                          (suggestion, index) => (
-                            <li key={index}>
-                              <Text kind="body-s">{suggestion}</Text>
-                            </li>
-                          ),
-                        )}
-                      </SuggestionList>
-                    </>
-                  )}
-              </TestResultBox>
-            )}
+            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
           </FieldWrapper>
         )}
 
@@ -939,111 +822,12 @@ function AISettings() {
               </ButtonRow>
 
               {testResult && (
-                <TestResultBox success={testResult.success}>
-                  <Text
-                    color={
-                      testResult.success
-                        ? "var(--ads-v2-color-fg-success)"
-                        : "var(--ads-v2-color-fg-error)"
-                    }
-                    kind="heading-s"
-                  >
-                    {testResult.success
-                      ? "✓ Connection Successful"
-                      : "✗ Connection Failed"}
-                  </Text>
-
-                  {/* Diagnostic Steps */}
-                  {testResult.steps && testResult.steps.length > 0 && (
-                    <StepList>
-                      {testResult.steps.map((step, index) => (
-                        <StepItem key={index} status={step.status}>
-                          <span>
-                            {step.status === "success"
-                              ? "✓"
-                              : step.status === "error"
-                                ? "✗"
-                                : "○"}
-                          </span>
-                          <span>
-                            {step.name}
-                            {step.detail && ` - ${step.detail}`}
-                          </span>
-                        </StepItem>
-                      ))}
-                    </StepList>
-                  )}
-
-                  {testResult.error && (
-                    <ErrorMessage>
-                      <Text color="var(--ads-v2-color-fg-error)" kind="body-s">
-                        {testResult.error}
-                      </Text>
-                    </ErrorMessage>
-                  )}
-
-                  {testResult.warning && (
-                    <Text
-                      color="var(--ads-v2-color-fg-warning)"
-                      kind="body-s"
-                      style={{ marginTop: "8px" }}
-                    >
-                      ⚠ {testResult.warning}
-                    </Text>
-                  )}
-
-                  {/* Show details only if we have some */}
-                  {(testResult.host ||
-                    testResult.responseTimeMs !== undefined) && (
-                    <TestResultDetails>
-                      {testResult.host && <div>Host: {testResult.host}</div>}
-                      {testResult.resolvedIp && (
-                        <div>Resolved IP: {testResult.resolvedIp}</div>
-                      )}
-                      {testResult.port && <div>Port: {testResult.port}</div>}
-                      {testResult.httpStatus && (
-                        <div>HTTP Status: {testResult.httpStatus}</div>
-                      )}
-                      {testResult.responseTimeMs !== undefined && (
-                        <div>Response Time: {testResult.responseTimeMs}ms</div>
-                      )}
-                    </TestResultDetails>
-                  )}
-
-                  {/* Show response preview if available */}
-                  {testResult.responsePreview && (
-                    <>
-                      <Text
-                        kind="body-s"
-                        style={{ marginTop: "12px", fontWeight: 500 }}
-                      >
-                        Response from server:
-                      </Text>
-                      <ResponsePreview>
-                        {testResult.responsePreview}
-                      </ResponsePreview>
-                    </>
-                  )}
-
-                  {testResult.suggestions &&
-                    testResult.suggestions.length > 0 && (
-                      <>
-                        <Text
-                          kind="body-s"
-                          style={{ marginTop: "12px", fontWeight: 500 }}
-                        >
-                          Suggestions:
-                        </Text>
-                        <SuggestionList>
-                          {testResult.suggestions.map((suggestion, index) => (
-                            <li key={index}>
-                              <Text kind="body-s">{suggestion}</Text>
-                            </li>
-                          ))}
-                        </SuggestionList>
-                      </>
-                    )}
-                </TestResultBox>
+                <TestResultDisplay
+                  failureLabel={"\u2717 Connection Failed"}
+                  result={testResult}
+                  showConnectionDetails
+                  successLabel={"\u2713 Connection Successful"}
+                />
               )}
             </FieldWrapper>
           </>
