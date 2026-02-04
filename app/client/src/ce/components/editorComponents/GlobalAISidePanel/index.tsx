@@ -279,9 +279,8 @@ const MessageBubble = styled.div<{ isUser: boolean }>`
   padding: 12px 16px;
   border-radius: 12px;
   background: ${(props) =>
-    props.isUser
-      ? "var(--ads-v2-color-bg-brand-secondary)"
-      : "var(--ads-v2-color-bg-subtle)"};
+    props.isUser ? "var(--ads-v2-color-bg-subtle)" : "var(--ads-v2-color-bg)"};
+  border: 1px solid var(--ads-v2-color-border);
   animation: ${fadeIn} 0.2s ease-out;
 `;
 
@@ -527,6 +526,34 @@ export function GlobalAISidePanel() {
   const messages = useSelector(getAIMessages);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
+
+  // Track previous context to detect changes
+  const previousContextRef = useRef<{
+    mode?: string;
+    entityName?: string;
+  } | null>(null);
+
+  // Clear messages when editor context changes (e.g., switching from JS to SQL)
+  useEffect(() => {
+    const prevContext = previousContextRef.current;
+    const currentMode = editorContext?.mode;
+    const currentEntityName = editorContext?.entityName;
+
+    // Only clear if we had a previous context and it changed
+    if (
+      prevContext &&
+      (prevContext.mode !== currentMode ||
+        prevContext.entityName !== currentEntityName)
+    ) {
+      dispatch(clearAIResponse());
+    }
+
+    // Update the ref with current context
+    previousContextRef.current = {
+      mode: currentMode,
+      entityName: currentEntityName,
+    };
+  }, [editorContext?.mode, editorContext?.entityName, dispatch]);
 
   // Close panel when navigating to a different route
   useEffect(() => {
