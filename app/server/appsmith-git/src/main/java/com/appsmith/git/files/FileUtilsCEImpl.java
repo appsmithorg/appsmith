@@ -818,13 +818,18 @@ public class FileUtilsCEImpl implements FileInterface {
     public Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException {
         return Mono.fromCallable(() -> {
                     ClassLoader classLoader = getClass().getClassLoader();
-                    InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
-
-                    StringWriter stringWriter = new StringWriter();
-                    IOUtils.copy(inputStream, stringWriter, "UTF-8");
-                    String data = stringWriter
-                            .toString()
-                            .replace(EDIT_MODE_URL_TEMPLATE, editModeUrl)
+                    String data;
+                    try (InputStream inputStream =
+                            classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath())) {
+                        if (inputStream == null) {
+                            throw new IOException(
+                                    "Readme template not found at: " + gitServiceConfig.getReadmeTemplatePath());
+                        }
+                        StringWriter stringWriter = new StringWriter();
+                        IOUtils.copy(inputStream, stringWriter, "UTF-8");
+                        data = stringWriter.toString();
+                    }
+                    data = data.replace(EDIT_MODE_URL_TEMPLATE, editModeUrl)
                             .replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
                     File file = new File(Paths.get(gitServiceConfig.getGitRootPath())

@@ -29,12 +29,14 @@ public class BashService {
     // Executes bash script and returns result
     private BashFunctionResult callFunctionUnBounded(String classpathResource, String functionName, String... args)
             throws IOException {
-        InputStream scriptContentInputStream =
-                BashService.class.getClassLoader().getResourceAsStream(classpathResource);
-        if (scriptContentInputStream == null) {
-            throw new FileNotFoundException("Resource not found: " + classpathResource);
+        String scriptContent;
+        try (InputStream scriptContentInputStream =
+                BashService.class.getClassLoader().getResourceAsStream(classpathResource)) {
+            if (scriptContentInputStream == null) {
+                throw new FileNotFoundException("Resource not found: " + classpathResource);
+            }
+            scriptContent = new String(scriptContentInputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
-        String scriptContent = new String(scriptContentInputStream.readAllBytes(), StandardCharsets.UTF_8);
 
         String fullScript = buildFullCommand(scriptContent, functionName, args);
 
