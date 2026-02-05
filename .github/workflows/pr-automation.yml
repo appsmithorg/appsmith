@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: read
     defaults:
       run:
         shell: bash
