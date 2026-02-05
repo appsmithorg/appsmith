@@ -96,8 +96,11 @@ class BetterbugsUtil {
         showActionButton: false,
         styles: this.getDefaultStyles(),
         mainHeading: "Send support info",
-        recordType: "domRecord",
+        recordType: "recordVideo",
         position: { bottom: "30px", right: "20px" },
+        successMessageHeaderText: "Information received",
+        successMessageSubHeaderText:
+          "Our support team will use it to review the issue",
         metaData: {
           ...(user?.email ? { user_email: user.email } : {}),
           ...(user?.name ? { user_name: user.name } : {}),
