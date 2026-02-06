@@ -9,6 +9,10 @@ Appsmith is a low-code platform for building internal tools. It's a monorepo wit
 - **Backend (Server)**: Spring Boot Java application at `app/server/`
 - **RTS (Realtime Server)**: Node.js Express server at `app/client/packages/rts/`
 
+## Language & Conventions
+
+This is primarily a TypeScript project. Prefer TypeScript idioms and type-safe patterns. When removing unused imports, verify each removal doesn't break type-only imports or re-exports before saving.
+
 ## Quick Reference Commands
 
 ### Frontend (from `app/client/`)
@@ -29,6 +33,14 @@ mvn spotless:apply        # Format code (run before committing)
 mvn spotless:check        # Check formatting
 mvn test                  # Run unit tests
 ```
+
+## Tool Usage
+
+When running CLI tools, always use non-interactive/headless flags (e.g., `--no-interactive`, `--json`, `--quiet`). Never attempt to use interactive prompts or TUI interfaces from within Claude sessions.
+
+## Linting & Code Quality
+
+After fixing lint warnings, always run the full lint command (`npx eslint . --max-warnings 0` or equivalent) to verify the exact remaining count before reporting results. Do not estimate counts.
 
 ## EE vs CE Architecture (CRITICAL)
 

@@ -1,10 +1,11 @@
-import { call, put, select, takeLatest } from "redux-saga/effects";
+import { call, put, select, take, takeLatest } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchAIResponseSuccess,
   fetchAIResponseError,
   type FetchAIResponsePayload,
+  loadAISettings,
   updateAISettings,
 } from "ee/actions/aiAssistantActions";
 import UserApi from "ee/api/UserApi";
@@ -35,9 +36,16 @@ function* fetchAIResponseSaga(
 ): Generator<unknown, void, unknown> {
   try {
     const { context, prompt } = action.payload;
-    const aiState = (yield select(
+    let aiState = (yield select(
       getAIAssistantState,
     )) as AIAssistantReduxState;
+
+    // If settings not loaded yet (e.g. first time opening editor), load once and retry
+    if (!aiState.isEnabled || !aiState.provider) {
+      yield put(loadAISettings());
+      yield take(ReduxActionTypes.UPDATE_AI_SETTINGS);
+      aiState = (yield select(getAIAssistantState)) as AIAssistantReduxState;
+    }
 
     if (!aiState.isEnabled || !aiState.provider) {
       yield put(
