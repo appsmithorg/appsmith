@@ -48,6 +48,25 @@ const DEFAULT_ALLOWED_TAGS = new Set([
   "summary",
 ]);
 
+// These tags should be removed entirely, including their contents.
+// Unwrapping them can leak text (e.g. `<script>alert(1)</script>` -> `alert(1)`).
+const DROP_TAGS_WITH_CONTENT = new Set([
+  "script",
+  "style",
+  "iframe",
+  "object",
+  "embed",
+  "noscript",
+  // Defense-in-depth: avoid namespace/mutation-XSS footguns.
+  "template",
+  "svg",
+  "math",
+  "foreignobject",
+]);
+
+// These tags are never useful for our use-cases and are safest dropped.
+const DROP_TAGS = new Set(["meta", "link", "base"]);
+
 const DEFAULT_ALLOWED_ATTRS_BY_TAG: Record<string, Set<string>> = {
   a: new Set(["href", "target", "rel", "title"]),
   img: new Set(["src", "alt", "title", "width", "height", "loading"]),
@@ -65,8 +84,15 @@ function escapeHtml(text: string): string {
     .replace(/'/g, "&#039;");
 }
 
-function isSafeUrl(value: string): boolean {
+type UrlContext = "href" | "src";
+
+function isSafeUrl(value: string, context: UrlContext): boolean {
   const trimmed = value.trim();
+
+  // Never allow data: links in <a href>. They can still be abused for phishing or
+  // unexpected downloads, and aren't needed for release notes/tooltips.
+  if (context === "href" && /^data:/i.test(trimmed)) return false;
+
   return trimmed.length > 0 && Boolean(getIsSafeURL(trimmed));
 }
 
@@ -88,6 +114,12 @@ function ensureSafeRel(el: Element) {
 
 function sanitizeElement(el: Element) {
   const tag = el.tagName.toLowerCase();
+
+  // Remove dangerous/footgun tags completely.
+  if (DROP_TAGS_WITH_CONTENT.has(tag) || DROP_TAGS.has(tag)) {
+    el.parentNode?.removeChild(el);
+    return;
+  }
 
   // Remove disallowed tags but keep their children (after they've been sanitized).
   if (!DEFAULT_ALLOWED_TAGS.has(tag)) {
@@ -123,7 +155,8 @@ function sanitizeElement(el: Element) {
       (tag === "img" && name === "src") ||
       (tag === "g-emoji" && (name === "fallback-src" || name === "src"))
     ) {
-      if (!isSafeUrl(value)) {
+      const context: UrlContext = tag === "a" ? "href" : "src";
+      if (!isSafeUrl(value, context)) {
         el.removeAttribute(attr.name);
       }
     }
@@ -165,7 +198,7 @@ function sanitizeNode(node: Node) {
  *
  * If DOM APIs aren't available (e.g. during SSR), this falls back to escaping.
  */
-export default function sanitizeHtml(dirtyHtml: string): string {
+export default function sanitizeHtml(dirtyHtml: unknown): string {
   if (typeof dirtyHtml !== "string" || dirtyHtml.trim().length === 0) {
     return "";
   }
@@ -183,4 +216,3 @@ export default function sanitizeHtml(dirtyHtml: string): string {
 
   return template.innerHTML;
 }
-
