@@ -49,6 +49,9 @@ const StyledList = styled.ul`
       display: flex;
       align-items: center;
       font-size: 12px;
+      line-height: 22px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
       line-break: anywhere;
     }
   }
