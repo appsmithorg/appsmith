@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Icon, Text } from "@appsmith/ads";
 import type { CarouselProps } from "./types";
+import sanitizeHtml from "utils/sanitizeHtml";
 
 const CarouselContainer = styled.div`
   display: flex;
@@ -112,6 +113,14 @@ export function CarouselComponent(props: CarouselProps) {
   const [active, setActive] = useState(0);
   const [targetContent, setTargetContent] = useState(null);
   const { design, targets, triggers } = props;
+  const safeTriggers = useMemo(
+    () =>
+      triggers.map((t) => ({
+        ...t,
+        details: t.details.map((detail) => sanitizeHtml(detail)),
+      })),
+    [triggers],
+  );
 
   useEffect(() => {
     setTargetContent(targets[active]);
@@ -131,7 +140,7 @@ export function CarouselComponent(props: CarouselProps) {
       className={`carousel-triggers ${design}`}
       data-testid="t--carousel-triggers"
     >
-      {triggers.map((d, i) => {
+      {safeTriggers.map((d, i) => {
         return (
           <div
             className={`carousel-item-container carousel-trigger ${
