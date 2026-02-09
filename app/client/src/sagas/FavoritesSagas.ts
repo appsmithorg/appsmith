@@ -4,7 +4,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import ApplicationApi from "ee/api/ApplicationApi";
 import {
   toggleFavoriteApplicationSuccess,
-  toggleFavoriteApplicationError,
   fetchFavoriteApplicationsError,
   fetchFavoriteApplicationsSuccess,
 } from "actions/applicationActions";
@@ -45,19 +44,13 @@ function* toggleFavoriteApplicationSaga(
 
     yield put(toggleFavoriteApplicationSuccess(applicationId, newIsFavorited));
 
-    const response: unknown = yield call(
+    const response: ApiResponse = yield call(
       ApplicationApi.toggleFavoriteApplication,
       applicationId,
     );
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (!isValidResponse) {
-      yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
-      yield put(toggleFavoriteApplicationError(applicationId));
-    }
+    yield validateResponse(response);
   } catch (error: unknown) {
     yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
-    yield put(toggleFavoriteApplicationError(applicationId));
 
     const message =
       error instanceof Error
@@ -70,14 +63,13 @@ function* toggleFavoriteApplicationSaga(
 
 function* fetchFavoriteApplicationsSaga() {
   try {
-    const response: unknown = yield call(
+    const response: ApiResponse<ApplicationPayload[]> = yield call(
       ApplicationApi.getFavoriteApplications,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const rawApplications = (response as ApiResponse<ApplicationPayload[]>)
-        .data;
+      const rawApplications = response.data;
 
       const applications = rawApplications.map(
         (application: ApplicationPayload) => {

@@ -115,6 +115,8 @@ export function* fetchEntitiesOfWorkspaceSaga(
 
     if (workspaceId) {
       yield call(failFastApiCalls, initActions, successActions, errorActions);
+      // Refresh favorites so the list drops any apps the user no longer has access to
+      yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
     }
   } catch (error) {
     yield put({

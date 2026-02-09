@@ -17,11 +17,6 @@ export const toggleFavoriteApplicationSuccess = (
   payload: { applicationId, isFavorited },
 });
 
-export const toggleFavoriteApplicationError = (applicationId: string) => ({
-  type: ReduxActionErrorTypes.TOGGLE_FAVORITE_APPLICATION_ERROR,
-  payload: { applicationId },
-});
-
 export const fetchFavoriteApplications = () => ({
   type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT,
 });

@@ -414,20 +414,10 @@ function Card({
             </Text>
           </AppNameWrapper>
           {showOverlay && !isMobile && (
-            <div
-              className="overlay"
-              // Only enable pointer events when the user has read permission.
-              // For users without read access, keep the overlay non-interactive.
-              style={hasReadPermission ? { pointerEvents: "auto" } : undefined}
-            >
+            <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
-                <Control
-                  className="control"
-                  style={
-                    hasReadPermission ? { pointerEvents: "auto" } : undefined
-                  }
-                >
+                <Control className="control">
                   {children}
                 </Control>
               </ApplicationImage>

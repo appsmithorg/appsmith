@@ -574,7 +574,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<AclPermission> actionPermissionMono =
                 actionPermission.getDeletePermission().cache();
         Mono<AclPermission> pagePermissionMono = pagePermission.getDeletePermission();
-        String favoriteId = application.getBaseId() != null ? application.getBaseId() : application.getId();
+        String favoriteId = application.getBaseId();
         return actionPermissionMono
                 .flatMap(actionDeletePermission -> actionCollectionService.archiveActionCollectionByApplicationId(
                         application.getId(), actionDeletePermission))

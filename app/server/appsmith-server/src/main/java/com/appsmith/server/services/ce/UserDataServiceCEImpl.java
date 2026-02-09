@@ -436,6 +436,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> toggleFavoriteApplication(String applicationId) {
         return sessionUserService.getCurrentUser().zipWhen(this::getForUser).flatMap(tuple -> {
+            User user = tuple.getT1();
             UserData userData = tuple.getT2();
 
             List<String> favorites = userData.getFavoriteApplicationIds();
@@ -446,9 +447,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             boolean isRemoving = favorites.contains(applicationId);
 
             if (isRemoving) {
-                favorites.remove(applicationId);
-                userData.setFavoriteApplicationIds(favorites);
-                return repository.save(userData);
+                // Use an atomic pull update so concurrent toggles don't overwrite each other
+                return repository
+                        .removeFavoriteApplicationForUser(user.getId(), applicationId)
+                        .then(getForUser(user.getId()));
             }
 
             // When adding a favorite, verify user has access to the application
@@ -472,9 +474,18 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                                             "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
                                             MAX_FAVORITE_APPLICATIONS_LIMIT)));
                         }
-                        finalFavorites.add(applicationId);
-                        userData.setFavoriteApplicationIds(finalFavorites);
-                        return repository.save(userData);
+
+                        // For new users who don't yet have a persisted UserData document, fall back to save.
+                        if (userData.getId() == null) {
+                            finalFavorites.add(applicationId);
+                            userData.setFavoriteApplicationIds(finalFavorites);
+                            return repository.save(userData);
+                        }
+
+                        // For existing users, use an atomic addToSet update to avoid lost updates
+                        return repository
+                                .addFavoriteApplicationForUser(user.getId(), applicationId)
+                                .then(getForUser(user.getId()));
                     });
         });
     }

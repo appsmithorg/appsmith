@@ -53,4 +53,24 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
         return queryBuilder().updateAll(update).then();
     }
+
+    @Override
+    public Mono<Void> addFavoriteApplicationForUser(String userId, String applicationId) {
+        BridgeUpdate update = new BridgeUpdate();
+        update.addToSet(UserData.Fields.favoriteApplicationIds, applicationId);
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .updateFirst(update)
+                .then();
+    }
+
+    @Override
+    public Mono<Void> removeFavoriteApplicationForUser(String userId, String applicationId) {
+        BridgeUpdate update = new BridgeUpdate();
+        update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .updateFirst(update)
+                .then();
+    }
 }
