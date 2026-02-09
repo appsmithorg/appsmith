@@ -78,6 +78,8 @@ import {
   getEnableStartSignposting,
 } from "utils/storage";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { FAVORITES_KEY } from "ee/constants/workspaceConstants";
+import { APPLICATIONS_URL } from "constants/routes";
 
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
@@ -426,20 +428,34 @@ export function* handleFetchApplicationError(error: any) {
     error?.code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     yield put(safeCrashAppRequest(ERROR_CODES.PAGE_NOT_FOUND));
-  } else {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
+
+    return;
   }
+
+  if (
+    currentUser &&
+    currentUser.email !== ANONYMOUS_USERNAME &&
+    error?.code === ERROR_CODES.PAGE_NOT_FOUND
+  ) {
+    history.replace(`${APPLICATIONS_URL}?workspaceId=${FAVORITES_KEY}`);
+    yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
+    toast.show("Application not found or deleted.", { kind: "error" });
+
+    return;
+  }
+
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+    payload: {
+      error,
+    },
+  });
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    payload: {
+      error,
+    },
+  });
 }
 
 export function* setDefaultApplicationPageSaga(

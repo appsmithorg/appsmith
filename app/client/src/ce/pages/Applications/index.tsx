@@ -1161,8 +1161,11 @@ export const ApplictionsMainPage = (props: any) => {
     ) as any;
   }
 
-  // Inject virtual Favorites workspace at the top if user has favorites
-  if (hasFavorites && !isFetchingWorkspaces) {
+  // Inject virtual Favorites workspace at the top if user has favorites or URL is Favorites (e.g. after 404 redirect)
+  if (
+    (hasFavorites || workspaceIdFromQueryParams === FAVORITES_KEY) &&
+    !isFetchingWorkspaces
+  ) {
     workspaces = [DEFAULT_FAVORITES_WORKSPACE, ...workspaces];
   }
 
@@ -1190,9 +1193,13 @@ export const ApplictionsMainPage = (props: any) => {
       fetchedWorkspaceId &&
       fetchedWorkspaceId !== activeWorkspaceId
     ) {
-      const activeWorkspace: Workspace = workspaces.find(
+      let activeWorkspace: Workspace | undefined = workspaces.find(
         (workspace: Workspace) => workspace.id === activeWorkspaceId,
       );
+
+      if (!activeWorkspace && activeWorkspaceId === FAVORITES_KEY) {
+        activeWorkspace = DEFAULT_FAVORITES_WORKSPACE;
+      }
 
       if (activeWorkspace) {
         dispatch({
