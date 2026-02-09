@@ -53,6 +53,7 @@ function* toggleFavoriteApplicationSaga(
     if (!isValidResponse) {
       yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
       yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
+
       return;
     }
   } catch (error: unknown) {

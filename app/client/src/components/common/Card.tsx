@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
 import { omit } from "lodash";
@@ -383,20 +383,32 @@ function Card({
     return <GitConnectedBadge />;
   }, [isGitModEnabled]);
 
+  const handleMouseLeave = useCallback(() => {
+    // If the menu is not open, then setOverlay false
+    // Set overlay false on outside click.
+    !isContextMenuOpen && setShowOverlay(false);
+  }, [isContextMenuOpen, setShowOverlay]);
+
+  const handleMouseOver = useCallback(() => {
+    !isFetching && setShowOverlay(true);
+  }, [isFetching, setShowOverlay]);
+
+  const handleFavoriteClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggleFavorite?.(e);
+    },
+    [onToggleFavorite],
+  );
+
   return (
     <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
         className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
-        onMouseLeave={() => {
-          // If the menu is not open, then setOverlay false
-          // Set overlay false on outside click.
-          !isContextMenuOpen && setShowOverlay(false);
-        }}
-        onMouseOver={() => {
-          !isFetching && setShowOverlay(true);
-        }}
+        onMouseLeave={handleMouseLeave}
+        onMouseOver={handleMouseOver}
         showOverlay={showOverlay}
         testId={testId}
       >
@@ -410,11 +422,8 @@ function Card({
             <FavoriteIconWrapper
               aria-label="Toggle favorite"
               data-testid="t--favorite-icon"
+              onClick={handleFavoriteClick}
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(e);
-              }}
             >
               <Icon name={isFavorited ? "star-fill" : "star-line"} size="md" />
             </FavoriteIconWrapper>
@@ -433,9 +442,7 @@ function Card({
             <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
-                <Control className="control">
-                  {children}
-                </Control>
+                <Control className="control">{children}</Control>
               </ApplicationImage>
             </div>
           )}

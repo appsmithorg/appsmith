@@ -64,6 +64,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
+import { getCurrentUser } from "actions/authActions";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import history from "utils/history";
