@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select } from "redux-saga/effects";
+import { call, put, takeLeading, takeLatest, select } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import ApplicationApi from "ee/api/ApplicationApi";
@@ -48,7 +48,13 @@ function* toggleFavoriteApplicationSaga(
       ApplicationApi.toggleFavoriteApplication,
       applicationId,
     );
-    yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
+
+    if (!isValidResponse) {
+      yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
+      yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
+      return;
+    }
   } catch (error: unknown) {
     yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
 
@@ -93,7 +99,7 @@ function* fetchFavoriteApplicationsSaga() {
 }
 
 export default function* favoritesSagasListener() {
-  yield takeLatest(
+  yield takeLeading(
     ReduxActionTypes.TOGGLE_FAVORITE_APPLICATION_INIT,
     toggleFavoriteApplicationSaga,
   );
