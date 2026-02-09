@@ -107,7 +107,7 @@ const CircleAppIcon = styled(AppIcon)`
   }
 `;
 
-const FavoriteIconWrapper = styled.div`
+const FavoriteIconWrapper = styled.button`
   position: absolute;
   top: 8px;
   left: 8px;
@@ -124,9 +124,23 @@ const FavoriteIconWrapper = styled.div`
   border-radius: 50%;
   transition: all 0.2s ease;
 
+  /* Reset default button styles */
+  margin: 0;
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+
   &:hover {
     background-color: rgba(255, 255, 255, 1);
     transform: scale(1.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ads-v2-color-border-emphasis);
+    outline-offset: 2px;
   }
 `;
 
@@ -394,7 +408,9 @@ function Card({
         >
           {onToggleFavorite && (
             <FavoriteIconWrapper
+              aria-label="Toggle favorite"
               data-testid="t--favorite-icon"
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleFavorite(e);
