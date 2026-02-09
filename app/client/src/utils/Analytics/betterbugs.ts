@@ -11,11 +11,11 @@ import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
 interface BetterbugsInstance {
-  destroy?: () => void;
-  show?: () => void;
-  hide?: () => void;
-  openWidget?: () => void;
-  closeWidget?: () => void;
+  destroy: () => void;
+  show: () => void;
+  hide: () => void;
+  openWidget: () => void;
+  closeWidget: () => void;
   getMetadata?: () => Record<string | number, string | number | null>;
   setMetadata?: (
     metaData: Record<string | number, string | number | null>,
@@ -180,7 +180,7 @@ class BetterbugsUtil {
     this.instance.setMetadata(nextMeta);
   }
 
-  public static async hide() {
+  public static hide() {
     if (!this.instance) {
       log.warn("BetterBugs instance not initialized.");
 
