@@ -297,11 +297,10 @@ export default {
       }
 
       try {
-        const tempDiv = document.createElement("div");
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
 
-        tempDiv.innerHTML = html;
-
-        return tempDiv.textContent || tempDiv.innerText || "";
+        return doc.body.textContent || "";
       } catch (e) {
         return "";
       }
@@ -380,9 +379,9 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
-    /* 
-    Check if there are select columns, 
-    and if the columns are sorting by label instead of default value 
+    /*
+    Check if there are select columns,
+    and if the columns are sorting by label instead of default value
     */
     const selectColumnKeysWithSortByLabel = [];
 
@@ -397,9 +396,9 @@ export default {
       }
     });
 
-    /* 
-    If there are select columns, 
-    transform the specific columns data to show the label instead of the value for sorting 
+    /*
+    If there are select columns,
+    transform the specific columns data to show the label instead of the value for sorting
     */
     let processedTableDataWithLabelInsteadOfValue;
 
