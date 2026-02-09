@@ -53,7 +53,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -1799,31 +1798,21 @@ public class FirestorePluginTest {
     }
 
     @Test
-    public void testDatasourceCreate_withDefaultDatabaseId() {
-        // When no properties are set, datasourceCreate should use "(default)" database ID
+    public void testGetDatabaseId_withNoProperties_returnsDefault() {
         DatasourceConfiguration config = new DatasourceConfiguration();
-        config.setUrl(emulator.getEmulatorEndpoint());
-        DBAuth auth = new DBAuth();
-        auth.setUsername("test-project");
-        auth.setPassword("");
-        config.setAuthentication(auth);
-        // No properties set - should default to "(default)"
-
-        // Validate that datasource config is valid (no errors related to database ID)
-        Set<String> invalids = pluginExecutor.validateDatasource(config);
-        assertTrue(invalids.isEmpty());
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
     }
 
     @Test
-    public void testDatasourceCreate_withCustomDatabaseId() {
-        // When a custom database ID is set via properties, it should be used
+    public void testGetDatabaseId_withNullProperties_returnsDefault() {
         DatasourceConfiguration config = new DatasourceConfiguration();
-        config.setUrl(emulator.getEmulatorEndpoint());
-        DBAuth auth = new DBAuth();
-        auth.setUsername("test-project");
-        auth.setPassword("");
-        config.setAuthentication(auth);
+        config.setProperties(null);
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
 
+    @Test
+    public void testGetDatabaseId_withCustomDatabaseId_returnsCustomValue() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         Property databaseIdProperty = new Property();
         databaseIdProperty.setKey("databaseId");
@@ -1831,21 +1820,12 @@ public class FirestorePluginTest {
         properties.add(databaseIdProperty);
         config.setProperties(properties);
 
-        // Validate that datasource config with custom database ID is valid
-        Set<String> invalids = pluginExecutor.validateDatasource(config);
-        assertTrue(invalids.isEmpty());
+        assertEquals("my-custom-database", pluginExecutor.getDatabaseId(config));
     }
 
     @Test
-    public void testDatasourceCreate_withEmptyDatabaseId() {
-        // When the database ID property exists but is empty, should fall back to "(default)"
+    public void testGetDatabaseId_withEmptyValue_returnsDefault() {
         DatasourceConfiguration config = new DatasourceConfiguration();
-        config.setUrl(emulator.getEmulatorEndpoint());
-        DBAuth auth = new DBAuth();
-        auth.setUsername("test-project");
-        auth.setPassword("");
-        config.setAuthentication(auth);
-
         List<Property> properties = new ArrayList<>();
         Property databaseIdProperty = new Property();
         databaseIdProperty.setKey("databaseId");
@@ -1853,9 +1833,20 @@ public class FirestorePluginTest {
         properties.add(databaseIdProperty);
         config.setProperties(properties);
 
-        // Validate that datasource config with empty database ID is valid
-        Set<String> invalids = pluginExecutor.validateDatasource(config);
-        assertTrue(invalids.isEmpty());
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
+    public void testGetDatabaseId_withNonStringValue_returnsDefault() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        Property databaseIdProperty = new Property();
+        databaseIdProperty.setKey("databaseId");
+        databaseIdProperty.setValue(12345);
+        properties.add(databaseIdProperty);
+        config.setProperties(properties);
+
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
     }
 
     @Test

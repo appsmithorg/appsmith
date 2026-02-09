@@ -945,11 +945,12 @@ public class FirestorePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private String getDatabaseId(DatasourceConfiguration datasourceConfiguration) {
+        String getDatabaseId(DatasourceConfiguration datasourceConfiguration) {
             if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
                 for (Property property : datasourceConfiguration.getProperties()) {
                     if (property != null
                             && "databaseId".equals(property.getKey())
+                            && property.getValue() instanceof String
                             && !StringUtils.isEmpty((String) property.getValue())) {
                         return (String) property.getValue();
                     }
