@@ -77,12 +77,20 @@ export function Row(props: RowType) {
     rowProps["role"] = "button";
   }
 
+  const rowClassName = [
+    "tr",
+    props.row.index % 2 === 0 ? "odd-row" : "even-row",
+    isRowSelected && "selected-row",
+    props.className,
+    isAddRowInProgress && props.index === 0 && "new-row",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div
       {...rowProps}
-      className={`tr ${isRowSelected ? "selected-row" : ""} ${
-        props.className || ""
-      } ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
+      className={rowClassName}
       data-rowindex={props.index}
       key={key}
       onClick={(e) => {

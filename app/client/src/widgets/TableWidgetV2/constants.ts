@@ -15,6 +15,12 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
+export interface RowColorStyles {
+  headerRowColor?: string;
+  oddRowColor?: string;
+  evenRowColor?: string;
+}
+
 export interface EditableCell {
   column: string;
   index: number;
@@ -52,7 +58,8 @@ export interface TableWidgetProps
   extends WidgetProps,
     WithMeta,
     TableStyles,
-    AddNewRowProps {
+    AddNewRowProps,
+    RowColorStyles {
   pristine: boolean;
   nextPageKey?: string;
   prevPageKey?: string;
