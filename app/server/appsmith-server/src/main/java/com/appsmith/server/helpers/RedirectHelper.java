@@ -171,8 +171,12 @@ public class RedirectHelper {
             return true;
         }
 
-        // Relative URLs are always safe
-        if (!redirectUrl.startsWith("http://") && !redirectUrl.startsWith("https://")) {
+        // Relative URLs are always safe — but NOT protocol-relative URLs like //evil.com
+        // Browsers resolve //evil.com/path to the current scheme + evil.com, so these
+        // are effectively absolute URLs and must be validated.
+        if (!redirectUrl.startsWith("http://")
+                && !redirectUrl.startsWith("https://")
+                && !redirectUrl.startsWith("//")) {
             return true;
         }
 
