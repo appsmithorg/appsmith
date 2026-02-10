@@ -151,11 +151,44 @@ class RedirectHelperOpenRedirectTest {
         "https://app.appsmith.com.evil.com/",
         "https://evil.com/app.appsmith.com",
         "https://evil.com#@app.appsmith.com",
+        "//evil.com/path",
+        "//evil.com",
     })
     void testCommonBypassAttemptsAreBlocked(String maliciousUrl) {
         HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
         assertFalse(
                 RedirectHelper.isSafeRedirectUrl(maliciousUrl, headers),
                 "Should block bypass attempt: " + maliciousUrl);
+    }
+
+    // --- Dangerous scheme tests ---
+    // javascript: and data: URLs don't start with http://, https://, or //
+    // so isSafeRedirectUrl treats them as relative (safe). This is OK because:
+    // - In fulfillRedirectUrl(), the origin is prepended, making them harmless broken URLs
+    // - In sanitizeRedirectUrl(), they pass through but URI.create() + sendRedirect()
+    //   produces a Location header — browsers don't execute javascript: from Location headers
+    // We test this behavior explicitly to document it.
+
+    @Test
+    void testJavascriptSchemeIsTreatedAsRelative() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // javascript: URLs are treated as relative (no http/https/double-slash prefix)
+        // This is safe because browsers don't execute javascript: from Location headers
+        assertTrue(RedirectHelper.isSafeRedirectUrl("javascript:alert(1)", headers));
+    }
+
+    @Test
+    void testDataSchemeIsTreatedAsRelative() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // data: URLs are treated as relative (no http/https/double-slash prefix)
+        // This is safe because browsers don't follow data: URIs from Location headers
+        assertTrue(RedirectHelper.isSafeRedirectUrl("data:text/html,<script>alert(1)</script>", headers));
+    }
+
+    @Test
+    void testSanitizeBlocksProtocolRelativeUrl() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        String result = RedirectHelper.sanitizeRedirectUrl("//evil.com/path", headers);
+        assertEquals("https://app.appsmith.com/applications", result);
     }
 }
