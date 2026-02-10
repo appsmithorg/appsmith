@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -23,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RedirectHelper {
@@ -123,6 +125,8 @@ public class RedirectHelper {
     /**
      * If redirectUrl is empty, it'll be set to DEFAULT_REDIRECT_URL.
      * If the redirectUrl does not have the base url, it'll prepend that from header origin.
+     * If the redirectUrl is an absolute URL pointing to a different host, it is rejected
+     * to prevent open redirect attacks.
      *
      * @param redirectUrl
      * @param httpHeaders
@@ -138,7 +142,86 @@ public class RedirectHelper {
             redirectUrl = httpHeaders.getOrigin() + redirectUrl;
         }
 
+        // Validate that absolute redirect URLs point to the same origin as the request.
+        // This prevents open redirect attacks where an attacker supplies an external URL
+        // (e.g., https://evil.com) as the redirectUrl parameter.
+        if (!isSafeRedirectUrl(redirectUrl, httpHeaders)) {
+            log.warn("Blocked open redirect attempt to: {}", redirectUrl);
+            String origin = httpHeaders.getOrigin();
+            redirectUrl = (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
+        }
+
         return redirectUrl;
+    }
+
+    /**
+     * Checks whether a redirect URL is safe by verifying it is either:
+     * - A relative path (no scheme), or
+     * - An absolute URL whose host matches the request's Origin header
+     *
+     * This prevents open redirect vulnerabilities where user-supplied URLs
+     * could redirect authenticated users to attacker-controlled domains.
+     *
+     * @param redirectUrl The URL to validate
+     * @param httpHeaders The HTTP headers from the current request
+     * @return true if the URL is safe to redirect to, false otherwise
+     */
+    static boolean isSafeRedirectUrl(String redirectUrl, HttpHeaders httpHeaders) {
+        if (!StringUtils.hasText(redirectUrl)) {
+            return true;
+        }
+
+        // Relative URLs are always safe
+        if (!redirectUrl.startsWith("http://") && !redirectUrl.startsWith("https://")) {
+            return true;
+        }
+
+        // For absolute URLs, the host must match the request origin
+        String origin = httpHeaders.getOrigin();
+        if (StringUtils.isEmpty(origin)) {
+            // If there is no Origin header, we cannot validate — reject absolute URLs
+            // to be safe. Relative URLs were already allowed above.
+            return false;
+        }
+
+        try {
+            URI redirectUri = new URI(redirectUrl);
+            URI originUri = new URI(origin);
+
+            String redirectHost = redirectUri.getHost();
+            String originHost = originUri.getHost();
+
+            if (redirectHost == null || originHost == null) {
+                return false;
+            }
+
+            // Compare host and port (port -1 means default for scheme)
+            int redirectPort = redirectUri.getPort();
+            int originPort = originUri.getPort();
+
+            return redirectHost.equalsIgnoreCase(originHost) && redirectPort == originPort;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Sanitizes a redirect URL to prevent open redirect attacks.
+     * If the URL is not safe (points to an external host), returns the default redirect URL.
+     * This method is intended for use by authentication handlers that construct redirect URLs
+     * from sources other than fulfillRedirectUrl (e.g., OAuth2 state parameter).
+     *
+     * @param redirectUrl The URL to sanitize
+     * @param httpHeaders The HTTP headers from the current request
+     * @return The original URL if safe, or the default redirect URL if not
+     */
+    public static String sanitizeRedirectUrl(String redirectUrl, HttpHeaders httpHeaders) {
+        if (isSafeRedirectUrl(redirectUrl, httpHeaders)) {
+            return redirectUrl;
+        }
+        log.warn("Blocked open redirect attempt to: {}", redirectUrl);
+        String origin = httpHeaders.getOrigin();
+        return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
     }
 
     /**
