@@ -113,6 +113,17 @@ class RedirectHelperOpenRedirectTest {
         assertTrue(RedirectHelper.isSafeRedirectUrl("http://app.appsmith.com/applications", headers));
     }
 
+    @Test
+    void testExplicitDefaultPortMatchesImplicitPort() {
+        // https://app.com:443 should match https://app.com (port 443 is default for https)
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:443/applications", headers));
+
+        // http://localhost:80 should match http://localhost (port 80 is default for http)
+        HttpHeaders headers2 = headersWithOrigin("http://localhost");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("http://localhost:80/applications", headers2));
+    }
+
     // --- sanitizeRedirectUrl tests ---
 
     @Test
