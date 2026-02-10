@@ -203,14 +203,31 @@ public class RedirectHelper {
                 return false;
             }
 
-            // Compare host and port (port -1 means default for scheme)
-            int redirectPort = redirectUri.getPort();
-            int originPort = originUri.getPort();
+            // Compare host and port, normalizing default ports (80 for http, 443 for https)
+            int redirectPort = normalizePort(redirectUri.getScheme(), redirectUri.getPort());
+            int originPort = normalizePort(originUri.getScheme(), originUri.getPort());
 
             return redirectHost.equalsIgnoreCase(originHost) && redirectPort == originPort;
         } catch (URISyntaxException e) {
             return false;
         }
+    }
+
+    /**
+     * Normalizes a port number, mapping -1 (unspecified) to the default port for the scheme.
+     * This ensures that https://app.com and https://app.com:443 are treated as equivalent.
+     */
+    private static int normalizePort(String scheme, int port) {
+        if (port != -1) {
+            return port;
+        }
+        if ("https".equalsIgnoreCase(scheme)) {
+            return 443;
+        }
+        if ("http".equalsIgnoreCase(scheme)) {
+            return 80;
+        }
+        return port;
     }
 
     /**
@@ -227,7 +244,7 @@ public class RedirectHelper {
         if (isSafeRedirectUrl(redirectUrl, httpHeaders)) {
             return redirectUrl;
         }
-        log.warn("Blocked open redirect attempt to: {}", redirectUrl);
+        log.warn("Blocked open redirect attempt to: {}", redirectUrl.replaceAll("[\\r\\n]", ""));
         String origin = httpHeaders.getOrigin();
         return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
     }
