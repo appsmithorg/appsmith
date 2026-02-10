@@ -3,6 +3,7 @@ import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import ApplicationApi from "ee/api/ApplicationApi";
 import {
+  toggleFavoriteApplicationError,
   toggleFavoriteApplicationSuccess,
   fetchFavoriteApplicationsError,
   fetchFavoriteApplicationsSuccess,
@@ -58,6 +59,8 @@ function* toggleFavoriteApplicationSaga(
     }
   } catch (error: unknown) {
     yield put(toggleFavoriteApplicationSuccess(applicationId, isFavorited));
+
+    yield put(toggleFavoriteApplicationError(applicationId, error));
 
     const message =
       error instanceof Error

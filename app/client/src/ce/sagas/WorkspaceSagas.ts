@@ -66,12 +66,16 @@ export function* fetchAllWorkspacesSaga(
         payload: workspaces,
       });
 
-      // Fetch user's favorite applications to populate favoriteApplicationIds
-      // This ensures favorites are shown correctly across all workspaces
-      yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
-
       if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
+        // When we're also fetching entities for a specific workspace (e.g. the
+        // Applications page), favorites will be refreshed from within
+        // fetchEntitiesOfWorkspaceSaga to avoid duplicate API calls.
         yield call(fetchEntitiesOfWorkspaceSaga, action);
+      } else {
+        // Callers that only need the workspace list (e.g. Templates, settings)
+        // still refresh favorites once here so the virtual Favorites workspace
+        // and favorite badges stay in sync.
+        yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
       }
     }
   } catch (error) {

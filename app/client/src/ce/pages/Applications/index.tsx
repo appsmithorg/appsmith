@@ -336,7 +336,6 @@ export function LeftPaneSection(props: {
       },
       dispatch,
     );
-    dispatch(fetchAllWorkspaces());
   };
 
   return (

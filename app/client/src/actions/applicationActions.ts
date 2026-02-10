@@ -31,3 +31,11 @@ export const fetchFavoriteApplicationsSuccess = (
 export const fetchFavoriteApplicationsError = () => ({
   type: ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR,
 });
+
+export const toggleFavoriteApplicationError = (
+  applicationId: string,
+  error: unknown,
+) => ({
+  type: ReduxActionErrorTypes.TOGGLE_FAVORITE_APPLICATION_ERROR,
+  payload: { applicationId, error, show: false },
+});
