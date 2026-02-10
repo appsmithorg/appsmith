@@ -145,11 +145,7 @@ public class RedirectHelper {
         // Validate that absolute redirect URLs point to the same origin as the request.
         // This prevents open redirect attacks where an attacker supplies an external URL
         // (e.g., https://evil.com) as the redirectUrl parameter.
-        if (!isSafeRedirectUrl(redirectUrl, httpHeaders)) {
-            log.warn("Blocked open redirect attempt to: {}", redirectUrl);
-            String origin = httpHeaders.getOrigin();
-            redirectUrl = (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
-        }
+        redirectUrl = sanitizeRedirectUrl(redirectUrl, httpHeaders);
 
         return redirectUrl;
     }
@@ -171,13 +167,14 @@ public class RedirectHelper {
             return true;
         }
 
-        // Relative URLs are always safe — but NOT protocol-relative URLs like //evil.com
-        // Browsers resolve //evil.com/path to the current scheme + evil.com, so these
-        // are effectively absolute URLs and must be validated.
-        if (!redirectUrl.startsWith("http://")
-                && !redirectUrl.startsWith("https://")
-                && !redirectUrl.startsWith("//")) {
+        // Only single-slash-prefixed relative paths are safe (e.g., /applications)
+        if (redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
             return true;
+        }
+
+        // Reject anything that isn't http(s) — covers javascript:, data:, //, bare paths, etc.
+        if (!redirectUrl.startsWith("http://") && !redirectUrl.startsWith("https://")) {
+            return false;
         }
 
         // For absolute URLs, the host must match the request origin
@@ -191,6 +188,13 @@ public class RedirectHelper {
         try {
             URI redirectUri = new URI(redirectUrl);
             URI originUri = new URI(origin);
+
+            // Reject URLs with userinfo (e.g., https://evil.com@app.appsmith.com)
+            // Java's URI parser treats evil.com as userinfo and app.appsmith.com as host,
+            // but browser behavior varies — block these outright to be safe.
+            if (redirectUri.getUserInfo() != null) {
+                return false;
+            }
 
             String redirectHost = redirectUri.getHost();
             String originHost = originUri.getHost();

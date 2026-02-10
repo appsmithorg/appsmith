@@ -162,27 +162,26 @@ class RedirectHelperOpenRedirectTest {
     }
 
     // --- Dangerous scheme tests ---
-    // javascript: and data: URLs don't start with http://, https://, or //
-    // so isSafeRedirectUrl treats them as relative (safe). This is OK because:
-    // - In fulfillRedirectUrl(), the origin is prepended, making them harmless broken URLs
-    // - In sanitizeRedirectUrl(), they pass through but URI.create() + sendRedirect()
-    //   produces a Location header — browsers don't execute javascript: from Location headers
-    // We test this behavior explicitly to document it.
+    // javascript:, data:, and other non-http schemes are blocked outright.
+    // Only /path relative URLs and http(s) absolute URLs are allowed.
 
     @Test
-    void testJavascriptSchemeIsTreatedAsRelative() {
+    void testJavascriptSchemeIsBlocked() {
         HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
-        // javascript: URLs are treated as relative (no http/https/double-slash prefix)
-        // This is safe because browsers don't execute javascript: from Location headers
-        assertTrue(RedirectHelper.isSafeRedirectUrl("javascript:alert(1)", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("javascript:alert(1)", headers));
     }
 
     @Test
-    void testDataSchemeIsTreatedAsRelative() {
+    void testDataSchemeIsBlocked() {
         HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
-        // data: URLs are treated as relative (no http/https/double-slash prefix)
-        // This is safe because browsers don't follow data: URIs from Location headers
-        assertTrue(RedirectHelper.isSafeRedirectUrl("data:text/html,<script>alert(1)</script>", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("data:text/html,<script>alert(1)</script>", headers));
+    }
+
+    @Test
+    void testBarePathWithoutSlashIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // Bare paths like "applications" (no leading /) are rejected
+        assertFalse(RedirectHelper.isSafeRedirectUrl("applications", headers));
     }
 
     @Test
