@@ -184,6 +184,16 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
+        propertyName: "headerTextColor",
+        label: "Header text color",
+        helpText: "Changes the text color of the header row",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         propertyName: "oddRowColor",
         label: "Odd row color",
         helpText: "Changes the background color of odd rows",

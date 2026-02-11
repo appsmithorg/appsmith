@@ -288,7 +288,7 @@ export const TableWrapper = styled.div<
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
-    color: ${Colors.OXFORD_BLUE};
+    color: ${(props) => props.headerTextColor || Colors.OXFORD_BLUE};
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;

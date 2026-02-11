@@ -17,6 +17,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export interface RowColorStyles {
   headerRowColor?: string;
+  headerTextColor?: string;
   oddRowColor?: string;
   evenRowColor?: string;
 }

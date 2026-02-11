@@ -327,6 +327,7 @@ export function Table(props: TableProps) {
         boxShadow={props.boxShadow}
         evenRowColor={props.evenRowColor}
         headerRowColor={props.headerRowColor}
+        headerTextColor={props.headerTextColor}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}

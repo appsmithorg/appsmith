@@ -135,6 +135,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     headerRowColor,
+    headerTextColor,
     height,
     isAddRowInProgress,
     isInfiniteScrollEnabled,
@@ -266,6 +267,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
       headerRowColor={headerRowColor}
+      headerTextColor={headerTextColor}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
       isInfiniteScrollEnabled={isInfiniteScrollEnabled}
@@ -346,6 +348,11 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderWidth === next.borderWidth &&
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
+    prev.headerRowColor === next.headerRowColor &&
+    prev.headerTextColor === next.headerTextColor &&
+    prev.oddRowColor === next.oddRowColor &&
+    prev.evenRowColor === next.evenRowColor &&
+    prev.variant === next.variant &&
     //shallow equal possible
     equal(prev.columnWidthMap, next.columnWidthMap) &&
     //static reference
@@ -354,7 +361,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // and we are not changing the columns manually.
     prev.columns === next.columns &&
     equal(prev.editableCell, next.editableCell) &&
-    prev.variant === next.variant &&
     prev.primaryColumnId === next.primaryColumnId &&
     equal(prev.isEditableCellsValid, next.isEditableCellsValid) &&
     prev.isAddRowInProgress === next.isAddRowInProgress &&
@@ -365,9 +371,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.canFreezeColumn === next.canFreezeColumn &&
     prev.showConnectDataOverlay === next.showConnectDataOverlay &&
     prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled &&
-    equal(prev.cachedTableData, next.cachedTableData) &&
-    prev.headerRowColor === next.headerRowColor &&
-    prev.oddRowColor === next.oddRowColor &&
-    prev.evenRowColor === next.evenRowColor
+    equal(prev.cachedTableData, next.cachedTableData)
   );
 });
