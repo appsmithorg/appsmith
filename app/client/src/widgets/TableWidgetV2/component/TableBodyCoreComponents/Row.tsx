@@ -28,12 +28,8 @@ export function Row(props: RowType) {
     isAddRowInProgress,
     isInfiniteScrollEnabled,
     multiRowSelection,
-    onRowHover,
-    onRowHoverLeave,
     prepareRow,
     primaryColumnId,
-    rowBackgroundColor,
-    rowTextColor,
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
@@ -61,27 +57,17 @@ export function Row(props: RowType) {
   }, [wrappingColumns]);
 
   prepareRow?.(props.row);
-  const rowIndex = props.row.index;
-  const computedBgColor = Array.isArray(rowBackgroundColor)
-    ? rowBackgroundColor[rowIndex]
-    : rowBackgroundColor;
-  const computedTextColor = Array.isArray(rowTextColor)
-    ? rowTextColor[rowIndex]
-    : rowTextColor;
-  const rowStyle: React.CSSProperties = {
-    display: "flex",
-    ...props.style,
-    ...(computedBgColor && { background: computedBgColor }),
-    ...(computedTextColor && { color: computedTextColor }),
-  };
   const rowProps = {
     ...props.row.getRowProps(),
-    style: rowStyle,
+    style: {
+      display: "flex",
+      ...(props.style || {}),
+    },
     ref: rowRef,
   };
   const isRowSelected = multiRowSelection
-    ? selectedRowIndices.includes(rowIndex)
-    : rowIndex === selectedRowIndex;
+    ? selectedRowIndices.includes(props.row.index)
+    : props.row.index === selectedRowIndex;
 
   const key =
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
@@ -93,7 +79,7 @@ export function Row(props: RowType) {
 
   const rowClassName = [
     "tr",
-    rowIndex % 2 === 0 ? "odd-row" : "even-row",
+    props.row.index % 2 === 0 ? "odd-row" : "even-row",
     isRowSelected && "selected-row",
     props.className,
     isAddRowInProgress && props.index === 0 && "new-row",
@@ -112,8 +98,6 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
-      onMouseEnter={() => onRowHover?.(rowIndex)}
-      onMouseLeave={() => onRowHoverLeave?.()}
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}

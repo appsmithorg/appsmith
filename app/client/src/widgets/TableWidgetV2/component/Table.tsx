@@ -335,8 +335,6 @@ export function Table(props: TableProps) {
         isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}
         oddRowColor={props.oddRowColor}
-        rowBackgroundColor={props.rowBackgroundColor}
-        rowTextColor={props.rowTextColor}
         tableSizes={tableSizes}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}

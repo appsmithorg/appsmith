@@ -214,28 +214,6 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        propertyName: "rowBackgroundColor",
-        label: "Row background color",
-        helpText:
-          "Changes the background color of each row. Accepts a single color or an array of colors (one per row) via JS expression",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: "rowTextColor",
-        label: "Row text color",
-        helpText:
-          "Changes the text color of each row. Accepts a single color or an array of colors (one per row) via JS expression",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         propertyName: "accentColor",
         label: "Accent color",
         controlType: "COLOR_PICKER",
