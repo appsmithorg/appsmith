@@ -1,4 +1,8 @@
 import type { User } from "constants/userConstants";
+import type {
+  Betterbugs as BetterbugsInstance,
+  BetterbugsOptions,
+} from "@betterbugs/web-sdk";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 import store from "store";
@@ -10,20 +14,50 @@ import {
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
-interface BetterbugsInstance {
-  destroy: () => void;
-  show: () => void;
-  hide: () => void;
-  openWidget: () => void;
-  closeWidget: () => void;
-  getMetadata?: () => Record<string | number, string | number | null>;
-  setMetadata?: (
-    metaData: Record<string | number, string | number | null>,
-  ) => void;
-}
-
 class BetterbugsUtil {
   private static instance: BetterbugsInstance | null;
+
+  private static getDefaultParams(
+    user: User | undefined,
+    apiKey: string,
+    appVersion: ReturnType<typeof getAppsmithConfigs>["appVersion"],
+  ): BetterbugsOptions {
+    const metadata: Record<string, string | null> = {
+      instance_id: getInstanceId(store.getState()),
+      tenant_id: store.getState().organization?.tenantId,
+      version: appVersion.id,
+      commit_sha: appVersion.sha,
+      edition: appVersion.edition,
+      release_date: appVersion.releaseDate,
+      ...this.getRuntimeMetadata(),
+    };
+
+    const params: BetterbugsOptions = {
+      apiKey,
+      mode:
+        process.env.NODE_ENV === "development" ? "development" : "production",
+      showActionButton: false,
+      styles: this.getDefaultStyles(),
+      mainHeading: "Send support info",
+      recordType: "recordVideo",
+      position: { bottom: "30px", right: "20px" },
+      successMessageHeaderText: "Information received",
+      successMessageSubHeaderText:
+        "Our support team will use it to review the issue",
+      metaData: metadata,
+    };
+
+    if (user?.email) {
+      params.email = user.email;
+      metadata.user_email = user.email;
+    }
+
+    if (user?.name) {
+      metadata.user_name = user.name;
+    }
+
+    return params;
+  }
 
   /**
    * Get default styling for BetterBugs widget (light theme)
@@ -36,10 +70,7 @@ class BetterbugsUtil {
     };
   }
 
-  private static getRuntimeMetadata(): Record<
-    string | number,
-    string | number | null
-  > {
+  private static getRuntimeMetadata(): Record<string, string | null> {
     if (typeof window === "undefined") {
       return {
         url_path: null,
@@ -88,33 +119,11 @@ class BetterbugsUtil {
 
     try {
       const { default: Betterbugs } = await import("@betterbugs/web-sdk");
-      const instance = new Betterbugs({
-        apiKey,
-        mode:
-          process.env.NODE_ENV === "development" ? "development" : "production",
-        ...(user?.email ? { email: user.email } : {}),
-        showActionButton: false,
-        styles: this.getDefaultStyles(),
-        mainHeading: "Send support info",
-        recordType: "recordVideo",
-        position: { bottom: "30px", right: "20px" },
-        successMessageHeaderText: "Information received",
-        successMessageSubHeaderText:
-          "Our support team will use it to review the issue",
-        metaData: {
-          ...(user?.email ? { user_email: user.email } : {}),
-          ...(user?.name ? { user_name: user.name } : {}),
-          instance_id: getInstanceId(store.getState()),
-          tenant_id: store.getState().organization?.tenantId,
-          version: appVersion.id,
-          commit_sha: appVersion.sha,
-          edition: appVersion.edition,
-          release_date: appVersion.releaseDate,
-          ...this.getRuntimeMetadata(),
-        },
-      });
+      const instance = new Betterbugs(
+        this.getDefaultParams(user, apiKey, appVersion),
+      );
 
-      this.instance = instance as BetterbugsInstance;
+      this.instance = instance;
     } catch (e) {
       log.error("Failed to initialize BetterBugs:", e);
     }
