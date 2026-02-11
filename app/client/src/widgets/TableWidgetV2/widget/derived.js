@@ -1257,6 +1257,56 @@ export default {
     return validationMap;
   },
   //
+  getHoveredRow: (props, moment, _) => {
+    let index = -1;
+    const parsedHoveredRowIndex = parseInt(props.hoveredRowIndex);
+
+    if (!_.isNaN(parsedHoveredRowIndex)) {
+      index = parsedHoveredRowIndex;
+    }
+
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+    let hoveredRow;
+
+    if (index > -1 && index < rows.length) {
+      hoveredRow = { ...rows[index] };
+    } else {
+      hoveredRow = {};
+
+      if (rows && rows[0]) {
+        Object.keys(rows[0]).forEach((key) => {
+          hoveredRow[key] = "";
+        });
+      }
+    }
+
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
+
+    return _.omit(hoveredRow, keysToBeOmitted);
+  },
+  //
+  getRowIndices: (props, moment, _) => {
+    const rows = props.filteredTableData || props.processedTableData || [];
+
+    return rows.map((_, index) => index);
+  },
+  //
   getTableHeaders: (props, moment, _) => {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)

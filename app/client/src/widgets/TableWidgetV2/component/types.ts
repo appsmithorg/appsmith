@@ -78,6 +78,8 @@ export interface TableProps extends RowColorStyles {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  onRowHover?: (rowIndex: number) => void;
+  onRowHoverLeave?: () => void;
   isInfiniteScrollEnabled: boolean;
   endOfData: boolean;
   cachedTableData: Array<Record<string, unknown>>;

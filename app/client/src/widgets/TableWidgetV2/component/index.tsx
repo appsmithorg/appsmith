@@ -56,6 +56,8 @@ interface ReactTableComponentProps extends RowColorStyles {
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
+  onRowHover?: (rowIndex: number) => void;
+  onRowHoverLeave?: () => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -154,10 +156,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onBulkEditSave,
     onConnectData,
     onRowClick,
+    onRowHover,
+    onRowHoverLeave,
     pageNo,
     pageSize,
     prevPageClick,
     primaryColumnId,
+    rowBackgroundColor,
+    rowTextColor,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -285,10 +291,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       onBulkEditDiscard={onBulkEditDiscard}
       onBulkEditSave={onBulkEditSave}
       onConnectData={onConnectData}
+      onRowHover={onRowHover}
+      onRowHoverLeave={onRowHoverLeave}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
       primaryColumnId={primaryColumnId}
+      rowBackgroundColor={rowBackgroundColor}
+      rowTextColor={rowTextColor}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -328,6 +338,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.isVisibleSearch === next.isVisibleSearch &&
     prev.nextPageClick === next.nextPageClick &&
     prev.onRowClick === next.onRowClick &&
+    prev.onRowHover === next.onRowHover &&
+    prev.onRowHoverLeave === next.onRowHoverLeave &&
     prev.pageNo === next.pageNo &&
     prev.pageSize === next.pageSize &&
     prev.prevPageClick === next.prevPageClick &&
@@ -371,6 +383,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.canFreezeColumn === next.canFreezeColumn &&
     prev.showConnectDataOverlay === next.showConnectDataOverlay &&
     prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled &&
-    equal(prev.cachedTableData, next.cachedTableData)
+    equal(prev.cachedTableData, next.cachedTableData) &&
+    equal(prev.rowBackgroundColor, next.rowBackgroundColor) &&
+    equal(prev.rowTextColor, next.rowTextColor)
   );
 });

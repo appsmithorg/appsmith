@@ -20,6 +20,8 @@ export interface RowColorStyles {
   headerTextColor?: string;
   oddRowColor?: string;
   evenRowColor?: string;
+  rowBackgroundColor?: string | string[];
+  rowTextColor?: string | string[];
 }
 
 export interface EditableCell {

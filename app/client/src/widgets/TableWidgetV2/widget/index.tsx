@@ -441,6 +441,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       newRow: undefined,
       previousPageVisited: false,
       nextPageVisited: false,
+      hoveredRowIndex: -1,
     };
   }
 
@@ -475,6 +476,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        hoveredRowIndex: "number",
+        hoveredRow: generateTypeDef(widget.hoveredRow, extraDefsToDefine),
+        rowIndices: "[number]",
       };
 
       if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
@@ -501,6 +505,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
       tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
+      hoveredRow: `{{(()=>{${derivedProperties.getHoveredRow}})()}}`,
+      rowIndices: `{{(()=>{${derivedProperties.getRowIndices}})()}}`,
     };
   }
 
@@ -1376,12 +1382,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
+          onRowHover={this.handleRowHover}
+          onRowHoverLeave={this.handleRowHoverLeave}
           pageNo={this.props.pageNo}
           pageSize={
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
+          rowBackgroundColor={this.props.rowBackgroundColor}
+          rowTextColor={this.props.rowTextColor}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
@@ -1780,6 +1790,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
+  };
+
+  private hoverThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+
+  handleRowHover = (rowIndex: number) => {
+    if (this.hoverThrottleTimer) return;
+
+    this.hoverThrottleTimer = setTimeout(() => {
+      this.hoverThrottleTimer = null;
+    }, 100);
+
+    this.props.updateWidgetMetaProperty("hoveredRowIndex", rowIndex);
+  };
+
+  handleRowHoverLeave = () => {
+    if (this.hoverThrottleTimer) {
+      clearTimeout(this.hoverThrottleTimer);
+      this.hoverThrottleTimer = null;
+    }
+
+    this.props.updateWidgetMetaProperty("hoveredRowIndex", -1);
   };
 
   updatePageNumber = (pageNo: number, event?: EventType) => {
