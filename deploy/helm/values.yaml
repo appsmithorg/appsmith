@@ -146,6 +146,10 @@ serviceAccount:
   ##
   annotations: {}
 
+## @param annotations Annotations to add to the Deployment/StatefulSet resource
+##
+annotations: {}
+
 podAnnotations: {}
 
 podLabels: {}
