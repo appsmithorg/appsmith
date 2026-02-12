@@ -16,6 +16,7 @@ interface AIConfigData {
   hasClaudeApiKey?: boolean;
   hasOpenaiApiKey?: boolean;
   hasCopilotApiKey?: boolean;
+  copilotEndpoint?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
