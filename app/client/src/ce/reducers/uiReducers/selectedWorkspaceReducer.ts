@@ -21,6 +21,7 @@ export interface SelectedWorkspaceReduxState {
   packages: Package[];
   loadingStates: {
     isFetchingApplications: boolean;
+    isFetchingFavoriteApplications: boolean;
     isFetchingAllUsers: boolean;
     isFetchingCurrentWorkspace: boolean;
   };
@@ -36,6 +37,7 @@ export const initialState: SelectedWorkspaceReduxState = {
   packages: [],
   loadingStates: {
     isFetchingApplications: false,
+    isFetchingFavoriteApplications: false,
     isFetchingAllUsers: false,
     isFetchingCurrentWorkspace: false,
   },
@@ -64,13 +66,13 @@ export const handlers = {
   [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT]: (
     draftState: SelectedWorkspaceReduxState,
   ) => {
-    draftState.loadingStates.isFetchingApplications = true;
+    draftState.loadingStates.isFetchingFavoriteApplications = true;
   },
   [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,
     action: ReduxAction<ApplicationPayload[]>,
   ) => {
-    draftState.loadingStates.isFetchingApplications = false;
+    draftState.loadingStates.isFetchingFavoriteApplications = false;
 
     // Only replace applications when we're in the virtual favorites workspace.
     // This prevents overwriting a real workspace's applications when favorites
@@ -82,7 +84,7 @@ export const handlers = {
   [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
     draftState: SelectedWorkspaceReduxState,
   ) => {
-    draftState.loadingStates.isFetchingApplications = false;
+    draftState.loadingStates.isFetchingFavoriteApplications = false;
   },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,

@@ -13,6 +13,7 @@ import { toast } from "@appsmith/ads";
 import { findDefaultPage } from "pages/utils";
 import type { ApplicationPayload } from "entities/Application";
 import type { ApiResponse } from "api/ApiResponses";
+import { getApplicationList } from "ee/selectors/applicationSelectors";
 
 const MAX_FAVORITE_APPLICATIONS_LIMIT = 50;
 
@@ -81,14 +82,30 @@ function* fetchFavoriteApplicationsSaga() {
     if (isValidResponse) {
       const rawApplications = response.data;
 
+      // Build a permissions lookup from the main application list so favorite
+      // apps returned by the API (which may omit permissions) are enriched.
+      const allApplications: ApplicationPayload[] =
+        (yield select(getApplicationList)) ?? [];
+      const permissionsById = new Map<string, string[]>();
+
+      for (const app of allApplications) {
+        if (app.userPermissions?.length) {
+          permissionsById.set(app.id, app.userPermissions);
+        }
+      }
+
       const applications = rawApplications.map(
         (application: ApplicationPayload) => {
           const defaultPage = findDefaultPage(application.pages);
+          const userPermissions = application.userPermissions?.length
+            ? application.userPermissions
+            : permissionsById.get(application.id) ?? [];
 
           return {
             ...application,
             defaultPageId: defaultPage?.id,
             defaultBasePageId: defaultPage?.baseId,
+            userPermissions,
           };
         },
       );
