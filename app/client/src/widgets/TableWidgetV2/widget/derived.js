@@ -299,8 +299,25 @@ export default {
       try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
+        const text = (doc.body && doc.body.textContent) || "";
 
-        return doc.body.textContent || "";
+        if (text.trim()) {
+          return text;
+        }
+
+        /*
+         * Fallback when DOMParser returns empty (e.g. parsing quirk in some envs).
+         * Used only for search/filter/sort - never for rendering. Strip tags to get
+         * plain text so table search still works. Output must not be rendered (XSS).
+         */
+        if (typeof html === "string") {
+          return html
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        return "";
       } catch (e) {
         return "";
       }
@@ -751,7 +768,9 @@ export default {
       props.searchText &&
       (!props.onSearchTextChanged || props.enableClientSideSearch)
     ) {
-      searchKey = props.searchText.toLowerCase();
+      searchKey = String(props.searchText ?? "")
+        .trim()
+        .toLowerCase();
     } else {
       searchKey = "";
     }
