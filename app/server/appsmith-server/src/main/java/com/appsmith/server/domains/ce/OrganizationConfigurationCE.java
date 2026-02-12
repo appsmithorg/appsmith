@@ -78,6 +78,10 @@ public class OrganizationConfigurationCE implements Serializable {
 
     @JsonView(Views.Public.class)
     @JsonInclude
+    private String copilotEndpoint;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
     private AIProvider aiProvider;
 
     @JsonView(Views.Public.class)
@@ -126,6 +130,7 @@ public class OrganizationConfigurationCE implements Serializable {
         claudeApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeApiKey(), claudeApiKey);
         openaiApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiApiKey(), openaiApiKey);
         copilotApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotApiKey(), copilotApiKey);
+        copilotEndpoint = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotEndpoint(), copilotEndpoint);
         aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
         isAIAssistantEnabled =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);

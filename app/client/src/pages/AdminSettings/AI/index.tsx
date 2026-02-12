@@ -442,6 +442,7 @@ function AISettings() {
   const [claudeApiKey, setClaudeApiKey] = useState<string>("");
   const [openaiApiKey, setOpenaiApiKey] = useState<string>("");
   const [copilotApiKey, setCopilotApiKey] = useState<string>("");
+  const [copilotEndpoint, setCopilotEndpoint] = useState<string>("");
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
   const [localLlmModel, setLocalLlmModel] = useState<string>("");
@@ -485,6 +486,7 @@ function AISettings() {
           setClaudeApiKey(config.hasClaudeApiKey ? "••••••••" : "");
           setOpenaiApiKey(config.hasOpenaiApiKey ? "••••••••" : "");
           setCopilotApiKey(config.hasCopilotApiKey ? "••••••••" : "");
+          setCopilotEndpoint(config.copilotEndpoint || "");
           setLocalLlmUrl(config.localLlmUrl || "");
           // -1 is sentinel value meaning "not set"
           const contextSize = config.localLlmContextSize;
@@ -560,6 +562,7 @@ function AISettings() {
         claudeApiKey?: string;
         openaiApiKey?: string;
         copilotApiKey?: string;
+        copilotEndpoint?: string;
         localLlmUrl?: string;
         localLlmContextSize?: number;
         localLlmModel?: string;
@@ -584,12 +587,14 @@ function AISettings() {
         request.openaiApiKey = openaiApiKey;
       }
 
-      if (
-        provider === "COPILOT" &&
-        copilotApiKey &&
-        copilotApiKey !== "••••••••"
-      ) {
-        request.copilotApiKey = copilotApiKey;
+      if (provider === "COPILOT") {
+        if (copilotApiKey && copilotApiKey !== "••••••••") {
+          request.copilotApiKey = copilotApiKey;
+        }
+
+        if (copilotEndpoint) {
+          request.copilotEndpoint = copilotEndpoint;
+        }
       }
 
       if (provider === "LOCAL_LLM") {
@@ -869,43 +874,65 @@ function AISettings() {
         )}
 
         {provider === "COPILOT" && (
-          <FieldWrapper>
-            <LabelWrapper>
-              <Text kind="body-m">MS Copilot API Key</Text>
-            </LabelWrapper>
-            <Input
-              onChange={function handleCopilotKeyChange(value) {
-                setCopilotApiKey(value);
-                setApiKeyTestResult(null);
-              }}
-              placeholder="Enter MS Copilot API key (leave blank to keep existing)"
-              type="password"
-              value={copilotApiKey}
-            />
-            <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-              Get your API key from https://portal.azure.com/ (Azure OpenAI
-              Service)
-            </Text>
+          <>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Azure OpenAI Endpoint URL</Text>
+              </LabelWrapper>
+              <Input
+                onChange={function handleCopilotEndpointChange(value) {
+                  setCopilotEndpoint(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT/chat/completions?api-version=2024-10-21"
+                type="text"
+                value={copilotEndpoint}
+              />
+              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Your Azure OpenAI chat completions endpoint from Azure Portal
+              </Text>
+            </FieldWrapper>
 
-            <ButtonRow style={{ marginTop: "8px" }}>
-              <Button
-                isDisabled={!copilotApiKey}
-                isLoading={isTestingApiKey}
-                kind="secondary"
-                onClick={handleTestApiKey}
-                size="sm"
-              >
-                Test Key
-              </Button>
-              {isTestingApiKey && (
-                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                  Testing API key...
-                </Text>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">MS Copilot API Key</Text>
+              </LabelWrapper>
+              <Input
+                onChange={function handleCopilotKeyChange(value) {
+                  setCopilotApiKey(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="Enter MS Copilot API key (leave blank to keep existing)"
+                type="password"
+                value={copilotApiKey}
+              />
+              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Get your API key from https://portal.azure.com/ (Azure OpenAI
+                Service)
+              </Text>
+
+              <ButtonRow style={{ marginTop: "8px" }}>
+                <Button
+                  isDisabled={!copilotApiKey}
+                  isLoading={isTestingApiKey}
+                  kind="secondary"
+                  onClick={handleTestApiKey}
+                  size="sm"
+                >
+                  Test Key
+                </Button>
+                {isTestingApiKey && (
+                  <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    Testing API key...
+                  </Text>
+                )}
+              </ButtonRow>
+
+              {apiKeyTestResult && (
+                <ApiKeyTestResult result={apiKeyTestResult} />
               )}
-            </ButtonRow>
-
-            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
-          </FieldWrapper>
+            </FieldWrapper>
+          </>
         )}
 
         {provider === "LOCAL_LLM" && (

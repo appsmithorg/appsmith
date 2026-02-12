@@ -722,6 +722,17 @@ export function GlobalAISidePanel() {
                 {action.label}
               </QuickActionChip>
             ))}
+            {messages.length > 0 && (
+              <QuickActionChip
+                key="clear-chat"
+                onClick={handleClearChat}
+                title="Clear all chat messages"
+                type="button"
+              >
+                <Icon className="chip-icon" name="delete-bin-line" size="sm" />
+                Clear Chat
+              </QuickActionChip>
+            )}
           </QuickActionsGrid>
         </QuickActionsSection>
 

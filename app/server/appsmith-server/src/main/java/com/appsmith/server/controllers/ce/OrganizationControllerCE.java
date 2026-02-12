@@ -108,6 +108,16 @@ public class OrganizationControllerCE {
                                         new AppsmithException(AppsmithError.INVALID_PARAMETER, copilotKeyError));
                             }
 
+                            String copilotEndpointError = setTrimmedStringIfPresent(
+                                    aiConfig.getCopilotEndpoint(),
+                                    config::setCopilotEndpoint,
+                                    2000,
+                                    "Copilot endpoint URL");
+                            if (copilotEndpointError != null) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, copilotEndpointError));
+                            }
+
                             if (aiConfig.getProvider() != null) {
                                 config.setAiProvider(aiConfig.getProvider());
                             }
@@ -257,19 +267,22 @@ public class OrganizationControllerCE {
         final long startTime = System.currentTimeMillis();
         final List<Map<String, String>> finalSteps = new ArrayList<>(steps);
 
-        // Prepare test payloads for different LLM API formats
-        // Ollama format
-        String ollamaPayload = "{\"model\":\"test\",\"prompt\":\"Say hi\",\"stream\":false}";
-        // OpenAI-compatible format
-        String openaiPayload =
-                "{\"model\":\"test\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hi\"}],\"max_tokens\":5}";
+        // For Ollama (e.g. /api/generate, /api/chat), use GET /api/tags - it doesn't require a model
+        // and avoids 404 from missing "test" model. /api/generate returns 404 when model not found.
+        String path = uri.getPath();
+        boolean isOllamaEndpoint = path != null && (path.contains("/api/generate") || path.contains("/api/chat"));
+        String testUrl = isOllamaEndpoint ? uri.resolve("/api/tags").toString() : url;
 
-        // Try Ollama format first (most common for local LLMs)
-        return webClient
-                .post()
-                .uri(url)
-                .header("Content-Type", "application/json")
-                .bodyValue(ollamaPayload)
+        // Prepare test request: Ollama /api/tags uses GET; others use POST
+        WebClient.RequestHeadersSpec<?> requestSpec = isOllamaEndpoint
+                ? webClient.get().uri(testUrl)
+                : webClient
+                        .post()
+                        .uri(testUrl)
+                        .header("Content-Type", "application/json")
+                        .bodyValue("{\"model\":\"test\",\"prompt\":\"Say hi\",\"stream\":false}");
+
+        return requestSpec
                 .exchangeToMono(clientResponse -> {
                     // Connection succeeded if we got here
                     finalSteps.add(createStep("TCP Connection", "success", "Connected to " + host + ":" + port));
@@ -1124,6 +1137,7 @@ public class OrganizationControllerCE {
         response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
         response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
         response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
+        response.put("copilotEndpoint", config.getCopilotEndpoint());
         response.put("localLlmUrl", config.getLocalLlmUrl());
         response.put("localLlmContextSize", config.getLocalLlmContextSize());
         response.put("localLlmModel", config.getLocalLlmModel());
@@ -1145,6 +1159,7 @@ public class OrganizationControllerCE {
             response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
             response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
             response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
+            response.put("copilotEndpoint", config.getCopilotEndpoint() != null ? config.getCopilotEndpoint() : "");
             response.put("localLlmUrl", config.getLocalLlmUrl() != null ? config.getLocalLlmUrl() : "");
             response.put(
                     "localLlmContextSize",
@@ -1156,6 +1171,7 @@ public class OrganizationControllerCE {
             response.put("hasClaudeApiKey", false);
             response.put("hasOpenaiApiKey", false);
             response.put("hasCopilotApiKey", false);
+            response.put("copilotEndpoint", "");
             response.put("localLlmUrl", "");
             response.put("localLlmContextSize", -1);
             response.put("localLlmModel", "");

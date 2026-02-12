@@ -36,9 +36,7 @@ function* fetchAIResponseSaga(
 ): Generator<unknown, void, unknown> {
   try {
     const { context, prompt } = action.payload;
-    let aiState = (yield select(
-      getAIAssistantState,
-    )) as AIAssistantReduxState;
+    let aiState = (yield select(getAIAssistantState)) as AIAssistantReduxState;
 
     // If settings not loaded yet (e.g. first time opening editor), load once and retry
     if (!aiState.isEnabled || !aiState.provider) {
@@ -92,8 +90,25 @@ function* fetchAIResponseSaga(
       toast.show(errorMsg, { kind: "error" });
     }
   } catch (error: unknown) {
-    const errorMessage =
+    let errorMessage =
       error instanceof Error ? error.message : "Failed to get AI response";
+
+    // Detect timeout errors and provide a helpful AI-specific message
+    const isTimeout =
+      (error instanceof Error &&
+        (error.message.includes("timeout") ||
+          error.message.includes("taking too long"))) ||
+      (typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        ((error as { code?: string }).code === "ECONNABORTED" ||
+          (error as { code?: string }).code === "REQUEST_TIMEOUT"));
+
+    if (isTimeout) {
+      errorMessage =
+        "AI response timed out. Your LLM may be loading the model — please wait a moment and try again. " +
+        "If this persists, try a smaller model or check that your LLM server is responsive.";
+    }
 
     yield put(fetchAIResponseError({ error: errorMessage }));
     toast.show(errorMessage, { kind: "error" });

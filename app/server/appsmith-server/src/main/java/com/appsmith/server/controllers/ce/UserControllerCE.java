@@ -255,14 +255,18 @@ public class UserControllerCE {
 
     private String getAIErrorMessage(Throwable error) {
         if (!(error instanceof AppsmithException appsmithError)) {
-            return "Failed to get AI response";
+            log.error("Non-Appsmith AI error: {}", error.getMessage(), error);
+            return "Failed to get AI response. " + error.getMessage();
         }
         if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
             return "Invalid API key. Please check your API key in settings.";
         }
-        if (appsmithError.getError().getMessage().contains("Rate limit")) {
+        if (appsmithError.getMessage() != null && appsmithError.getMessage().contains("Rate limit")) {
             return "Rate limit exceeded. Please try again later.";
         }
-        return appsmithError.getError().getMessage();
+        // Use getMessage() which includes the formatted args (e.g. actual error details)
+        return appsmithError.getMessage() != null
+                ? appsmithError.getMessage()
+                : appsmithError.getError().getMessage();
     }
 }

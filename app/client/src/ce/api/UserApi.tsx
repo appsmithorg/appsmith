@@ -228,12 +228,17 @@ export class UserApi extends Api {
   ): Promise<
     AxiosPromise<ApiResponse<{ response: string; provider: string }>>
   > {
-    return Api.post(`${UserApi.usersURL}/ai-assistant/request`, {
-      provider,
-      prompt,
-      context,
-      conversationHistory,
-    });
+    return Api.post(
+      `${UserApi.usersURL}/ai-assistant/request`,
+      {
+        provider,
+        prompt,
+        context,
+        conversationHistory,
+      },
+      undefined,
+      { timeout: 180000 }, // 180s - LLM responses can be slow (model loading)
+    );
   }
 }
 

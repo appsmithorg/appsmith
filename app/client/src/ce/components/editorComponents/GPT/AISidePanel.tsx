@@ -579,6 +579,11 @@ export function AISidePanel(props: AISidePanelProps) {
     [onApplyCode],
   );
 
+  const handleClearChat = useCallback(() => {
+    dispatch(clearAIResponse());
+    setPrompt("");
+  }, [dispatch]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -647,6 +652,17 @@ export function AISidePanel(props: AISidePanelProps) {
                 {action.label}
               </QuickActionChip>
             ))}
+            {(lastResponse || error) && (
+              <QuickActionChip
+                key="clear-chat"
+                onClick={handleClearChat}
+                title="Clear response"
+                type="button"
+              >
+                <Icon className="chip-icon" name="delete-bin-line" size="sm" />
+                Clear Chat
+              </QuickActionChip>
+            )}
           </QuickActionsGrid>
         </QuickActionsSection>
 

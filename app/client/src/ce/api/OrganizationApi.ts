@@ -38,12 +38,14 @@ export interface AIConfigResponse {
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
+  copilotEndpoint?: string;
 }
 
 export interface AIConfigRequest {
   claudeApiKey?: string;
   openaiApiKey?: string;
   copilotApiKey?: string;
+  copilotEndpoint?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;

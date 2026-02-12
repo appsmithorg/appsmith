@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -78,6 +79,39 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                         "AI Assistant is disabled. Please contact your administrator."));
             }
 
+            // LOCAL_LLM uses URL + model, not API key
+            if (providerEnum == AIProvider.LOCAL_LLM) {
+                String url = orgConfig.getLocalLlmUrl();
+                String model = orgConfig.getLocalLlmModel();
+                if (url == null || url.trim().isEmpty()) {
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Local LLM URL not configured"));
+                }
+                if (model == null || model.trim().isEmpty()) {
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Local LLM model not configured"));
+                }
+                return callLocalLLMAPI(url.trim(), model.trim(), prompt, context, conversationHistory);
+            }
+
+            // COPILOT uses endpoint + API key
+            if (providerEnum == AIProvider.COPILOT) {
+                String apiKey = orgConfig.getCopilotApiKey();
+                String endpoint = orgConfig.getCopilotEndpoint();
+                if (apiKey == null || apiKey.trim().isEmpty()) {
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Copilot API key not configured"));
+                }
+                if (endpoint == null || endpoint.trim().isEmpty()) {
+                    return Mono.error(
+                            new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND,
+                                    "Copilot endpoint not configured. Add your Azure OpenAI chat completions URL (e.g. https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT/chat/completions?api-version=2024-10-21)"));
+                }
+                return callCopilotAPI(endpoint.trim(), apiKey, prompt, context, conversationHistory);
+            }
+
+            // CLAUDE and OPENAI use API key
             String apiKey =
                     switch (providerEnum) {
                         case CLAUDE -> orgConfig.getClaudeApiKey();
@@ -270,6 +304,212 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                         log.error("OpenAI API error for provider: OPENAI", error);
                     } else {
                         log.error("Unexpected OpenAI API error", error);
+                    }
+                });
+    }
+
+    private Mono<String> callLocalLLMAPI(
+            String url,
+            String model,
+            String prompt,
+            AIEditorContextDTO context,
+            List<AIMessageDTO> conversationHistory) {
+        String systemPrompt = buildSystemPrompt(context);
+        String userPrompt = buildUserPrompt(prompt, context);
+
+        if (userPrompt == null || userPrompt.trim().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Prompt cannot be empty"));
+        }
+
+        if (userPrompt.length() > 150000) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Prompt is too long"));
+        }
+
+        // Ollama uses /api/chat with messages format (OpenAI-compatible)
+        // Normalize the URL: if user provided /api/generate, swap to /api/chat
+        // If user provided a base URL (no /api/ path), append /api/chat
+        String chatUrl;
+        if (url.contains("/api/generate")) {
+            chatUrl = url.replace("/api/generate", "/api/chat");
+        } else if (url.contains("/api/chat")) {
+            chatUrl = url;
+        } else {
+            // Base URL like http://localhost:11434 — append /api/chat
+            chatUrl = url.endsWith("/") ? url + "api/chat" : url + "/api/chat";
+        }
+        log.info("Local LLM request: model={}, url={} -> chatUrl={}", model, url, chatUrl);
+
+        List<Map<String, Object>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
+        if (conversationHistory != null && !conversationHistory.isEmpty()) {
+            for (AIMessageDTO msg : conversationHistory) {
+                messages.add(Map.of("role", msg.getRole(), "content", msg.getContent()));
+            }
+        }
+        messages.add(Map.of("role", "user", "content", userPrompt));
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", model);
+        requestBody.put("messages", messages);
+        requestBody.put("stream", false);
+
+        // Build WebClient WITHOUT WebClientUtils SSRF protection since Local LLM
+        // is explicitly admin-configured and typically runs on localhost/private networks.
+        HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(120));
+        WebClient webClient = WebClient.builder()
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024))
+                        .build())
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+
+        return webClient
+                .post()
+                .uri(chatUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .body(BodyInserters.fromValue(requestBody))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
+                        .flatMap(errorBody -> {
+                            int statusCode = response.statusCode().value();
+                            if (statusCode == 404) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.INTERNAL_SERVER_ERROR,
+                                        "Model not found (404). Ensure '" + model + "' is pulled: ollama pull "
+                                                + model));
+                            }
+                            if (statusCode == 401 || statusCode == 403) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Access denied"));
+                            }
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.INTERNAL_SERVER_ERROR, "Local LLM request failed: " + errorBody));
+                        }))
+                .bodyToMono(JsonNode.class)
+                .map(json -> extractLocalLLMResponse(json))
+                .onErrorMap(error -> {
+                    if (error instanceof AppsmithException) {
+                        return error;
+                    }
+                    if (error instanceof java.util.concurrent.TimeoutException
+                            || error instanceof io.netty.handler.timeout.ReadTimeoutException) {
+                        log.error("Local LLM timed out after 120s: model={}, url={}", model, chatUrl);
+                        return new AppsmithException(
+                                AppsmithError.INTERNAL_SERVER_ERROR,
+                                "Local LLM timed out. The model may be loading — try again in a moment, "
+                                        + "or use a smaller model. (timeout: 120s)");
+                    }
+                    if (error instanceof java.net.ConnectException) {
+                        log.error("Cannot connect to Local LLM at {}: {}", chatUrl, error.getMessage());
+                        return new AppsmithException(
+                                AppsmithError.INTERNAL_SERVER_ERROR,
+                                "Cannot connect to Local LLM at " + chatUrl
+                                        + ". Ensure Ollama is running (ollama serve).");
+                    }
+                    log.error("Unexpected Local LLM API error: {}", error.getMessage(), error);
+                    return new AppsmithException(
+                            AppsmithError.INTERNAL_SERVER_ERROR, "Local LLM error: " + error.getMessage());
+                });
+    }
+
+    private String extractLocalLLMResponse(JsonNode json) {
+        if (json == null || !json.isObject()) {
+            return "";
+        }
+        // Ollama /api/chat response: { "message": { "content": "..." } }
+        JsonNode messageNode = json.path("message");
+        if (messageNode != null && messageNode.isObject()) {
+            JsonNode contentNode = messageNode.path("content");
+            if (contentNode != null && contentNode.isTextual()) {
+                String response = contentNode.asText();
+                return response != null && response.length() <= 200000 ? response : response.substring(0, 200000);
+            }
+        }
+        // Ollama /api/generate response: { "response": "..." }
+        JsonNode responseNode = json.path("response");
+        if (responseNode != null && responseNode.isTextual()) {
+            String response = responseNode.asText();
+            return response != null && response.length() <= 200000 ? response : response.substring(0, 200000);
+        }
+        return "";
+    }
+
+    private Mono<String> callCopilotAPI(
+            String endpoint,
+            String apiKey,
+            String prompt,
+            AIEditorContextDTO context,
+            List<AIMessageDTO> conversationHistory) {
+        String systemPrompt = buildSystemPrompt(context);
+        String userPrompt = buildUserPrompt(prompt, context);
+
+        List<Map<String, Object>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
+        if (conversationHistory != null && !conversationHistory.isEmpty()) {
+            for (AIMessageDTO msg : conversationHistory) {
+                messages.add(Map.of("role", msg.getRole(), "content", msg.getContent()));
+            }
+        }
+        messages.add(Map.of("role", "user", "content", userPrompt));
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("messages", messages);
+        requestBody.put("temperature", 0.7);
+
+        WebClient webClient = WebClientUtils.builder()
+                .clientConnector(
+                        new ReactorClientHttpConnector(HttpClient.create().responseTimeout(Duration.ofSeconds(60))))
+                .build();
+
+        return webClient
+                .post()
+                .uri(endpoint)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("api-key", apiKey)
+                .body(BodyInserters.fromValue(requestBody))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
+                        .flatMap(errorBody -> {
+                            int statusCode = response.statusCode().value();
+                            if (statusCode == 401 || statusCode == 403) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
+                            } else if (statusCode == 429) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.INTERNAL_SERVER_ERROR,
+                                        "Rate limit exceeded. Please try again later."));
+                            }
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.INTERNAL_SERVER_ERROR, "Azure OpenAI request failed: " + errorBody));
+                        }))
+                .bodyToMono(JsonNode.class)
+                .map(json -> {
+                    if (json == null || !json.isObject()) {
+                        return "";
+                    }
+                    JsonNode choicesArray = json.path("choices");
+                    if (choicesArray.isArray() && choicesArray.size() > 0) {
+                        JsonNode firstChoice = choicesArray.get(0);
+                        if (firstChoice != null && firstChoice.isObject()) {
+                            JsonNode messageNode = firstChoice.path("message");
+                            if (messageNode != null && messageNode.isObject()) {
+                                JsonNode contentNode = messageNode.path("content");
+                                if (contentNode != null && contentNode.isTextual()) {
+                                    String response = contentNode.asText();
+                                    return response != null && response.length() <= 200000
+                                            ? response
+                                            : response.substring(0, 200000);
+                                }
+                            }
+                        }
+                    }
+                    return "";
+                })
+                .doOnError(error -> {
+                    if (error instanceof AppsmithException) {
+                        log.error("Copilot (Azure OpenAI) API error", error);
+                    } else {
+                        log.error("Unexpected Copilot API error", error);
                     }
                 });
     }
