@@ -888,12 +888,16 @@ export const handlers = {
     action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
   ) => {
     const { applicationId, isFavorited } = action.payload;
+    const matchedApp = state.applicationList.find(
+      (app) => (app.baseId || app.id) === applicationId,
+    );
+    const canonicalId = matchedApp ? matchedApp.id : applicationId;
 
     return {
       ...state,
       favoriteApplicationIds: isFavorited
-        ? [...state.favoriteApplicationIds, applicationId]
-        : state.favoriteApplicationIds.filter((id) => id !== applicationId),
+        ? [...state.favoriteApplicationIds, canonicalId]
+        : state.favoriteApplicationIds.filter((id) => id !== canonicalId),
       applicationList: state.applicationList.map((app) =>
         (app.baseId || app.id) === applicationId
           ? { ...app, isFavorited }

@@ -568,11 +568,11 @@ export class ApplicationApi extends Api {
   static async toggleFavoriteApplication(
     applicationId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.put(`${ApplicationApi.baseURL}/${applicationId}/favorite`);
+    return Api.put(`v1/users/applications/${applicationId}/favorite`);
   }
 
   static async getFavoriteApplications(): Promise<AxiosPromise<ApiResponse>> {
-    return Api.get(`${ApplicationApi.baseURL}/favoriteApplications`);
+    return Api.get("v1/users/favoriteApplications");
   }
 }
 

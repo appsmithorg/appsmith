@@ -464,28 +464,34 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                     .flatMap(application -> {
-                        if (finalFavorites.contains(applicationId)) {
-                            return Mono.just(userData);
-                        }
-                        if (finalFavorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.INVALID_PARAMETER,
-                                    String.format(
-                                            "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
-                                            MAX_FAVORITE_APPLICATIONS_LIMIT)));
-                        }
-
                         // For new users who don't yet have a persisted UserData document, fall back to save.
                         if (userData.getId() == null) {
+                            if (finalFavorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.INVALID_PARAMETER,
+                                        String.format(
+                                                "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                                MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                            }
                             finalFavorites.add(applicationId);
                             userData.setFavoriteApplicationIds(finalFavorites);
                             return repository.save(userData);
                         }
 
-                        // For existing users, use an atomic addToSet update to avoid lost updates
+                        // For existing users, use a conditional atomic update that enforces the limit
                         return repository
-                                .addFavoriteApplicationForUser(user.getId(), applicationId)
-                                .then(getForUser(user.getId()));
+                                .addFavoriteApplicationForUserIfUnderLimit(
+                                        user.getId(), applicationId, MAX_FAVORITE_APPLICATIONS_LIMIT)
+                                .flatMap(matchedCount -> {
+                                    if (matchedCount == 0) {
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.INVALID_PARAMETER,
+                                                String.format(
+                                                        "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                                        MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                                    }
+                                    return getForUser(user.getId());
+                                });
                     });
         });
     }
