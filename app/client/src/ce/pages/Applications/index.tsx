@@ -32,10 +32,10 @@ import {
   getApplicationSearchKeyword,
   getCreateApplicationError,
   getCurrentApplicationIdForCreateNewApp,
+  getHasFavorites,
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "ee/selectors/applicationSelectors";
-import { getHasFavorites } from "ee/selectors/applicationSelectors";
 import {
   DEFAULT_FAVORITES_WORKSPACE,
   FAVORITES_KEY,
@@ -104,6 +104,7 @@ import {
   getApplicationsOfWorkspace,
   getCurrentWorkspaceId,
   getIsFetchingApplications,
+  getIsFetchingFavoriteApplications,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getIsFetchingMyOrganizations,
@@ -701,6 +702,7 @@ export function ApplicationsSection(props: any) {
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingFavoriteApps = useSelector(getIsFetchingFavoriteApplications);
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
@@ -735,7 +737,10 @@ export function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
   const isLoadingResources =
-    isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
+    isFetchingWorkspaces ||
+    isFetchingApplications ||
+    isFetchingPackages ||
+    (activeWorkspaceId === FAVORITES_KEY && isFetchingFavoriteApps);
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const [
     isCreateAppFromTemplateModalOpen,

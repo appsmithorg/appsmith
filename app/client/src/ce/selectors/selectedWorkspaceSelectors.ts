@@ -2,7 +2,11 @@ import type { DefaultRootState } from "react-redux";
 import { createSelector } from "reselect";
 
 export const getIsFetchingApplications = (state: DefaultRootState): boolean =>
-  state.ui.selectedWorkspace.loadingStates.isFetchingApplications ||
+  state.ui.selectedWorkspace.loadingStates.isFetchingApplications;
+
+export const getIsFetchingFavoriteApplications = (
+  state: DefaultRootState,
+): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingFavoriteApplications;
 
 const selectWorkspaceApplications = (state: DefaultRootState) =>
@@ -32,8 +36,7 @@ export const isFetchingUsersOfWorkspace = (state: DefaultRootState): boolean =>
 export const selectedWorkspaceLoadingStates = (state: DefaultRootState) => {
   return {
     isFetchingApplications:
-      state.ui.selectedWorkspace.loadingStates.isFetchingApplications ||
-      state.ui.selectedWorkspace.loadingStates.isFetchingFavoriteApplications,
+      state.ui.selectedWorkspace.loadingStates.isFetchingApplications,
     isFetchingAllUsers:
       state.ui.selectedWorkspace.loadingStates.isFetchingAllUsers,
     isFetchingCurrentWorkspace:
