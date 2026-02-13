@@ -29,6 +29,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -439,33 +440,34 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             User user = tuple.getT1();
             UserData userData = tuple.getT2();
 
-            List<String> favorites = userData.getFavoriteApplicationIds();
-            if (favorites == null) {
-                favorites = new ArrayList<>();
-            }
+            // For new users without a persisted UserData document the atomic
+            // repo operations will not match anything, so fall back to save.
+            // If a concurrent request creates the document first (DuplicateKeyException),
+            // retry through the atomic existing-user path.
+            if (userData.getId() == null) {
+                List<String> favorites = userData.getFavoriteApplicationIds();
+                if (favorites == null) {
+                    favorites = new ArrayList<>();
+                }
 
-            boolean isRemoving = favorites.contains(applicationId);
+                if (favorites.remove(applicationId)) {
+                    userData.setFavoriteApplicationIds(favorites);
+                    return repository.save(userData).onErrorResume(DuplicateKeyException.class, ex -> repository
+                            .removeFavoriteApplicationForUser(user.getId(), applicationId)
+                            .flatMap(count -> getForUser(user.getId())));
+                }
 
-            if (isRemoving) {
-                // Use an atomic pull update so concurrent toggles don't overwrite each other
-                return repository
-                        .removeFavoriteApplicationForUser(user.getId(), applicationId)
-                        .then(getForUser(user.getId()));
-            }
-
-            // When adding a favorite, verify user has access to the application
-            AclPermission readPermission = applicationPermission.getReadPermission();
-            List<String> finalFavorites = favorites;
-            return applicationRepository
-                    .queryBuilder()
-                    .criteria(Bridge.equal(Application.Fields.id, applicationId))
-                    .permission(readPermission)
-                    .first()
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                    .flatMap(application -> {
-                        // For new users who don't yet have a persisted UserData document, fall back to save.
-                        if (userData.getId() == null) {
+                // Adding — verify access first
+                AclPermission readPermission = applicationPermission.getReadPermission();
+                List<String> finalFavorites = favorites;
+                return applicationRepository
+                        .queryBuilder()
+                        .criteria(Bridge.equal(Application.Fields.id, applicationId))
+                        .permission(readPermission)
+                        .first()
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                        .flatMap(application -> {
                             if (finalFavorites.size() >= MAX_FAVORITE_APPLICATIONS_LIMIT) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.INVALID_PARAMETER,
@@ -475,23 +477,53 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                             }
                             finalFavorites.add(applicationId);
                             userData.setFavoriteApplicationIds(finalFavorites);
-                            return repository.save(userData);
+                            return repository.save(userData).onErrorResume(DuplicateKeyException.class, ex -> repository
+                                    .addFavoriteApplicationForUserIfUnderLimit(
+                                            user.getId(), applicationId, MAX_FAVORITE_APPLICATIONS_LIMIT)
+                                    .flatMap(matchedCount -> {
+                                        if (matchedCount == 0) {
+                                            return Mono.error(new AppsmithException(
+                                                    AppsmithError.INVALID_PARAMETER,
+                                                    String.format(
+                                                            "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                                            MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                                        }
+                                        return getForUser(user.getId());
+                                    }));
+                        });
+            }
+
+            // For existing users, let the DB decide: try an atomic remove first.
+            return repository
+                    .removeFavoriteApplicationForUser(user.getId(), applicationId)
+                    .flatMap(removedCount -> {
+                        if (removedCount > 0) {
+                            // Was in favorites and has been removed.
+                            return getForUser(user.getId());
                         }
 
-                        // For existing users, use a conditional atomic update that enforces the limit
-                        return repository
-                                .addFavoriteApplicationForUserIfUnderLimit(
-                                        user.getId(), applicationId, MAX_FAVORITE_APPLICATIONS_LIMIT)
-                                .flatMap(matchedCount -> {
-                                    if (matchedCount == 0) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.INVALID_PARAMETER,
-                                                String.format(
-                                                        "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
-                                                        MAX_FAVORITE_APPLICATIONS_LIMIT)));
-                                    }
-                                    return getForUser(user.getId());
-                                });
+                        // Not in favorites — add it after verifying access.
+                        AclPermission readPermission = applicationPermission.getReadPermission();
+                        return applicationRepository
+                                .queryBuilder()
+                                .criteria(Bridge.equal(Application.Fields.id, applicationId))
+                                .permission(readPermission)
+                                .first()
+                                .switchIfEmpty(Mono.error(new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                                .flatMap(application -> repository
+                                        .addFavoriteApplicationForUserIfUnderLimit(
+                                                user.getId(), applicationId, MAX_FAVORITE_APPLICATIONS_LIMIT)
+                                        .flatMap(matchedCount -> {
+                                            if (matchedCount == 0) {
+                                                return Mono.error(new AppsmithException(
+                                                        AppsmithError.INVALID_PARAMETER,
+                                                        String.format(
+                                                                "Maximum favorite applications limit (%d) reached. Please remove some favorites before adding new ones.",
+                                                                MAX_FAVORITE_APPLICATIONS_LIMIT)));
+                                            }
+                                            return getForUser(user.getId());
+                                        }));
                     });
         });
     }

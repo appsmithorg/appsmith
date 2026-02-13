@@ -38,11 +38,15 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
     Mono<Integer> addFavoriteApplicationForUserIfUnderLimit(String userId, String applicationId, int maxLimit);
 
     /**
-     * Remove an application from a single user's favorites list using an atomic update.
+     * Atomically remove an application from a user's favorites list only if it
+     * is present.  The query matches the user document only when the array
+     * contains {@code applicationId}, so the returned count doubles as a
+     * "was-it-actually-removed?" signal.
      *
      * @param userId        ID of the user whose favorites list should be updated
      * @param applicationId ID of the application to remove from favorites
-     * @return Completion signal when the update operation finishes
+     * @return Number of matched documents: 1 if the application was removed,
+     *         0 if it was not in the favorites list
      */
-    Mono<Void> removeFavoriteApplicationForUser(String userId, String applicationId);
+    Mono<Integer> removeFavoriteApplicationForUser(String userId, String applicationId);
 }

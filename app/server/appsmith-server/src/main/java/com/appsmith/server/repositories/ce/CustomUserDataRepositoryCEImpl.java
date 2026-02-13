@@ -78,12 +78,15 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<Void> removeFavoriteApplicationForUser(String userId, String applicationId) {
+    public Mono<Integer> removeFavoriteApplicationForUser(String userId, String applicationId) {
         BridgeUpdate update = new BridgeUpdate();
         update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
-        return queryBuilder()
-                .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                .updateFirst(update)
-                .then();
+        // Only match if the array actually contains the applicationId so that
+        // matchedCount == 1 means "removed" and 0 means "was not present".
+        Criteria criteria = Criteria.where(UserData.Fields.userId)
+                .is(userId)
+                .and(UserData.Fields.favoriteApplicationIds)
+                .is(applicationId);
+        return queryBuilder().criteria(criteria).updateFirst(update);
     }
 }
