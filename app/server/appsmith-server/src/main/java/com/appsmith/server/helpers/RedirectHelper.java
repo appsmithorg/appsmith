@@ -203,11 +203,23 @@ public class RedirectHelper {
                 return false;
             }
 
-            // Compare host and port, normalizing default ports (80 for http, 443 for https)
-            int redirectPort = normalizePort(redirectUri.getScheme(), redirectUri.getPort());
-            int originPort = normalizePort(originUri.getScheme(), originUri.getPort());
+            // Compare host and port.
+            // When both URIs omit the port (raw port == -1), treat them as matching
+            // regardless of scheme — a scheme downgrade (https → http) on the same host
+            // is a transport-security concern, not an open redirect.
+            // When at least one port is explicit, normalize default ports per scheme
+            // (80 for http, 443 for https) before comparing.
+            int rawRedirectPort = redirectUri.getPort();
+            int rawOriginPort = originUri.getPort();
+            boolean portsMatch;
+            if (rawRedirectPort == -1 && rawOriginPort == -1) {
+                portsMatch = true;
+            } else {
+                portsMatch = normalizePort(redirectUri.getScheme(), rawRedirectPort)
+                        == normalizePort(originUri.getScheme(), rawOriginPort);
+            }
 
-            return redirectHost.equalsIgnoreCase(originHost) && redirectPort == originPort;
+            return redirectHost.equalsIgnoreCase(originHost) && portsMatch;
         } catch (URISyntaxException e) {
             return false;
         }
