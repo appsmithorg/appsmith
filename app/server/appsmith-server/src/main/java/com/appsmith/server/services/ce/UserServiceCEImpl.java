@@ -974,7 +974,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         redirectUrl, exchange.getRequest().getHeaders());
             }
 
-            String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl
+            String postVerificationRedirectUrl = "/signup-success?redirectUrl="
+                    + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8)
                     + "&enableFirstTimeUserExperience=" + enableFirstTimeUserExperienceParam;
             String errorRedirectUrl = "";
 

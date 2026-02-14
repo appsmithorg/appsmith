@@ -62,7 +62,11 @@ public class RedirectHelper {
 
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
-            final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+            final String origin = httpHeaders.getOrigin();
+            if (origin == null) {
+                return Mono.just(DEFAULT_REDIRECT_URL);
+            }
+            final String defaultRedirectUrl = origin + DEFAULT_REDIRECT_URL;
             return applicationRepository
                     .findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
@@ -256,7 +260,10 @@ public class RedirectHelper {
         if (isSafeRedirectUrl(redirectUrl, httpHeaders)) {
             return redirectUrl;
         }
-        log.warn("Blocked open redirect attempt to: {}", redirectUrl.replaceAll("[\\r\\n]", ""));
+        String sanitizedLog = redirectUrl.replaceAll("[\\r\\n]", "");
+        log.warn(
+                "Blocked open redirect attempt to: {}",
+                sanitizedLog.length() > 200 ? sanitizedLog.substring(0, 200) + "..." : sanitizedLog);
         String origin = httpHeaders.getOrigin();
         return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
     }

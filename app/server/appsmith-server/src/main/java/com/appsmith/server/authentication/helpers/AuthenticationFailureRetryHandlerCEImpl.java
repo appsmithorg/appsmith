@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.helpers;
 
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.RedirectHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -48,6 +49,10 @@ public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFa
             originHeader =
                     getOriginFromReferer(exchange.getRequest().getHeaders().getOrigin());
         }
+
+        // Sanitize originHeader to prevent open redirect via crafted state parameter
+        originHeader = RedirectHelper.sanitizeRedirectUrl(
+                originHeader, exchange.getRequest().getHeaders());
 
         // Construct the redirect URL based on the exception type
         String url = constructRedirectUrl(exception, originHeader, redirectUrl);
