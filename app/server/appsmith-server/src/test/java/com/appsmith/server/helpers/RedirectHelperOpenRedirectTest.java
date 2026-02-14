@@ -201,4 +201,181 @@ class RedirectHelperOpenRedirectTest {
         String result = RedirectHelper.sanitizeRedirectUrl("//evil.com/path", headers);
         assertEquals("https://app.appsmith.com/applications", result);
     }
+
+    // --- Additional edge-case bypass attempts ---
+
+    @ParameterizedTest
+    @CsvSource({
+        "HTTP://evil.com/phish",
+        "HTTPS://evil.com/phish",
+        "HtTp://evil.com/phish",
+    })
+    void testUppercaseSchemesAreBlocked(String url) {
+        // Our startsWith check is intentionally case-sensitive; non-lowercase schemes are rejected.
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl(url, headers), "Should block uppercase scheme: " + url);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "///evil.com/path",
+        "////evil.com/path",
+    })
+    void testTripleAndQuadSlashAreBlocked(String url) {
+        // Multiple leading slashes should not bypass protocol-relative URL detection.
+        // ///evil.com starts with // so it is rejected, and //// likewise.
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl(url, headers), "Should block multi-slash: " + url);
+    }
+
+    @Test
+    void testBackslashConfusionIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // Backslash-based bypass attempts — not starting with http:// or https://, so rejected.
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https:\\\\evil.com", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http:\\\\evil.com", headers));
+    }
+
+    @Test
+    void testSchemeDowngradeWithExplicitPortIsBlocked() {
+        // http://host:80 vs https://host — one port is explicit, so normalize per scheme.
+        // normalizePort(http, 80)=80, normalizePort(https, -1)=443 → different → blocked.
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http://app.appsmith.com:80/applications", headers));
+    }
+
+    @Test
+    void testSchemeUpgradeIsAllowed() {
+        // http origin, https redirect — same host, both implicit ports → allowed.
+        HttpHeaders headers = headersWithOrigin("http://app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testIPAddressHostMatchIsSafe() {
+        HttpHeaders headers = headersWithOrigin("http://127.0.0.1:8080");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("http://127.0.0.1:8080/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http://127.0.0.2:8080/applications", headers));
+    }
+
+    @Test
+    void testEmptyAuthorityIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // https:///path has empty authority — host will be null, so blocked.
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https:///path", headers));
+    }
+
+    // --- URL encoding bypass attempts ---
+
+    @ParameterizedTest
+    @CsvSource({
+        "%2F%2Fevil.com",
+        "%2f%2fevil.com",
+        "%2F%2Fevil.com/path",
+    })
+    void testUrlEncodedDoubleSlashIsBlocked(String url) {
+        // URL-encoded // should not bypass the protocol-relative check.
+        // Java's URI parser does NOT decode %2F, so these become opaque paths
+        // that don't start with / — rejected by the "bare path" check.
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl(url, headers), "Should block encoded //: " + url);
+    }
+
+    @Test
+    void testDoubleEncodedSlashIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // %252F%252F decodes to %2F%2F on first pass — not a valid scheme or relative path
+        assertFalse(RedirectHelper.isSafeRedirectUrl("%252F%252Fevil.com", headers));
+    }
+
+    // --- Control character injection ---
+
+    @ParameterizedTest
+    @CsvSource({
+        "https://evil.com%09/path",
+        "https://evil.com%0a/path",
+        "https://evil.com%0d/path",
+        "https://evil.com%0d%0a/path",
+        "https://evil.com%00/path",
+    })
+    void testControlCharacterInjectionIsBlocked(String url) {
+        // Control characters (tab, LF, CR, CRLF, null) in URLs should not bypass validation.
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl(url, headers), "Should block control char injection: " + url);
+    }
+
+    // --- Whitespace attacks ---
+
+    @Test
+    void testWhitespacePrefixIsHandled() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // Leading whitespace before a malicious URL — StringUtils.hasText passes,
+        // but it won't start with / or http(s):// → rejected.
+        assertFalse(RedirectHelper.isSafeRedirectUrl(" https://evil.com", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("\thttps://evil.com", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("\nhttps://evil.com", headers));
+    }
+
+    // --- IPv6 address handling ---
+
+    @Test
+    void testIPv6LocalhostMatch() {
+        HttpHeaders headers = headersWithOrigin("http://[::1]:8080");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("http://[::1]:8080/applications", headers));
+        // Different IPv6 address should be blocked
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http://[::2]:8080/applications", headers));
+    }
+
+    @Test
+    void testIPv6VsIPv4Mismatch() {
+        // IPv6 localhost [::1] should NOT match IPv4 127.0.0.1
+        HttpHeaders headers = headersWithOrigin("http://127.0.0.1:8080");
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http://[::1]:8080/applications", headers));
+    }
+
+    // --- Single-slash scheme malformation ---
+
+    @Test
+    void testSingleSlashSchemeIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // https:/evil.com — missing a slash, not a valid http(s):// URL
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https:/evil.com", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("http:/evil.com", headers));
+    }
+
+    // --- Path traversal in URL ---
+
+    @Test
+    void testPathTraversalInAbsoluteUrl() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        // Same host with path traversal — host still matches, so this is safe
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/../etc/passwd", headers));
+        // Different host with path traversal — blocked
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com/../app.appsmith.com", headers));
+    }
+
+    // --- Fragment-based confusion ---
+
+    @Test
+    void testFragmentWithDotDomainIsBlocked() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com#.app.appsmith.com", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com#app.appsmith.com", headers));
+    }
+
+    // --- sanitizeRedirectUrl with newly vulnerable patterns ---
+
+    @Test
+    void testSanitizeBlocksUrlEncodedBypass() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        String result = RedirectHelper.sanitizeRedirectUrl("%2F%2Fevil.com", headers);
+        assertEquals("https://app.appsmith.com/applications", result);
+    }
+
+    @Test
+    void testSanitizeBlocksWhitespacePrefixedUrl() {
+        HttpHeaders headers = headersWithOrigin("https://app.appsmith.com");
+        String result = RedirectHelper.sanitizeRedirectUrl(" https://evil.com", headers);
+        assertEquals("https://app.appsmith.com/applications", result);
+    }
 }

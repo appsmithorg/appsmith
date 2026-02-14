@@ -102,7 +102,7 @@ public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFa
             }
         }
         if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
-            url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + redirectUrl;
+            url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
         }
         return url;
     }
