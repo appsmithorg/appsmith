@@ -1,5 +1,6 @@
 import type { Key } from "react";
 import React, { useEffect, useRef, useState } from "react";
+import classNames from "classnames";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps, VariableSizeList } from "react-window";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
@@ -77,15 +78,13 @@ export function Row(props: RowType) {
     rowProps["role"] = "button";
   }
 
-  const rowClassName = [
+  const rowClassName = classNames(
     "tr",
     props.row.index % 2 === 0 ? "odd-row" : "even-row",
     isRowSelected && "selected-row",
     props.className,
     isAddRowInProgress && props.index === 0 && "new-row",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <div
