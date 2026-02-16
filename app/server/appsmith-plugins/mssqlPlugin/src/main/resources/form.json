@@ -9,6 +9,7 @@
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
+          "tooltipText": "Read-only mode uses ApplicationIntent=ReadOnly. Note: This only enforces read-only connections when using Always On Availability Groups.",
           "options": [
             {
               "label": "Read / Write",
