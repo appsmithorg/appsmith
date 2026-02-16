@@ -41,6 +41,7 @@ import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
 
 const { appVersion, betterbugs, cloudHosting, intercomAppID } =
   getAppsmithConfigs();
@@ -185,6 +186,8 @@ function HelpButton() {
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
   const setOverlay = useSelector(getSignpostingSetOverlay);
+  const betterbugsMetadata = useBetterbugsMetadata();
+
   const showUnreadSteps =
     !!unreadSteps.length &&
     isFirstTimeUserOnboardingEnabled &&
@@ -306,7 +309,7 @@ function HelpButton() {
 
                     if (item.id === "betterbugs-trigger") {
                       e?.preventDefault();
-                      BetterbugsUtil.show(user);
+                      BetterbugsUtil.show(user, betterbugsMetadata);
                     }
                   }}
                   startIcon={item.icon}

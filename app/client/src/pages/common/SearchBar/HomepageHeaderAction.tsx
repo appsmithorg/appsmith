@@ -43,6 +43,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
+import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
 
 const { betterbugs, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -75,6 +76,7 @@ const HomepageHeaderAction = ({
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
+  const betterbugsMetadata = useBetterbugsMetadata();
 
   if (!isHomePage || !!isCreateNewAppFlow) return null;
 
@@ -147,7 +149,7 @@ const HomepageHeaderAction = ({
                 {betterbugs.enabled && !isAirgapped() && (
                   <MenuItem
                     onClick={() => {
-                      BetterbugsUtil.show(user);
+                      BetterbugsUtil.show(user, betterbugsMetadata);
                     }}
                     startIcon="support"
                   >

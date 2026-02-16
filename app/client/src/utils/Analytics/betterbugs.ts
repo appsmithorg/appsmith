@@ -5,14 +5,22 @@ import type {
 } from "@betterbugs/web-sdk";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
-import store from "store";
-import { getInstanceId } from "ee/selectors/organizationSelectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+
+export interface BetterbugsMetadata {
+  instanceId: string;
+  tenantId: string | undefined;
+  applicationId: string | null;
+  pageId: string | null;
+}
+
+const DEFAULT_BETTERBUGS_METADATA: BetterbugsMetadata = {
+  instanceId: "",
+  tenantId: undefined,
+  applicationId: null,
+  pageId: null,
+};
 
 class BetterbugsUtil {
   private static instance: BetterbugsInstance | null;
@@ -21,15 +29,16 @@ class BetterbugsUtil {
     user: User | undefined,
     apiKey: string,
     appVersion: ReturnType<typeof getAppsmithConfigs>["appVersion"],
+    betterbugsMetadata: BetterbugsMetadata,
   ): BetterbugsOptions {
     const metadata: Record<string, string | null> = {
-      instance_id: getInstanceId(store.getState()),
-      tenant_id: store.getState().organization?.tenantId,
+      instance_id: betterbugsMetadata.instanceId,
+      tenant_id: betterbugsMetadata.tenantId || null,
       version: appVersion.id,
       commit_sha: appVersion.sha,
       edition: appVersion.edition,
       release_date: appVersion.releaseDate,
-      ...this.getRuntimeMetadata(),
+      ...this.getRuntimeMetadata(betterbugsMetadata),
     };
 
     const params: BetterbugsOptions = {
@@ -70,7 +79,9 @@ class BetterbugsUtil {
     };
   }
 
-  private static getRuntimeMetadata(): Record<string, string | null> {
+  private static getRuntimeMetadata(
+    betterbugsMetadata: BetterbugsMetadata,
+  ): Record<string, string | null> {
     if (typeof window === "undefined") {
       return {
         url_path: null,
@@ -79,19 +90,19 @@ class BetterbugsUtil {
       };
     }
 
-    const state = store.getState();
-    const applicationId = getCurrentApplicationId(state);
-    const pageId = getCurrentPageId(state);
     const urlPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
     return {
       url_path: urlPath,
-      application_id: applicationId || null,
-      page_id: pageId || null,
+      application_id: betterbugsMetadata.applicationId || null,
+      page_id: betterbugsMetadata.pageId || null,
     };
   }
 
-  public static async init(user?: User) {
+  public static async init(
+    user?: User,
+    betterbugsMetadata?: BetterbugsMetadata,
+  ) {
     if (typeof window === "undefined") {
       return;
     }
@@ -117,10 +128,12 @@ class BetterbugsUtil {
       return;
     }
 
+    const metadata = betterbugsMetadata || DEFAULT_BETTERBUGS_METADATA;
+
     try {
       const { default: Betterbugs } = await import("@betterbugs/web-sdk");
       const instance = new Betterbugs(
-        this.getDefaultParams(user, apiKey, appVersion),
+        this.getDefaultParams(user, apiKey, appVersion, metadata),
       );
 
       this.instance = instance;
@@ -139,7 +152,10 @@ class BetterbugsUtil {
     }
   }
 
-  public static async show(user?: User) {
+  public static async show(
+    user?: User,
+    betterbugsMetadata?: BetterbugsMetadata,
+  ) {
     if (isAirgapped() || !getAppsmithConfigs().betterbugs.enabled) {
       log.warn("BetterBugs is disabled.");
 
@@ -152,9 +168,9 @@ class BetterbugsUtil {
     }
 
     // Initialize fresh instance
-    await this.init(user);
+    await this.init(user, betterbugsMetadata);
 
-    this.updateMetadata();
+    this.updateMetadata(betterbugsMetadata);
 
     if (this.instance?.openWidget) {
       this.instance.openWidget();
@@ -163,12 +179,12 @@ class BetterbugsUtil {
     }
   }
 
-  public static updateMetadata() {
+  public static updateMetadata(betterbugsMetadata?: BetterbugsMetadata) {
     if (!this.instance) {
       return;
     }
 
-    if (!this.instance?.setMetadata) {
+    if (!this.instance.setMetadata) {
       return;
     }
 
@@ -180,10 +196,12 @@ class BetterbugsUtil {
       return;
     }
 
+    const metadata = betterbugsMetadata || DEFAULT_BETTERBUGS_METADATA;
+
     const existingMeta = this.instance.getMetadata?.() || {};
     const nextMeta = {
       ...existingMeta,
-      ...this.getRuntimeMetadata(),
+      ...this.getRuntimeMetadata(metadata),
     };
 
     this.instance.setMetadata(nextMeta);
