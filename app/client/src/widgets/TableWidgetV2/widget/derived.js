@@ -297,11 +297,27 @@ export default {
       }
 
       try {
-        const tempDiv = document.createElement("div");
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const text = (doc.body && doc.body.textContent) || "";
 
-        tempDiv.innerHTML = html;
+        if (text.trim()) {
+          return text;
+        }
 
-        return tempDiv.textContent || tempDiv.innerText || "";
+        /*
+         * Fallback when DOMParser returns empty (e.g. parsing quirk in some envs).
+         * Used only for search/filter/sort - never for rendering. Strip tags to get
+         * plain text so table search still works. Output must not be rendered (XSS).
+         */
+        if (typeof html === "string") {
+          return html
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        return "";
       } catch (e) {
         return "";
       }
@@ -380,9 +396,9 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
-    /* 
-    Check if there are select columns, 
-    and if the columns are sorting by label instead of default value 
+    /*
+    Check if there are select columns,
+    and if the columns are sorting by label instead of default value
     */
     const selectColumnKeysWithSortByLabel = [];
 
@@ -397,9 +413,9 @@ export default {
       }
     });
 
-    /* 
-    If there are select columns, 
-    transform the specific columns data to show the label instead of the value for sorting 
+    /*
+    If there are select columns,
+    transform the specific columns data to show the label instead of the value for sorting
     */
     let processedTableDataWithLabelInsteadOfValue;
 
@@ -752,7 +768,9 @@ export default {
       props.searchText &&
       (!props.onSearchTextChanged || props.enableClientSideSearch)
     ) {
-      searchKey = props.searchText.toLowerCase();
+      searchKey = String(props.searchText ?? "")
+        .trim()
+        .toLowerCase();
     } else {
       searchKey = "";
     }

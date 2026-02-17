@@ -447,4 +447,117 @@ class GitRouteAspectTest {
                 .assertNext(key -> assertThat((String) key).isEqualTo("purpose=lock/null"))
                 .verifyComplete();
     }
+
+    // ---------------------- Security Tests: Command Injection Prevention ----------------------
+
+    @Test
+    @DisplayName("gitProfile: accepts profile with command injection payload in authorName")
+    void gitProfile_commandInjectionInAuthorName_isAccepted() throws Exception {
+        // This test verifies that the GitProfile layer accepts the payload.
+        // The actual protection happens in BashService.shellEscape() when the value is used.
+        Object ctx = newContext();
+        setCtx(ctx, "fieldValue", "user-id");
+
+        // Malicious payload from vulnerability report
+        GitProfile profile = new GitProfile();
+        profile.setAuthorEmail("test@example.com");
+        profile.setAuthorName("x$(sleep 5)"); // Command injection payload
+
+        when(gitProfileUtils.getGitProfileForUser("user-id")).thenReturn(Mono.just(profile));
+
+        StepVerifier.create(invokeGitProfile(ctx))
+                .assertNext(gitProfile -> {
+                    GitProfile testProfile = (GitProfile) gitProfile;
+                    assertThat(testProfile).isNotNull();
+                    // The payload is stored as-is; protection is at BashService level
+                    assertThat(testProfile.getAuthorName()).isEqualTo("x$(sleep 5)");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("gitProfile: accepts profile with backtick injection payload in authorEmail")
+    void gitProfile_backtickInjectionInAuthorEmail_isAccepted() throws Exception {
+        Object ctx = newContext();
+        setCtx(ctx, "fieldValue", "user-id");
+
+        // Backtick command substitution payload
+        GitProfile profile = new GitProfile();
+        profile.setAuthorEmail("`id`@evil.com");
+        profile.setAuthorName("Normal Name");
+
+        when(gitProfileUtils.getGitProfileForUser("user-id")).thenReturn(Mono.just(profile));
+
+        StepVerifier.create(invokeGitProfile(ctx))
+                .assertNext(gitProfile -> {
+                    GitProfile testProfile = (GitProfile) gitProfile;
+                    assertThat(testProfile).isNotNull();
+                    assertThat(testProfile.getAuthorEmail()).isEqualTo("`id`@evil.com");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("gitProfile: accepts profile with single quotes in authorName")
+    void gitProfile_singleQuotesInAuthorName_isAccepted() throws Exception {
+        Object ctx = newContext();
+        setCtx(ctx, "fieldValue", "user-id");
+
+        // Name with single quotes (legitimate use case)
+        GitProfile profile = new GitProfile();
+        profile.setAuthorEmail("obrien@example.com");
+        profile.setAuthorName("O'Brien");
+
+        when(gitProfileUtils.getGitProfileForUser("user-id")).thenReturn(Mono.just(profile));
+
+        StepVerifier.create(invokeGitProfile(ctx))
+                .assertNext(gitProfile -> {
+                    GitProfile testProfile = (GitProfile) gitProfile;
+                    assertThat(testProfile).isNotNull();
+                    assertThat(testProfile.getAuthorName()).isEqualTo("O'Brien");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getLocalBranches: branch names with injection payloads are collected")
+    void getLocalBranches_branchNamesWithInjectionPayloads_areCollected() throws Exception {
+        // Branch names come from the database (stored from remote), not user input.
+        // This test verifies they are collected; BashService protects against injection.
+        Object ctx = newContext();
+
+        setCtx(ctx, "gitRoute", mockRoute(GitRouteOperation.STATUS, ArtifactType.APPLICATION));
+
+        GitArtifactMetadata parentMeta = newMeta("base-123", "git@github.com:org/repo.git", "repo");
+        Application parent = new Application();
+        parent.setGitArtifactMetadata(parentMeta);
+        setCtx(ctx, "parent", parent);
+
+        // Branch with injection payload (would come from malicious remote)
+        Application a1 = new Application();
+        GitArtifactMetadata m1 = new GitArtifactMetadata();
+        m1.setRefType(RefType.branch);
+        m1.setRefName("main");
+        a1.setGitArtifactMetadata(m1);
+
+        Application a2 = new Application();
+        GitArtifactMetadata m2 = new GitArtifactMetadata();
+        m2.setRefType(RefType.branch);
+        m2.setRefName("$(whoami)"); // Malicious branch name from remote
+        a2.setGitArtifactMetadata(m2);
+
+        when(gitRouteArtifact.getArtifactHelper(ArtifactType.APPLICATION))
+                .thenReturn((GitArtifactHelper) gitArtifactHelper);
+        when(gitArtifactHelper.getAllArtifactByBaseId("base-123", null)).thenAnswer(getArtifactAnswer(List.of(a1, a2)));
+
+        StepVerifier.create(invokeGetLocalBranches(ctx))
+                .assertNext(result -> {
+                    @SuppressWarnings("unchecked")
+                    java.util.List<String> branches = (java.util.List<String>) result;
+                    assertThat(branches).hasSize(2);
+                    // Both branch names are collected; BashService will escape them
+                    assertThat(branches).containsExactly("main", "$(whoami)");
+                })
+                .verifyComplete();
+    }
 }

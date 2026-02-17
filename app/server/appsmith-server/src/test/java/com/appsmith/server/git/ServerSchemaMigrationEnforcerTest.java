@@ -51,6 +51,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -283,8 +284,10 @@ public class ServerSchemaMigrationEnforcerTest {
 
     @SneakyThrows
     private String readResource(String filePath) {
-        return StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource(filePath).getInputStream(), StandardCharsets.UTF_8);
+        try (InputStream inputStream =
+                new DefaultResourceLoader().getResource(filePath).getInputStream()) {
+            return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+        }
     }
 
     private void removeCustomJsLibsEntries(JsonObject applicationObjectNode) {

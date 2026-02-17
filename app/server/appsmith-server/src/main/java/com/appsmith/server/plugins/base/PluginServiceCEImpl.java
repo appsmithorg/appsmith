@@ -437,10 +437,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 pluginManager.getPlugin(plugin.getPackageName()).getPluginClassLoader());
 
         final PluginTemplatesMeta pluginTemplatesMeta;
-        try {
-            pluginTemplatesMeta = objectMapper.readValue(
-                    resolver.getResource("templates/meta.json").getInputStream(), PluginTemplatesMeta.class);
-
+        try (InputStream metaInputStream =
+                resolver.getResource("templates/meta.json").getInputStream()) {
+            pluginTemplatesMeta = objectMapper.readValue(metaInputStream, PluginTemplatesMeta.class);
         } catch (IOException e) {
             log.error("Error loading templates metadata in plugin {}", plugin.getPackageName());
             throw Exceptions.propagate(e);
@@ -466,8 +465,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     ? filename.replaceFirst("\\.\\w+$", "")
                     : template.getTitle();
 
-            try {
-                templates.put(title, StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset()));
+            try (InputStream inputStream = resource.getInputStream()) {
+                templates.put(title, StreamUtils.copyToString(inputStream, Charset.defaultCharset()));
 
             } catch (IOException e) {
                 log.error("Error loading template {} for plugin {}", filename, plugin.getId());

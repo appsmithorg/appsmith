@@ -5,6 +5,7 @@ import {
   CHAT_WITH_US,
   DOCUMENTATION,
   HELP,
+  SEND_SUPPORT_INFO,
   WHATS_NEW,
   createMessage,
 } from "ee/constants/messages";
@@ -41,7 +42,10 @@ import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+import BetterbugsUtil from "utils/Analytics/betterbugs";
+import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
+
+const { betterbugs, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
   display: flex;
@@ -72,6 +76,7 @@ const HomepageHeaderAction = ({
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
+  const betterbugsMetadata = useBetterbugsMetadata();
 
   if (!isHomePage || !!isCreateNewAppFlow) return null;
 
@@ -141,6 +146,16 @@ const HomepageHeaderAction = ({
                 >
                   {createMessage(DOCUMENTATION)}
                 </MenuItem>
+                {betterbugs.enabled && !isAirgapped() && (
+                  <MenuItem
+                    onClick={() => {
+                      BetterbugsUtil.show(user, betterbugsMetadata);
+                    }}
+                    startIcon="support"
+                  >
+                    {createMessage(SEND_SUPPORT_INFO)}
+                  </MenuItem>
+                )}
                 {intercomAppID && window.Intercom && !isAirgapped() && (
                   <MenuItem
                     onSelect={(e) => {

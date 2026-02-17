@@ -112,6 +112,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -4965,8 +4966,10 @@ public class ImportServiceTests {
 
     @SneakyThrows
     private String readResource(String filePath) {
-        return StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource(filePath).getInputStream(), StandardCharsets.UTF_8);
+        try (InputStream inputStream =
+                new DefaultResourceLoader().getResource(filePath).getInputStream()) {
+            return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+        }
     }
 
     @Test

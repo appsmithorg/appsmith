@@ -9,6 +9,9 @@ export interface INJECTED_CONFIGS {
   smartLook: {
     id: string;
   };
+  betterbugs: {
+    apiKey: string;
+  };
   segment: {
     apiKey: string;
     ceKey: string;
@@ -60,6 +63,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     },
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",
+    },
+    betterbugs: {
+      apiKey: process.env.REACT_APP_BETTERBUGS_API_KEY || "",
     },
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
@@ -172,6 +178,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS?.smartLook.id,
   );
 
+  const betterbugs = getConfig(
+    ENV_CONFIG.betterbugs.apiKey,
+    APPSMITH_FEATURE_CONFIGS?.betterbugs?.apiKey,
+  );
+
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
     APPSMITH_FEATURE_CONFIGS?.segment.ceKey,
@@ -192,6 +203,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     smartLook: {
       enabled: smartLook.enabled,
       id: smartLook.value,
+    },
+    betterbugs: {
+      enabled: betterbugs.enabled,
+      apiKey: betterbugs.value,
     },
     segment: {
       enabled: segment.enabled,
