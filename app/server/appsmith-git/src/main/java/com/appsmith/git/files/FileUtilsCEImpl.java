@@ -660,6 +660,27 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     /**
+     * Validates that the given target path, after normalization, is still contained within
+     * the configured Git root directory. This is a defense-in-depth measure to prevent
+     * path traversal attacks where crafted resource names could cause file writes outside
+     * the repository.
+     *
+     * @param targetPath the resolved path intended for a file write
+     * @throws AppsmithPluginException if the path escapes the Git root directory
+     */
+    private void validatePathIsWithinGitRoot(Path targetPath) {
+        Path normalizedTarget = targetPath.toAbsolutePath().normalize();
+        Path gitRoot =
+                Paths.get(gitServiceConfig.getGitRootPath()).toAbsolutePath().normalize();
+        if (!normalizedTarget.startsWith(gitRoot)) {
+            String errorMessage = "SECURITY: Path traversal detected. Attempted to write to " + normalizedTarget
+                    + " which is outside the Git root " + gitRoot;
+            log.error(errorMessage);
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errorMessage);
+        }
+    }
+
+    /**
      * This method will be used to store the DB resource to JSON file
      *
      * @param sourceEntity resource extracted from DB to be stored in file
@@ -667,6 +688,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     protected boolean saveResource(Object sourceEntity, Path path) {
+        validatePathIsWithinGitRoot(path);
         try {
             Files.createDirectories(path.getParent());
             return fileOperations.writeToFile(sourceEntity, path);
@@ -678,6 +700,7 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     protected void saveResourceCommon(Object sourceEntity, Path path) {
+        validatePathIsWithinGitRoot(path);
         try {
             Files.createDirectories(path.getParent());
             if (sourceEntity instanceof String s) {
@@ -707,6 +730,7 @@ public class FileUtilsCEImpl implements FileInterface {
      */
     private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path) {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
+        validatePathIsWithinGitRoot(path);
         try {
             Files.createDirectories(path);
             if (StringUtils.hasText(body)) {
@@ -742,6 +766,7 @@ public class FileUtilsCEImpl implements FileInterface {
      */
     private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path) {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
+        validatePathIsWithinGitRoot(path);
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier

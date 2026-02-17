@@ -101,6 +101,11 @@ public class ActionCollectionCE_DTO {
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
+        if (this.name == null || this.name.trim().isEmpty()) {
+            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME));
+        } else if (containsUnsafePathCharacters(this.name)) {
+            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME));
+        }
         if (this.workspaceId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
         }
@@ -111,6 +116,18 @@ public class ActionCollectionCE_DTO {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_TYPE));
         }
         return validationErrors;
+    }
+
+    /**
+     * Checks if the given name contains characters that could be used for path traversal attacks.
+     * This prevents directory traversal via names like "../../../etc/passwd" when the name is
+     * used as part of file paths during Git serialization.
+     *
+     * @param name the name to check
+     * @return true if the name contains unsafe path characters
+     */
+    private static boolean containsUnsafePathCharacters(String name) {
+        return name.contains("..") || name.contains("/") || name.contains("\\") || name.indexOf('\0') >= 0;
     }
 
     public void populateTransientFields(ActionCollection actionCollection) {
