@@ -134,6 +134,20 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")));
     }
 
+    /**
+     * Get GitAuth based on the GitConnectDTO.
+     * In CE, sshKeyId is ignored (SSH key manager is an EE feature).
+     * Always uses the user's default deploy key.
+     *
+     * @param gitConnectDTO the connection DTO (sshKeyId is ignored in CE)
+     * @return Mono containing the GitAuth for authentication
+     */
+    @Override
+    public Mono<GitAuth> getGitAuthForUser(GitConnectDTO gitConnectDTO) {
+        // CE only supports deploy keys - sshKeyId is ignored (SSH key manager is EE only)
+        return getGitAuthForUser();
+    }
+
     @Override
     public Boolean isGitAuthInvalid(GitAuth gitAuth) {
         return !StringUtils.hasText(gitAuth.getPrivateKey()) || !StringUtils.hasText(gitAuth.getPublicKey());
