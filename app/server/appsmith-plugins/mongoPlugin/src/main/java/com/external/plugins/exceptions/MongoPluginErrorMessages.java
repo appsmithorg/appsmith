@@ -91,4 +91,14 @@ public class MongoPluginErrorMessages {
     public static final String DS_SSL_CONFIGURATION_FETCHING_ERROR_MSG =
             "Appsmith server has failed to fetch SSL configuration from datasource configuration "
                     + "form. Please reach out to Appsmith customer support to resolve this.";
+
+    public static final String DISALLOWED_COMMAND_ERROR_MSG =
+            "MongoDB command '%s' is not permitted. Only data operations (find, insert, update, delete, aggregate,"
+                    + " count, distinct, findAndModify, getMore, bulkWrite) are allowed.";
+
+    public static final String DISALLOWED_PIPELINE_STAGE_ERROR_MSG =
+            "Aggregation pipeline stage '%s' is not permitted for security reasons.";
+
+    public static final String DISALLOWED_QUERY_OPERATOR_ERROR_MSG =
+            "Query operator '%s' is not permitted for security reasons.";
 }

@@ -26,6 +26,7 @@ import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 
 @Getter
 @Setter
@@ -71,6 +72,7 @@ public class Delete extends MongoCommand {
         document.put(DELETE, this.collection);
 
         Document queryDocument = parseSafely("Query", this.query);
+        validateQueryDocument("Query", queryDocument);
 
         Document delete = new Document();
         delete.put("q", queryDocument);

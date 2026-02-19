@@ -233,6 +233,11 @@ public class MongoPlugin extends BasePlugin {
             this.observationRegistry = observationRegistry;
         }
 
+        private static final Set<String> ALLOWED_COMMANDS = Set.of(
+                "find", "insert", "update", "delete",
+                "aggregate", "count", "distinct",
+                "findandmodify", "getmore", "bulkwrite");
+
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
@@ -334,7 +339,20 @@ public class MongoPlugin extends BasePlugin {
                 final Map<String, Object> formData = actionConfiguration.getFormData();
 
                 query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
-                Bson command = Document.parse(query);
+                Document commandDoc = Document.parse(query);
+                if (commandDoc.isEmpty()) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG);
+                }
+                String commandName =
+                        commandDoc.keySet().iterator().next().toLowerCase();
+                if (!ALLOWED_COMMANDS.contains(commandName)) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(MongoPluginErrorMessages.DISALLOWED_COMMAND_ERROR_MSG, commandName));
+                }
+                Bson command = commandDoc;
 
                 mongoOutputMono = Mono.from(database.runCommand(command));
                 requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));

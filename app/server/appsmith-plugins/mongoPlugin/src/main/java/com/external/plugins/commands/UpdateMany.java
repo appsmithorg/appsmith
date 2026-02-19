@@ -27,6 +27,7 @@ import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 
 @Getter
 @Setter
@@ -84,6 +85,7 @@ public class UpdateMany extends MongoCommand {
         document.put("update", this.collection);
 
         Document queryDocument = parseSafely("Query", this.query);
+        validateQueryDocument("Query", queryDocument);
 
         Object updateDocument = parseSafelyDocumentAndArrayOfDocuments("Update", this.update);
 
