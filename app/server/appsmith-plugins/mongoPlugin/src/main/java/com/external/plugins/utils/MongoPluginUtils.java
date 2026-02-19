@@ -59,11 +59,17 @@ public class MongoPluginUtils {
             if (value instanceof Document) {
                 validateQueryDocument(fieldName, (Document) value);
             } else if (value instanceof List) {
-                for (Object item : (List<?>) value) {
-                    if (item instanceof Document) {
-                        validateQueryDocument(fieldName, (Document) item);
-                    }
-                }
+                validateQueryList(fieldName, (List<?>) value);
+            }
+        }
+    }
+
+    private static void validateQueryList(String fieldName, List<?> list) {
+        for (Object item : list) {
+            if (item instanceof Document) {
+                validateQueryDocument(fieldName, (Document) item);
+            } else if (item instanceof List) {
+                validateQueryList(fieldName, (List<?>) item);
             }
         }
     }

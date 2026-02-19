@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
@@ -35,6 +36,7 @@ import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -43,6 +45,28 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class Aggregate extends MongoCommand {
     private static final Set<String> BLOCKED_PIPELINE_STAGES =
             Set.of("$out", "$merge", "$function", "$accumulator");
+
+    private static void validateBsonValue(BsonValue value) {
+        if (value.isDocument()) {
+            validatePipelineStage(value.asDocument());
+        } else if (value.isArray()) {
+            for (BsonValue element : value.asArray()) {
+                validateBsonValue(element);
+            }
+        }
+    }
+
+    private static void validatePipelineStage(org.bson.BsonDocument doc) {
+        for (Entry<String, BsonValue> entry : doc.entrySet()) {
+            String key = entry.getKey();
+            if (BLOCKED_PIPELINE_STAGES.contains(key.toLowerCase())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(MongoPluginErrorMessages.DISALLOWED_PIPELINE_STAGE_ERROR_MSG, key));
+            }
+            validateBsonValue(entry.getValue());
+        }
+    }
 
     String pipeline;
     String limit;
@@ -88,18 +112,7 @@ public class Aggregate extends MongoCommand {
                     commandDocument.put("pipeline", "[]");
                 } else {
                     for (BsonValue stage : arrayListFromInput) {
-                        if (stage.isDocument()) {
-                            for (String key : stage.asDocument().keySet()) {
-                                if (BLOCKED_PIPELINE_STAGES.contains(key.toLowerCase())) {
-                                    throw new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                            String.format(
-                                                    MongoPluginErrorMessages
-                                                            .DISALLOWED_PIPELINE_STAGE_ERROR_MSG,
-                                                    key));
-                                }
-                            }
-                        }
+                        validateBsonValue(stage);
                     }
                     commandDocument.put("pipeline", arrayListFromInput);
                 }
@@ -121,14 +134,7 @@ public class Aggregate extends MongoCommand {
             }
 
             Document document = parseSafely("Array of pipelines", this.pipeline);
-            for (String key : document.keySet()) {
-                if (BLOCKED_PIPELINE_STAGES.contains(key.toLowerCase())) {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            String.format(
-                                    MongoPluginErrorMessages.DISALLOWED_PIPELINE_STAGE_ERROR_MSG, key));
-                }
-            }
+            validateQueryDocument("Pipeline", document);
             ArrayList<Document> documentArrayList = new ArrayList<>();
             documentArrayList.add(document);
 

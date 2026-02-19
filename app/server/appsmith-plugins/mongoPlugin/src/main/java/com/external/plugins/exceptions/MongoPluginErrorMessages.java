@@ -94,7 +94,7 @@ public class MongoPluginErrorMessages {
 
     public static final String DISALLOWED_COMMAND_ERROR_MSG =
             "MongoDB command '%s' is not permitted. Only data operations (find, insert, update, delete, aggregate,"
-                    + " count, distinct, findAndModify, getMore, bulkWrite) are allowed.";
+                    + " count, distinct, findandmodify, getmore, bulkwrite) are allowed.";
 
     public static final String DISALLOWED_PIPELINE_STAGE_ERROR_MSG =
             "Aggregation pipeline stage '%s' is not permitted for security reasons.";

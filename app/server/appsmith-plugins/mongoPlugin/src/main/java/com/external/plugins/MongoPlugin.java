@@ -356,6 +356,8 @@ public class MongoPlugin extends BasePlugin {
 
                 mongoOutputMono = Mono.from(database.runCommand(command));
                 requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
+            } catch (AppsmithPluginException e) {
+                return Mono.error(e);
             } catch (Exception error) {
                 return Mono.error(new AppsmithPluginException(
                         MongoPluginError.QUERY_EXECUTION_FAILED,
