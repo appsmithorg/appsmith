@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -86,6 +86,24 @@
       id="date-picker-control"
       style="position: relative; z-index: 1000"
     ></div>
+    <div
+      id="experimental-tag-bottom"
+      style="position: fixed; color: chocolate; bottom: 2px; left: 50%"
+    >
+      <span>Experimental Preview v0.91</span>
+    </div>
+    <div
+      id="experimental-tag-top"
+      style="
+        position: fixed;
+        color: chocolate;
+        top: 2px;
+        left: 50%;
+        z-index: 20;
+      "
+    >
+      <span>Experimental Preview v0.91</span>
+    </div>
     <script type="text/javascript">
       // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
       const getIsLocalStorageSupported = () => {
