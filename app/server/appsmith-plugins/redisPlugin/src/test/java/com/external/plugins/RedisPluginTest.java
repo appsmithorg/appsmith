@@ -390,6 +390,10 @@ public class RedisPluginTest {
                     assertNotNull(result);
                     assertFalse(result.getIsExecutionSuccess());
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                    assertNotNull(result.getBody());
+                    assertTrue(
+                            result.getBody().toString().contains("FLUSHALL"),
+                            "Error message should contain the blocked command name");
                 })
                 .verifyComplete();
     }
@@ -410,6 +414,10 @@ public class RedisPluginTest {
                     assertNotNull(result);
                     assertFalse(result.getIsExecutionSuccess());
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                    assertNotNull(result.getBody());
+                    assertTrue(
+                            result.getBody().toString().contains("CONFIG"),
+                            "Error message should contain the blocked command name");
                 })
                 .verifyComplete();
     }

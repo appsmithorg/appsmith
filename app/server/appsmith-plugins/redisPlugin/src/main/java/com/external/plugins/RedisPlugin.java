@@ -80,6 +80,12 @@ public class RedisPlugin extends BasePlugin {
                 "FLUSHALL", "FLUSHDB",
                 // Scripting / RCE
                 "EVAL", "EVALSHA", "SCRIPT",
+                // Redis 7+: persistent server-side code loading (same RCE surface as EVAL,
+                // with added persistence/replication risk — CVE-2025-49844 sandbox escape)
+                "FUNCTION",
+                // Note: EVAL_RO / EVALSHA_RO (Redis 7+ read-only eval variants) are not
+                // blocked here — they should be controlled via Redis ACL roles when support
+                // for Redis 7+ and a newer Jedis client is added.
                 // ACL manipulation
                 "ACL",
                 // Cluster / migration
