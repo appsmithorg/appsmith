@@ -1927,7 +1927,7 @@ export const CLEAN_URL_UPDATE = {
     () =>
       "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
     (url: string) =>
-      `The current app’s URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
+      `The current app’s URL will be:<br /><code>${url}</code>`,
   ],
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",

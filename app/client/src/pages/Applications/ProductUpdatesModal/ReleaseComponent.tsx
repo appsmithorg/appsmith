@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import { Divider, Text, Button, Tag } from "@appsmith/ads";
+import sanitizeHtml from "utils/sanitizeHtml";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -124,6 +125,10 @@ function ReleaseComponent({ release }: ReleaseProps) {
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const safeDescriptionHtml = useMemo(
+    () => sanitizeHtml(descriptionHtml),
+    [descriptionHtml],
+  );
 
   useEffect(() => {
     if (contentRef.current) {
@@ -159,7 +164,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
       </TagContainer>
       <Text kind="heading-s">{name}</Text>
       <StyledContent
-        dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+        dangerouslySetInnerHTML={{ __html: safeDescriptionHtml }}
         maxHeight={getHeight()}
         ref={contentRef}
       />

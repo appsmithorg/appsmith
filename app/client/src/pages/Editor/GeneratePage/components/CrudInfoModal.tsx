@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
 import type { DefaultRootState } from "react-redux";
@@ -27,6 +27,7 @@ import {
 } from "@appsmith/ads-old";
 import SuccessTick from "pages/common/SuccessTick";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import sanitizeHtml from "utils/sanitizeHtml";
 
 interface Props {
   crudInfoModalOpen: boolean;
@@ -102,13 +103,18 @@ function InfoContent({
   successMessage: string;
   successImageUrl: string;
 }) {
+  const safeSuccessMessage = useMemo(
+    () => sanitizeHtml(successMessage),
+    [successMessage],
+  );
+
   return (
     <Content>
       {/* TODO: Replace this with ADS text */}
       <InfoContentHeadingText
         className="info-subtitle"
         dangerouslySetInnerHTML={{
-          __html: successMessage,
+          __html: safeSuccessMessage,
         }}
       />
       <ImageWrapper>

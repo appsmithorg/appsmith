@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import ReactDOM from "react-dom";
 import { ternDocsInfo } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
 import { Link } from "@appsmith/ads";
+import sanitizeHtml from "utils/sanitizeHtml";
 
 export function renderTernTooltipContent(
   element: HTMLElement,
@@ -25,6 +26,7 @@ export function TernDocToolTip(props: {
 
   const examples =
     displayText in ternDocsInfo ? ternDocsInfo[displayText].exampleArgs : null;
+  const safeDoc = useMemo(() => sanitizeHtml(doc), [doc]);
 
   return (
     <div className="flex flex-col pb-1 t--tern-doc">
@@ -43,7 +45,7 @@ export function TernDocToolTip(props: {
       </div>
       <pre
         className="px-2 p-1 text-xs whitespace-normal"
-        dangerouslySetInnerHTML={{ __html: doc }}
+        dangerouslySetInnerHTML={{ __html: safeDoc }}
       />
       {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>

@@ -27,6 +27,7 @@ import { createMessage, CLEAN_URL_UPDATE } from "ee/constants/messages";
 import { useLocation } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import classNames from "classnames";
+import sanitizeHtml from "utils/sanitizeHtml";
 
 const StyledList = styled.ul`
   list-style: disc;
@@ -48,6 +49,9 @@ const StyledList = styled.ul`
       display: flex;
       align-items: center;
       font-size: 12px;
+      line-height: 22px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
       line-break: anywhere;
     }
   }
@@ -156,20 +160,17 @@ function ManualUpgrades(props: {
       {
         name: createMessage(CLEAN_URL_UPDATE.name),
         shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-        description: CLEAN_URL_UPDATE.description.map((formatter) =>
-          createMessage(
-            formatter.bind(
-              null,
-              window.location.href.replace(
-                `/applications/${applicationId}/pages/${pageId}`,
-                `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-              ),
-            ),
-          ),
-        ),
+        description: CLEAN_URL_UPDATE.description.map((formatter) => {
+          const cleanUrl = window.location.href.replace(
+            `/applications/${applicationId}/pages/${pageId}`,
+            `/app/${applicationSlug}/${pageSlug}-${pageId}`,
+          );
+
+          return sanitizeHtml(createMessage(formatter.bind(null, cleanUrl)));
+        }),
         disclaimer: {
           severity: "MODERATE",
-          desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
+          desc: sanitizeHtml(createMessage(CLEAN_URL_UPDATE.disclaimer)),
         },
         version: ApplicationVersion.SLUG_URL,
       },
