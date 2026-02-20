@@ -67,7 +67,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ClonePageService<ActionCollection> actionCollectionClonePageService,
             ObservationRegistry observationRegistry,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService) {
+            PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService,
+            UserDataService userDataService) {
         super(
                 workspaceService,
                 applicationService,
@@ -99,6 +100,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 actionCollectionClonePageService,
                 observationRegistry,
                 cacheableRepositoryHelper,
-                postApplicationPublishHookCoordinatorService);
+                postApplicationPublishHookCoordinatorService,
+                userDataService);
     }
 }

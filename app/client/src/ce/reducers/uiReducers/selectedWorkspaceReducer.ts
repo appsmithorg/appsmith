@@ -10,6 +10,7 @@ import type {
   WorkspaceUser,
   WorkspaceUserRoles,
 } from "ee/constants/workspaceConstants";
+import { FAVORITES_KEY } from "ee/constants/workspaceConstants";
 import type { Package } from "ee/constants/PackageConstants";
 import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
 
@@ -20,6 +21,7 @@ export interface SelectedWorkspaceReduxState {
   packages: Package[];
   loadingStates: {
     isFetchingApplications: boolean;
+    isFetchingFavoriteApplications: boolean;
     isFetchingAllUsers: boolean;
     isFetchingCurrentWorkspace: boolean;
   };
@@ -35,6 +37,7 @@ export const initialState: SelectedWorkspaceReduxState = {
   packages: [],
   loadingStates: {
     isFetchingApplications: false,
+    isFetchingFavoriteApplications: false,
     isFetchingAllUsers: false,
     isFetchingCurrentWorkspace: false,
   },
@@ -58,6 +61,30 @@ export const handlers = {
     draftState: SelectedWorkspaceReduxState,
   ) => {
     draftState.loadingStates.isFetchingApplications = false;
+  },
+  // Handle favorites workspace - populate applications with favorite apps
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingFavoriteApplications = true;
+  },
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_SUCCESS]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => {
+    draftState.loadingStates.isFetchingFavoriteApplications = false;
+
+    // Only replace applications when we're in the virtual favorites workspace.
+    // This prevents overwriting a real workspace's applications when favorites
+    // are fetched in the background.
+    if (draftState.workspace.id === FAVORITES_KEY) {
+      draftState.applications = action.payload;
+    }
+  },
+  [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
+    draftState: SelectedWorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingFavoriteApplications = false;
   },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,
@@ -241,6 +268,25 @@ export const handlers = {
     draftState: SelectedWorkspaceReduxState,
   ) => {
     draftState.loadingStates.isFetchingCurrentWorkspace = false;
+  },
+  [ReduxActionTypes.TOGGLE_FAVORITE_APPLICATION_SUCCESS]: (
+    draftState: SelectedWorkspaceReduxState,
+    action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
+  ) => {
+    const { applicationId, isFavorited } = action.payload;
+    const isFavoritesWorkspace = draftState.workspace.id === FAVORITES_KEY;
+
+    if (isFavoritesWorkspace && !isFavorited) {
+      draftState.applications = draftState.applications.filter(
+        (app) => (app.baseId || app.id) !== applicationId,
+      );
+    } else {
+      draftState.applications = draftState.applications.map((app) =>
+        (app.baseId || app.id) === applicationId
+          ? { ...app, isFavorited }
+          : app,
+      );
+    }
   },
 };
 

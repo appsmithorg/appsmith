@@ -564,6 +564,16 @@ export class ApplicationApi extends Api {
       `${ApplicationApi.baseURL}/${applicationId}/static-url/suggest-app-slug`,
     );
   }
+
+  static async toggleFavoriteApplication(
+    applicationId: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    return Api.put(`v1/users/applications/${applicationId}/favorite`);
+  }
+
+  static async getFavoriteApplications(): Promise<AxiosPromise<ApiResponse>> {
+    return Api.get("v1/users/favoriteApplications");
+  }
 }
 
 export default ApplicationApi;

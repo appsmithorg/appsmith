@@ -18,8 +18,10 @@ export function DebuggerTrigger() {
   const messageCounters = useSelector(getMessageCount);
 
   useEffect(() => {
+    // Sync the global error count with debugger message counters.
+    // Only depends on the current error count so we don't dispatch on every render.
     dispatch(setErrorCount(messageCounters.errors));
-  });
+  }, [dispatch, messageCounters.errors]);
 
   const onClick = useDebuggerTriggerClick();
 

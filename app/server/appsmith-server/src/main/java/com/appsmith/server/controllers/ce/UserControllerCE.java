@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -205,5 +206,30 @@ public class UserControllerCE {
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
         return service.verifyEmailVerificationToken(exchange);
+    }
+
+    /**
+     * Toggle favorite status for an application
+     * @param applicationId Application ID to toggle favorite status for
+     * @return Updated user data with modified favorites list
+     */
+    @JsonView(Views.Public.class)
+    @PutMapping("/applications/{applicationId}/favorite")
+    public Mono<ResponseDTO<UserData>> toggleFavoriteApplication(@PathVariable String applicationId) {
+        return userDataService
+                .toggleFavoriteApplication(applicationId)
+                .map(userData -> new ResponseDTO<>(HttpStatus.OK, userData));
+    }
+
+    /**
+     * Get all favorite applications for the current user
+     * @return List of favorited applications
+     */
+    @JsonView(Views.Public.class)
+    @GetMapping("/favoriteApplications")
+    public Mono<ResponseDTO<List<Application>>> getFavoriteApplications() {
+        return userDataService
+                .getFavoriteApplications()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
     }
 }

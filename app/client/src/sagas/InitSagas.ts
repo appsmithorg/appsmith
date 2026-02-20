@@ -61,10 +61,19 @@ import {
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "../constants/routes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/applicationSelectors";
+import {
+  getAppMode,
+  getFavoriteApplicationIds,
+} from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
+import { FAVORITES_KEY } from "ee/constants/workspaceConstants";
+import { toast } from "@appsmith/ads";
 
 import { getCurrentOrganization } from "ee/actions/organizationActions";
 import {
@@ -415,6 +424,27 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
 
     if (e instanceof AppEngineApiError) return;
+
+    if (e instanceof PageNotFoundError) {
+      const currentUser: ReturnType<typeof getCurrentUserSelector> =
+        yield select(getCurrentUserSelector);
+
+      if (currentUser && currentUser.email !== ANONYMOUS_USERNAME) {
+        // Only redirect to favorites page if the app was actually favorited;
+        // otherwise fall through to safeCrashAppRequest to show the error page.
+        const favoriteIds: string[] = yield select(getFavoriteApplicationIds);
+
+        if (favoriteIds.includes(action.payload.applicationId ?? "")) {
+          history.replace(`${APPLICATIONS_URL}?workspaceId=${FAVORITES_KEY}`);
+          yield put({
+            type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT,
+          });
+          toast.show("Application not found or deleted.", { kind: "error" });
+
+          return;
+        }
+      }
+    }
 
     appsmithTelemetry.captureException(e, { errorName: "AppEngineError" });
     yield put(safeCrashAppRequest());

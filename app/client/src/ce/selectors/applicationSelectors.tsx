@@ -243,3 +243,31 @@ export const getRedeployApplicationTrigger = createSelector(
     return null;
   },
 );
+
+export const getFavoriteApplicationIds = (state: DefaultRootState) =>
+  state.ui.applications.favoriteApplicationIds;
+
+export const getFavoriteApplications = createSelector(
+  [getApplications, getFavoriteApplicationIds],
+  (
+    allApps: ApplicationPayload[] | undefined,
+    favoriteIds: string[] | undefined,
+  ) => {
+    const apps = allApps ?? [];
+    const ids = favoriteIds ?? [];
+    const favoriteIdSet = new Set(ids);
+
+    return apps
+      .filter((app: ApplicationPayload) =>
+        favoriteIdSet.has(app.baseId || app.id),
+      )
+      .sort((a: ApplicationPayload, b: ApplicationPayload) =>
+        a.name.localeCompare(b.name),
+      );
+  },
+);
+
+export const getHasFavorites = createSelector(
+  [getFavoriteApplicationIds],
+  (favoriteIds: string[] | undefined) => (favoriteIds ?? []).length > 0,
+);
