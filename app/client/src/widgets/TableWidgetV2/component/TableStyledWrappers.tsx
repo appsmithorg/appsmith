@@ -24,30 +24,32 @@ import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
-import type { TableVariant } from "../constants";
+import type { RowColorStyles, TableVariant } from "../constants";
 import { TableVariantTypes } from "../constants";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
-export const TableWrapper = styled.div<{
-  width: number;
-  height: number;
-  tableSizes: TableSizes;
-  accentColor: string;
-  backgroundColor?: Color;
-  triggerRowSelection: boolean;
-  isHeaderVisible?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  isResizingColumn?: boolean;
-  variant?: TableVariant;
-  isAddRowInProgress: boolean;
-  multiRowSelection?: boolean;
-}>`
+export const TableWrapper = styled.div<
+  RowColorStyles & {
+    width: number;
+    height: number;
+    tableSizes: TableSizes;
+    accentColor: string;
+    backgroundColor?: Color;
+    triggerRowSelection: boolean;
+    isHeaderVisible?: boolean;
+    borderRadius: string;
+    boxShadow?: string;
+    borderColor?: string;
+    borderWidth?: number;
+    isResizingColumn?: boolean;
+    variant?: TableVariant;
+    isAddRowInProgress: boolean;
+    multiRowSelection?: boolean;
+  }
+>`
   width: 100%;
   height: 100%;
   background: white;
@@ -114,6 +116,12 @@ export const TableWrapper = styled.div<{
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
+      &.odd-row {
+        background: ${(props) => props.oddRowColor || Colors.WHITE};
+      }
+      &.even-row {
+        background: ${(props) => props.evenRowColor || Colors.WHITE};
+      }
       &.selected-row {
         background: ${({ accentColor }) =>
           `${lightenColor(accentColor)}`} !important;
@@ -196,7 +204,7 @@ export const TableWrapper = styled.div<{
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
-      background: var(--wds-color-bg);
+      background: ${(props) => props.headerRowColor || "var(--wds-color-bg)"};
       font-weight: bold;
     }
     .td {
@@ -222,7 +230,8 @@ export const TableWrapper = styled.div<{
     }
 
     [role="columnheader"] {
-      background-color: var(--wds-color-bg) !important;
+      background-color: ${(props) =>
+        props.headerRowColor || "var(--wds-color-bg)"} !important;
     }
 
     [data-sticky-td] {
@@ -279,7 +288,7 @@ export const TableWrapper = styled.div<{
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
-    color: ${Colors.OXFORD_BLUE};
+    color: ${(props) => props.headerTextColor || Colors.OXFORD_BLUE};
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;

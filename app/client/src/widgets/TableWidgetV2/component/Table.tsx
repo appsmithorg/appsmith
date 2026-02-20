@@ -238,12 +238,6 @@ export function Table(props: TableProps) {
     ],
   );
 
-  props.isVisibleSearch ||
-    props.isVisibleFilters ||
-    props.isVisibleDownload ||
-    props.isVisiblePagination ||
-    props.allowAddNewRow;
-
   /**
    * What this really translates is to fixed height rows:
    * shouldUseVirtual: false -> fixed height row, irrespective of content small or big
@@ -331,12 +325,16 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
+        evenRowColor={props.evenRowColor}
+        headerRowColor={props.headerRowColor}
+        headerTextColor={props.headerTextColor}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
         isHeaderVisible={isHeaderVisible}
         isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}
+        oddRowColor={props.oddRowColor}
         tableSizes={tableSizes}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}

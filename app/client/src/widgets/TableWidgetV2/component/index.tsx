@@ -13,7 +13,7 @@ import Table from "./Table";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
 import { useCallback } from "react";
-import type { EditableCell, TableVariant } from "../constants";
+import type { EditableCell, RowColorStyles, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
 
 export interface ColumnMenuOptionProps {
@@ -38,7 +38,7 @@ export interface ColumnMenuSubOptionProps {
   isHeader?: boolean;
 }
 
-interface ReactTableComponentProps {
+interface ReactTableComponentProps extends RowColorStyles {
   widgetId: string;
   widgetName: string;
   searchKey: string;
@@ -129,10 +129,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     editableCell,
     editMode,
     endOfData,
+    evenRowColor,
     filters,
     handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
+    headerRowColor,
+    headerTextColor,
     height,
     isAddRowInProgress,
     isInfiniteScrollEnabled,
@@ -144,6 +147,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isVisibleSearch,
     multiRowSelection,
     nextPageClick,
+    oddRowColor,
     onAddNewRow,
     onAddNewRowAction,
     onBulkEditDiscard,
@@ -257,10 +261,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
       endOfData={endOfData}
+      evenRowColor={evenRowColor}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
+      headerRowColor={headerRowColor}
+      headerTextColor={headerTextColor}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
       isInfiniteScrollEnabled={isInfiniteScrollEnabled}
@@ -272,6 +279,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
+      oddRowColor={oddRowColor}
       onAddNewRow={onAddNewRow}
       onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}
@@ -340,6 +348,11 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderWidth === next.borderWidth &&
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
+    prev.headerRowColor === next.headerRowColor &&
+    prev.headerTextColor === next.headerTextColor &&
+    prev.oddRowColor === next.oddRowColor &&
+    prev.evenRowColor === next.evenRowColor &&
+    prev.variant === next.variant &&
     //shallow equal possible
     equal(prev.columnWidthMap, next.columnWidthMap) &&
     //static reference
@@ -348,7 +361,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // and we are not changing the columns manually.
     prev.columns === next.columns &&
     equal(prev.editableCell, next.editableCell) &&
-    prev.variant === next.variant &&
     prev.primaryColumnId === next.primaryColumnId &&
     equal(prev.isEditableCellsValid, next.isEditableCellsValid) &&
     prev.isAddRowInProgress === next.isAddRowInProgress &&
