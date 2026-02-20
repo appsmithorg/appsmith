@@ -86,6 +86,7 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | --------------------------- | --------------------------------------------------- | --------------- |
 | `strategyType`							| Appsmith deployment strategy type										| `RollingUpdate` |
 | `schedulerName`							| Alternate scheduler																	| `""`						|
+| `annotations`								| Annotations to add to the Deployment/StatefulSet resource		| `{}`						|
 | `podAnnotations`						| Annotations for Appsmith pods												| `{}`						|
 | `podLabels`						| Labels for Appsmith pods												| `{}`						|
 | `podSecurityContext`				| Appsmith pods security context											| `{}`						|
