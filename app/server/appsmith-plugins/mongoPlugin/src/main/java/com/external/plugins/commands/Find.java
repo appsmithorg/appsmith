@@ -82,7 +82,9 @@ public class Find extends MongoCommand {
         document.put("filter", queryDocument);
 
         if (!StringUtils.isNullOrEmpty(this.sort)) {
-            document.put("sort", parseSafely("Sort", this.sort));
+            Document sortDocument = parseSafely("Sort", this.sort);
+            validateQueryDocument("Sort", sortDocument);
+            document.put("sort", sortDocument);
         }
 
         if (!StringUtils.isNullOrEmpty(this.projection)) {

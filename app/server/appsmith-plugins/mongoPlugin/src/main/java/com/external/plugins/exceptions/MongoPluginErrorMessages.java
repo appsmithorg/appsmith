@@ -92,6 +92,12 @@ public class MongoPluginErrorMessages {
             "Appsmith server has failed to fetch SSL configuration from datasource configuration "
                     + "form. Please reach out to Appsmith customer support to resolve this.";
 
+    /*
+    ************************************************************************************************************************************************
+                                       Error messages related to security validation of commands and operators.
+    ************************************************************************************************************************************************
+    */
+
     public static final String DISALLOWED_COMMAND_ERROR_MSG =
             "MongoDB command '%s' is not permitted. Only data operations (find, insert, update, delete, aggregate,"
                     + " count, distinct, findandmodify, getmore, bulkwrite) are allowed.";
@@ -100,5 +106,5 @@ public class MongoPluginErrorMessages {
             "Aggregation pipeline stage '%s' is not permitted for security reasons.";
 
     public static final String DISALLOWED_QUERY_OPERATOR_ERROR_MSG =
-            "Query operator '%s' is not permitted for security reasons.";
+            "Operator '%s' in field '%s' is not permitted for security reasons.";
 }

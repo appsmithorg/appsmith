@@ -88,6 +88,15 @@ public class UpdateMany extends MongoCommand {
         validateQueryDocument("Query", queryDocument);
 
         Object updateDocument = parseSafelyDocumentAndArrayOfDocuments("Update", this.update);
+        if (updateDocument instanceof Document) {
+            validateQueryDocument("Update", (Document) updateDocument);
+        } else if (updateDocument instanceof List) {
+            for (Object stage : (List<?>) updateDocument) {
+                if (stage instanceof Document) {
+                    validateQueryDocument("Update", (Document) stage);
+                }
+            }
+        }
 
         Document update = new Document();
         update.put("q", queryDocument);

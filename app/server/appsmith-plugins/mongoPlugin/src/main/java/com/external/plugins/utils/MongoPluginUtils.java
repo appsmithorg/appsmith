@@ -45,15 +45,16 @@ import static com.external.plugins.constants.FieldName.RAW;
 
 public class MongoPluginUtils {
 
-    private static final Set<String> BLOCKED_QUERY_OPERATORS = Set.of("$where", "$function", "$accumulator");
+    private static final Set<String> BLOCKED_OPERATORS =
+            Set.of("$where", "$function", "$accumulator", "$out", "$merge");
 
     public static void validateQueryDocument(String fieldName, Document queryDoc) {
         if (queryDoc == null) return;
         for (String key : queryDoc.keySet()) {
-            if (BLOCKED_QUERY_OPERATORS.contains(key.toLowerCase())) {
+            if (BLOCKED_OPERATORS.contains(key.toLowerCase())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        String.format(MongoPluginErrorMessages.DISALLOWED_QUERY_OPERATOR_ERROR_MSG, key));
+                        String.format(MongoPluginErrorMessages.DISALLOWED_QUERY_OPERATOR_ERROR_MSG, key, fieldName));
             }
             Object value = queryDoc.get(key);
             if (value instanceof Document) {

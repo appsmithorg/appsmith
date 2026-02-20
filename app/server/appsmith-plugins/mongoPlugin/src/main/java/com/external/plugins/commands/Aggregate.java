@@ -44,7 +44,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @NoArgsConstructor
 public class Aggregate extends MongoCommand {
     private static final Set<String> BLOCKED_PIPELINE_STAGES =
-            Set.of("$out", "$merge", "$function", "$accumulator");
+            Set.of("$out", "$merge", "$function", "$accumulator", "$where");
 
     private static void validateBsonValue(BsonValue value) {
         if (value.isDocument()) {

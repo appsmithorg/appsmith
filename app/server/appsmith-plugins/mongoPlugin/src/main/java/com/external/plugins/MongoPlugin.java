@@ -139,6 +139,7 @@ import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndSt
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
 import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
@@ -352,6 +353,7 @@ public class MongoPlugin extends BasePlugin {
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             String.format(MongoPluginErrorMessages.DISALLOWED_COMMAND_ERROR_MSG, commandName));
                 }
+                validateQueryDocument("Command", commandDoc);
                 Bson command = commandDoc;
 
                 mongoOutputMono = Mono.from(database.runCommand(command));
