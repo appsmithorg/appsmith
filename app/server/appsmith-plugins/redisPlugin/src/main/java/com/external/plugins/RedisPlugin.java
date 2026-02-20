@@ -62,6 +62,33 @@ public class RedisPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
+        /**
+         * Commands blocked for security reasons. These commands can be used to
+         * destroy data, exfiltrate information, execute arbitrary code, or
+         * disrupt the Redis server.
+         */
+        private static final Set<String> BLOCKED_COMMANDS = Set.of(
+                // Server admin
+                "SHUTDOWN", "DEBUG", "MONITOR", "SAVE", "BGSAVE", "BGREWRITEAOF",
+                // Config manipulation
+                "CONFIG",
+                // Replication / data exfiltration
+                "SLAVEOF", "REPLICAOF",
+                // Module loading (shared-lib RCE)
+                "MODULE",
+                // Data destruction
+                "FLUSHALL", "FLUSHDB",
+                // Scripting / RCE
+                "EVAL", "EVALSHA", "SCRIPT",
+                // ACL manipulation
+                "ACL",
+                // Cluster / migration
+                "CLUSTER", "MIGRATE",
+                // Client manipulation
+                "CLIENT",
+                // DoS / deserialization risks
+                "KEYS", "RESTORE", "SWAPDB", "SYNC", "PSYNC", "SENTINEL");
+
         @Override
         public Mono<ActionExecutionResult> execute(
                 JedisPool jedisPool,
@@ -96,16 +123,22 @@ public class RedisPlugin extends BasePlugin {
                                     RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG));
                         }
 
+                        String commandName = (String) cmdAndArgs.get(CMD_KEY);
+                        if (BLOCKED_COMMANDS.contains(commandName)) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    String.format(RedisErrorMessages.BLOCKED_COMMAND_ERROR_MSG, commandName)));
+                        }
+
                         Protocol.Command command;
                         try {
                             // Commands are in upper case
-                            command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
+                            command = Protocol.Command.valueOf(commandName);
                         } catch (IllegalArgumentException exc) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     String.format(
-                                            RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG,
-                                            cmdAndArgs.get(CMD_KEY))));
+                                            RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG, commandName)));
                         }
 
                         Object commandOutput;

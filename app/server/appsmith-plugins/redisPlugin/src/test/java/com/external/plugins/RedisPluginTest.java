@@ -317,20 +317,37 @@ public class RedisPluginTest {
         datasourceConfiguration.setAuthentication(auth);
         Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("CLIENT INFO");
-
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono.flatMap(
-                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
-
-        StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertTrue(node.get("result").asText().contains("db=7"));
+        // Set a key in db 7 and verify it exists — proves SELECT 7 happened.
+        ActionConfiguration setAction = new ActionConfiguration();
+        setAction.setBody("SET _db7_test_key db7_value");
+        Mono<ActionExecutionResult> setResultMono = jedisPoolMono.flatMap(
+                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, setAction));
+        StepVerifier.create(setResultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
                 })
                 .verifyComplete();
+
+        ActionConfiguration getAction = new ActionConfiguration();
+        getAction.setBody("GET _db7_test_key");
+        Mono<ActionExecutionResult> getResultMono = jedisPoolMono.flatMap(
+                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, getAction));
+        StepVerifier.create(getResultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("db7_value", node.get("result").asText());
+                })
+                .verifyComplete();
+
+        // Clean up
+        ActionConfiguration delAction = new ActionConfiguration();
+        delAction.setBody("DEL _db7_test_key");
+        jedisPoolMono
+                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, delAction))
+                .block();
     }
 
     @Test
@@ -340,8 +357,9 @@ public class RedisPluginTest {
         datasourceConfiguration.setAuthentication(auth);
         Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
+        // Use PING on default db — verifies connection works on db 0.
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("CLIENT INFO");
+        actionConfiguration.setBody("PING");
 
         Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono.flatMap(
                 jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
@@ -349,9 +367,49 @@ public class RedisPluginTest {
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertTrue(node.get("result").asText().contains("db=0"));
+                    assertEquals("PONG", node.get("result").asText());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectBlockedCommand() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("FLUSHALL");
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono.flatMap(
+                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectBlockedCommandWithArgs() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("CONFIG GET requirepass");
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono.flatMap(
+                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
