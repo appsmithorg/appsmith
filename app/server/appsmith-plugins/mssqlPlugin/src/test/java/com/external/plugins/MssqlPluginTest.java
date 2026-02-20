@@ -773,4 +773,52 @@ public class MssqlPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testReadOnlyConnectionMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+
+        // Set connection mode to READ_ONLY
+        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
+        connection.setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        dsConfig.setConnection(connection);
+
+        // Create connection pool
+        HikariDataSource connectionPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+
+        // Verify the JDBC URL contains ApplicationIntent=ReadOnly
+        assertNotNull(connectionPool);
+        String jdbcUrl = connectionPool.getJdbcUrl();
+        assertTrue(
+                jdbcUrl.contains("ApplicationIntent=ReadOnly"),
+                "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
+
+        // Cleanup
+        connectionPool.close();
+    }
+
+    @Test
+    public void testReadWriteConnectionMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+
+        // Set connection mode to READ_WRITE
+        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
+        connection.setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
+        dsConfig.setConnection(connection);
+
+        // Create connection pool
+        HikariDataSource connectionPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+
+        // Verify the JDBC URL does NOT contain ApplicationIntent parameter
+        assertNotNull(connectionPool);
+        String jdbcUrl = connectionPool.getJdbcUrl();
+        assertTrue(
+                !jdbcUrl.contains("ApplicationIntent"),
+                "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
+
+        // Cleanup
+        connectionPool.close();
+    }
 }

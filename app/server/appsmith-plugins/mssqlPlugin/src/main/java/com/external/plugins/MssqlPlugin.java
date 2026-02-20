@@ -626,6 +626,14 @@ public class MssqlPlugin extends BasePlugin {
 
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
+        // Add connection mode configuration for READ_ONLY
+        if (datasourceConfiguration.getConnection() != null
+                && datasourceConfiguration.getConnection().getMode()
+                        == com.appsmith.external.models.Connection.Mode.READ_ONLY) {
+            urlBuilder.append("ApplicationIntent=ReadOnly;");
+            hikariConfig.setReadOnly(true);
+        }
+
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 
         try {
