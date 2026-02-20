@@ -62,6 +62,39 @@ public class RedisPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
+        /**
+         * Commands blocked for security reasons. These commands can be used to
+         * destroy data, exfiltrate information, execute arbitrary code, or
+         * disrupt the Redis server.
+         */
+        private static final Set<String> BLOCKED_COMMANDS = Set.of(
+                // Server admin
+                "SHUTDOWN", "DEBUG", "MONITOR", "SAVE", "BGSAVE", "BGREWRITEAOF",
+                // Config manipulation
+                "CONFIG",
+                // Replication / data exfiltration
+                "SLAVEOF", "REPLICAOF",
+                // Module loading (shared-lib RCE)
+                "MODULE",
+                // Data destruction
+                "FLUSHALL", "FLUSHDB",
+                // Scripting / RCE
+                "EVAL", "EVALSHA", "SCRIPT",
+                // Redis 7+: persistent server-side code loading (same RCE surface as EVAL,
+                // with added persistence/replication risk — CVE-2025-49844 sandbox escape)
+                "FUNCTION",
+                // Note: EVAL_RO / EVALSHA_RO (Redis 7+ read-only eval variants) are not
+                // blocked here — they should be controlled via Redis ACL roles when support
+                // for Redis 7+ and a newer Jedis client is added.
+                // ACL manipulation
+                "ACL",
+                // Cluster / migration
+                "CLUSTER", "MIGRATE",
+                // Client manipulation
+                "CLIENT",
+                // DoS / deserialization risks
+                "KEYS", "RESTORE", "SWAPDB", "SYNC", "PSYNC", "SENTINEL");
+
         @Override
         public Mono<ActionExecutionResult> execute(
                 JedisPool jedisPool,
@@ -89,23 +122,29 @@ public class RedisPlugin extends BasePlugin {
                                     String.format(RedisErrorMessages.BODY_IS_NULL_OR_EMPTY_ERROR_MSG, query)));
                         }
 
-                        Map cmdAndArgs = getCommandAndArgs(query.trim());
+                        Map<String, Object> cmdAndArgs = getCommandAndArgs(query.trim());
                         if (!cmdAndArgs.containsKey(CMD_KEY)) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG));
                         }
 
+                        String commandName = (String) cmdAndArgs.get(CMD_KEY);
+                        if (BLOCKED_COMMANDS.contains(commandName)) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    String.format(RedisErrorMessages.BLOCKED_COMMAND_ERROR_MSG, commandName)));
+                        }
+
                         Protocol.Command command;
                         try {
                             // Commands are in upper case
-                            command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
+                            command = Protocol.Command.valueOf(commandName);
                         } catch (IllegalArgumentException exc) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     String.format(
-                                            RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG,
-                                            cmdAndArgs.get(CMD_KEY))));
+                                            RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG, commandName)));
                         }
 
                         Object commandOutput;
@@ -185,7 +224,7 @@ public class RedisPlugin extends BasePlugin {
             return result;
         }
 
-        private Map getCommandAndArgs(String query) {
+        private Map<String, Object> getCommandAndArgs(String query) {
             /**
              * - This regex matches either a whole word, or anything inside double quotes. If something is inside
              * single quotes then it gets matched like a whole word

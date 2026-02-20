@@ -20,6 +20,17 @@ public class RedisErrorMessages extends BasePluginErrorMessages {
 
     /*
     ************************************************************************************************************************************************
+                                       Error messages related to security validation of commands.
+    ************************************************************************************************************************************************
+    */
+
+    public static final String BLOCKED_COMMAND_ERROR_MSG =
+            "Redis command '%s' is not permitted for security reasons."
+                    + " Only data-manipulation commands (GET, SET, HGET, LPUSH, etc.) are allowed."
+                    + " Server administration commands are blocked to protect the Redis instance.";
+
+    /*
+    ************************************************************************************************************************************************
                                        Error messages related to validation of datasource.
     ************************************************************************************************************************************************
     */
