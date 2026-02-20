@@ -400,7 +400,6 @@ export const generateQuickCommands = (
       displayText: APPSMITH_AI,
       shortcut: Shortcuts.ASK_AI,
       triggerCompletionsPostPick: true,
-      isBeta: true,
       action: () => {
         executeCommand({
           actionType: SlashCommand.ASK_AI,

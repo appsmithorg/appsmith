@@ -12,6 +12,7 @@ import { config as BrandingConfig } from "ee/pages/AdminSettings/config/branding
 import { config as ProvisioningConfig } from "ee/pages/AdminSettings/config/provisioning";
 import { config as UserListing } from "ee/pages/AdminSettings/config//userlisting";
 import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlogs";
+import { config as AIConfig } from "ee/pages/AdminSettings/config/ai";
 
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
@@ -34,6 +35,8 @@ if (isSuperUser) ConfigFactory.register(GeneralConfig);
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
 
 if (isSuperUser) ConfigFactory.register(BrandingConfig);
+
+if (isSuperUser) ConfigFactory.register(AIConfig);
 
 if (isSuperUser) ConfigFactory.register(AuditLogsConfig);
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
@@ -74,6 +75,15 @@ public class UserData extends BaseDomain {
     // Status of user's consent on sharing email for Intercom communications
     @JsonView(Views.Internal.class)
     private boolean isIntercomConsentGiven;
+
+    @JsonView(Views.Internal.class)
+    @Encrypted private String claudeApiKey;
+
+    @JsonView(Views.Internal.class)
+    @Encrypted private String openaiApiKey;
+
+    @JsonView(Views.Public.class)
+    private AIProvider aiProvider;
 
     @JsonView(Views.Public.class)
     public GitProfile getGitProfileByKey(String key) {

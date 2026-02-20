@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import General from "./General";
 import OldGitConfig from "./GitConfig";
+import AISettings from "./AISettings";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import { BackButton } from "components/utils/helperComponents";
@@ -51,6 +52,13 @@ function UserProfile() {
     title: "Git user config",
     panelComponent: <GitGlobalProfile />,
     icon: "git-branch",
+  });
+
+  tabs.push({
+    key: "aiSettings",
+    title: "AI Assistant",
+    panelComponent: <AISettings />,
+    icon: "sparkles",
   });
 
   if (location.pathname === GIT_PROFILE_ROUTE) {
