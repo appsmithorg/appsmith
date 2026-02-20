@@ -1798,6 +1798,58 @@ public class FirestorePluginTest {
     }
 
     @Test
+    public void testGetDatabaseId_withNoProperties_returnsDefault() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
+    public void testGetDatabaseId_withNullProperties_returnsDefault() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        config.setProperties(null);
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
+    public void testGetDatabaseId_withCustomDatabaseId_returnsCustomValue() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        Property databaseIdProperty = new Property();
+        databaseIdProperty.setKey("databaseId");
+        databaseIdProperty.setValue("my-custom-database");
+        properties.add(databaseIdProperty);
+        config.setProperties(properties);
+
+        assertEquals("my-custom-database", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
+    public void testGetDatabaseId_withEmptyValue_returnsDefault() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        Property databaseIdProperty = new Property();
+        databaseIdProperty.setKey("databaseId");
+        databaseIdProperty.setValue("");
+        properties.add(databaseIdProperty);
+        config.setProperties(properties);
+
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
+    public void testGetDatabaseId_withNonStringValue_returnsDefault() {
+        DatasourceConfiguration config = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        Property databaseIdProperty = new Property();
+        databaseIdProperty.setKey("databaseId");
+        databaseIdProperty.setValue(12345);
+        properties.add(databaseIdProperty);
+        config.setProperties(properties);
+
+        assertEquals("(default)", pluginExecutor.getDatabaseId(config));
+    }
+
+    @Test
     public void verifyUniquenessOfFirestorePluginErrorCode() {
         assert (Arrays.stream(FirestorePluginError.values())
                         .map(FirestorePluginError::getAppErrorCode)

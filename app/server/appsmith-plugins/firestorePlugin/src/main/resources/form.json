@@ -25,6 +25,21 @@
           "dataType": "PASSWORD",
           "isRequired": true,
           "initialValue": ""
+        },
+        {
+          "label": "Database ID",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "initialValue": "(default)",
+          "placeholderText": "(default)"
+        },
+        {
+          "label": "Database ID key",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "databaseId",
+          "hidden": true
         }
       ]
     }

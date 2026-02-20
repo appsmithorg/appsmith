@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -909,6 +910,8 @@ public class FirestorePlugin extends BasePlugin {
             final String projectId = authentication.getUsername();
             final String clientJson = authentication.getPassword();
 
+            final String databaseId = getDatabaseId(datasourceConfiguration);
+
             InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
 
             return Mono.fromSupplier(() -> {
@@ -938,8 +941,22 @@ public class FirestorePlugin extends BasePlugin {
                             return FirebaseApp.initializeApp(options, projectId);
                         }
                     })
-                    .map(FirestoreClient::getFirestore)
+                    .map(app -> FirestoreClient.getFirestore(app, databaseId))
                     .subscribeOn(scheduler);
+        }
+
+        String getDatabaseId(DatasourceConfiguration datasourceConfiguration) {
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if (property != null
+                            && "databaseId".equals(property.getKey())
+                            && property.getValue() instanceof String
+                            && !StringUtils.isEmpty((String) property.getValue())) {
+                        return (String) property.getValue();
+                    }
+                }
+            }
+            return "(default)";
         }
 
         @Override
