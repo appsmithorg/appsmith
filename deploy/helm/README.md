@@ -95,6 +95,8 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `nodeSelector`							| Node labels for pod assignment											| `{}`						|
 | `tolerations`								| Tolerations for pod assignment											| `[]`						|
 | `affinity`									| Affinity fod pod assignment													| `{}`						|
+| `extraVolumes`							| Additional volumes to add to the pod										| `[]`						|
+| `extraVolumeMounts`					| Additional volume mounts to add to the appsmith container				| `[]`						|
 
 #### Workload kind
 
