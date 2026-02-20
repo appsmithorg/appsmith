@@ -122,7 +122,7 @@ public class RedisPlugin extends BasePlugin {
                                     String.format(RedisErrorMessages.BODY_IS_NULL_OR_EMPTY_ERROR_MSG, query)));
                         }
 
-                        Map cmdAndArgs = getCommandAndArgs(query.trim());
+                        Map<String, Object> cmdAndArgs = getCommandAndArgs(query.trim());
                         if (!cmdAndArgs.containsKey(CMD_KEY)) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -224,7 +224,7 @@ public class RedisPlugin extends BasePlugin {
             return result;
         }
 
-        private Map getCommandAndArgs(String query) {
+        private Map<String, Object> getCommandAndArgs(String query) {
             /**
              * - This regex matches either a whole word, or anything inside double quotes. If something is inside
              * single quotes then it gets matched like a whole word

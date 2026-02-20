@@ -423,6 +423,30 @@ public class RedisPluginTest {
     }
 
     @Test
+    public void itShouldRejectBlockedCommandCaseInsensitive() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("flushall");
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono.flatMap(
+                jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                    assertNotNull(result.getBody());
+                    assertTrue(
+                            result.getBody().toString().contains("FLUSHALL"),
+                            "Lowercase input should be normalized and blocked");
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void verifyUniquenessOfRedisPluginErrorCode() {
         assert (Arrays.stream(RedisPluginError.values())
                         .map(RedisPluginError::getAppErrorCode)
