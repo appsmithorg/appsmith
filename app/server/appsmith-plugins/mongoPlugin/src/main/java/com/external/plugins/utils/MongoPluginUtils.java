@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -43,6 +44,36 @@ import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
 
 public class MongoPluginUtils {
+
+    private static final Set<String> BLOCKED_OPERATORS =
+            Set.of("$where", "$function", "$accumulator", "$out", "$merge");
+
+    public static void validateQueryDocument(String fieldName, Document queryDoc) {
+        if (queryDoc == null) return;
+        for (String key : queryDoc.keySet()) {
+            if (BLOCKED_OPERATORS.contains(key.toLowerCase())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(MongoPluginErrorMessages.DISALLOWED_QUERY_OPERATOR_ERROR_MSG, key, fieldName));
+            }
+            Object value = queryDoc.get(key);
+            if (value instanceof Document) {
+                validateQueryDocument(fieldName, (Document) value);
+            } else if (value instanceof List) {
+                validateQueryList(fieldName, (List<?>) value);
+            }
+        }
+    }
+
+    private static void validateQueryList(String fieldName, List<?> list) {
+        for (Object item : list) {
+            if (item instanceof Document) {
+                validateQueryDocument(fieldName, (Document) item);
+            } else if (item instanceof List) {
+                validateQueryList(fieldName, (List<?>) item);
+            }
+        }
+    }
 
     public static Document parseSafely(String fieldName, String input) {
         try {

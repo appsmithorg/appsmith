@@ -28,6 +28,7 @@ import static com.external.plugins.constants.FieldName.FIND_SKIP;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -76,14 +77,20 @@ public class Find extends MongoCommand {
 
         document.put(FIND, this.collection);
 
-        document.put("filter", parseSafely("Query", this.query));
+        Document queryDocument = parseSafely("Query", this.query);
+        validateQueryDocument("Query", queryDocument);
+        document.put("filter", queryDocument);
 
         if (!StringUtils.isNullOrEmpty(this.sort)) {
-            document.put("sort", parseSafely("Sort", this.sort));
+            Document sortDocument = parseSafely("Sort", this.sort);
+            validateQueryDocument("Sort", sortDocument);
+            document.put("sort", sortDocument);
         }
 
         if (!StringUtils.isNullOrEmpty(this.projection)) {
-            document.put("projection", parseSafely("Projection", this.projection));
+            Document projectionDocument = parseSafely("Projection", this.projection);
+            validateQueryDocument("Projection", projectionDocument);
+            document.put("projection", projectionDocument);
         }
 
         // Default to returning 10 documents if not mentioned

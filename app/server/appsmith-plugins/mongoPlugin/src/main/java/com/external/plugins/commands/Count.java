@@ -24,6 +24,7 @@ import static com.external.plugins.constants.FieldName.COUNT;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.validateQueryDocument;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -52,7 +53,9 @@ public class Count extends MongoCommand {
             this.query = "{}";
         }
 
-        document.put("query", parseSafely("Query", this.query));
+        Document queryDocument = parseSafely("Query", this.query);
+        validateQueryDocument("Query", queryDocument);
+        document.put("query", queryDocument);
 
         return document;
     }
