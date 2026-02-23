@@ -51,6 +51,12 @@ export const RELEASE_NOTES_INPUT = {
   PLACEHOLDER: "Your release notes here",
 };
 
+export const ARTIFACT_SSH_KEY_MANAGER = {
+  NO_KEYS_TITLE: "",
+  NO_KEYS_DESCRIPTION: "",
+  CREATE_KEY_CTA: "",
+};
+
 export const LATEST_COMMIT_INFO = {
   TITLE: "Commit",
   LOADING_COMMIT_MESSAGE: "Fetching latest commit...",

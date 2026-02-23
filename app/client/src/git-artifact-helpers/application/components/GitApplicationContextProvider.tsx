@@ -20,16 +20,7 @@ import {
   getCurrentAppWorkspace,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import applicationStatusTransformer from "../applicationStatusTransformer";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { fetchSSHKeysInit } from "ee/actions/sshKeysActions";
-import {
-  selectSSHKeysList,
-  selectSSHKeysLoading,
-} from "ee/selectors/sshKeysSelectors";
-import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
-import { SettingCategories } from "ee/pages/AdminSettings/config/types";
-import history from "utils/history";
+import useSSHKeyManager from "../hooks/useSSHKeyManager";
 
 interface GitApplicationContextProviderProps {
   children: React.ReactNode;
@@ -76,22 +67,13 @@ export default function GitApplicationContextProvider({
     dispatch(fetchAllApplicationsOfWorkspace());
   }, [dispatch]);
 
-  // SSH key manager
-  const isSSHKeyManagerEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_ssh_key_manager_enabled,
-  );
-  const sshKeys = useSelector(selectSSHKeysList);
-  const isSSHKeysLoading = useSelector(selectSSHKeysLoading);
-
-  const fetchSSHKeys = useCallback(() => {
-    dispatch(fetchSSHKeysInit());
-  }, [dispatch]);
-
-  const onCreateSSHKey = useCallback(() => {
-    history.push(
-      adminSettingsCategoryUrl({ category: SettingCategories.SSH_KEYS }),
-    );
-  }, []);
+  const {
+    fetchSSHKeys,
+    isSSHKeyManagerEnabled,
+    isSSHKeysLoading,
+    onCreateSSHKey,
+    sshKeys,
+  } = useSSHKeyManager();
 
   return (
     <GitContextProvider
