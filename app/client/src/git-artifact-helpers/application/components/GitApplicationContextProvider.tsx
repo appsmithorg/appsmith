@@ -20,6 +20,7 @@ import {
   getCurrentAppWorkspace,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import applicationStatusTransformer from "../applicationStatusTransformer";
+import useSSHKeyManager from "ee/hooks/useSSHKeyManager";
 
 interface GitApplicationContextProviderProps {
   children: React.ReactNode;
@@ -66,6 +67,14 @@ export default function GitApplicationContextProvider({
     dispatch(fetchAllApplicationsOfWorkspace());
   }, [dispatch]);
 
+  const {
+    fetchSSHKeys,
+    isSSHKeyManagerEnabled,
+    isSSHKeysLoading,
+    onCreateSSHKey,
+    sshKeys,
+  } = useSSHKeyManager();
+
   return (
     <GitContextProvider
       artifact={artifact ?? null}
@@ -73,12 +82,17 @@ export default function GitApplicationContextProvider({
       artifacts={artifacts ?? null}
       baseArtifactId={artifact?.baseId ?? ""}
       fetchArtifacts={fetchApplications}
+      fetchSSHKeys={fetchSSHKeys}
       importWorkspaceId={importWorkspaceId}
       isConnectPermitted={isConnectPermitted}
       isManageAutocommitPermitted={isManageAutocommitPermitted}
       isManageDefaultBranchPermitted={isManageDefaultBranchPermitted}
       isManageProtectedBranchesPermitted={isManageProtectedBranchesPermitted}
+      isSSHKeyManagerEnabled={isSSHKeyManagerEnabled}
+      isSSHKeysLoading={isSSHKeysLoading}
+      onCreateSSHKey={onCreateSSHKey}
       setImportWorkspaceId={setImportWorkspaceId}
+      sshKeys={sshKeys}
       statusTransformer={applicationStatusTransformer}
       workspace={workspace ?? null}
     >

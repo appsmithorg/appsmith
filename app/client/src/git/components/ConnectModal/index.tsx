@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { useSelector } from "react-redux";
 import ConnectModalView from "./ConnectModalView";
 import { useGitContext } from "../GitContextProvider";
 import useConnect from "git/hooks/useConnect";
@@ -7,11 +8,20 @@ import type { ConnectRequestParams } from "git/requests/connectRequest.types";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useSSHKey from "git/hooks/useSSHKey";
 import useImport from "git/hooks/useImport";
+import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
 
 function ConnectModal() {
-  const { artifactDef, isConnectPermitted, setImportWorkspaceId } =
-    useGitContext();
+  const {
+    artifactDef,
+    fetchSSHKeys,
+    isConnectPermitted,
+    isSSHKeyManagerEnabled,
+    isSSHKeysLoading,
+    onCreateSSHKey: onCreateSSHKeyNav,
+    setImportWorkspaceId,
+    sshKeys,
+  } = useGitContext();
   const {
     connect,
     connectError,
@@ -30,6 +40,7 @@ function ConnectModal() {
     resetGenerateSSHKey,
     sshKey,
   } = useSSHKey();
+  const currentUser = useSelector(getCurrentUser);
 
   const artifactType = artifactDef?.artifactType ?? GitArtifactType.Application;
   const sshPublicKey = sshKey?.publicKey ?? null;
@@ -54,6 +65,11 @@ function ConnectModal() {
     AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
   }, [setImportWorkspaceId, toggleConnectModal, toggleImportModal]);
 
+  const handleCreateSSHKey = useCallback(() => {
+    toggleConnectModal(false);
+    onCreateSSHKeyNav();
+  }, [toggleConnectModal, onCreateSSHKeyNav]);
+
   const resetConnectState = useCallback(() => {
     resetConnect();
     resetFetchSSHKey();
@@ -63,12 +79,18 @@ function ConnectModal() {
   return (
     <ConnectModalView
       artifactType={artifactType}
+      availableSSHKeys={sshKeys ?? []}
+      currentUserEmail={currentUser?.email}
       error={connectError}
       isImport={false}
       isModalOpen={isConnectModalOpen}
       isSSHKeyLoading={isSSHKeyLoading}
+      isSSHKeyManagerEnabled={isSSHKeyManagerEnabled}
+      isSSHKeysLoading={isSSHKeysLoading}
       isSubmitLoading={isConnectLoading}
+      onCreateSSHKey={handleCreateSSHKey}
       onFetchSSHKey={fetchSSHKey}
+      onFetchSSHKeys={fetchSSHKeys}
       onGenerateSSHKey={generateSSHKey}
       onOpenImport={isConnectPermitted ? onOpenImport : null}
       onSubmit={onSubmit}

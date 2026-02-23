@@ -17,6 +17,7 @@ import type { ConnectFormDataState } from "../../common/types";
 import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 import { GitErrorCodes } from "git/constants/enums";
 import { CONNECT_GIT, IMPORT_GIT } from "git/ee/constants/messages";
+import type { SSHKeyOption } from "../../common/types";
 
 const OFFSET = 200;
 const OUTER_PADDING = 32;
@@ -70,15 +71,45 @@ export interface ConnectInitializeProps {
   onOpenImport: (() => void) | null;
   onSubmit: (params: ConnectRequestParams | GitImportRequestParams) => void;
   sshPublicKey: string | null;
+  /**
+   * Whether the SSH key manager feature is enabled
+   */
+  isSSHKeyManagerEnabled?: boolean;
+  /**
+   * List of available SSH keys from the SSH key manager
+   */
+  availableSSHKeys?: SSHKeyOption[];
+  /**
+   * Whether the SSH keys list is loading
+   */
+  isSSHKeysLoading?: boolean;
+  /**
+   * Current user's email (to determine key ownership)
+   */
+  currentUserEmail?: string;
+  /**
+   * Callback to fetch SSH keys (called only when user chooses "Use existing key")
+   */
+  onFetchSSHKeys?: () => void;
+  /**
+   * Callback to navigate to SSH key creation (shown when no keys exist)
+   */
+  onCreateSSHKey?: () => void;
 }
 
 function ConnectInitialize({
   artifactType,
+  availableSSHKeys = [],
+  currentUserEmail,
   error = null,
   isImport = false,
   isSSHKeyLoading = false,
+  isSSHKeyManagerEnabled = false,
+  isSSHKeysLoading = false,
   isSubmitLoading = false,
+  onCreateSSHKey = noop,
   onFetchSSHKey = noop,
+  onFetchSSHKeys = noop,
   onGenerateSSHKey = noop,
   onOpenImport = null,
   onSubmit = noop,
@@ -99,6 +130,8 @@ function ConnectInitialize({
     remoteUrl: undefined,
     isAddedDeployKey: false,
     sshKeyType: "ECDSA",
+    sshKeySource: "generate",
+    sshKeyId: undefined,
   });
 
   const [activeStep, setActiveStep] = useState<string>(
@@ -159,25 +192,17 @@ function ConnectInitialize({
           };
 
           if (formData.remoteUrl) {
-            onSubmit({
+            const params: ConnectRequestParams | GitImportRequestParams = {
               remoteUrl: formData.remoteUrl,
               gitProfile,
-            });
-            // if (!isImport) {
-            //   AnalyticsUtil.logEvent(
-            //     "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK",
-            //     { repoUrl: formData?.remoteUrl, connectFlow: "v2" },
-            //   );
-            //   connect({
-            //     remoteUrl: formData.remoteUrl,
-            //     gitProfile,
-            //   });
-            // } else {
-            //   gitImport({
-            //     remoteUrl: formData.remoteUrl,
-            //     gitProfile,
-            //   });
-            // }
+            };
+
+            // Include sshKeyId if using an existing key
+            if (formData.sshKeySource === "existing" && formData.sshKeyId) {
+              params.sshKeyId = formData.sshKeyId;
+            }
+
+            onSubmit(params);
           }
 
           break;
@@ -222,11 +247,17 @@ function ConnectInitialize({
         )}
         {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
           <AddDeployKey
+            availableSSHKeys={availableSSHKeys}
+            currentUserEmail={currentUserEmail}
             error={error}
             isSSHKeyLoading={isSSHKeyLoading}
+            isSSHKeyManagerEnabled={isSSHKeyManagerEnabled}
+            isSSHKeysLoading={isSSHKeysLoading}
             isSubmitLoading={isSubmitLoading}
             onChange={handleChange}
+            onCreateSSHKey={onCreateSSHKey}
             onFetchSSHKey={onFetchSSHKey}
+            onFetchSSHKeys={onFetchSSHKeys}
             onGenerateSSHKey={onGenerateSSHKey}
             sshPublicKey={sshPublicKey}
             value={formData}
