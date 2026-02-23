@@ -143,6 +143,7 @@ import {
   GitImportModal as NewGitImportModal,
   GitImportOverrideModal,
 } from "git";
+import { GitImportContextProvider } from "git-artifact-helpers/application/components";
 import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { trackCurrentDomain } from "utils/multiOrgDomains";
 import OrganizationDropdown from "components/OrganizationDropdown";
@@ -154,11 +155,11 @@ function GitModals() {
   const isGitModEnabled = useGitModEnabled();
 
   return isGitModEnabled ? (
-    <>
+    <GitImportContextProvider>
       <NewGitImportModal />
       <NewGitRepoLimitErrorModal />
       <GitImportOverrideModal />
-    </>
+    </GitImportContextProvider>
   ) : (
     <>
       <OldGitSyncModal isImport />
