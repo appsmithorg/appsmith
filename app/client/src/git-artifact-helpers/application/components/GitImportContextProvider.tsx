@@ -5,7 +5,7 @@ import { getWorkspaceIdForImport } from "ee/selectors/applicationSelectors";
 import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import noop from "lodash/noop";
-import useSSHKeyManager from "../hooks/useSSHKeyManager";
+import useSSHKeyManager from "ee/hooks/useSSHKeyManager";
 
 interface GitImportContextProviderProps {
   children: React.ReactNode;

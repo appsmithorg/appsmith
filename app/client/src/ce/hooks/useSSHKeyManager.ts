@@ -1,3 +1,4 @@
+import noop from "lodash/noop";
 import type { SSHKeyOption } from "git/components/common/types";
 
 export interface UseSSHKeyManagerReturn {
@@ -7,8 +8,6 @@ export interface UseSSHKeyManagerReturn {
   fetchSSHKeys: () => void;
   onCreateSSHKey: () => void;
 }
-
-import noop from "lodash/noop";
 
 export default function useSSHKeyManager(): UseSSHKeyManagerReturn {
   return {

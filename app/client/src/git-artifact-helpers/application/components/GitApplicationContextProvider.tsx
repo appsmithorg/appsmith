@@ -20,7 +20,7 @@ import {
   getCurrentAppWorkspace,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import applicationStatusTransformer from "../applicationStatusTransformer";
-import useSSHKeyManager from "../hooks/useSSHKeyManager";
+import useSSHKeyManager from "ee/hooks/useSSHKeyManager";
 
 interface GitApplicationContextProviderProps {
   children: React.ReactNode;
