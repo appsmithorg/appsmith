@@ -303,6 +303,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return actionCollectionRepository
                     .updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj)
                     .then(actionCollectionService.findById(id, actionPermission.getEditPermission()))
+                    .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                     .flatMap(actionCollection ->
                             actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                     .flatMap(dto -> actionCollectionService.populateActionCollectionByViewMode(dto, false));
