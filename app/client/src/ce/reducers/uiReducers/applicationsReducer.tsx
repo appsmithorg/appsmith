@@ -35,6 +35,8 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
+  favoriteApplicationIds: [],
+  isFetchingFavorites: false,
   importingApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
@@ -881,6 +883,48 @@ export const handlers = {
       isPersistingAppSlug: false,
     };
   },
+  [ReduxActionTypes.TOGGLE_FAVORITE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationId: string; isFavorited: boolean }>,
+  ) => {
+    const { applicationId, isFavorited } = action.payload;
+    const matchedApp = state.applicationList.find(
+      (app) => (app.baseId || app.id) === applicationId,
+    );
+    const canonicalId = matchedApp ? matchedApp.id : applicationId;
+
+    return {
+      ...state,
+      favoriteApplicationIds: isFavorited
+        ? [...state.favoriteApplicationIds, canonicalId]
+        : state.favoriteApplicationIds.filter((id) => id !== canonicalId),
+      applicationList: state.applicationList.map((app) =>
+        (app.baseId || app.id) === applicationId
+          ? { ...app, isFavorited }
+          : app,
+      ),
+    };
+  },
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isFetchingFavorites: true,
+  }),
+  [ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => ({
+    ...state,
+    isFetchingFavorites: false,
+    favoriteApplicationIds: action.payload.map((app) => app.id),
+  }),
+  [ReduxActionErrorTypes.FETCH_FAVORITE_APPLICATIONS_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isFetchingFavorites: false,
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -898,6 +942,8 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
+  favoriteApplicationIds: string[];
+  isFetchingFavorites: boolean;
   currentApplication?: ApplicationPayload;
   importingApplication: boolean;
   importedApplication: unknown;

@@ -22,6 +22,11 @@ public class BridgeUpdate implements UpdateDefinition {
         return this;
     }
 
+    public BridgeUpdate addToSet(@NonNull String key, @NonNull Object value) {
+        update.addToSet(key, value);
+        return this;
+    }
+
     public BridgeUpdate pull(@NonNull String key, @NonNull Object value) {
         update.pull(key, value);
         return this;
