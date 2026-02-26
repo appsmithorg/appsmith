@@ -1,5 +1,5 @@
 ARG BASE
-FROM ${BASE}
+FROM appsmith/base-ce:ww-fix-pinned-java
 
 ENV IN_DOCKER=1
 
