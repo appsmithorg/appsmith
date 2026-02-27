@@ -29,6 +29,7 @@ on:
       - "app/server/**"
       - "app/client/packages/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
+      - "deploy/docker/base.dockerfile"
 
 jobs:
   setup:
@@ -87,8 +88,12 @@ jobs:
     with:
       pr: 0
 
+  build-base-image:
+    uses: ./.github/workflows/docker-base-image.yml
+    secrets: inherit
+
   build-docker-image:
-    needs: [client-build, server-build, rts-build]
+    needs: [client-build, server-build, rts-build, build-base-image]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
