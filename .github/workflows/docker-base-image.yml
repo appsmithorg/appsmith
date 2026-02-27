@@ -27,13 +27,19 @@ jobs:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check if base.dockerfile changed
         id: check
         if: github.event_name == 'workflow_call'
         run: |
-          if git diff HEAD~1 HEAD --name-only | grep -q "deploy/docker/base.dockerfile"; then
+          if [[ -n "${{ github.event.before }}" ]]; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="HEAD~1..HEAD"
+          fi
+
+          if git diff --name-only "$range" | grep -qx "deploy/docker/base.dockerfile"; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
