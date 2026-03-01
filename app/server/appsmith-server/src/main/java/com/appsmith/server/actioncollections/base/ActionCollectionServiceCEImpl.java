@@ -386,12 +386,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
-            String applicationId, AclPermission permission) {
+    public Mono<Void> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission) {
+        // During bulk application deletion, archive action collections directly without per-entity
+        // analytics/audit-log events and without cascading to child actions. Child actions are separately
+        // archived by NewActionService.archiveActionsByApplicationId in the delete-application flow.
+        // This avoids the OOM caused by hundreds of concurrent audit-log DB operations that previously
+        // exhausted heap memory and crashed the container.
         return repository
                 .findByApplicationId(applicationId, permission, null)
-                .flatMap(this::archiveGivenActionCollection)
-                .collectList();
+                .flatMap(repository::archive, 4)
+                .then();
     }
 
     @Override

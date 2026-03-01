@@ -543,10 +543,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Flux.fromIterable(List.of(application));
                 })
-                .flatMap(application -> {
-                    log.debug("Archiving application with id: {}", application.getId());
-                    return deleteApplicationByResource(application);
-                })
+                // Limit concurrency to avoid saturating the event loop during deletion of
+                // git-connected apps with many branches
+                .flatMap(
+                        application -> {
+                            log.debug("Archiving application with id: {}", application.getId());
+                            return deleteApplicationByResource(application);
+                        },
+                        2)
                 .then(applicationMono)
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
@@ -592,7 +596,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, deletedApplication);
         final Map<String, Object> data = Map.of(FieldName.EVENT_DATA, eventData);
 
-        return analyticsService.sendDeleteEvent(deletedApplication, data);
+        // Run analytics/audit-log on the elastic scheduler so it does not block the
+        // MongoDB NIO event-loop threads, and swallow errors to avoid failing the delete.
+        return analyticsService
+                .sendDeleteEvent(deletedApplication, data)
+                .subscribeOn(LoadShifter.elasticScheduler)
+                .onErrorResume(throwable -> {
+                    log.error(
+                            "Error sending delete analytics for application {}", deletedApplication.getId(), throwable);
+                    return Mono.just(deletedApplication);
+                });
     }
 
     @Override
