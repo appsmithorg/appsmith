@@ -39,6 +39,7 @@ export OPENAI_API_KEY="$OPENAI_API_KEY"
 export APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY"
 export APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH"
 export APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING"
+export APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY"
 export IN_DOCKER="$IN_DOCKER"
 
 # Update kubeconfig
@@ -121,6 +122,7 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY" \
   --set applicationConfig.APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH" \
   --set applicationConfig.APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING" \
+  --set applicationConfig.APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY" \
   --set applicationConfig.IN_DOCKER="$IN_DOCKER" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key=instance_name \

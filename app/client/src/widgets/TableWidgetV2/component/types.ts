@@ -1,7 +1,6 @@
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ReactNode } from "react";
 import type { Row as ReactTableRowType } from "react-table";
-import type { EditableCell, TableVariant } from "../constants";
+import type { EditableCell, RowColorStyles, TableVariant } from "../constants";
 import type {
   AddNewRowActions,
   CompactMode,
@@ -10,7 +9,7 @@ import type {
   StickyType,
 } from "./Constants";
 
-export interface TableProps {
+export interface TableProps extends RowColorStyles {
   width: number;
   height: number;
   pageSize: number;
@@ -82,9 +81,4 @@ export interface TableProps {
   isInfiniteScrollEnabled: boolean;
   endOfData: boolean;
   cachedTableData: Array<Record<string, unknown>>;
-}
-
-export interface TableProviderProps extends TableProps {
-  children: ReactNode;
-  currentPageIndex: number;
 }

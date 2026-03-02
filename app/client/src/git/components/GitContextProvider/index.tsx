@@ -3,6 +3,7 @@ import type { GitArtifactType } from "git/constants/enums";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { GitArtifact, GitArtifactDef } from "git/types";
 import type { StatusTreeStruct } from "git/components/StatusChanges/types";
+import type { SSHKeyOption } from "git/components/common/types";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { noop } from "lodash";
 
@@ -21,6 +22,13 @@ export interface GitContextValue {
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
+
+  // SSH key manager
+  sshKeys: SSHKeyOption[] | null;
+  isSSHKeysLoading: boolean;
+  fetchSSHKeys: () => void;
+  isSSHKeyManagerEnabled: boolean;
+  onCreateSSHKey: () => void;
 }
 
 const gitContextInitialValue = {} as GitContextValue;
@@ -57,6 +65,13 @@ interface GitContextProviderProps {
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
 
+  // SSH key manager
+  sshKeys?: SSHKeyOption[] | null;
+  isSSHKeysLoading?: boolean;
+  fetchSSHKeys?: () => void;
+  isSSHKeyManagerEnabled?: boolean;
+  onCreateSSHKey?: () => void;
+
   // children
   children: React.ReactNode;
 }
@@ -70,12 +85,17 @@ export default function GitContextProvider({
   baseArtifactId = null,
   children,
   fetchArtifacts = noop,
+  fetchSSHKeys = noop,
   importWorkspaceId = null,
   isConnectPermitted = false,
   isManageAutocommitPermitted = false,
   isManageDefaultBranchPermitted = false,
   isManageProtectedBranchesPermitted = false,
+  isSSHKeyManagerEnabled = false,
+  isSSHKeysLoading = false,
+  onCreateSSHKey = noop,
   setImportWorkspaceId = noop,
+  sshKeys = null,
   statusTransformer = NULL_NOOP,
   workspace = null,
 }: GitContextProviderProps) {
@@ -101,6 +121,11 @@ export default function GitContextProvider({
       isManageDefaultBranchPermitted,
       isManageProtectedBranchesPermitted,
       statusTransformer,
+      sshKeys,
+      isSSHKeysLoading,
+      fetchSSHKeys,
+      isSSHKeyManagerEnabled,
+      onCreateSSHKey,
     }),
     [
       artifactDef,
@@ -115,6 +140,11 @@ export default function GitContextProvider({
       isManageDefaultBranchPermitted,
       isManageProtectedBranchesPermitted,
       statusTransformer,
+      sshKeys,
+      isSSHKeysLoading,
+      fetchSSHKeys,
+      isSSHKeyManagerEnabled,
+      onCreateSSHKey,
     ],
   );
 

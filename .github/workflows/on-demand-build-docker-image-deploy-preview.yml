@@ -214,6 +214,7 @@ jobs:
             org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}
 
     outputs:
@@ -281,6 +282,7 @@ jobs:
           APPSMITH_CARBON_API_KEY: ${{ secrets.APPSMITH_CARBON_API_KEY }}
           APPSMITH_CARBON_API_BASE_PATH: ${{ secrets.APPSMITH_CARBON_API_BASE_PATH }}
           APPSMITH_AI_SERVER_MANAGED_HOSTING: ${{ secrets.APPSMITH_AI_SERVER_MANAGED_HOSTING }}
+          APPSMITH_BETTERBUGS_API_KEY: ${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
           IN_DOCKER: ${{ secrets.IN_DOCKER }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH

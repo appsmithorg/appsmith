@@ -82,6 +82,9 @@ module.exports = {
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
+      betterbugs: {
+        apiKey: parseConfig("__APPSMITH_BETTERBUGS_API_KEY__"),
+      },
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),

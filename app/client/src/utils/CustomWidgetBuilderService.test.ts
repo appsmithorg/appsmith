@@ -118,6 +118,78 @@ describe("Builder - ", () => {
     });
   });
 
+  describe("constructor URL construction", () => {
+    const originalLocation = window.location;
+
+    beforeEach(() => {
+      open.mockClear();
+      // Mock window.location
+      Object.defineProperty(window, "location", {
+        writable: true,
+        value: {
+          pathname: "/app/my-app/page-123/edit",
+          search: "",
+        },
+      });
+    });
+
+    afterAll(() => {
+      // Restore original location
+      Object.defineProperty(window, "location", {
+        writable: true,
+        value: originalLocation,
+      });
+    });
+
+    it("should preserve query params (branch, environment) when opening builder", () => {
+      window.location.pathname = "/app/my-app/page-123/edit";
+      window.location.search = "?branch=feature-x&environment=staging";
+
+      new Builder();
+
+      expect(open).toHaveBeenCalledWith(
+        "/app/my-app/page-123/edit/builder?branch=feature-x&environment=staging",
+        "_blank",
+      );
+    });
+
+    it("should handle /add suffix and preserve query params", () => {
+      window.location.pathname = "/app/my-app/page-123/edit/add";
+      window.location.search = "?branch=main";
+
+      new Builder();
+
+      expect(open).toHaveBeenCalledWith(
+        "/app/my-app/page-123/edit/builder?branch=main",
+        "_blank",
+      );
+    });
+
+    it("should work without query params", () => {
+      window.location.pathname = "/app/my-app/page-123/edit";
+      window.location.search = "";
+
+      new Builder();
+
+      expect(open).toHaveBeenCalledWith(
+        "/app/my-app/page-123/edit/builder",
+        "_blank",
+      );
+    });
+
+    it("should preserve only branch query param", () => {
+      window.location.pathname = "/app/my-app/page-123/edit";
+      window.location.search = "?branch=develop";
+
+      new Builder();
+
+      expect(open).toHaveBeenCalledWith(
+        "/app/my-app/page-123/edit/builder?branch=develop",
+        "_blank",
+      );
+    });
+  });
+
   describe("onMessage", () => {
     it("should test that its adding a message listener", () => {
       const type = "READY";

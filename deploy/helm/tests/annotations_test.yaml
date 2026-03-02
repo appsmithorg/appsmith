@@ -1,0 +1,70 @@
+templates:
+  - deployment.yaml
+tests:
+  - name: no annotations on StatefulSet when none are set
+    asserts:
+      - isNull:
+          path: metadata.annotations
+
+  - name: annotations should be set on StatefulSet
+    set:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    asserts:
+      - equal:
+          path: kind
+          value: StatefulSet
+      - isSubset:
+          path: metadata.annotations
+          content:
+            reloader.stakater.com/auto: "true"
+
+  - name: annotations should be set on Deployment
+    set:
+      workload:
+        kind: Deployment
+      annotations:
+        reloader.stakater.com/auto: "true"
+    asserts:
+      - equal:
+          path: kind
+          value: Deployment
+      - isSubset:
+          path: metadata.annotations
+          content:
+            reloader.stakater.com/auto: "true"
+
+  - name: commonAnnotations should be set on StatefulSet
+    set:
+      commonAnnotations:
+        example.com/team: platform
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            example.com/team: platform
+
+  - name: annotations and commonAnnotations should merge
+    set:
+      annotations:
+        reloader.stakater.com/auto: "true"
+      commonAnnotations:
+        example.com/team: platform
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            reloader.stakater.com/auto: "true"
+            example.com/team: platform
+
+  - name: multiple annotations should all be set
+    set:
+      annotations:
+        reloader.stakater.com/auto: "true"
+        app.kubernetes.io/managed-by: helm
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            reloader.stakater.com/auto: "true"
+            app.kubernetes.io/managed-by: helm

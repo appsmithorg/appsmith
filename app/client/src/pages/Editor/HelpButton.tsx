@@ -39,8 +39,12 @@ import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
+import BetterbugsUtil from "utils/Analytics/betterbugs";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
 
-const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { appVersion, betterbugs, cloudHosting, intercomAppID } =
+  getAppsmithConfigs();
 
 const HelpFooter = styled.div`
   display: flex;
@@ -86,6 +90,14 @@ let HELP_MENU_ITEMS: HelpItem[] = [
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
 ];
+
+if (betterbugs.enabled && !isAirgapped()) {
+  HELP_MENU_ITEMS.push({
+    icon: "support",
+    label: "Send support info",
+    id: "betterbugs-trigger",
+  });
+}
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
@@ -174,6 +186,8 @@ function HelpButton() {
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
   const setOverlay = useSelector(getSignpostingSetOverlay);
+  const betterbugsMetadata = useBetterbugsMetadata();
+
   const showUnreadSteps =
     !!unreadSteps.length &&
     isFirstTimeUserOnboardingEnabled &&
@@ -291,6 +305,11 @@ function HelpButton() {
                           setShowIntercomConsent(true);
                         }
                       }
+                    }
+
+                    if (item.id === "betterbugs-trigger") {
+                      e?.preventDefault();
+                      BetterbugsUtil.show(user, betterbugsMetadata);
                     }
                   }}
                   startIcon={item.icon}

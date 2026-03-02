@@ -20,6 +20,10 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     id: string;
   };
+  betterbugs: {
+    enabled: boolean;
+    apiKey: string;
+  };
   observability: {
     deploymentName: string;
     serviceInstanceId: string;

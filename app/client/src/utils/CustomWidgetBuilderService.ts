@@ -8,8 +8,10 @@ export class Builder {
   constructor() {
     // when we add new widget, we add a /add to the url , so before opening the builder, we need to remove it
     const path = window.location.pathname.replace(/\/add$/, "");
+    // Preserve query params (branch, environment, etc.) when opening the builder
+    const search = window.location.search;
 
-    this.builderWindow = window.open(`${path}/builder`, "_blank");
+    this.builderWindow = window.open(`${path}/builder${search}`, "_blank");
 
     window?.addEventListener("message", this.handleMessageBound);
   }

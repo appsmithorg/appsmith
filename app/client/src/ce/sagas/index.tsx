@@ -4,6 +4,7 @@ import SuperUserSagas from "ee/sagas/SuperUserSagas";
 import organizationSagas from "ee/sagas/organizationSagas";
 import userSagas from "ee/sagas/userSagas";
 import workspaceSagas from "ee/sagas/WorkspaceSagas";
+import favoritesSagasListener from "sagas/FavoritesSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import { watchActionSagas } from "sagas/ActionSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
@@ -117,4 +118,5 @@ export const sagas = [
   gitApplicationSagas,
   PostEvaluationSagas,
   aiAssistantSagas,
+  favoritesSagasListener,
 ];

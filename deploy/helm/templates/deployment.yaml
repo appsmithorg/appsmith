@@ -11,6 +11,15 @@ metadata:
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
+  {{- if or .Values.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if .Values.annotations }}
+    {{- include "tplvalues.render" (dict "value" .Values.annotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "tplvalues.render" (dict "value" .Values.commonAnnotations "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
   {{- if $useDeployment }}
   {{- if not .Values.autoscaling.enabled }}

@@ -899,6 +899,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
+export const SEND_SUPPORT_INFO = () => "Send support info";
 export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
@@ -1092,7 +1093,7 @@ export const ERROR_GIT_INVALID_REMOTE = () =>
 
 // Git Connect V2
 export const CHOOSE_A_GIT_PROVIDER_STEP = () => "Choose a Git provider";
-export const GENERATE_SSH_KEY_STEP = () => "Generate SSH key";
+export const GENERATE_SSH_KEY_STEP = () => "Configure SSH Key";
 export const ADD_DEPLOY_KEY_STEP = () => "Add deploy key";
 export const CHOOSE_GIT_PROVIDER_QUESTION = () =>
   "To begin with, choose your Git service provider";
@@ -1113,19 +1114,18 @@ export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
   "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
 export const READ_DOCS = () => "Read Docs";
 export const COPY_SSH_URL_MESSAGE = () =>
-  "To generate the SSH Key, in your repo, copy the Remote SSH URL & paste it in the input field below.";
+  "Copy the Remote SSH URL from your repository and paste it in the input field below.";
 export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
 export const HOW_TO_COPY_REMOTE_URL = () =>
   "How to copy & paste SSH remote URL";
 export const ERROR_SSH_KEY_MISCONF_TITLE = () => "SSH key misconfiguration";
 export const ERROR_SSH_KEY_MISCONF_MESSAGE = () =>
   "It seems that your SSH key hasn't been added to your repository. To proceed, please revisit the steps below and configure your SSH key correctly.";
-export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
-  "Add deploy key & give write access";
+export const ADD_DEPLOY_KEY_STEP_TITLE = () => "Set Up SSH Key";
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added the deploy key and gave it write access";
+  "I confirm this SSH key has write access to the repository";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";

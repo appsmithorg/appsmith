@@ -1344,10 +1344,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
           endOfData={this.props.endOfData}
+          evenRowColor={this.props.evenRowColor}
           filters={this.props.filters}
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
+          headerRowColor={this.props.headerRowColor}
+          headerTextColor={this.props.headerTextColor}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
@@ -1366,6 +1369,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
           nextPageClick={this.handleNextPageClick}
+          oddRowColor={this.props.oddRowColor}
           onAddNewRow={this.handleAddNewRowClick}
           onAddNewRowAction={this.handleAddNewRowAction}
           onBulkEditDiscard={this.onBulkEditDiscard}

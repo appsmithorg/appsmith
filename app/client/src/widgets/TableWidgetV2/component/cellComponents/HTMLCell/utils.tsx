@@ -12,10 +12,9 @@ export const sendHTMLCellAnalytics = debounce(
 );
 
 export function extractHTMLTags(htmlString: string): string[] {
-  const div = document.createElement("div");
-
-  div.innerHTML = htmlString;
-  const elements = Array.from(div.getElementsByTagName("*"));
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, "text/html");
+  const elements = Array.from(doc.body.getElementsByTagName("*"));
   const uniqueTags = new Set(
     elements.map((element) => element.tagName.toLowerCase()),
   );
