@@ -23,6 +23,7 @@ public class CustomCookieWebSessionIdResolverCE extends CookieWebSessionIdResolv
         // If the max age is not set, some browsers will default to deleting the cookies on session close.
         this.setCookieMaxAge(Duration.of(30, DAYS));
         this.addCookieInitializer((builder) -> builder.path("/"));
+        this.addCookieInitializer((builder) -> builder.sameSite(LAX));
     }
 
     @Override
@@ -31,8 +32,16 @@ public class CustomCookieWebSessionIdResolverCE extends CookieWebSessionIdResolv
         super.setSessionId(exchange, id);
     }
 
+    /**
+     * Hook for subclasses to apply per-request cookie attributes.
+     * <p>
+     * WARNING: Implementations must NOT call {@link #addCookieInitializer} here.
+     * That method permanently appends to the singleton's Consumer chain via
+     * {@code Consumer.andThen()}, causing unbounded growth and eventually a
+     * {@link StackOverflowError}. Instead, modify cookies on the response after
+     * {@code super.setSessionId()} builds them.
+     */
     protected void addCookieInitializers(ServerWebExchange exchange) {
-        // Add the appropriate SameSite attribute based on the exchange attribute
-        addCookieInitializer((builder) -> builder.sameSite(LAX));
+        // No-op in CE. SameSite=Lax is set once in the constructor.
     }
 }

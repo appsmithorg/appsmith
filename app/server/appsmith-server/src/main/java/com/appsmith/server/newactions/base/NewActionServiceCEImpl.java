@@ -1315,15 +1315,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
+    public Mono<Void> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
+        // Limit concurrency to avoid saturating the MongoDB NIO event loop thread pool
+        // during bulk application deletion. Per-entity analytics are intentionally skipped here;
+        // only the top-level application.deleted event is logged.
         return repository
                 .findByApplicationId(applicationId, permission)
-                .flatMap(repository::archive)
+                .flatMap(repository::archive, 8)
                 .onErrorResume(throwable -> {
                     log.error(throwable.getMessage());
                     return Mono.empty();
                 })
-                .collectList();
+                .then();
     }
 
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {

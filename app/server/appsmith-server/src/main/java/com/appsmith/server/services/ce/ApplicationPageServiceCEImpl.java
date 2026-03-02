@@ -53,6 +53,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -140,6 +141,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     private final PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService;
+    private final UserDataService userDataService;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -541,10 +543,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Flux.fromIterable(List.of(application));
                 })
-                .flatMap(application -> {
-                    log.debug("Archiving application with id: {}", application.getId());
-                    return deleteApplicationByResource(application);
-                })
+                // Limit concurrency to avoid saturating the event loop during deletion of
+                // git-connected apps with many branches
+                .flatMap(
+                        application -> {
+                            log.debug("Archiving application with id: {}", application.getId());
+                            return deleteApplicationByResource(application);
+                        },
+                        2)
                 .then(applicationMono)
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
@@ -572,6 +578,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<AclPermission> actionPermissionMono =
                 actionPermission.getDeletePermission().cache();
         Mono<AclPermission> pagePermissionMono = pagePermission.getDeletePermission();
+        String favoriteId = application.getBaseId();
         return actionPermissionMono
                 .flatMap(actionDeletePermission -> actionCollectionService.archiveActionCollectionByApplicationId(
                         application.getId(), actionDeletePermission))
@@ -580,7 +587,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(pagePermissionMono.flatMap(pageDeletePermission ->
                         newPageService.archivePagesByApplicationId(application.getId(), pageDeletePermission)))
                 .then(themeService.archiveApplicationThemes(application))
-                .flatMap(applicationService::archive);
+                .then(userDataService.removeApplicationFromAllFavorites(favoriteId))
+                .then(applicationService.archive(application));
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {
@@ -588,7 +596,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, deletedApplication);
         final Map<String, Object> data = Map.of(FieldName.EVENT_DATA, eventData);
 
-        return analyticsService.sendDeleteEvent(deletedApplication, data);
+        // Run analytics/audit-log on the elastic scheduler so it does not block the
+        // MongoDB NIO event-loop threads, and swallow errors to avoid failing the delete.
+        return analyticsService
+                .sendDeleteEvent(deletedApplication, data)
+                .subscribeOn(LoadShifter.elasticScheduler)
+                .onErrorResume(throwable -> {
+                    log.error(
+                            "Error sending delete analytics for application {}", deletedApplication.getId(), throwable);
+                    return Mono.just(deletedApplication);
+                });
     }
 
     @Override
