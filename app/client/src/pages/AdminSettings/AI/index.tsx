@@ -500,9 +500,7 @@ function AISettings() {
           setOpenaiApiKey(config.hasOpenaiApiKey ? "••••••••" : "");
           setAzureOpenaiApiKey(config.hasAzureOpenaiApiKey ? "••••••••" : "");
           setAzureOpenaiEndpoint(config.azureOpenaiEndpoint || "");
-          setAzureOpenaiDeploymentName(
-            config.azureOpenaiDeploymentName || "",
-          );
+          setAzureOpenaiDeploymentName(config.azureOpenaiDeploymentName || "");
           setLocalLlmUrl(config.localLlmUrl || "");
           // -1 is sentinel value meaning "not set"
           const contextSize = config.localLlmContextSize;
