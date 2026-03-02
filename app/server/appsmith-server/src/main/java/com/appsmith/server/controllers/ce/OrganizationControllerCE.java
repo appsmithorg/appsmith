@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.dtos.AIConfigDTO;
@@ -86,36 +87,39 @@ public class OrganizationControllerCE {
                                 config = new OrganizationConfiguration();
                             }
 
-                            // Set API keys with validation
-                            String claudeKeyError = setApiKeyIfPresent(
-                                    aiConfig.getClaudeApiKey(), config::setClaudeApiKey, 500, "Claude API key");
-                            if (claudeKeyError != null) {
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, claudeKeyError));
-                            }
-
-                            String openaiKeyError = setApiKeyIfPresent(
-                                    aiConfig.getOpenaiApiKey(), config::setOpenaiApiKey, 500, "OpenAI API key");
-                            if (openaiKeyError != null) {
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, openaiKeyError));
-                            }
-
-                            String copilotKeyError = setApiKeyIfPresent(
-                                    aiConfig.getCopilotApiKey(), config::setCopilotApiKey, 500, "Copilot API key");
-                            if (copilotKeyError != null) {
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, copilotKeyError));
-                            }
-
-                            String copilotEndpointError = setTrimmedStringIfPresent(
-                                    aiConfig.getCopilotEndpoint(),
-                                    config::setCopilotEndpoint,
-                                    2000,
-                                    "Copilot endpoint URL");
-                            if (copilotEndpointError != null) {
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, copilotEndpointError));
+                            // Validate and set all fields; each method throws on validation failure
+                            try {
+                                validateApiKey(
+                                        aiConfig.getClaudeApiKey(), config::setClaudeApiKey, 500, "Claude API key");
+                                validateApiKey(
+                                        aiConfig.getOpenaiApiKey(), config::setOpenaiApiKey, 500, "OpenAI API key");
+                                validateApiKey(
+                                        aiConfig.getCopilotApiKey(), config::setCopilotApiKey, 500, "Copilot API key");
+                                validateTrimmedString(
+                                        aiConfig.getCopilotEndpoint(),
+                                        config::setCopilotEndpoint,
+                                        2000,
+                                        "Copilot endpoint URL");
+                                validateApiKey(
+                                        aiConfig.getAzureOpenaiApiKey(),
+                                        config::setAzureOpenaiApiKey,
+                                        500,
+                                        "Azure OpenAI API key");
+                                validateTrimmedString(
+                                        aiConfig.getAzureOpenaiEndpoint(),
+                                        config::setAzureOpenaiEndpoint,
+                                        2000,
+                                        "Azure OpenAI endpoint URL");
+                                validateTrimmedString(
+                                        aiConfig.getAzureOpenaiDeploymentName(),
+                                        config::setAzureOpenaiDeploymentName,
+                                        200,
+                                        "Deployment name");
+                                validateTrimmedString(aiConfig.getLocalLlmUrl(), config::setLocalLlmUrl, 2000, "URL");
+                                validateTrimmedString(
+                                        aiConfig.getLocalLlmModel(), config::setLocalLlmModel, 200, "Model name");
+                            } catch (AppsmithException e) {
+                                return Mono.error(e);
                             }
 
                             if (aiConfig.getProvider() != null) {
@@ -124,23 +128,8 @@ public class OrganizationControllerCE {
                             if (aiConfig.getIsAIAssistantEnabled() != null) {
                                 config.setIsAIAssistantEnabled(aiConfig.getIsAIAssistantEnabled());
                             }
-
-                            // Set Local LLM URL with validation
-                            String urlError = setTrimmedStringIfPresent(
-                                    aiConfig.getLocalLlmUrl(), config::setLocalLlmUrl, 2000, "URL");
-                            if (urlError != null) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, urlError));
-                            }
-
                             if (aiConfig.getLocalLlmContextSize() != null) {
                                 config.setLocalLlmContextSize(aiConfig.getLocalLlmContextSize());
-                            }
-
-                            // Set Local LLM model with validation
-                            String modelError = setTrimmedStringIfPresent(
-                                    aiConfig.getLocalLlmModel(), config::setLocalLlmModel, 200, "Model name");
-                            if (modelError != null) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, modelError));
                             }
 
                             return service.updateOrganizationConfiguration(organizationId, config)
@@ -150,8 +139,7 @@ public class OrganizationControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
                 .onErrorResume(error -> {
                     String errorMessage = "Failed to update AI configuration";
-                    if (error instanceof AppsmithException) {
-                        AppsmithException appsmithError = (AppsmithException) error;
+                    if (error instanceof AppsmithException appsmithError) {
                         if (appsmithError.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND) {
                             errorMessage = "You do not have permission to update this configuration";
                         } else {
@@ -470,8 +458,7 @@ public class OrganizationControllerCE {
                                             "Verify network connectivity from the Appsmith server",
                                             "Check server logs for more details"));
                         }
-                    } else if (error instanceof WebClientResponseException) {
-                        WebClientResponseException wcre = (WebClientResponseException) error;
+                    } else if (error instanceof WebClientResponseException wcre) {
                         finalSteps.add(createStep("TCP Connection", "success", "Connected"));
                         finalSteps.add(createStep(
                                 "HTTP Request",
@@ -498,11 +485,7 @@ public class OrganizationControllerCE {
     }
 
     private Map<String, String> createStep(String name, String status, String detail) {
-        Map<String, String> step = new HashMap<>();
-        step.put("name", name);
-        step.put("status", status);
-        step.put("detail", detail);
-        return step;
+        return Map.of("name", name, "status", status, "detail", detail);
     }
 
     @JsonView(Views.Public.class)
@@ -724,6 +707,8 @@ public class OrganizationControllerCE {
     public Mono<ResponseDTO<Map<String, Object>>> testApiKey(@RequestBody Map<String, String> request) {
         String provider = request.get("provider");
         String apiKey = request.get("apiKey");
+        String endpoint = request.get("endpoint");
+        String deploymentName = request.get("deploymentName");
 
         if (provider == null || provider.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -750,6 +735,12 @@ public class OrganizationControllerCE {
                     storedKey = config.getOpenaiApiKey();
                 } else if ("COPILOT".equalsIgnoreCase(provider)) {
                     storedKey = config.getCopilotApiKey();
+                } else if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
+                    storedKey = config.getAzureOpenaiApiKey();
+                    if (storedKey == null || storedKey.isEmpty()) {
+                        // Fall back to copilot key for migration
+                        storedKey = config.getCopilotApiKey();
+                    }
                 }
 
                 if (storedKey == null || storedKey.isEmpty()) {
@@ -759,8 +750,29 @@ public class OrganizationControllerCE {
                     return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
                 }
 
+                // For Azure OpenAI, also resolve endpoint/deployment from stored config
+                if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
+                    String resolvedEndpoint = endpoint;
+                    String resolvedDeployment = deploymentName;
+                    if (resolvedEndpoint == null || resolvedEndpoint.trim().isEmpty()) {
+                        resolvedEndpoint = config.getAzureOpenaiEndpoint();
+                        if (resolvedEndpoint == null || resolvedEndpoint.isEmpty()) {
+                            resolvedEndpoint = config.getCopilotEndpoint();
+                        }
+                    }
+                    if (resolvedDeployment == null || resolvedDeployment.trim().isEmpty()) {
+                        resolvedDeployment = config.getAzureOpenaiDeploymentName();
+                    }
+                    return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment);
+                }
+
                 return testApiKeyWithProvider(provider, storedKey);
             });
+        }
+
+        // For Azure OpenAI, route to the specialized test method
+        if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
+            return testAzureOpenaiKey(apiKey.trim(), endpoint, deploymentName);
         }
 
         return testApiKeyWithProvider(provider, apiKey.trim());
@@ -779,8 +791,6 @@ public class OrganizationControllerCE {
             return testOpenAIKey(webClient, apiKey, startTime, steps);
         } else if ("CLAUDE".equalsIgnoreCase(provider)) {
             return testClaudeKey(webClient, apiKey, startTime, steps);
-        } else if ("COPILOT".equalsIgnoreCase(provider)) {
-            return testCopilotKey(webClient, apiKey, startTime, steps);
         } else {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
@@ -1033,14 +1043,14 @@ public class OrganizationControllerCE {
                 });
     }
 
-    private Mono<ResponseDTO<Map<String, Object>>> testCopilotKey(
-            WebClient webClient, String apiKey, long startTime, List<Map<String, String>> steps) {
+    private Mono<ResponseDTO<Map<String, Object>>> testAzureOpenaiKey(
+            String apiKey, String endpoint, String deploymentName) {
+
+        final long startTime = System.currentTimeMillis();
+        List<Map<String, String>> steps = new ArrayList<>();
 
         steps.add(createStep("API Key Format", "success", "Key format accepted"));
 
-        // Azure OpenAI (which powers MS Copilot) requires an endpoint URL
-        // For now, we'll test against Azure's common API format
-        // The key format for Azure is typically a 32-character hex string
         if (apiKey.length() < 20) {
             steps.add(createStep("Key Validation", "error", "Key appears too short"));
             Map<String, Object> response = new HashMap<>();
@@ -1057,24 +1067,145 @@ public class OrganizationControllerCE {
 
         steps.add(createStep("Key Validation", "success", "Key length validated"));
 
-        // Since Azure OpenAI requires a resource-specific endpoint, we can't do a real API test
-        // without knowing the user's Azure OpenAI resource URL
-        steps.add(createStep("Configuration Note", "pending", "Azure OpenAI requires additional configuration"));
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            steps.add(createStep("Endpoint", "error", "No endpoint provided"));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", "Azure OpenAI endpoint is required for testing");
+            response.put("steps", steps);
+            response.put("suggestions", List.of("Enter your Azure OpenAI endpoint URL"));
+            return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
+        }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("responseTimeMs", System.currentTimeMillis() - startTime);
-        response.put("provider", "MS Copilot (Azure OpenAI)");
-        response.put("message", "API key format validated. Azure OpenAI configuration saved.");
-        response.put("steps", steps);
-        response.put(
-                "suggestions",
-                List.of(
-                        "To use Azure OpenAI, ensure your Azure OpenAI resource is properly configured",
-                        "The API will use your Azure OpenAI deployment when making AI requests",
-                        "Visit Azure Portal to verify your OpenAI resource and deployments"));
+        if (deploymentName == null || deploymentName.trim().isEmpty()) {
+            steps.add(createStep("Deployment", "error", "No deployment name provided"));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", "Deployment name is required for testing");
+            response.put("steps", steps);
+            response.put("suggestions", List.of("Enter your Azure OpenAI deployment name"));
+            return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
+        }
 
-        return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
+        // Construct the full Azure OpenAI URL
+        String trimmedEndpoint = endpoint.trim();
+        if (trimmedEndpoint.endsWith("/")) {
+            trimmedEndpoint = trimmedEndpoint.substring(0, trimmedEndpoint.length() - 1);
+        }
+        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName.trim()
+                + "/chat/completions?api-version=2023-05-15";
+
+        steps.add(createStep("URL Construction", "success", "Built Azure OpenAI URL"));
+
+        String payload = "{\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}],\"max_tokens\":5}";
+
+        HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(30));
+        WebClient webClient = WebClientUtils.builder(httpClient).build();
+
+        return webClient
+                .post()
+                .uri(url)
+                .header("Content-Type", "application/json")
+                .header("api-key", apiKey)
+                .bodyValue(payload)
+                .exchangeToMono(clientResponse -> {
+                    steps.add(createStep("API Connection", "success", "Connected to Azure OpenAI"));
+
+                    return clientResponse
+                            .bodyToMono(String.class)
+                            .defaultIfEmpty("")
+                            .map(responseBody -> {
+                                long responseTime = System.currentTimeMillis() - startTime;
+                                Map<String, Object> response = new HashMap<>();
+                                int statusCode = clientResponse.statusCode().value();
+
+                                response.put("responseTimeMs", responseTime);
+                                response.put("httpStatus", statusCode);
+                                response.put("provider", "Azure OpenAI");
+
+                                if (statusCode == 200) {
+                                    steps.add(createStep("Authentication", "success", "API key is valid"));
+                                    steps.add(createStep("Test Request", "success", "Successfully generated response"));
+                                    response.put("success", true);
+                                    response.put("message", "Azure OpenAI API key is working correctly!");
+
+                                    try {
+                                        if (responseBody.contains("\"content\"")) {
+                                            int start = responseBody.indexOf("\"content\"");
+                                            int contentStart = responseBody.indexOf("\"", start + 10) + 1;
+                                            int contentEnd = responseBody.indexOf("\"", contentStart);
+                                            if (contentEnd > contentStart && contentEnd - contentStart < 200) {
+                                                String content = responseBody.substring(contentStart, contentEnd);
+                                                response.put("testResponse", content);
+                                            }
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                } else if (statusCode == 401) {
+                                    steps.add(createStep("Authentication", "error", "Invalid API key"));
+                                    response.put("success", false);
+                                    response.put("error", "Invalid API key - authentication failed");
+                                    response.put(
+                                            "suggestions",
+                                            List.of(
+                                                    "Check that the API key is correct",
+                                                    "Ensure the key hasn't been revoked",
+                                                    "Get KEY 1 or KEY 2 from Azure Portal > Your OpenAI Resource > Keys and Endpoint"));
+                                } else if (statusCode == 404) {
+                                    steps.add(createStep("Authentication", "success", "API key accepted"));
+                                    steps.add(createStep("Deployment", "error", "Deployment not found"));
+                                    response.put("success", false);
+                                    response.put(
+                                            "error", "Deployment '" + deploymentName + "' not found at this endpoint");
+                                    response.put(
+                                            "suggestions",
+                                            List.of(
+                                                    "Verify the deployment name matches your Azure OpenAI Studio deployment",
+                                                    "Check the endpoint URL matches your Azure OpenAI resource",
+                                                    "Ensure the deployment is active in Azure OpenAI Studio"));
+                                } else if (statusCode == 429) {
+                                    steps.add(createStep("Authentication", "success", "API key is valid"));
+                                    steps.add(createStep("Rate Limit", "error", "Rate limited or quota exceeded"));
+                                    response.put("success", false);
+                                    response.put("error", "Rate limited or quota exceeded");
+                                    response.put(
+                                            "suggestions",
+                                            List.of(
+                                                    "Your API key is valid but you've hit rate limits",
+                                                    "Check your Azure OpenAI usage and quotas",
+                                                    "Wait a moment and try again"));
+                                } else {
+                                    steps.add(createStep("API Request", "error", "HTTP " + statusCode));
+                                    response.put("success", false);
+                                    response.put("error", "Azure OpenAI API returned HTTP " + statusCode);
+                                    if (responseBody.length() < 500) {
+                                        response.put("responsePreview", responseBody);
+                                    }
+                                }
+
+                                response.put("steps", steps);
+                                return new ResponseDTO<>(HttpStatus.OK, response);
+                            });
+                })
+                .onErrorResume(error -> {
+                    long responseTime = System.currentTimeMillis() - startTime;
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("responseTimeMs", responseTime);
+                    response.put("provider", "Azure OpenAI");
+
+                    steps.add(createStep("API Connection", "error", "Failed to connect"));
+                    response.put("error", "Failed to connect to Azure OpenAI: " + error.getMessage());
+                    response.put(
+                            "suggestions",
+                            List.of(
+                                    "Check that the endpoint URL is correct",
+                                    "Verify the Azure OpenAI resource is accessible",
+                                    "Check if there's a firewall blocking the connection"));
+                    response.put("steps", steps);
+
+                    return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
+                });
     }
 
     private List<String> getHttpErrorSuggestions(int statusCode) {
@@ -1095,36 +1226,34 @@ public class OrganizationControllerCE {
     }
 
     /**
-     * Sets an API key on the config if present and valid. Returns error message if validation fails, null otherwise.
+     * Validates and sets an API key on the config if present. Throws if validation fails.
      */
-    private String setApiKeyIfPresent(
+    private void validateApiKey(
             String value, java.util.function.Consumer<String> setter, int maxLength, String fieldName) {
         if (value == null || value.trim().isEmpty()) {
-            return null;
+            return;
         }
         String trimmed = value.trim();
         if (trimmed.length() > maxLength) {
-            return fieldName + " is too long";
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName + " is too long");
         }
         setter.accept(trimmed);
-        return null;
     }
 
     /**
-     * Sets a trimmed string value on the config if present and valid.
-     * Empty strings are converted to null. Returns error message if validation fails, null otherwise.
+     * Validates and sets a trimmed string value on the config if present.
+     * Empty strings are converted to null. Throws if validation fails.
      */
-    private String setTrimmedStringIfPresent(
+    private void validateTrimmedString(
             String value, java.util.function.Consumer<String> setter, int maxLength, String fieldName) {
         if (value == null) {
-            return null;
+            return;
         }
         String trimmed = value.trim();
         if (trimmed.length() > maxLength) {
-            return fieldName + " is too long";
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName + " is too long");
         }
         setter.accept(trimmed.isEmpty() ? null : trimmed);
-        return null;
     }
 
     /**
@@ -1138,6 +1267,9 @@ public class OrganizationControllerCE {
         response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
         response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
         response.put("copilotEndpoint", config.getCopilotEndpoint());
+        response.put("hasAzureOpenaiApiKey", hasValue(config.getAzureOpenaiApiKey()));
+        response.put("azureOpenaiEndpoint", config.getAzureOpenaiEndpoint());
+        response.put("azureOpenaiDeploymentName", config.getAzureOpenaiDeploymentName());
         response.put("localLlmUrl", config.getLocalLlmUrl());
         response.put("localLlmContextSize", config.getLocalLlmContextSize());
         response.put("localLlmModel", config.getLocalLlmModel());
@@ -1153,13 +1285,35 @@ public class OrganizationControllerCE {
             response.put(
                     "isAIAssistantEnabled",
                     config.getIsAIAssistantEnabled() != null ? config.getIsAIAssistantEnabled() : false);
-            response.put(
-                    "provider",
-                    config.getAiProvider() != null ? config.getAiProvider().name() : "");
+
+            // Migrate COPILOT -> AZURE_OPENAI at read time
+            AIProvider storedProvider = config.getAiProvider();
+            if (storedProvider == AIProvider.COPILOT) {
+                storedProvider = AIProvider.AZURE_OPENAI;
+            }
+            response.put("provider", storedProvider != null ? storedProvider.name() : "");
+
             response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
             response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
             response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
             response.put("copilotEndpoint", config.getCopilotEndpoint() != null ? config.getCopilotEndpoint() : "");
+
+            // Azure OpenAI fields - fall back to copilot fields for migration
+            boolean hasAzureKey = hasValue(config.getAzureOpenaiApiKey()) || hasValue(config.getCopilotApiKey());
+            String azureEndpoint = config.getAzureOpenaiEndpoint();
+            if (azureEndpoint == null) {
+                azureEndpoint = config.getCopilotEndpoint();
+            }
+            if (azureEndpoint == null) {
+                azureEndpoint = "";
+            }
+            String azureDeployment =
+                    config.getAzureOpenaiDeploymentName() != null ? config.getAzureOpenaiDeploymentName() : "";
+
+            response.put("hasAzureOpenaiApiKey", hasAzureKey);
+            response.put("azureOpenaiEndpoint", azureEndpoint);
+            response.put("azureOpenaiDeploymentName", azureDeployment);
+
             response.put("localLlmUrl", config.getLocalLlmUrl() != null ? config.getLocalLlmUrl() : "");
             response.put(
                     "localLlmContextSize",
@@ -1172,6 +1326,9 @@ public class OrganizationControllerCE {
             response.put("hasOpenaiApiKey", false);
             response.put("hasCopilotApiKey", false);
             response.put("copilotEndpoint", "");
+            response.put("hasAzureOpenaiApiKey", false);
+            response.put("azureOpenaiEndpoint", "");
+            response.put("azureOpenaiDeploymentName", "");
             response.put("localLlmUrl", "");
             response.put("localLlmContextSize", -1);
             response.put("localLlmModel", "");

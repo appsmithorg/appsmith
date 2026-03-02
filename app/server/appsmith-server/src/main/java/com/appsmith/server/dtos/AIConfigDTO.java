@@ -19,6 +19,15 @@ public class AIConfigDTO {
     @Size(max = 2000, message = "Copilot endpoint URL is too long")
     private String copilotEndpoint;
 
+    @Size(max = 500, message = "API key is too long")
+    private String azureOpenaiApiKey;
+
+    @Size(max = 2000, message = "Azure OpenAI endpoint URL is too long")
+    private String azureOpenaiEndpoint;
+
+    @Size(max = 200, message = "Deployment name is too long")
+    private String azureOpenaiDeploymentName;
+
     @NotNull(message = "Provider is required") private AIProvider provider;
 
     @NotNull(message = "Enabled flag is required") private Boolean isAIAssistantEnabled;

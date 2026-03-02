@@ -17,6 +17,9 @@ interface AIConfigData {
   hasOpenaiApiKey?: boolean;
   hasCopilotApiKey?: boolean;
   copilotEndpoint?: string;
+  hasAzureOpenaiApiKey?: boolean;
+  azureOpenaiEndpoint?: string;
+  azureOpenaiDeploymentName?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
@@ -113,17 +116,18 @@ const StepList = styled.div`
   margin-top: var(--ads-v2-spaces-2);
 `;
 
+const STEP_STATUS_COLORS: Record<"success" | "error" | "pending", string> = {
+  success: "var(--ads-v2-color-fg-success)",
+  error: "var(--ads-v2-color-fg-error)",
+  pending: "var(--ads-v2-color-fg-muted)",
+};
+
 const StepItem = styled.div<{ status: "success" | "error" | "pending" }>`
   display: flex;
   align-items: center;
   gap: var(--ads-v2-spaces-2);
   font-size: 13px;
-  color: ${(props) =>
-    props.status === "success"
-      ? "var(--ads-v2-color-fg-success)"
-      : props.status === "error"
-        ? "var(--ads-v2-color-fg-error)"
-        : "var(--ads-v2-color-fg-muted)"};
+  color: ${(props) => STEP_STATUS_COLORS[props.status]};
 `;
 
 const ErrorMessage = styled.div`
@@ -442,8 +446,10 @@ function AISettings() {
   const [provider, setProvider] = useState<string>("CLAUDE");
   const [claudeApiKey, setClaudeApiKey] = useState<string>("");
   const [openaiApiKey, setOpenaiApiKey] = useState<string>("");
-  const [copilotApiKey, setCopilotApiKey] = useState<string>("");
-  const [copilotEndpoint, setCopilotEndpoint] = useState<string>("");
+  const [azureOpenaiApiKey, setAzureOpenaiApiKey] = useState<string>("");
+  const [azureOpenaiEndpoint, setAzureOpenaiEndpoint] = useState<string>("");
+  const [azureOpenaiDeploymentName, setAzureOpenaiDeploymentName] =
+    useState<string>("");
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
   const [localLlmModel, setLocalLlmModel] = useState<string>("");
@@ -479,15 +485,24 @@ function AISettings() {
 
           setIsAIAssistantEnabled(config.isAIAssistantEnabled || false);
           // Empty string means not set - default to CLAUDE
-          setProvider(
+          // Handle legacy COPILOT -> AZURE_OPENAI migration
+          let loadedProvider =
             config.provider && config.provider !== ""
               ? config.provider
-              : "CLAUDE",
-          );
+              : "CLAUDE";
+
+          if (loadedProvider === "COPILOT") {
+            loadedProvider = "AZURE_OPENAI";
+          }
+
+          setProvider(loadedProvider);
           setClaudeApiKey(config.hasClaudeApiKey ? "••••••••" : "");
           setOpenaiApiKey(config.hasOpenaiApiKey ? "••••••••" : "");
-          setCopilotApiKey(config.hasCopilotApiKey ? "••••••••" : "");
-          setCopilotEndpoint(config.copilotEndpoint || "");
+          setAzureOpenaiApiKey(config.hasAzureOpenaiApiKey ? "••••••••" : "");
+          setAzureOpenaiEndpoint(config.azureOpenaiEndpoint || "");
+          setAzureOpenaiDeploymentName(
+            config.azureOpenaiDeploymentName || "",
+          );
           setLocalLlmUrl(config.localLlmUrl || "");
           // -1 is sentinel value meaning "not set"
           const contextSize = config.localLlmContextSize;
@@ -562,8 +577,9 @@ function AISettings() {
         isAIAssistantEnabled: boolean;
         claudeApiKey?: string;
         openaiApiKey?: string;
-        copilotApiKey?: string;
-        copilotEndpoint?: string;
+        azureOpenaiApiKey?: string;
+        azureOpenaiEndpoint?: string;
+        azureOpenaiDeploymentName?: string;
         localLlmUrl?: string;
         localLlmContextSize?: number;
         localLlmModel?: string;
@@ -588,13 +604,17 @@ function AISettings() {
         request.openaiApiKey = openaiApiKey;
       }
 
-      if (provider === "COPILOT") {
-        if (copilotApiKey && copilotApiKey !== "••••••••") {
-          request.copilotApiKey = copilotApiKey;
+      if (provider === "AZURE_OPENAI") {
+        if (azureOpenaiApiKey && azureOpenaiApiKey !== "••••••••") {
+          request.azureOpenaiApiKey = azureOpenaiApiKey;
         }
 
-        if (copilotEndpoint) {
-          request.copilotEndpoint = copilotEndpoint;
+        if (azureOpenaiEndpoint) {
+          request.azureOpenaiEndpoint = azureOpenaiEndpoint;
+        }
+
+        if (azureOpenaiDeploymentName) {
+          request.azureOpenaiDeploymentName = azureOpenaiDeploymentName;
         }
       }
 
@@ -628,8 +648,8 @@ function AISettings() {
           setOpenaiApiKey("••••••••");
         }
 
-        if (copilotApiKey && copilotApiKey !== "••••••••") {
-          setCopilotApiKey("••••••••");
+        if (azureOpenaiApiKey && azureOpenaiApiKey !== "••••••••") {
+          setAzureOpenaiApiKey("••••••••");
         }
       } else {
         toast.show("Failed to save AI configuration", { kind: "error" });
@@ -691,13 +711,16 @@ function AISettings() {
         keyToTest = claudeApiKey !== "••••••••" ? claudeApiKey : undefined;
       } else if (provider === "OPENAI") {
         keyToTest = openaiApiKey !== "••••••••" ? openaiApiKey : undefined;
-      } else if (provider === "COPILOT") {
-        keyToTest = copilotApiKey !== "••••••••" ? copilotApiKey : undefined;
+      } else if (provider === "AZURE_OPENAI") {
+        keyToTest =
+          azureOpenaiApiKey !== "••••••••" ? azureOpenaiApiKey : undefined;
       }
 
       const response = (await OrganizationApi.testApiKey(
         provider,
         keyToTest,
+        provider === "AZURE_OPENAI" ? azureOpenaiEndpoint : undefined,
+        provider === "AZURE_OPENAI" ? azureOpenaiDeploymentName : undefined,
       )) as unknown as UnwrappedApiResponse<TestResult>;
 
       if (response.responseMeta.success) {
@@ -789,7 +812,7 @@ function AISettings() {
             options={[
               { label: "Claude (Anthropic)", value: "CLAUDE" },
               { label: "OpenAI (ChatGPT)", value: "OPENAI" },
-              { label: "MS Copilot (Azure)", value: "COPILOT" },
+              { label: "Azure OpenAI", value: "AZURE_OPENAI" },
               { label: "Use Local LLM", value: "LOCAL_LLM" },
             ]}
             value={provider}
@@ -874,47 +897,65 @@ function AISettings() {
           </FieldWrapper>
         )}
 
-        {provider === "COPILOT" && (
+        {provider === "AZURE_OPENAI" && (
           <>
             <FieldWrapper>
               <LabelWrapper>
-                <Text kind="body-m">Azure OpenAI Endpoint URL</Text>
+                <Text kind="body-m">Azure OpenAI Endpoint</Text>
               </LabelWrapper>
               <Input
-                onChange={function handleCopilotEndpointChange(value) {
-                  setCopilotEndpoint(value);
+                onChange={function handleAzureEndpointChange(value) {
+                  setAzureOpenaiEndpoint(value);
                   setApiKeyTestResult(null);
                 }}
-                placeholder="https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT/chat/completions?api-version=2024-10-21"
+                placeholder="https://YOUR_RESOURCE.openai.azure.com/"
                 type="text"
-                value={copilotEndpoint}
+                value={azureOpenaiEndpoint}
               />
-              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                Your Azure OpenAI chat completions endpoint from Azure Portal
-              </Text>
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Your Azure OpenAI resource endpoint from the Azure Portal
+              </HintText>
             </FieldWrapper>
 
             <FieldWrapper>
               <LabelWrapper>
-                <Text kind="body-m">MS Copilot API Key</Text>
+                <Text kind="body-m">Deployment Name</Text>
               </LabelWrapper>
               <Input
-                onChange={function handleCopilotKeyChange(value) {
-                  setCopilotApiKey(value);
+                onChange={function handleAzureDeploymentChange(value) {
+                  setAzureOpenaiDeploymentName(value);
                   setApiKeyTestResult(null);
                 }}
-                placeholder="Enter MS Copilot API key (leave blank to keep existing)"
-                type="password"
-                value={copilotApiKey}
+                placeholder="gpt-35-turbo"
+                type="text"
+                value={azureOpenaiDeploymentName}
               />
-              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                Get your API key from https://portal.azure.com/ (Azure OpenAI
-                Service)
-              </Text>
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                The name of your model deployment in Azure OpenAI Studio
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Azure OpenAI API Key</Text>
+              </LabelWrapper>
+              <Input
+                onChange={function handleAzureKeyChange(value) {
+                  setAzureOpenaiApiKey(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="Enter API key (leave blank to keep existing)"
+                type="password"
+                value={azureOpenaiApiKey}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Get KEY 1 or KEY 2 from Azure Portal &gt; Your OpenAI Resource
+                &gt; Keys and Endpoint
+              </HintText>
 
               <ButtonRow style={{ marginTop: "8px" }}>
                 <Button
-                  isDisabled={!copilotApiKey}
+                  isDisabled={!azureOpenaiApiKey}
                   isLoading={isTestingApiKey}
                   kind="secondary"
                   onClick={handleTestApiKey}
@@ -1095,9 +1136,7 @@ function AISettings() {
           <Button
             isLoading={isSaving}
             kind="primary"
-            onClick={function handleSaveClick() {
-              handleSave();
-            }}
+            onClick={handleSave}
             size="md"
           >
             Save Configuration

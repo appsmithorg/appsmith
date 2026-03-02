@@ -3,6 +3,8 @@ package com.appsmith.server.domains;
 public enum AIProvider {
     CLAUDE,
     OPENAI,
-    COPILOT,
-    LOCAL_LLM
+    @Deprecated
+    COPILOT, // Use AZURE_OPENAI instead
+    LOCAL_LLM,
+    AZURE_OPENAI
 }

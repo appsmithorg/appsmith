@@ -94,21 +94,37 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 return callLocalLLMAPI(url.trim(), model.trim(), prompt, context, conversationHistory);
             }
 
-            // COPILOT uses endpoint + API key
-            if (providerEnum == AIProvider.COPILOT) {
-                String apiKey = orgConfig.getCopilotApiKey();
-                String endpoint = orgConfig.getCopilotEndpoint();
+            // AZURE_OPENAI uses endpoint + deployment name + API key
+            if (providerEnum == AIProvider.AZURE_OPENAI || providerEnum == AIProvider.COPILOT) {
+                // Try new azure fields first, fall back to copilot fields for migration
+                String apiKey = orgConfig.getAzureOpenaiApiKey();
                 if (apiKey == null || apiKey.trim().isEmpty()) {
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Copilot API key not configured"));
+                    apiKey = orgConfig.getCopilotApiKey();
+                }
+                String endpoint = orgConfig.getAzureOpenaiEndpoint();
+                if (endpoint == null || endpoint.trim().isEmpty()) {
+                    endpoint = orgConfig.getCopilotEndpoint();
+                }
+                String deploymentName = orgConfig.getAzureOpenaiDeploymentName();
+
+                if (apiKey == null || apiKey.trim().isEmpty()) {
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, "Azure OpenAI API key not configured"));
                 }
                 if (endpoint == null || endpoint.trim().isEmpty()) {
                     return Mono.error(
                             new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND,
-                                    "Copilot endpoint not configured. Add your Azure OpenAI chat completions URL (e.g. https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT/chat/completions?api-version=2024-10-21)"));
+                                    "Azure OpenAI endpoint not configured. Add your Azure OpenAI resource endpoint (e.g. https://YOUR_RESOURCE.openai.azure.com/)"));
                 }
-                return callCopilotAPI(endpoint.trim(), apiKey, prompt, context, conversationHistory);
+                if (deploymentName == null || deploymentName.trim().isEmpty()) {
+                    return Mono.error(
+                            new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND,
+                                    "Azure OpenAI deployment name not configured. Add the name of your model deployment from Azure OpenAI Studio."));
+                }
+                return callAzureOpenAIAPI(
+                        endpoint.trim(), deploymentName.trim(), apiKey, prompt, context, conversationHistory);
             }
 
             // CLAUDE and OPENAI use API key
@@ -201,26 +217,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
                         }))
                 .bodyToMono(JsonNode.class)
-                .map(json -> {
-                    if (json == null || !json.isObject()) {
-                        return "";
-                    }
-                    JsonNode contentArray = json.path("content");
-                    if (contentArray.isArray() && contentArray.size() > 0) {
-                        JsonNode firstContent = contentArray.get(0);
-                        if (firstContent != null && firstContent.isObject()) {
-                            JsonNode textNode = firstContent.path("text");
-                            if (textNode != null && textNode.isTextual()) {
-                                String response = textNode.asText();
-                                if (response != null && response.length() > 200000) {
-                                    return response.substring(0, 200000);
-                                }
-                                return response;
-                            }
-                        }
-                    }
-                    return "";
-                })
+                .map(this::extractClaudeResponse)
                 .doOnError(error -> {
                     if (error instanceof AppsmithException) {
                         log.error("Claude API error for provider: CLAUDE", error);
@@ -276,29 +273,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
                         }))
                 .bodyToMono(JsonNode.class)
-                .map(json -> {
-                    if (json == null || !json.isObject()) {
-                        return "";
-                    }
-                    JsonNode choicesArray = json.path("choices");
-                    if (choicesArray.isArray() && choicesArray.size() > 0) {
-                        JsonNode firstChoice = choicesArray.get(0);
-                        if (firstChoice != null && firstChoice.isObject()) {
-                            JsonNode messageNode = firstChoice.path("message");
-                            if (messageNode != null && messageNode.isObject()) {
-                                JsonNode contentNode = messageNode.path("content");
-                                if (contentNode != null && contentNode.isTextual()) {
-                                    String response = contentNode.asText();
-                                    if (response != null && response.length() > 200000) {
-                                        return response.substring(0, 200000);
-                                    }
-                                    return response;
-                                }
-                            }
-                        }
-                    }
-                    return "";
-                })
+                .map(this::extractOpenAICompatibleResponse)
                 .doOnError(error -> {
                     if (error instanceof AppsmithException) {
                         log.error("OpenAI API error for provider: OPENAI", error);
@@ -386,7 +361,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                     AppsmithError.INTERNAL_SERVER_ERROR, "Local LLM request failed: " + errorBody));
                         }))
                 .bodyToMono(JsonNode.class)
-                .map(json -> extractLocalLLMResponse(json))
+                .map(this::extractLocalLLMResponse)
                 .onErrorMap(error -> {
                     if (error instanceof AppsmithException) {
                         return error;
@@ -412,6 +387,64 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 });
     }
 
+    private static final int MAX_RESPONSE_LENGTH = 200000;
+
+    /**
+     * Truncates a response string to the maximum allowed length.
+     */
+    private String truncateResponse(String response) {
+        if (response == null) {
+            return "";
+        }
+        return response.length() <= MAX_RESPONSE_LENGTH ? response : response.substring(0, MAX_RESPONSE_LENGTH);
+    }
+
+    /**
+     * Extracts the text content from a Claude Messages API response.
+     * Format: { "content": [{ "text": "..." }] }
+     */
+    private String extractClaudeResponse(JsonNode json) {
+        if (json == null || !json.isObject()) {
+            return "";
+        }
+        JsonNode contentArray = json.path("content");
+        if (contentArray.isArray() && contentArray.size() > 0) {
+            JsonNode firstContent = contentArray.get(0);
+            if (firstContent != null && firstContent.isObject()) {
+                JsonNode textNode = firstContent.path("text");
+                if (textNode != null && textNode.isTextual()) {
+                    return truncateResponse(textNode.asText());
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Extracts the text content from an OpenAI-compatible chat completion response.
+     * Used by both OpenAI and Azure OpenAI since they share the same response format:
+     * { "choices": [{ "message": { "content": "..." } }] }
+     */
+    private String extractOpenAICompatibleResponse(JsonNode json) {
+        if (json == null || !json.isObject()) {
+            return "";
+        }
+        JsonNode choicesArray = json.path("choices");
+        if (choicesArray.isArray() && choicesArray.size() > 0) {
+            JsonNode firstChoice = choicesArray.get(0);
+            if (firstChoice != null && firstChoice.isObject()) {
+                JsonNode messageNode = firstChoice.path("message");
+                if (messageNode != null && messageNode.isObject()) {
+                    JsonNode contentNode = messageNode.path("content");
+                    if (contentNode != null && contentNode.isTextual()) {
+                        return truncateResponse(contentNode.asText());
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
     private String extractLocalLLMResponse(JsonNode json) {
         if (json == null || !json.isObject()) {
             return "";
@@ -421,27 +454,34 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         if (messageNode != null && messageNode.isObject()) {
             JsonNode contentNode = messageNode.path("content");
             if (contentNode != null && contentNode.isTextual()) {
-                String response = contentNode.asText();
-                return response != null && response.length() <= 200000 ? response : response.substring(0, 200000);
+                return truncateResponse(contentNode.asText());
             }
         }
         // Ollama /api/generate response: { "response": "..." }
         JsonNode responseNode = json.path("response");
         if (responseNode != null && responseNode.isTextual()) {
-            String response = responseNode.asText();
-            return response != null && response.length() <= 200000 ? response : response.substring(0, 200000);
+            return truncateResponse(responseNode.asText());
         }
         return "";
     }
 
-    private Mono<String> callCopilotAPI(
+    private Mono<String> callAzureOpenAIAPI(
             String endpoint,
+            String deploymentName,
             String apiKey,
             String prompt,
             AIEditorContextDTO context,
             List<AIMessageDTO> conversationHistory) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
+
+        // Construct Azure OpenAI URL from endpoint + deployment name
+        String trimmedEndpoint = endpoint;
+        if (trimmedEndpoint.endsWith("/")) {
+            trimmedEndpoint = trimmedEndpoint.substring(0, trimmedEndpoint.length() - 1);
+        }
+        String url =
+                trimmedEndpoint + "/openai/deployments/" + deploymentName + "/chat/completions?api-version=2023-05-15";
 
         List<Map<String, Object>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
@@ -463,7 +503,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
         return webClient
                 .post()
-                .uri(endpoint)
+                .uri(url)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header("api-key", apiKey)
                 .body(BodyInserters.fromValue(requestBody))
@@ -483,33 +523,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                     AppsmithError.INTERNAL_SERVER_ERROR, "Azure OpenAI request failed: " + errorBody));
                         }))
                 .bodyToMono(JsonNode.class)
-                .map(json -> {
-                    if (json == null || !json.isObject()) {
-                        return "";
-                    }
-                    JsonNode choicesArray = json.path("choices");
-                    if (choicesArray.isArray() && choicesArray.size() > 0) {
-                        JsonNode firstChoice = choicesArray.get(0);
-                        if (firstChoice != null && firstChoice.isObject()) {
-                            JsonNode messageNode = firstChoice.path("message");
-                            if (messageNode != null && messageNode.isObject()) {
-                                JsonNode contentNode = messageNode.path("content");
-                                if (contentNode != null && contentNode.isTextual()) {
-                                    String response = contentNode.asText();
-                                    return response != null && response.length() <= 200000
-                                            ? response
-                                            : response.substring(0, 200000);
-                                }
-                            }
-                        }
-                    }
-                    return "";
-                })
+                .map(this::extractOpenAICompatibleResponse)
                 .doOnError(error -> {
                     if (error instanceof AppsmithException) {
-                        log.error("Copilot (Azure OpenAI) API error", error);
+                        log.error("Azure OpenAI API error", error);
                     } else {
-                        log.error("Unexpected Copilot API error", error);
+                        log.error("Unexpected Azure OpenAI API error", error);
                     }
                 });
     }

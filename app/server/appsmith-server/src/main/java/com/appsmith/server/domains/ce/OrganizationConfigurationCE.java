@@ -80,6 +80,17 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonInclude
     private String copilotEndpoint;
 
+    @JsonView(Views.Internal.class)
+    @Encrypted private String azureOpenaiApiKey;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private String azureOpenaiEndpoint;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private String azureOpenaiDeploymentName;
+
     @JsonView(Views.Public.class)
     @JsonInclude
     private AIProvider aiProvider;
@@ -131,6 +142,12 @@ public class OrganizationConfigurationCE implements Serializable {
         openaiApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiApiKey(), openaiApiKey);
         copilotApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotApiKey(), copilotApiKey);
         copilotEndpoint = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotEndpoint(), copilotEndpoint);
+        azureOpenaiApiKey =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiApiKey(), azureOpenaiApiKey);
+        azureOpenaiEndpoint =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiEndpoint(), azureOpenaiEndpoint);
+        azureOpenaiDeploymentName = ObjectUtils.defaultIfNull(
+                organizationConfiguration.getAzureOpenaiDeploymentName(), azureOpenaiDeploymentName);
         aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
         isAIAssistantEnabled =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);

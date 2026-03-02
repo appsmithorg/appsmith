@@ -39,6 +39,9 @@ export interface AIConfigResponse {
   localLlmContextSize?: number;
   localLlmModel?: string;
   copilotEndpoint?: string;
+  hasAzureOpenaiApiKey: boolean;
+  azureOpenaiEndpoint?: string;
+  azureOpenaiDeploymentName?: string;
 }
 
 export interface AIConfigRequest {
@@ -46,6 +49,9 @@ export interface AIConfigRequest {
   openaiApiKey?: string;
   copilotApiKey?: string;
   copilotEndpoint?: string;
+  azureOpenaiApiKey?: string;
+  azureOpenaiEndpoint?: string;
+  azureOpenaiDeploymentName?: string;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
@@ -116,10 +122,14 @@ export class OrganizationApi extends Api {
   static async testApiKey(
     provider: string,
     apiKey?: string,
+    endpoint?: string,
+    deploymentName?: string,
   ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
     return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-api-key`, {
       provider,
       apiKey,
+      endpoint,
+      deploymentName,
     });
   }
 
