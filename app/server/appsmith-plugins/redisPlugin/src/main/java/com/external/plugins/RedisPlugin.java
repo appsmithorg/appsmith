@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.RedisErrorMessages;
@@ -258,14 +259,36 @@ public class RedisPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
                         final JedisPoolConfig poolConfig = buildPoolConfig();
+                        boolean isTlsEnabled = isTlsEnabled(datasourceConfiguration);
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
-                        URI uri = RedisURIUtils.getURI(datasourceConfiguration);
+                        URI uri = RedisURIUtils.getURI(datasourceConfiguration, isTlsEnabled);
                         JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
                         log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private boolean isTlsEnabled(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                return false;
+            }
+
+            SSLDetails.AuthType sslAuthType =
+                    datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case ENABLED:
+                    return true;
+                case DISABLED:
+                    return false;
+                default:
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            String.format(RedisErrorMessages.DS_UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType));
+            }
         }
 
         @Override

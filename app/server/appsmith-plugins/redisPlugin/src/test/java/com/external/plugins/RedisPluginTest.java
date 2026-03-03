@@ -1,13 +1,16 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -66,6 +69,16 @@ public class RedisPluginTest {
         return datasourceConfiguration;
     }
 
+    private DatasourceConfiguration createDatasourceConfigurationWithTlsAuthType(SSLDetails.AuthType authType) {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        Connection connection = new Connection();
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(authType);
+        connection.setSsl(sslDetails);
+        datasourceConfiguration.setConnection(connection);
+        return datasourceConfiguration;
+    }
+
     @Test
     public void itShouldCreateDatasource() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -74,6 +87,42 @@ public class RedisPluginTest {
         StepVerifier.create(jedisPoolMono).assertNext(Assertions::assertNotNull).verifyComplete();
 
         pluginExecutor.datasourceDestroy(jedisPoolMono.block());
+    }
+
+    @Test
+    public void itShouldCreateDatasourceWithTlsEnabled() {
+        DatasourceConfiguration datasourceConfiguration =
+                createDatasourceConfigurationWithTlsAuthType(SSLDetails.AuthType.ENABLED);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(jedisPoolMono).assertNext(Assertions::assertNotNull).verifyComplete();
+
+        pluginExecutor.datasourceDestroy(jedisPoolMono.block());
+    }
+
+    @Test
+    public void itShouldCreateDatasourceWithTlsDisabled() {
+        DatasourceConfiguration datasourceConfiguration =
+                createDatasourceConfigurationWithTlsAuthType(SSLDetails.AuthType.DISABLED);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(jedisPoolMono).assertNext(Assertions::assertNotNull).verifyComplete();
+
+        pluginExecutor.datasourceDestroy(jedisPoolMono.block());
+    }
+
+    @Test
+    public void itShouldThrowErrorForUnsupportedTlsAuthType() {
+        DatasourceConfiguration datasourceConfiguration =
+                createDatasourceConfigurationWithTlsAuthType(SSLDetails.AuthType.REQUIRE);
+        Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(jedisPoolMono)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithPluginException);
+                    assertTrue(error.getMessage().contains("unexpected SSL option"));
+                })
+                .verify();
     }
 
     @Test

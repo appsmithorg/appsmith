@@ -58,6 +58,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": 3,
+      "sectionName": "SSL (optional)",
+      "children": [
+        {
+          "label": "SSL mode",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "DISABLED",
+          "options": [
+            {
+              "label": "Disabled",
+              "value": "DISABLED"
+            },
+            {
+              "label": "Enabled",
+              "value": "ENABLED"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
