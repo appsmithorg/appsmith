@@ -28,6 +28,11 @@ public class AIConfigDTO {
     @Size(max = 200, message = "Deployment name is too long")
     private String azureOpenaiDeploymentName;
 
+    @Size(max = 50, message = "API version is too long")
+    private String azureOpenaiApiVersion;
+
+    private Integer azureOpenaiMaxCompletionTokens;
+
     @NotNull(message = "Provider is required") private AIProvider provider;
 
     @NotNull(message = "Enabled flag is required") private Boolean isAIAssistantEnabled;

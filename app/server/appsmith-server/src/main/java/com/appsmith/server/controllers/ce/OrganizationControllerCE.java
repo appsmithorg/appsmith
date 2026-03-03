@@ -17,6 +17,7 @@ import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.ssl.SslHandshakeTimeoutException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,9 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 @Slf4j
 @RequestMapping(Url.ORGANIZATION_URL)
 public class OrganizationControllerCE {
+
+    static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
+    static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
 
     private final OrganizationService service;
     private final AIReferenceService aiReferenceService;
@@ -115,6 +119,11 @@ public class OrganizationControllerCE {
                                         config::setAzureOpenaiDeploymentName,
                                         200,
                                         "Deployment name");
+                                validateTrimmedString(
+                                        aiConfig.getAzureOpenaiApiVersion(),
+                                        config::setAzureOpenaiApiVersion,
+                                        50,
+                                        "API version");
                                 validateTrimmedString(aiConfig.getLocalLlmUrl(), config::setLocalLlmUrl, 2000, "URL");
                                 validateTrimmedString(
                                         aiConfig.getLocalLlmModel(), config::setLocalLlmModel, 200, "Model name");
@@ -130,6 +139,9 @@ public class OrganizationControllerCE {
                             }
                             if (aiConfig.getLocalLlmContextSize() != null) {
                                 config.setLocalLlmContextSize(aiConfig.getLocalLlmContextSize());
+                            }
+                            if (aiConfig.getAzureOpenaiMaxCompletionTokens() != null) {
+                                config.setAzureOpenaiMaxCompletionTokens(aiConfig.getAzureOpenaiMaxCompletionTokens());
                             }
 
                             return service.updateOrganizationConfiguration(organizationId, config)
@@ -709,6 +721,7 @@ public class OrganizationControllerCE {
         String apiKey = request.get("apiKey");
         String endpoint = request.get("endpoint");
         String deploymentName = request.get("deploymentName");
+        String apiVersion = request.get("apiVersion");
 
         if (provider == null || provider.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -763,7 +776,7 @@ public class OrganizationControllerCE {
                     if (resolvedDeployment == null || resolvedDeployment.trim().isEmpty()) {
                         resolvedDeployment = config.getAzureOpenaiDeploymentName();
                     }
-                    return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment);
+                    return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment, apiVersion);
                 }
 
                 return testApiKeyWithProvider(provider, storedKey);
@@ -772,7 +785,7 @@ public class OrganizationControllerCE {
 
         // For Azure OpenAI, route to the specialized test method
         if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
-            return testAzureOpenaiKey(apiKey.trim(), endpoint, deploymentName);
+            return testAzureOpenaiKey(apiKey.trim(), endpoint, deploymentName, apiVersion);
         }
 
         return testApiKeyWithProvider(provider, apiKey.trim());
@@ -1044,7 +1057,7 @@ public class OrganizationControllerCE {
     }
 
     private Mono<ResponseDTO<Map<String, Object>>> testAzureOpenaiKey(
-            String apiKey, String endpoint, String deploymentName) {
+            String apiKey, String endpoint, String deploymentName, String apiVersion) {
 
         final long startTime = System.currentTimeMillis();
         List<Map<String, String>> steps = new ArrayList<>();
@@ -1088,16 +1101,14 @@ public class OrganizationControllerCE {
         }
 
         // Construct the full Azure OpenAI URL
-        String trimmedEndpoint = endpoint.trim();
-        if (trimmedEndpoint.endsWith("/")) {
-            trimmedEndpoint = trimmedEndpoint.substring(0, trimmedEndpoint.length() - 1);
-        }
-        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName.trim()
-                + "/chat/completions?api-version=2023-05-15";
+        String trimmedEndpoint = stripTrailingSlash(endpoint.trim());
+        String effectiveApiVersion = hasValue(apiVersion) ? apiVersion.trim() : DEFAULT_AZURE_API_VERSION;
+        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName.trim() + "/chat/completions?api-version="
+                + effectiveApiVersion;
 
         steps.add(createStep("URL Construction", "success", "Built Azure OpenAI URL"));
 
-        String payload = "{\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}],\"max_tokens\":5}";
+        String payload = "{\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}],\"max_completion_tokens\":5}";
 
         HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(30));
         WebClient webClient = WebClientUtils.builder(httpClient).build();
@@ -1270,6 +1281,8 @@ public class OrganizationControllerCE {
         response.put("hasAzureOpenaiApiKey", hasValue(config.getAzureOpenaiApiKey()));
         response.put("azureOpenaiEndpoint", config.getAzureOpenaiEndpoint());
         response.put("azureOpenaiDeploymentName", config.getAzureOpenaiDeploymentName());
+        response.put("azureOpenaiApiVersion", config.getAzureOpenaiApiVersion());
+        response.put("azureOpenaiMaxCompletionTokens", config.getAzureOpenaiMaxCompletionTokens());
         response.put("localLlmUrl", config.getLocalLlmUrl());
         response.put("localLlmContextSize", config.getLocalLlmContextSize());
         response.put("localLlmModel", config.getLocalLlmModel());
@@ -1281,62 +1294,74 @@ public class OrganizationControllerCE {
      */
     private Map<String, Object> buildAIConfigResponseForGet(OrganizationConfiguration config) {
         Map<String, Object> response = new HashMap<>();
-        if (config != null) {
-            response.put(
-                    "isAIAssistantEnabled",
-                    config.getIsAIAssistantEnabled() != null ? config.getIsAIAssistantEnabled() : false);
-
-            // Migrate COPILOT -> AZURE_OPENAI at read time
-            AIProvider storedProvider = config.getAiProvider();
-            if (storedProvider == AIProvider.COPILOT) {
-                storedProvider = AIProvider.AZURE_OPENAI;
-            }
-            response.put("provider", storedProvider != null ? storedProvider.name() : "");
-
-            response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
-            response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
-            response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
-            response.put("copilotEndpoint", config.getCopilotEndpoint() != null ? config.getCopilotEndpoint() : "");
-
-            // Azure OpenAI fields - fall back to copilot fields for migration
-            boolean hasAzureKey = hasValue(config.getAzureOpenaiApiKey()) || hasValue(config.getCopilotApiKey());
-            String azureEndpoint = config.getAzureOpenaiEndpoint();
-            if (azureEndpoint == null) {
-                azureEndpoint = config.getCopilotEndpoint();
-            }
-            if (azureEndpoint == null) {
-                azureEndpoint = "";
-            }
-            String azureDeployment =
-                    config.getAzureOpenaiDeploymentName() != null ? config.getAzureOpenaiDeploymentName() : "";
-
-            response.put("hasAzureOpenaiApiKey", hasAzureKey);
-            response.put("azureOpenaiEndpoint", azureEndpoint);
-            response.put("azureOpenaiDeploymentName", azureDeployment);
-
-            response.put("localLlmUrl", config.getLocalLlmUrl() != null ? config.getLocalLlmUrl() : "");
-            response.put(
-                    "localLlmContextSize",
-                    config.getLocalLlmContextSize() != null ? config.getLocalLlmContextSize() : -1);
-            response.put("localLlmModel", config.getLocalLlmModel() != null ? config.getLocalLlmModel() : "");
-        } else {
-            response.put("isAIAssistantEnabled", false);
-            response.put("provider", "");
-            response.put("hasClaudeApiKey", false);
-            response.put("hasOpenaiApiKey", false);
-            response.put("hasCopilotApiKey", false);
-            response.put("copilotEndpoint", "");
-            response.put("hasAzureOpenaiApiKey", false);
-            response.put("azureOpenaiEndpoint", "");
-            response.put("azureOpenaiDeploymentName", "");
-            response.put("localLlmUrl", "");
-            response.put("localLlmContextSize", -1);
-            response.put("localLlmModel", "");
+        if (config == null) {
+            return buildEmptyAIConfigResponse();
         }
+
+        response.put("isAIAssistantEnabled", Boolean.TRUE.equals(config.getIsAIAssistantEnabled()));
+
+        // Migrate COPILOT -> AZURE_OPENAI at read time
+        AIProvider storedProvider = config.getAiProvider();
+        if (storedProvider == AIProvider.COPILOT) {
+            storedProvider = AIProvider.AZURE_OPENAI;
+        }
+        response.put("provider", storedProvider != null ? storedProvider.name() : "");
+
+        response.put("hasClaudeApiKey", hasValue(config.getClaudeApiKey()));
+        response.put("hasOpenaiApiKey", hasValue(config.getOpenaiApiKey()));
+        response.put("hasCopilotApiKey", hasValue(config.getCopilotApiKey()));
+        response.put("copilotEndpoint", defaultString(config.getCopilotEndpoint()));
+
+        // Azure OpenAI fields - fall back to copilot fields for migration
+        boolean hasAzureKey = hasValue(config.getAzureOpenaiApiKey()) || hasValue(config.getCopilotApiKey());
+        String azureEndpoint = ObjectUtils.defaultIfNull(config.getAzureOpenaiEndpoint(), config.getCopilotEndpoint());
+
+        response.put("hasAzureOpenaiApiKey", hasAzureKey);
+        response.put("azureOpenaiEndpoint", defaultString(azureEndpoint));
+        response.put("azureOpenaiDeploymentName", defaultString(config.getAzureOpenaiDeploymentName()));
+        response.put(
+                "azureOpenaiApiVersion",
+                ObjectUtils.defaultIfNull(config.getAzureOpenaiApiVersion(), DEFAULT_AZURE_API_VERSION));
+        response.put(
+                "azureOpenaiMaxCompletionTokens",
+                ObjectUtils.defaultIfNull(
+                        config.getAzureOpenaiMaxCompletionTokens(), DEFAULT_AZURE_MAX_COMPLETION_TOKENS));
+
+        response.put("localLlmUrl", defaultString(config.getLocalLlmUrl()));
+        response.put("localLlmContextSize", ObjectUtils.defaultIfNull(config.getLocalLlmContextSize(), -1));
+        response.put("localLlmModel", defaultString(config.getLocalLlmModel()));
+
+        return response;
+    }
+
+    private Map<String, Object> buildEmptyAIConfigResponse() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isAIAssistantEnabled", false);
+        response.put("provider", "");
+        response.put("hasClaudeApiKey", false);
+        response.put("hasOpenaiApiKey", false);
+        response.put("hasCopilotApiKey", false);
+        response.put("copilotEndpoint", "");
+        response.put("hasAzureOpenaiApiKey", false);
+        response.put("azureOpenaiEndpoint", "");
+        response.put("azureOpenaiDeploymentName", "");
+        response.put("azureOpenaiApiVersion", DEFAULT_AZURE_API_VERSION);
+        response.put("azureOpenaiMaxCompletionTokens", DEFAULT_AZURE_MAX_COMPLETION_TOKENS);
+        response.put("localLlmUrl", "");
+        response.put("localLlmContextSize", -1);
+        response.put("localLlmModel", "");
         return response;
     }
 
     private boolean hasValue(String value) {
         return value != null && !value.isEmpty();
+    }
+
+    private String defaultString(String value) {
+        return value != null ? value : "";
+    }
+
+    private String stripTrailingSlash(String url) {
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 }

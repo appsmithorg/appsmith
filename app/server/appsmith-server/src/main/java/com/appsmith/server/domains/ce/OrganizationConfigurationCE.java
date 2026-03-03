@@ -93,6 +93,14 @@ public class OrganizationConfigurationCE implements Serializable {
 
     @JsonView(Views.Public.class)
     @JsonInclude
+    private String azureOpenaiApiVersion;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private Integer azureOpenaiMaxCompletionTokens;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
     private AIProvider aiProvider;
 
     @JsonView(Views.Public.class)
@@ -148,6 +156,10 @@ public class OrganizationConfigurationCE implements Serializable {
                 ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiEndpoint(), azureOpenaiEndpoint);
         azureOpenaiDeploymentName = ObjectUtils.defaultIfNull(
                 organizationConfiguration.getAzureOpenaiDeploymentName(), azureOpenaiDeploymentName);
+        azureOpenaiApiVersion =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiApiVersion(), azureOpenaiApiVersion);
+        azureOpenaiMaxCompletionTokens = ObjectUtils.defaultIfNull(
+                organizationConfiguration.getAzureOpenaiMaxCompletionTokens(), azureOpenaiMaxCompletionTokens);
         aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
         isAIAssistantEnabled =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);

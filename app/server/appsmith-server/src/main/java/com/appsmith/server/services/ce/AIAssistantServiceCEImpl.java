@@ -33,6 +33,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
+    private static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
+    private static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
+
     private final OrganizationService organizationService;
     private final AIReferenceService aiReferenceService;
 
@@ -123,8 +126,17 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                     AppsmithError.NO_RESOURCE_FOUND,
                                     "Azure OpenAI deployment name not configured. Add the name of your model deployment from Azure OpenAI Studio."));
                 }
+                String apiVersion = orgConfig.getAzureOpenaiApiVersion();
+                Integer maxCompletionTokens = orgConfig.getAzureOpenaiMaxCompletionTokens();
                 return callAzureOpenAIAPI(
-                        endpoint.trim(), deploymentName.trim(), apiKey, prompt, context, conversationHistory);
+                        endpoint.trim(),
+                        deploymentName.trim(),
+                        apiKey,
+                        prompt,
+                        context,
+                        conversationHistory,
+                        apiVersion,
+                        maxCompletionTokens);
             }
 
             // CLAUDE and OPENAI use API key
@@ -471,17 +483,21 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             String apiKey,
             String prompt,
             AIEditorContextDTO context,
-            List<AIMessageDTO> conversationHistory) {
+            List<AIMessageDTO> conversationHistory,
+            String apiVersion,
+            Integer maxCompletionTokens) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
 
         // Construct Azure OpenAI URL from endpoint + deployment name
-        String trimmedEndpoint = endpoint;
-        if (trimmedEndpoint.endsWith("/")) {
-            trimmedEndpoint = trimmedEndpoint.substring(0, trimmedEndpoint.length() - 1);
-        }
-        String url =
-                trimmedEndpoint + "/openai/deployments/" + deploymentName + "/chat/completions?api-version=2023-05-15";
+        String trimmedEndpoint = endpoint.endsWith("/") ? endpoint.substring(0, endpoint.length() - 1) : endpoint;
+        String effectiveApiVersion =
+                (apiVersion != null && !apiVersion.trim().isEmpty()) ? apiVersion.trim() : DEFAULT_AZURE_API_VERSION;
+        int effectiveMaxTokens = (maxCompletionTokens != null && maxCompletionTokens > 0)
+                ? maxCompletionTokens
+                : DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
+        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName + "/chat/completions?api-version="
+                + effectiveApiVersion;
 
         List<Map<String, Object>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
@@ -494,7 +510,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("messages", messages);
-        requestBody.put("temperature", 0.7);
+        requestBody.put("max_completion_tokens", effectiveMaxTokens);
 
         WebClient webClient = WebClientUtils.builder()
                 .clientConnector(
@@ -511,6 +527,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
                         .flatMap(errorBody -> {
                             int statusCode = response.statusCode().value();
+                            log.error(
+                                    "Azure OpenAI returned HTTP {}: {}",
+                                    statusCode,
+                                    errorBody != null && errorBody.length() > 1000
+                                            ? errorBody.substring(0, 1000)
+                                            : errorBody);
                             if (statusCode == 401 || statusCode == 403) {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));

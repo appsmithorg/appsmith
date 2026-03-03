@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Button, Input, Select, Spinner, Switch, Text } from "@appsmith/ads";
 import styled from "styled-components";
-import OrganizationApi, { type OllamaModel } from "ee/api/OrganizationApi";
+import OrganizationApi, {
+  type AIConfigRequest,
+  type OllamaModel,
+} from "ee/api/OrganizationApi";
 import { toast } from "@appsmith/ads";
+
+const DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
+const DEFAULT_AZURE_MAX_COMPLETION_TOKENS = "16384";
 
 // Response types (unwrapped by axios interceptors)
 interface ExternalReferenceFile {
@@ -20,6 +26,8 @@ interface AIConfigData {
   hasAzureOpenaiApiKey?: boolean;
   azureOpenaiEndpoint?: string;
   azureOpenaiDeploymentName?: string;
+  azureOpenaiApiVersion?: string;
+  azureOpenaiMaxCompletionTokens?: number;
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
@@ -450,6 +458,11 @@ function AISettings() {
   const [azureOpenaiEndpoint, setAzureOpenaiEndpoint] = useState<string>("");
   const [azureOpenaiDeploymentName, setAzureOpenaiDeploymentName] =
     useState<string>("");
+  const [azureOpenaiApiVersion, setAzureOpenaiApiVersion] = useState<string>(
+    DEFAULT_AZURE_API_VERSION,
+  );
+  const [azureOpenaiMaxCompletionTokens, setAzureOpenaiMaxCompletionTokens] =
+    useState<string>(DEFAULT_AZURE_MAX_COMPLETION_TOKENS);
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
   const [localLlmModel, setLocalLlmModel] = useState<string>("");
@@ -501,6 +514,14 @@ function AISettings() {
           setAzureOpenaiApiKey(config.hasAzureOpenaiApiKey ? "••••••••" : "");
           setAzureOpenaiEndpoint(config.azureOpenaiEndpoint || "");
           setAzureOpenaiDeploymentName(config.azureOpenaiDeploymentName || "");
+          setAzureOpenaiApiVersion(
+            config.azureOpenaiApiVersion || DEFAULT_AZURE_API_VERSION,
+          );
+          setAzureOpenaiMaxCompletionTokens(
+            config.azureOpenaiMaxCompletionTokens
+              ? String(config.azureOpenaiMaxCompletionTokens)
+              : DEFAULT_AZURE_MAX_COMPLETION_TOKENS,
+          );
           setLocalLlmUrl(config.localLlmUrl || "");
           // -1 is sentinel value meaning "not set"
           const contextSize = config.localLlmContextSize;
@@ -570,18 +591,7 @@ function AISettings() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const request: {
-        provider: string;
-        isAIAssistantEnabled: boolean;
-        claudeApiKey?: string;
-        openaiApiKey?: string;
-        azureOpenaiApiKey?: string;
-        azureOpenaiEndpoint?: string;
-        azureOpenaiDeploymentName?: string;
-        localLlmUrl?: string;
-        localLlmContextSize?: number;
-        localLlmModel?: string;
-      } = {
+      const request: AIConfigRequest = {
         provider,
         isAIAssistantEnabled,
       };
@@ -613,6 +623,17 @@ function AISettings() {
 
         if (azureOpenaiDeploymentName) {
           request.azureOpenaiDeploymentName = azureOpenaiDeploymentName;
+        }
+
+        if (azureOpenaiApiVersion) {
+          request.azureOpenaiApiVersion = azureOpenaiApiVersion;
+        }
+
+        if (azureOpenaiMaxCompletionTokens) {
+          request.azureOpenaiMaxCompletionTokens = parseInt(
+            azureOpenaiMaxCompletionTokens,
+            10,
+          );
         }
       }
 
@@ -719,6 +740,7 @@ function AISettings() {
         keyToTest,
         provider === "AZURE_OPENAI" ? azureOpenaiEndpoint : undefined,
         provider === "AZURE_OPENAI" ? azureOpenaiDeploymentName : undefined,
+        provider === "AZURE_OPENAI" ? azureOpenaiApiVersion : undefined,
       )) as unknown as UnwrappedApiResponse<TestResult>;
 
       if (response.responseMeta.success) {
@@ -930,6 +952,41 @@ function AISettings() {
               />
               <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
                 The name of your model deployment in Azure OpenAI Studio
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">API Version</Text>
+              </LabelWrapper>
+              <Input
+                onChange={function handleAzureApiVersionChange(value) {
+                  setAzureOpenaiApiVersion(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="2024-12-01-preview"
+                type="text"
+                value={azureOpenaiApiVersion}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Azure OpenAI API version (e.g. 2024-12-01-preview)
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Max Completion Tokens</Text>
+              </LabelWrapper>
+              <Input
+                onChange={function handleAzureMaxTokensChange(value) {
+                  setAzureOpenaiMaxCompletionTokens(value);
+                }}
+                placeholder="16384"
+                type="number"
+                value={azureOpenaiMaxCompletionTokens}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Maximum tokens in AI response
               </HintText>
             </FieldWrapper>
 
