@@ -26,7 +26,11 @@ export function getAIMessages(state: DefaultRootState): AIMessage[] {
 export function getAILastResponse(state: DefaultRootState): string | undefined {
   const messages = state.aiAssistant.messages || [];
 
-  return messages.findLast((m) => m.role === "assistant")?.content;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "assistant") return messages[i].content;
+  }
+
+  return undefined;
 }
 
 export function getAIError(state: DefaultRootState): string | undefined {

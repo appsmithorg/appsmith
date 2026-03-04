@@ -119,6 +119,8 @@ interface AIConfigResponse {
   provider?: string;
   hasClaudeApiKey?: boolean;
   hasOpenaiApiKey?: boolean;
+  hasAzureOpenaiApiKey?: boolean;
+  localLlmUrl?: string;
   isAIAssistantEnabled?: boolean;
 }
 
@@ -136,7 +138,12 @@ function* loadAISettingsSaga(): Generator<unknown, void, unknown> {
     yield put(
       updateAISettings({
         provider: config.provider,
-        hasApiKey: Boolean(config.hasClaudeApiKey || config.hasOpenaiApiKey),
+        hasApiKey: Boolean(
+          config.hasClaudeApiKey ||
+            config.hasOpenaiApiKey ||
+            config.hasAzureOpenaiApiKey ||
+            config.localLlmUrl,
+        ),
         isEnabled: Boolean(config.isAIAssistantEnabled),
       }),
     );

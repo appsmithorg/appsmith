@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Input, Select, Text } from "@appsmith/ads";
 import styled from "styled-components";
@@ -29,6 +29,8 @@ function AISettings() {
   const [provider, setProvider] = useState<string>("CLAUDE");
   const [claudeApiKey, setClaudeApiKey] = useState<string>("");
   const [openaiApiKey, setOpenaiApiKey] = useState<string>("");
+  const [hasClaudeApiKey, setHasClaudeApiKey] = useState(false);
+  const [hasOpenaiApiKey, setHasOpenaiApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,11 +43,11 @@ function AISettings() {
         ]);
 
         if (claudeResponse.data.responseMeta.success) {
-          setClaudeApiKey(claudeResponse.data.data.hasApiKey ? "••••••••" : "");
+          setHasClaudeApiKey(claudeResponse.data.data.hasApiKey);
         }
 
         if (openaiResponse.data.responseMeta.success) {
-          setOpenaiApiKey(openaiResponse.data.data.hasApiKey ? "••••••••" : "");
+          setHasOpenaiApiKey(openaiResponse.data.data.hasApiKey);
         }
       } catch (error) {
         toast.show("Failed to load AI settings", { kind: "error" });
@@ -57,20 +59,33 @@ function AISettings() {
     fetchApiKeys();
   }, []);
 
-  const handleSave = async () => {
+  const currentHasKey =
+    provider === "CLAUDE" ? hasClaudeApiKey : hasOpenaiApiKey;
+  const currentKeyInput = provider === "CLAUDE" ? claudeApiKey : openaiApiKey;
+
+  const handleSave = useCallback(async () => {
+    if (!currentKeyInput.trim()) {
+      toast.show("Please enter an API key", { kind: "warning" });
+
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const apiKey = provider === "CLAUDE" ? claudeApiKey : openaiApiKey;
-      const response = await UserApi.updateAIApiKey(provider, apiKey);
+      const response = await UserApi.updateAIApiKey(provider, currentKeyInput);
 
       if (response.data.responseMeta.success) {
         dispatch(updateAISettings({ provider, hasApiKey: true }));
-        toast.show("AI API key saved successfully", { kind: "success" });
+        toast.show("AI API key saved successfully", {
+          kind: "success",
+        });
 
         if (provider === "CLAUDE") {
-          setClaudeApiKey("••••••••");
+          setClaudeApiKey("");
+          setHasClaudeApiKey(true);
         } else {
-          setOpenaiApiKey("••••••••");
+          setOpenaiApiKey("");
+          setHasOpenaiApiKey(true);
         }
       } else {
         toast.show("Failed to save AI API key", { kind: "error" });
@@ -80,7 +95,31 @@ function AISettings() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [provider, currentKeyInput, dispatch]);
+
+  const handleProviderChange = useCallback(
+    (value: string) => setProvider(value as string),
+    [],
+  );
+
+  const providerOptions = useMemo(
+    () => [
+      { label: "Claude (Anthropic)", value: "CLAUDE" },
+      { label: "OpenAI (ChatGPT)", value: "OPENAI" },
+    ],
+    [],
+  );
+
+  const handleKeyChange = useCallback(
+    (value: string) => {
+      if (provider === "CLAUDE") {
+        setClaudeApiKey(value);
+      } else {
+        setOpenaiApiKey(value);
+      }
+    },
+    [provider],
+  );
 
   if (isLoading) {
     return <Wrapper>Loading...</Wrapper>;
@@ -101,11 +140,8 @@ function AISettings() {
           <Text kind="body-m">AI Provider</Text>
         </LabelWrapper>
         <Select
-          onChange={(value) => setProvider(value as string)}
-          options={[
-            { label: "Claude (Anthropic)", value: "CLAUDE" },
-            { label: "OpenAI (ChatGPT)", value: "OPENAI" },
-          ]}
+          onChange={handleProviderChange}
+          options={providerOptions}
           value={provider}
         />
       </FieldWrapper>
@@ -117,21 +153,22 @@ function AISettings() {
           </Text>
         </LabelWrapper>
         <Input
-          onChange={(value) => {
-            if (provider === "CLAUDE") {
-              setClaudeApiKey(value);
-            } else {
-              setOpenaiApiKey(value);
-            }
-          }}
+          onChange={handleKeyChange}
           placeholder={
-            provider === "CLAUDE"
-              ? "Enter your Claude API key"
-              : "Enter your OpenAI API key"
+            currentHasKey
+              ? "Key saved - enter a new key to replace it"
+              : provider === "CLAUDE"
+                ? "Enter your Claude API key"
+                : "Enter your OpenAI API key"
           }
           type="password"
-          value={provider === "CLAUDE" ? claudeApiKey : openaiApiKey}
+          value={currentKeyInput}
         />
+        {currentHasKey && !currentKeyInput && (
+          <Text color="var(--ads-v2-color-fg-success)" kind="body-s">
+            API key is configured. Enter a new key to replace it.
+          </Text>
+        )}
         <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
           {provider === "CLAUDE"
             ? "Get your API key from https://console.anthropic.com/"
@@ -141,6 +178,7 @@ function AISettings() {
 
       <FieldWrapper>
         <Button
+          isDisabled={!currentKeyInput.trim()}
           isLoading={isSaving}
           kind="primary"
           onClick={handleSave}

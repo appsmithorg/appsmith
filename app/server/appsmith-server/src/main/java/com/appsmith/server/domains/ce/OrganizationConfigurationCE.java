@@ -76,26 +76,26 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonView(Views.Internal.class)
     @Encrypted private String copilotApiKey;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String copilotEndpoint;
 
     @JsonView(Views.Internal.class)
     @Encrypted private String azureOpenaiApiKey;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String azureOpenaiEndpoint;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String azureOpenaiDeploymentName;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String azureOpenaiApiVersion;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private Integer azureOpenaiMaxCompletionTokens;
 
@@ -107,15 +107,15 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonInclude
     private Boolean isAIAssistantEnabled = false;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String localLlmUrl;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private Integer localLlmContextSize;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     @JsonInclude
     private String localLlmModel;
 

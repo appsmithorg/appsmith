@@ -80,9 +80,11 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     private boolean isIntercomConsentGiven;
 
+    @ToString.Exclude
     @JsonView(Views.Internal.class)
     @Encrypted private String claudeApiKey;
 
+    @ToString.Exclude
     @JsonView(Views.Internal.class)
     @Encrypted private String openaiApiKey;
 

@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -312,6 +313,18 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Prompt is too long"));
         }
 
+        // Validate URL scheme — only allow http/https to prevent protocol-based attacks
+        try {
+            URI parsedUri = URI.create(url);
+            String scheme = parsedUri.getScheme();
+            if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER, "Local LLM URL must use http or https scheme"));
+            }
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid Local LLM URL"));
+        }
+
         // Ollama uses /api/chat with messages format (OpenAI-compatible)
         // Normalize the URL: if user provided /api/generate, swap to /api/chat
         // If user provided a base URL (no /api/ path), append /api/chat
@@ -324,7 +337,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             // Base URL like http://localhost:11434 — append /api/chat
             chatUrl = url.endsWith("/") ? url + "api/chat" : url + "/api/chat";
         }
-        log.info("Local LLM request: model={}, url={} -> chatUrl={}", model, url, chatUrl);
+        URI chatUri = URI.create(chatUrl);
+        log.info("Local LLM request: model={}, endpoint={}", model, sanitizeUrlForLog(chatUri));
 
         List<Map<String, Object>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
@@ -380,23 +394,50 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     }
                     if (error instanceof java.util.concurrent.TimeoutException
                             || error instanceof io.netty.handler.timeout.ReadTimeoutException) {
-                        log.error("Local LLM timed out after 120s: model={}, url={}", model, chatUrl);
+                        log.error(
+                                "Local LLM timed out after 120s: model={}, endpoint={}",
+                                model,
+                                sanitizeUrlForLog(chatUri));
                         return new AppsmithException(
                                 AppsmithError.INTERNAL_SERVER_ERROR,
                                 "Local LLM timed out. The model may be loading — try again in a moment, "
                                         + "or use a smaller model. (timeout: 120s)");
                     }
                     if (error instanceof java.net.ConnectException) {
-                        log.error("Cannot connect to Local LLM at {}: {}", chatUrl, error.getMessage());
+                        log.error(
+                                "Cannot connect to Local LLM at {}: {}",
+                                sanitizeUrlForLog(chatUri),
+                                error.getMessage());
                         return new AppsmithException(
                                 AppsmithError.INTERNAL_SERVER_ERROR,
-                                "Cannot connect to Local LLM at " + chatUrl
+                                "Cannot connect to Local LLM at " + sanitizeUrlForLog(chatUri)
                                         + ". Ensure Ollama is running (ollama serve).");
                     }
                     log.error("Unexpected Local LLM API error: {}", error.getMessage(), error);
                     return new AppsmithException(
                             AppsmithError.INTERNAL_SERVER_ERROR, "Local LLM error: " + error.getMessage());
                 });
+    }
+
+    /**
+     * Sanitizes a URL for safe logging by stripping userinfo and query parameters.
+     * Returns only scheme://host:port/path.
+     */
+    private static String sanitizeUrlForLog(URI uri) {
+        StringBuilder sb = new StringBuilder();
+        if (uri.getScheme() != null) {
+            sb.append(uri.getScheme()).append("://");
+        }
+        if (uri.getHost() != null) {
+            sb.append(uri.getHost());
+            if (uri.getPort() != -1) {
+                sb.append(":").append(uri.getPort());
+            }
+        }
+        if (uri.getPath() != null) {
+            sb.append(uri.getPath());
+        }
+        return sb.toString();
     }
 
     private static final int MAX_RESPONSE_LENGTH = 200000;

@@ -429,6 +429,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 });
     }
 
+    private static AIProvider parseProvider(String provider) {
+        if (provider == null || provider.trim().isEmpty()) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider);
+        }
+        try {
+            return AIProvider.valueOf(provider.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider);
+        }
+    }
+
     @Override
     public Mono<UserData> updateAIApiKey(String provider, String apiKey) {
         if (apiKey == null || apiKey.trim().isEmpty()) {
@@ -441,18 +452,25 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         AIProvider providerEnum;
         try {
-            providerEnum = AIProvider.valueOf(provider.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider));
+            providerEnum = parseProvider(provider);
+        } catch (AppsmithException e) {
+            return Mono.error(e);
         }
 
         return getForCurrentUser().flatMap(userData -> {
-            if (providerEnum == AIProvider.CLAUDE) {
-                userData.setClaudeApiKey(apiKey.trim());
-                userData.setAiProvider(AIProvider.CLAUDE);
-            } else if (providerEnum == AIProvider.OPENAI) {
-                userData.setOpenaiApiKey(apiKey.trim());
-                userData.setAiProvider(AIProvider.OPENAI);
+            switch (providerEnum) {
+                case CLAUDE -> {
+                    userData.setClaudeApiKey(apiKey.trim());
+                    userData.setAiProvider(AIProvider.CLAUDE);
+                }
+                case OPENAI -> {
+                    userData.setOpenaiApiKey(apiKey.trim());
+                    userData.setAiProvider(AIProvider.OPENAI);
+                }
+                default -> {
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.INVALID_PARAMETER, "Unsupported provider for user API key: " + providerEnum));
+                }
             }
             return repository.save(userData);
         });
@@ -462,18 +480,18 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<String> getAIApiKey(String provider) {
         AIProvider providerEnum;
         try {
-            providerEnum = AIProvider.valueOf(provider.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider: " + provider));
+            providerEnum = parseProvider(provider);
+        } catch (AppsmithException e) {
+            return Mono.error(e);
         }
 
-        return getForCurrentUser().map(userData -> {
-            if (providerEnum == AIProvider.CLAUDE) {
-                return userData.getClaudeApiKey();
-            } else if (providerEnum == AIProvider.OPENAI) {
-                return userData.getOpenaiApiKey();
-            }
-            return null;
+        return getForCurrentUser().flatMap(userData -> {
+            return switch (providerEnum) {
+                case CLAUDE -> Mono.justOrEmpty(userData.getClaudeApiKey());
+                case OPENAI -> Mono.justOrEmpty(userData.getOpenaiApiKey());
+                default -> Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER, "Unsupported provider for user API key: " + providerEnum));
+            };
         });
     }
 
