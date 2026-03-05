@@ -214,7 +214,6 @@ public class UserControllerCE {
         return service.verifyEmailVerificationToken(exchange);
     }
 
-
     @JsonView(Views.Public.class)
     @PostMapping("/ai-assistant/request")
     public Mono<ResponseDTO<Map<String, String>>> requestAIResponse(@RequestBody @Valid AIRequestDTO request) {
