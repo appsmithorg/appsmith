@@ -263,6 +263,7 @@ function AppViewer(props: Props) {
         )}
         <HtmlTitle
           description={pageDescription}
+          lang={currentApplicationDetails?.applicationDetail?.htmlLang}
           name={currentApplicationDetails?.name}
         />
         <AppViewerBodyContainer

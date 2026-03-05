@@ -41,6 +41,7 @@ export interface INJECTED_CONFIGS {
   googleRecaptchaSiteKey: string;
   supportEmail: string;
   disableIframeWidgetSandbox: boolean;
+  defaultHtmlLang: string;
   pricingUrl: string;
   customerPortalUrl: string;
 }
@@ -111,6 +112,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       .APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX
       ? process.env.APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX.length > 0
       : false,
+    defaultHtmlLang: process.env.APPSMITH_DEFAULT_HTML_LANG || "",
     pricingUrl: process.env.REACT_APP_PRICING_URL || "",
     customerPortalUrl: process.env.REACT_APP_CUSTOMER_PORTAL_URL || "",
   };
@@ -255,6 +257,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.disableIframeWidgetSandbox ||
       APPSMITH_FEATURE_CONFIGS?.disableIframeWidgetSandbox ||
       false,
+    defaultHtmlLang:
+      ENV_CONFIG.defaultHtmlLang ||
+      APPSMITH_FEATURE_CONFIGS?.defaultHtmlLang ||
+      "",
     pricingUrl:
       ENV_CONFIG.pricingUrl || APPSMITH_FEATURE_CONFIGS?.pricingUrl || "",
     customerPortalUrl:

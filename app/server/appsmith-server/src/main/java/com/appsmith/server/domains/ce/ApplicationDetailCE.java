@@ -23,6 +23,9 @@ public class ApplicationDetailCE {
     @JsonView({Views.Public.class, Git.class})
     Application.ThemeSetting themeSetting;
 
+    @JsonView({Views.Public.class, Git.class})
+    String htmlLang;
+
     public ApplicationDetailCE() {
         this.appPositioning = null;
         this.navigationSetting = null;
