@@ -102,6 +102,7 @@ class TabsWidget extends BaseWidget<
       borderWidth: 1,
       borderColor: Colors.GREY_5,
       backgroundColor: Colors.WHITE,
+      padding: 4,
       minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
       tabsObj: {
         tab1: {
@@ -486,6 +487,19 @@ class TabsWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "padding",
+            label: "Padding (px)",
+            helpText: "Sets the padding around the widget",
+            placeholderText: "0",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0 },
+            },
           },
         ],
       },

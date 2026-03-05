@@ -692,6 +692,19 @@ export const styleConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        propertyName: "padding",
+        label: "Padding (px)",
+        helpText: "Sets the padding around the widget",
+        placeholderText: "0",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: 0 },
+        },
+      },
     ],
   },
   {

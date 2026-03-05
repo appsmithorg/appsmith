@@ -96,6 +96,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   formData: Record<string, unknown>;
   isVisible: boolean;
   onSubmit?: string;
+  padding?: number;
   resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
@@ -200,6 +201,7 @@ class JSONFormWidget extends BaseWidget<
       autoGenerateForm: true,
       fieldLimitExceeded: false,
       sourceData: "",
+      padding: 4,
       submitButtonLabel: "Submit",
       resetButtonLabel: "Reset",
       blueprint: {

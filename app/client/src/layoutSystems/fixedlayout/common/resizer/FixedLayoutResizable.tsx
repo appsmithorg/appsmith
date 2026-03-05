@@ -1,6 +1,5 @@
 import { computeRowCols } from "layoutSystems/common/resizer/ResizableUtils";
 import { isHandleResizeAllowed } from "layoutSystems/common/resizer/ResizableUtils";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Spring } from "react-spring";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -366,11 +365,13 @@ export function FixedLayoutResizable(props: ResizableProps) {
   const widgetWidth =
     (reflowedPosition?.width === undefined
       ? newDimensions.width
-      : reflowedPosition.width - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
+      : reflowedPosition.width - 2 * props.paddingOffset) +
+    RESIZE_BORDER_BUFFER;
   const widgetHeight =
     (reflowedPosition?.height === undefined
       ? newDimensions.height
-      : reflowedPosition.height - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
+      : reflowedPosition.height - 2 * props.paddingOffset) +
+    RESIZE_BORDER_BUFFER;
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     props.topRow <= 2,
     props.showResizeBoundary,

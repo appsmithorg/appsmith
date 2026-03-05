@@ -50,6 +50,7 @@ export interface PositionedContainerProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   widgetName: string;
+  padding?: number;
 }
 
 export function PositionedContainer(
@@ -86,7 +87,7 @@ export function PositionedContainer(
   // const style: BaseStyle = getStyle(componentWidth, componentHeight);
   const x = style.xPosition + (style.xPositionUnit || "px");
   const y = style.yPosition + (style.yPositionUnit || "px");
-  const padding = WIDGET_PADDING;
+  const padding = props.padding ?? WIDGET_PADDING;
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   // memoized className
   const containerClassName = useMemo(() => {
@@ -158,7 +159,14 @@ export function PositionedContainer(
     };
 
     return styles;
-  }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
+  }, [
+    style,
+    isReflowEffected,
+    onHoverZIndex,
+    zIndex,
+    reflowedPosition,
+    padding,
+  ]);
 
   const [handleMouseOver, handleMouseLeave] = useHoverToFocusWidget(
     props.widgetId,

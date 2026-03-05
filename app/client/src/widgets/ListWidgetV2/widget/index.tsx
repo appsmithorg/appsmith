@@ -1526,6 +1526,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   children?: T[];
   currentItemStructure?: Record<string, string>;
   itemSpacing?: number;
+  padding?: number;
   infiniteScroll?: boolean;
   level?: number;
   levelData?: LevelData;

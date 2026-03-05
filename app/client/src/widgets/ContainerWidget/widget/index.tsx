@@ -103,6 +103,7 @@ export class ContainerWidget extends BaseWidget<
       boxShadow: ButtonBoxShadowTypes.NONE,
       animateLoading: true,
       children: [],
+      padding: 4,
       blueprint: {
         view: [
           {
@@ -311,6 +312,19 @@ export class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "padding",
+            label: "Padding (px)",
+            helpText: "Sets the padding around the widget",
+            placeholderText: "0",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0 },
+            },
+          },
         ],
       },
     ];
@@ -415,6 +429,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  padding?: number;
   positioning?: Positioning;
   forceFullOpacity?: boolean; // used to force full opacity for ui module instance meta widgets
 }

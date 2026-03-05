@@ -12,6 +12,7 @@ export const PositionedComponentLayer = (props: BaseWidgetProps) => {
       isVisible={props.isVisible}
       leftColumn={props.leftColumn}
       noContainerOffset={props.noContainerOffset}
+      padding={props.padding}
       parentColumnSpace={props.parentColumnSpace}
       parentId={props.parentId}
       parentRowSpace={props.parentRowSpace}

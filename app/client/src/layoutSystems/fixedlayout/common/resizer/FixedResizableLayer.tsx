@@ -8,8 +8,13 @@ export const FixedResizableLayer = memo((props: BaseWidgetProps) => {
     return props.children;
   }
 
+  const paddingOffset =
+    "padding" in props && typeof props.padding === "number"
+      ? props.padding
+      : WIDGET_PADDING;
+
   return (
-    <ResizableComponent {...props} paddingOffset={WIDGET_PADDING}>
+    <ResizableComponent {...props} paddingOffset={paddingOffset}>
       {props.children}
     </ResizableComponent>
   );
