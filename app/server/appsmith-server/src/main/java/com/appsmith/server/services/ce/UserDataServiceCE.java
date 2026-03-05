@@ -54,10 +54,6 @@ public interface UserDataServiceCE {
 
     Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
 
-    Mono<UserData> updateAIApiKey(String provider, String apiKey);
-
-    Mono<String> getAIApiKey(String provider);
-
     Mono<UserData> toggleFavoriteApplication(String applicationId);
 
     Mono<List<Application>> getFavoriteApplications();

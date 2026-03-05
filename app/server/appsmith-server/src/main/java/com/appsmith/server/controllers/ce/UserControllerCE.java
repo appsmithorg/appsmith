@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UpdateAIApiKeyDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -215,26 +214,6 @@ public class UserControllerCE {
         return service.verifyEmailVerificationToken(exchange);
     }
 
-    @Deprecated(forRemoval = true, since = "v1.0")
-    @JsonView(Views.Public.class)
-    @PutMapping("/ai-api-key")
-    public Mono<ResponseDTO<UserData>> updateAIApiKey(
-            @RequestParam String provider, @RequestBody @Valid UpdateAIApiKeyDTO request) {
-        return userDataService
-                .updateAIApiKey(provider, request.getApiKey())
-                .map(userData -> new ResponseDTO<>(HttpStatus.OK, userData));
-    }
-
-    @Deprecated(forRemoval = true, since = "v1.0")
-    @JsonView(Views.Public.class)
-    @GetMapping("/ai-api-key")
-    public Mono<ResponseDTO<Map<String, Object>>> getAIApiKey(@RequestParam String provider) {
-        return userDataService
-                .getAIApiKey(provider)
-                .map(apiKey ->
-                        Map.<String, Object>of("provider", provider, "hasApiKey", apiKey != null && !apiKey.isEmpty()))
-                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
-    }
 
     @JsonView(Views.Public.class)
     @PostMapping("/ai-assistant/request")

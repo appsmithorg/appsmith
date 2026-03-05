@@ -11,6 +11,8 @@ import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Transient;
@@ -68,12 +70,18 @@ public class OrganizationConfigurationCE implements Serializable {
     private Boolean isAtomicPushAllowed = false;
 
     @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Encrypted private String claudeApiKey;
 
     @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Encrypted private String openaiApiKey;
 
     @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Encrypted private String copilotApiKey;
 
     @JsonView(Views.Internal.class)
@@ -81,6 +89,8 @@ public class OrganizationConfigurationCE implements Serializable {
     private String copilotEndpoint;
 
     @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Encrypted private String azureOpenaiApiKey;
 
     @JsonView(Views.Internal.class)
@@ -146,12 +156,7 @@ public class OrganizationConfigurationCE implements Serializable {
         migrationStatus = organizationConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
-        claudeApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeApiKey(), claudeApiKey);
-        openaiApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiApiKey(), openaiApiKey);
-        copilotApiKey = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotApiKey(), copilotApiKey);
         copilotEndpoint = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotEndpoint(), copilotEndpoint);
-        azureOpenaiApiKey =
-                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiApiKey(), azureOpenaiApiKey);
         azureOpenaiEndpoint =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiEndpoint(), azureOpenaiEndpoint);
         azureOpenaiDeploymentName = ObjectUtils.defaultIfNull(

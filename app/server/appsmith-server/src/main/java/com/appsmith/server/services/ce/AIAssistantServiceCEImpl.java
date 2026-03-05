@@ -313,13 +313,18 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Prompt is too long"));
         }
 
-        // Validate URL scheme — only allow http/https to prevent protocol-based attacks
+        // Validate URL scheme and host to prevent protocol-based attacks and authority-less URIs like "http:foo"
         try {
             URI parsedUri = URI.create(url);
             String scheme = parsedUri.getScheme();
             if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
                 return Mono.error(new AppsmithException(
                         AppsmithError.INVALID_PARAMETER, "Local LLM URL must use http or https scheme"));
+            }
+            if (parsedUri.getHost() == null || parsedUri.getHost().isEmpty()) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        "Local LLM URL must include a valid host and use http or https scheme"));
             }
         } catch (IllegalArgumentException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid Local LLM URL"));

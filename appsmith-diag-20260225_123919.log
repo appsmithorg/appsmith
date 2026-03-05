@@ -1,0 +1,849 @@
+
+━━━ Dependency Check ━━━
+  ✓ PASS: curl found
+  ✓ PASS: jq found
+  ✓ PASS: ping found
+  ✓ PASS: traceroute found
+  ✓ PASS: dig found
+  ✓ PASS: openssl found
+  ✓ PASS: nc found
+  ✓ PASS: python3 found
+
+━━━ Configuration ━━━
+Appsmith URL (e.g. https://app.example.com) [http://localhost]: https://internal.appsmith.com
+
+  Authentication method:
+    1) Password login (email + password)
+    2) Browser login (SSO / Google / OAuth — opens browser)
+    3) Paste SESSION cookie (from browser dev tools)
+  Choose [1/2/3] [1]: Auth method: 3
+
+  To get your SESSION cookie:
+    1. Log into Appsmith in your browser
+    2. Open Developer Tools (F12 or Cmd+Opt+I)
+    3. Go to Application → Cookies → your Appsmith domain
+    4. Find the cookie named SESSION and copy its value
+
+SESSION cookie value: (session cookie provided: yes)
+
+  Base URL:    https://internal.appsmith.com
+  Auth:        cookie paste
+
+━━━ Authentication ━━━
+  SESSION cookie written to cookie jar
+  Validating session...
+  ✓ PASS: Session validated — logged in as stacey@appsmith.com
+
+━━━ Consolidated API Call ━━━
+  URL: https://internal.appsmith.com/api/v1/consolidated-api/edit
+
+  Timing Breakdown:
+    DNS: 0.003290s
+    CONNECT: 0.016873s
+    TLS: 0.034694s
+    TTFB: 0.140033s
+    TOTAL: 0.142277s
+    Size:  18389 bytes
+    Speed: 129247 bytes/s
+  Curl stats: dns:0.003290 connect:0.016873 tls:0.034694 ttfb:0.140033 total:0.142277 size:18389 speed:129247 http:200
+
+  HTTP Status: 200
+  ✓ PASS: Consolidated API returned 200 OK
+
+━━━ Server Info (/info) ━━━
+  ✓ PASS: /info returned 200
+  {
+    "commitSha": "5ec632de02214fa93d192ed13335ac355172a80f",
+    "commitUrl": "https://github.com/appsmithorg/appsmith-ee/commit/5ec632de02214fa93d192ed13335ac355172a80f",
+    "githubRef": "refs/heads/master",
+    "githubRunUrl": "https://github.com/appsmithorg/appsmith-ee/actions/runs/22088680483/attempts/2",
+    "version": "v1.96.0-SNAPSHOT",
+    "imageBuiltAt": "2026-02-17T08:37:38+00:00",
+    "isCI": true
+  }
+
+--- /info response ---
+{
+  "commitSha": "5ec632de02214fa93d192ed13335ac355172a80f",
+  "commitUrl": "https://github.com/appsmithorg/appsmith-ee/commit/5ec632de02214fa93d192ed13335ac355172a80f",
+  "githubRef": "refs/heads/master",
+  "githubRunUrl": "https://github.com/appsmithorg/appsmith-ee/actions/runs/22088680483/attempts/2",
+  "version": "v1.96.0-SNAPSHOT",
+  "imageBuiltAt": "2026-02-17T08:37:38+00:00",
+  "isCI": true
+}
+--- end /info response ---
+
+--- consolidated API response ---
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "userProfile": {
+      "responseMeta": {
+        "status": 200,
+        "success": true
+      },
+      "data": {
+        "email": "stacey@appsmith.com",
+        "username": "stacey@appsmith.com",
+        "name": "Stacey Levine",
+        "useCase": "work project",
+        "enableTelemetry": true,
+        "roles": [
+          "Organization Administrator Role",
+          "Default Role For All Users",
+          "Administrator - Appsmith Support Team",
+          "Administrator - Customer Success",
+          "Developer - Sales Workspace",
+          "Administrator - Appsmith Internal Workspace",
+          "Administrator - Jim EE Test",
+          "Administrator - Stacey's apps",
+          "App Viewer - Community Portal Solutions Report",
+          "Administrator - Support Candidate Results",
+          "Administrator - Sales + Paragon + Support",
+          "Administrator - Appsmith AI",
+          "App Viewer - Appsmith Cloud Users",
+          "Instance Administrator Role",
+          "Developer - Luis' Apps",
+          "Developer - Prod: Kanban Board",
+          "App Viewer - Betasmith Admin",
+          "ApprovalRequest Role: 681e034e7c6dc22d0e348c75",
+          "ApprovalRequest Role: 6830afca07985b432cbdf2f2",
+          "ApprovalRequest Role: 6830b0d28483737fd6c9ba71",
+          "ApprovalRequest Role: 6830b2398483737fd6c9ba82",
+          "ApprovalRequest Role: 688a7dd0dfc8e0636f3a3688",
+          "ApprovalRequest Role: 68af0a381102e0607b703351",
+          "ApprovalRequest Role: 68dd9230f33e7b099f1669d3",
+          "ApprovalRequest Role: 68e55c7008fc8310531d2519",
+          "ApprovalRequest Role: 68e64725186b2b6d0f9ec24f",
+          "App Viewer - HRIS-PROD",
+          "HRIS-employee",
+          "Developer - All License Apps",
+          "App Viewer - All License Apps",
+          "Developer - Staging License Manager Workspace",
+          "App Viewer - Staging License Manager Workspace",
+          "App Viewer - Appsmith Support Team",
+          "App Viewer - Sales Workspace",
+          "Sales Team",
+          "App Viewer - RFP Admin App",
+          "App Viewer - License Key Manager",
+          "App Viewer - Salesforce Activity",
+          "App Viewer - Customer Usage Tracker",
+          "Developer - Cypress",
+          "Audit log viewers",
+          "All group permissions",
+          "App Viewer - Raven",
+          "App Viewer - Engineering Managers",
+          "App Viewer - Customer 360",
+          "Developer - QA Leave Tracker",
+          "App Viewer - QA Entry_Criteria",
+          "Developer - Cypress Dashboard (To be Archived)",
+          "App Viewer - Support Apps",
+          "Developer - Cypress Dashboard",
+          "App Viewer - Instance Creator",
+          "Developer - Instance Creator",
+          "Developer - Feature Flag Manager",
+          "App Viewer - Oracle",
+          "Hackathon Participant",
+          "App Viewer - Debug",
+          "App Viewer - Marketing 360",
+          "App Viewer - community-issues",
+          "Administrator - DevOps",
+          "App Viewer - Customer360 with Packages",
+          "App Viewer - License Data Workspace",
+          "ApprovalRequest Role: 673c2602bed78d2a087f74f1",
+          "ApprovalRequest Role: 673c79d661cec1086cea01f9",
+          "ApprovalRequest Role: 673c7a3461cec1086cea0209",
+          "App Viewer - Managed Hosting",
+          "ApprovalRequest Role: 674f2d1335ee2a0cc9fd4642",
+          "ApprovalRequest Role: 674f3031bfe6fc589a5e732f",
+          "ApprovalRequest Role: 674ff1edbfe6fc589a5e789f",
+          "ApprovalRequest Role: 675016e335ee2a0cc9fd4f14",
+          "ApprovalRequest Role: 67503e8ebfe6fc589a5e7c6a",
+          "ApprovalRequest Role: 67504f09bfe6fc589a5e7dbd",
+          "ApprovalRequest Role: 67504f41bfe6fc589a5e7dc2",
+          "ApprovalRequest Role: 67504fbfbfe6fc589a5e7dc8",
+          "ApprovalRequest Role: 67506985bfe6fc589a5e7ed4",
+          "ApprovalRequest Role: 675173b535ee2a0cc9fd5a67",
+          "ApprovalRequest Role: 6752912fab53ae106fc5451d",
+          "ApprovalRequest Role: 6755d902ab53ae106fc55f54",
+          "ApprovalRequest Role: 67567adaab53ae106fc5610e",
+          "ApprovalRequest Role: 67580179aa8e4b1cef1ff711",
+          "ApprovalRequest Role: 6758044aaa8e4b1cef1ff75c",
+          "ApprovalRequest Role: 67584cd403bc2614401bea16",
+          "ApprovalRequest Role: 67592eacaa8e4b1cef20015d",
+          "ApprovalRequest Role: 675ab16fc352c72447acafbf",
+          "ApprovalRequest Role: 675ac810f62468394b72c31b",
+          "ApprovalRequest Role: 675aca10c352c72447acb15e",
+          "ApprovalRequest Role: 675c3c54543404161883d601",
+          "ApprovalRequest Role: 675c3d00543404161883d61d",
+          "ApprovalRequest Role: 67651be5e12ebb46dddf1642",
+          "ApprovalRequest Role: 676d19c5b236d8253b7345bb",
+          "ApprovalRequest Role: 676d1e7cd8d1df3f0ad39bb0",
+          "ApprovalRequest Role: 676d2623b236d8253b73467f",
+          "App Viewer - On_call_Pagerduty _final",
+          "ApprovalRequest Role: 677cbde8fc3ae96613a0f342",
+          "ApprovalRequest Role: 677cc1f49735576ee787cb6c",
+          "ApprovalRequest Role: 677cd854fc3ae96613a0f835",
+          "ApprovalRequest Role: 677cdbce9735576ee787d09d",
+          "ApprovalRequest Role: 677d1bbefc3ae96613a0ff62",
+          "ApprovalRequest Role: 677f6082c7b0f10a0ab68831",
+          "ApprovalRequest Role: 67848f5d4abd1e092fe680ab",
+          "ApprovalRequest Role: 6784ff214abd1e092fe68958",
+          "ApprovalRequest Role: 67877d6940e966549eb06e28",
+          "ApprovalRequest Role: 67878f89c0b2a927a8b3c132",
+          "App Viewer - Self Serve App",
+          "Developer - Appsmith AI",
+          "ApprovalRequest Role: 67ac4c49c69161552b436fd0",
+          "ApprovalRequest Role: 67c5ed264889bb14c7e7e1dc",
+          "App Viewer - Support Knowledge Base Creator",
+          "ApprovalRequest Role: 67c7f4d36af6d00930e226f0",
+          "ApprovalRequest Role: 67c7f5c7b56d056000925397",
+          "ApprovalRequest Role: 67d2edb73378c812950abfc3",
+          "ApprovalRequest Role: 67da6fa268f0f87fcbee0ef2",
+          "ApprovalRequest Role: 67da8778ee35a927adfa75ea",
+          "App Viewer - HRIS-Appsmith",
+          "ApprovalRequest Role: 67e38289175477294402e12e",
+          "ApprovalRequest Role: 67e394ec175477294402e356",
+          "ApprovalRequest Role: 67e395e3175477294402e39e",
+          "ApprovalRequest Role: 67e396b7175477294402e3e1",
+          "ApprovalRequest Role: 67e39748e853dc5346a44cfd",
+          "ApprovalRequest Role: 67ebfc9833ce9022ceae570c",
+          "ApprovalRequest Role: 67f44c0946bb895dbb76fba5",
+          "ApprovalRequest Role: 67f6c71411b4f43e4762fd18",
+          "ApprovalRequest Role: 68061e75483a2d61f2fdf8b3",
+          "ApprovalRequest Role: 68061f11483a2d61f2fdf8d3",
+          "ApprovalRequest Role: 680620049abf822d5e7d4192",
+          "ApprovalRequest Role: 68062b11483a2d61f2fdf945",
+          "ApprovalRequest Role: 68062b4f483a2d61f2fdf951",
+          "ApprovalRequest Role: 681180727e3a9142a035e438",
+          "ApprovalRequest Role: 681a35aaab9d706aee8d69ba",
+          "ApprovalRequest Role: 681a3627ab9d706aee8d69e2",
+          "ApprovalRequest Role: 681a3657ab9d706aee8d69f1",
+          "ApprovalRequest Role: 681a36ea3395184944401824",
+          "License Apps - Edit Group",
+          "ApprovalRequest Role: 6835642957f9f446203dbb4c",
+          "ApprovalRequest Role: 6841b832d615553b34fbd74b",
+          "ApprovalRequest Role: 684ad9079f0c74282343d50b",
+          "ApprovalRequest Role: 68638dd3d5e7c81cf5f751ea",
+          "ApprovalRequest Role: 68a2fa33e1e8321dc62448ae",
+          "ApprovalRequest Role: 68ad61987dc0a931ef64b043",
+          "ApprovalRequest Role: 68b1ff436a1a8a7f93252627",
+          "ApprovalRequest Role: 68c035d27142fd145533f04b",
+          "ApprovalRequest Role: 68c03bd1eb4dea7472c187dd",
+          "ApprovalRequest Role: 68c03d827142fd145533f0c8",
+          "ApprovalRequest Role: 68c18e2beb4dea7472c19cf5",
+          "ApprovalRequest Role: 68c1d32240d32e6930f9704e",
+          "ApprovalRequest Role: 68c237e4b1896e240ab5f996",
+          "ApprovalRequest Role: 68c25883b1896e240ab5fab4",
+          "ApprovalRequest Role: 68c258ae40d32e6930f9751a",
+          "ApprovalRequest Role: 68c2592bb1896e240ab5fad9",
+          "ApprovalRequest Role: 68c259ccb1896e240ab5fafa",
+          "ApprovalRequest Role: 68c25b1140d32e6930f9757f",
+          "ApprovalRequest Role: 68c407d8bc848352abb7118f",
+          "ApprovalRequest Role: 68c4095dbe79ea41332df9db",
+          "ApprovalRequest Role: 68c40a69bc848352abb711e7",
+          "ApprovalRequest Role: 68c99c866b57625606ac17af",
+          "ApprovalRequest Role: 68cd64ca8bf9f863a591c63e",
+          "ApprovalRequest Role: 68d2453871a95d175e1af5c0",
+          "ApprovalRequest Role: 68d2460d5cba241ae2983f63",
+          "ApprovalRequest Role: 68d2471771a95d175e1af5ec",
+          "ApprovalRequest Role: 68d248bb71a95d175e1af605",
+          "ApprovalRequest Role: 68d575edc2217978306ea756",
+          "ApprovalRequest Role: 68dd122a94a8e1606747f3f4",
+          "ApprovalRequest Role: 68de892b04748d384b31dc02",
+          "ApprovalRequest Role: 68e5573d08fc8310531d24ec",
+          "ApprovalRequest Role: 68e6d20054b97944ec2666ad",
+          "ApprovalRequest Role: 68eeafb81cfe237ac49bc84e",
+          "App Viewer - Release Paragon",
+          "ApprovalRequest Role: 68f8dff1ed722b4c25c2fa1b",
+          "ApprovalRequest Role: 68ff44de456a700340f5cc27",
+          "ApprovalRequest Role: 68ffa085e89057582999e90d",
+          "ApprovalRequest Role: 6904a3bd6245e414eb7a4f33",
+          "ApprovalRequest Role: 691de644915964709ef7c55b",
+          "Developer - Screenshots for Kite",
+          "ApprovalRequest Role: 69209dca86fd2359c04ac614",
+          "ApprovalRequest Role: 6930896c269bb70f18e98910",
+          "ApprovalRequest Role: 693991ba6f4491750eb6a8fb",
+          "ApprovalRequest Role: 694532b0684595441c55b8b8",
+          "ApprovalRequest Role: 6949ac7f859f614cdd1efad2",
+          "ApprovalRequest Role: 695bec585b0db80023d9acc5",
+          "ApprovalRequest Role: 695e94a5359dc72485fffcdb",
+          "ApprovalRequest Role: 695e95bb5612e34ab6f9384a",
+          "ApprovalRequest Role: 6965379c5556144f3cbff4ad",
+          "ApprovalRequest Role: 696662c1f32cc26d23640d7a",
+          "ApprovalRequest Role: 6967461ed86b334eaa2933aa",
+          "ApprovalRequest Role: 6969136dd86b334eaa294c51",
+          "Developer - Kite Internal Workspace",
+          "ApprovalRequest Role: 6973dc4957b67b584f3c653c",
+          "ApprovalRequest Role: 697cf55241c1b84a5f3f4b2c",
+          "ApprovalRequest Role: 697d49cd99b46f414d98db18",
+          "ApprovalRequest Role: 697d537799b46f414d98db84",
+          "ApprovalRequest Role: 69821bdf5f6fd146a924fbef",
+          "ApprovalRequest Role: 698b50883609db16c0a93876",
+          "ApprovalRequest Role: 698cb391c9e5c2421b1db02f",
+          "ApprovalRequest Role: 69973f819fbce1334642d636"
+        ],
+        "groups": [
+          "HRIS-employee",
+          "Sales Team",
+          "Support Team",
+          "License Apps - Edit Access",
+          "Managed Hosted Approvers"
+        ],
+        "userClaims": {
+          "sub": "106242830393395292512",
+          "email_verified": true,
+          "name": "Stacey Levine",
+          "given_name": "Stacey",
+          "hd": "appsmith.com",
+          "family_name": "Levine",
+          "picture": "https://lh3.googleusercontent.com/a/ACg8ocI7nY0Z1Au9z0_54F6ov2Frm147ovtRMSXdvxWquHFRoWp3rN8=s96-c",
+          "email": "stacey@appsmith.com"
+        },
+        "accountNonExpired": true,
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "emptyInstance": false,
+        "isAnonymous": false,
+        "isEnabled": true,
+        "isSuperUser": true,
+        "isConfigurable": true,
+        "adminSettingsVisible": true,
+        "isIntercomConsentGiven": false
+      },
+      "errorDisplay": ""
+    },
+    "featureFlags": {
+      "responseMeta": {
+        "status": 200,
+        "success": true
+      },
+      "data": {
+        "release_git_reset_optimization_enabled": true,
+        "license_git_unlimited_repo_enabled": true,
+        "ab_learnability_ease_of_initial_use_enabled": true,
+        "license_sso_saml_enabled": true,
+        "release_evaluation_scope_cache": true,
+        "release_git_cleanup_feature_enabled": false,
+        "deprecate_custom_fusioncharts_enabled": true,
+        "ab_ds_binding_enabled": true,
+        "release_reactive_actions_enabled": true,
+        "ab_premium_datasources_view_enabled": true,
+        "license_appsmithai_enabled": true,
+        "ab_create_new_apps_enabled": true,
+        "license_responses_api_enabled": true,
+        "license_multi_org_enabled": false,
+        "license_x_site_embedding_enabled": true,
+        "ab_show_templates_instead_of_blank_canvas_enabled": true,
+        "release_workflows_enabled": true,
+        "release_ads_entity_item_enabled": true,
+        "ask_ai_sql": false,
+        "release_show_partial_import_export_enabled": true,
+        "release_query_module_enabled": true,
+        "ab_learnability_discoverability_collapse_all_except_data_enabled": true,
+        "ab_one_click_learning_popover_enabled": false,
+        "ab_ds_schema_enabled": true,
+        "rollout_side_by_side_enabled": true,
+        "release_custom_widget_ai_builder": true,
+        "release_ui_module_enabled": true,
+        "release_workflows_hitl_crud_enabled": true,
+        "ab_appsmith_ai_query": false,
+        "ab_start_with_data_default_enabled": true,
+        "release_table_custom_sort_function_enabled": false,
+        "release_app_sidebar_enabled": true,
+        "release-tablev-2-infinitescroll-enabled-false": false,
+        "release_side_by_side_ide_enabled": false,
+        "license_git_branch_protection_enabled": true,
+        "license_monitoring_enabled": true,
+        "release_table_serverside_filtering_enabled": false,
+        "release_show_new_sidebar_announcement_enabled": false,
+        "release_custom_widgets_enabled": true,
+        "release_workflows_entity_exlorer_update_enabled": false,
+        "release_ide_datasource_selector_enabled": true,
+        "rollout_datasource_test_rate_limit_enabled": true,
+        "release_ui_module_on_input_change_enabled": true,
+        "rollout_js_enabled_one_click_binding_enabled": true,
+        "license_ai_agent_instance_enabled": false,
+        "license_scheduled_backup_enabled": true,
+        "ab_wds_enabled": false,
+        "release_window_dimensions_enabled": false,
+        "license_message_listener_enabled": true,
+        "config_user_session_recordings_enabled": true,
+        "release_custom_echarts_enabled": true,
+        "release_layout_conversion_enabled": false,
+        "kill_session_recordings_enabled": true,
+        "release_ai_chat_integrations_enabled": true,
+        "release_git_modularisation_enabled": true,
+        "ab_property_pane_section_collapsedbydefault_enabled": false,
+        "release_table_custom_loading_state_enabled": true,
+        "rollout_optimise_diff_enabled": true,
+        "release_branding_logo_resize_enabled": false,
+        "release_appnavigationlogoupload_enabled": true,
+        "rollout_editor_pane_segments_enabled": true,
+        "release_show_create_app_from_templates_enabled": true,
+        "license_private_embeds_enabled": true,
+        "ab_gif_signposting_enabled": false,
+        "release_show_publish_app_to_community_enabled": false,
+        "license_session_timeout_enabled": true,
+        "release_git_continuous_delivery_enabled": true,
+        "release_ide_animations_enabled": false,
+        "release_datasource_environments_enabled": true,
+        "release_git_status_granular_enabled": true,
+        "release_package_ide_full_mode_enabled": false,
+        "release_table_infinitescroll_enabled": true,
+        "release_git_branch_protection_enabled": false,
+        "release_snowflake_key_pair_auth_enabled": true,
+        "release_git_api_contracts_enabled": true,
+        "license_sso_oidc_enabled": true,
+        "release_workflows_hitl_query_enabled": true,
+        "release_multi_env_view_mode_enabled": true,
+        "ab_gsheet_schema_enabled": true,
+        "ab_flip_primary_secondary_ctas_dsform_enabled": false,
+        "release_table_cell_label_value_enabled": true,
+        "ask_ai_js": false,
+        "license_connection_pool_size_enabled": true,
+        "release_show_new_sidebar_pages_pane_enabled": true,
+        "release_widgetdiscovery_enabled": true,
+        "release_drag_drop_building_blocks_enabled": false,
+        "release_embed_hide_share_settings_enabled": true,
+        "release_git_server_autocommit_feature_enabled": false,
+        "rollout_remove_feature_walkthrough_enabled": false,
+        "release_gs_all_sheets_options_enabled": true,
+        "ab_ai_js_function_completion_enabled": false,
+        "release_git_connect_v2_enabled": true,
+        "license_scim_enabled": true,
+        "ask_ai": false,
+        "license_audit_logs_enabled": true,
+        "license_gac_enabled": true,
+        "release_external_saas_plugins_enabled": true,
+        "release_dependency_caching_published_mode_enabled": false,
+        "release_static_url_enabled": true,
+        "release_segmented_package_explorer_enabled": true,
+        "release_server_dsl_migrations_enabled": true,
+        "release_module_reference_enabled": true,
+        "ab_mock_mongo_schema_enabled": true,
+        "license_bigquery_enabled": true,
+        "ab_request_new_integration_enabled": true,
+        "release_git_autocommit_feature_enabled": true,
+        "ab_rts_git_reset_enabled": true,
+        "license_ai_agent_enabled": true,
+        "rollout_eslint_enabled": false,
+        "release_jit_package_pull_enabled": true,
+        "license_branding_enabled": true,
+        "release_anvil_enabled": true,
+        "release_authentication_retry_enabled": false,
+        "ab_onboarding_flow_start_with_data_dev_only_enabled": true,
+        "release_dynamodb_connection_time_to_live_enabled": false,
+        "release_git_persist_branch_enabled": true,
+        "license_session_limit_enabled": true,
+        "release_table_html_column_type_enabled": true,
+        "license_external_saas_plugins_enabled": true,
+        "rollout_app_sidebar_enabled": true,
+        "release_paid_features_tagging_enabled": false,
+        "ab_ai_button_sql_enabled": false,
+        "rollout_consolidated_page_load_fetch_enabled": true,
+        "config_mask_session_recordings_enabled": true,
+        "release_git_status_lite_enabled": false,
+        "release_git_autocommit_eligibility_enabled": true,
+        "license_custom_environments_enabled": true,
+        "rollout_workflow_scheduler_enabled": true,
+        "release_ide_tabs_revamp_enabled": false,
+        "ab_test_flag": false,
+        "release_fn_calling_enabled": false,
+        "release_alphabetical_ordering_enabled": true,
+        "license_pac_enabled": true,
+        "release_jsobjects_onpageunloadactions_enabled": false,
+        "ab_env_walkthrough_enabled": false,
+        "release_workflows_entity_explorer_update_enabled": true,
+        "license_git_continuous_delivery_enabled": true,
+        "release_knowledge_base_enabled": false,
+        "license_widget_rtl_support_enabled": false,
+        "release_actions_redesign_enabled": true,
+        "release_git_package_enabled": true,
+        "release_google_sheets_shared_drive_support_enabled": false
+      },
+      "errorDisplay": ""
+    },
+    "organizationConfig": {
+      "responseMeta": {
+        "status": 200,
+        "success": true
+      },
+      "data": {
+        "id": "6389dcc586c2635df2204df4",
+        "userPermissions": [
+          "organizationManagePermissionGroups:organization",
+          "tenantManageAllUsers:tenant",
+          "organizationDeleteAllUsers:organization",
+          "organizationReadUserGroups:organization",
+          "tenantReadUserGroups:tenant",
+          "organizationDeleteUserGroups:organization",
+          "tenantManagePermissionGroups:tenant",
+          "createPermissionGroups:organization",
+          "tenantDeletePermissionGroups:tenant",
+          "tenantAddUsersToGroups:tenant",
+          "tenantReadPermissionGroups:tenant",
+          "tenantDeleteAllUsers:tenant",
+          "organizationReadAllUsers:organization",
+          "readAuditLogs:organization",
+          "createUserGroups:organization",
+          "createPermissionGroups:tenant",
+          "tenantDeleteUserGroups:tenant",
+          "manage:organizations",
+          "readAuditLogs:tenant",
+          "organizationUnassignPermissionGroups:organization",
+          "organizationDeletePermissionGroups:organization",
+          "organizationManageAllUsers:organization",
+          "tenantReadAllUsers:tenant",
+          "createWorkspaces:organization",
+          "createUserGroups:tenant",
+          "organizationRemoveUserFromGroups:organization",
+          "tenantManageUserGroups:tenant",
+          "organizationAssignPermissionGroups:organization",
+          "tenantRemoveUserFromGroups:tenant",
+          "tenantAssignPermissionGroups:tenant",
+          "createWorkspaces:tenant",
+          "organizationManageUserGroups:organization",
+          "organizationReadPermissionGroups:organization",
+          "manage:tenants",
+          "organizationAddUsersToGroups:organization",
+          "tenantUnassignPermissionGroups:tenant"
+        ],
+        "slug": "default",
+        "displayName": "Default",
+        "instanceId": "6389dcc186c2635df2204d81",
+        "adminEmailDomainHash": "eb93d881805376ef5297d8ac6fe95970f47d7bbd8d849b3a0d9c7af188caf648",
+        "isWithinAnOrganization": true,
+        "organizationConfiguration": {
+          "googleMapsKey": "AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg",
+          "isFormLoginEnabled": true,
+          "isSignupDisabled": false,
+          "instanceName": "Appsmith",
+          "license": {
+            "plan": "ENTERPRISE",
+            "active": true,
+            "id": "75901138-5554-42d7-b53d-c55d7f978f4a",
+            "key": "C7567F-8xxxxxxxxxxxxxxxx2496C-V3",
+            "type": "TRIAL",
+            "expiry": 1801471413.845000000,
+            "status": "ACTIVE",
+            "origin": "SALES",
+            "productEdition": "COMMERCIAL",
+            "previousPlan": "ENTERPRISE",
+            "changeType": "NO_CHANGE"
+          },
+          "emailVerificationEnabled": false,
+          "thirdPartyAuths": [
+            "google"
+          ],
+          "migrationStatus": "COMPLETED",
+          "featuresWithPendingMigration": {},
+          "isAtomicPushAllowed": false,
+          "whiteLabelLogo": "asset:678752f940e966549eb06cbd",
+          "showRolesAndGroups": true,
+          "brandColors": {
+            "primary": "#f56b0f",
+            "background": "#fff9f5",
+            "font": "#fff",
+            "disabled": "#fde7d8",
+            "hover": "#c95508",
+            "active": "#ee6400"
+          },
+          "singleSessionPerUserEnabled": false,
+          "hideWatermark": true,
+          "isActivated": true,
+          "userSessionTimeoutInMinutes": 43200,
+          "oidcProviderName": "OIDC SSO",
+          "samlProviderName": "SAML SSO",
+          "isCrossSiteEmbeddingEnabled": true,
+          "isGoogleOAuthEnabled": true,
+          "isSshProxyDisabled": false,
+          "brandFaviconUrl": "https://assets.appsmith.com/appsmith-favicon-orange.ico",
+          "brandLogoUrl": "/api/v1/assets/678752f940e966549eb06cbd"
+        },
+        "hostname": ""
+      },
+      "errorDisplay": ""
+    },
+    "productAlert": {
+      "responseMeta": {
+        "status": 200,
+        "success": true
+      },
+      "data": {},
+      "errorDisplay": ""
+    }
+  },
+  "errorDisplay": ""
+}
+--- end consolidated API response ---
+
+━━━ Parsed Response ━━━
+  User:    Stacey Levine (stacey@appsmith.com)
+  Pages:   0
+  Actions: 0 published / 0 unpublished
+  Theme:   null
+  Plugins: 0
+  Datasources: 0
+  Feature flags: 142
+  Custom JS libs: 0
+
+━━━ Section Health ━━━
+  ✓ userProfile: 200
+  ✓ featureFlags: 200
+  ✓ organizationConfig: 200
+  ✓ productAlert: 200
+
+API call succeeded. Run network diagnostics? (y/n) [n]: y
+
+━━━ Network Diagnostics ━━━
+
+  [DNS Lookup] internal.appsmith.com
+  ✓ PASS: DNS A records:
+    3.171.171.53
+    3.171.171.61
+    3.171.171.64
+    3.171.171.102
+
+  [Ping] internal.appsmith.com
+  5 packets transmitted, 5 packets received, 0.0% packet loss, 5 packets out of wait time
+  round-trip min/avg/max/stddev = 9.174/12.937/17.402/3.044 ms
+  ✓ PASS: Ping — no packet loss
+
+  [Port Reachability] internal.appsmith.com
+  ✓ PASS: Port 80 — open
+  ✓ PASS: Port 443 — open
+  - Port 8080 — closed/filtered
+  - Port 3000 — closed/filtered
+
+  [SSL Certificate] internal.appsmith.com
+  ✓ PASS: SSL certificate info:
+    subject=CN=*.appsmith.com
+    issuer=C=US, O=Amazon, CN=Amazon RSA 2048 M02
+    notBefore=Jul 11 00:00:00 2025 GMT
+    notAfter=Aug  8 23:59:59 2026 GMT
+
+  [Health Check] /api/v1/health
+  ✓ PASS: Health endpoint returned 200
+
+  [Traceroute] internal.appsmith.com (max 10 hops, 30s timeout)
+  (This may take up to 30 seconds...)
+    traceroute: Warning: internal.appsmith.com has multiple addresses; using 3.171.171.61
+    traceroute to internal.appsmith.com (3.171.171.61), 10 hops max, 40 byte packets
+     1  10.0.0.1 (10.0.0.1)  1.965 ms  0.914 ms  0.556 ms
+     2  10.112.30.235 (10.112.30.235)  13.780 ms
+        10.112.30.234 (10.112.30.234)  11.848 ms  11.733 ms
+     3  po-112-rur602.b0atlanta.ga.atlanta.comcast.net (68.85.232.241)  15.144 ms
+        po-112-rur601.b0atlanta.ga.atlanta.comcast.net (68.85.232.145)  14.701 ms
+        po-112-rur602.b0atlanta.ga.atlanta.comcast.net (68.85.232.241)  10.362 ms
+     4  bundle-2021-tcr06.b0atlanta.ga.atlanta.comcast.net (162.151.155.121)  14.626 ms
+        bundle-2024-tcr03.b0atlanta.ga.atlanta.comcast.net (96.216.172.253)  14.085 ms
+        bundle-2021-tcr06.b0atlanta.ga.atlanta.comcast.net (162.151.155.121)  18.069 ms
+     5  bundle-2067-asbr01.b0atlanta.ga.atlanta.comcast.net (96.110.71.121)  14.074 ms
+        bundle-2079-asbr03.b0atlanta.ga.atlanta.comcast.net (96.110.192.217)  13.999 ms
+        bundle-2065-asbr01.b0atlanta.ga.atlanta.comcast.net (96.110.70.229)  13.772 ms
+     6  be-1002-ar-sp02.b0atlanta.ga.atlanta.comcast.net (96.110.115.94)  14.509 ms
+        be-1004-ar-sp04.b0atlanta.ga.atlanta.comcast.net (96.110.204.50)  34.778 ms  12.206 ms
+     7  be-2401-ar-ex01.b0atlanta.ga.atlanta.comcast.net (24.124.169.46)  12.582 ms
+        be-2201-ar-ex01.b0atlanta.ga.atlanta.comcast.net (96.108.116.214)  10.561 ms
+        be-2301-ar-ex01.b0atlanta.ga.atlanta.comcast.net (24.124.169.2)  12.546 ms
+     8  * * *
+     9  * * *
+    10  * * *
+
+  [Verbose Replay] Re-running consolidated API call with -v
+    * Host internal.appsmith.com:443 was resolved.
+    * IPv6: (none)
+    * IPv4: 3.171.171.61, 3.171.171.53, 3.171.171.102, 3.171.171.64
+    *   Trying 3.171.171.61:443...
+    * Connected to internal.appsmith.com (3.171.171.61) port 443
+    * ALPN: curl offers h2,http/1.1
+    * (304) (OUT), TLS handshake, Client hello (1):
+    } [326 bytes data]
+    *  CAfile: /etc/ssl/cert.pem
+    *  CApath: none
+    * (304) (IN), TLS handshake, Server hello (2):
+    { [122 bytes data]
+    * (304) (IN), TLS handshake, Unknown (8):
+    { [10 bytes data]
+    * (304) (IN), TLS handshake, Certificate (11):
+    { [3808 bytes data]
+    * (304) (IN), TLS handshake, CERT verify (15):
+    { [264 bytes data]
+    * (304) (IN), TLS handshake, Finished (20):
+    { [36 bytes data]
+    * (304) (OUT), TLS handshake, Finished (20):
+    } [36 bytes data]
+    * SSL connection using TLSv1.3 / AEAD-AES128-GCM-SHA256 / [blank] / UNDEF
+    * ALPN: server did not agree on a protocol. Uses default.
+    * Server certificate:
+    *  subject: CN=*.appsmith.com
+    *  start date: Jul 11 00:00:00 2025 GMT
+    *  expire date: Aug  8 23:59:59 2026 GMT
+    *  subjectAltName: host "internal.appsmith.com" matched cert's "*.appsmith.com"
+    *  issuer: C=US; O=Amazon; CN=Amazon RSA 2048 M02
+    *  SSL certificate verify ok.
+    * using HTTP/1.x
+    > GET /api/v1/consolidated-api/edit HTTP/1.1
+    > Host: internal.appsmith.com
+    > User-Agent: curl/8.7.1
+    > Accept: */*
+    > Cookie: SESSION=ee76ffc3-1fbd-4040-bd88-f9f1043fb53f
+    > X-Requested-By: Appsmith
+    > 
+    * Request completely sent off
+    < HTTP/1.1 200 OK
+    < Content-Type: application/json
+    < Content-Length: 18389
+    < Connection: keep-alive
+    < Date: Wed, 25 Feb 2026 17:40:23 GMT
+    < X-Xss-Protection: 0
+    < Vary: Accept-Encoding
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; worker-src 'self' blob:; connect-src * 'self' blob: raw.githubusercontent.com *.intercom.io wss://*.intercom.io *.algolianet.com *.algolia.net api.segment.io *.sentry.io *.hotjar.com maps.googleapis.com fonts.googleapis.com www.gstatic.com fonts.gstatic.com appcdn.appsmith.com; img-src * data: blob:; media-src * data: blob:; style-src * 'self' 'unsafe-inline'; font-src * 'self' data:; frame-ancestors 'self' * chrome-extension://*; frame-src * data: blob:
+    < Expires: 0
+    ... (truncated, full output in log file)
+* Host internal.appsmith.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 3.171.171.61, 3.171.171.53, 3.171.171.102, 3.171.171.64
+*   Trying 3.171.171.61:443...
+* Connected to internal.appsmith.com (3.171.171.61) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [326 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [10 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [3808 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-AES128-GCM-SHA256 / [blank] / UNDEF
+* ALPN: server did not agree on a protocol. Uses default.
+* Server certificate:
+*  subject: CN=*.appsmith.com
+*  start date: Jul 11 00:00:00 2025 GMT
+*  expire date: Aug  8 23:59:59 2026 GMT
+*  subjectAltName: host "internal.appsmith.com" matched cert's "*.appsmith.com"
+*  issuer: C=US; O=Amazon; CN=Amazon RSA 2048 M02
+*  SSL certificate verify ok.
+* using HTTP/1.x
+> GET /api/v1/consolidated-api/edit HTTP/1.1
+> Host: internal.appsmith.com
+> User-Agent: curl/8.7.1
+> Accept: */*
+> Cookie: SESSION=ee76ffc3-1fbd-4040-bd88-f9f1043fb53f
+> X-Requested-By: Appsmith
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Content-Length: 18389
+< Connection: keep-alive
+< Date: Wed, 25 Feb 2026 17:40:23 GMT
+< X-Xss-Protection: 0
+< Vary: Accept-Encoding
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; worker-src 'self' blob:; connect-src * 'self' blob: raw.githubusercontent.com *.intercom.io wss://*.intercom.io *.algolianet.com *.algolia.net api.segment.io *.sentry.io *.hotjar.com maps.googleapis.com fonts.googleapis.com www.gstatic.com fonts.gstatic.com appcdn.appsmith.com; img-src * data: blob:; media-src * data: blob:; style-src * 'self' 'unsafe-inline'; font-src * 'self' data:; frame-ancestors 'self' * chrome-extension://*; frame-src * data: blob:
+< Expires: 0
+< Pragma: no-cache
+< Referrer-Policy: no-referrer
+* Added cookie XSRF-TOKEN="2c543ca1-d14e-4176-86c0-f671d9d77f93" for domain internal.appsmith.com, path /, expire 0
+< Set-Cookie: XSRF-TOKEN=2c543ca1-d14e-4176-86c0-f671d9d77f93; Path=/
+< Strict-Transport-Security: max-age=31536000
+< Via: 1.1 Caddy, 1.1 da7255e90121869f1396b72cbe0fa1be.cloudfront.net (CloudFront)
+< X-Appsmith-Request-Id: 27d1baea-a9c8-4ded-9995-13062a26971b
+< X-Content-Type-Options: nosniff
+< X-Request-Id: invalid_request_id
+< X-Cache: Miss from cloudfront
+< X-Amz-Cf-Pop: ATL59-P13
+< Alt-Svc: h3=":443"; ma=86400
+< X-Amz-Cf-Id: 06L-jUA-5X1HEqonbsEWNrKz_nzzTh5ij6tHMlVbTBcarBzoxjLyPQ==
+< 
+{ [2980 bytes data]
+* Connection #0 to host internal.appsmith.com left intact
+
+  [MTU Check] internal.appsmith.com
+  ✓ PASS: No MTU/fragmentation issues at 1472 bytes
+
+  [Connection Reuse Test] 3 sequential requests
+  Request #1: 0.090600s
+  Request #2: 0.244879s
+  Request #3: 0.105271s
+  (Request #1 is cold; #2–3 benefit from connection reuse)
+
+━━━ MongoDB Diagnostics ━━━
+  Appsmith's /api/v1/health checks MongoDB with a 1-second timeout.
+  These tests probe that endpoint repeatedly to detect intermittent DB issues.
+
+  [Health Check Burst] 10 rapid sequential requests to /api/v1/health
+  #1: HTTP 200  0.098753s
+  #2: HTTP 200  0.101561s
+  #3: HTTP 200  0.085381s
+  #4: HTTP 200  0.107584s
+  #5: HTTP 200  0.089840s
+  #6: HTTP 200  0.103759s
+  #7: HTTP 200  0.101673s
+  #8: HTTP 200  0.093459s
+  #9: HTTP 200  0.091427s
+  #10: HTTP 200  0.085708s
+
+  ✓ PASS: All 10 health checks passed (MongoDB + Redis healthy)
+  Response times: min=0.085s  max=0.108s  avg=0.096s  jitter=0.022s
+
+  [Consolidated API Section Analysis]
+  Sections that hit MongoDB: pages, actions, themes, datasources, plugins
+
+  ✓ PASS: All present MongoDB-dependent sections returned 200
+
+  [Sustained Health Check] 3 requests with 2-second gaps
+  #1: HTTP 200  0.085112s
+  #2: HTTP 200  0.368299s
+  #3: HTTP 200  0.101896s
+  ✓ PASS: Sustained health check: all 3 passed
+
+  [Direct MongoDB Check]
+  MongoDB URI (optional, e.g. mongodb://host:27017/appsmith): (mongo URI provided: yes, redactedmongodb+srv://ro-internal:Ruined0-Cosmos-Skeptic@appsmith-internal-tools.swrsq.mongodb.net/appsmith)
+  Parsed: host=appsmith-internal-tools.swrsq.mongodb.net port=27017 srv=yes
+
+  SRV record lookup:
+  ✓ PASS: SRV records found:
+    0 0 27017 appsmith-internal-tools-shard-00-01.swrsq.mongodb.net.
+    0 0 27017 appsmith-internal-tools-shard-00-02.swrsq.mongodb.net.
+    0 0 27017 appsmith-internal-tools-shard-00-00.swrsq.mongodb.net.
+  TXT records: "authSource=admin&replicaSet=atlas-12zoh3-shard-0"
+
+  ✗ FAIL: MongoDB port 27017 NOT reachable on appsmith-internal-tools.swrsq.mongodb.net
+
+  - No TLS on MongoDB port (may be expected for non-TLS connections)
+
+  TCP connect latency to MongoDB (3 attempts):
+    #1: errors
+    #2: errors
+    #3: errors
+
+  Testing connection via mongosh...
+  ✗ FAIL: mongosh connection failed or timed out
+
+━━━ Summary ━━━
+  Passed: 22
+  Failed: 2
+  Warnings: 0
+
+  Log file: appsmith-diag-20260225_123919.log
+
+  Suggested fixes:
+    • Review the log file for detailed error output
+
+Done.

@@ -1,0 +1,317 @@
+
+━━━ Dependency Check ━━━
+  ✓ PASS: curl found
+  ✓ PASS: jq found
+  ✓ PASS: ping found
+  ✓ PASS: traceroute found
+  ✓ PASS: dig found
+  ✓ PASS: openssl found
+  ✓ PASS: nc found
+  ✓ PASS: python3 found
+
+━━━ Configuration ━━━
+Appsmith URL (e.g. https://app.example.com) [http://localhost]: https://internal.appsmith.com
+
+  Authentication method:
+    1) Password login (email + password)
+    2) Browser login (SSO / Google / OAuth — opens browser)
+    3) Paste SESSION cookie (from browser dev tools)
+  Choose [1/2/3] [1]: Auth method: 3
+
+  To get your SESSION cookie:
+    1. Log into Appsmith in your browser
+    2. Open Developer Tools (F12 or Cmd+Opt+I)
+    3. Go to Application → Cookies → your Appsmith domain
+    4. Find the cookie named SESSION and copy its value
+
+SESSION cookie value: (session cookie provided: yes)
+
+  Base URL:    https://internal.appsmith.com
+  Auth:        cookie paste
+
+━━━ Authentication ━━━
+  SESSION cookie written to cookie jar
+  Validating session...
+  ✓ PASS: Session validated — logged in as stacey@appsmith.com
+
+━━━ Consolidated API Call ━━━
+  URL: https://internal.appsmith.com/api/v1/consolidated-api/edit
+
+  Timing Breakdown:
+    DNS: 0.003537s
+    CONNECT: 0.016027s
+    TLS: 0.031911s
+    TTFB: 0.157580s
+    TOTAL: 0.161797s
+    Size:  18389 bytes
+    Speed: 113654 bytes/s
+  Curl stats: dns:0.003537 connect:0.016027 tls:0.031911 ttfb:0.157580 total:0.161797 size:18389 speed:113654 http:200
+
+  HTTP Status: 200
+  ✓ PASS: Consolidated API returned 200 OK
+
+━━━ Parsed Response ━━━
+  User:    Stacey Levine (stacey@appsmith.com)
+  Pages:   0
+  Actions: 0 published / 0 unpublished
+  Theme:   null
+  Plugins: 0
+  Datasources: 0
+  Feature flags: 142
+  Custom JS libs: 0
+
+━━━ Section Health ━━━
+  ✓ userProfile: 200
+  ✓ featureFlags: 200
+  ✓ organizationConfig: 200
+  ✓ productAlert: 200
+
+API call succeeded. Run network diagnostics? (y/n) [n]: y
+
+━━━ Network Diagnostics ━━━
+
+  [DNS Lookup] internal.appsmith.com
+  ✓ PASS: DNS A records:
+    3.171.171.64
+    3.171.171.61
+    3.171.171.53
+    3.171.171.102
+
+  [Ping] internal.appsmith.com
+  5 packets transmitted, 5 packets received, 0.0% packet loss, 5 packets out of wait time
+  round-trip min/avg/max/stddev = 10.900/14.090/22.394/4.280 ms
+  ✓ PASS: Ping — no packet loss
+
+  [Port Reachability] internal.appsmith.com
+  ✓ PASS: Port 80 — open
+  ✓ PASS: Port 443 — open
+  - Port 8080 — closed/filtered
+  - Port 3000 — closed/filtered
+
+  [SSL Certificate] internal.appsmith.com
+  ✓ PASS: SSL certificate info:
+    subject=CN=*.appsmith.com
+    issuer=C=US, O=Amazon, CN=Amazon RSA 2048 M02
+    notBefore=Jul 11 00:00:00 2025 GMT
+    notAfter=Aug  8 23:59:59 2026 GMT
+
+  [Health Check] /api/v1/health
+  ✓ PASS: Health endpoint returned 200
+
+  [Traceroute] internal.appsmith.com (max 10 hops, 30s timeout)
+  (This may take up to 30 seconds...)
+    traceroute: Warning: internal.appsmith.com has multiple addresses; using 3.171.171.64
+    traceroute to internal.appsmith.com (3.171.171.64), 10 hops max, 40 byte packets
+     1  10.0.0.1 (10.0.0.1)  2.381 ms  1.314 ms  0.610 ms
+     2  10.112.30.234 (10.112.30.234)  10.461 ms
+        10.112.30.235 (10.112.30.235)  12.247 ms  11.648 ms
+     3  po-112-rur601.b0atlanta.ga.atlanta.comcast.net (68.85.232.145)  16.556 ms
+        po-112-rur602.b0atlanta.ga.atlanta.comcast.net (68.85.232.241)  12.436 ms
+        po-112-rur601.b0atlanta.ga.atlanta.comcast.net (68.85.232.145)  12.532 ms
+     4  bundle-2022-tcr01.b0atlanta.ga.atlanta.comcast.net (96.110.207.93)  7.208 ms
+        bundle-2018-tcr03.b0atlanta.ga.atlanta.comcast.net (96.216.104.1)  12.908 ms
+        bundle-2026-tcr05.b0atlanta.ga.atlanta.comcast.net (162.151.155.57)  14.144 ms
+     5  bundle-2078-asbr03.b0atlanta.ga.atlanta.comcast.net (96.110.185.161)  11.622 ms
+        bundle-2068-asbr01.b0atlanta.ga.atlanta.comcast.net (96.110.114.105)  9.654 ms
+        bundle-2075-asbr02.b0atlanta.ga.atlanta.comcast.net (96.110.184.129)  14.999 ms
+     6  be-1003-ar-sp03.b0atlanta.ga.atlanta.comcast.net (96.110.184.162)  15.726 ms  10.600 ms
+        be-1002-ar-sp02.b0atlanta.ga.atlanta.comcast.net (96.110.115.94)  14.335 ms
+     7  be-2201-ar-ex01.b0atlanta.ga.atlanta.comcast.net (96.108.116.214)  12.231 ms
+        be-2301-ar-ex01.b0atlanta.ga.atlanta.comcast.net (24.124.169.2)  12.600 ms
+        be-2201-ar-ex01.b0atlanta.ga.atlanta.comcast.net (96.108.116.214)  11.805 ms
+     8  * * *
+     9  * * *
+    10  * * *
+
+  [Verbose Replay] Re-running consolidated API call with -v
+    * Host internal.appsmith.com:443 was resolved.
+    * IPv6: (none)
+    * IPv4: 3.171.171.64, 3.171.171.61, 3.171.171.102, 3.171.171.53
+    *   Trying 3.171.171.64:443...
+    * Connected to internal.appsmith.com (3.171.171.64) port 443
+    * ALPN: curl offers h2,http/1.1
+    * (304) (OUT), TLS handshake, Client hello (1):
+    } [326 bytes data]
+    *  CAfile: /etc/ssl/cert.pem
+    *  CApath: none
+    * (304) (IN), TLS handshake, Server hello (2):
+    { [122 bytes data]
+    * (304) (IN), TLS handshake, Unknown (8):
+    { [10 bytes data]
+    * (304) (IN), TLS handshake, Certificate (11):
+    { [3808 bytes data]
+    * (304) (IN), TLS handshake, CERT verify (15):
+    { [264 bytes data]
+    * (304) (IN), TLS handshake, Finished (20):
+    { [36 bytes data]
+    * (304) (OUT), TLS handshake, Finished (20):
+    } [36 bytes data]
+    * SSL connection using TLSv1.3 / AEAD-AES128-GCM-SHA256 / [blank] / UNDEF
+    * ALPN: server did not agree on a protocol. Uses default.
+    * Server certificate:
+    *  subject: CN=*.appsmith.com
+    *  start date: Jul 11 00:00:00 2025 GMT
+    *  expire date: Aug  8 23:59:59 2026 GMT
+    *  subjectAltName: host "internal.appsmith.com" matched cert's "*.appsmith.com"
+    *  issuer: C=US; O=Amazon; CN=Amazon RSA 2048 M02
+    *  SSL certificate verify ok.
+    * using HTTP/1.x
+    > GET /api/v1/consolidated-api/edit HTTP/1.1
+    > Host: internal.appsmith.com
+    > User-Agent: curl/8.7.1
+    > Accept: */*
+    > Cookie: SESSION=ee76ffc3-1fbd-4040-bd88-f9f1043fb53f
+    > X-Requested-By: Appsmith
+    > 
+    * Request completely sent off
+    < HTTP/1.1 200 OK
+    < Content-Type: application/json
+    < Content-Length: 18389
+    < Connection: keep-alive
+    < Date: Wed, 25 Feb 2026 17:28:25 GMT
+    < X-Xss-Protection: 0
+    < Vary: Accept-Encoding
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; worker-src 'self' blob:; connect-src * 'self' blob: raw.githubusercontent.com *.intercom.io wss://*.intercom.io *.algolianet.com *.algolia.net api.segment.io *.sentry.io *.hotjar.com maps.googleapis.com fonts.googleapis.com www.gstatic.com fonts.gstatic.com appcdn.appsmith.com; img-src * data: blob:; media-src * data: blob:; style-src * 'self' 'unsafe-inline'; font-src * 'self' data:; frame-ancestors 'self' * chrome-extension://*; frame-src * data: blob:
+    < Expires: 0
+    ... (truncated, full output in log file)
+* Host internal.appsmith.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 3.171.171.64, 3.171.171.61, 3.171.171.102, 3.171.171.53
+*   Trying 3.171.171.64:443...
+* Connected to internal.appsmith.com (3.171.171.64) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [326 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [10 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [3808 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-AES128-GCM-SHA256 / [blank] / UNDEF
+* ALPN: server did not agree on a protocol. Uses default.
+* Server certificate:
+*  subject: CN=*.appsmith.com
+*  start date: Jul 11 00:00:00 2025 GMT
+*  expire date: Aug  8 23:59:59 2026 GMT
+*  subjectAltName: host "internal.appsmith.com" matched cert's "*.appsmith.com"
+*  issuer: C=US; O=Amazon; CN=Amazon RSA 2048 M02
+*  SSL certificate verify ok.
+* using HTTP/1.x
+> GET /api/v1/consolidated-api/edit HTTP/1.1
+> Host: internal.appsmith.com
+> User-Agent: curl/8.7.1
+> Accept: */*
+> Cookie: SESSION=ee76ffc3-1fbd-4040-bd88-f9f1043fb53f
+> X-Requested-By: Appsmith
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Content-Length: 18389
+< Connection: keep-alive
+< Date: Wed, 25 Feb 2026 17:28:25 GMT
+< X-Xss-Protection: 0
+< Vary: Accept-Encoding
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; worker-src 'self' blob:; connect-src * 'self' blob: raw.githubusercontent.com *.intercom.io wss://*.intercom.io *.algolianet.com *.algolia.net api.segment.io *.sentry.io *.hotjar.com maps.googleapis.com fonts.googleapis.com www.gstatic.com fonts.gstatic.com appcdn.appsmith.com; img-src * data: blob:; media-src * data: blob:; style-src * 'self' 'unsafe-inline'; font-src * 'self' data:; frame-ancestors 'self' * chrome-extension://*; frame-src * data: blob:
+< Expires: 0
+< Pragma: no-cache
+< Referrer-Policy: no-referrer
+* Added cookie XSRF-TOKEN="94145c8a-d44d-41ba-9464-09e471ee3552" for domain internal.appsmith.com, path /, expire 0
+< Set-Cookie: XSRF-TOKEN=94145c8a-d44d-41ba-9464-09e471ee3552; Path=/
+< Strict-Transport-Security: max-age=31536000
+< Via: 1.1 Caddy, 1.1 e41d0925024fb5d00109c45acc3a4290.cloudfront.net (CloudFront)
+< X-Appsmith-Request-Id: 96b90477-43ca-4d9b-8d7d-8e0c6b34ea87
+< X-Content-Type-Options: nosniff
+< X-Request-Id: invalid_request_id
+< X-Cache: Miss from cloudfront
+< X-Amz-Cf-Pop: ATL59-P13
+< Alt-Svc: h3=":443"; ma=86400
+< X-Amz-Cf-Id: yHkislhA3LMWliGZi5hoyUxdRAiMCBuUHfP_JNnDrKq1_R8q9f8pVw==
+< 
+{ [6654 bytes data]
+* Connection #0 to host internal.appsmith.com left intact
+
+  [MTU Check] internal.appsmith.com
+  ✓ PASS: No MTU/fragmentation issues at 1472 bytes
+
+  [Connection Reuse Test] 3 sequential requests
+  Request #1: 0.106514s
+  Request #2: 0.120922s
+  Request #3: 0.136883s
+  (Request #1 is cold; #2–3 benefit from connection reuse)
+
+━━━ MongoDB Diagnostics ━━━
+  Appsmith's /api/v1/health checks MongoDB with a 1-second timeout.
+  These tests probe that endpoint repeatedly to detect intermittent DB issues.
+
+  [Health Check Burst] 10 rapid sequential requests to /api/v1/health
+  #1: HTTP 200  0.081370s
+  #2: HTTP 200  0.112654s
+  #3: HTTP 200  0.101073s
+  #4: HTTP 200  0.119546s
+  #5: HTTP 200  0.102020s
+  #6: HTTP 200  0.100797s
+  #7: HTTP 200  0.107868s
+  #8: HTTP 200  0.091697s
+  #9: HTTP 200  0.091491s
+  #10: HTTP 200  0.091376s
+
+  ✓ PASS: All 10 health checks passed (MongoDB + Redis healthy)
+  Response times: min=0.081s  max=0.120s  avg=0.100s  jitter=0.038s
+
+  [Consolidated API Section Analysis]
+  Sections that hit MongoDB: pages, actions, themes, datasources, plugins
+
+  ✓ PASS: All present MongoDB-dependent sections returned 200
+
+  [Sustained Health Check] 3 requests with 2-second gaps
+  #1: HTTP 200  0.145628s
+  #2: HTTP 200  0.088932s
+  #3: HTTP 200  0.103338s
+  ✓ PASS: Sustained health check: all 3 passed
+
+  [Direct MongoDB Check]
+  MongoDB URI (optional, e.g. mongodb://host:27017/appsmith): (mongo URI provided: yes, redactedmongodb+srv://ro-internal:Ruined0-Cosmos-Skeptic@appsmith-internal-tools.swrsq.mongodb.net/appsmith)
+  Parsed: host=appsmith-internal-tools.swrsq.mongodb.net port=27017 srv=yes
+
+  SRV record lookup:
+  ✓ PASS: SRV records found:
+    0 0 27017 appsmith-internal-tools-shard-00-00.swrsq.mongodb.net.
+    0 0 27017 appsmith-internal-tools-shard-00-01.swrsq.mongodb.net.
+    0 0 27017 appsmith-internal-tools-shard-00-02.swrsq.mongodb.net.
+  TXT records: "authSource=admin&replicaSet=atlas-12zoh3-shard-0"
+
+  ✗ FAIL: MongoDB port 27017 NOT reachable on appsmith-internal-tools.swrsq.mongodb.net
+
+  - No TLS on MongoDB port (may be expected for non-TLS connections)
+
+  TCP connect latency to MongoDB (3 attempts):
+    #1: errors
+    #2: errors
+    #3: errors
+
+  Testing connection via mongosh...
+  ✗ FAIL: mongosh connection failed or timed out
+
+━━━ Summary ━━━
+  Passed: 21
+  Failed: 2
+  Warnings: 0
+
+  Log file: appsmith-diag-20260225_122719.log
+
+  Suggested fixes:
+    • Review the log file for detailed error output
+
+Done.
