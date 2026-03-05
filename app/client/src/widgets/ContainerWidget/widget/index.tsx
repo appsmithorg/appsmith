@@ -31,7 +31,11 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WidgetHeightLimits,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   Positioning,
@@ -370,6 +374,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
+    childWidget.parentPadding = this.props.padding ?? WIDGET_PADDING;
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;

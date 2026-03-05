@@ -966,6 +966,7 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
+    metaMainCanvas.parentPadding = this.props.padding ?? WIDGET_PADDING;
     metaMainCanvas.bottomRow = this.mainMetaCanvasWidgetBottomRow();
 
     return metaMainCanvas as MetaWidget;

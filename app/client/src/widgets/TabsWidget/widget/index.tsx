@@ -580,7 +580,7 @@ class TabsWidget extends BaseWidget<
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width: componentWidth - WIDGET_PADDING * 2,
+      width: componentWidth - (this.props.padding ?? WIDGET_PADDING) * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
@@ -629,6 +629,7 @@ class TabsWidget extends BaseWidget<
       ? childWidgetData.bottomRow
       : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
+    childWidgetData.parentPadding = this.props.padding ?? WIDGET_PADDING;
     childWidgetData.minHeight = componentHeight;
     const selectedTabProps = Object.values(this.props.tabsObj)?.filter(
       (item) => item.widgetId === selectedTabWidgetId,

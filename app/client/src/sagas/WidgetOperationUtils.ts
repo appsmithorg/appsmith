@@ -789,12 +789,17 @@ export function getMousePositions(
  * @returns
  */
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
+  // Use parent's padding when set (e.g. from Tabs/Container/List with configurable padding), else fall back to WIDGET_PADDING
+  const effectiveWidgetPadding =
+    (LayoutWidget as WidgetProps & { parentPadding?: number }).parentPadding ??
+    WIDGET_PADDING;
+
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding =
     ((LayoutWidget?.layoutSystemType === LayoutSystemTypes.AUTO
       ? AUTO_LAYOUT_CONTAINER_PADDING
       : CONTAINER_GRID_PADDING) +
-      WIDGET_PADDING) *
+      effectiveWidgetPadding) *
     2;
 
   if (
@@ -810,7 +815,7 @@ export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
 
   if (LayoutWidget.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
+    padding = effectiveWidgetPadding * 2;
   }
 
   const width = canvasWidth - padding;
