@@ -40,7 +40,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.groupId>com.appsmith</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
-        <reactor-test.version>3.5.1</reactor-test.version>
+        <reactor-test.version>3.8.3</reactor-test.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
         <skipITs>${skipTests}</skipITs>

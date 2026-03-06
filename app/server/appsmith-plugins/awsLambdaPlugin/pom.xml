@@ -42,7 +42,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>3.2.11.RELEASE</version>
+            <version>3.8.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
