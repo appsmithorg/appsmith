@@ -14,8 +14,8 @@ export default [
       "Validate XML, Parse XML to JS Object, or Build XML from JS Object without C/C++ based libraries and no callback.",
     author: "NaturalIntelligence",
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    url: "https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.3.2/fxparser.min.js",
-    version: "4.3.2",
+    url: "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.5.4/src/fxp.min.js",
+    version: "4.5.4",
     icon: "https://img.jsdelivr.com/github.com/NaturalIntelligence.png",
   },
   {
