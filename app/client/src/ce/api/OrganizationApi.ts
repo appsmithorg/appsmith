@@ -20,6 +20,49 @@ export interface UpdateOrganizationConfigRequest {
   apiConfig?: AxiosRequestConfig;
 }
 
+export interface OllamaModel {
+  name: string;
+  size?: number;
+  details?: {
+    parameter_size?: string;
+    quantization_level?: string;
+  };
+}
+
+export interface AIConfigResponse {
+  isAIAssistantEnabled: boolean;
+  provider: string | null;
+  hasClaudeApiKey: boolean;
+  hasOpenaiApiKey: boolean;
+  hasCopilotApiKey: boolean;
+  localLlmUrl?: string;
+  localLlmContextSize?: number;
+  localLlmModel?: string;
+  copilotEndpoint?: string;
+  hasAzureOpenaiApiKey: boolean;
+  azureOpenaiEndpoint?: string;
+  azureOpenaiDeploymentName?: string;
+  azureOpenaiApiVersion?: string;
+  azureOpenaiMaxCompletionTokens?: number;
+}
+
+export interface AIConfigRequest {
+  claudeApiKey?: string;
+  openaiApiKey?: string;
+  copilotApiKey?: string;
+  copilotEndpoint?: string;
+  azureOpenaiApiKey?: string;
+  azureOpenaiEndpoint?: string;
+  azureOpenaiDeploymentName?: string;
+  azureOpenaiApiVersion?: string;
+  azureOpenaiMaxCompletionTokens?: number;
+  localLlmUrl?: string;
+  localLlmContextSize?: number;
+  localLlmModel?: string;
+  provider: string;
+  isAIAssistantEnabled: boolean;
+}
+
 export type FetchMyOrganizationsResponse = ApiResponse<{
   organizations: Organization[];
 }>;
@@ -58,6 +101,52 @@ export class OrganizationApi extends Api {
     AxiosPromise<FetchMyOrganizationsResponse>
   > {
     return Api.get(`${OrganizationApi.meUrl}/organizations`);
+  }
+
+  static async getAIConfig(): Promise<
+    AxiosPromise<ApiResponse<AIConfigResponse>>
+  > {
+    return Api.get(`${OrganizationApi.tenantsUrl}/ai-config`);
+  }
+
+  static async updateAIConfig(
+    request: AIConfigRequest,
+  ): Promise<AxiosPromise<ApiResponse<AIConfigResponse>>> {
+    return Api.put(`${OrganizationApi.tenantsUrl}/ai-config`, request);
+  }
+
+  static async testLlmConnection(
+    url: string,
+  ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-connection`, {
+      url,
+    });
+  }
+
+  static async testApiKey(
+    provider: string,
+    apiKey?: string,
+    endpoint?: string,
+    deploymentName?: string,
+    apiVersion?: string,
+  ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-api-key`, {
+      provider,
+      apiKey,
+      endpoint,
+      deploymentName,
+      apiVersion,
+    });
+  }
+
+  static async fetchLlmModels(
+    url: string,
+  ): Promise<
+    AxiosPromise<ApiResponse<{ success: boolean; models: OllamaModel[] }>>
+  > {
+    return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/fetch-models`, {
+      url,
+    });
   }
 }
 

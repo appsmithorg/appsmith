@@ -4,6 +4,9 @@ This directory contains the rules that Cursor AI uses to validate and improve co
 
 ## Rule Categories
 
+- **Project guide** (always applied):
+  - `appsmith-project-guide.mdc`: Project overview, tech stack, EE/CE architecture, code style, conventions, testing, and common commands. Sourced from the project's `cursorrules` file.
+
 - **commit/**: Rules for validating commit messages and pull requests
   - `semantic-pr.md`: Guidelines for semantic pull request titles
 

@@ -5,19 +5,24 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.AIRequestDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.ce.AIAssistantServiceCE;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,6 +57,7 @@ public class UserControllerCE {
     private final UserSignup userSignup;
     private final UserDataService userDataService;
     private final UserAndAccessManagementService userAndAccessManagementService;
+    private final AIAssistantServiceCE aiAssistantService;
 
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
@@ -206,6 +212,41 @@ public class UserControllerCE {
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
         return service.verifyEmailVerificationToken(exchange);
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/ai-assistant/request")
+    public Mono<ResponseDTO<Map<String, String>>> requestAIResponse(@RequestBody @Valid AIRequestDTO request) {
+        return aiAssistantService
+                .getAIResponse(
+                        request.getProvider(),
+                        request.getPrompt(),
+                        request.getContext(),
+                        request.getConversationHistory())
+                .map(response -> Map.of("response", response, "provider", request.getProvider()))
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
+                .onErrorResume(error -> {
+                    String errorMessage = getAIErrorMessage(error);
+                    return Mono.just(
+                            new ResponseDTO<Map<String, String>>(HttpStatus.BAD_REQUEST.value(), null, errorMessage));
+                });
+    }
+
+    private String getAIErrorMessage(Throwable error) {
+        if (!(error instanceof AppsmithException appsmithError)) {
+            log.error("Non-Appsmith AI error: {}", error.getMessage(), error);
+            return "Failed to get AI response. " + error.getMessage();
+        }
+        if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
+            return "Invalid API key. Please check your API key in settings.";
+        }
+        if (appsmithError.getMessage() != null && appsmithError.getMessage().contains("Rate limit")) {
+            return "Rate limit exceeded. Please try again later.";
+        }
+        // Use getMessage() which includes the formatted args (e.g. actual error details)
+        return appsmithError.getMessage() != null
+                ? appsmithError.getMessage()
+                : appsmithError.getError().getMessage();
     }
 
     /**

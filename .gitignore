@@ -46,3 +46,6 @@ mongo-data**
 # ignore the task file as it will be different for different project implementations.
 TASKS.md
 mongodb*
+
+# Security audit document
+GitInMemoryAudit.pdf

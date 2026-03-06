@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "npx eslint --no-error-on-unmatched-pattern --max-warnings 0 $CLAUDE_FILE_PATH 2>/dev/null || echo 'LINT ISSUES DETECTED in edited file'"
+      }
+    ]
+  }
+}
