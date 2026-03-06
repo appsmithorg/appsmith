@@ -162,6 +162,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         List<Map<String, String>> sortBy = uqiDataFilterParams.getSortBy();
         Map<String, String> paginateBy = uqiDataFilterParams.getPaginateBy();
 
+        validateProjectionColumns(projectionColumns, schema);
+        validateSortByColumns(sortBy, schema);
+
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder();
@@ -277,6 +280,33 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         values.add(new PreparedStatementValueDTO(offset, DataType.INTEGER));
     }
 
+    private void validateProjectionColumns(List<String> projectionColumns, Map<String, DataType> schema) {
+        if (CollectionUtils.isEmpty(projectionColumns)) {
+            return;
+        }
+        for (String columnName : projectionColumns) {
+            if (!schema.containsKey(columnName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        columnName + " not found in the known column names: " + schema.keySet());
+            }
+        }
+    }
+
+    private void validateSortByColumns(List<Map<String, String>> sortBy, Map<String, DataType> schema) {
+        if (isSortConditionEmpty(sortBy)) {
+            return;
+        }
+        for (Map<String, String> sortCondition : sortBy) {
+            String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
+            if (!isBlank(columnName) && !schema.containsKey(columnName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        columnName + " not found in the known column names: " + schema.keySet());
+            }
+        }
+    }
+
     /**
      * Display only those columns that the user has chosen to display.
      * E.g. if the projectionColumns is a list that contains ["ID, Name"], then this method will add the following
@@ -286,10 +316,15 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param projectionColumns - list of columns that need to be displayed
      * @param tableName         - table name in database
      */
+    private static String escapeBacktickIdentifier(String identifier) {
+        return identifier.replace("`", "``");
+    }
+
     private void addProjectionCondition(StringBuilder sb, List<String> projectionColumns, String tableName) {
         if (!CollectionUtils.isEmpty(projectionColumns)) {
             sb.append("SELECT");
-            projectionColumns.stream().forEach(columnName -> sb.append(" `" + columnName + "`,"));
+            projectionColumns.stream()
+                    .forEach(columnName -> sb.append(" `" + escapeBacktickIdentifier(columnName) + "`,"));
 
             sb.setLength(sb.length() - 1);
             sb.append(" FROM " + tableName);
@@ -337,7 +372,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                         + "to parse the type of sort condition. Please reach out to Appsmith customer support "
                                         + "to resolve this.");
                     }
-                    sb.append(" `" + columnName + "` " + sortType + ",");
+                    sb.append(" `" + escapeBacktickIdentifier(columnName) + "` " + sortType + ",");
                 });
 
         sb.setLength(sb.length() - 1);
@@ -615,10 +650,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
                 .map(name -> {
-                    if (name.contains("\"") || name.contains("\'")) {
+                    if (name.contains("\"") || name.contains("\'") || name.contains("`")) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : "
+                                "', \" or ` are unsupported symbols in column names for filtering. Caused by column name : "
                                         + name);
                     }
                     return name;
