@@ -51,7 +51,11 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
   );
 
   return (
-    <StyledTabs onValueChange={onValueChange} value={tabs[selectedIndex]}>
+    <StyledTabs
+      onValueChange={onValueChange}
+      translate="no"
+      value={tabs[selectedIndex]}
+    >
       <TabsList>
         {props.contentComponent && <Tab value={tabs[0]}>Content</Tab>}
         {props.styleComponent && <Tab value={tabs[1]}>Style</Tab>}

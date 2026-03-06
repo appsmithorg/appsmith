@@ -10,6 +10,8 @@ import {
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
+  GENERAL_SETTINGS_APP_LANGUAGE_LABEL,
+  GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
   GENERAL_SETTINGS_APP_URL_LABEL,
@@ -38,8 +40,7 @@ import {
   Tooltip,
 } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
-import React, { useCallback, useMemo, useState } from "react";
-import { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -116,6 +117,9 @@ function GeneralSettings() {
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
+  const [htmlLang, setHtmlLang] = useState(
+    application?.applicationDetail?.htmlLang || "",
+  );
   const [applicationSlug, setApplicationSlug] = useState(
     application?.staticUrlSettings?.uniqueSlug || "",
   );
@@ -136,6 +140,30 @@ function GeneralSettings() {
       !isSavingAppName && setApplicationName(application?.name);
     },
     [application, application?.name, isSavingAppName],
+  );
+
+  useEffect(
+    function syncHtmlLang() {
+      setHtmlLang(application?.applicationDetail?.htmlLang || "");
+    },
+    [application?.applicationDetail?.htmlLang],
+  );
+
+  const saveHtmlLang = useCallback(
+    (value: string) => {
+      const trimmed = value.trim().toLowerCase();
+      const current = application?.applicationDetail?.htmlLang || "";
+
+      if (trimmed === current) return;
+
+      dispatch(
+        updateApplication(applicationId, {
+          currentApp: true,
+          applicationDetail: { htmlLang: trimmed },
+        }),
+      );
+    },
+    [applicationId, application?.applicationDetail?.htmlLang, dispatch],
   );
 
   useEffect(
@@ -466,6 +494,27 @@ function GeneralSettings() {
           selectedIcon={applicationIcon}
         />
       </IconSelectorWrapper>
+
+      <div className="pt-2 pb-2">
+        <Input
+          id="t--general-settings-app-language"
+          label={createMessage(GENERAL_SETTINGS_APP_LANGUAGE_LABEL)}
+          onBlur={() => saveHtmlLang(htmlLang)}
+          onChange={(value: string) => setHtmlLang(value)}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveHtmlLang(htmlLang);
+            }
+          }}
+          placeholder="en"
+          size="md"
+          type="text"
+          value={htmlLang}
+        />
+        <Text className="mt-1" kind="body-s">
+          {createMessage(GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP)}
+        </Text>
+      </div>
 
       {isStaticUrlFeatureEnabled && (
         <div className="flex content-center justify-between pt-2">
