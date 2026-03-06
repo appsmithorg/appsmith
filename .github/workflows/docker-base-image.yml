@@ -4,12 +4,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 5 * * MON"
-  push:
-    branches:
-      - release
-      - master
-    paths:
-      - "deploy/docker/base.dockerfile"
+  workflow_call:
+    inputs:
+      tag:
+        description: "Docker tag override (e.g. release, nightly). Defaults to branch-based detection."
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build-docker:
@@ -25,6 +26,24 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if base.dockerfile changed
+        id: check
+        if: github.event_name == 'workflow_call'
+        run: |
+          if [[ -n "${{ github.event.before }}" ]]; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="HEAD~1..HEAD"
+          fi
+
+          if git diff --name-only "$range" | grep -qx "deploy/docker/base.dockerfile"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -35,9 +54,13 @@ jobs:
       - name: Get tag
         id: tag
         run: |
-          tag="${GITHUB_REF_NAME//\//-}"
-          if [[ "$tag" == master ]]; then
-            tag=nightly
+          if [[ -n "${{ inputs.tag }}" ]]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME//\//-}"
+            if [[ "$tag" == master ]]; then
+              tag=nightly
+            fi
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
@@ -45,6 +68,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Build and push base image
+        if: steps.check.outputs.changed != 'false'
         uses: depot/build-push-action@v1
         with:
           project: ${{ secrets.DEPOT_PROJECT_ID }}

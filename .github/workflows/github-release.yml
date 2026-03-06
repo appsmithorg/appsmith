@@ -205,8 +205,14 @@ jobs:
           path: app/client/packages/rts/rts-dist.tar
           overwrite: true
 
+  build-base-image:
+    uses: ./.github/workflows/docker-base-image.yml
+    secrets: inherit
+    with:
+      tag: nightly
+
   package:
-    needs: [prelude, client-build, server-build, rts-build]
+    needs: [prelude, client-build, server-build, rts-build, build-base-image]
 
     runs-on: ubuntu-latest
     permissions:
