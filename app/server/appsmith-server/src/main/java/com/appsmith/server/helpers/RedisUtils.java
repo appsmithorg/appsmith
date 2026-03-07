@@ -37,16 +37,19 @@ public class RedisUtils {
 
     public Mono<Boolean> addFileLock(String key, String gitCommand) {
         String command = hasText(gitCommand) ? gitCommand : REDIS_FILE_LOCK_VALUE;
-        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
-            if (!Boolean.TRUE.equals(isKeyPresent)) {
-                return redisOperations.opsForValue().set(key, gitCommand, FILE_LOCK_TIME_LIMIT);
-            }
-            return redisOperations
-                    .opsForValue()
-                    .get(key)
-                    .flatMap(commandName ->
-                            Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, command, commandName)));
-        });
+        return redisOperations
+                .opsForValue()
+                .setIfAbsent(key, command, FILE_LOCK_TIME_LIMIT)
+                .flatMap(locked -> {
+                    if (Boolean.TRUE.equals(locked)) {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                    return redisOperations
+                            .opsForValue()
+                            .get(key)
+                            .flatMap(commandName -> Mono.error(
+                                    new AppsmithException(AppsmithError.GIT_FILE_IN_USE, command, commandName)));
+                });
     }
 
     @Deprecated
@@ -54,12 +57,15 @@ public class RedisUtils {
         if (gitServiceConfig.isGitInMemory()) {
             return Mono.just(true);
         }
-        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
-            if (Boolean.TRUE.equals(isKeyPresent)) {
-                return Mono.error(exception);
-            }
-            return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, expirationPeriod);
-        });
+        return redisOperations
+                .opsForValue()
+                .setIfAbsent(key, REDIS_FILE_LOCK_VALUE, expirationPeriod)
+                .flatMap(locked -> {
+                    if (Boolean.TRUE.equals(locked)) {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                    return Mono.error(exception);
+                });
     }
 
     @Deprecated
@@ -76,12 +82,15 @@ public class RedisUtils {
 
     public Mono<Boolean> startAutoCommit(String defaultApplicationId, String branchName) {
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
-        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
-            if (Boolean.TRUE.equals(isKeyPresent)) {
-                return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, AUTO_COMMIT, AUTO_COMMIT));
-            }
-            return redisOperations.opsForValue().set(key, branchName, AUTO_COMMIT_TIME_LIMIT);
-        });
+        return redisOperations
+                .opsForValue()
+                .setIfAbsent(key, branchName, AUTO_COMMIT_TIME_LIMIT)
+                .flatMap(locked -> {
+                    if (Boolean.TRUE.equals(locked)) {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, AUTO_COMMIT, AUTO_COMMIT));
+                });
     }
 
     public Mono<Boolean> setAutoCommitProgress(String defaultApplicationId, Integer progress) {
