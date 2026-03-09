@@ -129,6 +129,22 @@ public class OrganizationConfigurationCE implements Serializable {
     @JsonInclude
     private String localLlmModel;
 
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String claudeModel;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String claudeBaseUrl;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String openaiModel;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String openaiBaseUrl;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -172,6 +188,10 @@ public class OrganizationConfigurationCE implements Serializable {
         localLlmContextSize =
                 ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmContextSize(), localLlmContextSize);
         localLlmModel = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmModel(), localLlmModel);
+        claudeModel = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeModel(), claudeModel);
+        claudeBaseUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeBaseUrl(), claudeBaseUrl);
+        openaiModel = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiModel(), openaiModel);
+        openaiBaseUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiBaseUrl(), openaiBaseUrl);
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {

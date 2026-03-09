@@ -37,6 +37,11 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     private static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
     private static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
 
+    static final String DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
+    static final String DEFAULT_CLAUDE_BASE_URL = "https://api.anthropic.com";
+    static final String DEFAULT_OPENAI_MODEL = "gpt-4";
+    static final String DEFAULT_OPENAI_BASE_URL = "https://api.openai.com";
+
     private final OrganizationService organizationService;
     private final AIReferenceService aiReferenceService;
 
@@ -49,6 +54,22 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
             .baseUrl("https://api.openai.com")
             .build();
+
+    /**
+     * Returns the cached WebClient if the baseUrl matches the default, otherwise builds a new one.
+     */
+    private static WebClient getOrBuildWebClient(String baseUrl, String defaultBaseUrl, WebClient cachedClient) {
+        if (baseUrl == null || baseUrl.isEmpty() || defaultBaseUrl.equals(baseUrl)) {
+            return cachedClient;
+        }
+        return WebClientUtils.builder(HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
+                .baseUrl(baseUrl)
+                .build();
+    }
+
+    private static String resolveConfig(String configValue, String defaultValue) {
+        return (configValue != null && !configValue.isEmpty()) ? configValue : defaultValue;
+    }
 
     @Override
     public Mono<String> getAIResponse(String provider, String prompt, AIEditorContextDTO context) {
@@ -152,8 +173,20 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             }
 
             return switch (providerEnum) {
-                case CLAUDE -> callClaudeAPI(apiKey, prompt, context, conversationHistory);
-                case OPENAI -> callOpenAIAPI(apiKey, prompt, context, conversationHistory);
+                case CLAUDE -> callClaudeAPI(
+                        apiKey,
+                        prompt,
+                        context,
+                        conversationHistory,
+                        orgConfig.getClaudeModel(),
+                        orgConfig.getClaudeBaseUrl());
+                case OPENAI -> callOpenAIAPI(
+                        apiKey,
+                        prompt,
+                        context,
+                        conversationHistory,
+                        orgConfig.getOpenaiModel(),
+                        orgConfig.getOpenaiBaseUrl());
                 default -> Mono.error(
                         new AppsmithException(AppsmithError.INVALID_PARAMETER, "Provider not supported: " + provider));
             };
@@ -161,7 +194,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     }
 
     private Mono<String> callClaudeAPI(
-            String apiKey, String prompt, AIEditorContextDTO context, List<AIMessageDTO> conversationHistory) {
+            String apiKey,
+            String prompt,
+            AIEditorContextDTO context,
+            List<AIMessageDTO> conversationHistory,
+            String configModel,
+            String configBaseUrl) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
 
@@ -196,8 +234,11 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         }
         messages.add(messageContent);
 
+        String effectiveModel = resolveConfig(configModel, DEFAULT_CLAUDE_MODEL);
+        String effectiveBaseUrl = resolveConfig(configBaseUrl, DEFAULT_CLAUDE_BASE_URL);
+
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "claude-3-5-sonnet-20241022");
+        requestBody.put("model", effectiveModel);
         requestBody.put("max_tokens", 8192);
         requestBody.put("messages", messages);
         // Add system prompt as separate field for Claude
@@ -205,7 +246,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             requestBody.put("system", systemPrompt);
         }
 
-        return claudeWebClient
+        return getOrBuildWebClient(effectiveBaseUrl, DEFAULT_CLAUDE_BASE_URL, claudeWebClient)
                 .post()
                 .uri("/v1/messages")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -239,7 +280,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     }
 
     private Mono<String> callOpenAIAPI(
-            String apiKey, String prompt, AIEditorContextDTO context, List<AIMessageDTO> conversationHistory) {
+            String apiKey,
+            String prompt,
+            AIEditorContextDTO context,
+            List<AIMessageDTO> conversationHistory,
+            String configModel,
+            String configBaseUrl) {
         String systemPrompt = buildSystemPrompt(context);
         String userPrompt = buildUserPrompt(prompt, context);
 
@@ -257,12 +303,15 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         // Add current user message
         messages.add(Map.of("role", "user", "content", userPrompt));
 
+        String effectiveModel = resolveConfig(configModel, DEFAULT_OPENAI_MODEL);
+        String effectiveBaseUrl = resolveConfig(configBaseUrl, DEFAULT_OPENAI_BASE_URL);
+
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4");
+        requestBody.put("model", effectiveModel);
         requestBody.put("messages", messages);
         requestBody.put("temperature", 0.7);
 
-        return openaiWebClient
+        return getOrBuildWebClient(effectiveBaseUrl, DEFAULT_OPENAI_BASE_URL, openaiWebClient)
                 .post()
                 .uri("/v1/chat/completions")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

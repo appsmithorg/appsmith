@@ -47,6 +47,11 @@ public class OrganizationControllerCE {
     static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
     static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
 
+    static final String DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
+    static final String DEFAULT_CLAUDE_BASE_URL = "https://api.anthropic.com";
+    static final String DEFAULT_OPENAI_MODEL = "gpt-4";
+    static final String DEFAULT_OPENAI_BASE_URL = "https://api.openai.com";
+
     private final OrganizationService service;
     private final AIReferenceService aiReferenceService;
 
@@ -127,6 +132,14 @@ public class OrganizationControllerCE {
                                 validateTrimmedString(aiConfig.getLocalLlmUrl(), config::setLocalLlmUrl, 2000, "URL");
                                 validateTrimmedString(
                                         aiConfig.getLocalLlmModel(), config::setLocalLlmModel, 200, "Model name");
+                                validateTrimmedString(
+                                        aiConfig.getClaudeModel(), config::setClaudeModel, 200, "Claude model name");
+                                validateTrimmedString(
+                                        aiConfig.getClaudeBaseUrl(), config::setClaudeBaseUrl, 2000, "Claude base URL");
+                                validateTrimmedString(
+                                        aiConfig.getOpenaiModel(), config::setOpenaiModel, 200, "OpenAI model name");
+                                validateTrimmedString(
+                                        aiConfig.getOpenaiBaseUrl(), config::setOpenaiBaseUrl, 2000, "OpenAI base URL");
                             } catch (AppsmithException e) {
                                 return Mono.error(e);
                             }
@@ -722,6 +735,8 @@ public class OrganizationControllerCE {
         String endpoint = request.get("endpoint");
         String deploymentName = request.get("deploymentName");
         String apiVersion = request.get("apiVersion");
+        String baseUrl = request.get("baseUrl");
+        String model = request.get("model");
 
         if (provider == null || provider.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -779,7 +794,26 @@ public class OrganizationControllerCE {
                     return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment, apiVersion);
                 }
 
-                return testApiKeyWithProvider(provider, storedKey);
+                // Resolve baseUrl and model from stored config if not provided in request
+                String resolvedBaseUrl = baseUrl;
+                String resolvedModel = model;
+                if ("CLAUDE".equalsIgnoreCase(provider)) {
+                    if (!hasValue(resolvedBaseUrl)) {
+                        resolvedBaseUrl = config.getClaudeBaseUrl();
+                    }
+                    if (!hasValue(resolvedModel)) {
+                        resolvedModel = config.getClaudeModel();
+                    }
+                } else if ("OPENAI".equalsIgnoreCase(provider)) {
+                    if (!hasValue(resolvedBaseUrl)) {
+                        resolvedBaseUrl = config.getOpenaiBaseUrl();
+                    }
+                    if (!hasValue(resolvedModel)) {
+                        resolvedModel = config.getOpenaiModel();
+                    }
+                }
+
+                return testApiKeyWithProvider(provider, storedKey, resolvedBaseUrl, resolvedModel);
             });
         }
 
@@ -788,10 +822,11 @@ public class OrganizationControllerCE {
             return testAzureOpenaiKey(apiKey.trim(), endpoint, deploymentName, apiVersion);
         }
 
-        return testApiKeyWithProvider(provider, apiKey.trim());
+        return testApiKeyWithProvider(provider, apiKey.trim(), baseUrl, model);
     }
 
-    private Mono<ResponseDTO<Map<String, Object>>> testApiKeyWithProvider(String provider, String apiKey) {
+    private Mono<ResponseDTO<Map<String, Object>>> testApiKeyWithProvider(
+            String provider, String apiKey, String baseUrl, String model) {
         HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(30));
 
         // Use SSRF-protected WebClient for consistency
@@ -801,9 +836,18 @@ public class OrganizationControllerCE {
         List<Map<String, String>> steps = new ArrayList<>();
 
         if ("OPENAI".equalsIgnoreCase(provider)) {
-            return testOpenAIKey(webClient, apiKey, startTime, steps);
+            String effectiveBaseUrl = hasValue(baseUrl) ? baseUrl.trim() : DEFAULT_OPENAI_BASE_URL;
+            String effectiveModel = hasValue(model) ? model.trim() : DEFAULT_OPENAI_MODEL;
+            // Use cheap test model only when on default base URL
+            String testModel = DEFAULT_OPENAI_BASE_URL.equals(effectiveBaseUrl) ? "gpt-3.5-turbo" : effectiveModel;
+            return testOpenAIKey(webClient, apiKey, startTime, steps, effectiveBaseUrl, testModel);
         } else if ("CLAUDE".equalsIgnoreCase(provider)) {
-            return testClaudeKey(webClient, apiKey, startTime, steps);
+            String effectiveBaseUrl = hasValue(baseUrl) ? baseUrl.trim() : DEFAULT_CLAUDE_BASE_URL;
+            String effectiveModel = hasValue(model) ? model.trim() : DEFAULT_CLAUDE_MODEL;
+            // Use cheap test model only when on default base URL
+            String testModel =
+                    DEFAULT_CLAUDE_BASE_URL.equals(effectiveBaseUrl) ? "claude-haiku-4-5-20251001" : effectiveModel;
+            return testClaudeKey(webClient, apiKey, startTime, steps, effectiveBaseUrl, testModel);
         } else {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
@@ -813,17 +857,24 @@ public class OrganizationControllerCE {
     }
 
     private Mono<ResponseDTO<Map<String, Object>>> testOpenAIKey(
-            WebClient webClient, String apiKey, long startTime, List<Map<String, String>> steps) {
+            WebClient webClient,
+            String apiKey,
+            long startTime,
+            List<Map<String, String>> steps,
+            String baseUrl,
+            String model) {
 
         steps.add(createStep("API Key Format", "success", "Key starts with 'sk-'"));
 
         // Use chat completions endpoint with minimal request
-        String payload =
-                "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}],\"max_tokens\":5}";
+        String payload = "{\"model\":\"" + model
+                + "\",\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}],\"max_tokens\":5}";
+
+        String testUrl = stripTrailingSlash(baseUrl) + "/v1/chat/completions";
 
         return webClient
                 .post()
-                .uri("https://api.openai.com/v1/chat/completions")
+                .uri(testUrl)
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(payload)
@@ -927,17 +978,24 @@ public class OrganizationControllerCE {
     }
 
     private Mono<ResponseDTO<Map<String, Object>>> testClaudeKey(
-            WebClient webClient, String apiKey, long startTime, List<Map<String, String>> steps) {
+            WebClient webClient,
+            String apiKey,
+            long startTime,
+            List<Map<String, String>> steps,
+            String baseUrl,
+            String model) {
 
         steps.add(createStep("API Key Format", "success", "Key format accepted"));
 
         // Use Claude messages endpoint with minimal request
-        String payload =
-                "{\"model\":\"claude-3-haiku-20240307\",\"max_tokens\":10,\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}]}";
+        String payload = "{\"model\":\"" + model
+                + "\",\"max_tokens\":10,\"messages\":[{\"role\":\"user\",\"content\":\"Say hello\"}]}";
+
+        String testUrl = stripTrailingSlash(baseUrl) + "/v1/messages";
 
         return webClient
                 .post()
-                .uri("https://api.anthropic.com/v1/messages")
+                .uri(testUrl)
                 .header("Content-Type", "application/json")
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", "2023-06-01")
@@ -1286,6 +1344,7 @@ public class OrganizationControllerCE {
         response.put("localLlmUrl", config.getLocalLlmUrl());
         response.put("localLlmContextSize", config.getLocalLlmContextSize());
         response.put("localLlmModel", config.getLocalLlmModel());
+        addProviderDefaults(response, config);
         return response;
     }
 
@@ -1331,6 +1390,8 @@ public class OrganizationControllerCE {
         response.put("localLlmContextSize", ObjectUtils.defaultIfNull(config.getLocalLlmContextSize(), -1));
         response.put("localLlmModel", defaultString(config.getLocalLlmModel()));
 
+        addProviderDefaults(response, config);
+
         return response;
     }
 
@@ -1350,7 +1411,31 @@ public class OrganizationControllerCE {
         response.put("localLlmUrl", "");
         response.put("localLlmContextSize", -1);
         response.put("localLlmModel", "");
+        addProviderDefaults(response, null);
         return response;
+    }
+
+    private void addProviderDefaults(Map<String, Object> response, OrganizationConfiguration config) {
+        response.put(
+                "claudeModel",
+                config != null
+                        ? ObjectUtils.defaultIfNull(config.getClaudeModel(), DEFAULT_CLAUDE_MODEL)
+                        : DEFAULT_CLAUDE_MODEL);
+        response.put(
+                "claudeBaseUrl",
+                config != null
+                        ? ObjectUtils.defaultIfNull(config.getClaudeBaseUrl(), DEFAULT_CLAUDE_BASE_URL)
+                        : DEFAULT_CLAUDE_BASE_URL);
+        response.put(
+                "openaiModel",
+                config != null
+                        ? ObjectUtils.defaultIfNull(config.getOpenaiModel(), DEFAULT_OPENAI_MODEL)
+                        : DEFAULT_OPENAI_MODEL);
+        response.put(
+                "openaiBaseUrl",
+                config != null
+                        ? ObjectUtils.defaultIfNull(config.getOpenaiBaseUrl(), DEFAULT_OPENAI_BASE_URL)
+                        : DEFAULT_OPENAI_BASE_URL);
     }
 
     private boolean hasValue(String value) {

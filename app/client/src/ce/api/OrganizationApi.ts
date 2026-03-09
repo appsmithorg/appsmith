@@ -44,6 +44,10 @@ export interface AIConfigResponse {
   azureOpenaiDeploymentName?: string;
   azureOpenaiApiVersion?: string;
   azureOpenaiMaxCompletionTokens?: number;
+  claudeModel?: string;
+  claudeBaseUrl?: string;
+  openaiModel?: string;
+  openaiBaseUrl?: string;
 }
 
 export interface AIConfigRequest {
@@ -59,6 +63,10 @@ export interface AIConfigRequest {
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
+  claudeModel?: string;
+  claudeBaseUrl?: string;
+  openaiModel?: string;
+  openaiBaseUrl?: string;
   provider: string;
   isAIAssistantEnabled: boolean;
 }
@@ -129,6 +137,8 @@ export class OrganizationApi extends Api {
     endpoint?: string,
     deploymentName?: string,
     apiVersion?: string,
+    baseUrl?: string,
+    model?: string,
   ): Promise<AxiosPromise<ApiResponse<Record<string, unknown>>>> {
     return Api.post(`${OrganizationApi.tenantsUrl}/ai-config/test-api-key`, {
       provider,
@@ -136,6 +146,8 @@ export class OrganizationApi extends Api {
       endpoint,
       deploymentName,
       apiVersion,
+      baseUrl,
+      model,
     });
   }
 

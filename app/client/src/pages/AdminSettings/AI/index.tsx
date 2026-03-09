@@ -9,6 +9,10 @@ import { toast } from "@appsmith/ads";
 
 const DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
 const DEFAULT_AZURE_MAX_COMPLETION_TOKENS = "16384";
+const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
+const DEFAULT_CLAUDE_BASE_URL = "https://api.anthropic.com";
+const DEFAULT_OPENAI_MODEL = "gpt-4";
+const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com";
 
 // Response types (unwrapped by axios interceptors)
 interface ExternalReferenceFile {
@@ -31,6 +35,10 @@ interface AIConfigData {
   localLlmUrl?: string;
   localLlmContextSize?: number;
   localLlmModel?: string;
+  claudeModel?: string;
+  claudeBaseUrl?: string;
+  openaiModel?: string;
+  openaiBaseUrl?: string;
   hasExternalReferenceFiles?: boolean;
   externalReferenceFiles?: ExternalReferenceFile[];
 }
@@ -466,6 +474,14 @@ function AISettings() {
   const [localLlmUrl, setLocalLlmUrl] = useState<string>("");
   const [localLlmContextSize, setLocalLlmContextSize] = useState<string>("");
   const [localLlmModel, setLocalLlmModel] = useState<string>("");
+  const [claudeModel, setClaudeModel] = useState<string>(DEFAULT_CLAUDE_MODEL);
+  const [claudeBaseUrl, setClaudeBaseUrl] = useState<string>(
+    DEFAULT_CLAUDE_BASE_URL,
+  );
+  const [openaiModel, setOpenaiModel] = useState<string>(DEFAULT_OPENAI_MODEL);
+  const [openaiBaseUrl, setOpenaiBaseUrl] = useState<string>(
+    DEFAULT_OPENAI_BASE_URL,
+  );
   const [isAIAssistantEnabled, setIsAIAssistantEnabled] =
     useState<boolean>(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -530,6 +546,10 @@ function AISettings() {
             contextSize && contextSize > 0 ? contextSize.toString() : "",
           );
           setLocalLlmModel(config.localLlmModel || "");
+          setClaudeModel(config.claudeModel || DEFAULT_CLAUDE_MODEL);
+          setClaudeBaseUrl(config.claudeBaseUrl || DEFAULT_CLAUDE_BASE_URL);
+          setOpenaiModel(config.openaiModel || DEFAULT_OPENAI_MODEL);
+          setOpenaiBaseUrl(config.openaiBaseUrl || DEFAULT_OPENAI_BASE_URL);
 
           // Determine context size preset from saved value
           if (contextSize && contextSize > 0) {
@@ -596,20 +616,22 @@ function AISettings() {
         isAIAssistantEnabled,
       };
 
-      if (
-        provider === "CLAUDE" &&
-        claudeApiKey &&
-        claudeApiKey !== "••••••••"
-      ) {
-        request.claudeApiKey = claudeApiKey;
+      if (provider === "CLAUDE") {
+        if (claudeApiKey && claudeApiKey !== "••••••••") {
+          request.claudeApiKey = claudeApiKey;
+        }
+
+        request.claudeModel = claudeModel;
+        request.claudeBaseUrl = claudeBaseUrl;
       }
 
-      if (
-        provider === "OPENAI" &&
-        openaiApiKey &&
-        openaiApiKey !== "••••••••"
-      ) {
-        request.openaiApiKey = openaiApiKey;
+      if (provider === "OPENAI") {
+        if (openaiApiKey && openaiApiKey !== "••••••••") {
+          request.openaiApiKey = openaiApiKey;
+        }
+
+        request.openaiModel = openaiModel;
+        request.openaiBaseUrl = openaiBaseUrl;
       }
 
       if (provider === "AZURE_OPENAI") {
@@ -741,6 +763,16 @@ function AISettings() {
         provider === "AZURE_OPENAI" ? azureOpenaiEndpoint : undefined,
         provider === "AZURE_OPENAI" ? azureOpenaiDeploymentName : undefined,
         provider === "AZURE_OPENAI" ? azureOpenaiApiVersion : undefined,
+        provider === "CLAUDE"
+          ? claudeBaseUrl
+          : provider === "OPENAI"
+            ? openaiBaseUrl
+            : undefined,
+        provider === "CLAUDE"
+          ? claudeModel
+          : provider === "OPENAI"
+            ? openaiModel
+            : undefined,
       )) as unknown as UnwrappedApiResponse<TestResult>;
 
       if (response.responseMeta.success) {
@@ -840,83 +872,168 @@ function AISettings() {
         </FieldWrapper>
 
         {provider === "CLAUDE" && (
-          <FieldWrapper>
-            <LabelWrapper>
-              <Text kind="body-m">Claude API Key</Text>
-            </LabelWrapper>
-            <Input
-              aria-label="Claude API Key"
-              onChange={function handleClaudeKeyChange(value) {
-                setClaudeApiKey(value);
-                setApiKeyTestResult(null);
-              }}
-              placeholder="Enter Claude API key (leave blank to keep existing)"
-              type="password"
-              value={claudeApiKey}
-            />
-            <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-              Get your API key from https://console.anthropic.com/
-            </Text>
+          <>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Claude API Key</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="Claude API Key"
+                onChange={function handleClaudeKeyChange(value) {
+                  setClaudeApiKey(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="Enter Claude API key (leave blank to keep existing)"
+                type="password"
+                value={claudeApiKey}
+              />
+              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Get your API key from https://console.anthropic.com/
+              </Text>
+            </FieldWrapper>
 
-            <ButtonRow style={{ marginTop: "8px" }}>
-              <Button
-                isDisabled={!claudeApiKey}
-                isLoading={isTestingApiKey}
-                kind="secondary"
-                onClick={handleTestApiKey}
-                size="sm"
-              >
-                Test Key
-              </Button>
-              {isTestingApiKey && (
-                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                  Testing API key...
-                </Text>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Model</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="Claude Model"
+                onChange={function handleClaudeModelChange(value) {
+                  setClaudeModel(value);
+                }}
+                placeholder={DEFAULT_CLAUDE_MODEL}
+                type="text"
+                value={claudeModel}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Claude model to use (e.g. claude-sonnet-4-6,
+                claude-haiku-4-5-20251001)
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Base URL</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="Claude Base URL"
+                onChange={function handleClaudeBaseUrlChange(value) {
+                  setClaudeBaseUrl(value);
+                }}
+                placeholder={DEFAULT_CLAUDE_BASE_URL}
+                type="text"
+                value={claudeBaseUrl}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                API base URL. Change only if using a proxy or custom endpoint.
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <ButtonRow style={{ marginTop: "8px" }}>
+                <Button
+                  isDisabled={!claudeApiKey}
+                  isLoading={isTestingApiKey}
+                  kind="secondary"
+                  onClick={handleTestApiKey}
+                  size="sm"
+                >
+                  Test Key
+                </Button>
+                {isTestingApiKey && (
+                  <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    Testing API key...
+                  </Text>
+                )}
+              </ButtonRow>
+
+              {apiKeyTestResult && (
+                <ApiKeyTestResult result={apiKeyTestResult} />
               )}
-            </ButtonRow>
-
-            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
-          </FieldWrapper>
+            </FieldWrapper>
+          </>
         )}
 
         {provider === "OPENAI" && (
-          <FieldWrapper>
-            <LabelWrapper>
-              <Text kind="body-m">OpenAI API Key</Text>
-            </LabelWrapper>
-            <Input
-              aria-label="OpenAI API Key"
-              onChange={function handleOpenAIKeyChange(value) {
-                setOpenaiApiKey(value);
-                setApiKeyTestResult(null);
-              }}
-              placeholder="Enter OpenAI API key (leave blank to keep existing)"
-              type="password"
-              value={openaiApiKey}
-            />
-            <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-              Get your API key from https://platform.openai.com/api-keys
-            </Text>
+          <>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">OpenAI API Key</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="OpenAI API Key"
+                onChange={function handleOpenAIKeyChange(value) {
+                  setOpenaiApiKey(value);
+                  setApiKeyTestResult(null);
+                }}
+                placeholder="Enter OpenAI API key (leave blank to keep existing)"
+                type="password"
+                value={openaiApiKey}
+              />
+              <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                Get your API key from https://platform.openai.com/api-keys
+              </Text>
+            </FieldWrapper>
 
-            <ButtonRow style={{ marginTop: "8px" }}>
-              <Button
-                isDisabled={!openaiApiKey}
-                isLoading={isTestingApiKey}
-                kind="secondary"
-                onClick={handleTestApiKey}
-                size="sm"
-              >
-                Test Key
-              </Button>
-              {isTestingApiKey && (
-                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
-                  Testing API key...
-                </Text>
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Model</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="OpenAI Model"
+                onChange={function handleOpenaiModelChange(value) {
+                  setOpenaiModel(value);
+                }}
+                placeholder={DEFAULT_OPENAI_MODEL}
+                type="text"
+                value={openaiModel}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                OpenAI model to use (e.g. gpt-4, gpt-4o, gpt-3.5-turbo)
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <LabelWrapper>
+                <Text kind="body-m">Base URL</Text>
+              </LabelWrapper>
+              <Input
+                aria-label="OpenAI Base URL"
+                onChange={function handleOpenaiBaseUrlChange(value) {
+                  setOpenaiBaseUrl(value);
+                }}
+                placeholder={DEFAULT_OPENAI_BASE_URL}
+                type="text"
+                value={openaiBaseUrl}
+              />
+              <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                API base URL. Change only if using a proxy or custom endpoint.
+              </HintText>
+            </FieldWrapper>
+
+            <FieldWrapper>
+              <ButtonRow style={{ marginTop: "8px" }}>
+                <Button
+                  isDisabled={!openaiApiKey}
+                  isLoading={isTestingApiKey}
+                  kind="secondary"
+                  onClick={handleTestApiKey}
+                  size="sm"
+                >
+                  Test Key
+                </Button>
+                {isTestingApiKey && (
+                  <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    Testing API key...
+                  </Text>
+                )}
+              </ButtonRow>
+
+              {apiKeyTestResult && (
+                <ApiKeyTestResult result={apiKeyTestResult} />
               )}
-            </ButtonRow>
-
-            {apiKeyTestResult && <ApiKeyTestResult result={apiKeyTestResult} />}
-          </FieldWrapper>
+            </FieldWrapper>
+          </>
         )}
 
         {provider === "AZURE_OPENAI" && (

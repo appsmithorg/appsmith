@@ -44,4 +44,16 @@ public class AIConfigDTO {
 
     @Size(max = 200, message = "Model name is too long")
     private String localLlmModel;
+
+    @Size(max = 200, message = "Model name is too long")
+    private String claudeModel;
+
+    @Size(max = 2000, message = "URL is too long")
+    private String claudeBaseUrl;
+
+    @Size(max = 200, message = "Model name is too long")
+    private String openaiModel;
+
+    @Size(max = 2000, message = "URL is too long")
+    private String openaiBaseUrl;
 }
