@@ -10,6 +10,7 @@ import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -26,6 +27,7 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -157,33 +159,46 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
 
-        Mono<Organization> clientOrganizationMono = configService
-                .getInstanceId()
-                .flatMap(instanceId -> {
-                    final Organization organization = new Organization();
-                    organization.setInstanceId(instanceId);
-                    organization.setAdminEmailDomainHash(adminEmailDomainHash);
+        // Determine if the current principal is an anonymous (unauthenticated) user so we can
+        // suppress instance-identifying metadata in the public response.
+        Mono<Boolean> isAnonymousMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
+                .map(user -> Boolean.TRUE.equals(user.getIsAnonymous()))
+                .defaultIfEmpty(true);
 
-                    final OrganizationConfiguration config = new OrganizationConfiguration();
-                    organization.setOrganizationConfiguration(config);
+        Mono<Organization> clientOrganizationMono = isAnonymousMono.flatMap(isAnonymous ->
+                configService
+                        .getInstanceId()
+                        .flatMap(instanceId -> {
+                            final Organization organization = new Organization();
 
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("google");
-                    }
+                            // Only expose instance-identifying metadata to authenticated users
+                            if (!isAnonymous) {
+                                organization.setInstanceId(instanceId);
+                                organization.setAdminEmailDomainHash(adminEmailDomainHash);
+                            }
 
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("github");
-                    }
+                            final OrganizationConfiguration config = new OrganizationConfiguration();
+                            organization.setOrganizationConfiguration(config);
 
-                    return configService
-                            .getInstanceVariables()
-                            .map(instanceVariables -> instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
-                                    instanceVariables, config))
-                            .map(organizationConfiguration -> {
-                                organization.setOrganizationConfiguration(organizationConfiguration);
-                                return organization;
-                            });
-                });
+                            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                                config.addThirdPartyAuth("google");
+                            }
+
+                            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                                config.addThirdPartyAuth("github");
+                            }
+
+                            return configService
+                                    .getInstanceVariables()
+                                    .map(instanceVariables ->
+                                            instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
+                                                    instanceVariables, config))
+                                    .map(organizationConfiguration -> {
+                                        organization.setOrganizationConfiguration(organizationConfiguration);
+                                        return organization;
+                                    });
+                        }));
 
         return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {
             Organization dbOrganization = tuple.getT1();
