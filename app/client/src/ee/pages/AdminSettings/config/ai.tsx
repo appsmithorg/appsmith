@@ -12,7 +12,7 @@ export const config: AdminConfigType = {
   controlType: SettingTypes.PAGE,
   canSave: false,
   title: "AI Assistant",
-  icon: "sparkles",
+  icon: "sparkling-filled",
   component: AISettings,
   isFeatureEnabled: true,
 };

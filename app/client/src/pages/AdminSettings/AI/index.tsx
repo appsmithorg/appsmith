@@ -845,6 +845,7 @@ function AISettings() {
               <Text kind="body-m">Claude API Key</Text>
             </LabelWrapper>
             <Input
+              aria-label="Claude API Key"
               onChange={function handleClaudeKeyChange(value) {
                 setClaudeApiKey(value);
                 setApiKeyTestResult(null);
@@ -884,6 +885,7 @@ function AISettings() {
               <Text kind="body-m">OpenAI API Key</Text>
             </LabelWrapper>
             <Input
+              aria-label="OpenAI API Key"
               onChange={function handleOpenAIKeyChange(value) {
                 setOpenaiApiKey(value);
                 setApiKeyTestResult(null);
@@ -924,6 +926,7 @@ function AISettings() {
                 <Text kind="body-m">Azure OpenAI Endpoint</Text>
               </LabelWrapper>
               <Input
+                aria-label="Azure OpenAI Endpoint"
                 onChange={function handleAzureEndpointChange(value) {
                   setAzureOpenaiEndpoint(value);
                   setApiKeyTestResult(null);
@@ -942,6 +945,7 @@ function AISettings() {
                 <Text kind="body-m">Deployment Name</Text>
               </LabelWrapper>
               <Input
+                aria-label="Deployment Name"
                 onChange={function handleAzureDeploymentChange(value) {
                   setAzureOpenaiDeploymentName(value);
                   setApiKeyTestResult(null);
@@ -960,6 +964,7 @@ function AISettings() {
                 <Text kind="body-m">API Version</Text>
               </LabelWrapper>
               <Input
+                aria-label="API Version"
                 onChange={function handleAzureApiVersionChange(value) {
                   setAzureOpenaiApiVersion(value);
                   setApiKeyTestResult(null);
@@ -978,6 +983,7 @@ function AISettings() {
                 <Text kind="body-m">Max Completion Tokens</Text>
               </LabelWrapper>
               <Input
+                aria-label="Max Completion Tokens"
                 onChange={function handleAzureMaxTokensChange(value) {
                   setAzureOpenaiMaxCompletionTokens(value);
                 }}
@@ -995,6 +1001,7 @@ function AISettings() {
                 <Text kind="body-m">Azure OpenAI API Key</Text>
               </LabelWrapper>
               <Input
+                aria-label="Azure OpenAI API Key"
                 onChange={function handleAzureKeyChange(value) {
                   setAzureOpenaiApiKey(value);
                   setApiKeyTestResult(null);
@@ -1039,6 +1046,7 @@ function AISettings() {
                 <Text kind="body-m">Local LLM URL</Text>
               </LabelWrapper>
               <Input
+                aria-label="Local LLM URL"
                 onChange={function handleLocalLlmUrlChange(value) {
                   setLocalLlmUrl(value);
                   // Reset models when URL changes
@@ -1161,6 +1169,7 @@ function AISettings() {
               {contextSizePreset === "custom" && (
                 <CustomContextInput>
                   <Input
+                    aria-label="Custom context size"
                     onChange={function handleCustomContextChange(value) {
                       setLocalLlmContextSize(value);
                     }}
