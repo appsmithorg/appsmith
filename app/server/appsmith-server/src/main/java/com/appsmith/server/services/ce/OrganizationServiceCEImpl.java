@@ -166,39 +166,36 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .map(user -> Boolean.TRUE.equals(user.getIsAnonymous()))
                 .defaultIfEmpty(true);
 
-        Mono<Organization> clientOrganizationMono = isAnonymousMono.flatMap(isAnonymous ->
-                configService
-                        .getInstanceId()
-                        .flatMap(instanceId -> {
-                            final Organization organization = new Organization();
+        Mono<Organization> clientOrganizationMono = isAnonymousMono.flatMap(
+                isAnonymous -> configService.getInstanceId().flatMap(instanceId -> {
+                    final Organization organization = new Organization();
 
-                            // Only expose instance-identifying metadata to authenticated users
-                            if (!isAnonymous) {
-                                organization.setInstanceId(instanceId);
-                                organization.setAdminEmailDomainHash(adminEmailDomainHash);
-                            }
+                    // Only expose instance-identifying metadata to authenticated users
+                    if (!isAnonymous) {
+                        organization.setInstanceId(instanceId);
+                        organization.setAdminEmailDomainHash(adminEmailDomainHash);
+                    }
 
-                            final OrganizationConfiguration config = new OrganizationConfiguration();
-                            organization.setOrganizationConfiguration(config);
+                    final OrganizationConfiguration config = new OrganizationConfiguration();
+                    organization.setOrganizationConfiguration(config);
 
-                            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                                config.addThirdPartyAuth("google");
-                            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("google");
+                    }
 
-                            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                                config.addThirdPartyAuth("github");
-                            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("github");
+                    }
 
-                            return configService
-                                    .getInstanceVariables()
-                                    .map(instanceVariables ->
-                                            instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
-                                                    instanceVariables, config))
-                                    .map(organizationConfiguration -> {
-                                        organization.setOrganizationConfiguration(organizationConfiguration);
-                                        return organization;
-                                    });
-                        }));
+                    return configService
+                            .getInstanceVariables()
+                            .map(instanceVariables -> instanceVariablesHelper.populateOrgConfigWithInstanceVariables(
+                                    instanceVariables, config))
+                            .map(organizationConfiguration -> {
+                                organization.setOrganizationConfiguration(organizationConfiguration);
+                                return organization;
+                            });
+                }));
 
         return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {
             Organization dbOrganization = tuple.getT1();
