@@ -134,21 +134,21 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
+
+        validateProjectionColumns(uqiDataFilterParams.getProjectionColumns(), schema);
+        validateSortByColumns(uqiDataFilterParams.getSortBy(), schema);
+
         String tableName = generateTable(schema);
+        try {
+            insertAllData(tableName, items, schema, dataTypeConversionMap);
 
-        // insert the data
-        insertAllData(tableName, items, schema, dataTypeConversionMap);
+            List<Map<String, Object>> finalResults =
+                    executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
 
-        // Filter the data
-        List<Map<String, Object>> finalResults =
-                executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
-
-        // Now that the data has been filtered. Clean Up. Drop the table
-        dropTable(tableName);
-
-        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
-
-        return finalResultsNode;
+            return objectMapper.valueToTree(finalResults);
+        } finally {
+            dropTable(tableName);
+        }
     }
 
     private List<Map<String, Object>> executeFilterQueryNew(
@@ -161,9 +161,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
         List<Map<String, String>> sortBy = uqiDataFilterParams.getSortBy();
         Map<String, String> paginateBy = uqiDataFilterParams.getPaginateBy();
-
-        validateProjectionColumns(projectionColumns, schema);
-        validateSortByColumns(sortBy, schema);
 
         Connection conn = checkAndGetConnection();
 
@@ -303,6 +300,21 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         columnName + " not found in the known column names: " + schema.keySet());
+            }
+            if (!isBlank(columnName)) {
+                String order = sortCondition.get(SORT_BY_TYPE_KEY);
+                if (isBlank(order)) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Sort order is required for column: " + columnName);
+                }
+                try {
+                    SortType.valueOf(order.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Unsupported sort order '" + order + "' for column: " + columnName);
+                }
             }
         }
     }

@@ -1449,4 +1449,44 @@ public class FilterDataServiceTest {
         assertEquals(2, result.get(0).get("id").asInt());
         assertEquals(1, result.get(1).get("id").asInt());
     }
+
+    @Test
+    public void testSortByWithNullOrder_throwsException() throws IOException {
+        ArrayNode items = (ArrayNode) objectMapper.readTree(SIMPLE_DATA);
+        Map<String, String> sortCondition = new HashMap<>();
+        sortCondition.put(SORT_BY_COLUMN_NAME_KEY, "id");
+        sortCondition.put(SORT_BY_TYPE_KEY, null);
+        List<Map<String, String>> sortBy = List.of(sortCondition);
+
+        AppsmithPluginException exception = assertThrows(AppsmithPluginException.class, () -> {
+            filterDataService.filterDataNew(items, new UQIDataFilterParams(null, null, sortBy, null));
+        });
+        assertThat(exception.getMessage()).contains("Sort order is required for column");
+    }
+
+    @Test
+    public void testSortByWithInvalidOrder_throwsException() throws IOException {
+        ArrayNode items = (ArrayNode) objectMapper.readTree(SIMPLE_DATA);
+        List<Map<String, String>> sortBy =
+                List.of(Map.of(SORT_BY_COLUMN_NAME_KEY, "id", SORT_BY_TYPE_KEY, "INVALID_ORDER"));
+
+        AppsmithPluginException exception = assertThrows(AppsmithPluginException.class, () -> {
+            filterDataService.filterDataNew(items, new UQIDataFilterParams(null, null, sortBy, null));
+        });
+        assertThat(exception.getMessage()).contains("Unsupported sort order");
+    }
+
+    @Test
+    public void testInvalidProjectionDoesNotLeakTable() throws IOException {
+        ArrayNode items = (ArrayNode) objectMapper.readTree(SIMPLE_DATA);
+        List<String> badProjection = List.of("nonExistentColumn");
+
+        assertThrows(AppsmithPluginException.class, () -> {
+            filterDataService.filterDataNew(items, new UQIDataFilterParams(null, badProjection, null, null));
+        });
+
+        ArrayNode result =
+                filterDataService.filterDataNew(items, new UQIDataFilterParams(null, List.of("id"), null, null));
+        assertEquals(2, result.size());
+    }
 }
