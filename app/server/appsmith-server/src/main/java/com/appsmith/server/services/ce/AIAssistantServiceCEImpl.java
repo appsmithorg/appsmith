@@ -40,16 +40,14 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     private final OrganizationService organizationService;
     private final AIReferenceService aiReferenceService;
 
-    private static final WebClient claudeWebClient = WebClientUtils.builder()
+    private static final WebClient claudeWebClient = WebClientUtils.builder(
+                    HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
             .baseUrl("https://api.anthropic.com")
-            .clientConnector(
-                    new ReactorClientHttpConnector(HttpClient.create().responseTimeout(Duration.ofSeconds(60))))
             .build();
 
-    private static final WebClient openaiWebClient = WebClientUtils.builder()
+    private static final WebClient openaiWebClient = WebClientUtils.builder(
+                    HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
             .baseUrl("https://api.openai.com")
-            .clientConnector(
-                    new ReactorClientHttpConnector(HttpClient.create().responseTimeout(Duration.ofSeconds(60))))
             .build();
 
     @Override

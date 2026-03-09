@@ -227,8 +227,8 @@ public class UserControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
                 .onErrorResume(error -> {
                     String errorMessage = getAIErrorMessage(error);
-                    return Mono.just(
-                            new ResponseDTO<Map<String, String>>(HttpStatus.BAD_REQUEST.value(), null, errorMessage));
+                    return Mono.just(new ResponseDTO<Map<String, String>>(
+                            HttpStatus.BAD_REQUEST.value(), null, errorMessage, false));
                 });
     }
 

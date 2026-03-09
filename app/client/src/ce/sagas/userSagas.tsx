@@ -190,7 +190,7 @@ function* initTrackers(currentUser: User): SagaIterator {
 
     const shouldTrack = shouldTrackUser(
       currentUser,
-      organizationConfig.license.active,
+      organizationConfig?.license?.active ?? false,
       featureFlags.configure_block_event_tracking_for_anonymous_users,
     );
 

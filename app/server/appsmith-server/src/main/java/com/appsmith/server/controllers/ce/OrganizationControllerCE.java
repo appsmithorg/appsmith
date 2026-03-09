@@ -158,8 +158,8 @@ public class OrganizationControllerCE {
                             errorMessage = appsmithError.getError().getMessage();
                         }
                     }
-                    return Mono.just(
-                            new ResponseDTO<Map<String, Object>>(HttpStatus.BAD_REQUEST.value(), null, errorMessage));
+                    return Mono.just(new ResponseDTO<Map<String, Object>>(
+                            HttpStatus.BAD_REQUEST.value(), null, errorMessage, false));
                 });
     }
 
