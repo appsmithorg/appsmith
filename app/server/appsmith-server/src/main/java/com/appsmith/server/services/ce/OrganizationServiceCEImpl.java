@@ -162,8 +162,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         // Determine if the current principal is an anonymous (unauthenticated) user so we can
         // suppress instance-identifying metadata in the public response.
         Mono<Boolean> isAnonymousMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-                .map(user -> Boolean.TRUE.equals(user.getIsAnonymous()))
+                .flatMap(ctx -> Mono.justOrEmpty(ctx.getAuthentication()))
+                .filter(authentication -> authentication.getPrincipal() instanceof User)
+                .map(authentication -> ((User) authentication.getPrincipal()).getIsAnonymous())
                 .defaultIfEmpty(true);
 
         Mono<Organization> clientOrganizationMono = isAnonymousMono.flatMap(

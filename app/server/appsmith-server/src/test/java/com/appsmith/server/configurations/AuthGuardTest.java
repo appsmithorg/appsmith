@@ -42,16 +42,20 @@ public class AuthGuardTest {
     /**
      * /api/v1/tenants/current must remain accessible without authentication (the login page uses it
      * to discover which auth providers are available), but the response must not include
-     * instance-identifying metadata. The service-level suppression is tested in
-     * OrganizationServiceCETest; this test just confirms the endpoint itself is still reachable.
+     * instance-identifying metadata (APP-14994).
      */
     @Test
-    void tenantCurrentEndpoint_unauthenticated_isAccessible() {
+    void tenantCurrentEndpoint_unauthenticated_suppressesSensitiveFields() {
         webTestClient
                 .get()
                 .uri("/api/v1/tenants/current")
                 .exchange()
                 .expectStatus()
-                .isOk();
+                .isOk()
+                .expectBody()
+                .jsonPath("$.data.instanceId")
+                .doesNotExist()
+                .jsonPath("$.data.adminEmailDomainHash")
+                .doesNotExist();
     }
 }
