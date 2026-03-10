@@ -229,10 +229,10 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.AssertElementVisibility(locators._treeSelectTitle);
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
@@ -256,10 +256,10 @@ describe(
       );
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
 
       cy.window().then((win) => {
@@ -298,10 +298,10 @@ describe(
       );
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
       agHelper.ValidateToastMessage("Option Changed");
@@ -325,7 +325,7 @@ describe(
           });}}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
       agHelper.ValidateToastMessage("Download Success");
@@ -347,7 +347,7 @@ describe(
       );
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(`${locators._widgetInDeployed("checkbox1")}`);
       agHelper.AssertExistingCheckedState(
@@ -355,7 +355,7 @@ describe(
         "false",
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
       agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
@@ -379,10 +379,10 @@ describe(
       agHelper.GetNClick(locators._closeModal, 0, true);
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
       agHelper.AssertElementVisibility(locators._modal);
@@ -419,10 +419,10 @@ describe(
       );
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} .rc-tree-select-selector`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
 
