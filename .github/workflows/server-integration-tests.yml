@@ -59,11 +59,11 @@ jobs:
         uses: actions/checkout@v4
 
       # Setup Java
-      - name: Set up JDK 25
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "25"
+          java-version: "17"
 
       - name: Conditionally start PostgreSQL
         if: |
