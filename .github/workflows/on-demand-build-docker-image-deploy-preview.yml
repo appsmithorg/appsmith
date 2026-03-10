@@ -52,7 +52,7 @@ jobs:
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: ${{ needs.resolve-params.outputs.pr_number }}
+      pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
       skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
       is-pg-build: ${{ github.event.client_payload.pull_request.base.ref == 'pg' }}
 
@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: ${{ needs.resolve-params.outputs.pr_number }}
+      pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
       skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   rts-build:
@@ -73,7 +73,7 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: ${{ needs.resolve-params.outputs.pr_number }}
+      pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
       skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   vercel-build:
