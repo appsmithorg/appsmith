@@ -22,4 +22,10 @@ public class AIEditorContextDTO {
 
     @Size(max = 100000, message = "Current value cannot exceed 100000 characters")
     private String currentValue;
+
+    @Size(max = 15000, message = "Database schema cannot exceed 15000 characters")
+    private String databaseSchema;
+
+    @Size(max = 100, message = "Datasource type cannot exceed 100 characters")
+    private String datasourceType;
 }

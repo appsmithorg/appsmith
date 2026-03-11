@@ -28,6 +28,8 @@ export interface FetchAIResponsePayload {
     functionString?: string;
     mode?: string;
     currentValue?: string;
+    databaseSchema?: string;
+    datasourceType?: string;
   };
 }
 

@@ -648,59 +648,74 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                 });
     }
 
+    /**
+     * Returns true if the string is non-null and contains non-whitespace characters.
+     */
+    private static boolean hasContent(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    /**
+     * Truncates a string to the given max length after trimming.
+     */
+    private static String trimAndLimit(String value, int maxLength) {
+        String trimmed = value.trim();
+        return trimmed.length() > maxLength ? trimmed.substring(0, maxLength) : trimmed;
+    }
+
     private String buildSystemPrompt(AIEditorContextDTO context) {
         String mode = context != null ? context.getMode() : null;
-
-        // Get mode-specific reference content
         String modeReference = aiReferenceService.getReferenceContent(mode);
-
-        // Get common issues content (appended for all modes)
         String commonIssues = aiReferenceService.getCommonIssuesContent();
 
-        // Build complete system prompt
         StringBuilder systemPrompt = new StringBuilder();
 
-        if (modeReference != null && !modeReference.isEmpty()) {
+        if (hasContent(modeReference)) {
             systemPrompt.append(modeReference);
         }
 
-        if (commonIssues != null && !commonIssues.isEmpty()) {
+        if (hasContent(commonIssues)) {
             if (systemPrompt.length() > 0) {
                 systemPrompt.append("\n\n## Common Issues\n\n");
             }
             systemPrompt.append(commonIssues);
         }
 
+        if (context != null && hasContent(context.getDatabaseSchema())) {
+            systemPrompt.append("\n\n## Database Schema\n\n");
+            if (hasContent(context.getDatasourceType())) {
+                systemPrompt
+                        .append("Database type: ")
+                        .append(context.getDatasourceType().trim())
+                        .append("\n\n");
+            }
+            systemPrompt.append(context.getDatabaseSchema().trim());
+            systemPrompt.append(
+                    "\n\nUse the schema above when writing queries. Reference actual table and column names. Use the correct SQL dialect for this database type.");
+        }
+
         return systemPrompt.toString();
     }
 
     private String buildUserPrompt(String prompt, AIEditorContextDTO context) {
-        if (prompt == null || prompt.trim().isEmpty()) {
-            prompt = "";
-        }
+        String safePrompt = hasContent(prompt) ? prompt.trim() : "";
 
         if (context == null) {
-            return "User request: " + prompt.trim() + "\n\nProvide the code solution:";
+            return "User request: " + safePrompt + "\n\nProvide the code solution:";
         }
 
         StringBuilder contextInfo = new StringBuilder();
-        if (context.getFunctionName() != null
-                && !context.getFunctionName().trim().isEmpty()) {
-            String functionName = context.getFunctionName().trim();
-            if (functionName.length() > 200) {
-                functionName = functionName.substring(0, 200);
-            }
-            contextInfo.append("Function: ").append(functionName).append("\n");
+
+        if (hasContent(context.getFunctionName())) {
+            contextInfo
+                    .append("Function: ")
+                    .append(trimAndLimit(context.getFunctionName(), 200))
+                    .append("\n");
         }
-        if (context.getFunctionString() != null
-                && !context.getFunctionString().trim().isEmpty()) {
-            String functionString = context.getFunctionString().trim();
-            if (functionString.length() > 50000) {
-                functionString = functionString.substring(0, 50000);
-            }
+        if (hasContent(context.getFunctionString())) {
             contextInfo
                     .append("Current function code:\n```\n")
-                    .append(functionString)
+                    .append(trimAndLimit(context.getFunctionString(), 50000))
                     .append("\n```\n");
         }
         if (context.getCursorLineNumber() != null
@@ -711,6 +726,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     .append((long) context.getCursorLineNumber() + 1)
                     .append("\n");
         }
-        return contextInfo + "\nUser request: " + prompt.trim() + "\n\nProvide the code solution:";
+
+        return contextInfo + "\nUser request: " + safePrompt + "\n\nProvide the code solution:";
     }
 }

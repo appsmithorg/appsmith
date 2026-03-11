@@ -10,8 +10,22 @@ import {
 } from "ee/actions/aiAssistantActions";
 import UserApi from "ee/api/UserApi";
 import OrganizationApi from "ee/api/OrganizationApi";
-import { getAIAssistantState } from "ee/selectors/aiAssistantSelectors";
-import type { AIAssistantReduxState } from "ee/reducers/aiAssistantReducer";
+import {
+  getAIAssistantState,
+  getAIEditorContext,
+} from "ee/selectors/aiAssistantSelectors";
+import type {
+  AIAssistantReduxState,
+  AIEditorContext,
+} from "ee/reducers/aiAssistantReducer";
+import {
+  getActions,
+  getDatasourceStructureById,
+  getPluginNameFromId,
+} from "ee/selectors/entitiesSelector";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import type { DatasourceStructure } from "entities/Datasource";
+import { serializeDatasourceSchema } from "ee/utils/aiSchemaSerializer";
 import { toast } from "@appsmith/ads";
 
 interface AIResponseBody {
@@ -29,6 +43,67 @@ function extractErrorMessage(responseBody: AIResponseBody): string {
     responseBody?.message ||
     "Failed to get AI response. Please check your AI settings."
   );
+}
+
+function isTimeoutError(error: unknown): boolean {
+  if (error instanceof Error) {
+    if (
+      error.message.includes("timeout") ||
+      error.message.includes("taking too long")
+    ) {
+      return true;
+    }
+  }
+
+  const code = (error as { code?: string })?.code;
+
+  return code === "ECONNABORTED" || code === "REQUEST_TIMEOUT";
+}
+
+/**
+ * Enriches the request context with database schema information when the
+ * current editor is a SQL query. Looks up the action's datasource structure
+ * and serializes it into a compact string for LLM context.
+ */
+function* enrichContextWithSchema(
+  enrichedContext: FetchAIResponsePayload["context"] & Record<string, unknown>,
+): Generator<unknown, void, unknown> {
+  const editorContext = (yield select(
+    getAIEditorContext,
+  )) as AIEditorContext | null;
+
+  if (!editorContext?.entityName || !editorContext?.mode?.includes("sql")) {
+    return;
+  }
+
+  const allActions = (yield select(getActions)) as ActionDataState;
+  const matchedAction = allActions.find(
+    (a) => a.config.name === editorContext.entityName,
+  );
+
+  const datasourceId = matchedAction?.config?.datasource?.id;
+  const pluginId = matchedAction?.config?.pluginId;
+
+  if (!datasourceId || !pluginId) return;
+
+  const structure = (yield select(getDatasourceStructureById, datasourceId)) as
+    | DatasourceStructure
+    | undefined;
+
+  if (!structure?.tables?.length) return;
+
+  const currentSql = enrichedContext.currentValue || "";
+  const schema = serializeDatasourceSchema(structure, currentSql, 10000);
+
+  if (schema) {
+    enrichedContext.databaseSchema = schema;
+  }
+
+  const pluginName = (yield select(getPluginNameFromId, pluginId)) as string;
+
+  if (pluginName) {
+    enrichedContext.datasourceType = pluginName;
+  }
 }
 
 function* fetchAIResponseSaga(
@@ -56,6 +131,10 @@ function* fetchAIResponseSaga(
       return;
     }
 
+    const enrichedContext = { ...(context || {}) };
+
+    yield* enrichContextWithSchema(enrichedContext);
+
     // Build conversation history from state, excluding the just-added user message
     const messages = aiState.messages || [];
 
@@ -69,7 +148,7 @@ function* fetchAIResponseSaga(
       UserApi.requestAIResponse,
       aiState.provider,
       prompt,
-      context || {},
+      enrichedContext,
       conversationHistory.length > 0 ? conversationHistory : undefined,
     );
 
@@ -90,25 +169,12 @@ function* fetchAIResponseSaga(
       toast.show(errorMsg, { kind: "error" });
     }
   } catch (error: unknown) {
-    let errorMessage =
-      error instanceof Error ? error.message : "Failed to get AI response";
-
-    // Detect timeout errors and provide a helpful AI-specific message
-    const isTimeout =
-      (error instanceof Error &&
-        (error.message.includes("timeout") ||
-          error.message.includes("taking too long"))) ||
-      (typeof error === "object" &&
-        error !== null &&
-        "code" in error &&
-        ((error as { code?: string }).code === "ECONNABORTED" ||
-          (error as { code?: string }).code === "REQUEST_TIMEOUT"));
-
-    if (isTimeout) {
-      errorMessage =
-        "AI response timed out. Your LLM may be loading the model — please wait a moment and try again. " +
-        "If this persists, try a smaller model or check that your LLM server is responsive.";
-    }
+    const errorMessage = isTimeoutError(error)
+      ? "AI response timed out. Your LLM may be loading the model — please wait a moment and try again. " +
+        "If this persists, try a smaller model or check that your LLM server is responsive."
+      : error instanceof Error
+        ? error.message
+        : "Failed to get AI response";
 
     yield put(fetchAIResponseError({ error: errorMessage }));
     toast.show(errorMessage, { kind: "error" });
