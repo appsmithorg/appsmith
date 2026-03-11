@@ -218,7 +218,7 @@ jobs:
       - name: Set base image tag
         id: set_base_tag
         run: |
-          if [[ ${{ github.event.client_payload.pull_request.base.ref }} == 'pg' ]]; then
+          if [[ "${{ github.event.client_payload.pull_request.base.ref }}" == 'pg' ]]; then
             base_tag=pg
           else
             base_tag=release
