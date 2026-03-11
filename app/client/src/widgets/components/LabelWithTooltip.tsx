@@ -299,10 +299,35 @@ const LabelWithTooltip = React.forwardRef<
         isOpen={tooltipOpen}
         position="top"
       >
-        <span
-          className="label-text-wrapper"
-          style={{ display: "flex", alignItems: "center" }}
-        >
+        {isRequired ? (
+          <span
+            className="label-text-wrapper"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <StyledLabel
+              $compact={compact}
+              $hasHelpText={!!helpText}
+              $isDynamicHeightEnabled={isDynamicHeightEnabled}
+              className={`${
+                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              } ${className}`}
+              color={color}
+              disabled={disabled}
+              elementRef={labelRef}
+              fontSize={fontSize}
+              fontStyle={fontStyle}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              position={position}
+              rtl={rtl}
+            >
+              {text}
+            </StyledLabel>
+            <StyledRequiredMarker aria-label="(required)">
+              *
+            </StyledRequiredMarker>
+          </span>
+        ) : (
           <StyledLabel
             $compact={compact}
             $hasHelpText={!!helpText}
@@ -322,12 +347,7 @@ const LabelWithTooltip = React.forwardRef<
           >
             {text}
           </StyledLabel>
-          {isRequired && (
-            <StyledRequiredMarker aria-label="(required)">
-              *
-            </StyledRequiredMarker>
-          )}
-        </span>
+        )}
       </StyledTooltip>
       {helpText && (
         <Tooltip
