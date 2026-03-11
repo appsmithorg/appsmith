@@ -653,6 +653,7 @@ class InputComponent extends React.Component<
             fontSize={labelTextSize}
             fontStyle={labelStyle}
             helpText={tooltip}
+            isRequired={this.props.isRequired}
             loading={isLoading}
             position={labelPosition}
             text={label}
@@ -733,6 +734,7 @@ export interface InputComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  isRequired?: boolean;
 }
 
 export default InputComponent;
