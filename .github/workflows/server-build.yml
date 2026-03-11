@@ -159,12 +159,8 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
-      - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+      - name: Set up JDK from dependency file
+        uses: ./.github/actions/setup-server-java
 
       - name: Conditionally start PostgreSQL
         if: |
