@@ -164,11 +164,13 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         Mono<Boolean> isAnonymousMono = ReactiveSecurityContextHolder.getContext()
                 .flatMap(ctx -> Mono.justOrEmpty(ctx.getAuthentication()))
                 .filter(authentication -> authentication.getPrincipal() instanceof User)
-                .map(authentication -> ((User) authentication.getPrincipal()).getIsAnonymous())
+                .map(authentication -> ((User) authentication.getPrincipal()).isAnonymous())
                 .defaultIfEmpty(true);
 
-        Mono<Organization> clientOrganizationMono = isAnonymousMono.flatMap(
-                isAnonymous -> configService.getInstanceId().flatMap(instanceId -> {
+        Mono<Organization> clientOrganizationMono = Mono.zip(isAnonymousMono, configService.getInstanceId())
+                .flatMap(tuple -> {
+                    boolean isAnonymous = tuple.getT1();
+                    String instanceId = tuple.getT2();
                     final Organization organization = new Organization();
 
                     // Only expose instance-identifying metadata to authenticated users
@@ -196,7 +198,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                 organization.setOrganizationConfiguration(organizationConfiguration);
                                 return organization;
                             });
-                }));
+                });
 
         return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {
             Organization dbOrganization = tuple.getT1();
