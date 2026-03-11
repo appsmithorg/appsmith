@@ -691,7 +691,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             }
             systemPrompt.append(context.getDatabaseSchema().trim());
             systemPrompt.append(
-                    "\n\nUse the schema above when writing queries. Reference actual table and column names. Use the correct SQL dialect for this database type.");
+                    "\n\nUse the schema above when writing queries. Reference actual table/collection and column/field names. Use the correct query syntax for this database type.");
         }
 
         return systemPrompt.toString();

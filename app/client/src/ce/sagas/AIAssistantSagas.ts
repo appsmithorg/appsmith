@@ -62,8 +62,9 @@ function isTimeoutError(error: unknown): boolean {
 
 /**
  * Enriches the request context with database schema information when the
- * current editor is a SQL query. Looks up the action's datasource structure
- * and serializes it into a compact string for LLM context.
+ * current editor is a database query. Looks up the action's datasource
+ * structure and serializes it into a compact string for LLM context.
+ * Works for any datasource type that has cached schema (SQL, MongoDB, etc.).
  */
 function* enrichContextWithSchema(
   enrichedContext: FetchAIResponsePayload["context"] & Record<string, unknown>,
@@ -72,7 +73,7 @@ function* enrichContextWithSchema(
     getAIEditorContext,
   )) as AIEditorContext | null;
 
-  if (!editorContext?.entityName || !editorContext?.mode?.includes("sql")) {
+  if (!editorContext?.entityName) {
     return;
   }
 
@@ -92,8 +93,8 @@ function* enrichContextWithSchema(
 
   if (!structure?.tables?.length) return;
 
-  const currentSql = enrichedContext.currentValue || "";
-  const schema = serializeDatasourceSchema(structure, currentSql, 10000);
+  const currentQuery = enrichedContext.currentValue || "";
+  const schema = serializeDatasourceSchema(structure, currentQuery, 10000);
 
   if (schema) {
     enrichedContext.databaseSchema = schema;
