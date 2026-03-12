@@ -244,7 +244,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<String> getTrueEnvironmentId(
             NewAction newAction, ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        boolean isEmbedded = executeActionDTO.getViewMode()
+        boolean isEmbedded = TRUE.equals(executeActionDTO.getViewMode())
                 ? newAction.getPublishedAction().getDatasource().getId() == null
                 : newAction.getUnpublishedAction().getDatasource().getId() == null;
 
