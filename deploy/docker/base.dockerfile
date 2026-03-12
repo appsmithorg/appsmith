@@ -50,7 +50,6 @@ RUN set -o xtrace \
 # To upgrade, change the REDIS_VERSION ARG at the top of this file.
 COPY --from=redis-source /usr/local/bin/redis-server /usr/local/bin/redis-server
 COPY --from=redis-source /usr/local/bin/redis-cli /usr/local/bin/redis-cli
-RUN mkdir -p /etc/redis
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
