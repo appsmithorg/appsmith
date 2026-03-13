@@ -85,6 +85,8 @@ import type {
   GitGlobalReduxState,
 } from "git/store/types";
 import { gitReducer } from "git/store";
+import { aiAssistantReducer } from "ee/reducers/aiAssistantReducer";
+import type { AIAssistantReduxState } from "ee/reducers/aiAssistantReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -95,6 +97,7 @@ export const reducerObject = {
   organization: organizationReducer,
   linting: lintErrorReducer,
   git: gitReducer,
+  aiAssistant: aiAssistantReducer,
 };
 
 export interface AppState {
@@ -192,4 +195,5 @@ export interface AppState {
     global: GitGlobalReduxState;
     artifacts: GitArtifactRootReduxState;
   };
+  aiAssistant: AIAssistantReduxState;
 }

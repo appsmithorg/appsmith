@@ -273,8 +273,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     @Override
-    public Mono<ActionCollectionDTO> updateUnpublishedActionCollectionBody(
-            String id, ActionCollectionDTO actionCollectionDTO) {
+    public Mono<Integer> updateUnpublishedActionCollectionBody(String id, ActionCollectionDTO actionCollectionDTO) {
 
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -300,13 +299,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             updateObj.set(path, actionCollectionDTO.getBody());
             updateObj.set(updatedAtPath, Instant.now());
 
-            return actionCollectionRepository
-                    .updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj)
-                    .then(actionCollectionService.findById(id, actionPermission.getEditPermission()))
-                    .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                    .flatMap(actionCollection ->
-                            actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
-                    .flatMap(dto -> actionCollectionService.populateActionCollectionByViewMode(dto, false));
+            return actionCollectionRepository.updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj);
         });
     }
 

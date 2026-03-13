@@ -670,19 +670,24 @@ function* handleUpdateJSCollectionBody(
     actionPayload.payload.id,
   );
 
+  // @ts-expect-error: Object jsCollection is possibly undefined
+  jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
-      const response: ApiResponse<JSCollection> =
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: ApiResponse<any> =
         yield JSActionAPI.updateJSCollectionBody(
           jsCollection.id,
-          actionPayload.payload.body,
+          jsCollection.body,
         );
       const isValidResponse: boolean = yield validateResponse(response);
 
       if (isValidResponse) {
-        const serverData = response.data;
+        // since server is not sending the info about whether the js collection is main or not
+        // we are retaining it manually
         const updatedJSCollection: JSCollection = {
-          ...serverData,
+          ...jsCollection,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };
 

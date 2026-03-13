@@ -25,9 +25,12 @@ jobs:
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Setup Java
-      - name: Set up JDK from dependency file
-        uses: ./.github/actions/setup-server-java
-        
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
       # Run maven step for spotless check
       - name: Run spotless check
         run: mvn spotless:check

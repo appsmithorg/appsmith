@@ -1,0 +1,328 @@
+---
+description: Project overview, tech stack, EE/CE architecture, code style, and conventions for Appsmith
+globs:
+alwaysApply: true
+---
+
+# Appsmith Project Guide
+
+Use this guide when working in the Appsmith codebase. Follow the conventions and patterns described below.
+
+## Project Overview
+
+Appsmith is a low-code platform for building internal tools. It's a monorepo with three main components:
+- **Frontend (Client)**: React + Redux application at `app/client/`
+- **Backend (Server)**: Spring Boot Java application at `app/server/`
+- **RTS (Realtime Server)**: Node.js Express server at `app/client/packages/rts/`
+
+## Tech Stack
+
+### Frontend
+- **Framework**: React 17.0.2 with TypeScript 5.5.4
+- **State Management**: Redux + Redux Saga, Redux Toolkit 2.4.0
+- **Styling**: Styled Components 5.3.6, Tailwind CSS 3.3.3, SASS
+- **Build Tool**: Webpack 5.98.0
+- **Testing**: Jest (unit), Cypress 13.13.0 (E2E)
+- **Package Manager**: Yarn 3.5.1 (Workspaces)
+- **Key Libraries**: Blueprint.js, React Router 5.x, React DnD, CodeMirror 5.x, ECharts
+
+### Backend
+- **Framework**: Spring Boot 3.3.13
+- **Language**: Java 17
+- **Build Tool**: Maven
+- **Database**: MongoDB (reactive), Redis (caching)
+- **Key Libraries**: Spring WebFlux, Spring Security, GraphQL Java, Project Reactor
+
+### RTS
+- **Platform**: Node.js 20.11.1
+- **Framework**: Express.js
+- **Language**: TypeScript
+
+## Directory Structure
+
+```
+app/
+├── client/                    # Frontend React application
+│   ├── src/
+│   │   ├── ce/                # Community Edition code
+│   │   └── ee/                # Enterprise Edition code
+│   ├── cypress/               # E2E tests
+│   └── packages/              # Monorepo workspaces
+│       ├── ast/               # AST parsing (@shared/ast)
+│       ├── dsl/               # Domain-specific language (@shared/dsl)
+│       ├── rts/               # Real-time server
+│       │   └── src/
+│       │       ├── ce/        # RTS Community Edition
+│       │       └── ee/        # RTS Enterprise Edition
+│       ├── design-system/     # UI components (@appsmith/wds)
+│       ├── icons/             # Icon library
+│       └── utils/             # Shared utilities
+├── server/                    # Backend Spring Boot
+│   ├── appsmith-server/
+│   │   └── src/main/java/com/appsmith/server/
+│   │       ├── services/ce/   # CE service implementations
+│   │       ├── services/      # Wrapper services (extend CE)
+│   │       └── ...
+│   ├── appsmith-plugins/      # Plugin framework (28+ plugins)
+│   ├── appsmith-interfaces/   # Plugin interfaces
+│   ├── appsmith-git/          # Git integration
+│   └── reactive-caching/      # Caching layer
+└── util/                      # Shared utilities
+```
+
+## EE vs CE Architecture (IMPORTANT)
+
+Appsmith maintains parallel folder structures for Enterprise Edition (EE) and Community Edition (CE). **This is a critical pattern to understand.**
+
+### Folder Structure
+
+Both editions mirror identical directory structures:
+```
+ce/                            ee/
+├── actions/                   ├── actions/
+├── api/                       ├── api/
+├── components/                ├── components/
+├── constants/                 ├── constants/
+├── entities/                  ├── entities/
+├── hooks/                     ├── hooks/
+├── pages/                     ├── pages/
+├── reducers/                  ├── reducers/
+├── sagas/                     ├── sagas/
+├── selectors/                 ├── selectors/
+├── services/                  ├── services/
+├── utils/                     ├── utils/
+└── workers/
+```
+
+### When to Create Files in EE vs CE
+
+#### **ALWAYS prefer EE folder** when creating new files for:
+1. **New Features** - Put new feature code in `ee/` first
+2. **Premium/Enterprise Features** - SSO, audit logs, advanced RBAC, license-gated features
+3. **Enhanced Components** - UI improvements or additional functionality over CE
+4. **Organization/Permission Features** - Role-based access control, team features
+5. **Advanced Selectors** - Permission checks, organization-specific logic
+
+#### **Use CE folder** only for:
+1. **Core Infrastructure** - Base components, hooks, utilities needed by both editions
+2. **Bug Fixes to Existing CE Code** - When fixing bugs in existing CE files
+3. **Shared Types/Interfaces** - Type definitions used by both editions
+4. **Basic UI Components** - Standard widgets without enterprise features
+
+### The Re-export Pattern
+
+**When EE doesn't need to customize CE code, it re-exports from CE:**
+
+```typescript
+// ee/actions/applicationActions.ts
+export * from "ce/actions/applicationActions";
+
+// ee/AppRouter.tsx
+export * from "ce/AppRouter";
+import { default as CE_AppRouter } from "ce/AppRouter";
+export default CE_AppRouter;
+
+// ee/hooks/useCreateDatasource.ts
+export * from "ce/PluginActionEditor/hooks/useCreateDatasource";
+```
+
+**When EE needs to extend or override CE code:**
+
+```typescript
+// ee/components/MyComponent/index.tsx
+import { BaseComponent } from "ce/components/MyComponent";
+
+export function MyComponent(props) {
+  // Enhanced EE implementation
+  // Can use BaseComponent internally or completely override
+}
+```
+
+### Import Conventions
+
+**Always use absolute path aliases, never relative paths across editions:**
+
+```typescript
+// CORRECT - absolute imports
+import { Component } from "ce/components/Button";
+import { enhancedHook } from "ee/hooks/useFeature";
+
+// WRONG - relative imports crossing editions
+import { Component } from "../../ce/components/Button";
+```
+
+### Backend EE/CE Pattern (Java)
+
+**Interface-based inheritance:**
+
+```java
+// 1. CE Interface (in services/ce/)
+public interface UserServiceCE {
+    Mono<User> findById(String id);
+}
+
+// 2. CE Implementation (in services/ce/)
+public class UserServiceCEImpl implements UserServiceCE {
+    // Base implementation
+}
+
+// 3. Wrapper Interface (in services/) - no CE suffix
+public interface UserService extends UserServiceCE {}
+
+// 4. Wrapper Implementation (in services/) - extends CE
+@Service
+public class UserServiceImpl extends UserServiceCEImpl implements UserService {
+    // Can override or add EE-specific methods
+}
+```
+
+### Pre-push Hook Protection
+
+The pre-push hook prevents accidentally pushing EE code to the CE repository:
+- Checks for files in `app/client/src/ee` pattern
+- Blocks pushes to CE repo (appsmithorg/appsmith.git) if EE files are included
+- Allows pushes to EE repo (appsmith-ee.git)
+
+### Feature Flags
+
+EE features are often gated by feature flags:
+```typescript
+if (FEATURE_FLAG.license_gac_enabled) {
+  // EE-only functionality
+}
+```
+
+### Key Principles
+
+1. **EE Extends CE** - EE adds to CE, never replaces core functionality
+2. **Mirror Structure** - EE mirrors CE directory structure exactly
+3. **Re-export When Unchanged** - If EE doesn't modify, just re-export from CE
+4. **Single Source of Truth** - CE contains the base implementation
+5. **No Breaking Changes** - CE functionality remains untouched by EE additions
+6. **New Files Go to EE** - Default to EE folder for new feature development
+
+## Code Style & Conventions
+
+### TypeScript/JavaScript (Frontend)
+
+**ESLint Configuration** (`.eslintrc.base.json`):
+- Parser: `@typescript-eslint/parser`
+- Extends: react/recommended, @typescript-eslint/recommended, cypress/recommended, prettier
+- Strict TypeScript mode enabled
+
+**Key Rules**:
+- Use ESLint with auto-fix: `eslint --fix --cache`
+- Run Prettier on CSS, MD, JSON files
+- Avoid circular dependencies (checked by CI)
+- Use lazy loading for CodeEditor and heavy components
+- Import restrictions: avoid direct CodeMirror, lottie-web imports
+
+**Prettier Configuration** (`.prettierrc`):
+- printWidth: 80, tabWidth: 2, useTabs: false, semi: true, singleQuote: false, trailingComma: "all", arrowParens: "always"
+
+### Java (Backend)
+
+**Spotless/Google Java Format**:
+- Uses Palantir's Google Java Format
+- Import ordering: java → javax → others → static imports
+- Automatic unused import removal
+- Run via Maven: `mvn spotless:apply`
+
+**POM Formatting**:
+- Uses sortPom with 4-space indentation
+- Sorted dependencies and plugins
+
+### EditorConfig
+
+**Root Settings** (`.editorconfig`):
+- Charset: UTF-8, Line endings: LF
+- Default indent: 2 spaces; Java/POM/Python/SQL: 4 spaces
+- Insert final newline: true
+- Trim trailing whitespace: true (except Markdown)
+
+## Pre-commit Hooks (Husky)
+
+Hooks are in `app/client/.husky/`:
+
+### pre-commit
+1. **Server changes** (`app/server/**`): Runs `mvn spotless:apply`
+2. **Client changes** (`app/client/**`): Runs `npx lint-staged`
+
+### lint-staged (`.lintstagedrc.json`)
+- `src/**/*.{js,ts,tsx}`: eslint --fix --cache
+- `src/**/*.{css,md,json}`: prettier --write --cache
+- `cypress/**/*.{js,ts}`: cypress eslint
+- `packages/**/*.{js,ts,tsx}`: eslint --fix --cache
+- `packages/**/*.{css,mdx,json}`: prettier --write --cache
+- All staged: gitleaks protect --staged
+
+### pre-push
+- Prevents pushing EE files to CE repository (checks `app/client/src/ee`)
+
+## CI/CD Requirements
+
+### Quality Checks (Every PR)
+- **Server**: `mvn spotless:check`, unit tests
+- **Client**: `yarn lint:ci`, `yarn prettier:ci`, `yarn test:unit:ci`, cyclic dependency check (dpdm)
+
+### Build Pipeline
+Server build (Maven), Client build (Webpack), RTS build, Docker image, Cypress E2E (60 parallel jobs)
+
+### Branch Strategy
+- `master`: Development, nightly builds
+- `release`: Stable release
+- `pg`: PostgreSQL variant
+- Feature branches: PR-based testing
+
+## Testing Guidelines
+
+- **Unit**: Frontend Jest + React Testing Library; Backend JUnit + Spring Test. Run: `yarn test:unit` (client), `mvn test` (server)
+- **E2E**: Cypress 13.13.0 in `app/client/cypress/`
+- **Type check**: `yarn check-types` or `yarn tsc --noEmit`
+
+## Common Commands
+
+### Frontend (from `app/client/`)
+- `yarn install`, `yarn start`, `yarn build`
+- `yarn test:unit`, `yarn lint`, `yarn prettier`, `yarn check-types`
+
+### Backend (from `app/server/`)
+- `mvn clean install`, `mvn spotless:apply`, `mvn spotless:check`, `mvn test`
+
+## Security
+
+- **Gitleaks**: Scans staged files for secrets
+- Never commit `.env` with real credentials
+- Use environment variables for sensitive config
+
+## Plugin Development
+
+Backend plugins in `app/server/appsmith-plugins/`: Maven modules implementing `appsmith-interfaces`; 28+ plugins (databases, APIs, AI services).
+
+## AI Integration
+
+- AI plugins: anthropicPlugin (Claude), openAiPlugin, googleAiPlugin
+- RTS uses LlamaIndex for RAG
+
+## Key Patterns
+
+1. **Reactive Programming**: Spring WebFlux + Project Reactor
+2. **Plugin Architecture**: Extensible data source connectors
+3. **Feature Flags**: Dynamic feature management
+4. **Multi-tenant**: Organizations and workspaces
+5. **Real-time**: WebSocket via RTS
+
+## File Naming Conventions
+
+- **React Components**: PascalCase (e.g., `Button.tsx`, `UserProfile.tsx`)
+- **Utilities/Hooks**: camelCase (e.g., `useAuth.ts`, `formatDate.ts`)
+- **Tests**: `*.test.ts`, `*.test.tsx`, or `*.spec.ts`
+- **Styles**: Component-colocated or in `styles/`
+
+## Import Order (Frontend)
+
+1. React/React-related
+2. Third-party libraries
+3. Internal modules (absolute paths)
+4. Relative imports
+5. Style imports

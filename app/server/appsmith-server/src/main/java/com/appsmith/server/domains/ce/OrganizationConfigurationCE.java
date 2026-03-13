@@ -1,12 +1,18 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Transient;
@@ -63,6 +69,82 @@ public class OrganizationConfigurationCE implements Serializable {
 
     private Boolean isAtomicPushAllowed = false;
 
+    @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Encrypted private String claudeApiKey;
+
+    @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Encrypted private String openaiApiKey;
+
+    @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Encrypted private String copilotApiKey;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String copilotEndpoint;
+
+    @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Encrypted private String azureOpenaiApiKey;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String azureOpenaiEndpoint;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String azureOpenaiDeploymentName;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String azureOpenaiApiVersion;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private Integer azureOpenaiMaxCompletionTokens;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private AIProvider aiProvider;
+
+    @JsonView(Views.Public.class)
+    @JsonInclude
+    private Boolean isAIAssistantEnabled = false;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String localLlmUrl;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private Integer localLlmContextSize;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String localLlmModel;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String claudeModel;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String claudeBaseUrl;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String openaiModel;
+
+    @JsonView(Views.Internal.class)
+    @JsonInclude
+    private String openaiBaseUrl;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -90,6 +172,26 @@ public class OrganizationConfigurationCE implements Serializable {
         migrationStatus = organizationConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
+        copilotEndpoint = ObjectUtils.defaultIfNull(organizationConfiguration.getCopilotEndpoint(), copilotEndpoint);
+        azureOpenaiEndpoint =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiEndpoint(), azureOpenaiEndpoint);
+        azureOpenaiDeploymentName = ObjectUtils.defaultIfNull(
+                organizationConfiguration.getAzureOpenaiDeploymentName(), azureOpenaiDeploymentName);
+        azureOpenaiApiVersion =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getAzureOpenaiApiVersion(), azureOpenaiApiVersion);
+        azureOpenaiMaxCompletionTokens = ObjectUtils.defaultIfNull(
+                organizationConfiguration.getAzureOpenaiMaxCompletionTokens(), azureOpenaiMaxCompletionTokens);
+        aiProvider = ObjectUtils.defaultIfNull(organizationConfiguration.getAiProvider(), aiProvider);
+        isAIAssistantEnabled =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getIsAIAssistantEnabled(), isAIAssistantEnabled);
+        localLlmUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmUrl(), localLlmUrl);
+        localLlmContextSize =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmContextSize(), localLlmContextSize);
+        localLlmModel = ObjectUtils.defaultIfNull(organizationConfiguration.getLocalLlmModel(), localLlmModel);
+        claudeModel = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeModel(), claudeModel);
+        claudeBaseUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getClaudeBaseUrl(), claudeBaseUrl);
+        openaiModel = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiModel(), openaiModel);
+        openaiBaseUrl = ObjectUtils.defaultIfNull(organizationConfiguration.getOpenaiBaseUrl(), openaiBaseUrl);
     }
 
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {

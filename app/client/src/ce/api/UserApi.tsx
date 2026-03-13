@@ -196,6 +196,33 @@ export class UserApi extends Api {
   static async resendEmailVerification(email: string) {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
+
+  static async requestAIResponse(
+    provider: string,
+    prompt: string,
+    context: {
+      functionName?: string;
+      cursorLineNumber?: number;
+      functionString?: string;
+      mode?: string;
+      currentValue?: string;
+    },
+    conversationHistory?: Array<{ role: string; content: string }>,
+  ): Promise<
+    AxiosPromise<ApiResponse<{ response: string; provider: string }>>
+  > {
+    return Api.post(
+      `${UserApi.usersURL}/ai-assistant/request`,
+      {
+        provider,
+        prompt,
+        context,
+        conversationHistory,
+      },
+      undefined,
+      { timeout: 180000 }, // 180s - LLM responses can be slow (model loading)
+    );
+  }
 }
 
 export default UserApi;
