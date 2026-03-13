@@ -33,30 +33,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_API_VERSION;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_CLAUDE_BASE_URL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_CLAUDE_MODEL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_BASE_URL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_MODEL;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
-
-    private static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
-    private static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
-
-    static final String DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
-    static final String DEFAULT_CLAUDE_BASE_URL = "https://api.anthropic.com";
-    static final String DEFAULT_OPENAI_MODEL = "gpt-4";
-    static final String DEFAULT_OPENAI_BASE_URL = "https://api.openai.com";
 
     private final OrganizationService organizationService;
     private final AIReferenceService aiReferenceService;
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
                     HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
-            .baseUrl("https://api.anthropic.com")
+            .baseUrl(DEFAULT_CLAUDE_BASE_URL)
             .build();
 
     private static final WebClient openaiWebClient = WebClientUtils.builder(
                     HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
-            .baseUrl("https://api.openai.com")
+            .baseUrl(DEFAULT_OPENAI_BASE_URL)
             .build();
 
     /**

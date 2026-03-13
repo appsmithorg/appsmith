@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 import type CodeMirror from "codemirror";
 import {
@@ -14,6 +14,39 @@ import {
 } from "ee/selectors/aiAssistantSelectors";
 import { getAIContext } from "./trigger";
 import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  slideIn,
+  PanelHeader,
+  HeaderTitle,
+  PanelContent,
+  InputSection,
+  PromptInput,
+  InputActions,
+  SendButton,
+  QuickActionsSection,
+  QuickActionsLabel,
+  QuickActionsGrid,
+  QuickActionChip,
+  ContextSection,
+  ContextLabel,
+  ResponseSection,
+  LoadingState,
+  LoadingText,
+  ErrorState,
+  ResponseContent,
+  ResponseText,
+  CodeBlock,
+  CodeBlockHeader,
+  CodeBlockLanguage,
+  CodeBlockActions,
+  CodeBlockContent,
+  EmptyState,
+  EmptyStateText,
+  extractCodeBlocks,
+  getModeLabel,
+  CODE_LANGUAGES,
+  QUICK_ACTIONS,
+} from "./shared";
 
 // ============================================================================
 // Types
@@ -27,49 +60,8 @@ export interface AISidePanelProps {
   editor: CodeMirror.Editor;
 }
 
-interface QuickAction {
-  label: string;
-  icon: string;
-  prompt: string;
-}
-
 // ============================================================================
-// Animations
-// ============================================================================
-
-const slideIn = keyframes`
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-
-const shimmer = keyframes`
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-`;
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-// ============================================================================
-// Styled Components
+// Panel-specific styled components
 // ============================================================================
 
 const PanelContainer = styled.div<{ isOpen: boolean }>`
@@ -86,381 +78,6 @@ const PanelContainer = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
 `;
 
-const PanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(
-    180deg,
-    var(--ads-v2-color-bg) 0%,
-    var(--ads-v2-color-bg-subtle) 100%
-  );
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  flex-shrink: 0;
-`;
-
-const HeaderTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  .sparkle-icon {
-    color: var(--ads-v2-color-fg-brand);
-  }
-`;
-
-const PanelContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const InputSection = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  background: var(--ads-v2-color-bg);
-  flex-shrink: 0;
-`;
-
-const PromptInput = styled.textarea`
-  width: 100%;
-  min-height: 72px;
-  max-height: 160px;
-  padding: 12px;
-  border: 1px solid var(--ads-v2-color-border);
-  border-radius: 8px;
-  background: var(--ads-v2-color-bg);
-  color: var(--ads-v2-color-fg);
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.5;
-  resize: vertical;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-
-  &:focus {
-    outline: none;
-    border-color: var(--ads-v2-color-border-emphasis);
-    box-shadow: 0 0 0 3px var(--ads-v2-color-bg-brand-secondary);
-  }
-
-  &::placeholder {
-    color: var(--ads-v2-color-fg-muted);
-  }
-`;
-
-const InputActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-`;
-
-const SendButton = styled(Button)`
-  min-width: 80px;
-`;
-
-const QuickActionsSection = styled.div`
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  background: var(--ads-v2-color-bg-subtle);
-  flex-shrink: 0;
-`;
-
-const QuickActionsLabel = styled.div`
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ads-v2-color-fg-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-`;
-
-const QuickActionsGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-`;
-
-const QuickActionChip = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  background: var(--ads-v2-color-bg);
-  border: 1px solid var(--ads-v2-color-border);
-  border-radius: 6px;
-  color: var(--ads-v2-color-fg);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--ads-v2-color-bg-emphasis);
-    border-color: var(--ads-v2-color-border-emphasis);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .chip-icon {
-    font-size: 14px;
-    color: var(--ads-v2-color-fg-muted);
-  }
-`;
-
-const ContextSection = styled.div`
-  padding: 10px 16px;
-  background: var(--ads-v2-color-bg-muted);
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  flex-shrink: 0;
-`;
-
-const ContextLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--ads-v2-color-fg-muted);
-
-  .context-icon {
-    font-size: 12px;
-  }
-
-  code {
-    background: var(--ads-v2-color-bg);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 11px;
-    color: var(--ads-v2-color-fg);
-  }
-`;
-
-const ResponseSection = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-`;
-
-const LoadingState = styled.div`
-  padding: 16px;
-  background: linear-gradient(
-    90deg,
-    var(--ads-v2-color-bg-subtle) 25%,
-    var(--ads-v2-color-bg-muted) 50%,
-    var(--ads-v2-color-bg-subtle) 75%
-  );
-  background-size: 200% 100%;
-  animation: ${shimmer} 1.5s infinite;
-  border-radius: 8px;
-  min-height: 80px;
-`;
-
-const LoadingText = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--ads-v2-color-fg-muted);
-  font-size: 13px;
-`;
-
-const ErrorState = styled.div`
-  padding: 12px 16px;
-  background: var(--ads-v2-color-bg-error);
-  border: 1px solid var(--ads-v2-color-border-error);
-  border-radius: 8px;
-  color: var(--ads-v2-color-fg-error);
-  font-size: 13px;
-  animation: ${fadeIn} 0.2s ease-out;
-`;
-
-const ResponseContent = styled.div`
-  animation: ${fadeIn} 0.3s ease-out;
-`;
-
-const ResponseText = styled.div`
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--ads-v2-color-fg);
-  white-space: pre-wrap;
-
-  p {
-    margin: 0 0 12px 0;
-  }
-`;
-
-const CodeBlock = styled.div`
-  margin: 12px 0;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--ads-v2-color-border);
-`;
-
-const CodeBlockHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--ads-v2-color-bg-subtle);
-  border-bottom: 1px solid var(--ads-v2-color-border);
-`;
-
-const CodeBlockLanguage = styled.span`
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ads-v2-color-fg-muted);
-  text-transform: uppercase;
-`;
-
-const CodeBlockActions = styled.div`
-  display: flex;
-  gap: 4px;
-`;
-
-const CodeBlockContent = styled.pre`
-  margin: 0;
-  padding: 12px;
-  background: #1e1e2e;
-  color: #cdd6f4;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  overflow-x: auto;
-
-  &::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-  }
-`;
-
-const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  padding: 32px;
-  color: var(--ads-v2-color-fg-muted);
-
-  .empty-icon {
-    font-size: 48px;
-    opacity: 0.3;
-    margin-bottom: 16px;
-  }
-`;
-
-const EmptyStateText = styled.div`
-  font-size: 13px;
-  line-height: 1.5;
-  max-width: 240px;
-`;
-
-// ============================================================================
-// Quick Actions Configuration
-// ============================================================================
-
-const QUICK_ACTIONS: QuickAction[] = [
-  {
-    label: "Explain",
-    icon: "question-line",
-    prompt: "Explain what this code does step by step",
-  },
-  {
-    label: "Fix Errors",
-    icon: "bug-line",
-    prompt: "Find and fix any bugs or errors in this code",
-  },
-  {
-    label: "Refactor",
-    icon: "magic-line",
-    prompt: "Refactor this code to be cleaner and more efficient",
-  },
-  {
-    label: "Add Comments",
-    icon: "pencil-line",
-    prompt: "Add helpful comments to explain this code",
-  },
-];
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function extractCodeBlocks(
-  text: string,
-  defaultLanguage: string = "javascript",
-): Array<{ type: "text" | "code"; content: string; language?: string }> {
-  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-  const parts: Array<{
-    type: "text" | "code";
-    content: string;
-    language?: string;
-  }> = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = codeBlockRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      const textContent = text.slice(lastIndex, match.index).trim();
-
-      if (textContent) {
-        parts.push({ type: "text", content: textContent });
-      }
-    }
-
-    parts.push({
-      type: "code",
-      content: match[2].trim(),
-      language: match[1] || defaultLanguage,
-    });
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    const textContent = text.slice(lastIndex).trim();
-
-    if (textContent) {
-      parts.push({ type: "text", content: textContent });
-    }
-  }
-
-  if (parts.length === 0 && text.trim()) {
-    parts.push({ type: "text", content: text.trim() });
-  }
-
-  return parts;
-}
-
-function getModeLabel(mode: string): string {
-  const modeMap: Record<string, string> = {
-    javascript: "JavaScript",
-    "text/x-sql": "SQL",
-    sql: "SQL",
-    "text/x-pgsql": "PostgreSQL",
-    "text/x-mysql": "MySQL",
-    graphql: "GraphQL",
-    json: "JSON",
-  };
-
-  return modeMap[mode] || mode;
-}
-
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -475,7 +92,6 @@ export function AISidePanel(props: AISidePanelProps) {
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
 
-  // Clear AI response when mode changes (switching between editors)
   useEffect(() => {
     dispatch(clearAIResponse());
     setPrompt("");
@@ -500,18 +116,7 @@ export function AISidePanel(props: AISidePanelProps) {
   const responseParts = useMemo(() => {
     if (!lastResponse) return [];
 
-    // Convert mode to a simple language name for code blocks
-    const languageMap: Record<string, string> = {
-      javascript: "javascript",
-      "text/x-sql": "sql",
-      sql: "sql",
-      "text/x-pgsql": "sql",
-      "text/x-mysql": "sql",
-      graphql: "graphql",
-      "application/json": "json",
-      json: "json",
-    };
-    const defaultLang = languageMap[mode] || mode || "javascript";
+    const defaultLang = CODE_LANGUAGES[mode] || mode || "javascript";
 
     return extractCodeBlocks(lastResponse, defaultLang);
   }, [lastResponse, mode]);

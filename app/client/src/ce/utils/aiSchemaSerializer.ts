@@ -5,30 +5,53 @@ import type {
 } from "entities/Datasource";
 
 /**
- * Extract table names referenced in a SQL string by matching against known table names.
- * Case-insensitive. Handles schema-qualified names (e.g. public.users -> matches "users").
+ * Extract table/collection names referenced in a query string by matching against known names.
+ * Supports SQL (word-boundary matching, schema-qualified names) and NoSQL patterns
+ * (db.collection.method(), JSON key-value references like `"from": "collection"`).
  */
 export function extractReferencedTableNames(
-  sql: string,
+  query: string,
   allTableNames: string[],
 ): Set<string> {
   const referenced = new Set<string>();
 
-  if (!sql || allTableNames.length === 0) return referenced;
+  if (!query || allTableNames.length === 0) return referenced;
 
-  const sqlLower = sql.toLowerCase();
+  const queryLower = query.toLowerCase();
 
   for (const tableName of allTableNames) {
     const nameLower = tableName.toLowerCase();
-
-    // Match the table name as a whole word (not part of another identifier)
     const escaped = nameLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(
+
+    // SQL: whole-word match (handles schema-qualified names like public.users)
+    const sqlPattern = new RegExp(
       `(?:^|[\\s,.(])${escaped}(?:$|[\\s,.);\`])`,
       "i",
     );
 
-    if (pattern.test(sqlLower)) {
+    if (sqlPattern.test(queryLower)) {
+      referenced.add(tableName);
+      continue;
+    }
+
+    // NoSQL: db.collectionName.method() or db.getCollection("name")
+    const mongoMethodPattern = new RegExp(
+      `db\\.${escaped}\\s*\\.`,
+      "i",
+    );
+
+    if (mongoMethodPattern.test(queryLower)) {
+      referenced.add(tableName);
+      continue;
+    }
+
+    // NoSQL: collection name as a JSON string value (e.g. "from": "users", "collection": "orders")
+    const jsonValuePattern = new RegExp(
+      `["']\\s*${escaped}\\s*["']`,
+      "i",
+    );
+
+    if (jsonValuePattern.test(queryLower)) {
       referenced.add(tableName);
     }
   }
@@ -110,12 +133,12 @@ function getFKReferencedTableNames(
  *
  * Uses a tiered budget strategy:
  * 1. If full schema fits within budget, return it all.
- * 2. If over budget, serialize tables referenced in the current SQL (plus FK-related tables) in full,
- *    and list remaining tables as names only.
+ * 2. If over budget, serialize tables referenced in the current query (plus FK-related tables)
+ *    in full, and list remaining tables as names only. Works for both SQL and NoSQL queries.
  * 3. If still over budget, hard-truncate and append a truncation notice.
  *
  * @param structure - The datasource structure from Redux
- * @param currentSql - The current SQL in the editor (for prioritizing relevant tables)
+ * @param currentSql - The current query in the editor (SQL, MongoDB, etc.)
  * @param budget - Maximum character budget (default 10000)
  * @returns Serialized schema string, or undefined if no schema available
  */

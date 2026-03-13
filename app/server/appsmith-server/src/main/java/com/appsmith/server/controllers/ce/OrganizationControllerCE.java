@@ -28,6 +28,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
@@ -41,18 +42,16 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_API_VERSION;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_CLAUDE_BASE_URL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_CLAUDE_MODEL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_BASE_URL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_MODEL;
 
 @Slf4j
 @RequestMapping(Url.ORGANIZATION_URL)
 public class OrganizationControllerCE {
-
-    static final String DEFAULT_AZURE_API_VERSION = "2024-12-01-preview";
-    static final int DEFAULT_AZURE_MAX_COMPLETION_TOKENS = 16384;
-
-    static final String DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
-    static final String DEFAULT_CLAUDE_BASE_URL = "https://api.anthropic.com";
-    static final String DEFAULT_OPENAI_MODEL = "gpt-4";
-    static final String DEFAULT_OPENAI_BASE_URL = "https://api.openai.com";
 
     private final OrganizationService service;
     private final AIReferenceService aiReferenceService;
@@ -255,266 +254,291 @@ public class OrganizationControllerCE {
         final int port = uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equals("https") ? 443 : 80);
         final String scheme = uri.getScheme();
 
-        // Step 2: DNS Resolution
-        java.net.InetAddress resolvedAddress;
-        try {
-            resolvedAddress = java.net.InetAddress.getByName(host);
-            steps.add(createStep("DNS Resolution", "success", host + " → " + resolvedAddress.getHostAddress()));
-        } catch (UnknownHostException e) {
-            steps.add(createStep("DNS Resolution", "error", "Could not resolve hostname"));
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("host", host);
-            response.put("port", port);
-            response.put("steps", steps);
-            response.put("error", "DNS resolution failed - hostname not found: " + host);
-            response.put(
-                    "suggestions",
-                    List.of(
-                            "Check if the hostname is spelled correctly",
-                            "If using localhost, ensure that's correct for your setup",
-                            "Try using IP address (e.g., 127.0.0.1) instead of hostname",
-                            "Check your DNS settings or /etc/hosts file"));
-            return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
-        }
+        // Step 2: DNS Resolution (off event loop to avoid blocking Netty threads)
+        return Mono.fromCallable(() -> java.net.InetAddress.getByName(host))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(resolvedAddress -> {
+                    steps.add(createStep("DNS Resolution", "success", host + " → " + resolvedAddress.getHostAddress()));
+                    final String resolvedIp = resolvedAddress.getHostAddress();
 
-        final String resolvedIp = resolvedAddress.getHostAddress();
+                    // Create WebClient with timeout and SSRF protection
+                    HttpClient httpClient = HttpClient.create()
+                            .responseTimeout(Duration.ofSeconds(10))
+                            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
 
-        // Create WebClient with timeout and SSRF protection
-        HttpClient httpClient = HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(10))
-                .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+                    WebClient webClient = WebClientUtils.builder(httpClient).build();
 
-        WebClient webClient = WebClientUtils.builder(httpClient).build();
+                    final long startTime = System.currentTimeMillis();
+                    final List<Map<String, String>> finalSteps = new ArrayList<>(steps);
 
-        final long startTime = System.currentTimeMillis();
-        final List<Map<String, String>> finalSteps = new ArrayList<>(steps);
+                    String path = uri.getPath();
+                    boolean isOllamaEndpoint =
+                            path != null && (path.contains("/api/generate") || path.contains("/api/chat"));
+                    String testUrl = isOllamaEndpoint ? uri.resolve("/api/tags").toString() : url;
 
-        // For Ollama (e.g. /api/generate, /api/chat), use GET /api/tags - it doesn't require a model
-        // and avoids 404 from missing "test" model. /api/generate returns 404 when model not found.
-        String path = uri.getPath();
-        boolean isOllamaEndpoint = path != null && (path.contains("/api/generate") || path.contains("/api/chat"));
-        String testUrl = isOllamaEndpoint ? uri.resolve("/api/tags").toString() : url;
+                    WebClient.RequestHeadersSpec<?> requestSpec = isOllamaEndpoint
+                            ? webClient.get().uri(testUrl)
+                            : webClient
+                                    .post()
+                                    .uri(testUrl)
+                                    .header("Content-Type", "application/json")
+                                    .bodyValue("{\"model\":\"test\",\"prompt\":\"Say hi\",\"stream\":false}");
 
-        // Prepare test request: Ollama /api/tags uses GET; others use POST
-        WebClient.RequestHeadersSpec<?> requestSpec = isOllamaEndpoint
-                ? webClient.get().uri(testUrl)
-                : webClient
-                        .post()
-                        .uri(testUrl)
-                        .header("Content-Type", "application/json")
-                        .bodyValue("{\"model\":\"test\",\"prompt\":\"Say hi\",\"stream\":false}");
+                    return requestSpec
+                            .exchangeToMono(clientResponse -> {
+                                // Connection succeeded if we got here
+                                finalSteps.add(
+                                        createStep("TCP Connection", "success", "Connected to " + host + ":" + port));
 
-        return requestSpec
-                .exchangeToMono(clientResponse -> {
-                    // Connection succeeded if we got here
-                    finalSteps.add(createStep("TCP Connection", "success", "Connected to " + host + ":" + port));
+                                if ("https".equals(scheme)) {
+                                    finalSteps.add(
+                                            createStep("TLS Handshake", "success", "Secure connection established"));
+                                }
 
-                    if ("https".equals(scheme)) {
-                        finalSteps.add(createStep("TLS Handshake", "success", "Secure connection established"));
-                    }
+                                int statusCode = clientResponse.statusCode().value();
+                                finalSteps.add(createStep(
+                                        "HTTP Response", "success", "Endpoint responded with HTTP " + statusCode));
 
-                    int statusCode = clientResponse.statusCode().value();
-                    finalSteps.add(
-                            createStep("HTTP Response", "success", "Endpoint responded with HTTP " + statusCode));
+                                // Read response body to analyze
+                                return clientResponse
+                                        .bodyToMono(String.class)
+                                        .defaultIfEmpty("")
+                                        .map(responseBody -> {
+                                            long responseTime = System.currentTimeMillis() - startTime;
+                                            Map<String, Object> response = new HashMap<>();
 
-                    // Read response body to analyze
-                    return clientResponse
-                            .bodyToMono(String.class)
-                            .defaultIfEmpty("")
-                            .map(responseBody -> {
+                                            response.put("responseTimeMs", responseTime);
+                                            response.put("httpStatus", statusCode);
+                                            response.put("host", host);
+                                            response.put("port", port);
+                                            response.put("resolvedIp", resolvedIp);
+
+                                            // Analyze the response to determine if it's an LLM endpoint
+                                            boolean looksLikeLlm = false;
+                                            String contentType = clientResponse
+                                                    .headers()
+                                                    .contentType()
+                                                    .map(Object::toString)
+                                                    .orElse("unknown");
+
+                                            // Truncate response for display
+                                            String truncatedResponse = responseBody.length() > 500
+                                                    ? responseBody.substring(0, 500) + "..."
+                                                    : responseBody;
+
+                                            if (statusCode == 404) {
+                                                finalSteps.add(createStep(
+                                                        "Endpoint Check", "error", "Endpoint not found (404)"));
+                                                response.put("success", false);
+                                                response.put(
+                                                        "error",
+                                                        "Endpoint not found - the path '" + uri.getPath()
+                                                                + "' does not exist on this server");
+                                                response.put("responsePreview", truncatedResponse);
+                                                response.put(
+                                                        "suggestions",
+                                                        List.of(
+                                                                "Verify the endpoint path is correct",
+                                                                "Common Ollama endpoints: /api/generate, /api/chat",
+                                                                "Common OpenAI-compatible endpoints: /v1/completions, /v1/chat/completions",
+                                                                "Check your LLM server documentation for the correct endpoint"));
+                                            } else if (contentType.contains("text/html")) {
+                                                finalSteps.add(createStep(
+                                                        "Endpoint Check", "error", "Received HTML instead of JSON"));
+                                                response.put("success", false);
+                                                response.put(
+                                                        "error",
+                                                        "This doesn't appear to be an LLM API endpoint - received HTML response");
+                                                response.put("responsePreview", truncatedResponse);
+                                                response.put(
+                                                        "suggestions",
+                                                        List.of(
+                                                                "The URL points to a web page, not an API endpoint",
+                                                                "Check that the URL includes the API path (e.g., /api/generate)",
+                                                                "Verify you're using the correct port for the API"));
+                                            } else if (contentType.contains("application/json")
+                                                    || responseBody.trim().startsWith("{")) {
+                                                // It's JSON - check if it looks like an LLM response
+                                                String lowerBody = responseBody.toLowerCase();
+                                                if (lowerBody.contains("\"response\"")
+                                                        || lowerBody.contains("\"content\"")
+                                                        || lowerBody.contains("\"text\"")
+                                                        || lowerBody.contains("\"output\"")
+                                                        || lowerBody.contains("\"choices\"")
+                                                        || lowerBody.contains("\"message\"")
+                                                        || lowerBody.contains("\"generated\"")) {
+                                                    looksLikeLlm = true;
+                                                    finalSteps.add(createStep(
+                                                            "Endpoint Check",
+                                                            "success",
+                                                            "Looks like a valid LLM endpoint"));
+                                                } else if (lowerBody.contains("\"error\"")
+                                                        || lowerBody.contains("\"model\"")) {
+                                                    // Error response but from an LLM-like API
+                                                    looksLikeLlm = true;
+                                                    finalSteps.add(createStep(
+                                                            "Endpoint Check",
+                                                            "success",
+                                                            "LLM endpoint responded (with error/model info)"));
+                                                    response.put(
+                                                            "warning",
+                                                            "Endpoint responded with an error - this may be normal for a test request without a valid model");
+                                                } else {
+                                                    finalSteps.add(createStep(
+                                                            "Endpoint Check",
+                                                            "pending",
+                                                            "JSON response but unclear if LLM"));
+                                                    response.put(
+                                                            "warning",
+                                                            "Received JSON but couldn't confirm this is an LLM endpoint - please verify manually");
+                                                }
+                                                response.put("responsePreview", truncatedResponse);
+                                            } else {
+                                                finalSteps.add(createStep(
+                                                        "Endpoint Check",
+                                                        "pending",
+                                                        "Unexpected content type: " + contentType));
+                                                response.put(
+                                                        "warning", "Received unexpected content type: " + contentType);
+                                                response.put("responsePreview", truncatedResponse);
+                                            }
+
+                                            if (statusCode >= 200 && statusCode < 300 && looksLikeLlm) {
+                                                response.put("success", true);
+                                            } else if (statusCode >= 200
+                                                    && statusCode < 500
+                                                    && !response.containsKey("error")) {
+                                                // Got a response, might be usable
+                                                response.put("success", looksLikeLlm);
+                                                if (!looksLikeLlm && !response.containsKey("error")) {
+                                                    response.put(
+                                                            "error", "Could not verify this is a valid LLM endpoint");
+                                                    response.put(
+                                                            "suggestions",
+                                                            List.of(
+                                                                    "The server responded but the response doesn't look like an LLM API",
+                                                                    "Verify the complete URL path is correct",
+                                                                    "Check your LLM server documentation"));
+                                                }
+                                            } else if (!response.containsKey("error")) {
+                                                response.put("success", false);
+                                                response.put("error", "Server returned HTTP " + statusCode);
+                                                response.put("suggestions", getHttpErrorSuggestions(statusCode));
+                                            }
+
+                                            response.put("steps", finalSteps);
+                                            return new ResponseDTO<>(HttpStatus.OK, response);
+                                        });
+                            })
+                            .onErrorResume(error -> {
                                 long responseTime = System.currentTimeMillis() - startTime;
                                 Map<String, Object> response = new HashMap<>();
-
+                                response.put("success", false);
                                 response.put("responseTimeMs", responseTime);
-                                response.put("httpStatus", statusCode);
                                 response.put("host", host);
                                 response.put("port", port);
                                 response.put("resolvedIp", resolvedIp);
 
-                                // Analyze the response to determine if it's an LLM endpoint
-                                boolean looksLikeLlm = false;
-                                String contentType = clientResponse
-                                        .headers()
-                                        .contentType()
-                                        .map(Object::toString)
-                                        .orElse("unknown");
-
-                                // Truncate response for display
-                                String truncatedResponse = responseBody.length() > 500
-                                        ? responseBody.substring(0, 500) + "..."
-                                        : responseBody;
-
-                                if (statusCode == 404) {
-                                    finalSteps.add(createStep("Endpoint Check", "error", "Endpoint not found (404)"));
-                                    response.put("success", false);
-                                    response.put(
-                                            "error",
-                                            "Endpoint not found - the path '" + uri.getPath()
-                                                    + "' does not exist on this server");
-                                    response.put("responsePreview", truncatedResponse);
-                                    response.put(
-                                            "suggestions",
-                                            List.of(
-                                                    "Verify the endpoint path is correct",
-                                                    "Common Ollama endpoints: /api/generate, /api/chat",
-                                                    "Common OpenAI-compatible endpoints: /v1/completions, /v1/chat/completions",
-                                                    "Check your LLM server documentation for the correct endpoint"));
-                                } else if (contentType.contains("text/html")) {
-                                    finalSteps.add(
-                                            createStep("Endpoint Check", "error", "Received HTML instead of JSON"));
-                                    response.put("success", false);
-                                    response.put(
-                                            "error",
-                                            "This doesn't appear to be an LLM API endpoint - received HTML response");
-                                    response.put("responsePreview", truncatedResponse);
-                                    response.put(
-                                            "suggestions",
-                                            List.of(
-                                                    "The URL points to a web page, not an API endpoint",
-                                                    "Check that the URL includes the API path (e.g., /api/generate)",
-                                                    "Verify you're using the correct port for the API"));
-                                } else if (contentType.contains("application/json")
-                                        || responseBody.trim().startsWith("{")) {
-                                    // It's JSON - check if it looks like an LLM response
-                                    String lowerBody = responseBody.toLowerCase();
-                                    if (lowerBody.contains("\"response\"")
-                                            || lowerBody.contains("\"content\"")
-                                            || lowerBody.contains("\"text\"")
-                                            || lowerBody.contains("\"output\"")
-                                            || lowerBody.contains("\"choices\"")
-                                            || lowerBody.contains("\"message\"")
-                                            || lowerBody.contains("\"generated\"")) {
-                                        looksLikeLlm = true;
-                                        finalSteps.add(createStep(
-                                                "Endpoint Check", "success", "Looks like a valid LLM endpoint"));
-                                    } else if (lowerBody.contains("\"error\"") || lowerBody.contains("\"model\"")) {
-                                        // Error response but from an LLM-like API
-                                        looksLikeLlm = true;
-                                        finalSteps.add(createStep(
-                                                "Endpoint Check",
-                                                "success",
-                                                "LLM endpoint responded (with error/model info)"));
+                                if (error instanceof WebClientRequestException) {
+                                    Throwable cause = error.getCause();
+                                    if (cause instanceof ConnectTimeoutException) {
+                                        finalSteps.add(
+                                                createStep("TCP Connection", "error", "Connection timed out after 5s"));
                                         response.put(
-                                                "warning",
-                                                "Endpoint responded with an error - this may be normal for a test request without a valid model");
-                                    } else {
-                                        finalSteps.add(createStep(
-                                                "Endpoint Check", "pending", "JSON response but unclear if LLM"));
-                                        response.put(
-                                                "warning",
-                                                "Received JSON but couldn't confirm this is an LLM endpoint - please verify manually");
-                                    }
-                                    response.put("responsePreview", truncatedResponse);
-                                } else {
-                                    finalSteps.add(createStep(
-                                            "Endpoint Check", "pending", "Unexpected content type: " + contentType));
-                                    response.put("warning", "Received unexpected content type: " + contentType);
-                                    response.put("responsePreview", truncatedResponse);
-                                }
-
-                                if (statusCode >= 200 && statusCode < 300 && looksLikeLlm) {
-                                    response.put("success", true);
-                                } else if (statusCode >= 200 && statusCode < 500 && !response.containsKey("error")) {
-                                    // Got a response, might be usable
-                                    response.put("success", looksLikeLlm);
-                                    if (!looksLikeLlm && !response.containsKey("error")) {
-                                        response.put("error", "Could not verify this is a valid LLM endpoint");
+                                                "error",
+                                                "Connection timed out - server not responding on port " + port);
                                         response.put(
                                                 "suggestions",
                                                 List.of(
-                                                        "The server responded but the response doesn't look like an LLM API",
-                                                        "Verify the complete URL path is correct",
-                                                        "Check your LLM server documentation"));
+                                                        "Check if the LLM server is running on port " + port,
+                                                        "Verify firewall allows connections to port " + port,
+                                                        "If running in Docker, ensure proper network configuration",
+                                                        "Try: curl -v " + url));
+                                    } else if (cause instanceof java.net.ConnectException) {
+                                        finalSteps.add(createStep("TCP Connection", "error", "Connection refused"));
+                                        response.put(
+                                                "error",
+                                                "Connection refused - no service listening on " + host + ":" + port);
+                                        response.put(
+                                                "suggestions",
+                                                List.of(
+                                                        "Start the LLM server (e.g., 'ollama serve' for Ollama)",
+                                                        "Check if the service is listening on the correct port",
+                                                        "Verify the port number in your URL",
+                                                        "Try: lsof -i :" + port
+                                                                + " (Mac/Linux) or netstat -an | findstr " + port
+                                                                + " (Windows)"));
+                                    } else if (cause instanceof SslHandshakeTimeoutException
+                                            || (cause != null
+                                                    && cause.getClass()
+                                                            .getName()
+                                                            .contains("Ssl"))) {
+                                        finalSteps.add(createStep(
+                                                "TCP Connection", "success", "Connected to " + host + ":" + port));
+                                        finalSteps.add(
+                                                createStep("TLS Handshake", "error", "SSL/TLS handshake failed"));
+                                        response.put("error", "SSL/TLS handshake failed");
+                                        response.put(
+                                                "suggestions",
+                                                List.of(
+                                                        "Try using http:// instead of https:// for local servers",
+                                                        "Check if the server's SSL certificate is valid",
+                                                        "Verify the server supports TLS"));
+                                    } else {
+                                        finalSteps.add(createStep("TCP Connection", "error", "Connection failed"));
+                                        response.put(
+                                                "error",
+                                                "Connection failed: "
+                                                        + (cause != null ? cause.getMessage() : error.getMessage()));
+                                        response.put(
+                                                "suggestions",
+                                                List.of(
+                                                        "Check if the server is running and accessible",
+                                                        "Verify network connectivity from the Appsmith server",
+                                                        "Check server logs for more details"));
                                     }
-                                } else if (!response.containsKey("error")) {
-                                    response.put("success", false);
-                                    response.put("error", "Server returned HTTP " + statusCode);
-                                    response.put("suggestions", getHttpErrorSuggestions(statusCode));
+                                } else if (error instanceof WebClientResponseException wcre) {
+                                    finalSteps.add(createStep("TCP Connection", "success", "Connected"));
+                                    finalSteps.add(createStep(
+                                            "HTTP Request",
+                                            "error",
+                                            "HTTP " + wcre.getStatusCode().value()));
+                                    response.put("error", "HTTP error: " + wcre.getStatusCode());
+                                    response.put(
+                                            "httpStatus", wcre.getStatusCode().value());
+                                    response.put(
+                                            "suggestions",
+                                            getHttpErrorSuggestions(
+                                                    wcre.getStatusCode().value()));
+                                } else {
+                                    finalSteps.add(createStep("Connection", "error", error.getMessage()));
+                                    response.put("error", "Unexpected error: " + error.getMessage());
+                                    response.put(
+                                            "suggestions",
+                                            List.of(
+                                                    "Check the Appsmith server logs for more details",
+                                                    "Verify the URL is correct and accessible"));
                                 }
 
                                 response.put("steps", finalSteps);
-                                return new ResponseDTO<>(HttpStatus.OK, response);
+                                return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
                             });
                 })
-                .onErrorResume(error -> {
-                    long responseTime = System.currentTimeMillis() - startTime;
+                .onErrorResume(UnknownHostException.class, e -> {
+                    steps.add(createStep("DNS Resolution", "error", "Could not resolve hostname"));
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
-                    response.put("responseTimeMs", responseTime);
                     response.put("host", host);
                     response.put("port", port);
-                    response.put("resolvedIp", resolvedIp);
-
-                    if (error instanceof WebClientRequestException) {
-                        Throwable cause = error.getCause();
-                        if (cause instanceof ConnectTimeoutException) {
-                            finalSteps.add(createStep("TCP Connection", "error", "Connection timed out after 5s"));
-                            response.put("error", "Connection timed out - server not responding on port " + port);
-                            response.put(
-                                    "suggestions",
-                                    List.of(
-                                            "Check if the LLM server is running on port " + port,
-                                            "Verify firewall allows connections to port " + port,
-                                            "If running in Docker, ensure proper network configuration",
-                                            "Try: curl -v " + url));
-                        } else if (cause instanceof java.net.ConnectException) {
-                            finalSteps.add(createStep("TCP Connection", "error", "Connection refused"));
-                            response.put("error", "Connection refused - no service listening on " + host + ":" + port);
-                            response.put(
-                                    "suggestions",
-                                    List.of(
-                                            "Start the LLM server (e.g., 'ollama serve' for Ollama)",
-                                            "Check if the service is listening on the correct port",
-                                            "Verify the port number in your URL",
-                                            "Try: lsof -i :" + port + " (Mac/Linux) or netstat -an | findstr " + port
-                                                    + " (Windows)"));
-                        } else if (cause instanceof SslHandshakeTimeoutException
-                                || (cause != null && cause.getClass().getName().contains("Ssl"))) {
-                            finalSteps.add(
-                                    createStep("TCP Connection", "success", "Connected to " + host + ":" + port));
-                            finalSteps.add(createStep("TLS Handshake", "error", "SSL/TLS handshake failed"));
-                            response.put("error", "SSL/TLS handshake failed");
-                            response.put(
-                                    "suggestions",
-                                    List.of(
-                                            "Try using http:// instead of https:// for local servers",
-                                            "Check if the server's SSL certificate is valid",
-                                            "Verify the server supports TLS"));
-                        } else {
-                            finalSteps.add(createStep("TCP Connection", "error", "Connection failed"));
-                            response.put(
-                                    "error",
-                                    "Connection failed: " + (cause != null ? cause.getMessage() : error.getMessage()));
-                            response.put(
-                                    "suggestions",
-                                    List.of(
-                                            "Check if the server is running and accessible",
-                                            "Verify network connectivity from the Appsmith server",
-                                            "Check server logs for more details"));
-                        }
-                    } else if (error instanceof WebClientResponseException wcre) {
-                        finalSteps.add(createStep("TCP Connection", "success", "Connected"));
-                        finalSteps.add(createStep(
-                                "HTTP Request",
-                                "error",
-                                "HTTP " + wcre.getStatusCode().value()));
-                        response.put("error", "HTTP error: " + wcre.getStatusCode());
-                        response.put("httpStatus", wcre.getStatusCode().value());
-                        response.put(
-                                "suggestions",
-                                getHttpErrorSuggestions(wcre.getStatusCode().value()));
-                    } else {
-                        finalSteps.add(createStep("Connection", "error", error.getMessage()));
-                        response.put("error", "Unexpected error: " + error.getMessage());
-                        response.put(
-                                "suggestions",
-                                List.of(
-                                        "Check the Appsmith server logs for more details",
-                                        "Verify the URL is correct and accessible"));
-                    }
-
-                    response.put("steps", finalSteps);
+                    response.put("steps", steps);
+                    response.put("error", "DNS resolution failed - hostname not found: " + host);
+                    response.put(
+                            "suggestions",
+                            List.of(
+                                    "Check if the hostname is spelled correctly",
+                                    "If using localhost, ensure that's correct for your setup",
+                                    "Try using IP address (e.g., 127.0.0.1) instead of hostname",
+                                    "Check your DNS settings or /etc/hosts file"));
                     return Mono.just(new ResponseDTO<>(HttpStatus.OK, response));
                 });
     }
