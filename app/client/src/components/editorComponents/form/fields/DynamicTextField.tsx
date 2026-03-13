@@ -36,16 +36,13 @@ class DynamicTextField extends React.Component<
       this.props.mode === EditorModes.GRAPHQL ||
       this.props.mode === EditorModes.GRAPHQL_WITH_BINDING;
     const isJavaScriptMode = this.props.mode === EditorModes.JAVASCRIPT;
-    const isJSONMode =
-      this.props.mode === EditorModes.JSON ||
-      this.props.mode === EditorModes.JSON_WITH_BINDING;
 
     const editorProps = {
       mode: this.props.mode || EditorModes.TEXT_WITH_BINDING,
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      AIAssisted: isSQLMode || isGraphQLMode || isJavaScriptMode || isJSONMode,
+      AIAssisted: isSQLMode || isGraphQLMode || isJavaScriptMode,
     };
 
     return (

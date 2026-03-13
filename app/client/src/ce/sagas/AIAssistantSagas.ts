@@ -1,6 +1,10 @@
-import { call, put, select, take, takeLatest } from "redux-saga/effects";
+import { call, put, race, select, take, takeLatest } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
 import {
   fetchAIResponseSuccess,
   fetchAIResponseError,
@@ -87,11 +91,35 @@ function* enrichContextWithSchema(
 
   if (!datasourceId || !pluginId) return;
 
-  const structure = (yield select(getDatasourceStructureById, datasourceId)) as
+  let structure = (yield select(getDatasourceStructureById, datasourceId)) as
     | DatasourceStructure
     | undefined;
 
-  if (!structure?.tables?.length) return;
+  if (!structure?.tables?.length) {
+    yield put(fetchDatasourceStructure(datasourceId, false));
+
+    const { success } = (yield race({
+      success: take(
+        (action: ReduxAction<{ datasourceId: string }>) =>
+          action.type === ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS &&
+          action.payload.datasourceId === datasourceId,
+      ),
+      error: take(
+        (action: ReduxAction<{ datasourceId: string }>) =>
+          action.type ===
+            ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR &&
+          action.payload.datasourceId === datasourceId,
+      ),
+    })) as { success?: ReduxAction<unknown>; error?: ReduxAction<unknown> };
+
+    if (!success) return;
+
+    structure = (yield select(getDatasourceStructureById, datasourceId)) as
+      | DatasourceStructure
+      | undefined;
+
+    if (!structure?.tables?.length) return;
+  }
 
   const currentQuery = enrichedContext.currentValue || "";
   const schema = serializeDatasourceSchema(structure, currentQuery, 10000);

@@ -1741,55 +1741,55 @@ class CodeEditor extends Component<Props, State> {
           </Button>
         </div>
 
-        <div className="absolute bottom-[6px] right-[6px] z-4">
-          <AskAIButton
-            entity={entityInformation}
-            mode={this.props.mode}
-            onClick={() => {
-              try {
-                const currentValue =
-                  typeof this.props.input.value === "string"
-                    ? this.props.input.value
-                    : "";
+        {this.AIEnabled && (
+          <div className="absolute bottom-[6px] right-[6px] z-4">
+            <AskAIButton
+              entity={entityInformation}
+              mode={this.props.mode}
+              onClick={() => {
+                try {
+                  const currentValue =
+                    typeof this.props.input.value === "string"
+                      ? this.props.input.value
+                      : "";
 
-                // Get cursor and context if editor is available
-                let aiContext = {
-                  functionName: "",
-                  cursorLineNumber: 0,
-                  functionString: "",
-                };
+                  let aiContext = {
+                    functionName: "",
+                    cursorLineNumber: 0,
+                    functionString: "",
+                  };
 
-                if (this.editor) {
-                  const cursorPosition = this.editor.getCursor();
+                  if (this.editor) {
+                    const cursorPosition = this.editor.getCursor();
 
-                  aiContext = getAIContext({
-                    cursorPosition,
-                    editor: this.editor,
+                    aiContext = getAIContext({
+                      cursorPosition,
+                      editor: this.editor,
+                    });
+                  }
+
+                  this.props.openAIPanelWithContext({
+                    functionName: aiContext.functionName,
+                    cursorLineNumber: aiContext.cursorLineNumber,
+                    functionString: aiContext.functionString,
+                    mode: this.props.mode,
+                    currentValue,
+                    editorId: getEditorIdentifier(this.props),
+                    entityName: entityInformation?.entityName,
+                    propertyPath: entityInformation?.propertyPath,
+                  });
+                } catch (error) {
+                  // eslint-disable-next-line no-console
+                  console.error("Error opening AI panel:", error);
+                  this.props.openAIPanelWithContext({
+                    mode: this.props.mode,
+                    currentValue: "",
                   });
                 }
-
-                this.props.openAIPanelWithContext({
-                  functionName: aiContext.functionName,
-                  cursorLineNumber: aiContext.cursorLineNumber,
-                  functionString: aiContext.functionString,
-                  mode: this.props.mode,
-                  currentValue,
-                  editorId: getEditorIdentifier(this.props),
-                  entityName: entityInformation?.entityName,
-                  propertyPath: entityInformation?.propertyPath,
-                });
-              } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error("Error opening AI panel:", error);
-                // Still try to open the panel without context
-                this.props.openAIPanelWithContext({
-                  mode: this.props.mode,
-                  currentValue: "",
-                });
-              }
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        )}
 
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
