@@ -235,7 +235,7 @@ public class UserControllerCE {
     private String getAIErrorMessage(Throwable error) {
         if (!(error instanceof AppsmithException appsmithError)) {
             log.error("Non-Appsmith AI error: {}", error.getMessage(), error);
-            return "Failed to get AI response. " + error.getMessage();
+            return "Failed to get AI response. Please try again or check your AI configuration.";
         }
         if (appsmithError.getError() == AppsmithError.INVALID_CREDENTIALS) {
             return "Invalid API key. Please check your API key in settings.";

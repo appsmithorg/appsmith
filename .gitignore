@@ -49,3 +49,16 @@ mongodb*
 
 # Security audit document
 GitInMemoryAudit.pdf
+
+# Diagnostic logs
+*.log
+appsmith-diag-*
+
+# Security audit/review documents
+SECURITY_*.md
+
+# AI tool configs
+.cursor/plans/
+cursorrules
+CLAUDE.md
+.claude/
