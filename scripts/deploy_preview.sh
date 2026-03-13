@@ -55,7 +55,7 @@ if [[ -n "${RECREATE-}" ]]; then
   # execute this db.dropDatabase() from the k8s cluster because there's network restrictions on Atlas cluster.
   # The \$ is used to escape the $ character in the APPSMITH_DB_URL environment variable so it's interpolated inside the kubectl exec command.
   kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "mongosh \$APPSMITH_DB_URL --eval 'db.dropDatabase()'"
-  kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "rm -rf /appsmith-stacks/*"
+  kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "supervisorctl stop all && rm -rf /appsmith-stacks/*"
   kubectl delete ns "$NAMESPACE" || true
   kubectl patch pv "$NAMESPACE-appsmith" -p '{"metadata":{"finalizers":null}}' || true
   kubectl delete pv "$NAMESPACE-appsmith" --grace-period=0 --force || true
@@ -92,8 +92,8 @@ helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-bloc
 
 echo "Deploying Appsmith Helm chart..."
 helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
-  --set _image.repository="$DOCKER_HUB_ORGANIZATION/appsmith-dp" \
-  --set _image.tag="$IMAGE_HASH" \
+  --set _image.repository="${IMAGE_REPOSITORY:-$DOCKER_HUB_ORGANIZATION/appsmith-dp}" \
+  --set _image.tag="${IMAGE_TAG:-$IMAGE_HASH}" \
   --set _image.pullPolicy="Always" \
   --set image.pullSecrets="$SECRET" \
   --set autoscaling.enabled=true \
@@ -103,10 +103,9 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set postgresql.enabled=false \
   --set mongodb.enabled=false \
   --set ingress.enabled=true \
-  --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false \
-  --set ingress.className="nginx" \
+  --set ingress.className="traefik" \
   --set persistence.efs.enabled=true \
   --set persistence.efs.driver="efs.csi.aws.com" \
   --set persistence.storageClass="efs-sc" \

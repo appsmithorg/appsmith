@@ -23,13 +23,19 @@ RUN set -o xtrace \
     ca-certificates \
     libnss-wrapper \
     git \
-  # Install MongoDB v6, Redis, PostgreSQL v14
+  # Install MongoDB v6, Redis 7.4 (from packages.redis.io), PostgreSQL v14
   && curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg \
   && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
+  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
+  && chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg \
+  && echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(. /etc/os-release && echo "$VERSION_CODENAME") main" | tee /etc/apt/sources.list.d/redis.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
+    mongodb-org \
+    redis=6:7.4* redis-server=6:7.4* redis-tools=6:7.4* \
+    postgresql-14 \
   && find /etc/redis -type d -exec chmod o+rx {} + -o -type f -exec chmod o+r {} + \
   && apt-get clean \
   && rm -rf \
