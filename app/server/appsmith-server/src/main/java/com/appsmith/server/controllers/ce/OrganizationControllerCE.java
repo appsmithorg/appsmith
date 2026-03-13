@@ -31,7 +31,9 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,6 +209,14 @@ public class OrganizationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/ai-config/test-connection")
     public Mono<ResponseDTO<Map<String, Object>>> testLlmConnection(@RequestBody Map<String, String> request) {
+        return service.getCurrentUserOrganizationId()
+                .flatMap(organizationId -> service.findById(organizationId, MANAGE_ORGANIZATION)
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND, "organization", organizationId)))
+                        .flatMap(organization -> testLlmConnectionInternal(request)));
+    }
+
+    private Mono<ResponseDTO<Map<String, Object>>> testLlmConnectionInternal(Map<String, String> request) {
         String rawUrl = request.get("url");
         if (rawUrl == null || rawUrl.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -516,6 +526,14 @@ public class OrganizationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/ai-config/fetch-models")
     public Mono<ResponseDTO<Map<String, Object>>> fetchLlmModels(@RequestBody Map<String, String> request) {
+        return service.getCurrentUserOrganizationId()
+                .flatMap(organizationId -> service.findById(organizationId, MANAGE_ORGANIZATION)
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND, "organization", organizationId)))
+                        .flatMap(organization -> fetchLlmModelsInternal(request)));
+    }
+
+    private Mono<ResponseDTO<Map<String, Object>>> fetchLlmModelsInternal(Map<String, String> request) {
         String rawUrl = request.get("url");
         if (rawUrl == null || rawUrl.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -730,6 +748,14 @@ public class OrganizationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/ai-config/test-api-key")
     public Mono<ResponseDTO<Map<String, Object>>> testApiKey(@RequestBody Map<String, String> request) {
+        return service.getCurrentUserOrganizationId()
+                .flatMap(organizationId -> service.findById(organizationId, MANAGE_ORGANIZATION)
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND, "organization", organizationId)))
+                        .flatMap(organization -> testApiKeyInternal(request)));
+    }
+
+    private Mono<ResponseDTO<Map<String, Object>>> testApiKeyInternal(Map<String, String> request) {
         String provider = request.get("provider");
         String apiKey = request.get("apiKey");
         String endpoint = request.get("endpoint");
@@ -1161,7 +1187,8 @@ public class OrganizationControllerCE {
         // Construct the full Azure OpenAI URL
         String trimmedEndpoint = stripTrailingSlash(endpoint.trim());
         String effectiveApiVersion = hasValue(apiVersion) ? apiVersion.trim() : DEFAULT_AZURE_API_VERSION;
-        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName.trim() + "/chat/completions?api-version="
+        String encodedDeployment = URLEncoder.encode(deploymentName.trim(), StandardCharsets.UTF_8);
+        String url = trimmedEndpoint + "/openai/deployments/" + encodedDeployment + "/chat/completions?api-version="
                 + effectiveApiVersion;
 
         steps.add(createStep("URL Construction", "success", "Built Azure OpenAI URL"));

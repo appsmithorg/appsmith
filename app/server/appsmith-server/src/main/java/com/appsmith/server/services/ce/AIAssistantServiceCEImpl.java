@@ -22,7 +22,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -361,8 +365,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         }
 
         // Validate URL scheme and host to prevent protocol-based attacks and authority-less URIs like "http:foo"
+        URI parsedUri;
         try {
-            URI parsedUri = URI.create(url);
+            parsedUri = URI.create(url);
             String scheme = parsedUri.getScheme();
             if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
                 return Mono.error(new AppsmithException(
@@ -375,6 +380,21 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             }
         } catch (IllegalArgumentException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid Local LLM URL"));
+        }
+
+        // Block cloud metadata endpoints (link-local 169.254.x.x) while allowing
+        // localhost, 10.x.x.x, 172.16.x.x, and 192.168.x.x for legitimate Ollama setups
+        String host = parsedUri.getHost();
+        if (host != null) {
+            try {
+                InetAddress resolved = InetAddress.getByName(host);
+                if (resolved.isLinkLocalAddress()) {
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.INVALID_PARAMETER, "Local LLM URL resolves to a link-local address"));
+                }
+            } catch (UnknownHostException e) {
+                // Let it proceed - will fail at connection time
+            }
         }
 
         // Ollama uses /api/chat with messages format (OpenAI-compatible)
@@ -589,7 +609,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         int effectiveMaxTokens = (maxCompletionTokens != null && maxCompletionTokens > 0)
                 ? maxCompletionTokens
                 : DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
-        String url = trimmedEndpoint + "/openai/deployments/" + deploymentName + "/chat/completions?api-version="
+        String encodedDeployment = URLEncoder.encode(deploymentName.trim(), StandardCharsets.UTF_8);
+        String url = trimmedEndpoint + "/openai/deployments/" + encodedDeployment + "/chat/completions?api-version="
                 + effectiveApiVersion;
 
         List<Map<String, Object>> messages = new ArrayList<>();
