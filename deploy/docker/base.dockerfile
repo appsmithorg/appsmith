@@ -1,6 +1,4 @@
-ARG REDIS_VERSION=7.4.8
-
-FROM redis:${REDIS_VERSION} AS redis-source
+FROM redis:7.4.8 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
@@ -47,7 +45,6 @@ RUN set -o xtrace \
     /tmp/*
 
 # Install Redis from official image to avoid false positive CVE reports from dpkg-based scanners.
-# To upgrade, change the REDIS_VERSION ARG at the top of this file.
 COPY --from=redis-source /usr/local/bin/redis-server /usr/local/bin/redis-server
 COPY --from=redis-source /usr/local/bin/redis-cli /usr/local/bin/redis-cli
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
