@@ -18,6 +18,10 @@ public class RedisErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Error occurred while executing Redis query. To know more about the error please check the error details.";
 
+    public static final String DS_UNEXPECTED_SSL_OPTION_ERROR_MSG =
+            "Appsmith server has found an unexpected SSL option: %s. Please reach out to Appsmith customer support"
+                    + " to resolve this.";
+
     /*
     ************************************************************************************************************************************************
                                        Error messages related to validation of datasource.

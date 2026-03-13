@@ -117,7 +117,7 @@ public class ActionCollectionControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}/body")
-    public Mono<ResponseDTO<Integer>> updateActionCollectionBody(
+    public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollectionBody(
             @PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
         log.debug("Going to update action collection body with id: {}", id);
         return layoutCollectionService

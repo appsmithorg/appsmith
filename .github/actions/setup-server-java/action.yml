@@ -1,0 +1,34 @@
+name: "Setup Server Java"
+description: "Sets up JDK using the java.version property from app/server/pom.xml"
+
+inputs:
+  pom-path:
+    description: "Path to the pom.xml containing the <java.version> property"
+    required: false
+    default: "app/server/pom.xml"
+
+outputs:
+  java-version:
+    description: "The Java version that was set up"
+    value: ${{ steps.extract.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Extract Java version from pom.xml
+      id: extract
+      shell: bash
+      run: |
+        version=$(grep -oP '<java.version>\K[^<]+' "${{ inputs.pom-path }}")
+        if [[ -z "$version" ]]; then
+          echo "::error::Could not extract java.version from ${{ inputs.pom-path }}"
+          exit 1
+        fi
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "Detected Java version: $version"
+
+    - name: Set up JDK ${{ steps.extract.outputs.version }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: ${{ steps.extract.outputs.version }}

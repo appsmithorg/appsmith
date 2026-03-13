@@ -118,7 +118,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> archiveById(String id);
 
-    Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+    Mono<Void> archiveActionsByApplicationId(String applicationId, AclPermission permission);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
