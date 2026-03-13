@@ -25,7 +25,6 @@ export interface AISidePanelProps {
   currentValue: string;
   mode: TEditorModes;
   editor: CodeMirror.Editor;
-  onApplyCode: (code: string) => void;
 }
 
 interface QuickAction {
@@ -467,7 +466,7 @@ function getModeLabel(mode: string): string {
 // ============================================================================
 
 export function AISidePanel(props: AISidePanelProps) {
-  const { currentValue, editor, isOpen, mode, onApplyCode, onClose } = props;
+  const { currentValue, editor, isOpen, mode, onClose } = props;
 
   const dispatch = useDispatch();
   const [prompt, setPrompt] = useState("");
@@ -571,13 +570,6 @@ export function AISidePanel(props: AISidePanelProps) {
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
   }, []);
-
-  const handleInsertCode = useCallback(
-    (code: string) => {
-      onApplyCode(code);
-    },
-    [onApplyCode],
-  );
 
   const handleClearChat = useCallback(() => {
     dispatch(clearAIResponse());
@@ -722,24 +714,6 @@ export function AISidePanel(props: AISidePanelProps) {
                                 ? "check-line"
                                 : "copy-control"
                             }
-                          />
-                        </Tooltip>
-                        <Tooltip content="Insert at cursor" placement="top">
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() => handleInsertCode(part.content)}
-                            size="sm"
-                            startIcon="download-line"
-                          />
-                        </Tooltip>
-                        <Tooltip content="Replace selection" placement="top">
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() => handleInsertCode(part.content)}
-                            size="sm"
-                            startIcon="restart-line"
                           />
                         </Tooltip>
                       </CodeBlockActions>

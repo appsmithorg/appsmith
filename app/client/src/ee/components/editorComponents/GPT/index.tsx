@@ -11,7 +11,6 @@ import { AISidePanel } from "./AISidePanel";
 
 // Re-export the new components
 export { AISidePanel } from "./AISidePanel";
-export { AIEditorLayout } from "./AIEditorLayout";
 
 export type AIEditorContext = Partial<{
   functionName: string;
@@ -72,33 +71,8 @@ export function AIWindow(props: TAIWrapperProps) {
     isOpen,
     mode,
     onOpenChanged,
-    update,
   } = props;
 
-  // Handle applying code from AI response
-  const handleApplyCode = (code: string) => {
-    if (update) {
-      if (editor) {
-        // If there's a selection, replace it
-        if (editor.somethingSelected()) {
-          editor.replaceSelection(code);
-        } else {
-          // Insert at cursor position
-          const cursor = editor.getCursor();
-
-          editor.replaceRange(code, cursor);
-        }
-
-        // Focus the editor after insertion
-        editor.focus();
-      } else {
-        // Fallback: replace entire content
-        update(code);
-      }
-    }
-  };
-
-  // If AI assistance is not enabled, just render children
   if (!enableAIAssistance) {
     return children as React.ReactElement;
   }
@@ -113,7 +87,6 @@ export function AIWindow(props: TAIWrapperProps) {
           editor={editor}
           isOpen={isOpen}
           mode={mode}
-          onApplyCode={handleApplyCode}
           onClose={() => onOpenChanged(false)}
         />
       )}
