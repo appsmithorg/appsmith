@@ -35,10 +35,7 @@ export function extractReferencedTableNames(
     }
 
     // NoSQL: db.collectionName.method() or db.getCollection("name")
-    const mongoMethodPattern = new RegExp(
-      `db\\.${escaped}\\s*\\.`,
-      "i",
-    );
+    const mongoMethodPattern = new RegExp(`db\\.${escaped}\\s*\\.`, "i");
 
     if (mongoMethodPattern.test(queryLower)) {
       referenced.add(tableName);
@@ -46,10 +43,7 @@ export function extractReferencedTableNames(
     }
 
     // NoSQL: collection name as a JSON string value (e.g. "from": "users", "collection": "orders")
-    const jsonValuePattern = new RegExp(
-      `["']\\s*${escaped}\\s*["']`,
-      "i",
-    );
+    const jsonValuePattern = new RegExp(`["']\\s*${escaped}\\s*["']`, "i");
 
     if (jsonValuePattern.test(queryLower)) {
       referenced.add(tableName);

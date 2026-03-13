@@ -100,17 +100,17 @@ function* enrichContextWithSchema(
 
     const { success } = (yield race({
       success: take(
-        (action: ReduxAction<{ datasourceId: string }>) =>
+        (action: { type: string; payload?: { datasourceId?: string } }) =>
           action.type === ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS &&
-          action.payload.datasourceId === datasourceId,
+          action.payload?.datasourceId === datasourceId,
       ),
       error: take(
-        (action: ReduxAction<{ datasourceId: string }>) =>
+        (action: { type: string; payload?: { datasourceId?: string } }) =>
           action.type ===
             ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR &&
-          action.payload.datasourceId === datasourceId,
+          action.payload?.datasourceId === datasourceId,
       ),
-    })) as { success?: ReduxAction<unknown>; error?: ReduxAction<unknown> };
+    })) as { success?: unknown; error?: unknown };
 
     if (!success) return;
 

@@ -50,7 +50,7 @@ import {
   getModeLabel,
   CODE_LANGUAGES,
   QUICK_ACTIONS,
-} from "ce/components/editorComponents/GPT/shared";
+} from "ee/components/editorComponents/GPT/shared";
 
 // ============================================================================
 // GlobalAISidePanel-specific styled components
