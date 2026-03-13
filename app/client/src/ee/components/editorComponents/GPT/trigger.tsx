@@ -16,10 +16,8 @@ export function isAIEnabled(
   const isJavaScriptMode = mode === "javascript";
   const isQueryMode =
     mode === "sql" || mode === "graphql" || mode?.includes("sql");
-  const isJSONMode =
-    mode === "application/json" || mode === "json-js" || mode?.includes("json");
 
-  return isJavaScriptMode || isQueryMode || isJSONMode;
+  return isJavaScriptMode || isQueryMode;
 }
 
 export const isAISlashCommand = (editor: CodeMirror.Editor) => {
@@ -63,13 +61,6 @@ export const getAIContext = ({
 
     functionString = lines.slice(startLine, endLine).join("\n");
   } else if (mode === "graphql" || mode?.includes("graphql")) {
-    const lines = code.split("\n");
-    const startLine = Math.max(0, cursorPosition.line - 40);
-    const endLine = Math.min(lines.length, cursorPosition.line + 40);
-
-    functionString = lines.slice(startLine, endLine).join("\n");
-  } else if (mode === "application/json" || mode?.includes("json")) {
-    // JSON mode (MongoDB, REST API bodies, etc.)
     const lines = code.split("\n");
     const startLine = Math.max(0, cursorPosition.line - 40);
     const endLine = Math.min(lines.length, cursorPosition.line + 40);
