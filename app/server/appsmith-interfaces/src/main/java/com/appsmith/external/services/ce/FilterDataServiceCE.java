@@ -134,21 +134,21 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
+
+        validateProjectionColumns(uqiDataFilterParams.getProjectionColumns(), schema);
+        validateSortByColumns(uqiDataFilterParams.getSortBy(), schema);
+
         String tableName = generateTable(schema);
+        try {
+            insertAllData(tableName, items, schema, dataTypeConversionMap);
 
-        // insert the data
-        insertAllData(tableName, items, schema, dataTypeConversionMap);
+            List<Map<String, Object>> finalResults =
+                    executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
 
-        // Filter the data
-        List<Map<String, Object>> finalResults =
-                executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
-
-        // Now that the data has been filtered. Clean Up. Drop the table
-        dropTable(tableName);
-
-        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
-
-        return finalResultsNode;
+            return objectMapper.valueToTree(finalResults);
+        } finally {
+            dropTable(tableName);
+        }
     }
 
     private List<Map<String, Object>> executeFilterQueryNew(
@@ -277,6 +277,48 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         values.add(new PreparedStatementValueDTO(offset, DataType.INTEGER));
     }
 
+    private void validateProjectionColumns(List<String> projectionColumns, Map<String, DataType> schema) {
+        if (CollectionUtils.isEmpty(projectionColumns)) {
+            return;
+        }
+        for (String columnName : projectionColumns) {
+            if (!schema.containsKey(columnName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        columnName + " not found in the known column names: " + schema.keySet());
+            }
+        }
+    }
+
+    private void validateSortByColumns(List<Map<String, String>> sortBy, Map<String, DataType> schema) {
+        if (isSortConditionEmpty(sortBy)) {
+            return;
+        }
+        for (Map<String, String> sortCondition : sortBy) {
+            String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
+            if (!isBlank(columnName) && !schema.containsKey(columnName)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        columnName + " not found in the known column names: " + schema.keySet());
+            }
+            if (!isBlank(columnName)) {
+                String order = sortCondition.get(SORT_BY_TYPE_KEY);
+                if (isBlank(order)) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Sort order is required for column: " + columnName);
+                }
+                try {
+                    SortType.valueOf(order.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Unsupported sort order '" + order + "' for column: " + columnName);
+                }
+            }
+        }
+    }
+
     /**
      * Display only those columns that the user has chosen to display.
      * E.g. if the projectionColumns is a list that contains ["ID, Name"], then this method will add the following
@@ -286,10 +328,15 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param projectionColumns - list of columns that need to be displayed
      * @param tableName         - table name in database
      */
+    private static String escapeBacktickIdentifier(String identifier) {
+        return identifier.replace("`", "``");
+    }
+
     private void addProjectionCondition(StringBuilder sb, List<String> projectionColumns, String tableName) {
         if (!CollectionUtils.isEmpty(projectionColumns)) {
             sb.append("SELECT");
-            projectionColumns.stream().forEach(columnName -> sb.append(" `" + columnName + "`,"));
+            projectionColumns.stream()
+                    .forEach(columnName -> sb.append(" `" + escapeBacktickIdentifier(columnName) + "`,"));
 
             sb.setLength(sb.length() - 1);
             sb.append(" FROM " + tableName);
@@ -337,7 +384,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                         + "to parse the type of sort condition. Please reach out to Appsmith customer support "
                                         + "to resolve this.");
                     }
-                    sb.append(" `" + columnName + "` " + sortType + ",");
+                    sb.append(" `" + escapeBacktickIdentifier(columnName) + "` " + sortType + ",");
                 });
 
         sb.setLength(sb.length() - 1);
@@ -615,10 +662,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
                 .map(name -> {
-                    if (name.contains("\"") || name.contains("\'")) {
+                    if (name.contains("\"") || name.contains("\'") || name.contains("`")) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : "
+                                "', \" or ` are unsupported symbols in column names for filtering. Caused by column name : "
                                         + name);
                     }
                     return name;

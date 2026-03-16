@@ -10,6 +10,7 @@ import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -26,6 +27,7 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -157,12 +159,25 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
 
-        Mono<Organization> clientOrganizationMono = configService
-                .getInstanceId()
-                .flatMap(instanceId -> {
+        // Determine if the current principal is an anonymous (unauthenticated) user so we can
+        // suppress instance-identifying metadata in the public response.
+        Mono<Boolean> isAnonymousMono = ReactiveSecurityContextHolder.getContext()
+                .flatMap(ctx -> Mono.justOrEmpty(ctx.getAuthentication()))
+                .filter(authentication -> authentication.getPrincipal() instanceof User)
+                .map(authentication -> ((User) authentication.getPrincipal()).isAnonymous())
+                .defaultIfEmpty(true);
+
+        Mono<Organization> clientOrganizationMono = Mono.zip(isAnonymousMono, configService.getInstanceId())
+                .flatMap(tuple -> {
+                    boolean isAnonymous = tuple.getT1();
+                    String instanceId = tuple.getT2();
                     final Organization organization = new Organization();
-                    organization.setInstanceId(instanceId);
-                    organization.setAdminEmailDomainHash(adminEmailDomainHash);
+
+                    // Only expose instance-identifying metadata to authenticated users
+                    if (!isAnonymous) {
+                        organization.setInstanceId(instanceId);
+                        organization.setAdminEmailDomainHash(adminEmailDomainHash);
+                    }
 
                     final OrganizationConfiguration config = new OrganizationConfiguration();
                     organization.setOrganizationConfiguration(config);

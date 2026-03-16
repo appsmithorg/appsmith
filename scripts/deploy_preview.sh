@@ -92,8 +92,8 @@ helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-bloc
 
 echo "Deploying Appsmith Helm chart..."
 helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
-  --set _image.repository="$DOCKER_HUB_ORGANIZATION/appsmith-dp" \
-  --set _image.tag="$IMAGE_HASH" \
+  --set _image.repository="${IMAGE_REPOSITORY:-$DOCKER_HUB_ORGANIZATION/appsmith-dp}" \
+  --set _image.tag="${IMAGE_TAG:-$IMAGE_HASH}" \
   --set _image.pullPolicy="Always" \
   --set image.pullSecrets="$SECRET" \
   --set autoscaling.enabled=true \

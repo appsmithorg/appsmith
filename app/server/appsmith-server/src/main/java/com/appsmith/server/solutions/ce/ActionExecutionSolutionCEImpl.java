@@ -191,6 +191,14 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         return aclPermission;
     }
 
+    protected AclPermission getActionExecutionPermission(
+            ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
+        if (!TRUE.equals(executeActionDTO.getViewMode())) {
+            return getPermission(executeActionMetaDTO, actionPermission.getEditPermission());
+        }
+        return getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
+    }
+
     /**
      * Fetches the action from the DB, and populates the executeActionMetaDTO with the action
      * Also fetches the true environmentId for the action execution
@@ -201,7 +209,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     protected Mono<ActionExecutionResult> populateAndExecuteAction(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        AclPermission executePermission = getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
+        AclPermission executePermission = getActionExecutionPermission(executeActionDTO, executeActionMetaDTO);
         Mono<NewAction> newActionMono = newActionService
                 .findById(executeActionDTO.getActionId(), executePermission)
                 .cache();
@@ -236,7 +244,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<String> getTrueEnvironmentId(
             NewAction newAction, ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        boolean isEmbedded = executeActionDTO.getViewMode()
+        boolean isEmbedded = TRUE.equals(executeActionDTO.getViewMode())
                 ? newAction.getPublishedAction().getDatasource().getId() == null
                 : newAction.getUnpublishedAction().getDatasource().getId() == null;
 
@@ -980,25 +988,26 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     @Override
     public Mono<ActionDTO> getValidActionForExecution(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
-        AclPermission executePermission = getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
-
-        // Security: Enforce that anonymous users can only execute published actions (viewMode=true)
-        // This is the primary security validation point for action execution
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(user -> {
                     if (Boolean.TRUE.equals(user.getIsAnonymous())) {
-                        // Reject explicit attempts to access unpublished actions
                         if (FALSE.equals(executeActionDTO.getViewMode())) {
                             return Mono.error(new AppsmithException(
                                     AppsmithError.ACL_NO_RESOURCE_FOUND,
                                     "Anonymous users can only execute published actions"));
                         }
-                        // Default to published mode if viewMode is not specified
                         if (executeActionDTO.getViewMode() == null) {
                             executeActionDTO.setViewMode(TRUE);
                         }
                     }
+
+                    // Security: Compute permission after anonymous normalization so that
+                    // anonymous users with viewMode=null (normalized to TRUE above) get
+                    // EXECUTE_ACTIONS, while non-anonymous users with viewMode != TRUE
+                    // require MANAGE_ACTIONS (edit permission) for draft execution.
+                    AclPermission executePermission =
+                            getActionExecutionPermission(executeActionDTO, executeActionMetaDTO);
 
                     return newActionService
                             .findActionDTObyIdAndViewMode(
