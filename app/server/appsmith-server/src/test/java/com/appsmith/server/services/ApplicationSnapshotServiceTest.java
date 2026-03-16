@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationSnapshot;
@@ -9,6 +10,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
@@ -277,22 +280,43 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void deleteSnapshot_WhenSnapshotExists_Deleted() {
-        String testAppId = "app-" + UUID.randomUUID();
-        ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
-        snapshot1.setChunkOrder(1);
-        snapshot1.setApplicationId(testAppId);
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot delete");
+        testApplication.setWorkspaceId(workspace.getId());
 
-        ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
-        snapshot2.setApplicationId(testAppId);
-        snapshot2.setChunkOrder(2);
-
-        Flux<ApplicationSnapshot> snapshotFlux = applicationSnapshotRepository
-                .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotService.deleteSnapshot(testAppId))
-                .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId));
+        Flux<ApplicationSnapshot> snapshotFlux = applicationPageService
+                .createApplication(testApplication)
+                .flatMapMany(application -> applicationSnapshotService
+                        .createApplicationSnapshot(application.getId())
+                        .then(applicationSnapshotService.deleteSnapshot(application.getId()))
+                        .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId())));
 
         StepVerifier.create(snapshotFlux).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("usertest@usertest.com")
+    public void deleteSnapshot_WhenUserHasNoAccess_ThrowsError() {
+        // Create app and snapshot as api_user by running blocking setup outside the reactive chain
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot delete no-access");
+        testApplication.setWorkspaceId(workspace.getId());
+
+        // The application is owned by api_user (set up in @BeforeEach under api_user context).
+        // We switch the security context to usertest@usertest.com for this test, so the app
+        // created in setup (owned by api_user) is not visible under usertest's permissions.
+        String randomAppId = "app-" + UUID.randomUUID();
+
+        Mono<Boolean> deleteMono = applicationSnapshotService.deleteSnapshot(randomAppId);
+
+        StepVerifier.create(deleteMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, randomAppId)))
+                .verify();
     }
 
     @WithUserDetails("api_user")

@@ -131,8 +131,11 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
     @Override
     public Mono<Boolean> deleteSnapshot(String branchedApplicationId) {
-        return applicationSnapshotRepository
-                .deleteAllByApplicationId(branchedApplicationId)
+        return applicationService
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
+                .flatMap(application -> applicationSnapshotRepository.deleteAllByApplicationId(application.getId()))
                 .thenReturn(Boolean.TRUE);
     }
 }
