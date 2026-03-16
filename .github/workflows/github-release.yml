@@ -117,11 +117,8 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+      - name: Set up JDK from dependency file
+        uses: ./.github/actions/setup-server-java
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies

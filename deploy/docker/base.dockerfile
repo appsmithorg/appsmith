@@ -1,3 +1,5 @@
+FROM redis:7.4.8 AS redis-source
+
 FROM caddy:builder-alpine AS caddybuilder
 
 RUN xcaddy build \
@@ -23,14 +25,15 @@ RUN set -o xtrace \
     ca-certificates \
     libnss-wrapper \
     git \
-  # Install MongoDB v6, Redis, PostgreSQL v14
+  # Install MongoDB v6, PostgreSQL v14
   && curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg \
   && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
-  && find /etc/redis -type d -exec chmod o+rx {} + -o -type f -exec chmod o+r {} + \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
+    mongodb-org \
+    postgresql-14 \
   && apt-get clean \
   && rm -rf \
     /root/.cache \
@@ -41,6 +44,9 @@ RUN set -o xtrace \
     /var/lib/apt/lists/* \
     /tmp/*
 
+# Install Redis from official image to avoid false positive CVE reports from dpkg-based scanners.
+COPY --from=redis-source /usr/local/bin/redis-server /usr/local/bin/redis-server
+COPY --from=redis-source /usr/local/bin/redis-cli /usr/local/bin/redis-cli
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
