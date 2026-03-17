@@ -284,7 +284,7 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and shadow",
+        sectionName: "Border, shadow & padding",
         children: [
           {
             helpText: "Enter value for border width",
@@ -299,7 +299,7 @@ export class ContainerWidget extends BaseWidget<
           },
           {
             helpText:
-              "Inner padding (px). Use one value for all sides or 2–4 values (e.g. 10 20 10 20 for top right bottom left)",
+              "Space between the border and the content, in pixels. Use one value for all sides, or 2–4 values for top, right, bottom, left (e.g. 10 20 10 20).",
             propertyName: "contentPadding",
             label: "Padding (px)",
             placeholderText: "e.g. 10 or 10 20 10 20",

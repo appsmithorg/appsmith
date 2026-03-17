@@ -475,11 +475,11 @@ export const PropertyPaneStyleConfig = [
     ],
   },
   {
-    sectionName: "Border and shadow",
+    sectionName: "Border, shadow & padding",
     children: [
       {
         helpText:
-          "Inner padding (px). Use one value for all sides or 2–4 values (e.g. 10 20 10 20 for top right bottom left). Applies to the list container only.",
+          "Space between the list border and the scrollable content, in pixels. Use one value for all sides, or 2–4 values for top, right, bottom, left (e.g. 10 20 10 20). Does not affect spacing between list items.",
         propertyName: "contentPadding",
         label: "Padding (px)",
         placeholderText: "e.g. 10 or 10 20 10 20",
