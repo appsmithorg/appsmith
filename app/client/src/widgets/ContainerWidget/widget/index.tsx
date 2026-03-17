@@ -5,6 +5,7 @@ import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, get, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
@@ -12,6 +13,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
+  contentPaddingValidation,
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
@@ -305,9 +307,16 @@ export class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.NUMBER,
-              params: { min: 0 },
-            },
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: contentPaddingValidation,
+                default: DEFAULT_CONTENT_PADDING,
+                expected: {
+                  type: "1–4 space-separated numbers (px)",
+                  example: "10 or 10 20 10 20",
+                },
+              },
+            } as ValidationConfig,
           },
           {
             propertyName: "borderRadius",

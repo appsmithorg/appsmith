@@ -28,6 +28,7 @@ import {
   getWidgetMinAutoHeight,
   isCompactMode,
   parseContentPadding,
+  contentPaddingValidation,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -789,5 +790,125 @@ describe("parseContentPadding", () => {
 
     expect(parseContentPadding("", fb)).toEqual([0, 0, 0, 0]);
     expect(parseContentPadding("invalid", fb)).toEqual([0, 0, 0, 0]);
+  });
+});
+
+describe("contentPaddingValidation", () => {
+  const noop = {} as Record<string, unknown>;
+  const defaultConfig = { params: { default: "4" } };
+
+  it("accepts 1 value", () => {
+    const r = contentPaddingValidation(
+      "10",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("10");
+  });
+
+  it("accepts 2 values", () => {
+    const r = contentPaddingValidation(
+      "10 20",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("10 20");
+  });
+
+  it("accepts 3 values", () => {
+    const r = contentPaddingValidation(
+      "10 20 30",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("10 20 30");
+  });
+
+  it("accepts 4 values", () => {
+    const r = contentPaddingValidation(
+      "10 20 10 20",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("10 20 10 20");
+  });
+
+  it("returns valid with default for empty string", () => {
+    const r = contentPaddingValidation("", noop, null, null, "", defaultConfig);
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("4");
+  });
+
+  it("rejects more than 4 tokens", () => {
+    const r = contentPaddingValidation(
+      "10 20 30 40 50",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(false);
+    expect(r.parsed).toBe("4");
+    expect(r.messages?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects non-numeric token", () => {
+    const r = contentPaddingValidation(
+      "10 abc 20",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(false);
+    expect(r.parsed).toBe("4");
+  });
+
+  it("rejects negative value", () => {
+    const r = contentPaddingValidation(
+      "10 -5 20",
+      noop,
+      null,
+      null,
+      "",
+      defaultConfig,
+    );
+
+    expect(r.isValid).toBe(false);
+    expect(r.parsed).toBe("4");
+  });
+
+  it("uses config default when empty", () => {
+    const r = contentPaddingValidation("", noop, null, null, "", {
+      params: { default: "25" },
+    });
+
+    expect(r.isValid).toBe(true);
+    expect(r.parsed).toBe("25");
   });
 });
