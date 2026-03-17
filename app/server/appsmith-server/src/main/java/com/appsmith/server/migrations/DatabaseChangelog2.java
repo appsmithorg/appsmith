@@ -674,13 +674,19 @@ public class DatabaseChangelog2 {
         plugin.setPackageName("seatable-plugin");
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://seatable.com/favicon.svg");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/seatable.svg");
         plugin.setDocumentationLink("https://api.seatable.com/");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
             log.warn(plugin.getPackageName() + " already present in database.");
+            plugin = mongoTemplate.findOne(
+                    query(where(Plugin.Fields.packageName).is(plugin.getPackageName())),
+                    Plugin.class);
+            if (plugin == null) {
+                return;
+            }
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }

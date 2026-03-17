@@ -242,8 +242,20 @@ public class SeaTablePlugin extends BasePlugin {
          * @return an {@link AccessTokenResponse} with the access token and pre-computed base path
          */
         private Mono<AccessTokenResponse> fetchAccessToken(DatasourceConfiguration datasourceConfiguration) {
+            if (datasourceConfiguration.getUrl() == null || datasourceConfiguration.getUrl().isBlank()) {
+                return Mono.error(new AppsmithPluginException(
+                        SeaTablePluginError.ACCESS_TOKEN_ERROR,
+                        SeaTableErrorMessages.MISSING_SERVER_URL_ERROR_MSG));
+            }
+            if (datasourceConfiguration.getAuthentication() == null
+                    || !(datasourceConfiguration.getAuthentication() instanceof DBAuth auth)
+                    || StringUtils.isBlank(auth.getPassword())) {
+                return Mono.error(new AppsmithPluginException(
+                        SeaTablePluginError.ACCESS_TOKEN_ERROR,
+                        SeaTableErrorMessages.MISSING_API_TOKEN_ERROR_MSG));
+            }
+
             String serverUrl = datasourceConfiguration.getUrl().trim();
-            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             String apiToken = auth.getPassword();
 
             if (serverUrl.endsWith("/")) {
