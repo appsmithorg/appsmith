@@ -670,12 +670,12 @@ public class DatabaseChangelog2 {
     public void addSeaTablePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SeaTable");
-        plugin.setType(PluginType.API);
+        plugin.setType(PluginType.SAAS);
         plugin.setPackageName("seatable-plugin");
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://seatable.com/favicon.svg");
-        plugin.setDocumentationLink("https://developer.seatable.io/");
+        plugin.setDocumentationLink("https://api.seatable.com/");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
