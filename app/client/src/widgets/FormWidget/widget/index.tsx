@@ -22,7 +22,11 @@ import type { SetterConfig } from "entities/AppTheming";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEFAULT_CONTENT_PADDING,
+  GridDefaults,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -82,6 +86,7 @@ class FormWidget extends ContainerWidget {
       columns: 24,
       borderColor: Colors.GREY_5,
       borderWidth: "1",
+      contentPadding: DEFAULT_CONTENT_PADDING,
       animateLoading: true,
       widgetName: "Form",
       backgroundColor: Colors.WHITE,

@@ -110,6 +110,9 @@ export const AUTO_LAYOUT_CONTAINER_PADDING = 5;
 
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
+/** Default inner content padding (px) for container-like widgets when contentPadding is not set. */
+export const DEFAULT_CONTENT_PADDING = "4";
+
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";

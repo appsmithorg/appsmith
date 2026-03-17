@@ -11,7 +11,7 @@ import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import { scrollCSS } from "widgets/WidgetUtils";
+import { parseContentPadding, scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -31,6 +31,13 @@ const StyledContainerComponent = styled.div<
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) =>
     props.resizeDisabled && !props.forceFullOpacity ? "0.8" : "1"};
+
+  padding: ${(props) => {
+    const [t, r, b, l] = props.contentPaddingPx;
+
+    return `${t}px ${r}px ${b}px ${l}px`;
+  }};
+  box-sizing: border-box;
 
   background: ${(props) => props.backgroundColor};
   &:hover {
@@ -55,6 +62,7 @@ interface ContainerWrapperProps {
   dropDisabled?: boolean;
   $noScroll: boolean;
   forceFullOpacity?: boolean;
+  contentPaddingPx: [number, number, number, number];
 }
 
 function ContainerComponentWrapper(
@@ -134,6 +142,7 @@ function ContainerComponentWrapper(
           ? "auto-layout"
           : ""
       }`}
+      contentPaddingPx={props.contentPaddingPx}
       dropDisabled={props.dropDisabled}
       forceFullOpacity={props.forceFullOpacity}
       onClick={props.onClick}
@@ -151,10 +160,13 @@ function ContainerComponentWrapper(
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
+  const contentPaddingPx = parseContentPadding(props.contentPadding ?? "");
+
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
+        contentPaddingPx={contentPaddingPx}
         dropDisabled={props.dropDisabled}
         forceFullOpacity={props.forceFullOpacity}
         onClick={props.onClick}
@@ -187,6 +199,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
+        contentPaddingPx={contentPaddingPx}
         dropDisabled={props.dropDisabled}
         forceFullOpacity={props.forceFullOpacity}
         onClick={props.onClick}
@@ -212,6 +225,7 @@ export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
 export interface ContainerComponentProps extends WidgetStyleContainerProps {
   children?: ReactNode;
+  contentPadding?: string;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
   selected?: boolean;

@@ -27,6 +27,7 @@ import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isCompactMode,
+  parseContentPadding,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -758,5 +759,35 @@ describe("Should Update Widget Height Automatically?", () => {
 
     expect(isCompactMode(compactHeight)).toBeTruthy();
     expect(isCompactMode(unCompactHeight)).toBeFalsy();
+  });
+});
+
+describe("parseContentPadding", () => {
+  it("parses 1 value to all sides", () => {
+    expect(parseContentPadding("10")).toEqual([10, 10, 10, 10]);
+  });
+  it("parses 2 values to vertical, horizontal", () => {
+    expect(parseContentPadding("10 20")).toEqual([10, 20, 10, 20]);
+  });
+  it("parses 3 values to top, left-right, bottom", () => {
+    expect(parseContentPadding("10 20 30")).toEqual([10, 20, 30, 20]);
+  });
+  it("parses 4 values to top, right, bottom, left", () => {
+    expect(parseContentPadding("10 20 30 40")).toEqual([10, 20, 30, 40]);
+  });
+  it("returns default for invalid input", () => {
+    expect(parseContentPadding("abc")).toEqual([4, 4, 4, 4]);
+    expect(parseContentPadding("-1")).toEqual([4, 4, 4, 4]);
+    expect(parseContentPadding("1 2 3 4 5")).toEqual([4, 4, 4, 4]);
+  });
+  it("returns default for empty string", () => {
+    expect(parseContentPadding("")).toEqual([4, 4, 4, 4]);
+    expect(parseContentPadding("   ")).toEqual([4, 4, 4, 4]);
+  });
+  it("uses custom fallback when provided", () => {
+    const fb: [number, number, number, number] = [0, 0, 0, 0];
+
+    expect(parseContentPadding("", fb)).toEqual([0, 0, 0, 0]);
+    expect(parseContentPadding("invalid", fb)).toEqual([0, 0, 0, 0]);
   });
 });

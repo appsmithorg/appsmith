@@ -15,6 +15,7 @@ import type { PropertyUpdates } from "WidgetProvider/types";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
+  DEFAULT_CONTENT_PADDING,
   GridDefaults,
   TextSizes,
   WidgetHeightLimits,
@@ -72,6 +73,56 @@ export function getSnapSpaces(props: WidgetPositionProps) {
         GridDefaults.DEFAULT_GRID_COLUMNS
       : 0,
   };
+}
+
+/**
+ * Parse a padding string (1–4 space-separated numbers, CSS shorthand) into [top, right, bottom, left] in px.
+ * 1 value → all sides; 2 → vertical, horizontal; 3 → top, left-right, bottom; 4 → top, right, bottom, left.
+ * Invalid or empty input returns fallback or default from DEFAULT_CONTENT_PADDING.
+ */
+export function parseContentPadding(
+  paddingStr: string | number | undefined | null,
+  fallback?: [number, number, number, number],
+): [number, number, number, number] {
+  const raw =
+    paddingStr != null && typeof paddingStr === "string"
+      ? paddingStr
+      : paddingStr != null
+        ? String(paddingStr)
+        : "";
+  const str = raw.trim();
+
+  if (!str) {
+    const d = parseInt(DEFAULT_CONTENT_PADDING, 10) || 0;
+
+    return fallback ?? [d, d, d, d];
+  }
+
+  const tokens = str.split(/\s+/).map((t) => parseFloat(t));
+  const valid = tokens.every((n) => !Number.isNaN(n) && n >= 0);
+
+  if (!valid || tokens.length < 1 || tokens.length > 4) {
+    const d = parseInt(DEFAULT_CONTENT_PADDING, 10) || 0;
+
+    return fallback ?? [d, d, d, d];
+  }
+
+  const [a, b, c, d] = tokens;
+
+  switch (tokens.length) {
+    case 1:
+      return [a, a, a, a];
+    case 2:
+      return [a, b, a, b];
+    case 3:
+      return [a, b, c, b];
+    case 4:
+      return [a, b, c, d];
+    default:
+      const def = parseInt(DEFAULT_CONTENT_PADDING, 10) || 0;
+
+      return fallback ?? [def, def, def, def];
+  }
 }
 
 export const DefaultAutocompleteDefinitions = {

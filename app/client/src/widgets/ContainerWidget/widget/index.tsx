@@ -31,7 +31,11 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  DEFAULT_CONTENT_PADDING,
+  GridDefaults,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   Positioning,
@@ -100,6 +104,7 @@ export class ContainerWidget extends BaseWidget<
       containerStyle: "card",
       borderColor: Colors.GREY_5,
       borderWidth: "1",
+      contentPadding: DEFAULT_CONTENT_PADDING,
       boxShadow: ButtonBoxShadowTypes.NONE,
       animateLoading: true,
       children: [],
@@ -291,6 +296,20 @@ export class ContainerWidget extends BaseWidget<
             postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
+            helpText:
+              "Inner padding (px). Use one value for all sides or 2–4 values (e.g. 10 20 10 20 for top right bottom left)",
+            propertyName: "contentPadding",
+            label: "Padding (px)",
+            placeholderText: "e.g. 10 or 10 20 10 20",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0 },
+            },
+          },
+          {
             propertyName: "borderRadius",
             label: "Border radius",
             helpText: "Rounds the corners of the widgets's outer border edge",
@@ -367,15 +386,16 @@ export class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
-    return map(
-      // sort by row so stacking context is correct
-      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
-      // Figure out a way in which the stacking context is consistent.
+    const children =
       this.props.positioning !== Positioning.Fixed
         ? this.props.children
-        : sortBy(compact(this.props.children), (child) => child.topRow),
-      this.renderChildWidget,
-    );
+        : sortBy(compact(this.props.children), (child) => child.topRow);
+
+    return map(children, (child) => (
+      <React.Fragment key={child.widgetId}>
+        {this.renderChildWidget(child)}
+      </React.Fragment>
+    ));
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
@@ -411,6 +431,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
+  contentPadding?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   shouldScrollContents?: boolean;
