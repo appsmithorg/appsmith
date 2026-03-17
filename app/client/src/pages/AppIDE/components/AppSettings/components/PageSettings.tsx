@@ -76,7 +76,7 @@ function PageSettings(props: { page: Page }) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const isStaticUrlFeatureFlagEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_static_url_enabled,
+    FEATURE_FLAG.license_static_url_enabled,
   );
   const isStaticUrlEnabled =
     useSelector(getIsStaticUrlEnabled) && isStaticUrlFeatureFlagEnabled;

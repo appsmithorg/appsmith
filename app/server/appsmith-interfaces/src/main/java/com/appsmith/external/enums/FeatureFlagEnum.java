@@ -36,7 +36,7 @@ public enum FeatureFlagEnum {
      * predictable, unique slugs for app and page routes instead of dynamic URLs,
      * improving usability, cross-instance navigation, and compatibility with Git.
      */
-    release_static_url_enabled,
+    license_static_url_enabled,
     /**
      * Feature flag to enable alphabetical ordering for workspaces and applications
      */
