@@ -20,13 +20,12 @@ import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
-  contentPaddingValidation,
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
   parseContentPadding,
 } from "widgets/WidgetUtils";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import { validatePaddingString } from "utils/paddingValidation";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -481,14 +480,15 @@ class TabsWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fn: contentPaddingValidation,
-                default: DEFAULT_CONTENT_PADDING,
+                fn: (value: unknown) =>
+                  validatePaddingString(value, DEFAULT_CONTENT_PADDING),
                 expected: {
                   type: "1–4 space-separated numbers (px)",
                   example: "10 or 10 20 10 20",
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-            } as ValidationConfig,
+            },
           },
           {
             propertyName: "borderRadius",
