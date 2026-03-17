@@ -1,0 +1,33 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "GET_ROW",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'GET_ROW'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-ROW-Z1",
+      "children": [
+        {
+          "label": "Table Name",
+          "configProperty": "actionConfiguration.formData.tableName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Table1",
+          "initialValue": ""
+        },
+        {
+          "label": "Row ID",
+          "configProperty": "actionConfiguration.formData.rowId.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Enter the row ID",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

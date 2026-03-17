@@ -1,0 +1,23 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "LIST_TABLES",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'LIST_TABLES'}}"
+  },
+  "children": [
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "LIST-TABLES-Z1",
+      "children": [
+        {
+          "label": "",
+          "description": "This command returns all tables and their columns in the connected base. No additional parameters required.",
+          "configProperty": "actionConfiguration.formData._info.data",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

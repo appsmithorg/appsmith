@@ -665,4 +665,23 @@ public class DatabaseChangelog2 {
         oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         mongoTemplate.save(oraclePlugin);
     }
+
+    @ChangeSet(order = "044", id = "add-seatable-plugin", author = "")
+    public void addSeaTablePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("SeaTable");
+        plugin.setType(PluginType.API);
+        plugin.setPackageName("seatable-plugin");
+        plugin.setUiComponent("UQIDbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://seatable.com/favicon.svg");
+        plugin.setDocumentationLink("https://developer.seatable.io/");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }
