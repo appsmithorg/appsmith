@@ -38,6 +38,11 @@ public enum FeatureFlagEnum {
      */
     license_static_url_enabled,
     /**
+     * Though this flag is not used, however this has been retained in order to protect 
+     * organization migration failures during start-up due to missing flag.
+     */
+    release_static_url_enabled,
+    /**
      * Feature flag to enable alphabetical ordering for workspaces and applications
      */
     release_alphabetical_ordering_enabled,
