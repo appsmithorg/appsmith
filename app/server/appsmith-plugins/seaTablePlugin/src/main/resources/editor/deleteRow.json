@@ -1,0 +1,33 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "DELETE_ROW",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE_ROW'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DELETE-ROW-Z1",
+      "children": [
+        {
+          "label": "Table Name",
+          "configProperty": "actionConfiguration.formData.tableName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Table1",
+          "initialValue": ""
+        },
+        {
+          "label": "Row ID",
+          "configProperty": "actionConfiguration.formData.rowId.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Enter the row ID to delete",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

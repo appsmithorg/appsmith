@@ -1,0 +1,48 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "UPDATE_ROW",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'UPDATE_ROW'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "UPDATE-ROW-Z1",
+      "children": [
+        {
+          "label": "Table Name",
+          "configProperty": "actionConfiguration.formData.tableName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Table1",
+          "initialValue": ""
+        },
+        {
+          "label": "Row ID",
+          "configProperty": "actionConfiguration.formData.rowId.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Enter the row ID",
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "UPDATE-ROW-Z2",
+      "children": [
+        {
+          "label": "Row Object",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "isRequired": true,
+          "placeholderText": "{\n  \"Status\": \"Completed\"\n}",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

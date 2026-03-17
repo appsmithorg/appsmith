@@ -1,0 +1,25 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "SQL_QUERY",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'SQL_QUERY'}}"
+  },
+  "children": [
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "SQL-QUERY-Z1",
+      "children": [
+        {
+          "label": "SQL",
+          "description": "SeaTable supports a subset of SQL. See SeaTable docs for supported syntax.",
+          "configProperty": "actionConfiguration.formData.sql.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "SELECT * FROM Table1 WHERE Status = 'Active' LIMIT 100",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}
