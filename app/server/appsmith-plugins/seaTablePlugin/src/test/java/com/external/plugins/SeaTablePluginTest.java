@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -34,11 +34,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeaTablePluginTest {
 
-    private static MockWebServer mockWebServer;
-    private static String serverUrl;
-    private static final SeaTablePlugin.SeaTablePluginExecutor pluginExecutor =
+    private MockWebServer mockWebServer;
+    private String serverUrl;
+    private final SeaTablePlugin.SeaTablePluginExecutor pluginExecutor =
             new SeaTablePlugin.SeaTablePluginExecutor();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String ACCESS_TOKEN_RESPONSE = """
             {
@@ -119,15 +119,15 @@ class SeaTablePluginTest {
             }
             """;
 
-    @BeforeAll
-    static void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
         serverUrl = "http://localhost:" + mockWebServer.getPort();
     }
 
-    @AfterAll
-    static void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         mockWebServer.shutdown();
     }
 
