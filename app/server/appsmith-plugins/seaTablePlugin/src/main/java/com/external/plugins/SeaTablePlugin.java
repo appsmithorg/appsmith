@@ -40,6 +40,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -64,20 +65,24 @@ import static java.lang.Boolean.TRUE;
 /**
  * SeaTable plugin for Appsmith.
  *
- * SeaTable API flow:
- * 1. Exchange API-Token for a Base-Token (access_token) via GET /api/v2.1/dtable/app-access-token/
- *    Response includes: access_token, dtable_uuid, dtable_server
- * 2. All row/metadata/sql operations use the dtable_server URL:
- *    {dtable_server}/api/v2/dtables/{dtable_uuid}/...
- *    with header: Authorization: Token {access_token}
+ * <p>SeaTable API flow:
+ * <ol>
+ *   <li>Exchange API-Token for a Base-Token (access_token) via GET /api/v2.1/dtable/app-access-token/
+ *       Response includes: access_token, dtable_uuid, dtable_server</li>
+ *   <li>All row/metadata/sql operations use the dtable_server URL:
+ *       {dtable_server}/api/v2/dtables/{dtable_uuid}/...
+ *       with header: Authorization: Token {access_token}</li>
+ * </ol>
  *
- * API reference: https://api.seatable.com/
+ * @see <a href="https://api.seatable.com/">SeaTable API Reference</a>
  */
 public class SeaTablePlugin extends BasePlugin {
 
     private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
+
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
     public SeaTablePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -96,6 +101,9 @@ public class SeaTablePlugin extends BasePlugin {
          */
         private record AccessTokenResponse(String accessToken, String basePath) {}
 
+        /**
+         * @deprecated Use {@link #executeParameterized} instead.
+         */
         @Override
         @Deprecated
         public Mono<ActionExecutionResult> execute(
@@ -120,6 +128,10 @@ public class SeaTablePlugin extends BasePlugin {
                     jsonBody, value, null, insertedParams, null, param);
         }
 
+        /**
+         * Main entry point for query execution. Handles smart JSON substitution
+         * for the body field, then delegates to {@link #executeQuery}.
+         */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
                 Void connection,
@@ -172,6 +184,10 @@ public class SeaTablePlugin extends BasePlugin {
             return this.executeQuery(datasourceConfiguration, actionConfiguration);
         }
 
+        /**
+         * Dispatches the query to the appropriate command handler based on the
+         * selected command in the form data.
+         */
         private Mono<ActionExecutionResult> executeQuery(
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -206,21 +222,14 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
-         * Exchange the API-Token for a Base-Token (access token).
-         * GET {serverUrl}/api/v2.1/dtable/app-access-token/
-         * Header: Authorization: Token {apiToken}
+         * Exchanges the API-Token for a Base-Token (access token).
          *
-         * Response:
-         * {
-         *   "app_name": "...",
-         *   "access_token": "eyJ...",
-         *   "dtable_uuid": "650d8a0d-...",
-         *   "dtable_server": "https://cloud.seatable.io/api-gateway/",
-         *   ...
-         * }
-         *
+         * <p>Calls GET {serverUrl}/api/v2.1/dtable/app-access-token/ with the API token.
+         * The response always includes access_token, dtable_uuid, and dtable_server.
          * The dtable_server URL already includes /api-gateway/.
-         * All subsequent calls go to: {dtable_server}api/v2/dtables/{dtable_uuid}/...
+         *
+         * @param datasourceConfiguration the datasource config containing server URL and API token
+         * @return an {@link AccessTokenResponse} with the access token and pre-computed base path
          */
         private Mono<AccessTokenResponse> fetchAccessToken(DatasourceConfiguration datasourceConfiguration) {
             String serverUrl = datasourceConfiguration.getUrl().trim();
@@ -244,12 +253,24 @@ public class SeaTablePlugin extends BasePlugin {
                     .header("Accept", MediaType.APPLICATION_JSON_VALUE)
                     .retrieve()
                     .bodyToMono(byte[].class)
+                    .timeout(REQUEST_TIMEOUT)
                     .map(responseBytes -> {
                         try {
                             JsonNode json = objectMapper.readTree(responseBytes);
-                            String accessToken = json.get("access_token").asText();
-                            String dtableUuid = json.get("dtable_uuid").asText();
-                            String dtableServer = json.get("dtable_server").asText();
+
+                            JsonNode accessTokenNode = json.get("access_token");
+                            JsonNode dtableUuidNode = json.get("dtable_uuid");
+                            JsonNode dtableServerNode = json.get("dtable_server");
+
+                            if (accessTokenNode == null || dtableUuidNode == null || dtableServerNode == null) {
+                                throw Exceptions.propagate(new AppsmithPluginException(
+                                        SeaTablePluginError.ACCESS_TOKEN_ERROR,
+                                        SeaTableErrorMessages.ACCESS_TOKEN_FETCH_FAILED_ERROR_MSG));
+                            }
+
+                            String accessToken = accessTokenNode.asText();
+                            String dtableUuid = dtableUuidNode.asText();
+                            String dtableServer = dtableServerNode.asText();
 
                             // dtable_server is e.g. "https://cloud.seatable.io/api-gateway/"
                             // Build the base path for all subsequent API calls
@@ -276,11 +297,17 @@ public class SeaTablePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * Builds an HTTP request against the SeaTable API without a request body.
+         */
         private WebClient.RequestHeadersSpec<?> buildRequest(
                 String basePath, String accessToken, HttpMethod method, String path) {
             return buildRequest(basePath, accessToken, method, path, null);
         }
 
+        /**
+         * Builds an HTTP request against the SeaTable API with an optional JSON request body.
+         */
         private WebClient.RequestHeadersSpec<?> buildRequest(
                 String basePath, String accessToken, HttpMethod method, String path, String body) {
 
@@ -305,10 +332,15 @@ public class SeaTablePlugin extends BasePlugin {
             return requestSpec;
         }
 
+        /**
+         * Executes an HTTP request and maps the response to an {@link ActionExecutionResult}.
+         * Applies a timeout and handles errors uniformly.
+         */
         private Mono<ActionExecutionResult> executeRequest(WebClient.RequestHeadersSpec<?> requestSpec) {
             return requestSpec
                     .retrieve()
                     .bodyToMono(byte[].class)
+                    .timeout(REQUEST_TIMEOUT)
                     .map(responseBytes -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(true);
@@ -336,7 +368,8 @@ public class SeaTablePlugin extends BasePlugin {
         // --- Command implementations ---
 
         /**
-         * GET /api/v2/dtables/{base_uuid}/rows/?table_name=X&start=0&limit=100&order_by=col&direction=asc&convert_keys=true
+         * Lists rows from a table.
+         * GET /api/v2/dtables/{base_uuid}/rows/?table_name=X&amp;convert_keys=true&amp;limit=N&amp;start=N&amp;order_by=col&amp;direction=asc
          */
         private Mono<ActionExecutionResult> executeListRows(
                 String basePath, String accessToken, Map<String, Object> formData) {
@@ -380,7 +413,8 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
-         * GET /api/v2/dtables/{base_uuid}/rows/{row_id}/?table_name=X&convert_keys=true
+         * Gets a single row by ID.
+         * GET /api/v2/dtables/{base_uuid}/rows/{row_id}/?table_name=X&amp;convert_keys=true
          */
         private Mono<ActionExecutionResult> executeGetRow(
                 String basePath, String accessToken, Map<String, Object> formData) {
@@ -407,6 +441,7 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
+         * Creates a new row in a table.
          * POST /api/v2/dtables/{base_uuid}/rows/
          * Body: { "table_name": "X", "rows": [{ "col": "val", ... }] }
          */
@@ -442,6 +477,7 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
+         * Updates an existing row.
          * PUT /api/v2/dtables/{base_uuid}/rows/
          * Body: { "table_name": "X", "updates": [{ "row_id": "...", "row": { "col": "val" } }] }
          */
@@ -489,6 +525,7 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
+         * Deletes a row from a table.
          * DELETE /api/v2/dtables/{base_uuid}/rows/
          * Body: { "table_name": "X", "row_ids": ["row_id_1"] }
          */
@@ -528,6 +565,7 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
+         * Lists all tables and their columns (metadata) in the connected base.
          * GET /api/v2/dtables/{base_uuid}/metadata/
          */
         private Mono<ActionExecutionResult> executeListTables(String basePath, String accessToken) {
@@ -536,6 +574,7 @@ public class SeaTablePlugin extends BasePlugin {
         }
 
         /**
+         * Executes a SQL query against the base.
          * POST /api/v2/dtables/{base_uuid}/sql/
          * Body: { "sql": "SELECT ...", "convert_keys": true }
          */
@@ -567,16 +606,29 @@ public class SeaTablePlugin extends BasePlugin {
 
         // --- Datasource lifecycle ---
 
+        /**
+         * SeaTable is stateless HTTP - no persistent connection to create.
+         */
         @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty().then();
         }
 
+        /**
+         * Nothing to destroy for stateless HTTP connections.
+         */
         @Override
         public void datasourceDestroy(Void connection) {
             // Nothing to destroy for stateless HTTP
         }
 
+        /**
+         * Validates the datasource configuration by checking that the server URL
+         * and API token are present and well-formed.
+         *
+         * @param datasourceConfiguration the config to validate
+         * @return a set of validation error messages (empty if valid)
+         */
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
@@ -599,6 +651,10 @@ public class SeaTablePlugin extends BasePlugin {
             return invalids;
         }
 
+        /**
+         * Tests the datasource by attempting to fetch an access token.
+         * If the token exchange succeeds, the datasource is valid.
+         */
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return fetchAccessToken(datasourceConfiguration)
@@ -611,6 +667,10 @@ public class SeaTablePlugin extends BasePlugin {
                     });
         }
 
+        /**
+         * Fetches the structure (tables and columns) of the connected base
+         * by calling the metadata endpoint. Used for schema discovery in the Appsmith UI.
+         */
         @Override
         public Mono<DatasourceStructure> getStructure(
                 Void connection, DatasourceConfiguration datasourceConfiguration) {
@@ -627,7 +687,8 @@ public class SeaTablePlugin extends BasePlugin {
                                 .header("Authorization", "Token " + tokenResponse.accessToken())
                                 .header("Accept", MediaType.APPLICATION_JSON_VALUE)
                                 .retrieve()
-                                .bodyToMono(byte[].class);
+                                .bodyToMono(byte[].class)
+                                .timeout(REQUEST_TIMEOUT);
                     })
                     .map(responseBytes -> {
                         DatasourceStructure structure = new DatasourceStructure();
@@ -645,12 +706,21 @@ public class SeaTablePlugin extends BasePlugin {
                             }
 
                             for (JsonNode tableNode : tablesNode) {
+                                if (!tableNode.hasNonNull("name")) {
+                                    log.warn("Skipping table entry with missing name");
+                                    continue;
+                                }
                                 String tableName = tableNode.get("name").asText();
                                 List<DatasourceStructure.Column> columns = new ArrayList<>();
 
                                 JsonNode columnsNode = tableNode.get("columns");
                                 if (columnsNode != null && columnsNode.isArray()) {
                                     for (JsonNode colNode : columnsNode) {
+                                        if (!colNode.hasNonNull("name") || !colNode.hasNonNull("type")) {
+                                            log.warn("Skipping column entry with missing name or type in table: {}",
+                                                    tableName);
+                                            continue;
+                                        }
                                         String colName = colNode.get("name").asText();
                                         String colType = colNode.get("type").asText();
                                         columns.add(new DatasourceStructure.Column(

@@ -8,12 +8,12 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.external.constants.FieldName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
-import okhttp3.Headers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,50 +55,30 @@ class SeaTablePluginTest {
     private static final String LIST_ROWS_RESPONSE = """
             {
                 "rows": [
-                    {
-                        "_id": "row1",
-                        "Name": "Alice",
-                        "Age": 30
-                    },
-                    {
-                        "_id": "row2",
-                        "Name": "Bob",
-                        "Age": 25
-                    }
+                    { "_id": "row1", "Name": "Alice", "Age": 30 },
+                    { "_id": "row2", "Name": "Bob", "Age": 25 }
                 ]
             }
             """;
 
     private static final String GET_ROW_RESPONSE = """
-            {
-                "_id": "row1",
-                "Name": "Alice",
-                "Age": 30
-            }
+            { "_id": "row1", "Name": "Alice", "Age": 30 }
             """;
 
     private static final String CREATE_ROW_RESPONSE = """
             {
                 "inserted_row_count": 1,
                 "row_ids": [{"_id": "new-row-id"}],
-                "first_row": {
-                    "_id": "new-row-id",
-                    "Name": "Charlie",
-                    "Age": 35
-                }
+                "first_row": { "_id": "new-row-id", "Name": "Charlie", "Age": 35 }
             }
             """;
 
     private static final String UPDATE_ROW_RESPONSE = """
-            {
-                "success": true
-            }
+            { "success": true }
             """;
 
     private static final String DELETE_ROW_RESPONSE = """
-            {
-                "success": true
-            }
+            { "deleted_rows": 1 }
             """;
 
     private static final String METADATA_RESPONSE = """
@@ -166,20 +147,29 @@ class SeaTablePluginTest {
     private ActionConfiguration createActionConfig(String command, Map<String, Object> extraFormData) {
         ActionConfiguration config = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        setDataValueSafelyInFormData(formData, "command", command);
+        setDataValueSafelyInFormData(formData, FieldName.COMMAND, command);
         extraFormData.forEach((k, v) -> setDataValueSafelyInFormData(formData, k, v));
         config.setFormData(formData);
         return config;
     }
 
     private void enqueueAccessTokenResponse() {
-        // dtable_server in real SeaTable points to the api-gateway, e.g. https://cloud.seatable.io/api-gateway/
-        // In tests we point it back to our mock server to intercept all subsequent calls.
         String response = String.format(ACCESS_TOKEN_RESPONSE, serverUrl);
         mockWebServer.enqueue(new MockResponse.Builder()
                 .addHeader("Content-Type", "application/json")
                 .body(response)
                 .build());
+    }
+
+    private void enqueueJsonResponse(String body) {
+        mockWebServer.enqueue(new MockResponse.Builder()
+                .addHeader("Content-Type", "application/json")
+                .body(body)
+                .build());
+    }
+
+    private RecordedRequest takeRequest() throws InterruptedException {
+        return mockWebServer.takeRequest(5, TimeUnit.SECONDS);
     }
 
     // --- Validation Tests ---
@@ -226,7 +216,7 @@ class SeaTablePluginTest {
     // --- Connection Test ---
 
     @Test
-    void testTestDatasource_success() {
+    void testTestDatasource_success() throws InterruptedException {
         enqueueAccessTokenResponse();
 
         Mono<DatasourceTestResult> resultMono = pluginExecutor.testDatasource(createDatasourceConfig());
@@ -237,6 +227,11 @@ class SeaTablePluginTest {
                     assertTrue(result.getInvalids().isEmpty());
                 })
                 .verifyComplete();
+
+        RecordedRequest tokenRequest = takeRequest();
+        assertEquals("GET", tokenRequest.getMethod());
+        assertTrue(tokenRequest.getPath().contains("/api/v2.1/dtable/app-access-token/"));
+        assertTrue(tokenRequest.getHeader("Authorization").startsWith("Token "));
     }
 
     @Test
@@ -259,16 +254,13 @@ class SeaTablePluginTest {
     // --- List Rows ---
 
     @Test
-    void testListRows() {
+    void testListRows() throws InterruptedException {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(LIST_ROWS_RESPONSE)
-                .build());
+        enqueueJsonResponse(LIST_ROWS_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
-        extra.put("limit", "100");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
+        extra.put(FieldName.LIMIT, "100");
 
         ActionConfiguration actionConfig = createActionConfig("LIST_ROWS", extra);
 
@@ -281,21 +273,27 @@ class SeaTablePluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest rowsRequest = takeRequest();
+        assertEquals("GET", rowsRequest.getMethod());
+        assertTrue(rowsRequest.getPath().contains("/rows/"));
+        assertTrue(rowsRequest.getPath().contains("table_name=Contacts"));
+        assertTrue(rowsRequest.getPath().contains("convert_keys=true"));
+        assertTrue(rowsRequest.getPath().contains("limit=100"));
+        assertTrue(rowsRequest.getHeader("Authorization").startsWith("Token "));
     }
 
     // --- Get Row ---
 
     @Test
-    void testGetRow() {
+    void testGetRow() throws InterruptedException {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(GET_ROW_RESPONSE)
-                .build());
+        enqueueJsonResponse(GET_ROW_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
-        extra.put("rowId", "row1");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
+        extra.put(FieldName.ROW_ID, "row1");
 
         ActionConfiguration actionConfig = createActionConfig("GET_ROW", extra);
 
@@ -308,21 +306,25 @@ class SeaTablePluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest rowRequest = takeRequest();
+        assertEquals("GET", rowRequest.getMethod());
+        assertTrue(rowRequest.getPath().contains("/rows/row1/"));
+        assertTrue(rowRequest.getPath().contains("table_name=Contacts"));
+        assertTrue(rowRequest.getPath().contains("convert_keys=true"));
     }
 
     // --- Create Row ---
 
     @Test
-    void testCreateRow() {
+    void testCreateRow() throws Exception {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(CREATE_ROW_RESPONSE)
-                .build());
+        enqueueJsonResponse(CREATE_ROW_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
-        extra.put("body", "{\"Name\": \"Charlie\", \"Age\": 35}");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
+        extra.put(FieldName.BODY, "{\"Name\": \"Charlie\", \"Age\": 35}");
 
         ActionConfiguration actionConfig = createActionConfig("CREATE_ROW", extra);
 
@@ -335,22 +337,31 @@ class SeaTablePluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest createRequest = takeRequest();
+        assertEquals("POST", createRequest.getMethod());
+        assertTrue(createRequest.getPath().contains("/rows/"));
+        assertEquals("application/json", createRequest.getHeader("Content-Type"));
+
+        String body = createRequest.getBody().readUtf8();
+        JsonNode bodyJson = objectMapper.readTree(body);
+        assertEquals("Contacts", bodyJson.get("table_name").asText());
+        assertTrue(bodyJson.get("rows").isArray());
+        assertEquals("Charlie", bodyJson.get("rows").get(0).get("Name").asText());
     }
 
     // --- Update Row ---
 
     @Test
-    void testUpdateRow() {
+    void testUpdateRow() throws Exception {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(UPDATE_ROW_RESPONSE)
-                .build());
+        enqueueJsonResponse(UPDATE_ROW_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
-        extra.put("rowId", "row1");
-        extra.put("body", "{\"Age\": 31}");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
+        extra.put(FieldName.ROW_ID, "row1");
+        extra.put(FieldName.BODY, "{\"Age\": 31}");
 
         ActionConfiguration actionConfig = createActionConfig("UPDATE_ROW", extra);
 
@@ -358,25 +369,32 @@ class SeaTablePluginTest {
                 null, new ExecuteActionDTO(), createDatasourceConfig(), actionConfig);
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                })
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest updateRequest = takeRequest();
+        assertEquals("PUT", updateRequest.getMethod());
+        assertTrue(updateRequest.getPath().contains("/rows/"));
+
+        String body = updateRequest.getBody().readUtf8();
+        JsonNode bodyJson = objectMapper.readTree(body);
+        assertEquals("Contacts", bodyJson.get("table_name").asText());
+        assertTrue(bodyJson.get("updates").isArray());
+        assertEquals("row1", bodyJson.get("updates").get(0).get("row_id").asText());
+        assertEquals(31, bodyJson.get("updates").get(0).get("row").get("Age").asInt());
     }
 
     // --- Delete Row ---
 
     @Test
-    void testDeleteRow() {
+    void testDeleteRow() throws Exception {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(DELETE_ROW_RESPONSE)
-                .build());
+        enqueueJsonResponse(DELETE_ROW_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
-        extra.put("rowId", "row1");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
+        extra.put(FieldName.ROW_ID, "row1");
 
         ActionConfiguration actionConfig = createActionConfig("DELETE_ROW", extra);
 
@@ -384,21 +402,27 @@ class SeaTablePluginTest {
                 null, new ExecuteActionDTO(), createDatasourceConfig(), actionConfig);
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                })
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest deleteRequest = takeRequest();
+        assertEquals("DELETE", deleteRequest.getMethod());
+        assertTrue(deleteRequest.getPath().contains("/rows/"));
+
+        String body = deleteRequest.getBody().readUtf8();
+        JsonNode bodyJson = objectMapper.readTree(body);
+        assertEquals("Contacts", bodyJson.get("table_name").asText());
+        assertTrue(bodyJson.get("row_ids").isArray());
+        assertEquals("row1", bodyJson.get("row_ids").get(0).asText());
     }
 
     // --- List Tables ---
 
     @Test
-    void testListTables() {
+    void testListTables() throws InterruptedException {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(METADATA_RESPONSE)
-                .build());
+        enqueueJsonResponse(METADATA_RESPONSE);
 
         ActionConfiguration actionConfig = createActionConfig("LIST_TABLES");
 
@@ -411,20 +435,22 @@ class SeaTablePluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest metadataRequest = takeRequest();
+        assertEquals("GET", metadataRequest.getMethod());
+        assertTrue(metadataRequest.getPath().contains("/metadata/"));
     }
 
     // --- SQL Query ---
 
     @Test
-    void testSqlQuery() {
+    void testSqlQuery() throws Exception {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(SQL_RESPONSE)
-                .build());
+        enqueueJsonResponse(SQL_RESPONSE);
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("sql", "SELECT Name, Age FROM Contacts WHERE Age > 20");
+        extra.put(FieldName.SQL, "SELECT Name, Age FROM Contacts WHERE Age > 20");
 
         ActionConfiguration actionConfig = createActionConfig("SQL_QUERY", extra);
 
@@ -437,17 +463,25 @@ class SeaTablePluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest sqlRequest = takeRequest();
+        assertEquals("POST", sqlRequest.getMethod());
+        assertTrue(sqlRequest.getPath().contains("/sql/"));
+        assertEquals("application/json", sqlRequest.getHeader("Content-Type"));
+
+        String body = sqlRequest.getBody().readUtf8();
+        JsonNode bodyJson = objectMapper.readTree(body);
+        assertTrue(bodyJson.get("sql").asText().contains("SELECT Name"));
+        assertTrue(bodyJson.get("convert_keys").asBoolean());
     }
 
     // --- Get Structure (Schema Discovery) ---
 
     @Test
-    void testGetStructure() {
+    void testGetStructure() throws InterruptedException {
         enqueueAccessTokenResponse();
-        mockWebServer.enqueue(new MockResponse.Builder()
-                .addHeader("Content-Type", "application/json")
-                .body(METADATA_RESPONSE)
-                .build());
+        enqueueJsonResponse(METADATA_RESPONSE);
 
         Mono<DatasourceStructure> structureMono =
                 pluginExecutor.getStructure(null, createDatasourceConfig());
@@ -469,6 +503,11 @@ class SeaTablePluginTest {
                     assertEquals(2, projectsTable.getColumns().size());
                 })
                 .verifyComplete();
+
+        takeRequest(); // skip access token request
+        RecordedRequest metadataRequest = takeRequest();
+        assertEquals("GET", metadataRequest.getMethod());
+        assertTrue(metadataRequest.getPath().contains("/metadata/"));
     }
 
     // --- Missing Parameters ---
@@ -507,7 +546,7 @@ class SeaTablePluginTest {
         enqueueAccessTokenResponse();
 
         Map<String, Object> extra = new HashMap<>();
-        extra.put("tableName", "Contacts");
+        extra.put(FieldName.TABLE_NAME, "Contacts");
 
         ActionConfiguration actionConfig = createActionConfig("GET_ROW", extra);
 
