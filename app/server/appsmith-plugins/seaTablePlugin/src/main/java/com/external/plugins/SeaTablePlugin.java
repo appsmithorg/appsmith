@@ -163,10 +163,14 @@ public class SeaTablePlugin extends BasePlugin {
                             MustacheHelper.replaceMustacheWithPlaceholder(body, mustacheKeysInOrder);
 
                     try {
+                        List<Param> params = executeActionDTO.getParams();
+                        if (params == null) {
+                            params = new ArrayList<>();
+                        }
                         updatedBody = (String) smartSubstitutionOfBindings(
                                 updatedBody,
                                 mustacheKeysInOrder,
-                                executeActionDTO.getParams(),
+                                params,
                                 parameters);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -199,6 +203,12 @@ public class SeaTablePlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         SeaTableErrorMessages.MISSING_COMMAND_ERROR_MSG));
+            }
+
+            // Validate required fields before making any network calls
+            Mono<Void> validation = validateCommandInputs(command, formData);
+            if (validation != null) {
+                return validation.then(Mono.empty());
             }
 
             return fetchAccessToken(datasourceConfiguration)
@@ -363,6 +373,52 @@ public class SeaTablePlugin extends BasePlugin {
                         return Mono.just(errorResult);
                     })
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * Validates required form fields for a command before making network calls.
+         * Returns a Mono.error if validation fails, or null if validation passes.
+         */
+        private Mono<Void> validateCommandInputs(String command, Map<String, Object> formData) {
+            String tableName = getDataValueSafelyFromFormData(formData, TABLE_NAME, STRING_TYPE, "");
+            String rowId = getDataValueSafelyFromFormData(formData, ROW_ID, STRING_TYPE, "");
+            String sql = getDataValueSafelyFromFormData(formData, SQL, STRING_TYPE, "");
+
+            switch (command) {
+                case "LIST_ROWS":
+                case "CREATE_ROW":
+                    if (StringUtils.isBlank(tableName)) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                SeaTableErrorMessages.MISSING_TABLE_NAME_ERROR_MSG));
+                    }
+                    break;
+                case "GET_ROW":
+                case "UPDATE_ROW":
+                case "DELETE_ROW":
+                    if (StringUtils.isBlank(tableName)) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                SeaTableErrorMessages.MISSING_TABLE_NAME_ERROR_MSG));
+                    }
+                    if (StringUtils.isBlank(rowId)) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                SeaTableErrorMessages.MISSING_ROW_ID_ERROR_MSG));
+                    }
+                    break;
+                case "SQL_QUERY":
+                    if (StringUtils.isBlank(sql)) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                SeaTableErrorMessages.MISSING_SQL_ERROR_MSG));
+                    }
+                    break;
+                default:
+                    // LIST_TABLES and unknown commands need no pre-validation
+                    break;
+            }
+            return null;
         }
 
         // --- Command implementations ---
@@ -693,6 +749,7 @@ public class SeaTablePlugin extends BasePlugin {
                     .map(responseBytes -> {
                         DatasourceStructure structure = new DatasourceStructure();
                         List<DatasourceStructure.Table> tables = new ArrayList<>();
+                        structure.setTables(tables);
 
                         try {
                             JsonNode json = objectMapper.readTree(responseBytes);
@@ -740,7 +797,6 @@ public class SeaTablePlugin extends BasePlugin {
                             log.error("Failed to parse SeaTable metadata", e);
                         }
 
-                        structure.setTables(tables);
                         return structure;
                     })
                     .subscribeOn(scheduler);
