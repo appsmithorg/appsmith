@@ -37,6 +37,7 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  parseContentPadding,
 } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
@@ -89,6 +90,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
   canvasWidgets: Record<string, WidgetProps>;
+  contentPadding?: string;
   disabledWhenInvalid?: boolean;
   fieldLimitExceeded: boolean;
   fieldState: Record<string, unknown>;
@@ -196,6 +198,7 @@ class JSONFormWidget extends BaseWidget<
       version: 1,
       borderWidth: "1",
       borderColor: Colors.GREY_5,
+      contentPadding: "25",
       widgetName: "JSONForm",
       autoGenerateForm: true,
       fieldLimitExceeded: false,
@@ -830,6 +833,9 @@ class JSONFormWidget extends BaseWidget<
 
   getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
+    const contentPaddingPx = parseContentPadding(
+      this.props.contentPadding ?? "25",
+    );
 
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
@@ -842,6 +848,7 @@ class JSONFormWidget extends BaseWidget<
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
+        contentPaddingPx={contentPaddingPx}
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}

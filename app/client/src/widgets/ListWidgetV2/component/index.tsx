@@ -10,6 +10,7 @@ type ListComponentProps = React.PropsWithChildren<{
   borderRadius: string;
   boxShadow?: string;
   componentRef: RefObject<HTMLDivElement>;
+  contentPaddingPx?: [number, number, number, number];
   height: number;
   infiniteScroll?: boolean;
 }>;
@@ -47,11 +48,39 @@ export const ListComponentEmpty = styled.div<{
 `;
 
 // This is to be improved for infiniteScroll.
+// Vertical padding is applied as margin so the scroll height stays correct and
+// content is not clipped; horizontal padding is applied as padding.
+// When padding is set, the wrapper height is reduced by top+bottom so that
+// marginTop + height + marginBottom fits in the list container.
 const ScrollableCanvasWrapper = styled.div<
-  Pick<ListComponentProps, "infiniteScroll" | "height">
+  Pick<ListComponentProps, "infiniteScroll" | "height"> & {
+    $contentPaddingPx?: [number, number, number, number];
+  }
 >`
+  box-sizing: border-box;
   ${({ infiniteScroll }) => (infiniteScroll ? scrollCSS : ``)}
-  height: ${(props) => props.height - WIDGET_PADDING * 2}px;
+  height: ${(props) => {
+    const base = props.height - WIDGET_PADDING * 2;
+    const p = props.$contentPaddingPx;
+
+    if (!p) return `${base}px`;
+
+    return `${base - p[0] - p[2]}px`;
+  }};
+  ${(props) => {
+    const p = props.$contentPaddingPx;
+
+    if (!p) return "";
+
+    const [top, right, bottom, left] = p;
+
+    return `
+      margin-top: ${top}px;
+      margin-bottom: ${bottom}px;
+      padding-left: ${left}px;
+      padding-right: ${right}px;
+    `;
+  }}
 `;
 
 function ListComponent(props: ListComponentProps) {
@@ -71,7 +100,11 @@ function ListComponent(props: ListComponentProps) {
       boxShadow={boxShadow}
       ref={componentRef}
     >
-      <ScrollableCanvasWrapper height={height} infiniteScroll={infiniteScroll}>
+      <ScrollableCanvasWrapper
+        $contentPaddingPx={props.contentPaddingPx}
+        height={height}
+        infiniteScroll={infiniteScroll}
+      >
         {props.children}
       </ScrollableCanvasWrapper>
     </StyledListContainer>

@@ -35,6 +35,7 @@ export interface JSONFormComponentProps<TValues = any> {
   borderWidth?: number;
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
+  contentPaddingPx?: [number, number, number, number];
   disabledWhenInvalid?: boolean;
   executeAction: (action: Action) => void;
   fieldLimitExceeded: boolean;
@@ -213,6 +214,7 @@ function JSONFormComponent<TValues>(
       <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
         <Form
           backgroundColor={backgroundColor}
+          contentPaddingPx={rest.contentPaddingPx}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
           getFormData={getFormData}

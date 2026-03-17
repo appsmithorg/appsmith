@@ -21,6 +21,7 @@ interface TabsComponentProps extends ComponentProps {
   borderColor?: string;
   accentColor?: string;
   primaryColor: string;
+  contentPaddingPx?: [number, number, number, number];
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
@@ -110,10 +111,18 @@ export interface ScrollNavControlProps {
   className?: string;
 }
 
-const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
+const ScrollCanvas = styled.div<{
+  $shouldScrollContents: boolean;
+  $contentPaddingPx?: [number, number, number, number];
+}>`
   overflow: hidden;
+  box-sizing: border-box;
   ${(props) => (props.$shouldScrollContents ? scrollCSS : ``)}
   width: 100%;
+  ${(props) =>
+    props.$contentPaddingPx
+      ? `padding: ${props.$contentPaddingPx[0]}px ${props.$contentPaddingPx[1]}px ${props.$contentPaddingPx[2]}px ${props.$contentPaddingPx[3]}px;`
+      : ""}
 `;
 
 function TabsComponent(props: TabsComponentProps) {
@@ -199,6 +208,7 @@ function TabsComponent(props: TabsComponentProps) {
       )}
 
       <ScrollCanvas
+        $contentPaddingPx={props.contentPaddingPx}
         $shouldScrollContents={!!props.shouldScrollContents && !props.$noScroll}
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""

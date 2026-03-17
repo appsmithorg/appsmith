@@ -10,16 +10,20 @@ import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
-import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
+const DEFAULT_FORM_PADDING_PX: [number, number, number, number] = [
+  25, 25, 25, 25,
+];
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
+  contentPaddingPx?: [number, number, number, number];
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
@@ -47,20 +51,21 @@ interface StyledFormProps {
   scrollContents: boolean;
 }
 
-interface StyledFormBodyProps {
-  stretchBodyVertically: boolean;
-}
-
 interface StyledFooterProps {
   fixedFooter: boolean;
   backgroundColor?: string;
+  $contentPaddingPx: [number, number, number, number];
+}
+
+interface StyledFormBodyPropsWithPadding {
+  stretchBodyVertically: boolean;
+  $contentPaddingPx: [number, number, number, number];
 }
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
 const TITLE_FONT_SIZE = "1.25rem";
 const FOOTER_DEFAULT_BG_COLOR = "#fff";
-const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
 const FOOTER_SCROLL_ACTIVE_CLASS_NAME = "scroll-active";
 
@@ -71,8 +76,8 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   display: flex;
   gap: ${FOOTER_BUTTON_GAP}px;
   justify-content: flex-end;
-  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
-  padding-top: ${FOOTER_PADDING_TOP}px;
+  padding: ${({ $contentPaddingPx: p }) =>
+    `${p[0]}px ${p[1]}px ${p[2]}px ${p[3]}px`};
   position: ${({ fixedFooter }) => fixedFooter && "sticky"};
   width: 100%;
 
@@ -104,10 +109,11 @@ const StyledTitle = styled(Text)<{
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;
 
-const StyledFormBody = styled.div<StyledFormBodyProps>`
+const StyledFormBody = styled.div<StyledFormBodyPropsWithPadding>`
   height: ${({ stretchBodyVertically }) =>
     stretchBodyVertically ? "100%" : "auto"};
-  padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
+  padding: ${({ $contentPaddingPx: p }) =>
+    `${p[0]}px ${p[1]}px ${p[2]}px ${p[3]}px`};
 `;
 
 const StyledResetButtonWrapper = styled.div``;
@@ -124,6 +130,7 @@ function Form<TValues = any>(
   {
     backgroundColor,
     children,
+    contentPaddingPx,
     disabledWhenInvalid,
     fixedFooter,
     getFormData,
@@ -281,6 +288,7 @@ function Form<TValues = any>(
         scrollContents={scrollContents}
       >
         <StyledFormBody
+          $contentPaddingPx={contentPaddingPx ?? DEFAULT_FORM_PADDING_PX}
           className="t--jsonform-body"
           stretchBodyVertically={stretchBodyVertically}
         >
@@ -289,6 +297,7 @@ function Form<TValues = any>(
         </StyledFormBody>
         {!hideFooter && (
           <StyledFormFooter
+            $contentPaddingPx={contentPaddingPx ?? DEFAULT_FORM_PADDING_PX}
             backgroundColor={backgroundColor}
             className="t--jsonform-footer"
             fixedFooter={fixedFooter}

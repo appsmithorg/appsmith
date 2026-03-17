@@ -9,7 +9,10 @@ import {
 } from "./helper";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  DEFAULT_CONTENT_PADDING,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
@@ -45,6 +48,7 @@ const LIST_WIDGET_NESTING_ERROR =
 
 export default {
   backgroundColor: "transparent",
+  contentPadding: DEFAULT_CONTENT_PADDING,
   itemBackgroundColor: "#FFFFFF",
   requiresFlatWidgetChildren: true,
   hasMetaWidgets: true,

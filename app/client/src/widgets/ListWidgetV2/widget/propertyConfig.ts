@@ -13,6 +13,9 @@ import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
 } from "ee/constants/messages";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import { DEFAULT_CONTENT_PADDING } from "constants/WidgetConstants";
+import { contentPaddingValidation } from "widgets/WidgetUtils";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
@@ -474,6 +477,27 @@ export const PropertyPaneStyleConfig = [
   {
     sectionName: "Border and shadow",
     children: [
+      {
+        helpText:
+          "Inner padding (px). Use one value for all sides or 2–4 values (e.g. 10 20 10 20 for top right bottom left). Applies to the list container only.",
+        propertyName: "contentPadding",
+        label: "Padding (px)",
+        placeholderText: "e.g. 10 or 10 20 10 20",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: contentPaddingValidation,
+            default: DEFAULT_CONTENT_PADDING,
+            expected: {
+              type: "1–4 space-separated numbers (px)",
+              example: "10 or 10 20 10 20",
+            },
+          },
+        } as ValidationConfig,
+      },
       {
         propertyName: "borderRadius",
         label: "Border radius",

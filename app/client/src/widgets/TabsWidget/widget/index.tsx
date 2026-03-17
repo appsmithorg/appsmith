@@ -20,10 +20,13 @@ import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
+  contentPaddingValidation,
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
+  parseContentPadding,
 } from "widgets/WidgetUtils";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -32,6 +35,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
+  DEFAULT_CONTENT_PADDING,
   GridDefaults,
   WIDGET_TAGS,
   WidgetHeightLimits,
@@ -102,6 +106,7 @@ class TabsWidget extends BaseWidget<
       borderWidth: 1,
       borderColor: Colors.GREY_5,
       backgroundColor: Colors.WHITE,
+      contentPadding: DEFAULT_CONTENT_PADDING,
       minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
       tabsObj: {
         tab1: {
@@ -465,6 +470,27 @@ class TabsWidget extends BaseWidget<
             postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
+            helpText:
+              "Inner padding (px). Use one value for all sides or 2–4 values (e.g. 10 20 10 20 for top right bottom left)",
+            propertyName: "contentPadding",
+            label: "Padding (px)",
+            placeholderText: "e.g. 10 or 10 20 10 20",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: contentPaddingValidation,
+                default: DEFAULT_CONTENT_PADDING,
+                expected: {
+                  type: "1–4 space-separated numbers (px)",
+                  example: "10 or 10 20 10 20",
+                },
+              },
+            } as ValidationConfig,
+          },
+          {
             propertyName: "borderRadius",
             label: "Border radius",
             helpText:
@@ -572,6 +598,10 @@ class TabsWidget extends BaseWidget<
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
 
+    const contentPaddingPx = parseContentPadding(
+      this.props.contentPadding ?? DEFAULT_CONTENT_PADDING,
+    );
+
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -581,6 +611,7 @@ class TabsWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
+        contentPaddingPx={contentPaddingPx}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
         selectedTabWidgetId={this.getSelectedTabWidgetId()}

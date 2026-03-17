@@ -31,6 +31,7 @@ import {
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
 import {
+  DEFAULT_CONTENT_PADDING,
   RenderModes,
   WIDGET_PADDING,
   WIDGET_TAGS,
@@ -48,7 +49,10 @@ import {
   isListFullyEmpty,
   isTargetElementClickable,
 } from "./helper";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import {
+  DefaultAutocompleteDefinitions,
+  parseContentPadding,
+} from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
@@ -1489,12 +1493,19 @@ class ListWidget extends BaseWidget<
       );
     }
 
+    const contentPaddingPx = parseContentPadding(
+      this.props.contentPadding ?? DEFAULT_CONTENT_PADDING,
+    );
+    const [, rightPx, , leftPx] = contentPaddingPx;
+    const paddedContentWidth = Math.max(0, componentWidth - leftPx - rightPx);
+
     return (
       <ListComponent
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         componentRef={this.componentRef}
+        contentPaddingPx={contentPaddingPx}
         height={componentHeight}
         infiniteScroll={infiniteScroll}
       >
@@ -1505,7 +1516,7 @@ class ListWidget extends BaseWidget<
           updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
           {this.renderChildren(this.props.metaWidgetChildrenStructure, {
-            componentWidth,
+            componentWidth: paddedContentWidth,
             parentColumnSpace,
             selectedItemKey,
             startIndex,
@@ -1523,6 +1534,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  contentPadding?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
   itemSpacing?: number;
