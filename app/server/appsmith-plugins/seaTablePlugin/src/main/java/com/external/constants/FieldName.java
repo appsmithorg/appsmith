@@ -1,6 +1,10 @@
 package com.external.constants;
 
 public class FieldName {
+    private FieldName() {
+        // Utility class - prevent instantiation
+    }
+
     public static final String COMMAND = "command";
     public static final String TABLE_NAME = "tableName";
     public static final String ROW_ID = "rowId";

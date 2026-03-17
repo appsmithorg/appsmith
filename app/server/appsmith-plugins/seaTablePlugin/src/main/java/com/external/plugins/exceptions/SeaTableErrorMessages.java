@@ -1,6 +1,10 @@
 package com.external.plugins.exceptions;
 
 public class SeaTableErrorMessages {
+    private SeaTableErrorMessages() {
+        // Utility class - prevent instantiation
+    }
+
     public static final String MISSING_SERVER_URL_ERROR_MSG = "Missing SeaTable server URL.";
     public static final String MISSING_API_TOKEN_ERROR_MSG = "Missing SeaTable API token.";
     public static final String MISSING_COMMAND_ERROR_MSG =

@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 
+import java.text.MessageFormat;
+
 @Getter
 public enum SeaTablePluginError implements BasePluginError {
     QUERY_EXECUTION_FAILED(
@@ -54,7 +56,7 @@ public enum SeaTablePluginError implements BasePluginError {
 
     @Override
     public String getMessage(Object... args) {
-        return BasePluginError.super.getMessage(args);
+        return new MessageFormat(this.message).format(args);
     }
 
     @Override
@@ -64,11 +66,11 @@ public enum SeaTablePluginError implements BasePluginError {
 
     @Override
     public String getDownstreamErrorMessage(Object... args) {
-        return BasePluginError.super.getDownstreamErrorMessage(args);
+        return replacePlaceholderWithValue(this.downstreamErrorMessage, args);
     }
 
     @Override
     public String getDownstreamErrorCode(Object... args) {
-        return BasePluginError.super.getDownstreamErrorCode(args);
+        return replacePlaceholderWithValue(this.downstreamErrorCode, args);
     }
 }
