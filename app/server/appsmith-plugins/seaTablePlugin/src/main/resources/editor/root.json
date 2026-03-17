@@ -1,0 +1,62 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SELECTOR-Z1",
+          "children": [
+            {
+              "label": "Command",
+              "description": "Select the operation to perform",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "LIST_ROWS",
+              "options": [
+                {
+                  "label": "List Rows",
+                  "value": "LIST_ROWS"
+                },
+                {
+                  "label": "Get Row",
+                  "value": "GET_ROW"
+                },
+                {
+                  "label": "Create Row",
+                  "value": "CREATE_ROW"
+                },
+                {
+                  "label": "Update Row",
+                  "value": "UPDATE_ROW"
+                },
+                {
+                  "label": "Delete Row",
+                  "value": "DELETE_ROW"
+                },
+                {
+                  "label": "List Tables",
+                  "value": "LIST_TABLES"
+                },
+                {
+                  "label": "SQL Query",
+                  "value": "SQL_QUERY"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "listRows.json",
+    "getRow.json",
+    "createRow.json",
+    "updateRow.json",
+    "deleteRow.json",
+    "listTables.json",
+    "sqlQuery.json"
+  ]
+}

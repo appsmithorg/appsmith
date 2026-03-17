@@ -1,0 +1,133 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "LIST_ROWS",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'LIST_ROWS'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "LIST-ROWS-Z1",
+      "children": [
+        {
+          "label": "Table Name",
+          "configProperty": "actionConfiguration.formData.tableName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Table1",
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "LIST-ROWS-Z2",
+      "children": [
+        {
+          "label": "Where",
+          "configProperty": "actionConfiguration.formData.where.data",
+          "nestedLevels": 1,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": "!=",
+              "value": "NOT_EQ"
+            },
+            {
+              "label": "<",
+              "value": "LT"
+            },
+            {
+              "label": "<=",
+              "value": "LTE"
+            },
+            {
+              "label": ">",
+              "value": "GT"
+            },
+            {
+              "label": ">=",
+              "value": "GTE"
+            },
+            {
+              "label": "contains",
+              "value": "CONTAINS"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "LIST-ROWS-Z3",
+      "children": [
+        {
+          "label": "Order By",
+          "description": "Column name to sort by",
+          "configProperty": "actionConfiguration.formData.orderBy.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "placeholderText": "column_name",
+          "initialValue": ""
+        },
+        {
+          "label": "Direction",
+          "configProperty": "actionConfiguration.formData.direction.data",
+          "controlType": "DROP_DOWN",
+          "isRequired": false,
+          "initialValue": "asc",
+          "options": [
+            {
+              "label": "Ascending",
+              "value": "asc"
+            },
+            {
+              "label": "Descending",
+              "value": "desc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "LIST-ROWS-Z4",
+      "children": [
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.limit.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "placeholderText": "100",
+          "initialValue": "100"
+        },
+        {
+          "label": "Offset",
+          "configProperty": "actionConfiguration.formData.offset.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "placeholderText": "0",
+          "initialValue": "0"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "CREATE_ROW",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'CREATE_ROW'}}"
+  },
+  "children": [
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "CREATE-ROW-Z1",
+      "children": [
+        {
+          "label": "Table Name",
+          "configProperty": "actionConfiguration.formData.tableName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "placeholderText": "Table1",
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "CREATE-ROW-Z2",
+      "children": [
+        {
+          "label": "Row Object",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "isRequired": true,
+          "placeholderText": "{\n  \"Name\": \"New Entry\",\n  \"Status\": \"Active\"\n}",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}
