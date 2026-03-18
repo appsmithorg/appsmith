@@ -321,6 +321,9 @@ public class ApplicationSnapshotServiceTest {
         // usertest@usertest.com is seeded by the test framework but never invited to this
         // workspace, so it has no policies granting EDIT on any app created here.
         User nonOwner = userService.findByEmail("usertest@usertest.com").block();
+        assertThat(nonOwner)
+                .as("Expected seeded non-owner user 'usertest@usertest.com' to exist")
+                .isNotNull();
         Authentication nonOwnerAuth =
                 new UsernamePasswordAuthenticationToken(nonOwner, null, nonOwner.getAuthorities());
         SecurityContext nonOwnerContext = new SecurityContextImpl(nonOwnerAuth);
@@ -342,6 +345,43 @@ public class ApplicationSnapshotServiceTest {
                 })
                 .flatMap(applicationId -> applicationSnapshotService
                         .deleteSnapshot(applicationId)
+                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
+                                Mono.just(nonOwnerContext))));
+
+        StepVerifier.create(deniedMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable).getError() == AppsmithError.NO_RESOURCE_FOUND)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getWithoutDataByBranchedApplicationId_WhenUserLacksReadPermission_Denied() {
+        User nonOwner = userService.findByEmail("usertest@usertest.com").block();
+        assertThat(nonOwner)
+                .as("Expected seeded non-owner user 'usertest@usertest.com' to exist")
+                .isNotNull();
+        Authentication nonOwnerAuth =
+                new UsernamePasswordAuthenticationToken(nonOwner, null, nonOwner.getAuthorities());
+        SecurityContext nonOwnerContext = new SecurityContextImpl(nonOwnerAuth);
+
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot read permission denied");
+        testApplication.setWorkspaceId(workspace.getId());
+
+        Mono<ApplicationSnapshotResponseDTO> deniedMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
+                    snapshot1.setChunkOrder(1);
+                    snapshot1.setApplicationId(application.getId());
+
+                    return applicationSnapshotRepository
+                            .save(snapshot1)
+                            .thenReturn(application.getId());
+                })
+                .flatMap(applicationId -> applicationSnapshotService
+                        .getWithoutDataByBranchedApplicationId(applicationId)
                         .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
                                 Mono.just(nonOwnerContext))));
 
