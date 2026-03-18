@@ -33,19 +33,11 @@ import {
   LoadingState,
   LoadingText,
   ErrorState,
-  ResponseContent,
-  ResponseText,
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockLanguage,
-  CodeBlockActions,
-  CodeBlockContent,
   EmptyState,
   EmptyStateText,
-  extractCodeBlocks,
   getModeLabel,
-  CODE_LANGUAGES,
   QUICK_ACTIONS,
+  AIMarkdownRenderer,
 } from "./shared";
 
 // ============================================================================
@@ -87,7 +79,6 @@ export function AISidePanel(props: AISidePanelProps) {
 
   const dispatch = useDispatch();
   const [prompt, setPrompt] = useState("");
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const lastResponse = useSelector(getAILastResponse);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
@@ -112,14 +103,6 @@ export function AISidePanel(props: AISidePanelProps) {
       mode: getModeLabel(mode),
     };
   }, [editor, mode]);
-
-  const responseParts = useMemo(() => {
-    if (!lastResponse) return [];
-
-    const defaultLang = CODE_LANGUAGES[mode] || mode || "javascript";
-
-    return extractCodeBlocks(lastResponse, defaultLang);
-  }, [lastResponse, mode]);
 
   const handleSend = useCallback(() => {
     if (!prompt.trim() || !editor) return;
@@ -169,12 +152,6 @@ export function AISidePanel(props: AISidePanelProps) {
     },
     [editor, mode, currentValue, dispatch],
   );
-
-  const handleCopyCode = useCallback(async (code: string, index: number) => {
-    await navigator.clipboard.writeText(code);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  }, []);
 
   const handleClearChat = useCallback(() => {
     dispatch(clearAIResponse());
@@ -291,48 +268,11 @@ export function AISidePanel(props: AISidePanelProps) {
 
           {error && !isLoading && <ErrorState>{error}</ErrorState>}
 
-          {!isLoading && !error && responseParts.length > 0 && (
-            <ResponseContent>
-              {responseParts.map((part, index) =>
-                part.type === "text" ? (
-                  <ResponseText key={index}>{part.content}</ResponseText>
-                ) : (
-                  <CodeBlock key={index}>
-                    <CodeBlockHeader>
-                      <CodeBlockLanguage>
-                        {part.language || "code"}
-                      </CodeBlockLanguage>
-                      <CodeBlockActions>
-                        <Tooltip
-                          content={copiedIndex === index ? "Copied!" : "Copy"}
-                          placement="top"
-                        >
-                          <Button
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() =>
-                              void handleCopyCode(part.content, index)
-                            }
-                            size="sm"
-                            startIcon={
-                              copiedIndex === index
-                                ? "check-line"
-                                : "copy-control"
-                            }
-                          />
-                        </Tooltip>
-                      </CodeBlockActions>
-                    </CodeBlockHeader>
-                    <CodeBlockContent>
-                      <code>{part.content}</code>
-                    </CodeBlockContent>
-                  </CodeBlock>
-                ),
-              )}
-            </ResponseContent>
+          {!isLoading && !error && lastResponse && (
+            <AIMarkdownRenderer content={lastResponse} />
           )}
 
-          {!isLoading && !error && responseParts.length === 0 && (
+          {!isLoading && !error && !lastResponse && (
             <EmptyState>
               <Icon className="empty-icon" name="ai-chat" size="lg" />
               <EmptyStateText>

@@ -714,6 +714,16 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     "\n\nUse the schema above when writing queries. Reference actual table/collection and column/field names. Use the correct query syntax for this database type.");
         }
 
+        // Instruct the model to format responses using markdown
+        systemPrompt.append("\n\n## Response Formatting\n\n"
+                + "Format your responses using markdown:\n"
+                + "- Use headings (##, ###) to organize sections\n"
+                + "- Use **bold** for emphasis on key terms or important points\n"
+                + "- Use bullet points or numbered lists for steps and multiple items\n"
+                + "- Use fenced code blocks with language identifiers (```javascript, ```sql, etc.) for all code snippets\n"
+                + "- Use inline `code` for variable names, function names, and short code references\n"
+                + "- Keep explanations concise and well-structured");
+
         return systemPrompt.toString();
     }
 

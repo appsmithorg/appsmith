@@ -41,19 +41,11 @@ import {
   LoadingState,
   LoadingText,
   ErrorState,
-  ResponseContent,
-  ResponseText,
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockLanguage,
-  CodeBlockActions,
-  CodeBlockContent,
   EmptyState,
   EmptyStateText,
-  extractCodeBlocks,
   getModeLabel,
-  CODE_LANGUAGES,
   QUICK_ACTIONS,
+  AIMarkdownRenderer,
 } from "ee/components/editorComponents/GPT/shared";
 
 // ============================================================================
@@ -146,7 +138,6 @@ export function AISidePanel(props: AISidePanelProps) {
 
   const dispatch = useDispatch();
   const [prompt, setPrompt] = useState("");
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messages = useSelector(getAIMessages);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
@@ -178,10 +169,6 @@ export function AISidePanel(props: AISidePanelProps) {
       mode: getModeLabel(mode),
     };
   }, [editor, mode]);
-
-  const defaultLang = useMemo(() => {
-    return CODE_LANGUAGES[mode] || mode || "javascript";
-  }, [mode]);
 
   const handleClearChat = useCallback(() => {
     dispatch(clearAIResponse());
@@ -236,12 +223,6 @@ export function AISidePanel(props: AISidePanelProps) {
     },
     [editor, mode, currentValue, dispatch],
   );
-
-  const handleCopyCode = useCallback(async (code: string, index: number) => {
-    await navigator.clipboard.writeText(code);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -379,55 +360,7 @@ export function AISidePanel(props: AISidePanelProps) {
                   {message.role === "user" ? (
                     <MessageContent isUser>{message.content}</MessageContent>
                   ) : (
-                    <ResponseContent>
-                      {extractCodeBlocks(message.content, defaultLang).map(
-                        (part, partIndex) =>
-                          part.type === "text" ? (
-                            <ResponseText key={partIndex}>
-                              {part.content}
-                            </ResponseText>
-                          ) : (
-                            <CodeBlock key={partIndex}>
-                              <CodeBlockHeader>
-                                <CodeBlockLanguage>
-                                  {part.language || "code"}
-                                </CodeBlockLanguage>
-                                <CodeBlockActions>
-                                  <Tooltip
-                                    content={
-                                      copiedIndex === msgIndex * 100 + partIndex
-                                        ? "Copied!"
-                                        : "Copy"
-                                    }
-                                    placement="top"
-                                  >
-                                    <Button
-                                      isIconButton
-                                      kind="tertiary"
-                                      onClick={() =>
-                                        void handleCopyCode(
-                                          part.content,
-                                          msgIndex * 100 + partIndex,
-                                        )
-                                      }
-                                      size="sm"
-                                      startIcon={
-                                        copiedIndex ===
-                                        msgIndex * 100 + partIndex
-                                          ? "check-line"
-                                          : "copy-control"
-                                      }
-                                    />
-                                  </Tooltip>
-                                </CodeBlockActions>
-                              </CodeBlockHeader>
-                              <CodeBlockContent>
-                                <code>{part.content}</code>
-                              </CodeBlockContent>
-                            </CodeBlock>
-                          ),
-                      )}
-                    </ResponseContent>
+                    <AIMarkdownRenderer content={message.content} />
                   )}
                 </MessageBubble>
               ))}

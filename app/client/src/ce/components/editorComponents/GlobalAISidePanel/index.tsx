@@ -39,17 +39,11 @@ import {
   LoadingState,
   LoadingText,
   ErrorState,
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockLanguage,
-  CodeBlockActions,
-  CodeBlockContent,
   EmptyState,
   EmptyStateText,
-  extractCodeBlocks,
   getModeLabel,
-  CODE_LANGUAGES,
   QUICK_ACTIONS,
+  AIMarkdownRenderer,
 } from "ee/components/editorComponents/GPT/shared";
 
 // ============================================================================
@@ -173,7 +167,6 @@ export function GlobalAISidePanel() {
   const dispatch = useDispatch();
   const location = useLocation();
   const [prompt, setPrompt] = useState("");
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const responseRef = useRef<HTMLDivElement>(null);
   const previousPathRef = useRef(location.pathname);
 
@@ -249,12 +242,6 @@ export function GlobalAISidePanel() {
     [editorContext, dispatch],
   );
 
-  const handleCopyCode = useCallback(async (code: string, index: number) => {
-    await navigator.clipboard.writeText(code);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  }, []);
-
   const handleClearChat = useCallback(() => {
     dispatch(clearAIResponse());
   }, [dispatch]);
@@ -283,12 +270,6 @@ export function GlobalAISidePanel() {
       lineNumber: editorContext.cursorLineNumber,
     };
   }, [editorContext]);
-
-  const defaultLanguage = useMemo(() => {
-    const mode = editorContext?.mode || "";
-
-    return CODE_LANGUAGES[mode] || mode || "javascript";
-  }, [editorContext?.mode]);
 
   if (!isOpen) return null;
 
@@ -411,69 +392,22 @@ export function GlobalAISidePanel() {
           )}
 
           <MessageList>
-            {messages.map((message, idx) => {
-              const parts =
-                message.role === "assistant"
-                  ? extractCodeBlocks(message.content, defaultLanguage)
-                  : [{ type: "text" as const, content: message.content }];
-
-              return (
-                <MessageBubble isUser={message.role === "user"} key={idx}>
-                  <MessageHeader>
-                    <Icon
-                      name={message.role === "user" ? "user-3-line" : "robot"}
-                      size="sm"
-                    />
-                    {message.role === "user" ? "You" : "AI Assistant"}
-                  </MessageHeader>
-                  <MessageContent>
-                    {parts.map((part, partIdx) =>
-                      part.type === "text" ? (
-                        <span key={partIdx}>{part.content}</span>
-                      ) : (
-                        <CodeBlock key={partIdx}>
-                          <CodeBlockHeader>
-                            <CodeBlockLanguage>
-                              {part.language || "code"}
-                            </CodeBlockLanguage>
-                            <CodeBlockActions>
-                              <Tooltip
-                                content={
-                                  copiedIndex === idx * 100 + partIdx
-                                    ? "Copied!"
-                                    : "Copy"
-                                }
-                                placement="top"
-                              >
-                                <Button
-                                  isIconButton
-                                  kind="tertiary"
-                                  onClick={() =>
-                                    void handleCopyCode(
-                                      part.content,
-                                      idx * 100 + partIdx,
-                                    )
-                                  }
-                                  size="sm"
-                                  startIcon={
-                                    copiedIndex === idx * 100 + partIdx
-                                      ? "check-line"
-                                      : "copy-control"
-                                  }
-                                />
-                              </Tooltip>
-                            </CodeBlockActions>
-                          </CodeBlockHeader>
-                          <CodeBlockContent>
-                            <code>{part.content}</code>
-                          </CodeBlockContent>
-                        </CodeBlock>
-                      ),
-                    )}
-                  </MessageContent>
-                </MessageBubble>
-              );
-            })}
+            {messages.map((message, idx) => (
+              <MessageBubble isUser={message.role === "user"} key={idx}>
+                <MessageHeader>
+                  <Icon
+                    name={message.role === "user" ? "user-3-line" : "robot"}
+                    size="sm"
+                  />
+                  {message.role === "user" ? "You" : "AI Assistant"}
+                </MessageHeader>
+                {message.role === "user" ? (
+                  <MessageContent>{message.content}</MessageContent>
+                ) : (
+                  <AIMarkdownRenderer content={message.content} />
+                )}
+              </MessageBubble>
+            ))}
           </MessageList>
 
           {isLoading && (

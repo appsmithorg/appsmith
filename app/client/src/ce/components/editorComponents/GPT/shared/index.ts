@@ -19,19 +19,14 @@ export {
   LoadingState,
   LoadingText,
   ErrorState,
-  ResponseContent,
-  ResponseText,
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockLanguage,
-  CodeBlockActions,
-  CodeBlockContent,
   EmptyState,
   EmptyStateText,
 } from "./styledComponents";
 
-export { extractCodeBlocks, getModeLabel, CODE_LANGUAGES } from "./helpers";
+export { getModeLabel } from "./helpers";
 
 export { QUICK_ACTIONS } from "./constants";
 
-export type { QuickAction, CodeBlockPart } from "./types";
+export { AIMarkdownRenderer } from "./AIMarkdownRenderer";
+
+export type { QuickAction } from "./types";
