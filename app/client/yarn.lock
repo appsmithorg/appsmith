@@ -13916,6 +13916,7 @@ __metadata:
     react-hook-form: ^7.28.0
     react-is: ^16.12.0
     react-json-view: ^1.21.3
+    react-markdown: ^9.0.1
     react-media-recorder: ^1.6.1
     react-modal: ^3.15.1
     react-page-visibility: ^7.0.0
@@ -13945,6 +13946,7 @@ __metadata:
     redux-mock-store: ^1.5.4
     redux-saga: ^1.1.3
     redux-saga-test-plan: ^4.0.6
+    remark-gfm: ^4.0.0
     remixicon-react: ^1.0.0
     reselect: ^4.0.0
     resize-observer-polyfill: ^1.5.1
