@@ -9,15 +9,23 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,6 +63,9 @@ public class ApplicationSnapshotServiceTest {
 
     @Autowired
     SessionUserService sessionUserService;
+
+    @Autowired
+    UserService userService;
 
     Workspace workspace;
 
@@ -301,6 +312,43 @@ public class ApplicationSnapshotServiceTest {
                 });
 
         StepVerifier.create(snapshotFlux).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteSnapshot_WhenUserLacksEditPermission_Denied() {
+        // Load the non-owner eagerly so it can be referenced inside the reactive chain.
+        // usertest@usertest.com is seeded by the test framework but never invited to this
+        // workspace, so it has no policies granting EDIT on any app created here.
+        User nonOwner = userService.findByEmail("usertest@usertest.com").block();
+        Authentication nonOwnerAuth =
+                new UsernamePasswordAuthenticationToken(nonOwner, null, nonOwner.getAuthorities());
+        SecurityContext nonOwnerContext = new SecurityContextImpl(nonOwnerAuth);
+
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot delete permission denied");
+        testApplication.setWorkspaceId(workspace.getId());
+
+        Mono<Boolean> deniedMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
+                    snapshot1.setChunkOrder(1);
+                    snapshot1.setApplicationId(application.getId());
+
+                    return applicationSnapshotRepository
+                            .save(snapshot1)
+                            .thenReturn(application.getId());
+                })
+                .flatMap(applicationId -> applicationSnapshotService
+                        .deleteSnapshot(applicationId)
+                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
+                                Mono.just(nonOwnerContext))));
+
+        StepVerifier.create(deniedMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable).getError() == AppsmithError.NO_RESOURCE_FOUND)
+                .verify();
     }
 
     @WithUserDetails("api_user")
