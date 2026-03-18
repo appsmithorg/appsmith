@@ -277,20 +277,28 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void deleteSnapshot_WhenSnapshotExists_Deleted() {
-        String testAppId = "app-" + UUID.randomUUID();
-        ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
-        snapshot1.setChunkOrder(1);
-        snapshot1.setApplicationId(testAppId);
+        Application testApplication = new Application();
+        testApplication.setName("Test app for snapshot delete");
+        testApplication.setWorkspaceId(workspace.getId());
 
-        ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
-        snapshot2.setApplicationId(testAppId);
-        snapshot2.setChunkOrder(2);
+        Flux<ApplicationSnapshot> snapshotFlux = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
+                    snapshot1.setChunkOrder(1);
+                    snapshot1.setApplicationId(application.getId());
 
-        Flux<ApplicationSnapshot> snapshotFlux = applicationSnapshotRepository
-                .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotService.deleteSnapshot(testAppId))
-                .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId));
+                    ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
+                    snapshot2.setApplicationId(application.getId());
+                    snapshot2.setChunkOrder(2);
+
+                    return applicationSnapshotRepository
+                            .saveAll(List.of(snapshot1, snapshot2))
+                            .then(applicationSnapshotService.deleteSnapshot(application.getId()))
+                            .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId()));
+                });
 
         StepVerifier.create(snapshotFlux).verifyComplete();
     }
