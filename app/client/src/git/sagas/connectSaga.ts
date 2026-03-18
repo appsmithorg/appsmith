@@ -24,6 +24,7 @@ export default function* connectSaga(
     const params: ConnectRequestParams = {
       remoteUrl: action.payload.remoteUrl,
       gitProfile: action.payload.gitProfile,
+      sshKeyId: action.payload.sshKeyId,
     };
 
     const isGitApiContractsEnabled: boolean = yield select(
