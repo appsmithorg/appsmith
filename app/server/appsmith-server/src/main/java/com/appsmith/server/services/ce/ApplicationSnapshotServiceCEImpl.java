@@ -60,10 +60,13 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
     @Override
     public Mono<ApplicationSnapshotResponseDTO> getWithoutDataByBranchedApplicationId(String branchedApplicationId) {
-        // get application first to check the permission and get child aka branched application ID
-        return applicationSnapshotRepository
-                .findByApplicationIdAndChunkOrder(branchedApplicationId, 1)
-                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null));
+        return applicationService
+                .findById(branchedApplicationId, applicationPermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
+                .flatMap(application -> applicationSnapshotRepository
+                        .findByApplicationIdAndChunkOrder(application.getId(), 1)
+                        .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null)));
     }
 
     @Override
@@ -131,8 +134,12 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
     @Override
     public Mono<Boolean> deleteSnapshot(String branchedApplicationId) {
-        return applicationSnapshotRepository
-                .deleteAllByApplicationId(branchedApplicationId)
-                .thenReturn(Boolean.TRUE);
+        return applicationService
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
+                .flatMap(application -> applicationSnapshotRepository
+                        .deleteAllByApplicationId(application.getId())
+                        .thenReturn(Boolean.TRUE));
     }
 }
