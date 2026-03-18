@@ -1,6 +1,6 @@
 package com.external.constants;
 
-public class FieldName {
+public final class FieldName {
     private FieldName() {
         // Utility class - prevent instantiation
     }
