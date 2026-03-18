@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styled from "styled-components";
 import { Button, Tooltip } from "@appsmith/ads";
@@ -230,19 +230,12 @@ function CodeBlockWithCopy({ code, language }: CodeBlockWithCopyProps) {
 
 const REMARK_PLUGINS = [remarkGfm];
 
-const MARKDOWN_COMPONENTS = {
+const MARKDOWN_COMPONENTS: Partial<Components> = {
   // Unwrap <pre> so our custom code block renders directly
-  pre({ children }: { children?: React.ReactNode }) {
+  pre({ children }) {
     return (children ?? null) as React.ReactElement;
   },
-  code({
-    children,
-    className,
-    ...props
-  }: { children?: React.ReactNode; className?: string } & Record<
-    string,
-    unknown
-  >) {
+  code({ children, className, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
     const isInline = !match && !className;
 
