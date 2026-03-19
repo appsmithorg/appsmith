@@ -28,6 +28,15 @@ import { useLocation } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import classNames from "classnames";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const StyledList = styled.ul`
   list-style: disc;
   margin-left: 16px;
@@ -156,17 +165,16 @@ function ManualUpgrades(props: {
       {
         name: createMessage(CLEAN_URL_UPDATE.name),
         shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-        description: CLEAN_URL_UPDATE.description.map((formatter) =>
-          createMessage(
-            formatter.bind(
-              null,
-              window.location.href.replace(
-                `/applications/${applicationId}/pages/${pageId}`,
-                `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-              ),
+        description: CLEAN_URL_UPDATE.description.map((formatter) => {
+          const sanitizedUrl = escapeHtml(
+            window.location.href.replace(
+              `/applications/${applicationId}/pages/${pageId}`,
+              `/app/${applicationSlug}/${pageSlug}-${pageId}`,
             ),
-          ),
-        ),
+          );
+
+          return createMessage(formatter.bind(null, sanitizedUrl));
+        }),
         disclaimer: {
           severity: "MODERATE",
           desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
