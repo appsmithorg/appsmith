@@ -165,16 +165,15 @@ function ManualUpgrades(props: {
       {
         name: createMessage(CLEAN_URL_UPDATE.name),
         shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-        description: CLEAN_URL_UPDATE.description.map((formatter) => {
-          const sanitizedUrl = escapeHtml(
-            window.location.href.replace(
-              `/applications/${applicationId}/pages/${pageId}`,
-              `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-            ),
-          );
-
-          return createMessage(formatter.bind(null, sanitizedUrl));
-        }),
+        const sanitizedUrl = escapeHtml(
+          window.location.href.replace(
+            `/applications/${applicationId}/pages/${pageId}`,
+            `/app/${applicationSlug}/${pageSlug}-${pageId}`,
+          ),
+        );
+        description: CLEAN_URL_UPDATE.description.map((formatter) =>
+          createMessage(formatter.bind(null, sanitizedUrl)),
+        ),
         disclaimer: {
           severity: "MODERATE",
           desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
