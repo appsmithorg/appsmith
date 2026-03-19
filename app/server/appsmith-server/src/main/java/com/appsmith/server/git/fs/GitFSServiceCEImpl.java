@@ -173,7 +173,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                                     error.getMessage(),
                                     false,
                                     false)
-                            .flatMap(user -> commonGitFileUtils.deleteLocalRepo(temporaryStorage))
+                            .then(commonGitFileUtils.deleteLocalRepo(temporaryStorage))
                             .flatMap(isDeleted -> {
                                 if (error instanceof TransportException) {
                                     return Mono.error(

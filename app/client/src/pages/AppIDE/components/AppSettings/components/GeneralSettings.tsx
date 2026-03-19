@@ -128,7 +128,7 @@ function GeneralSettings() {
   ] = useState(false);
   const [modalType, setModalType] = useState<"change" | "disable">("change");
   const isStaticUrlFeatureEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_static_url_enabled,
+    FEATURE_FLAG.license_static_url_enabled,
   );
 
   useEffect(
