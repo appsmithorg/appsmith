@@ -299,23 +299,36 @@ public class ApplicationSnapshotServiceTest {
     @Test
     @WithUserDetails("usertest@usertest.com")
     public void deleteSnapshot_WhenUserHasNoAccess_ThrowsError() {
-        // Create app and snapshot as api_user by running blocking setup outside the reactive chain
-        Application testApplication = new Application();
-        testApplication.setName("Test app for snapshot delete no-access");
-        testApplication.setWorkspaceId(workspace.getId());
+        // usertest@usertest.com has no access to applications owned by api_user.
+        // applicationService.findById applies ACL filtering, so an inaccessible app
+        // and a non-existent app both produce an empty Mono → NO_RESOURCE_FOUND.
+        String inaccessibleAppId = "app-" + UUID.randomUUID();
 
-        // The application is owned by api_user (set up in @BeforeEach under api_user context).
-        // We switch the security context to usertest@usertest.com for this test, so the app
-        // created in setup (owned by api_user) is not visible under usertest's permissions.
-        String randomAppId = "app-" + UUID.randomUUID();
-
-        Mono<Boolean> deleteMono = applicationSnapshotService.deleteSnapshot(randomAppId);
+        Mono<Boolean> deleteMono = applicationSnapshotService.deleteSnapshot(inaccessibleAppId);
 
         StepVerifier.create(deleteMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, randomAppId)))
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.APPLICATION, inaccessibleAppId)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("usertest@usertest.com")
+    public void getWithoutDataByBranchedApplicationId_WhenUserHasNoAccess_ThrowsError() {
+        String inaccessibleAppId = "app-" + UUID.randomUUID();
+
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono =
+                applicationSnapshotService.getWithoutDataByBranchedApplicationId(inaccessibleAppId);
+
+        StepVerifier.create(snapshotMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.APPLICATION, inaccessibleAppId)))
                 .verify();
     }
 
