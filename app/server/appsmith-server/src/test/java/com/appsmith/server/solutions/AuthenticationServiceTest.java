@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -262,6 +263,97 @@ public class AuthenticationServiceTest {
                                             workspace.getId())
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAccessTokenForGenericOAuth2_nonexistentDatasource() {
+        // State with a completely fake datasource ID — findById returns empty,
+        // so the chain completes without emitting any value (no error redirect,
+        // no success redirect).
+        String fakeState = String.join(
+                ",",
+                "fakePageId",
+                "nonExistentDatasourceId",
+                FieldName.UNUSED_ENVIRONMENT_ID,
+                "https://mock.origin.com",
+                workspace.getId());
+
+        AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
+        callbackDTO.setCode("fakeCode");
+        callbackDTO.setState(fakeState);
+
+        Mono<String> resultMono = authenticationService.getAccessTokenForGenericOAuth2(callbackDTO);
+
+        StepVerifier.create(resultMono)
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAccessTokenForGenericOAuth2_forbiddenDatasource() {
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Datasource datasource = new Datasource();
+        datasource.setName("OAuth2 datasource for callback ACL test");
+        datasource.setWorkspaceId(workspace.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("http://invalid-access-token-url.example.com");
+        authenticationDTO.setScope(Set.of("Scope1"));
+        authenticationDTO.setIsAuthorizationHeader(Boolean.FALSE);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+
+        String datasourceId = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .map(BaseDomain::getId)
+                .block();
+
+        // Construct the state string as the OAuth2 authorization flow would produce it:
+        // pageId,datasourceId,environmentId,redirectOrigin,workspaceId
+        String state = String.join(
+                ",",
+                "fakePageId",
+                datasourceId,
+                defaultEnvironmentId,
+                "https://mock.origin.com",
+                workspace.getId());
+
+        AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
+        callbackDTO.setCode("fakeCode");
+        callbackDTO.setState(state);
+
+        // The callback will attempt the access-token exchange against an invalid URL,
+        // which fails.  The onErrorResume block catches the error and calls
+        // getPageRedirectUrl(state, "appsmith_error").  Because "fakePageId" does not
+        // exist, the fallback redirect URL is returned instead.
+        Mono<String> resultMono = authenticationService.getAccessTokenForGenericOAuth2(callbackDTO);
+
+        StepVerifier.create(resultMono)
+                .assertNext(redirectUrl -> {
+                    assertThat(redirectUrl).contains("response_status=appsmith_error");
                 })
                 .verifyComplete();
     }
