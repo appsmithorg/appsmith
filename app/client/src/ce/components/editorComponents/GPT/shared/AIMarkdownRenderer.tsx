@@ -62,7 +62,7 @@ const MarkdownWrapper = styled.div`
     font-style: italic;
   }
 
-  code {
+  :not(pre) > code {
     background: var(--ads-v2-color-bg-subtle);
     padding: 2px 6px;
     border-radius: 4px;
