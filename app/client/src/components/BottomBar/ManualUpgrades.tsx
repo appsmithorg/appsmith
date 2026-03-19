@@ -160,32 +160,29 @@ function ManualUpgrades(props: {
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const location = useLocation();
 
-  const updates = React.useMemo(
-    () => {
-      const sanitizedUrl = escapeHtml(
-        window.location.href.replace(
-          `/applications/${applicationId}/pages/${pageId}`,
-          `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-        ),
-      );
+  const updates = React.useMemo(() => {
+    const sanitizedUrl = escapeHtml(
+      window.location.href.replace(
+        `/applications/${applicationId}/pages/${pageId}`,
+        `/app/${applicationSlug}/${pageSlug}-${pageId}`,
+      ),
+    );
 
-      return [
-        {
-          name: createMessage(CLEAN_URL_UPDATE.name),
-          shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-          description: CLEAN_URL_UPDATE.description.map((formatter) =>
-            createMessage(formatter.bind(null, sanitizedUrl)),
-          ),
-          disclaimer: {
-            severity: "MODERATE",
-            desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
-          },
-          version: ApplicationVersion.SLUG_URL,
+    return [
+      {
+        name: createMessage(CLEAN_URL_UPDATE.name),
+        shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
+        description: CLEAN_URL_UPDATE.description.map((formatter) =>
+          createMessage(formatter.bind(null, sanitizedUrl)),
+        ),
+        disclaimer: {
+          severity: "MODERATE",
+          desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
         },
-      ];
-    },
-    [location, applicationSlug, pageSlug, pageId, applicationId],
-  );
+        version: ApplicationVersion.SLUG_URL,
+      },
+    ];
+  }, [location, applicationSlug, pageSlug, pageId, applicationId]);
   const latestVersion = React.useMemo(
     () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
     [],
