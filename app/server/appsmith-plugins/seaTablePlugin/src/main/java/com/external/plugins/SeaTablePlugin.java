@@ -205,13 +205,19 @@ public class SeaTablePlugin extends BasePlugin {
                         SeaTableErrorMessages.MISSING_COMMAND_ERROR_MSG));
             }
 
-            // Validate required fields before making any network calls
-            Mono<Void> validation = validateCommandInputs(command, formData);
-            if (validation != null) {
-                return validation.then(Mono.empty());
+            // Fail fast on unsupported commands before making any network calls
+            Set<String> supportedCommands = Set.of(
+                    "LIST_ROWS", "GET_ROW", "CREATE_ROW", "UPDATE_ROW",
+                    "DELETE_ROW", "LIST_TABLES", "SQL_QUERY");
+            if (!supportedCommands.contains(command)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Unknown command: " + command));
             }
 
-            return fetchAccessToken(datasourceConfiguration)
+            // Validate required fields before making any network calls
+            return validateCommandInputs(command, formData)
+                    .then(fetchAccessToken(datasourceConfiguration)
                     .flatMap(tokenResponse -> {
                         String basePath = tokenResponse.basePath();
                         String accessToken = tokenResponse.accessToken();
@@ -228,7 +234,7 @@ public class SeaTablePlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     "Unknown command: " + command));
                         };
-                    });
+                    }));
         }
 
         /**
@@ -389,7 +395,7 @@ public class SeaTablePlugin extends BasePlugin {
 
         /**
          * Validates required form fields for a command before making network calls.
-         * Returns a Mono.error if validation fails, or null if validation passes.
+         * Returns a Mono.error if validation fails, or Mono.empty() if validation passes.
          */
         private Mono<Void> validateCommandInputs(String command, Map<String, Object> formData) {
             String tableName = getDataValueSafelyFromFormData(formData, TABLE_NAME, STRING_TYPE, "");
@@ -427,10 +433,9 @@ public class SeaTablePlugin extends BasePlugin {
                     }
                     break;
                 default:
-                    // LIST_TABLES and unknown commands need no pre-validation
                     break;
             }
-            return null;
+            return Mono.empty();
         }
 
         // --- Command implementations ---
@@ -751,7 +756,11 @@ public class SeaTablePlugin extends BasePlugin {
                                         new ArrayList<>()));
                             }
                         } catch (IOException e) {
-                            log.error("Failed to parse SeaTable metadata", e);
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    SeaTablePluginError.QUERY_EXECUTION_FAILED,
+                                    String.format(
+                                            SeaTableErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                            "Failed to parse SeaTable metadata response: " + e.getMessage())));
                         }
 
                         return structure;
