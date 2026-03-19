@@ -161,26 +161,29 @@ function ManualUpgrades(props: {
   const location = useLocation();
 
   const updates = React.useMemo(
-    () => [
-      {
-        name: createMessage(CLEAN_URL_UPDATE.name),
-        shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-        const sanitizedUrl = escapeHtml(
-          window.location.href.replace(
-            `/applications/${applicationId}/pages/${pageId}`,
-            `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-          ),
-        );
-        description: CLEAN_URL_UPDATE.description.map((formatter) =>
-          createMessage(formatter.bind(null, sanitizedUrl)),
+    () => {
+      const sanitizedUrl = escapeHtml(
+        window.location.href.replace(
+          `/applications/${applicationId}/pages/${pageId}`,
+          `/app/${applicationSlug}/${pageSlug}-${pageId}`,
         ),
-        disclaimer: {
-          severity: "MODERATE",
-          desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
+      );
+
+      return [
+        {
+          name: createMessage(CLEAN_URL_UPDATE.name),
+          shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
+          description: CLEAN_URL_UPDATE.description.map((formatter) =>
+            createMessage(formatter.bind(null, sanitizedUrl)),
+          ),
+          disclaimer: {
+            severity: "MODERATE",
+            desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
+          },
+          version: ApplicationVersion.SLUG_URL,
         },
-        version: ApplicationVersion.SLUG_URL,
-      },
-    ],
+      ];
+    },
     [location, applicationSlug, pageSlug, pageId, applicationId],
   );
   const latestVersion = React.useMemo(
