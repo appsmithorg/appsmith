@@ -21,6 +21,8 @@ public class WebClientUtilsTest {
             strings = {
                 "http://100.100.100.200/latest/meta-data",
                 "http://[::100.100.100.200]/latest/meta-data",
+                "http://168.63.129.16/metadata/instance",
+                "http://[::168.63.129.16]/metadata/instance",
                 "http://169.254.10.10/latest/meta-data",
                 "http://169.254.170.2/v2/metadata",
                 "http://[fd20:ce::254]/computeMetadata/v1",

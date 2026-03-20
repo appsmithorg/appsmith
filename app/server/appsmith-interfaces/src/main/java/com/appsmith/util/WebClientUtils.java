@@ -70,6 +70,7 @@ public class WebClientUtils {
         addDisallowedHosts(
                 hosts,
                 "169.254.169.254",
+                "168.63.129.16",
                 "fd00:ec2::254",
                 "fd20:ce::254",
                 "100.100.100.200",
