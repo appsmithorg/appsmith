@@ -36,13 +36,13 @@ import java.util.Set;
 @Slf4j
 public class WebClientUtils {
 
+    private static final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
+
     private static final Set<String> DISALLOWED_HOSTS = computeDisallowedHosts();
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
-
-    private static final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
 
     public static final ExchangeFilterFunction IP_CHECK_FILTER =
             ExchangeFilterFunction.ofRequestProcessor(WebClientUtils::requestFilterFn);
