@@ -74,10 +74,10 @@ public class AwsLambdaPlugin extends BasePlugin {
                         ActionExecutionResult result;
                         switch (Objects.requireNonNull(command)) {
                             case "LIST_FUNCTIONS" -> result = listFunctions(actionConfiguration, connection);
-                            case "LIST_FUNCTION_VERSIONS" -> result =
-                                    listFunctionVersions(actionConfiguration, connection);
-                            case "LIST_FUNCTION_ALIASES" -> result =
-                                    listFunctionAliases(actionConfiguration, connection);
+                            case "LIST_FUNCTION_VERSIONS" ->
+                                result = listFunctionVersions(actionConfiguration, connection);
+                            case "LIST_FUNCTION_ALIASES" ->
+                                result = listFunctionAliases(actionConfiguration, connection);
                             case "INVOKE_FUNCTION" -> result = invokeFunction(actionConfiguration, connection);
                             default -> throw new IllegalStateException("Unexpected value: " + command);
                         }
@@ -168,8 +168,10 @@ public class AwsLambdaPlugin extends BasePlugin {
                             .map(alias -> Map.of("label", alias, "value", alias))
                             .collect(Collectors.toList());
                 }
-                default -> throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported request type: " + requestType);
+                default ->
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Unsupported request type: " + requestType);
             }
 
             TriggerResultDTO triggerResultDTO = new TriggerResultDTO();

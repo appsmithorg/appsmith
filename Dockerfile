@@ -1,6 +1,12 @@
 ARG BASE
 FROM ${BASE}
 
+RUN rm -rf /opt/java \
+  && mkdir -p /opt/java \
+  && arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/aarch64/')" \
+  && curl --location "https://api.adoptium.net/v3/binary/latest/25/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
+  | tar -xz -C /opt/java --strip-components 1
+
 ENV IN_DOCKER=1
 
 ARG APPSMITH_CLOUD_SERVICES_BASE_URL

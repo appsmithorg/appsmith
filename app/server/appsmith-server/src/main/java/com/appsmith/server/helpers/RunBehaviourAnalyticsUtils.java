@@ -33,7 +33,7 @@ public class RunBehaviourAnalyticsUtils {
         RunBehaviourEnum oldRunBehaviour = params.getOldRunBehaviour();
         CreatorContextType creatorType = params.getCreatorContextType();
         RunBehaviourUpdateSource wasChangedBy = params.getWasChangedBy();
-        boolean isActionPartOfModuleInstance = params.isActionPartOfModuleInstance();
+        boolean isActionPartOfModuleInstance = params.getIsActionPartOfModuleInstance();
 
         return Mono.justOrEmpty(actionDTO.getApplicationId())
                 .flatMap(applicationService::findById)
@@ -65,7 +65,7 @@ public class RunBehaviourAnalyticsUtils {
                     data.put("workspaceId", ObjectUtils.defaultIfNull(application.getWorkspaceId(), ""));
                     data.put(FieldName.APP_MODE, appMode);
                     data.put("appName", ObjectUtils.defaultIfNull(application.getName(), ""));
-                    data.put("isExampleApp", ObjectUtils.defaultIfNull(application.isAppIsExample(), false));
+                    data.put("isExampleApp", ObjectUtils.defaultIfNull(application.getAppIsExample(), false));
 
                     // Handle datasource info with null checks
                     Map<String, Object> datasourceInfo = new HashMap<>();

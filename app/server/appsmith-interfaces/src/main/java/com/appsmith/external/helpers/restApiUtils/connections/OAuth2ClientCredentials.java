@@ -75,7 +75,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 // Store valid token
                 .flatMap(token -> {
                     connection.setToken(token.getAuthenticationResponse().getToken());
-                    connection.setHeader(token.getIsTokenHeader());
+                    connection.setIsHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
                     connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
                     connection.setTokenResponse(
@@ -160,7 +160,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private Mono<ClientRequest> addTokenToRequest(ClientRequest clientRequest) {
         // Check to see where the token needs to be added
-        if (this.isHeader()) {
+        if (this.getIsHeader()) {
             final String finalHeaderPrefix =
                     this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank()
                             ? this.getHeaderPrefix().trim() + " "

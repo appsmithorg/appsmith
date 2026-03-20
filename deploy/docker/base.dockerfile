@@ -56,7 +56,7 @@ ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 RUN set -o xtrace \
   && mkdir -p /opt/java \
   && arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/aarch64/')" \
-  && curl --location "https://api.adoptium.net/v3/binary/latest/17/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
+  && curl --location "https://api.adoptium.net/v3/binary/latest/25/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
   | tar -xz -C /opt/java --strip-components 1
 
 # Install NodeJS

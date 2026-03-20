@@ -546,7 +546,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      */
     @Override
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage, Plugin plugin) {
-        if (plugin.isRemotePlugin()) {
+        if (plugin.getIsRemotePlugin()) {
             return this.getRemoteDatasourceContext(plugin, datasourceStorage);
         }
         return this.getDatasourceContext(datasourceStorage);

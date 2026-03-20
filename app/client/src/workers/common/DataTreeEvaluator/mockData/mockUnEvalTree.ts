@@ -98,7 +98,7 @@ export const unEvalTree = {
       role: "engineer",
       useCase: "personal project",
       enableTelemetry: false,
-      emptyInstance: false,
+      isEmptyInstance: false,
       accountNonExpired: true,
       accountNonLocked: true,
       credentialsNonExpired: true,

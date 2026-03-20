@@ -448,7 +448,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
 
                     if (changesCopy.containsKey(APPSMITH_DISABLE_TELEMETRY.name())) {
-                        commonConfig.setTelemetryDisabled(
+                        commonConfig.setIsTelemetryDisabled(
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
