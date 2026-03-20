@@ -200,10 +200,10 @@ app/client/src/ee/JSFunctionExecutionSaga.ts @appsmithorg/v1-fe
 app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
 
 # DevOps
-deploy/**/* @sharat87 @appsmithorg/v1-be 
-.github/workflows/*.yml @sharat87 @appsmithorg/v1-be 
-app/client/packages/ctl/**/* @sharat87 @appsmithorg/v1-fe 
-Dockerfile @appsmithorg/v1-be 
+deploy/**/* @appsmithorg/v1-devops 
+.github/workflows/*.yml @appsmithorg/v1-devops 
+app/client/packages/ctl/**/* @appsmithorg/v1-devops 
+Dockerfile @appsmithorg/v1-devops 
 
 # Server dependencies
 app/server/**/pom.xml @sharat87 
