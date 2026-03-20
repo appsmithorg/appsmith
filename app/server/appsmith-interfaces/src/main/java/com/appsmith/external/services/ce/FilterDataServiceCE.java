@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +56,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private Connection connection;
 
     private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
+
+    /**
+     * Names produced by {@link #generateTable(Map)}: {@code tbl_} plus 16 alphabetic characters (see
+     * {@link RandomStringUtils#randomAlphabetic(int)} + uppercase). Used to reject untrusted input in dynamic SQL.
+     */
+    private static final Pattern FILTER_TEMP_TABLE_NAME_PATTERN = Pattern.compile("^tbl_[A-Z]{16}$");
 
     private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
             DataType.INTEGER, "INT",
@@ -623,10 +630,19 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     public void dropTable(String tableName) {
+        validateFilterTempTableName(tableName);
 
         String dropTableQuery = "DROP TABLE " + tableName + ";";
 
         executeDbQuery(dropTableQuery);
+    }
+
+    private static void validateFilterTempTableName(String tableName) {
+        if (isBlank(tableName) || !FILTER_TEMP_TABLE_NAME_PATTERN.matcher(tableName).matches()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Invalid filter temporary table name");
+        }
     }
 
     /**
