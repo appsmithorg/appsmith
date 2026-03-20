@@ -43,7 +43,7 @@ Minimal set of files to understand and reproduce this fix:
 
 | File | Role |
 |------|------|
-| `app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/AuthenticationServiceCEImpl.java` | Contains the vulnerable `getAccessTokenForGenericOAuth2` method (line ~243) and the three reference call sites that already use ACL-guarded `findById` |
+| `app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/AuthenticationServiceCEImpl.java` | Contains the vulnerable `getAccessTokenForGenericOAuth2` method (line ~243), the three reference call sites that already use ACL-guarded `findById`, and the `getPageRedirectUrl` helper (line ~353) whose `switchIfEmpty` fallback was added to handle the page-not-found case |
 | `app/server/appsmith-interfaces/src/main/java/com/appsmith/server/datasources/base/DatasourceServiceCE.java` | Declares both `findById` overloads; shows the contract difference between the ACL and non-ACL variants |
 | `app/server/appsmith-server/src/test/java/com/appsmith/server/solutions/AuthenticationServiceTest.java` | Integration test class; new tests `testGetAccessTokenForGenericOAuth2_forbiddenDatasource` and `testGetAccessTokenForGenericOAuth2_nonexistentDatasource` verify the ACL rejection path |
 
@@ -65,6 +65,6 @@ Minimal set of files to understand and reproduce this fix:
 
 - The fix is a one-line change. The `datasourcePermission` dependency was already wired in via constructor injection, so no new Spring beans, interfaces, or configuration were required.
 
-- When `findById` with ACL returns `Mono.empty()` (i.e. the user lacks `MANAGE_DATASOURCES`), the reactive chain propagates through `flatMap` as an empty signal, which the existing `onErrorResume` / redirect logic in `getAccessTokenForGenericOAuth2` catches and converts to a `appsmith_error` redirect — the user-facing behavior is a graceful error redirect rather than an unhandled 500, which is correct and consistent with other error paths in the method.
+- When `findById` with ACL returns `Mono.empty()` (i.e. the user lacks `MANAGE_DATASOURCES`), the reactive chain propagates through `flatMap` as an empty signal. Because `onErrorResume` only intercepts error signals (not empty completion), the entire `getAccessTokenForGenericOAuth2` chain would have completed empty — silently, with no redirect. To ensure a graceful `appsmith_error` redirect is always produced, `getPageRedirectUrl` was also patched to add a `switchIfEmpty` fallback alongside the pre-existing `onErrorResume` fallback. This makes the private helper robust against both the page-not-found (empty) and page-access-error cases, consistent with the intent of the existing error-handling code.
 
 - Integration tests in `AuthenticationServiceTest` are the standard pattern in this codebase; they run against the full Spring context with real ACL enforcement, making them more reliable than unit tests with mocked repositories for validating permission boundaries.

@@ -287,8 +287,7 @@ public class AuthenticationServiceTest {
 
         Mono<String> resultMono = authenticationService.getAccessTokenForGenericOAuth2(callbackDTO);
 
-        StepVerifier.create(resultMono)
-                .verifyComplete();
+        StepVerifier.create(resultMono).verifyComplete();
     }
 
     @Test
@@ -334,12 +333,7 @@ public class AuthenticationServiceTest {
         // Construct the state string as the OAuth2 authorization flow would produce it:
         // pageId,datasourceId,environmentId,redirectOrigin,workspaceId
         String state = String.join(
-                ",",
-                "fakePageId",
-                datasourceId,
-                defaultEnvironmentId,
-                "https://mock.origin.com",
-                workspace.getId());
+                ",", "fakePageId", datasourceId, defaultEnvironmentId, "https://mock.origin.com", workspace.getId());
 
         AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
         callbackDTO.setCode("fakeCode");

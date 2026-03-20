@@ -380,6 +380,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
                             + (StringUtils.hasText(refName) ? "&branch=" + refName : "");
                 })
+                .switchIfEmpty(Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
+                        + "?response_status="
+                        + responseStatus + "&view_mode=true"))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
                         + responseStatus + "&view_mode=true"));
