@@ -25,6 +25,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.UserService;
@@ -90,6 +91,9 @@ public class AuthenticationServiceTest {
 
     @SpyBean
     NewPageService newPageService;
+
+    @Autowired
+    DatasourceRepository datasourceRepository;
 
     Workspace workspace;
 
@@ -373,18 +377,57 @@ public class AuthenticationServiceTest {
      * Before the fix (APP-15028 / GHSA-rg2x-4v4h-g78w), the method used the
      * 1-argument findById(id) which skipped ACL checks, allowing any authenticated
      * user to manipulate OAuth2 credentials for datasources they had no access to.
+     *
+     * This test creates a real datasource, then strips all its ACL policies so the
+     * caller no longer has permission to access it. The callback must then return
+     * an empty Mono (no redirect URL), proving that the ACL-checked findById
+     * correctly denies access.
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGetAccessTokenForGenericOAuth2_nonExistentDatasource_returnsEmpty() {
-        String fakeDatasourceId = "nonExistentDatasourceId";
-        String fakeEnvironmentId = "fakeEnvId";
-        String fakePageId = "fakePageId";
-        String fakeRedirectUrl = "https://mock.origin.com";
-        String fakeWorkspaceId = "fakeWorkspaceId";
+    public void testGetAccessTokenForGenericOAuth2_datasourceWithoutPermission_returnsEmpty() {
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
-        String state =
-                String.join(",", fakePageId, fakeDatasourceId, fakeEnvironmentId, fakeRedirectUrl, fakeWorkspaceId);
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("OAuth2 ACL Denied Datasource");
+        datasource.setWorkspaceId(workspace.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("AccessTokenURL");
+        authenticationDTO.setScope(Set.of("Scope1"));
+        authenticationDTO.setIsAuthorizationHeader(false);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        Datasource createdDatasource = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .block();
+
+        String datasourceId = createdDatasource.getId();
+
+        // Strip all ACL policies so the caller no longer has permission
+        createdDatasource.setPolicies(Set.of());
+        datasourceRepository.save(createdDatasource).block();
+
+        String state = String.join(
+                ",", "fakePageId", datasourceId, defaultEnvironmentId, "https://mock.origin.com", workspace.getId());
 
         AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
         callbackDTO.setCode("auth_code");
