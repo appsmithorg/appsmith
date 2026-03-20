@@ -638,10 +638,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     private static void validateFilterTempTableName(String tableName) {
-        if (isBlank(tableName) || !FILTER_TEMP_TABLE_NAME_PATTERN.matcher(tableName).matches()) {
+        if (isBlank(tableName)
+                || !FILTER_TEMP_TABLE_NAME_PATTERN.matcher(tableName).matches()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Invalid filter temporary table name");
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Invalid filter temporary table name");
         }
     }
 
