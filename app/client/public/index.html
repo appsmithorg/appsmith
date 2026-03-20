@@ -81,16 +81,7 @@
           successMessageHeaderText: "Information received",
           successMessageSubHeaderText: "Our support team will use it to review the issue",
         };
-        (function () {
-          var s1 = document.createElement("script");
-          s1.src = "https://cdn.betterbugs.io/scripts/latest/logs-capture.js";
-          s1.async = true;
-          document.head.appendChild(s1);
-          var s2 = document.createElement("script");
-          s2.src = "https://cdn.betterbugs.io/scripts/latest/recorder.js";
-          s2.async = true;
-          document.head.appendChild(s2);
-        })();
+        !function(){function n(){var r=new URLSearchParams(window.location.search);if(r.has("betterbugs-recording"))return!0;try{var e=localStorage.getItem("recordingStatuses");if(e){var t=JSON.parse(e);if(Array.isArray(t)&&t.some(function(n){return n&&!0===n.currentlyRecording}))return!0}}catch(n){}return!1}function o(n){var r=document.createElement("script");r.src=n,r.async=!0,document.head.prepend(r)}n()&&(o("https://cdn.betterbugs.io/scripts/latest/logs-capture.js"),o("https://cdn.betterbugs.io/scripts/latest/recorder.js"))}();
       }
     </script>
     <!-- End of BetterBugs Recording Links -->
