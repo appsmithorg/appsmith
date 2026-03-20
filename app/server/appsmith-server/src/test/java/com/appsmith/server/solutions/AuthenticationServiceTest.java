@@ -364,4 +364,110 @@ public class AuthenticationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Verifies that getAccessTokenForGenericOAuth2 enforces ACL permission checks
+     * on the datasource ID embedded in the OAuth2 callback state parameter.
+     *
+     * Before the fix (APP-15028 / GHSA-rg2x-4v4h-g78w), the method used the
+     * 1-argument findById(id) which skipped ACL checks, allowing any authenticated
+     * user to manipulate OAuth2 credentials for datasources they had no access to.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAccessTokenForGenericOAuth2_nonExistentDatasource_returnsEmpty() {
+        String fakeDatasourceId = "nonExistentDatasourceId";
+        String fakeEnvironmentId = "fakeEnvId";
+        String fakePageId = "fakePageId";
+        String fakeRedirectUrl = "https://mock.origin.com";
+        String fakeWorkspaceId = "fakeWorkspaceId";
+
+        String state =
+                String.join(",", fakePageId, fakeDatasourceId, fakeEnvironmentId, fakeRedirectUrl, fakeWorkspaceId);
+
+        AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
+        callbackDTO.setCode("auth_code");
+        callbackDTO.setState(state);
+
+        Mono<String> resultMono = authenticationService.getAccessTokenForGenericOAuth2(callbackDTO);
+
+        StepVerifier.create(resultMono).verifyComplete();
+    }
+
+    /**
+     * Verifies that getAccessTokenForGenericOAuth2 enforces edit permission on the
+     * datasource referenced in the OAuth2 callback state parameter. When a valid
+     * datasource exists and the current user holds the edit permission, the method
+     * should progress past the ACL check and attempt the OAuth2 token exchange
+     * (which will fail because the AccessTokenUrl is not a real server).
+     * The error is caught and converted into a redirect containing "appsmith_error",
+     * confirming the ACL gate was passed.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAccessTokenForGenericOAuth2_authorizedDatasource_progressesPastAcl() {
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("OAuthAclTestPage");
+
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        Application application = applicationPageService
+                .createApplication(newApp, workspace.getId())
+                .block();
+
+        testPage.setApplicationId(application.getId());
+        PageDTO pageDto = applicationPageService.createPage(testPage).block();
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("OAuth2 ACL Test Datasource");
+        datasource.setWorkspaceId(workspace.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("http://localhost:0/non-existent-token-endpoint");
+        authenticationDTO.setScope(Set.of("Scope1"));
+        authenticationDTO.setIsAuthorizationHeader(false);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        Datasource createdDatasource = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .block();
+
+        String datasourceId = createdDatasource.getId();
+        String redirectUrl = "https://mock.origin.com";
+
+        String state =
+                String.join(",", pageDto.getId(), datasourceId, defaultEnvironmentId, redirectUrl, workspace.getId());
+
+        AuthorizationCodeCallbackDTO callbackDTO = new AuthorizationCodeCallbackDTO();
+        callbackDTO.setCode("fake_auth_code");
+        callbackDTO.setState(state);
+
+        Mono<String> resultMono = authenticationService.getAccessTokenForGenericOAuth2(callbackDTO);
+
+        StepVerifier.create(resultMono)
+                .assertNext(url -> {
+                    assertThat(url).contains("appsmith_error");
+                })
+                .verifyComplete();
+    }
 }
