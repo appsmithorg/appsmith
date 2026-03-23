@@ -241,7 +241,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return datasourceService
-                                .findById(splitStates[1])
+                                .findById(splitStates[1], datasourcePermission.getEditPermission())
                                 .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
                                         datasource1, splitStates[2]));
                 })
