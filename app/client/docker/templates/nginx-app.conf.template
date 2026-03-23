@@ -27,26 +27,45 @@ server {
     sub_filter_once off;
     location / {
         proxy_pass __APPSMITH_CLIENT_PROXY_PASS__;
-        sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
-        sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
-        sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
-        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
-        sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE}';
-        sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT}';
-        sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
-        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
-        sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
-        sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
-        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '${APPSMITH_RECAPTCHA_SITE_KEY}';
-        sub_filter __APPSMITH_DISABLE_INTERCOM__ '${APPSMITH_DISABLE_INTERCOM}';
-        sub_filter __APPSMITH_DISABLE_BETTERBUGS__ '${APPSMITH_DISABLE_BETTERBUGS}';
-        sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY}';
-        sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK}';
-        sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX}';
+        set $appsmith_sentry_dsn '${APPSMITH_SENTRY_DSN}';
+        set $appsmith_smart_look_id '${APPSMITH_SMART_LOOK_ID}';
+        set $appsmith_segment_key '${APPSMITH_SEGMENT_KEY}';
+        set $appsmith_client_log_level '${APPSMITH_CLIENT_LOG_LEVEL}';
+        set $appsmith_sentry_release '${APPSMITH_SENTRY_RELEASE}';
+        set $appsmith_sentry_environment '${APPSMITH_SENTRY_ENVIRONMENT}';
+        set $appsmith_version_id '${APPSMITH_VERSION_ID}';
+        set $appsmith_version_release_date '${APPSMITH_VERSION_RELEASE_DATE}';
+        set $appsmith_intercom_app_id '${APPSMITH_INTERCOM_APP_ID}';
+        set $appsmith_mail_enabled '${APPSMITH_MAIL_ENABLED}';
+        set $appsmith_recaptcha_site_key '${APPSMITH_RECAPTCHA_SITE_KEY}';
+        set $appsmith_disable_intercom '${APPSMITH_DISABLE_INTERCOM}';
+        set $appsmith_disable_betterbugs '${APPSMITH_DISABLE_BETTERBUGS}';
+        set $appsmith_zipy_sdk_key '${APPSMITH_ZIPY_SDK_KEY}';
+        set $appsmith_hide_watermark '${APPSMITH_HIDE_WATERMARK}';
+        set $appsmith_disable_iframe_widget_sandbox '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX}';
+        set $appsmith_new_relic_otlp_license_key '${APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY}';
+        set $appsmith_new_relic_otel_exporter_otlp_endpoint '${APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT}';
+        set $appsmith_frontend_tracing_url '${APPSMITH_FRONTEND_TRACING_URL}';
 
-        sub_filter __APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__ '${APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY}';
-        sub_filter __APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__ '${APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT}';
-        sub_filter __APPSMITH_FRONTEND_TRACING_URL__ '${APPSMITH_FRONTEND_TRACING_URL}';
+        sub_filter __APPSMITH_SENTRY_DSN__ $appsmith_sentry_dsn;
+        sub_filter __APPSMITH_SMART_LOOK_ID__ $appsmith_smart_look_id;
+        sub_filter __APPSMITH_SEGMENT_KEY__ $appsmith_segment_key;
+        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ $appsmith_client_log_level;
+        sub_filter __APPSMITH_SENTRY_RELEASE__ $appsmith_sentry_release;
+        sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ $appsmith_sentry_environment;
+        sub_filter __APPSMITH_VERSION_ID__ $appsmith_version_id;
+        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ $appsmith_version_release_date;
+        sub_filter __APPSMITH_INTERCOM_APP_ID__ $appsmith_intercom_app_id;
+        sub_filter __APPSMITH_MAIL_ENABLED__ $appsmith_mail_enabled;
+        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ $appsmith_recaptcha_site_key;
+        sub_filter __APPSMITH_DISABLE_INTERCOM__ $appsmith_disable_intercom;
+        sub_filter __APPSMITH_DISABLE_BETTERBUGS__ $appsmith_disable_betterbugs;
+        sub_filter __APPSMITH_ZIPY_SDK_KEY__ $appsmith_zipy_sdk_key;
+        sub_filter __APPSMITH_HIDE_WATERMARK__ $appsmith_hide_watermark;
+        sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ $appsmith_disable_iframe_widget_sandbox;
+        sub_filter __APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__ $appsmith_new_relic_otlp_license_key;
+        sub_filter __APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__ $appsmith_new_relic_otel_exporter_otlp_endpoint;
+        sub_filter __APPSMITH_FRONTEND_TRACING_URL__ $appsmith_frontend_tracing_url;
     }
 
 
