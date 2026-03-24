@@ -124,6 +124,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile("^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<value>.*)$");
 
+    private static final Pattern SAFE_SHELL_VALUE_PATTERN = Pattern.compile("^[A-Za-z\\d_@%+=:,./-]*$");
+
     private static final Set<String> VARIABLE_WHITELIST =
             Stream.of(EnvVariables.values()).map(Enum::name).collect(Collectors.toUnmodifiableSet());
 
@@ -238,7 +240,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     private String escapeForShell(String input) {
-        if (org.apache.commons.lang3.StringUtils.containsAny(input, " ?*#'")) {
+        if (input.chars().anyMatch(Character::isISOControl)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "environment variable value");
+        }
+
+        if (!input.isEmpty() && !SAFE_SHELL_VALUE_PATTERN.matcher(input).matches()) {
             return ("'" + input.replace("'", "'\"'\"'") + "'")
                     .replaceAll("^''", "")
                     .replaceAll("''$", "");

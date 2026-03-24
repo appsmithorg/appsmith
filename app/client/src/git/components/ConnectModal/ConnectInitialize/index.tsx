@@ -209,7 +209,14 @@ function ConnectInitialize({
         }
       }
     }
-  }, [activeStep, currentIndex, formData.remoteUrl, onSubmit]);
+  }, [
+    activeStep,
+    currentIndex,
+    formData.remoteUrl,
+    formData.sshKeySource,
+    formData.sshKeyId,
+    onSubmit,
+  ]);
 
   useEffect(
     function changeStepOnErrorEffect() {

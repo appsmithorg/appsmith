@@ -14,14 +14,6 @@ ENV APPSMITH_BETTERBUGS_API_KEY=${APPSMITH_BETTERBUGS_API_KEY}
 
 COPY deploy/docker/fs /
 
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:git-core/ppa && \
-    apt-get update && \
-    apt-get install -y git tar zstd openssh-client && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 RUN <<END
   if ! [ -f info.json ]; then
     echo "Missing info.json" >&2

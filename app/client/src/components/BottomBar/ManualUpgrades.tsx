@@ -28,6 +28,15 @@ import { useLocation } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import classNames from "classnames";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const StyledList = styled.ul`
   list-style: disc;
   margin-left: 16px;
@@ -151,21 +160,20 @@ function ManualUpgrades(props: {
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const location = useLocation();
 
-  const updates = React.useMemo(
-    () => [
+  const updates = React.useMemo(() => {
+    const sanitizedUrl = escapeHtml(
+      window.location.href.replace(
+        `/applications/${applicationId}/pages/${pageId}`,
+        `/app/${applicationSlug}/${pageSlug}-${pageId}`,
+      ),
+    );
+
+    return [
       {
         name: createMessage(CLEAN_URL_UPDATE.name),
         shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
         description: CLEAN_URL_UPDATE.description.map((formatter) =>
-          createMessage(
-            formatter.bind(
-              null,
-              window.location.href.replace(
-                `/applications/${applicationId}/pages/${pageId}`,
-                `/app/${applicationSlug}/${pageSlug}-${pageId}`,
-              ),
-            ),
-          ),
+          createMessage(formatter.bind(null, sanitizedUrl)),
         ),
         disclaimer: {
           severity: "MODERATE",
@@ -173,9 +181,8 @@ function ManualUpgrades(props: {
         },
         version: ApplicationVersion.SLUG_URL,
       },
-    ],
-    [location, applicationSlug, pageSlug, pageId, applicationId],
-  );
+    ];
+  }, [location, applicationSlug, pageSlug, pageId, applicationId]);
   const latestVersion = React.useMemo(
     () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
     [],
