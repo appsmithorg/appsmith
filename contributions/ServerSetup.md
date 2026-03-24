@@ -17,17 +17,20 @@ There are two ways to run Appsmith server.
 Running the Appsmith Docker image as a container will grant you a running Appsmith server, along with its dependencies, like MongoDB and Redis. This is the easiest way to get started with Appsmith server.
 
 1. Clone the Appsmith repository and change into it
+
     ```
     git clone https://github.com/appsmithorg/appsmith.git
     cd appsmith
     ```
 
 2. Change your directory to `deploy/docker`
+
     ```console
     cd deploy/docker
     ```
 
 3. Start
+
     ```console
     docker-compose up -d
     ```
@@ -83,10 +86,12 @@ After updating `JAVA_HOME`, confirm `echo $JAVA_HOME` points to the Java 17 dire
 
         Please follow the below steps for enabling the replica set with mongo running inside the docker
         1. Connect to the mongo db running with a mongo shell. Use the below command
+
             ```
             mongosh
             ```
         2. Once you are inside the mongo shell run the below command.
+
             ```
             rs.initiate({"_id": "rs0", "members" : [{"_id":0 , "host": "localhost:27017" }]})
             ```
@@ -99,6 +104,7 @@ After updating `JAVA_HOME`, confirm `echo $JAVA_HOME` points to the Java 17 dire
             mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
             ```
         - One can use following commands to check replica set status:
+
             ```
             mongo appsmith
             rs.status()
@@ -131,7 +137,7 @@ With the prerequisites met, let's build the code.
     This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
 4. Setup Environment file
-    - Create a copy of the `envs/dev.env.example`
+    - Create a copy of the `envs/dev.env.example` (run from `app/server`):
 
         ```console
         cp envs/dev.env.example .env
@@ -142,11 +148,12 @@ With the prerequisites met, let's build the code.
 5. Ensure that the environment variables `APPSMITH_DB_URL` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
 6.  **Update the replica set name with correct value in the mongo connection string in the [.env](#setup-environment-file) file.** The replica name is the same as passed [here](#setting-up-a-local-mongodb-instance)
+
     ```bash
     APPSMITH_DB_URL="mongodb://localhost:27017/appsmith?replicaSet=<replica-set-name>"
     ```
 
-7. Run the following command to create the final JAR for the Appsmith server:
+7. Run the following command from `app/server` to create the final JAR for the Appsmith server:
 
     ```console
     ./build.sh -Dmaven.test.skip
@@ -166,6 +173,7 @@ With the prerequisites met, let's build the code.
     - #### Linux/Ubuntu Environments
         - On Ubuntu Linux environment docker needs root privilege, hence `./build.sh` script needs to be run with root privilege as well.
         - On Ubuntu Linux environment, the script may not be able to read `.env` file, so it is advised that you run the cmd like:
+
             ```console
             sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
@@ -183,6 +191,7 @@ APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
     **Steps to run RTS:**
 
     1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+
         ```console
         nvm use 20.11.1
         ```
@@ -191,24 +200,28 @@ APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
         fnm use 20.11.1
         ```
 
-    2. Navigate to the RTS directory:
+    2. Navigate to the RTS directory (from repo root):
+
         ```console
         cd app/client/packages/rts
         ```
 
     3. Create the environment file:
+    
         ```console
         cp .env.example .env
         ```
 
     4. Start the RTS server:
+
         ```console
         ./start-server.sh
         ```
 
         Keep this terminal running; RTS must stay up while the Java server is running.
 
-10. Start the Java server by running
+10. Start the Java server by running from repo root:
+
     ```console
     ./app/server/scripts/start-dev-server.sh
     ```
@@ -304,7 +317,7 @@ mvn clean compile
 
 This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
-4. Create a copy of the `envs/dev.env.example`
+4. Create a copy of the `envs/dev.env.example` (run from `app/server`):
 
 ```console
 cp envs/dev.env.example .env
@@ -314,7 +327,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 
 5. Ensure that the environment variables `APPSMITH_DB_URL` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
-6. Run the following command to create the final JAR for the Appsmith server:
+6. Run the following command from `app/server` to create the final JAR for the Appsmith server:
 
 ```console
 ./build.sh -DskipTests
@@ -324,7 +337,8 @@ This command will create a `dist` folder which contains the final packaged jar a
 Note:
 - If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
-- On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
+- On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd from `app/server` like:
+
 ```console
 sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
@@ -342,6 +356,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
     **Steps to run RTS:**
 
     1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+
         ```console
         nvm use 20.11.1
         ```
@@ -350,24 +365,27 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
         fnm use 20.11.1
         ```
 
-    2. Navigate to the RTS directory:
+    2. Navigate to the RTS directory (from repo root):
+
         ```console
         cd app/client/packages/rts
         ```
 
     3. Create the environment file:
+
         ```console
         cp .env.example .env
         ```
 
     4. Start the RTS server:
+
         ```console
         ./start-server.sh
         ```
 
         Keep this terminal running; RTS must stay up while the Java server is running.
 
-8. Start the Java server by running
+8. Start the Java server by running from `app/server`:
 
 ```console
 ./scripts/start-dev-server.sh
@@ -412,7 +430,7 @@ After configuring settings as mentioned above, please also add the following to 
 Happy hacking ✌️
 
 #### Note:
-In case the server doesn't work with the above config, please try re-compiling the code using the steps
+In case the server doesn't work with the above config, please try re-compiling the code from `app/server` using the steps:
 
 ```console
 mvn -B clean compile && ./build.sh -DskipTests
@@ -421,7 +439,8 @@ mvn -B clean compile && ./build.sh -DskipTests
 
 1. Ensure that you have Redis running on your local system.
 
-2. Run the command to execute tests
+2. Run the command to execute tests from repo root:
+
 ```console
   cd app/server
   mvn clean package
