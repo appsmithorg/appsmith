@@ -19,6 +19,12 @@ public class AppsmithException extends BaseException {
         this.args = args;
     }
 
+    public AppsmithException(Throwable cause, AppsmithError error, Object... args) {
+        super(error.getMessage(args), cause);
+        this.error = error;
+        this.args = args;
+    }
+
     public Integer getHttpStatus() {
         return this.error == null ? 500 : this.error.getHttpErrorCode();
     }
