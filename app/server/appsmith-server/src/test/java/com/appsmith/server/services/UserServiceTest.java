@@ -433,28 +433,28 @@ public class UserServiceTest {
         StepVerifier.create(userDataMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
-                    assertThat(userData.isIntercomConsentGiven()).isFalse();
+                    assertThat(userData.getIsIntercomConsentGiven()).isFalse();
                 })
                 .verifyComplete();
 
         UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setIntercomConsentGiven(true);
+        updateUser.setIsIntercomConsentGiven(true);
         final Mono<UserData> updateToTrueMono =
                 userService.updateCurrentUser(updateUser, null).then(userDataMono);
         StepVerifier.create(updateToTrueMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
-                    assertThat(userData.isIntercomConsentGiven()).isTrue();
+                    assertThat(userData.getIsIntercomConsentGiven()).isTrue();
                 })
                 .verifyComplete();
 
-        updateUser.setIntercomConsentGiven(false);
+        updateUser.setIsIntercomConsentGiven(false);
         final Mono<UserData> updateToFalseAfterTrueMono =
                 userService.updateCurrentUser(updateUser, null).then(userDataMono);
         StepVerifier.create(updateToFalseAfterTrueMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
-                    assertThat(userData.isIntercomConsentGiven()).isTrue();
+                    assertThat(userData.getIsIntercomConsentGiven()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -462,7 +462,7 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getIntercomConsentOfUserOnCloudHosting_AlwaysTrue() {
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(true);
 
         Mono<UserProfileDTO> userProfileDTOMono =
                 sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
@@ -470,7 +470,7 @@ public class UserServiceTest {
         StepVerifier.create(userProfileDTOMono)
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
-                    assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                    assertThat(userProfileDTO.getIsIntercomConsentGiven()).isTrue();
                     assertEquals(
                             List.of(
                                     UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
@@ -617,7 +617,7 @@ public class UserServiceTest {
         StepVerifier.create(userService.buildUserProfileDTO(user))
                 .assertNext(userProfileDTO -> {
                     assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
-                    assertThat(userProfileDTO.isAnonymous()).isTrue();
+                    assertThat(userProfileDTO.getIsAnonymous()).isTrue();
                 })
                 .verifyComplete();
     }

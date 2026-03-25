@@ -243,7 +243,7 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                                 .getModifiedResourceIdentifiers()
                                 .get(GitResourceType.CONTEXT_CONFIG)
                                 .addAll(pageIdentifiersSet);
-                        modifiedResources.setAllModified(true);
+                        modifiedResources.setIsAllModified(true);
                         applicationJson.setModifiedResources(modifiedResources);
                         return applicationJson;
                     });
@@ -330,7 +330,7 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                 .flatMap(applicationJson -> {
                     ModifiedResources modifiedResources = new ModifiedResources();
                     // setting all modified would help in serialisation of all the files, unoptimised
-                    modifiedResources.setAllModified(true);
+                    modifiedResources.setIsAllModified(true);
                     applicationJson.setModifiedResources(modifiedResources);
                     return saveArtifactJsonToFileSystem(applicationJson, autoCommitEvent);
                 })

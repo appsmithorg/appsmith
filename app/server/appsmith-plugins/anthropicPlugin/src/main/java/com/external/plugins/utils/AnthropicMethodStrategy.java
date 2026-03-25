@@ -23,8 +23,9 @@ public class AnthropicMethodStrategy {
         return switch (requestType) {
             case AnthropicConstants.CHAT_MODELS -> new ChatCommand();
             case AnthropicConstants.VISION_MODELS -> new VisionCommand();
-            default -> throw Exceptions.propagate(
-                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+            default ->
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
     }
 
@@ -43,8 +44,9 @@ public class AnthropicMethodStrategy {
         return switch (command) {
             case AnthropicConstants.CHAT -> new ChatCommand();
             case AnthropicConstants.VISION -> new VisionCommand();
-            default -> throw Exceptions.propagate(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command));
+            default ->
+                throw Exceptions.propagate(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command));
         };
     }
 }

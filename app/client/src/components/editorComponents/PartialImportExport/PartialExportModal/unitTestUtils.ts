@@ -10365,7 +10365,7 @@ export const defaultAppState = {
         groups: [
           "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
-        emptyInstance: false,
+        isEmptyInstance: false,
         accountNonExpired: true,
         accountNonLocked: true,
         credentialsNonExpired: true,
@@ -12791,7 +12791,7 @@ export const defaultAppState = {
           groups: [
             "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
-          emptyInstance: false,
+          isEmptyInstance: false,
           accountNonExpired: true,
           accountNonLocked: true,
           credentialsNonExpired: true,
@@ -12815,7 +12815,7 @@ export const defaultAppState = {
         groups: [
           "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
-        emptyInstance: false,
+        isEmptyInstance: false,
         accountNonExpired: true,
         accountNonLocked: true,
         credentialsNonExpired: true,

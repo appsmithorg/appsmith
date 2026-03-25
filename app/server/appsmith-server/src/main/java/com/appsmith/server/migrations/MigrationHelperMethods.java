@@ -730,8 +730,8 @@ public class MigrationHelperMethods {
         convertToFormDataObject(f, "bucket", formData.get("bucket"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
         switch ((String) command) {
-                // No case for delete single and multiple since they only had bucket that needed
-                // migration
+            // No case for delete single and multiple since they only had bucket that needed
+            // migration
             case "LIST":
                 final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {

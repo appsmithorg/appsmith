@@ -2506,7 +2506,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitRefDTO gitRefDTO = new GitRefDTO();
         gitRefDTO.setRefName(newDefaultBranchName);
         gitRefDTO.setRefType(RefType.branch);
-        gitRefDTO.setDefault(true);
+        gitRefDTO.setIsDefault(true);
 
         // potentially problem in the flow,
         // we are checking out to the branch after creation,
@@ -2612,7 +2612,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     // set the default branch flag if there's a match.
                                     // This can happen when user has changed the default branch other
                                     // than remote
-                                    gitRefDTO.setDefault(baseGitMetadata
+                                    gitRefDTO.setIsDefault(baseGitMetadata
                                             .getDefaultBranchName()
                                             .equals(branchName));
 
@@ -2669,7 +2669,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .map(refDTOs -> {
                                 refDTOs.forEach(refDTO -> {
                                     refDTO.setRefType(refType);
-                                    refDTO.setDefault(refDTO.getRefName().equalsIgnoreCase(defaultBranchName));
+                                    refDTO.setIsDefault(refDTO.getRefName().equalsIgnoreCase(defaultBranchName));
                                 });
 
                                 return refDTOs;

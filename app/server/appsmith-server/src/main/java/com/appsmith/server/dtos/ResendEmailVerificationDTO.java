@@ -10,6 +10,5 @@ import lombok.Setter;
 public class ResendEmailVerificationDTO extends User {
     String baseUrl;
 
-    @NotEmpty
-    String token;
+    @NotEmpty String token;
 }

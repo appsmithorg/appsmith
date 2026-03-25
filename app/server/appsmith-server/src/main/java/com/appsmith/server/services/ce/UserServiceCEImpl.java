@@ -762,8 +762,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             if (StringUtils.hasLength(allUpdates.getUseCase())) {
                 updates.setUseCase(allUpdates.getUseCase());
             }
-            if (allUpdates.isIntercomConsentGiven()) {
-                updates.setIntercomConsentGiven(true);
+            if (allUpdates.getIsIntercomConsentGiven()) {
+                updates.setIsIntercomConsentGiven(true);
             }
             updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
             monos.add(updatedUserDataMono.then());
@@ -811,17 +811,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
-                    profile.setEmptyInstance(isUsersEmpty);
-                    profile.setAnonymous(userFromDb.isAnonymous());
-                    profile.setEnabled(userFromDb.isEnabled());
+                    profile.setIsEmptyInstance(isUsersEmpty);
+                    profile.setIsAnonymous(userFromDb.isAnonymous());
+                    profile.setIsEnabled(userFromDb.isEnabled());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
-                    profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
+                    profile.setEnableTelemetry(!commonConfig.getIsTelemetryDisabled());
                     // Intercom consent is defaulted to true on cloud hosting
-                    profile.setIntercomConsentGiven(
-                            commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
-                    profile.setSuperUser(isSuperUser);
-                    profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
+                    profile.setIsIntercomConsentGiven(
+                            commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
+                    profile.setIsSuperUser(isSuperUser);
+                    profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
                     return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
                 });
     }

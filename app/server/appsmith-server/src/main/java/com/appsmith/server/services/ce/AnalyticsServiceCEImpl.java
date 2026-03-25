@@ -133,7 +133,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     final String emailDomainHash = getEmailDomainHash(email);
                     String organizationId = savedUser.getOrganizationId();
 
-                    if (!commonConfig.isCloudHosting()) {
+                    if (!commonConfig.getIsCloudHosting()) {
                         username = hash(username);
                         name = hash(name);
                         email = hash(email);
@@ -216,7 +216,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         final String emailDomainHash = getEmailDomainHash(immutableUserId);
 
         // Hash usernames at all places for self-hosted instance
-        if (shouldHashUserId(event, userId, hashUserId, commonConfig.isCloudHosting())) {
+        if (shouldHashUserId(event, userId, hashUserId, commonConfig.getIsCloudHosting())) {
             final String hashedUserId = hash(userId);
             // Remove request key, if it's self-hosted as it contains user's evaluated params
             analyticsProperties.remove("request");
@@ -380,7 +380,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
                     if (analyticsProperties.containsKey(FieldName.CLOUD_HOSTED_EXTRA_PROPS)) {
-                        if (commonConfig.isCloudHosting()) {
+                        if (commonConfig.getIsCloudHosting()) {
                             Map<String, Object> extraPropsForCloudHostedInstance =
                                     (Map<String, Object>) analyticsProperties.get(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
                             analyticsProperties.putAll(extraPropsForCloudHostedInstance);

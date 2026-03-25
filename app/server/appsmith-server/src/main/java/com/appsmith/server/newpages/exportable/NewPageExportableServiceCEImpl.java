@@ -107,8 +107,8 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         }
                         // Including updated pages list for git file storage
                         Instant newPageUpdatedAt = newPage.getUpdatedAt();
-                        boolean isNewPageUpdated = exportingMetaDTO.isClientSchemaMigrated()
-                                || exportingMetaDTO.isServerSchemaMigrated()
+                        boolean isNewPageUpdated = exportingMetaDTO.getIsClientSchemaMigrated()
+                                || exportingMetaDTO.getIsServerSchemaMigrated()
                                 || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || newPageUpdatedAt == null
                                 || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(newPageUpdatedAt);

@@ -25,8 +25,7 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Public.class)
     private String domain;
 
-    @NotBlank(message = "Name is mandatory")
-    @JsonView(Views.Public.class)
+    @NotBlank(message = "Name is mandatory") @JsonView(Views.Public.class)
     private String name;
 
     @JsonView(Views.Public.class)
