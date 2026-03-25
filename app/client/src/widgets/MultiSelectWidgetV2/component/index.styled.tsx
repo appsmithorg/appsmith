@@ -113,34 +113,35 @@ export const CommonSelectFilterStyle = css<{
   }
 `;
 
+/** Virtual-list / tree-select thumb width and height (horizontal track is 8px tall). */
+const RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX = 6;
+
+const rcVirtualListScrollbarTrackBase = css`
+  visibility: visible !important;
+  box-sizing: border-box !important;
+  background-color: #fff !important;
+`;
+
 /**
- * rc-virtual-list uses a custom thumb (not native scrollbars). Match Simple SelectWidget:
- * white dropdown (select-popover-wrapper) + assets/styles/index.css (5px thumb,
- * ads-v2 emphasis, 36px radius, thumb opacity 0.5 on :hover for webkit).
+ * rc-virtual-list uses a custom thumb (not native scrollbars). White track gutter;
+ * thumb uses --ads-v2-color-bg-emphasis and 36px radius (aligned with SelectWidget globals).
  */
 export const RcVirtualListScrollbarStyles = css`
-  /* Reserve space so items don't render under the absolutely-positioned scrollbar */
   .rc-virtual-list-holder-inner,
   .rc-tree-select-tree-list-holder-inner {
     padding-right: 10px;
   }
   .rc-virtual-list-scrollbar-vertical,
   .rc-tree-select-tree-list-scrollbar-vertical {
-    visibility: visible !important;
+    ${rcVirtualListScrollbarTrackBase}
     width: 10px !important;
     min-width: 10px !important;
-    box-sizing: border-box !important;
-    background-color: #fff !important;
-    border-inline-start: 1px solid var(--wds-color-border);
   }
   .rc-virtual-list-scrollbar-horizontal,
   .rc-tree-select-tree-list-scrollbar-horizontal {
-    visibility: visible !important;
+    ${rcVirtualListScrollbarTrackBase}
     height: 8px !important;
     min-height: 8px !important;
-    box-sizing: border-box !important;
-    background-color: #fff !important;
-    border-block-start: 1px solid var(--wds-color-border);
   }
   .rc-virtual-list-scrollbar .rc-virtual-list-scrollbar-thumb,
   .rc-tree-select-tree-list-scrollbar
@@ -150,15 +151,18 @@ export const RcVirtualListScrollbarStyles = css`
       rgba(0, 0, 0, 0.35)
     ) !important;
     border-radius: 36px !important;
-    opacity: 0.5;
   }
-  /* 5px thumb centered in the white gutter (globals use 5px ::-webkit-scrollbar width) */
   .rc-virtual-list-scrollbar-vertical .rc-virtual-list-scrollbar-thumb,
   .rc-tree-select-tree-list-scrollbar-vertical
     .rc-tree-select-tree-list-scrollbar-thumb {
-    width: 5px !important;
+    width: ${RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX}px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 2px !important;
+  }
+  .rc-virtual-list-scrollbar-horizontal .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar-horizontal
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    height: ${RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX}px !important;
   }
 `;
 
