@@ -119,6 +119,11 @@ export const CommonSelectFilterStyle = css<{
  * ads-v2 emphasis, 36px radius, thumb opacity 0.5 on :hover for webkit).
  */
 export const RcVirtualListScrollbarStyles = css`
+  /* Reserve space so items don't render under the absolutely-positioned scrollbar */
+  .rc-virtual-list-holder-inner,
+  .rc-tree-select-tree-list-holder-inner {
+    padding-right: 10px;
+  }
   .rc-virtual-list-scrollbar-vertical,
   .rc-tree-select-tree-list-scrollbar-vertical {
     visibility: visible !important;
