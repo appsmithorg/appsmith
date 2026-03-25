@@ -129,7 +129,7 @@ const rcVirtualListScrollbarTrackBase = css`
 export const RcVirtualListScrollbarStyles = css`
   .rc-virtual-list-holder-inner,
   .rc-tree-select-tree-list-holder-inner {
-    padding-right: 10px;
+    padding-inline-end: 10px;
   }
   .rc-virtual-list-scrollbar-vertical,
   .rc-tree-select-tree-list-scrollbar-vertical {
