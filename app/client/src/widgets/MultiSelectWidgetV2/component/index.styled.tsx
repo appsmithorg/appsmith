@@ -113,6 +113,50 @@ export const CommonSelectFilterStyle = css<{
   }
 `;
 
+/**
+ * rc-virtual-list uses a custom thumb (not native scrollbars). Match Simple SelectWidget:
+ * white dropdown (select-popover-wrapper) + assets/styles/index.css (5px thumb,
+ * ads-v2 emphasis, 36px radius, thumb opacity 0.5 on :hover for webkit).
+ */
+export const RcVirtualListScrollbarStyles = css`
+  .rc-virtual-list-scrollbar-vertical,
+  .rc-tree-select-tree-list-scrollbar-vertical {
+    visibility: visible !important;
+    width: 10px !important;
+    min-width: 10px !important;
+    box-sizing: border-box !important;
+    background-color: #fff !important;
+    border-inline-start: 1px solid var(--wds-color-border);
+  }
+  .rc-virtual-list-scrollbar-horizontal,
+  .rc-tree-select-tree-list-scrollbar-horizontal {
+    visibility: visible !important;
+    height: 8px !important;
+    min-height: 8px !important;
+    box-sizing: border-box !important;
+    background-color: #fff !important;
+    border-block-start: 1px solid var(--wds-color-border);
+  }
+  .rc-virtual-list-scrollbar .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    background-color: var(
+      --ads-v2-color-bg-emphasis,
+      rgba(0, 0, 0, 0.35)
+    ) !important;
+    border-radius: 36px !important;
+    opacity: 0.5;
+  }
+  /* 5px thumb centered in the white gutter (globals use 5px ::-webkit-scrollbar width) */
+  .rc-virtual-list-scrollbar-vertical .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar-vertical
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    width: 5px !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 2px !important;
+  }
+`;
+
 const Indicator = styled.div`
   width: 1.2em;
   height: 1.2em;
@@ -381,6 +425,7 @@ ${({ dropDownWidth, id }) => `
       margin-bottom: 0;
     }
   }
+  ${RcVirtualListScrollbarStyles}
 }
 `;
 

@@ -20,7 +20,10 @@ import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
+import {
+  type LabelPosition,
+  SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX,
+} from "components/constants";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -225,6 +228,8 @@ function MultiSelectComponent({
             name="dropdown"
           />
         }
+        listHeight={300}
+        listItemHeight={SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
