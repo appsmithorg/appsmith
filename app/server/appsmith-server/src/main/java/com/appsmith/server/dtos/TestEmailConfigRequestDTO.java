@@ -7,8 +7,7 @@ import lombok.Data;
 
 @Data
 public class TestEmailConfigRequestDTO {
-    @NotNull @NotEmpty
-    private String smtpHost;
+    @NotNull @NotEmpty private String smtpHost;
 
     @NotNull private Integer smtpPort;
 
@@ -16,9 +15,7 @@ public class TestEmailConfigRequestDTO {
 
     private String password;
 
-    @NotNull @NotEmpty
-    @Email
-    private String fromEmail;
+    @NotNull @NotEmpty @Email private String fromEmail;
 
     @NotNull private Boolean starttlsEnabled;
 }

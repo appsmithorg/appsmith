@@ -3,7 +3,7 @@
   "accountNonLocked": true,
   "credentialsNonExpired": true,
   "email": "test@appsmith.com",
-  "emptyInstance": false,
+  "isEmptyInstance": false,
   "enableTelemetry": false,
   "isAnonymous": false,
   "isConfigurable": true,

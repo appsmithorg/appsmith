@@ -129,8 +129,8 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
                 !jsonSchemaVersions.getServerVersion().equals(application.getServerSchemaVersion());
 
         exportingMetaDTO.setArtifactLastCommittedAt(applicationLastCommittedAt);
-        exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
-        exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
+        exportingMetaDTO.setIsClientSchemaMigrated(isClientSchemaMigrated);
+        exportingMetaDTO.setIsServerSchemaMigrated(isServerSchemaMigrated);
         applicationJson.setExportedApplication(application);
         applicationJson.setModifiedResources(new ModifiedResources());
 

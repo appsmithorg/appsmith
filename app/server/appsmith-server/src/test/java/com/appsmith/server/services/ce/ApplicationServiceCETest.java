@@ -483,7 +483,7 @@ public class ApplicationServiceCETest {
                     String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
                     assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(applicationFinalName));
-                    assertThat(application.isAppIsExample()).isFalse();
+                    assertThat(application.getAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(applicationFinalName);
                     assertThat(application.getPolicies()).isNotEmpty();
@@ -662,7 +662,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
-                    assertThat(t.isAppIsExample()).isFalse();
+                    assertThat(t.getAppIsExample()).isFalse();
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getName()).isEqualTo("validGetApplicationById-Test");
                 })
@@ -771,7 +771,7 @@ public class ApplicationServiceCETest {
                 .filter(t -> t.getName().equals("validGetApplications-Test"))
                 .forEach(t -> {
                     assertThat(t.getId()).isNotNull();
-                    assertThat(t.isAppIsExample()).isFalse();
+                    assertThat(t.getAppIsExample()).isFalse();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
                 });
@@ -1682,7 +1682,7 @@ public class ApplicationServiceCETest {
                             .build();
 
                     assertThat(clonedApplication).isNotNull();
-                    assertThat(clonedApplication.isAppIsExample()).isFalse();
+                    assertThat(clonedApplication.getAppIsExample()).isFalse();
                     assertThat(clonedApplication.getId()).isNotNull();
                     assertThat(clonedApplication.getName()).isEqualTo("gitConnectedApp Copy");
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -2103,7 +2103,7 @@ public class ApplicationServiceCETest {
                             .build();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.isAppIsExample()).isFalse();
+                    assertThat(application.getAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -2431,7 +2431,7 @@ public class ApplicationServiceCETest {
                             .build();
 
                     assertThat(application1).isNotNull();
-                    assertThat(application1.isAppIsExample()).isFalse();
+                    assertThat(application1.getAppIsExample()).isFalse();
                     assertThat(application1.getId()).isNotNull();
                     assertThat(application1.getName())
                             .isEqualTo(
@@ -2575,7 +2575,7 @@ public class ApplicationServiceCETest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.isAppIsExample()).isFalse();
+                    assertThat(application.getAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(appName);
                     assertThat(application.getPages()).hasSize(1);

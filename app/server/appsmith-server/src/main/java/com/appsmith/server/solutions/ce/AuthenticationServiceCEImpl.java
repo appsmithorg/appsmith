@@ -250,7 +250,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final HttpClient httpClient = HttpClient.create();
 
-                    if (oAuth2.isUseSelfSignedCert()) {
+                    if (oAuth2.getUseSelfSignedCert()) {
                         httpClient.secure(
                                 SSLHelper.sslCheckForHttpClient(datasourceStorage.getDatasourceConfiguration()));
                     }

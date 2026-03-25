@@ -1502,7 +1502,7 @@ public class CommonGitServiceCETest {
     private GitBranchDTO createGitBranchDTO(String branchName, boolean isDefault) {
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName(branchName);
-        gitBranchDTO.setDefault(isDefault);
+        gitBranchDTO.setIsDefault(isDefault);
         return gitBranchDTO;
     }
 
@@ -1765,7 +1765,7 @@ public class CommonGitServiceCETest {
                 commonGitServiceCE.isBranchMergeable(application.getId(), gitMergeDTO, ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
-                .assertNext(s -> assertThat(s.isMergeAble()).isTrue())
+                .assertNext(s -> assertThat(s.getMergeAble()).isTrue())
                 .verifyComplete();
     }
 
@@ -1810,7 +1810,7 @@ public class CommonGitServiceCETest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isFalse();
+                    assertThat(s.getMergeAble()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -1860,7 +1860,7 @@ public class CommonGitServiceCETest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isFalse();
+                    assertThat(s.getMergeAble()).isFalse();
                     assertThat(s.getMessage()).contains("Remote is ahead of local");
                 })
                 .verifyComplete();

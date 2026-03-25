@@ -29,8 +29,9 @@ public class OpenAIMethodStrategy {
             case OpenAIConstants.CHAT_MODELS -> new ChatCommand(gson);
             case OpenAIConstants.EMBEDDINGS_MODELS -> new EmbeddingsCommand(gson);
             case OpenAIConstants.VISION_MODELS -> new VisionCommand(gson);
-            default -> throw Exceptions.propagate(
-                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+            default ->
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
     }
 
@@ -45,8 +46,9 @@ public class OpenAIMethodStrategy {
             case CHAT -> new ChatCommand(gson);
             case EMBEDDINGS -> new EmbeddingsCommand(gson);
             case VISION -> new VisionCommand(gson);
-            default -> throw Exceptions.propagate(
-                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+            default ->
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
     }
 }

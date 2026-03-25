@@ -16,7 +16,7 @@ const StyledSetupContainer = styled.div`
 function Setup() {
   const user = useSelector(getCurrentUser);
 
-  if (!user?.emptyInstance) {
+  if (!user?.isEmptyInstance) {
     return <Redirect to={AUTH_LOGIN_URL} />;
   }
 

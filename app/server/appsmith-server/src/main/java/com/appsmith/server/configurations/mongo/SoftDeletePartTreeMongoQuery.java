@@ -6,8 +6,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;
 import org.springframework.data.mongodb.repository.query.ReactiveMongoQueryMethod;
 import org.springframework.data.mongodb.repository.query.ReactivePartTreeMongoQuery;
-import org.springframework.data.repository.query.ReactiveQueryMethodEvaluationContextProvider;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
@@ -23,13 +22,11 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
             Method method,
             ReactivePartTreeMongoQuery reactivePartTreeMongoQuery,
             ReactiveMongoOperations mongoOperations,
-            SpelExpressionParser expressionParser,
-            ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider) {
+            ValueExpressionDelegate valueExpressionDelegate) {
         super(
                 (ReactiveMongoQueryMethod) reactivePartTreeMongoQuery.getQueryMethod(),
                 mongoOperations,
-                expressionParser,
-                evaluationContextProvider);
+                valueExpressionDelegate);
         this.reactivePartTreeQuery = reactivePartTreeMongoQuery;
         this.method = method;
     }

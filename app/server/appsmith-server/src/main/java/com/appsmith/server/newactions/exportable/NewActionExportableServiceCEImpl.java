@@ -94,8 +94,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                                 .getModifiedResources()
                                 .isResourceUpdatedNew(GitResourceType.CONTEXT_CONFIG, contextGitSyncId);
                         Instant newActionUpdatedAt = newAction.getUpdatedAt();
-                        boolean isNewActionUpdated = exportingMetaDTO.isClientSchemaMigrated()
-                                || exportingMetaDTO.isServerSchemaMigrated()
+                        boolean isNewActionUpdated = exportingMetaDTO.getIsClientSchemaMigrated()
+                                || exportingMetaDTO.getIsServerSchemaMigrated()
                                 || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || isContextUpdated
                                 || isDatasourceUpdated

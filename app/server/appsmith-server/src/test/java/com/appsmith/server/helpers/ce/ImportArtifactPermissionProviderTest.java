@@ -149,13 +149,14 @@ class ImportArtifactPermissionProviderTest {
                         .getRequiredPermissionOnTargetWorkspace())
                 .isEqualTo(workspacePermission.getReadPermission());
 
-        assertTrue(builder.permissionRequiredToCreateDatasource(true).build().isPermissionRequiredToCreateDatasource());
-        assertTrue(builder.permissionRequiredToCreatePage(true).build().isPermissionRequiredToCreatePage());
-        assertTrue(builder.permissionRequiredToCreateAction(true).build().isPermissionRequiredToCreateAction());
+        assertTrue(
+                builder.permissionRequiredToCreateDatasource(true).build().getPermissionRequiredToCreateDatasource());
+        assertTrue(builder.permissionRequiredToCreatePage(true).build().getPermissionRequiredToCreatePage());
+        assertTrue(builder.permissionRequiredToCreateAction(true).build().getPermissionRequiredToCreateAction());
 
-        assertTrue(builder.permissionRequiredToEditDatasource(true).build().isPermissionRequiredToEditDatasource());
-        assertTrue(builder.permissionRequiredToEditContext(true).build().isPermissionRequiredToEditContext());
-        assertTrue(builder.permissionRequiredToEditAction(true).build().isPermissionRequiredToEditAction());
+        assertTrue(builder.permissionRequiredToEditDatasource(true).build().getPermissionRequiredToEditDatasource());
+        assertTrue(builder.permissionRequiredToEditContext(true).build().getPermissionRequiredToEditContext());
+        assertTrue(builder.permissionRequiredToEditAction(true).build().getPermissionRequiredToEditAction());
     }
 
     @Test
@@ -169,12 +170,12 @@ class ImportArtifactPermissionProviderTest {
                 .allPermissionsRequired()
                 .build();
 
-        assertTrue(provider.isPermissionRequiredToCreateDatasource());
-        assertTrue(provider.isPermissionRequiredToCreatePage());
-        assertTrue(provider.isPermissionRequiredToCreateAction());
-        assertTrue(provider.isPermissionRequiredToEditDatasource());
-        assertTrue(provider.isPermissionRequiredToEditContext());
-        assertTrue(provider.isPermissionRequiredToEditAction());
+        assertTrue(provider.getPermissionRequiredToCreateDatasource());
+        assertTrue(provider.getPermissionRequiredToCreatePage());
+        assertTrue(provider.getPermissionRequiredToCreateAction());
+        assertTrue(provider.getPermissionRequiredToEditDatasource());
+        assertTrue(provider.getPermissionRequiredToEditContext());
+        assertTrue(provider.getPermissionRequiredToEditAction());
     }
 
     /**
