@@ -506,7 +506,7 @@ public class GitBranchesIT {
         MergeStatusDTO mergeStatusDTO2 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO2, artifactType).block();
 
         assertThat(mergeStatusDTO2).isNotNull();
-        assertThat(mergeStatusDTO2.isMergeAble()).isFalse();
+        assertThat(mergeStatusDTO2.getMergeAble()).isFalse();
         assertThat(mergeStatusDTO2.getMessage()).isEqualTo(GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage("bar"));
 
         // Create a new branch baz and check for new commit
@@ -540,13 +540,13 @@ public class GitBranchesIT {
         MergeStatusDTO mergeStatusDTO3 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO3, artifactType).block();
 
         assertThat(mergeStatusDTO3).isNotNull();
-        assertThat(mergeStatusDTO3.isMergeAble()).isTrue();
+        assertThat(mergeStatusDTO3.getMergeAble()).isTrue();
 
         // Merge bar to master and check log of commits on foo is same as bar
         MergeStatusDTO barToBazMergeStatus = commonGitService.mergeBranch(barArtifactId, gitMergeDTO3, artifactType).block();
 
         assertThat(barToBazMergeStatus).isNotNull();
-        assertThat(barToBazMergeStatus.isMergeAble()).isTrue();
+        assertThat(barToBazMergeStatus.getMergeAble()).isTrue();
         assertThat(barToBazMergeStatus.getStatus()).contains("FAST_FORWARD");
 
         // Since fast-forward should succeed here, top of commit should not change

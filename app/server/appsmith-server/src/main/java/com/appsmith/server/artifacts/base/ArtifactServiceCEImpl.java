@@ -115,7 +115,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                             && StringUtils.hasLength(gitData.getDefaultArtifactId())
                             && branchedArtifactId.equals(gitData.getDefaultArtifactId())) {
                         // This is the root artifact with update SSH key request
-                        gitAuth.setRegeneratedKey(true);
+                        gitAuth.setIsRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
                         return artifactBasedService.save(artifact);
                     } else if (gitData == null) {
@@ -135,7 +135,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                 "Unable to find root " + artifactTypeName + ", please connect your " + artifactTypeName
                                         + " to remote repo to resolve this issue."));
                     }
-                    gitAuth.setRegeneratedKey(true);
+                    gitAuth.setIsRegeneratedKey(true);
                     return artifactBasedService
                             .findById(gitData.getDefaultArtifactId(), artifactPermission.getEditPermission())
                             .flatMap(baseArtifact -> {
@@ -157,7 +157,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                             "workspaceId",
                             artifact.getWorkspaceId(),
                             "isRegeneratedKey",
-                            gitAuth.isRegeneratedKey(),
+                            gitAuth.getIsRegeneratedKey(),
                             FieldName.EVENT_DATA,
                             eventData);
                     return analyticsService

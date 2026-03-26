@@ -1240,7 +1240,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 publishingMetaDTO.getPublishedActionCollectionsListMono();
         Mono<Set<CustomJSLibContextDTO>> publishedJSLibDTOsMono = publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
         String applicationId = publishingMetaDTO.getApplicationId();
-        boolean isPublishedManually = publishingMetaDTO.isPublishedManually();
+        boolean isPublishedManually = publishingMetaDTO.getIsPublishedManually();
 
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();

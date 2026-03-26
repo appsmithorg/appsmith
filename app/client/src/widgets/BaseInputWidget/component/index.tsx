@@ -729,6 +729,7 @@ class BaseInputComponent extends React.Component<
             fontStyle={labelStyle}
             helpText={tooltip}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
+            isRequired={this.props.isRequired}
             loading={isLoading}
             position={labelPosition}
             rtl={this.props.rtl}
@@ -817,6 +818,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   widgetId: string;
   onStep?: (direction: number) => void;
   spellCheck?: boolean;
+  isRequired?: boolean;
   maxNum?: number;
   minNum?: number;
   inputRef?: MutableRefObject<

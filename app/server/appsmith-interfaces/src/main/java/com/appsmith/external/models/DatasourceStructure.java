@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -114,6 +115,8 @@ public class DatasourceStructure {
         String title;
         String body;
         Object configuration;
+
+        @JsonProperty("suggested")
         boolean isSuggested;
 
         // To create templates for plugins which store the configurations

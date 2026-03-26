@@ -619,6 +619,7 @@ class BaseInputWidget<
         intent={this.props.intent}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

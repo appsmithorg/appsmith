@@ -48,6 +48,21 @@ public class FilterDataServiceTest {
     }
 
     @Test
+    public void testDropTable_rejectsSqlInjectionPayload() {
+        AppsmithPluginException ex = assertThrows(AppsmithPluginException.class, () -> {
+            filterDataService.dropTable("valid_table; DROP TABLE users; --");
+        });
+        assertThat(ex.getMessage()).contains("Invalid filter temporary table name");
+    }
+
+    @Test
+    public void testDropTable_acceptsGeneratedTableName() {
+        Map<String, DataType> schema = Map.of("id", DataType.INTEGER);
+        String tableName = filterDataService.generateTable(schema);
+        filterDataService.dropTable(tableName);
+    }
+
+    @Test
     public void generateLogicalOperatorTest() {
 
         String data = "[\n" + "  {\n"

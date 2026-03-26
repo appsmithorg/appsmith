@@ -29,6 +29,8 @@ on:
       - "app/server/**"
       - "app/client/packages/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
+      - "Dockerfile"
+      - "deploy/docker/base.dockerfile"
 
 jobs:
   setup:

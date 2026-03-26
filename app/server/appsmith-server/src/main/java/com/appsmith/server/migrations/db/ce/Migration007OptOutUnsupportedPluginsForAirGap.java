@@ -53,7 +53,7 @@ public class Migration007OptOutUnsupportedPluginsForAirGap {
                     || cloudServicesDependentPluginTypes.contains(plugin.getType())) {
 
                 if (unsupportedPluginPackageNameInAirgap.contains(plugin.getPackageName())) {
-                    plugin.setSupportedForAirGap(false);
+                    plugin.setIsSupportedForAirGap(false);
                 }
                 if (cloudServicesDependentPluginTypes.contains(plugin.getType())) {
                     plugin.setIsDependentOnCS(true);

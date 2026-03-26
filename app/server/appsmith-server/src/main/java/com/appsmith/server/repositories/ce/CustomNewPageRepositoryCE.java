@@ -33,8 +33,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    public Flux<NewPage> findByBasePageId(
-            String basePageId, AclPermission permission, List<String> projectedFieldNames);
+    Flux<NewPage> findByBasePageId(String basePageId, AclPermission permission, List<String> projectedFieldNames);
 
     Mono<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
             RefType refType,

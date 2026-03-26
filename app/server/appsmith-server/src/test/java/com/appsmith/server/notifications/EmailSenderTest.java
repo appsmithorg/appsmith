@@ -33,7 +33,7 @@ public class EmailSenderTest {
 
     @Test
     public void itShouldNotSendMailsWithInvalidAddresses() {
-        Mockito.when(emailConfig.isEmailEnabled()).thenReturn(true);
+        Mockito.when(emailConfig.getEmailEnabled()).thenReturn(true);
 
         List<String> invalidAddresses = Arrays.asList(
                 "plainaddress",

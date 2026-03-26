@@ -288,7 +288,7 @@ export function* runUserSideEffectsSaga() {
     yield put(segmentInitSuccess());
   }
 
-  if (currentUser.emptyInstance) {
+  if (currentUser.isEmptyInstance) {
     history.replace(SETUP);
   }
 }
@@ -557,7 +557,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
       AnalyticsUtil.reset();
       const currentUser: User | undefined = yield select(getCurrentUser);
 
-      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
+      yield put(logoutUserSuccess(!!currentUser?.isEmptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
