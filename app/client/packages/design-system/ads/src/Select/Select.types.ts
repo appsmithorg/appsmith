@@ -11,6 +11,8 @@ export type SelectProps = RCSelectProps & {
   isDisabled?: boolean;
   isValid?: boolean;
   isLoading?: boolean;
+  /** Whether the select field is required (for accessibility) */
+  isRequired?: boolean;
   dropdownMatchSelectWidth?: boolean | number;
 };
 

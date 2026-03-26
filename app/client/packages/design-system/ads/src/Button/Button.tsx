@@ -40,6 +40,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       startIcon,
       UNSAFE_height,
       UNSAFE_width,
+      // Extract aria-label to ensure it's properly passed for accessibility
+      "aria-label": ariaLabel,
       ...rest
     } = props;
 
@@ -49,6 +51,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonRef = useDOMRef(ref);
     const { focusProps, isFocusVisible } = useFocusRing();
 
+    // Determine aria-label for accessibility
+    // Icon-only buttons should have an aria-label for screen readers
+    const computedAriaLabel = ariaLabel;
+
     return (
       <StyledButton
         as={renderAs || "button"}
@@ -57,6 +63,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...focusProps}
         UNSAFE_height={UNSAFE_height}
         UNSAFE_width={UNSAFE_width}
+        aria-busy={isLoading}
+        aria-label={computedAriaLabel}
         className={clsx(ButtonClassName, className)}
         data-disabled={props.isDisabled || false}
         data-loading={isLoading}

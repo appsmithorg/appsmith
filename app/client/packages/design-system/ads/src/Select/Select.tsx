@@ -30,6 +30,7 @@ function Select(props: SelectProps) {
     isDisabled = false,
     isLoading = false,
     isMultiSelect,
+    isRequired = false,
     isValid,
     maxTagCount = isMultiSelect
       ? props.value?.length > 1
@@ -41,6 +42,10 @@ function Select(props: SelectProps) {
     showSearch = false,
     size = "md",
     virtual = false,
+    // Extract aria props for accessibility
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledby,
+    "aria-describedby": ariaDescribedby,
     ...rest
   } = props;
   const searchRef = useRef<HTMLInputElement>(null);
@@ -76,9 +81,19 @@ function Select(props: SelectProps) {
     setSearchValue("");
   };
 
+  // Determine aria-invalid based on isValid prop
+  // When isValid is explicitly false, the field has a validation error
+  const ariaInvalid = isValid === false ? "true" : undefined;
+
   return (
     <RCSelect
       {...rest}
+      aria-busy={isLoading}
+      aria-describedby={ariaDescribedby}
+      aria-invalid={ariaInvalid}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
+      aria-required={isRequired || undefined}
       className={clsx(SelectClassName, className)}
       clearIcon={<Icon name="close-circle-line" size="md" />}
       data-is-valid={isValid}
