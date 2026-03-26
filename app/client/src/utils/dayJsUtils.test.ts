@@ -1,6 +1,17 @@
 import { getHumanizedTime, getReadableDateInFormat, dayjs } from "./dayJsUtils";
 
 describe("dayJsUtils", () => {
+  let previousLocale: string;
+
+  beforeAll(() => {
+    previousLocale = dayjs.locale();
+    dayjs.locale("en");
+  });
+
+  afterAll(() => {
+    dayjs.locale(previousLocale);
+  });
+
   describe("getHumanizedTime", () => {
     it("should return 'a few seconds' for small time values", () => {
       expect(getHumanizedTime(1000)).toBe("a few seconds");
@@ -58,17 +69,17 @@ describe("dayJsUtils", () => {
 
   describe("getReadableDateInFormat", () => {
     it("should format date in default format", () => {
-      const date = new Date("2024-03-15T12:00:00Z");
+      const date = new Date(2024, 2, 15, 12, 0, 0); // Local time, timezone-independent
       expect(getReadableDateInFormat(date, "YYYY-MM-DD")).toBe("2024-03-15");
     });
 
     it("should format date with time", () => {
-      const date = new Date("2024-03-15T14:30:00Z");
+      const date = new Date(2024, 2, 15, 14, 30, 0); // Local time, timezone-independent
       expect(getReadableDateInFormat(date, "YYYY-MM-DD HH:mm")).toBe("2024-03-15 14:30");
     });
 
     it("should format date in various formats", () => {
-      const date = new Date("2024-03-15T12:00:00Z");
+      const date = new Date(2024, 2, 15, 12, 0, 0); // Local time, timezone-independent
 
       expect(getReadableDateInFormat(date, "DD/MM/YYYY")).toBe("15/03/2024");
       expect(getReadableDateInFormat(date, "MM-DD-YYYY")).toBe("03-15-2024");
@@ -76,27 +87,27 @@ describe("dayJsUtils", () => {
     });
 
     it("should handle month names", () => {
-      const date = new Date("2024-06-15T12:00:00Z");
+      const date = new Date(2024, 5, 15, 12, 0, 0); // June 15, 2024 (month is 0-indexed)
       expect(getReadableDateInFormat(date, "MMMM YYYY")).toBe("June 2024");
     });
 
     it("should handle day names", () => {
-      const date = new Date("2024-03-15T12:00:00Z");
+      const date = new Date(2024, 2, 15, 12, 0, 0); // March 15, 2024 is a Friday
       expect(getReadableDateInFormat(date, "dddd")).toBe("Friday");
     });
 
     it("should format with seconds", () => {
-      const date = new Date("2024-03-15T14:30:45Z");
+      const date = new Date(2024, 2, 15, 14, 30, 45); // Local time, timezone-independent
       expect(getReadableDateInFormat(date, "HH:mm:ss")).toBe("14:30:45");
     });
 
     it("should handle 12-hour format", () => {
-      const date = new Date("2024-03-15T14:30:00Z");
+      const date = new Date(2024, 2, 15, 14, 30, 0); // 2:30 PM in local time
       expect(getReadableDateInFormat(date, "hh:mm A")).toBe("02:30 PM");
     });
 
     it("should handle empty format string", () => {
-      const date = new Date("2024-03-15T12:00:00Z");
+      const date = new Date(2024, 2, 15, 12, 0, 0);
       // dayjs returns ISO format when format string is empty
       const result = getReadableDateInFormat(date, "");
       expect(result).toContain("2024");
@@ -110,7 +121,7 @@ describe("dayJsUtils", () => {
     });
 
     it("should handle advanced format features", () => {
-      const date = new Date("2024-03-15T14:30:45Z");
+      const date = new Date(2024, 2, 15, 14, 30, 45); // March 15, 2024 is Q1
 
       // Quarter
       expect(getReadableDateInFormat(date, "Q")).toBe("1");

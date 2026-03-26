@@ -192,7 +192,7 @@ describe("TypeHelpers", () => {
         expect(isURL(" ")).toBe(false);
       });
 
-      it("should return false for URLs without protocol", () => {
+      it("should accept domain URLs without protocol", () => {
         // Note: The regex actually allows URLs without protocol (protocol is optional)
         // The regex pattern allows domains like "example.com" as valid
         expect(isURL("example.com")).toBe(true); // Domain without protocol is accepted
