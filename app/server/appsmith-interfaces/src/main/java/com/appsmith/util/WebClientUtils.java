@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -196,6 +197,47 @@ public class WebClientUtils {
         protected AddressResolver<InetSocketAddress> newResolver(EventExecutor executor) {
             return new InetSocketAddressResolver(executor, new NameResolver(executor));
         }
+    }
+
+    /**
+     * Validates that a hostname or IP is safe for outbound connections from non-HTTP paths
+     * (e.g. SMTP via JavaMail). Checks against the cloud-metadata denylist and, after DNS
+     * resolution, rejects loopback, link-local, site-local, and other non-routable addresses.
+     *
+     * @return empty if the host is allowed; a reason string if it must be blocked
+     */
+    public static Optional<String> validateHostNotDisallowed(String host) {
+        if (!StringUtils.hasText(host)) {
+            return Optional.of("Host is null or empty.");
+        }
+
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+
+        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
+            return Optional.of(HOST_NOT_ALLOWED);
+        }
+
+        final InetAddress[] resolved;
+        try {
+            resolved = InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            return Optional.of("Unable to resolve host.");
+        }
+
+        for (InetAddress addr : resolved) {
+            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
+                return Optional.of(HOST_NOT_ALLOWED);
+            }
+            if (addr.isLoopbackAddress()
+                    || addr.isLinkLocalAddress()
+                    || addr.isSiteLocalAddress()
+                    || addr.isAnyLocalAddress()
+                    || addr.isMulticastAddress()) {
+                return Optional.of(HOST_NOT_ALLOWED);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {

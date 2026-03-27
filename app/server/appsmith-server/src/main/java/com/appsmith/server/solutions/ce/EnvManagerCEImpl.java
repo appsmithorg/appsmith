@@ -28,6 +28,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -783,9 +784,18 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    private static final String SMTP_GENERIC_ERROR =
+            "Failed to connect to the SMTP server. Please verify the host, " + "port, and credentials are correct.";
+
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper().flatMap(user -> {
+            var hostCheckResult = WebClientUtils.validateHostNotDisallowed(requestDTO.getSmtpHost());
+            if (hostCheckResult.isPresent()) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP host: " + hostCheckResult.get()));
+            }
+
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
             mailSender.setHost(requestDTO.getSmtpHost());
             mailSender.setPort(requestDTO.getSmtpPort());
@@ -817,15 +827,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             try {
                 mailSender.testConnection();
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.GENERIC_BAD_REQUEST, e.getMessage().trim()));
+                log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
+                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
             }
 
             try {
                 mailSender.send(message);
             } catch (MailException mailException) {
                 log.error("failed to send test email", mailException);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, mailException.getMessage()));
+                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
             }
             return Mono.just(TRUE);
         });

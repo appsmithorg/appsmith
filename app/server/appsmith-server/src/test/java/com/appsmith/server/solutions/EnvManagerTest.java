@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BlacklistedEnvVariableHelper;
@@ -381,6 +382,70 @@ public class EnvManagerTest {
 
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
+                .verify();
+    }
+
+    private void mockSuperUser() {
+        User user = new User();
+        user.setEmail("admin@appsmith.com");
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
+    }
+
+    private TestEmailConfigRequestDTO buildDto(String smtpHost) {
+        TestEmailConfigRequestDTO dto = new TestEmailConfigRequestDTO();
+        dto.setSmtpHost(smtpHost);
+        dto.setSmtpPort(25);
+        dto.setFromEmail("test@appsmith.com");
+        dto.setStarttlsEnabled(false);
+        return dto;
+    }
+
+    @Test
+    public void sendTestEmail_WhenLocalhostHost_ThrowsException() {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("127.0.0.1")))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP host");
+                })
+                .verify();
+    }
+
+    @Test
+    public void sendTestEmail_WhenCloudMetadataHost_ThrowsException() {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("169.254.169.254")))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP host");
+                })
+                .verify();
+    }
+
+    @Test
+    public void sendTestEmail_WhenPrivateNetworkHost_ThrowsException() {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("10.0.0.1")))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP host");
+                })
+                .verify();
+    }
+
+    @Test
+    public void sendTestEmail_WhenLocalhost_ThrowsException() {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("localhost")))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP host");
+                })
                 .verify();
     }
 
