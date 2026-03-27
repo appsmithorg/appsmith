@@ -113,29 +113,36 @@ export const CommonSelectFilterStyle = css<{
   }
 `;
 
-/** Virtual-list / tree-select thumb width and height (horizontal track is 8px tall). */
+/** Thumb size (vertical width / horizontal height). Horizontal track strip is 8px tall. */
 const RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX = 6;
+/** Matches vertical track width; list padding uses :has() so short lists don’t reserve a gutter. */
+const RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX = 10;
 
 const rcVirtualListScrollbarTrackBase = css`
-  visibility: visible !important;
   box-sizing: border-box !important;
   background-color: #fff !important;
 `;
 
 /**
- * rc-virtual-list uses a custom thumb (not native scrollbars). White track gutter;
- * thumb uses --ads-v2-color-bg-emphasis and 36px radius (aligned with SelectWidget globals).
+ * rc-virtual-list / rc-tree-select custom scrollbars: white track, emphasis thumb, 36px radius.
+ * Padding and gutter width stay in sync when a vertical scrollbar is mounted (`:has(...)`).
  */
 export const RcVirtualListScrollbarStyles = css`
   .rc-virtual-list-holder-inner,
   .rc-tree-select-tree-list-holder-inner {
-    padding-inline-end: 10px;
+    padding-inline-end: 0;
+  }
+  .rc-virtual-list:has(.rc-virtual-list-scrollbar-vertical)
+    .rc-virtual-list-holder-inner,
+  .rc-tree-select-tree-list:has(.rc-tree-select-tree-list-scrollbar-vertical)
+    .rc-tree-select-tree-list-holder-inner {
+    padding-inline-end: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px;
   }
   .rc-virtual-list-scrollbar-vertical,
   .rc-tree-select-tree-list-scrollbar-vertical {
     ${rcVirtualListScrollbarTrackBase}
-    width: 10px !important;
-    min-width: 10px !important;
+    width: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px !important;
+    min-width: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px !important;
   }
   .rc-virtual-list-scrollbar-horizontal,
   .rc-tree-select-tree-list-scrollbar-horizontal {
