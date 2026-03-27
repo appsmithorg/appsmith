@@ -218,8 +218,6 @@ public class UserServiceTest {
         newUser.setEmail(sampleEmail);
         newUser.setPassword("new-user-test-password");
 
-        Mono<User> usercreateMono = userService.create(newUser).cache();
-
         Mono<User> userCreateMono = userService.create(newUser).cache();
 
         Mono<PermissionGroup> permissionGroupMono = userCreateMono.flatMap(user -> {
@@ -261,6 +259,107 @@ public class UserServiceTest {
                     assertThat(optionalViewUserPolicy.get().getPermissionGroups())
                             .contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUser_WhenEmailHasInvisibleUnicode_SavedNormalized() {
+        String dirtyEmail = "\u2060new-invisible-char-user@example.com";
+        String expectedCleanEmail = "new-invisible-char-user@example.com";
+
+        User newUser = new User();
+        newUser.setEmail(dirtyEmail);
+        newUser.setPassword("test-password-123");
+
+        Mono<User> userCreateMono = userService.create(newUser);
+
+        StepVerifier.create(userCreateMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(expectedCleanEmail);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUser_WhenEmailHasMultipleDirtyChars_SavedFullyNormalized() {
+        String dirtyEmail = "  \u200B\u200CNew-Multi-Dirty@Example\uFEFF.COM  ";
+        String expectedCleanEmail = "new-multi-dirty@example.com";
+
+        User newUser = new User();
+        newUser.setEmail(dirtyEmail);
+        newUser.setPassword("test-password-123");
+
+        Mono<User> userCreateMono = userService.create(newUser);
+
+        StepVerifier.create(userCreateMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(expectedCleanEmail);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUser_WhenCleanEmail_SavedUnchanged() {
+        String cleanEmail = "clean-email-unchanged@example.com";
+
+        User newUser = new User();
+        newUser.setEmail(cleanEmail);
+        newUser.setPassword("test-password-123");
+
+        Mono<User> userCreateMono = userService.create(newUser);
+
+        StepVerifier.create(userCreateMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(cleanEmail);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaFormLogin_WhenEmailHasInvisibleUnicode_SavedNormalized() {
+        String dirtyEmail = "\u200Bform-signup-dirty@example.com";
+        String expectedCleanEmail = "form-signup-dirty@example.com";
+
+        User signupUser = new User();
+        signupUser.setEmail(dirtyEmail);
+        signupUser.setPassword("test-password-123");
+        signupUser.setSource(LoginSource.FORM);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail()).isEqualTo(expectedCleanEmail);
+                    assertThat(user.getSource()).isEqualTo(LoginSource.FORM);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaGoogle_WhenEmailHasInvisibleUnicode_SavedNormalized() {
+        String dirtyEmail = "\u2060google-signup-dirty@example.com";
+        String expectedCleanEmail = "google-signup-dirty@example.com";
+
+        User signupUser = new User();
+        signupUser.setEmail(dirtyEmail);
+        signupUser.setPassword("test-password-123");
+        signupUser.setSource(LoginSource.GOOGLE);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail()).isEqualTo(expectedCleanEmail);
+                    assertThat(user.getSource()).isEqualTo(LoginSource.GOOGLE);
                 })
                 .verifyComplete();
     }
