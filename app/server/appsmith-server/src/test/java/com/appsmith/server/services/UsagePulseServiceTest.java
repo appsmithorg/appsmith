@@ -35,7 +35,7 @@ public class UsagePulseServiceTest {
 
     @BeforeEach
     public void setup() {
-        commonConfig.setCloudHosting(false);
+        commonConfig.setIsCloudHosting(false);
     }
 
     /**
@@ -123,7 +123,7 @@ public class UsagePulseServiceTest {
         usagePulseService.createPulse(usagePulseDTO).block();
         Long usagePulseCountForSelfHostedInstance = repository.count().block();
 
-        commonConfig.setCloudHosting(true);
+        commonConfig.setIsCloudHosting(true);
         usagePulseService.createPulse(usagePulseDTO).block();
         Long usagePulseCountForCloud = repository.count().block();
 

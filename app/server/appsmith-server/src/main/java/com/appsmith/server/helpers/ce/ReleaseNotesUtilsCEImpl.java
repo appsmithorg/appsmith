@@ -51,7 +51,7 @@ public class ReleaseNotesUtilsCEImpl implements ReleaseNotesUtilsCE {
                                 // For docker images that burn the segment key with the image, the CE key will be
                                 // present
                                 "&isSourceInstall="
-                                + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey()))
+                                + (commonConfig.getIsCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey()))
                                 + (StringUtils.isEmpty(commonConfig.getRepo())
                                         ? ""
                                         : ("&repo=" + commonConfig.getRepo()))

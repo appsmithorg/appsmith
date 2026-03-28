@@ -5,5 +5,5 @@ package com.appsmith.server.solutions.ce;
  */
 public interface PluginScheduledTaskCE {
 
-    public void updateRemotePlugins();
+    void updateRemotePlugins();
 }

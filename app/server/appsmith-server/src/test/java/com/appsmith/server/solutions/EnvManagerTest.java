@@ -349,6 +349,29 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void unsafeShellValuesAreQuoted() {
+        final String content = "APPSMITH_DISABLE_TELEMETRY=false";
+
+        StepVerifier.create(envManager.transformEnvContent(
+                        content, Map.of("APPSMITH_DISABLE_TELEMETRY", "$(touch${IFS}/tmp/pwned)")))
+                .assertNext(value ->
+                        assertThat(value).containsExactly("APPSMITH_DISABLE_TELEMETRY='$(touch${IFS}/tmp/pwned)'"))
+                .verifyComplete();
+    }
+
+    @Test
+    public void controlCharactersInValuesAreRejected() {
+        final String content = "APPSMITH_DISABLE_TELEMETRY=false";
+
+        StepVerifier.create(envManager.transformEnvContent(
+                        content,
+                        Map.of("APPSMITH_DISABLE_TELEMETRY", "false\nAPPSMITH_JAVA_ARGS=$(touch${IFS}/tmp/pwned)")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER))
+                .verify();
+    }
+
+    @Test
     public void sendTestEmail_WhenUserNotSuperUser_ThrowsException() {
         User user = new User();
         user.setEmail("sample-super-user");

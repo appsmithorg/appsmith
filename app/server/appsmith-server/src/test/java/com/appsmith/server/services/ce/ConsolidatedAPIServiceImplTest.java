@@ -174,7 +174,7 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.release_static_url_enabled);
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.license_static_url_enabled);
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
@@ -744,7 +744,7 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.release_static_url_enabled);
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(FeatureFlagEnum.license_static_url_enabled);
 
         Mockito.doReturn(Mono.empty())
                 .when(mockNewPageRepository)

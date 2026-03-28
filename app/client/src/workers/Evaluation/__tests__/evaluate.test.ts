@@ -344,7 +344,7 @@ describe("createEvaluationContext", () => {
         accountNonExpired: true,
         accountNonLocked: true,
         credentialsNonExpired: true,
-        emptyInstance: false,
+        isEmptyInstance: false,
         isAnonymous: false,
         isEnabled: true,
         isSuperUser: true,

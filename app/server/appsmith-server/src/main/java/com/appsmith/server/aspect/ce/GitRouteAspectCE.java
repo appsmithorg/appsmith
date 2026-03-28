@@ -289,6 +289,7 @@ public class GitRouteAspectCE {
                         ctx.setError(appsmithException);
                     } else {
                         ctx.setError(new AppsmithException(
+                                e,
                                 AppsmithError.GIT_ACTION_FAILED,
                                 ctx.getGitRoute().operation().toString().toLowerCase(),
                                 String.format(RUN_ERROR_MESSAGE_FORMAT, current.name(), e.getMessage())));

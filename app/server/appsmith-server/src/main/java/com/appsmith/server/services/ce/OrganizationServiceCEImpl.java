@@ -225,8 +225,41 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .flatMap(organizationId -> cacheableRepositoryHelper.getOrganizationById(organizationId))
                 .name(FETCH_DEFAULT_ORGANIZATION_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(organization ->
-                        repository.setUserPermissionsInObject(organization).switchIfEmpty(Mono.just(organization)))
+                .flatMap(organization -> {
+                    log.info(
+                            "Organization fetched from cache — id: {}, policiesCount: {}, policiesNull: {}, policyMapNull: {}, policyMapSize: {}",
+                            organization.getId(),
+                            organization.getPolicies() != null
+                                    ? organization.getPolicies().size()
+                                    : "null",
+                            organization.getPolicies() == null,
+                            organization.getPolicyMap() == null,
+                            organization.getPolicyMap() != null
+                                    ? organization.getPolicyMap().size()
+                                    : "null");
+                    if (organization.getPolicies() != null) {
+                        organization
+                                .getPolicies()
+                                .forEach(policy -> log.info(
+                                        "Policy — permission: {}, permissionGroups: {}",
+                                        policy.getPermission(),
+                                        policy.getPermissionGroups()));
+                    }
+                    return repository
+                            .setUserPermissionsInObject(organization)
+                            .doOnNext(org -> log.info(
+                                    "After -> setUserPermissionsInObject — userPermissions: {}, permissionsCount: {}",
+                                    org.getUserPermissions(),
+                                    org.getUserPermissions() != null
+                                            ? org.getUserPermissions().size()
+                                            : "null"))
+                            .switchIfEmpty(Mono.defer(() -> {
+                                log.warn(
+                                        "setUserPermissionsInObject returned empty Mono for org: {}",
+                                        organization.getId());
+                                return Mono.just(organization);
+                            }));
+                })
                 .onErrorResume(e -> {
                     log.error("Error fetching default organization from redis : {}", e.getMessage());
                     // If there is an error fetching the organization from the cache, then evict the cache and fetching

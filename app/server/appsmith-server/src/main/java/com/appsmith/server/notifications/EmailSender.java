@@ -79,7 +79,7 @@ public class EmailSender {
     private void sendMailSync(String to, String subject, String text, String replyTo) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);
         // Don't send an email for local, dev or test environments
-        if (!emailConfig.isEmailEnabled()) {
+        if (!emailConfig.getEmailEnabled()) {
             return;
         }
 

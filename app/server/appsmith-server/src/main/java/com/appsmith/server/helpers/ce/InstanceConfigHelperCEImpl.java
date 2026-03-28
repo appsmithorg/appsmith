@@ -172,7 +172,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
-                // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
+            // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
             case 1:
                 versions.add("v1.9.2");
                 docs.add(

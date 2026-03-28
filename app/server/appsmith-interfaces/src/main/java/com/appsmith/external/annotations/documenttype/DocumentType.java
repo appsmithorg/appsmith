@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface DocumentType {
 
-    public String value() default "";
+    String value() default "";
 }

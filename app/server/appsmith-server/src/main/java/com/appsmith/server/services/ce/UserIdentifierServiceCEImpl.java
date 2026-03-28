@@ -24,7 +24,7 @@ public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE {
     @Override
     public String getUserIdentifier(User user) {
         String userIdentifier = user.getUsername();
-        if (!commonConfig.isCloudHosting()) {
+        if (!commonConfig.getIsCloudHosting()) {
             userIdentifier = hash(user.getUsername());
         }
         return userIdentifier;

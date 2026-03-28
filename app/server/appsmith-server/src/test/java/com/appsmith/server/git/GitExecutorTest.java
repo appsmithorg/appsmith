@@ -142,7 +142,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(mergeableStatus)
                 .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isTrue();
+                    assertThat(s.getMergeAble()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -165,7 +165,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(mergeableStatus)
                 .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isTrue();
+                    assertThat(s.getMergeAble()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -360,7 +360,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                    assertThat(mergeStatusDTO.getMergeAble()).isEqualTo(Boolean.TRUE);
                 })
                 .verifyComplete();
     }
@@ -384,7 +384,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                    assertThat(mergeStatusDTO.getMergeAble()).isEqualTo(Boolean.TRUE);
                 })
                 .verifyComplete();
     }
@@ -412,7 +412,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.FALSE);
+                    assertThat(mergeStatusDTO.getMergeAble()).isEqualTo(Boolean.FALSE);
                     assertThat(mergeStatusDTO.getConflictingFiles()).hasSize(1);
                     assertThat(mergeStatusDTO.getConflictingFiles().get(0)).isEqualTo("TestFIle4");
                 })

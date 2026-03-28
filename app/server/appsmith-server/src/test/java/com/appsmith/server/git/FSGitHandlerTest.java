@@ -552,7 +552,7 @@ class FSGitHandlerTest {
             // Then
             StepVerifier.create(mergeStatusResult)
                     .assertNext(status -> {
-                        assertThat(status.isMergeAble()).isTrue();
+                        assertThat(status.getMergeAble()).isTrue();
                     })
                     .verifyComplete();
         }
