@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -401,47 +403,12 @@ public class EnvManagerTest {
         return dto;
     }
 
-    @Test
-    public void sendTestEmail_WhenLocalhostHost_ThrowsException() {
+    @ParameterizedTest
+    @ValueSource(strings = {"127.0.0.1", "169.254.169.254", "localhost"})
+    public void sendTestEmail_WhenBlockedHost_ThrowsException(String host) {
         mockSuperUser();
 
-        StepVerifier.create(envManager.sendTestEmail(buildDto("127.0.0.1")))
-                .expectErrorSatisfies(e -> {
-                    assertThat(e).isInstanceOf(AppsmithException.class);
-                    assertThat(e.getMessage()).contains("Invalid SMTP host");
-                })
-                .verify();
-    }
-
-    @Test
-    public void sendTestEmail_WhenCloudMetadataHost_ThrowsException() {
-        mockSuperUser();
-
-        StepVerifier.create(envManager.sendTestEmail(buildDto("169.254.169.254")))
-                .expectErrorSatisfies(e -> {
-                    assertThat(e).isInstanceOf(AppsmithException.class);
-                    assertThat(e.getMessage()).contains("Invalid SMTP host");
-                })
-                .verify();
-    }
-
-    @Test
-    public void sendTestEmail_WhenPrivateNetworkHost_ThrowsException() {
-        mockSuperUser();
-
-        StepVerifier.create(envManager.sendTestEmail(buildDto("10.0.0.1")))
-                .expectErrorSatisfies(e -> {
-                    assertThat(e).isInstanceOf(AppsmithException.class);
-                    assertThat(e.getMessage()).contains("Invalid SMTP host");
-                })
-                .verify();
-    }
-
-    @Test
-    public void sendTestEmail_WhenLocalhost_ThrowsException() {
-        mockSuperUser();
-
-        StepVerifier.create(envManager.sendTestEmail(buildDto("localhost")))
+        StepVerifier.create(envManager.sendTestEmail(buildDto(host)))
                 .expectErrorSatisfies(e -> {
                     assertThat(e).isInstanceOf(AppsmithException.class);
                     assertThat(e.getMessage()).contains("Invalid SMTP host");

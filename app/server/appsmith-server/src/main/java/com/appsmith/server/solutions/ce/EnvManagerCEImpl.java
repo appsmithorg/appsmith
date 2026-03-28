@@ -790,14 +790,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper().flatMap(user -> {
-            var hostCheckResult = WebClientUtils.validateHostNotDisallowed(requestDTO.getSmtpHost());
-            if (hostCheckResult.isPresent()) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP host: " + hostCheckResult.get()));
+            var resolvedAddress = WebClientUtils.resolveIfAllowed(requestDTO.getSmtpHost());
+            if (resolvedAddress.isEmpty()) {
+                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP host."));
             }
 
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-            mailSender.setHost(requestDTO.getSmtpHost());
+            mailSender.setHost(resolvedAddress.get().getHostAddress());
             mailSender.setPort(requestDTO.getSmtpPort());
 
             Properties props = mailSender.getJavaMailProperties();

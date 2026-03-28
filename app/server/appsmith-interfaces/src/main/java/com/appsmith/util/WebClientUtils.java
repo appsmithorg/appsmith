@@ -200,44 +200,54 @@ public class WebClientUtils {
     }
 
     /**
-     * Validates that a hostname or IP is safe for outbound connections from non-HTTP paths
-     * (e.g. SMTP via JavaMail). Checks against the cloud-metadata denylist and, after DNS
-     * resolution, rejects loopback, link-local, site-local, and other non-routable addresses.
+     * Resolves a hostname and validates that none of its addresses are disallowed for
+     * outbound connections from non-HTTP paths (e.g. SMTP via JavaMail). Checks against
+     * the cloud-metadata denylist, loopback, link-local, any-local, multicast, and IPv6
+     * Unique Local Addresses (fc00::/7). Returns the first validated resolved address so
+     * callers can connect to it directly, preventing DNS-rebinding TOCTOU bypasses.
      *
-     * @return empty if the host is allowed; a reason string if it must be blocked
+     * <p>RFC 1918 site-local ranges (10/8, 172.16/12, 192.168/16) are intentionally
+     * allowed because legitimate SMTP servers frequently reside on private networks.
+     *
+     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked
      */
-    public static Optional<String> validateHostNotDisallowed(String host) {
+    public static Optional<InetAddress> resolveIfAllowed(String host) {
         if (!StringUtils.hasText(host)) {
-            return Optional.of("Host is null or empty.");
+            return Optional.empty();
         }
 
         final String canonicalHost = normalizeHostForComparisonQuietly(host);
 
         if (DISALLOWED_HOSTS.contains(canonicalHost)) {
-            return Optional.of(HOST_NOT_ALLOWED);
+            return Optional.empty();
         }
 
         final InetAddress[] resolved;
         try {
             resolved = InetAddress.getAllByName(host);
         } catch (UnknownHostException e) {
-            return Optional.of("Unable to resolve host.");
+            return Optional.empty();
         }
 
         for (InetAddress addr : resolved) {
             if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
-                return Optional.of(HOST_NOT_ALLOWED);
+                return Optional.empty();
+            }
+            if (addr instanceof Inet6Address) {
+                byte firstByte = addr.getAddress()[0];
+                if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
+                    return Optional.empty();
+                }
             }
             if (addr.isLoopbackAddress()
                     || addr.isLinkLocalAddress()
-                    || addr.isSiteLocalAddress()
                     || addr.isAnyLocalAddress()
                     || addr.isMulticastAddress()) {
-                return Optional.of(HOST_NOT_ALLOWED);
+                return Optional.empty();
             }
         }
 
-        return Optional.empty();
+        return Optional.of(resolved[0]);
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
