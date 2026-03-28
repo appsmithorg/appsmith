@@ -9,7 +9,7 @@
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
-          "tooltipText": "Read-only mode uses ApplicationIntent=ReadOnly. Note: This only enforces read-only connections when using Always On Availability Groups.",
+          "tooltipText": "Read-only adds ApplicationIntent=ReadOnly to the JDBC URL. With Always On Availability Groups, SQL Server can route this session to a secondary replica. On a single instance or other topologies, the server may still accept writes—use database roles and permissions if you need strict read-only enforcement.",
           "options": [
             {
               "label": "Read / Write",
