@@ -49,6 +49,9 @@ mkdir -p "$WWW_PATH" /opt/appsmith/editor
 echo -n 'index.html body, this will be replaced' > "$WWW_PATH/index.html"
 echo '{}' > /opt/appsmith/info.json
 echo -n 'actual index.html body' > /opt/appsmith/editor/index.html
+# A file large enough (>256 bytes) for Caddy's encode directive to compress.
+mkdir -p /opt/appsmith/editor/static
+printf 'a%.0s' {1..512} > /opt/appsmith/editor/static/test-encoding.txt
 mkcert -install
 
 # Start echo server

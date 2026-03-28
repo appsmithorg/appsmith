@@ -292,6 +292,7 @@ public class CommonGitFileUtilsCE {
         if (datasourceList != null) {
             datasourceList.forEach(datasource -> {
                 removeUnwantedFieldsFromDatasource(datasource);
+                validateGitSerializableName(datasource.getName(), "Datasource");
                 final String filePath = DATASOURCE_DIRECTORY + DELIMITER_PATH + datasource.getName() + JSON_EXTENSION;
                 GitResourceIdentity identity =
                         new GitResourceIdentity(GitResourceType.DATASOURCE_CONFIG, datasource.getGitSyncId(), filePath);
@@ -369,6 +370,7 @@ public class CommonGitFileUtilsCE {
                 .forEach(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
                     final String actionFileName = action.getUserExecutableName().replace(".", "-");
+                    validateGitSerializableName(actionFileName, "Action");
                     final String filePathPrefix = getContextDirectoryByType(action.getContextType())
                             + DELIMITER_PATH
                             + action.calculateContextId()
@@ -429,6 +431,7 @@ public class CommonGitFileUtilsCE {
                 .forEach(actionCollection -> {
                     ActionCollectionDTO collection = actionCollection.getUnpublishedCollection();
                     final String collectionName = collection.getUserExecutableName();
+                    validateGitSerializableName(collectionName, "ActionCollection");
                     final String filePathPrefix = getContextDirectoryByType(collection.getContextType())
                             + DELIMITER_PATH
                             + collection.calculateContextId()
@@ -780,6 +783,27 @@ public class CommonGitFileUtilsCE {
         return fileUtils
                 .checkIfDirectoryIsEmpty(baseRepoSuffix)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+    }
+
+    /**
+     * Validates that a resource name intended for use as a Git file path segment does not contain
+     * path traversal sequences or directory separator characters. This is a defense-in-depth measure
+     * that prevents arbitrary file writes even if input validation at the API layer is bypassed.
+     *
+     * @param resourceName the name to validate
+     * @param resourceType a human-readable description of the resource type (for error messages)
+     * @throws AppsmithException if the name contains path traversal or directory separator characters
+     */
+    protected static void validateGitSerializableName(String resourceName, String resourceType) {
+        if (resourceName != null
+                && (resourceName.contains("..")
+                        || resourceName.contains("/")
+                        || resourceName.contains("\\")
+                        || resourceName.indexOf('\0') >= 0)) {
+            log.error("SECURITY: Path traversal attempt detected in {} name: '{}'", resourceType, resourceName);
+            throw new AppsmithException(
+                    AppsmithError.GIT_FILE_SYSTEM_ERROR, "Path traversal detected in " + resourceType + " name");
+        }
     }
 
     public static void removeUnwantedFieldsFromBaseDomain(BaseDomain baseDomain) {

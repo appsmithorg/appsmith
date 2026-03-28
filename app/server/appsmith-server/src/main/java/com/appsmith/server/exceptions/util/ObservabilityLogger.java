@@ -10,7 +10,7 @@ import java.io.StringWriter;
 @Slf4j
 public class ObservabilityLogger {
     public static void doLog(Throwable error) {
-        if (error instanceof BaseException baseException && baseException.isHideStackTraceInLogs()) {
+        if (error instanceof BaseException baseException && baseException.getHideStackTraceInLogs()) {
             log.error(baseException.getClass().getSimpleName() + ": " + baseException.getMessage());
         } else {
             log.error("", error);

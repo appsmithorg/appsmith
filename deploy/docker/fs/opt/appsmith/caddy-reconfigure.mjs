@@ -84,6 +84,9 @@ parts.push(`
   }
   log_skip @source-map-files
 
+  # On-the-fly compression, honoring the client's Accept-Encoding header.
+  encode zstd gzip
+
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
 

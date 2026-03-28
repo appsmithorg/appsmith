@@ -167,10 +167,18 @@ securityContext: {}
   # runAsUser: 1000
 
 ## @param extraVolumes Additional volumes to add to the pod
+## e.g:
+## extraVolumes:
+##   - name: tmp-dir
+##     emptyDir: {}
 ##
 extraVolumes: []
 
 ## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
+## e.g:
+## extraVolumeMounts:
+##   - name: tmp-dir
+##     mountPath: /tmp
 ##
 extraVolumeMounts: []
 

@@ -68,7 +68,7 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollection> archiveById(String id);
 
-    Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
+    Mono<Void> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
 
     Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);

@@ -618,7 +618,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "040", id = "remove-usage-pulses-for-appsmith-cloud", author = "")
     public void removeUsagePulsesForAppsmithCloud(
             MongoTemplate mongoTemplate, @NonLockGuarded CommonConfig commonConfig) {
-        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+        if (Boolean.TRUE.equals(commonConfig.getIsCloudHosting())) {
             mongoTemplate.dropCollection(UsagePulse.class);
         }
     }

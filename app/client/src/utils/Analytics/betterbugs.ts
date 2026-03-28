@@ -8,6 +8,10 @@ import log from "loglevel";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
+/**
+ * BetterBugs in-app widget (init/show/hide below). Recording-link scripts (logs-capture.js, recorder.js)
+ * are loaded in index.html when BetterBugs is enabled and not airgapped; they activate when users open a recording URL.
+ */
 export interface BetterbugsMetadata {
   instanceId: string;
   tenantId: string | undefined;

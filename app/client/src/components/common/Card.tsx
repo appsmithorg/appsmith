@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
 import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, type MenuItemProps } from "@appsmith/ads";
+import { Button, Icon, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 import { GitCardBadge } from "git";
@@ -32,6 +32,8 @@ type CardProps = PropsWithChildren<{
   titleTestId: string;
   isSelected?: boolean;
   hasEditPermission?: boolean;
+  isFavorited?: boolean;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }>;
 
 interface NameWrapperProps {
@@ -102,6 +104,43 @@ const CircleAppIcon = styled(AppIcon)`
     path {
       fill: var(--ads-v2-color-fg);
     }
+  }
+`;
+
+const FavoriteIconWrapper = styled.button`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Slightly smaller footprint so the favorite icon feels less crowded
+     next to long application names. */
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  /* Reset default button styles */
+  margin: 0;
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ads-v2-color-border-emphasis);
+    outline-offset: 2px;
   }
 `;
 
@@ -321,9 +360,11 @@ function Card({
   hasReadPermission,
   icon,
   isContextMenuOpen,
+  isFavorited,
   isFetching,
   isMobile,
   moreActionItems,
+  onToggleFavorite,
   primaryAction,
   setShowOverlay,
   showGitBadge,
@@ -342,20 +383,32 @@ function Card({
     return <GitConnectedBadge />;
   }, [isGitModEnabled]);
 
+  const handleMouseLeave = useCallback(() => {
+    // If the menu is not open, then setOverlay false
+    // Set overlay false on outside click.
+    !isContextMenuOpen && setShowOverlay(false);
+  }, [isContextMenuOpen, setShowOverlay]);
+
+  const handleMouseOver = useCallback(() => {
+    !isFetching && setShowOverlay(true);
+  }, [isFetching, setShowOverlay]);
+
+  const handleFavoriteClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggleFavorite?.(e);
+    },
+    [onToggleFavorite],
+  );
+
   return (
     <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
         className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
-        onMouseLeave={() => {
-          // If the menu is not open, then setOverlay false
-          // Set overlay false on outside click.
-          !isContextMenuOpen && setShowOverlay(false);
-        }}
-        onMouseOver={() => {
-          !isFetching && setShowOverlay(true);
-        }}
+        onMouseLeave={handleMouseLeave}
+        onMouseOver={handleMouseOver}
         showOverlay={showOverlay}
         testId={testId}
       >
@@ -365,6 +418,16 @@ function Card({
           hasReadPermission={hasReadPermission}
           isMobile={isMobile}
         >
+          {onToggleFavorite && (
+            <FavoriteIconWrapper
+              aria-label="Toggle favorite"
+              data-testid="t--favorite-icon"
+              onClick={handleFavoriteClick}
+              type="button"
+            >
+              <Icon name={isFavorited ? "star-fill" : "star-line"} size="md" />
+            </FavoriteIconWrapper>
+          )}
           {/*@ts-expect-error fix this the next time the file is edited*/}
           <CircleAppIcon name={icon} size={Size.large} />
           <AppNameWrapper

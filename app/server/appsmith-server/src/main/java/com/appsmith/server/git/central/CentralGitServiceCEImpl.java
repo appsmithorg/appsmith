@@ -228,7 +228,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<Boolean> isRepositoryLimitReachedForWorkspaceMono = isRepositoryPrivateMonoCached.flatMap(
                 isRepositoryPrivate -> isRepositoryLimitReachedForWorkspace(workspaceId, isRepositoryPrivate));
 
-        Mono<GitAuth> gitAuthMonoCached = gitHandlingService.getGitAuthForUser().cache();
+        Mono<GitAuth> gitAuthMonoCached =
+                gitHandlingService.getGitAuthForUser(gitConnectDTO).cache();
 
         Mono<? extends Artifact> blankArtifactForImportMono = isRepositoryLimitReachedForWorkspaceMono
                 .flatMap(isLimitReachedForPrivateRepositories -> {
@@ -1019,6 +1020,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 sink -> deleteReferenceMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    protected Mono<? extends Artifact> manageSSHKey(GitConnectDTO gitConnectDTO, Artifact artifact) {
+        return Mono.just(artifact);
+    }
+
     /**
      * Connect the artifact from Appsmith to a git repo
      * This is the prerequisite step needed to perform all the git operation for an artifact
@@ -1075,6 +1080,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         Mono<? extends Artifact> artifactToConnectMono = gitArtifactHelper
                 .getArtifactById(baseArtifactId, connectToGitPermission)
+                .flatMap(artifact -> manageSSHKey(gitConnectDTO, artifact))
                 .cache();
         Mono<? extends Artifact> connectedArtifactMono = Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono)
                 .flatMap(tuple -> {
@@ -2500,7 +2506,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitRefDTO gitRefDTO = new GitRefDTO();
         gitRefDTO.setRefName(newDefaultBranchName);
         gitRefDTO.setRefType(RefType.branch);
-        gitRefDTO.setDefault(true);
+        gitRefDTO.setIsDefault(true);
 
         // potentially problem in the flow,
         // we are checking out to the branch after creation,
@@ -2606,7 +2612,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     // set the default branch flag if there's a match.
                                     // This can happen when user has changed the default branch other
                                     // than remote
-                                    gitRefDTO.setDefault(baseGitMetadata
+                                    gitRefDTO.setIsDefault(baseGitMetadata
                                             .getDefaultBranchName()
                                             .equals(branchName));
 
@@ -2663,7 +2669,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .map(refDTOs -> {
                                 refDTOs.forEach(refDTO -> {
                                     refDTO.setRefType(refType);
-                                    refDTO.setDefault(refDTO.getRefName().equalsIgnoreCase(defaultBranchName));
+                                    refDTO.setIsDefault(refDTO.getRefName().equalsIgnoreCase(defaultBranchName));
                                 });
 
                                 return refDTOs;
@@ -2807,28 +2813,17 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey(String keyType) {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-
-        GitDeployKeys gitDeployKeys = new GitDeployKeys();
-        gitDeployKeys.setGitAuth(gitAuth);
-
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> {
-                    gitDeployKeys.setEmail(user.getEmail());
-                    return gitDeployKeysRepository
-                            .findByEmail(user.getEmail())
-                            .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
-                            .flatMap(gitDeployKeys1 -> {
-                                if (gitDeployKeys.equals(gitDeployKeys1)) {
-                                    return Mono.just(gitDeployKeys1);
-                                }
-                                // Overwrite the existing keys
-                                gitDeployKeys1.setGitAuth(gitDeployKeys.getGitAuth());
-                                return gitDeployKeysRepository.save(gitDeployKeys1);
-                            });
-                })
-                .thenReturn(gitAuth);
+        return sessionUserService.getCurrentUser().flatMap(user -> {
+            return gitDeployKeysRepository
+                    .findByEmail(user.getEmail())
+                    .switchIfEmpty(Mono.just(new GitDeployKeys()))
+                    .flatMap(gitDeployKeys -> {
+                        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
+                        gitDeployKeys.setGitAuth(gitAuth);
+                        gitDeployKeys.setEmail(user.getEmail());
+                        return gitDeployKeysRepository.save(gitDeployKeys).thenReturn(gitAuth);
+                    });
+        });
     }
 
     @Override

@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -127,6 +128,11 @@ public class BodyReceiver {
         @Override
         public boolean isCommitted() {
             return false;
+        }
+
+        @Override
+        public Map<String, Object> getAttributes() {
+            return new HashMap<>();
         }
 
         @Override

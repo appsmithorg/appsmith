@@ -4,6 +4,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             ApplicationRepository applicationRepository,
+            ApplicationPermission applicationPermission,
             OrganizationService organizationService) {
 
         super(
@@ -33,6 +35,7 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                 releaseNotesService,
                 featureFlagService,
                 applicationRepository,
+                applicationPermission,
                 organizationService);
     }
 }

@@ -54,7 +54,7 @@ public class ProductAlertServiceCEImplTest {
     @Test
     public void getSingleApplicableMessage_selfHostedInstance_success() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(false);
         Mono<java.util.List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier.create(productAlertResponseDTOMono)
@@ -67,7 +67,7 @@ public class ProductAlertServiceCEImplTest {
     @Test
     public void getSingleApplicableMessage_cloudInstance_precutOffDate() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(true);
         Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691127900000L);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
@@ -81,7 +81,7 @@ public class ProductAlertServiceCEImplTest {
     @Test
     public void getSingleApplicableMessage_cloudInstance_postcutOffDate() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(true);
         Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691473500000L);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
@@ -99,7 +99,7 @@ public class ProductAlertServiceCEImplTest {
         messageField.setAccessible(true);
         messages[0].setApplicabilityExpression("invalidExpression");
         messageField.set(productAlertServiceCE, messages);
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(true);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier.create(productAlertResponseDTOMono)

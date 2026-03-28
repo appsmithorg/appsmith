@@ -30,6 +30,10 @@ import WorkspaceApi from "ee/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  DEFAULT_FAVORITES_WORKSPACE,
+  FAVORITES_KEY,
+} from "ee/constants/workspaceConstants";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -63,7 +67,15 @@ export function* fetchAllWorkspacesSaga(
       });
 
       if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
+        // When we're also fetching entities for a specific workspace (e.g. the
+        // Applications page), favorites will be refreshed from within
+        // fetchEntitiesOfWorkspaceSaga to avoid duplicate API calls.
         yield call(fetchEntitiesOfWorkspaceSaga, action);
+      } else {
+        // Callers that only need the workspace list (e.g. Templates, settings)
+        // still refresh favorites once here so the virtual Favorites workspace
+        // and favorite badges stay in sync.
+        yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
       }
     }
   } catch (error) {
@@ -82,6 +94,18 @@ export function* fetchEntitiesOfWorkspaceSaga(
   try {
     const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
     const workspaceId = action?.payload?.workspaceId || allWorkspaces[0]?.id;
+
+    // Handle virtual favorites workspace specially
+    if (workspaceId === FAVORITES_KEY) {
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+        payload: DEFAULT_FAVORITES_WORKSPACE,
+      });
+      yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
+
+      return;
+    }
+
     const activeWorkspace = allWorkspaces.find(
       (workspace) => workspace.id === workspaceId,
     );
@@ -95,6 +119,8 @@ export function* fetchEntitiesOfWorkspaceSaga(
 
     if (workspaceId) {
       yield call(failFastApiCalls, initActions, successActions, errorActions);
+      // Refresh favorites so the list drops any apps the user no longer has access to
+      yield put({ type: ReduxActionTypes.FETCH_FAVORITE_APPLICATIONS_INIT });
     }
   } catch (error) {
     yield put({
@@ -338,9 +364,17 @@ export function* createWorkspaceSaga(
       yield call(resolve);
     }
 
-    // get created workspace in focus
+    // Get created workspace in focus
     // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
+
+    // Refresh workspaces and entities for the newly created workspace so that
+    // the left panel and applications list reflect the new workspace instead of
+    // staying on the previous (e.g. Favorites) virtual workspace.
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+      payload: { workspaceId, fetchEntities: true },
+    });
 
     history.push(`${window.location.pathname}?workspaceId=${workspaceId}`);
   } catch (error) {

@@ -98,7 +98,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
         return gitAuthMono.flatMap(gitAuth -> saveSshKeyToArtifact(artifactType, branchedArtifactId, gitAuth));
     }
 
-    private Mono<? extends Artifact> saveSshKeyToArtifact(
+    protected Mono<? extends Artifact> saveSshKeyToArtifact(
             ArtifactType artifactType, String branchedArtifactId, GitAuth gitAuth) {
         ArtifactBasedService<? extends Artifact> artifactBasedService = getArtifactBasedService(artifactType);
         ArtifactPermission artifactPermission = artifactBasedService.getPermissionService();
@@ -115,7 +115,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                             && StringUtils.hasLength(gitData.getDefaultArtifactId())
                             && branchedArtifactId.equals(gitData.getDefaultArtifactId())) {
                         // This is the root artifact with update SSH key request
-                        gitAuth.setRegeneratedKey(true);
+                        gitAuth.setIsRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
                         return artifactBasedService.save(artifact);
                     } else if (gitData == null) {
@@ -135,7 +135,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                 "Unable to find root " + artifactTypeName + ", please connect your " + artifactTypeName
                                         + " to remote repo to resolve this issue."));
                     }
-                    gitAuth.setRegeneratedKey(true);
+                    gitAuth.setIsRegeneratedKey(true);
                     return artifactBasedService
                             .findById(gitData.getDefaultArtifactId(), artifactPermission.getEditPermission())
                             .flatMap(baseArtifact -> {
@@ -157,7 +157,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                             "workspaceId",
                             artifact.getWorkspaceId(),
                             "isRegeneratedKey",
-                            gitAuth.isRegeneratedKey(),
+                            gitAuth.getIsRegeneratedKey(),
                             FieldName.EVENT_DATA,
                             eventData);
                     return analyticsService
@@ -222,5 +222,24 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                 return gitAuthDTO;
                             });
                 });
+    }
+
+    /**
+     * Save an SSH key from the SSH Key Manager to an artifact.
+     * In CE, SSH Key Manager is not available - this method returns an error.
+     * The EE implementation overrides this to provide the actual functionality.
+     *
+     * @param artifactType Type of artifact (APPLICATION or PACKAGE)
+     * @param branchedArtifactId The artifact ID (can be base or branched artifact)
+     * @param sshKeyId The ID of the SSH key from the SSH Key Manager
+     * @return Error indicating SSH Key Manager is an EE feature
+     */
+    @Override
+    public Mono<? extends Artifact> saveSSHKeyFromManagerToArtifact(
+            ArtifactType artifactType, String branchedArtifactId, String sshKeyId) {
+        // SSH Key Manager is an EE-only feature - return error in CE
+        return Mono.error(new AppsmithException(
+                AppsmithError.UNSUPPORTED_OPERATION,
+                "SSH Key Manager is an Enterprise Edition feature. Please use deploy keys instead."));
     }
 }

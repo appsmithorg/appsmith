@@ -41,6 +41,7 @@
         const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
         const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
+        const DISABLE_BETTERBUGS = parseConfig('{{env "APPSMITH_DISABLE_BETTERBUGS"}}');
       </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
@@ -71,6 +72,28 @@
       }
     </script>
     <!-- End of Reo Javascript -->
+
+    <!-- Start of BetterBugs Recording Links (logs + recorder; only when BetterBugs enabled and not airgapped) -->
+    <script type="text/javascript">
+      if (!DISABLE_BETTERBUGS && !AIRGAPPED) {
+        window.__BetterbugsRecordingLinkConfig = {
+          styles: { theme: "light", primaryColor: "#E15615", primaryTextColor: "#ffffff" },
+          successMessageHeaderText: "Information received",
+          successMessageSubHeaderText: "Our support team will use it to review the issue",
+        };
+        (function () {
+          var s1 = document.createElement("script");
+          s1.src = "https://cdn.betterbugs.io/scripts/latest/logs-capture.js";
+          s1.async = true;
+          document.head.appendChild(s1);
+          var s2 = document.createElement("script");
+          s2.src = "https://cdn.betterbugs.io/scripts/latest/recorder.js";
+          s2.async = true;
+          document.head.appendChild(s2);
+        })();
+      }
+    </script>
+    <!-- End of BetterBugs Recording Links -->
   </head>
 
   <body class="appsmith-light-theme">
@@ -160,7 +183,6 @@
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
         parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
       const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
-      const DISABLE_BETTERBUGS = parseConfig('{{env "APPSMITH_DISABLE_BETTERBUGS"}}');
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {

@@ -21,6 +21,14 @@ public abstract class BaseException extends RuntimeException {
         }
     }
 
+    public BaseException(String message, Throwable cause) {
+        super(message, cause);
+        contextMap = MDC.getCopyOfContextMap();
+        if (contextMap == null) {
+            contextMap = new HashMap<>();
+        }
+    }
+
     public abstract Integer getHttpStatus();
 
     public abstract String getAppErrorCode();

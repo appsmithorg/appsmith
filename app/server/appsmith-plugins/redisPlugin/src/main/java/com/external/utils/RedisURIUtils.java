@@ -12,10 +12,12 @@ import java.net.URISyntaxException;
 public class RedisURIUtils {
     public static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
+    private static final String REDISS_SCHEME = "rediss://";
 
-    public static URI getURI(DatasourceConfiguration datasourceConfiguration) throws URISyntaxException {
+    public static URI getURI(DatasourceConfiguration datasourceConfiguration, boolean isTlsEnabled)
+            throws URISyntaxException {
         StringBuilder builder = new StringBuilder();
-        builder.append(REDIS_SCHEME);
+        builder.append(isTlsEnabled ? REDISS_SCHEME : REDIS_SCHEME);
 
         String uriAuth = getUriAuth(datasourceConfiguration);
         builder.append(uriAuth);

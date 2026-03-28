@@ -20,4 +20,12 @@ public class GitConnectDTO {
      * consumed packages, hence we would override prod package with same UUID.
      */
     Boolean override;
+
+    /**
+     * Optional ID of the SSH key to use for this Git connection.
+     * If provided, the system will look up the SSH key by this ID and verify
+     * that the current user has access to it (either as owner or shared).
+     * If not provided, falls back to the user's default deploy key.
+     */
+    String sshKeyId;
 }

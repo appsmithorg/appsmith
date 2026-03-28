@@ -15,11 +15,11 @@ export const IMPORT_OVERRIDE_MODAL = {
 export const CONNECT_GIT = {
   MODAL_TITLE: "Configure Git",
   CHOOSE_PROVIDER_CTA: "Configure Git",
-  GENERATE_SSH_KEY_CTA: "Generate SSH key",
+  GENERATE_SSH_KEY_CTA: "Continue",
   CONNECT_CTA: "Connect Git",
   CHOOSE_PROVIDER_STEP_TITLE: "Choose a Git provider",
-  GENERATE_SSH_KEY_STEP_TITLE: "Generate SSH key",
-  ADD_DEPLOY_KEY_STEP_TITLE: "Add deploy key",
+  GENERATE_SSH_KEY_STEP_TITLE: "Enter Repository URL",
+  ADD_DEPLOY_KEY_STEP_TITLE: "Set Up SSH Key",
   WAIT_TEXT: "Please wait while we connect to Git...",
   PREV_STEP: "Previous step",
 };
@@ -49,6 +49,12 @@ export const RELEASE_VERSION_RADIO_GROUP = {
 export const RELEASE_NOTES_INPUT = {
   TITLE: "Release notes",
   PLACEHOLDER: "Your release notes here",
+};
+
+export const ARTIFACT_SSH_KEY_MANAGER = {
+  NO_KEYS_TITLE: "",
+  NO_KEYS_DESCRIPTION: "",
+  CREATE_KEY_CTA: "",
 };
 
 export const LATEST_COMMIT_INFO = {

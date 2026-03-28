@@ -235,6 +235,38 @@ class OrganizationServiceCETest {
     }
 
     @Test
+    @WithUserDetails("anonymousUser")
+    void getOrganizationConfig_AnonymousUser_DoesNotExposeInstanceMetadata() {
+        // APP-14994: unauthenticated callers must not receive instanceId or adminEmailDomainHash
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getInstanceId())
+                            .as("instanceId must not be exposed to anonymous users")
+                            .isNull();
+                    assertThat(organization.getAdminEmailDomainHash())
+                            .as("adminEmailDomainHash must not be exposed to anonymous users")
+                            .isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void getOrganizationConfig_AuthenticatedUser_ExposesInstanceMetadata() {
+        // APP-14994: authenticated users should still receive instanceId and adminEmailDomainHash
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getInstanceId())
+                            .as("instanceId should be present for authenticated users")
+                            .isNotNull();
+                    assertThat(organization.getAdminEmailDomainHash())
+                            .as("adminEmailDomainHash should be present for authenticated users")
+                            .isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @WithUserDetails("api_user")
     void setEmailVerificationEnabled_WithInvalidSMTPHost_ReturnsError() {
         final OrganizationConfiguration changes = new OrganizationConfiguration();

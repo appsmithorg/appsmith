@@ -3,6 +3,17 @@ name: Server Integrations Tests Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to test against"
+        required: false
+        type: number
+        default: 0
+      is-pg-build:
+        description: "Flag for PG build"
+        required: false
+        type: string
+        default: "false"
   workflow_call:
     inputs:
       pr:
@@ -48,11 +59,8 @@ jobs:
         uses: actions/checkout@v4
 
       # Setup Java
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+      - name: Set up JDK from dependency file
+        uses: ./.github/actions/setup-server-java
 
       - name: Conditionally start PostgreSQL
         if: |

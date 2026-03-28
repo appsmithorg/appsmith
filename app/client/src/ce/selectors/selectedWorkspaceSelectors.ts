@@ -1,11 +1,31 @@
 import type { DefaultRootState } from "react-redux";
+import { createSelector } from "reselect";
 
 export const getIsFetchingApplications = (state: DefaultRootState): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingApplications;
 
-export const getApplicationsOfWorkspace = (state: DefaultRootState) => {
-  return state.ui.selectedWorkspace.applications;
-};
+export const getIsFetchingFavoriteApplications = (
+  state: DefaultRootState,
+): boolean =>
+  state.ui.selectedWorkspace.loadingStates.isFetchingFavoriteApplications;
+
+const selectWorkspaceApplications = (state: DefaultRootState) =>
+  state.ui.selectedWorkspace.applications;
+
+const selectFavoriteApplicationIds = (state: DefaultRootState) =>
+  state.ui.applications.favoriteApplicationIds || [];
+
+export const getApplicationsOfWorkspace = createSelector(
+  [selectWorkspaceApplications, selectFavoriteApplicationIds],
+  (applications, favoriteApplicationIds) =>
+    // Compute isFavorited for each application based on favoriteApplicationIds.
+    // This ensures favorites persist when switching between workspaces while
+    // avoiding unnecessary re-renders when inputs haven't changed.
+    applications.map((app) => ({
+      ...app,
+      isFavorited: favoriteApplicationIds.includes(app.id),
+    })),
+);
 
 export const getAllUsersOfWorkspace = (state: DefaultRootState) =>
   state.ui.selectedWorkspace.users;

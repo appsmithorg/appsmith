@@ -281,7 +281,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setName(userFromRequest.getName());
                     user.setSource(userFromRequest.getSource());
                     user.setState(userFromRequest.getState());
-                    user.setIsEnabled(userFromRequest.isEnabled());
+                    user.setIsEnabled(userFromRequest.getIsEnabled());
                     user.setPassword(userFromRequest.getPassword());
 
                     Mono<User> userMono1 = signupAndLogin(user, exchange);
@@ -320,7 +320,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .applyChanges(
                                     Map.of(
                                             APPSMITH_DISABLE_TELEMETRY.name(),
-                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            String.valueOf(!userFromRequest.getAllowCollectingAnonymousData()),
                                             APPSMITH_ADMIN_EMAILS.name(),
                                             user.getEmail()),
                                     originHeader)
@@ -378,7 +378,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     user.setSource(LoginSource.FORM);
                     user.setState(UserState.ACTIVATED);
-                    user.setEnabled(true);
+                    user.setIsEnabled(true);
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
@@ -442,8 +442,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     String newsletterSignedUpUserEmail = user.getEmail();
                     String newsletterSignedUpUserName = user.getName();
                     Map<String, Object> analyticsProps = new HashMap<>();
-                    analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
-                    analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
+                    analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.getAllowCollectingAnonymousData());
+                    analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.getSignupForNewsletter());
                     analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
                     analyticsProps.put(ROLE, "");
                     analyticsProps.put(PROFICIENCY, ObjectUtils.defaultIfNull(userData.getProficiency(), ""));

@@ -22,6 +22,8 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.EmailNormalizer;
+import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -461,8 +463,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         // It is assumed here that the user's password has already been encoded.
 
-        // convert the user email to lowercase
-        user.setEmail(user.getEmail().toLowerCase());
+        user.setEmail(EmailNormalizer.normalizeEmail(user.getEmail()));
 
         Mono<User> userWithOrgMono =
                 Mono.just(user).flatMap(this::setOrganizationIdForUser).cache();
@@ -761,8 +762,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             if (StringUtils.hasLength(allUpdates.getUseCase())) {
                 updates.setUseCase(allUpdates.getUseCase());
             }
-            if (allUpdates.isIntercomConsentGiven()) {
-                updates.setIntercomConsentGiven(true);
+            if (allUpdates.getIsIntercomConsentGiven()) {
+                updates.setIsIntercomConsentGiven(true);
             }
             updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
             monos.add(updatedUserDataMono.then());
@@ -810,17 +811,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
-                    profile.setEmptyInstance(isUsersEmpty);
-                    profile.setAnonymous(userFromDb.isAnonymous());
-                    profile.setEnabled(userFromDb.isEnabled());
+                    profile.setIsEmptyInstance(isUsersEmpty);
+                    profile.setIsAnonymous(userFromDb.isAnonymous());
+                    profile.setIsEnabled(userFromDb.isEnabled());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
-                    profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
+                    profile.setEnableTelemetry(!commonConfig.getIsTelemetryDisabled());
                     // Intercom consent is defaulted to true on cloud hosting
-                    profile.setIntercomConsentGiven(
-                            commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
-                    profile.setSuperUser(isSuperUser);
-                    profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
+                    profile.setIsIntercomConsentGiven(
+                            commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
+                    profile.setIsSuperUser(isSuperUser);
+                    profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
                     return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
                 });
     }
@@ -967,9 +968,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             String baseUrl = exchange.getRequest().getHeaders().getOrigin();
             if (redirectUrl == null) {
                 redirectUrl = baseUrl + DEFAULT_REDIRECT_URL;
+            } else {
+                // Sanitize user-supplied redirectUrl to prevent open redirect attacks
+                redirectUrl = RedirectHelper.sanitizeRedirectUrl(
+                        redirectUrl, exchange.getRequest().getHeaders());
             }
 
-            String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl
+            String postVerificationRedirectUrl = "/signup-success?redirectUrl="
+                    + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8)
                     + "&enableFirstTimeUserExperience=" + enableFirstTimeUserExperienceParam;
             String errorRedirectUrl = "";
 

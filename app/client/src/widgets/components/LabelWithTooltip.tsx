@@ -23,6 +23,7 @@ export interface LabelWithTooltipProps {
   helpText?: string;
   cyHelpTextClassName?: string;
   inline?: boolean;
+  isRequired?: boolean;
   loading?: boolean;
   optionCount?: number;
   position?: LabelPosition;
@@ -233,6 +234,12 @@ const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   }};
 `;
 
+const StyledRequiredMarker = styled.span`
+  color: ${Colors.CRIMSON};
+  margin-left: 2px;
+  flex-shrink: 0;
+`;
+
 const LabelWithTooltip = React.forwardRef<
   HTMLDivElement,
   LabelWithTooltipProps
@@ -249,6 +256,7 @@ const LabelWithTooltip = React.forwardRef<
     helpText,
     inline,
     isDynamicHeightEnabled,
+    isRequired,
     loading,
     optionCount,
     position,
@@ -291,25 +299,55 @@ const LabelWithTooltip = React.forwardRef<
         isOpen={tooltipOpen}
         position="top"
       >
-        <StyledLabel
-          $compact={compact}
-          $hasHelpText={!!helpText}
-          $isDynamicHeightEnabled={isDynamicHeightEnabled}
-          className={`${
-            loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-          } ${className}`}
-          color={color}
-          disabled={disabled}
-          elementRef={labelRef}
-          fontSize={fontSize}
-          fontStyle={fontStyle}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          position={position}
-          rtl={rtl}
-        >
-          {text}
-        </StyledLabel>
+        {isRequired ? (
+          <span
+            className="label-text-wrapper"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <StyledLabel
+              $compact={compact}
+              $hasHelpText={!!helpText}
+              $isDynamicHeightEnabled={isDynamicHeightEnabled}
+              className={`${
+                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              } ${className}`}
+              color={color}
+              disabled={disabled}
+              elementRef={labelRef}
+              fontSize={fontSize}
+              fontStyle={fontStyle}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              position={position}
+              rtl={rtl}
+            >
+              {text}
+            </StyledLabel>
+            <StyledRequiredMarker aria-label="(required)">
+              *
+            </StyledRequiredMarker>
+          </span>
+        ) : (
+          <StyledLabel
+            $compact={compact}
+            $hasHelpText={!!helpText}
+            $isDynamicHeightEnabled={isDynamicHeightEnabled}
+            className={`${
+              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+            } ${className}`}
+            color={color}
+            disabled={disabled}
+            elementRef={labelRef}
+            fontSize={fontSize}
+            fontStyle={fontStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            position={position}
+            rtl={rtl}
+          >
+            {text}
+          </StyledLabel>
+        )}
       </StyledTooltip>
       {helpText && (
         <Tooltip

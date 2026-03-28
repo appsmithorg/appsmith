@@ -88,8 +88,8 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                         String actionCollectionName =
                                 actionCollectionDTO.getUserExecutableName() + NAME_SEPARATOR + contextNameAtIdReference;
                         Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
-                        boolean isActionCollectionUpdated = exportingMetaDTO.isClientSchemaMigrated()
-                                || exportingMetaDTO.isServerSchemaMigrated()
+                        boolean isActionCollectionUpdated = exportingMetaDTO.getIsClientSchemaMigrated()
+                                || exportingMetaDTO.getIsServerSchemaMigrated()
                                 || isContextUpdated
                                 || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || actionCollectionUpdatedAt == null

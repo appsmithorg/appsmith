@@ -35,6 +35,17 @@ public interface GitHandlingServiceCE {
     // TODO: modify git auth class for native implementation
     Mono<GitAuth> getGitAuthForUser();
 
+    /**
+     * Get GitAuth for the current user based on the GitConnectDTO.
+     * If sshKeyId is provided in the DTO, looks up the SSH key by ID and verifies
+     * that the current user has access (either as owner or shared).
+     * If sshKeyId is not provided, falls back to the user's default deploy key.
+     *
+     * @param gitConnectDTO the connection DTO potentially containing sshKeyId
+     * @return Mono containing the GitAuth for authentication
+     */
+    Mono<GitAuth> getGitAuthForUser(GitConnectDTO gitConnectDTO);
+
     Boolean isGitAuthInvalid(GitAuth gitAuth);
 
     // TODO: use only the required params

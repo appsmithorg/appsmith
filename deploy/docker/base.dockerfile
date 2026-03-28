@@ -1,3 +1,5 @@
+FROM redis:7.4.8 AS redis-source
+
 FROM caddy:builder-alpine AS caddybuilder
 
 RUN xcaddy build \
@@ -22,15 +24,19 @@ RUN set -o xtrace \
     gettext \
     ca-certificates \
     libnss-wrapper \
+    software-properties-common \
     git \
-  # Install MongoDB v6, Redis, PostgreSQL v14
+  && add-apt-repository -y ppa:git-core/ppa \
+  # Install MongoDB v6, PostgreSQL v14
   && curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg \
   && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
-  && find /etc/redis -type d -exec chmod o+rx {} + -o -type f -exec chmod o+r {} + \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
+    mongodb-org \
+    postgresql-14 \
+    git tar zstd openssh-client \
   && apt-get clean \
   && rm -rf \
     /root/.cache \
@@ -41,17 +47,16 @@ RUN set -o xtrace \
     /var/lib/apt/lists/* \
     /tmp/*
 
+# Install Redis from official image to avoid false positive CVE reports from dpkg-based scanners.
+COPY --from=redis-source /usr/local/bin/redis-server /usr/local/bin/redis-server
+COPY --from=redis-source /usr/local/bin/redis-cli /usr/local/bin/redis-cli
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
 RUN set -o xtrace \
   && mkdir -p /opt/java \
-  # Assets from https://github.com/adoptium/temurin17-binaries/releases
-  # TODO: The release jdk-17.0.9+9.1 doesn't include Linux binaries, so this fails.
-  #       Temporarily using hardcoded version in URL until we figure out a more elaborate/smarter solution.
-  #&& version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
-  && version="17.0.9+9" \
-  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+  && arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/aarch64/')" \
+  && curl --location "https://api.adoptium.net/v3/binary/latest/25/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
   | tar -xz -C /opt/java --strip-components 1
 
 # Install NodeJS

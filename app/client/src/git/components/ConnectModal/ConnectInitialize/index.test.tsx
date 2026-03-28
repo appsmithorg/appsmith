@@ -111,7 +111,7 @@ describe("ConnectModal Component", () => {
     completeGenerateSSHKeyStep();
 
     expect(
-      screen.getByText("Add deploy key & give write access"),
+      screen.getByRole("heading", { name: "Set Up SSH Key" }),
     ).toBeInTheDocument();
   });
 

@@ -81,6 +81,12 @@ app/client/packages/design-system/** @appsmithorg/wds-team
 app/client/packages/storybook/** @appsmithorg/wds-team
 app/client/packages/icons/** @appsmithorg/wds-team
 
+# Server
+app/server/** @appsmithorg/v1-be
+
+# Client
+app/client/** @appsmithorg/v1-fe
+
 # New Developers Pod
 app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/** @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
@@ -114,93 +120,93 @@ app/client/packages/dsl/ @appsmithorg/git-fe-reviewers
 
 # Data Platform
 
-app/client/src/actions/datasourceActions.ts @ayushpahwa
-app/client/src/api/ActionAPI.tsx @ayushpahwa
-app/client/src/ce/components/DSDataFilter/index.tsx @ayushpahwa
-app/client/src/ce/constants/ReduxActionConstants.tsx @ayushpahwa
-app/client/src/ce/sagas/ApplicationSagas.tsx @ayushpahwa
-app/client/src/ce/selectors/environmentSelectors.tsx @ayushpahwa
-app/client/src/ce/utils/Environments/index.tsx @ayushpahwa
-app/client/src/components/BottomBar/index.tsx @ayushpahwa
-app/client/src/components/editorComponents/form/fields/EmbeddedDatasourcePathField.tsx @ayushpahwa
-app/client/src/components/formControls/utils.test.ts @ayushpahwa
-app/client/src/components/formControls/utils.ts @ayushpahwa
-app/client/src/entities/Datasource/index.ts @ayushpahwa
-app/client/src/entities/FeatureFlags.ts @ayushpahwa
-app/client/src/navigation/FocusEntity.ts @ayushpahwa
-app/client/src/pages/Editor/APIEditor/** @ayushpahwa
-app/client/src/pages/Editor/DataSourceEditor/** @ayushpahwa
-app/client/src/pages/Editor/IntegrationEditor/DatasourceCard.tsx @ayushpahwa
-app/client/src/pages/Editor/IntegrationEditor/IntegrationsHomeScreen.tsx @ayushpahwa
-app/client/src/pages/Editor/IntegrationEditor/NewApi.tsx @ayushpahwa
-app/client/src/pages/Editor/QueryEditor/EditorJSONtoForm.tsx @ayushpahwa
-app/client/src/pages/Editor/SaaSEditor/DatasourceCard.tsx @ayushpahwa
-app/client/src/pages/Editor/SaaSEditor/DatasourceForm.tsx @ayushpahwa
-app/client/src/pages/Editor/gitSync/ReconnectDatasourceModal.tsx @ayushpahwa
-app/client/src/pages/common/datasourceAuth/index.tsx @ayushpahwa
-app/client/src/reducers/entityReducers/datasourceReducer.ts @ayushpahwa
-app/client/src/sagas/ActionExecution/PluginActionSaga.ts @ayushpahwa
-app/client/src/sagas/DatasourcesSagas.ts @ayushpahwa
-app/client/src/sagas/QueryPaneSagas.ts @ayushpahwa
-app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @ayushpahwa
+app/client/src/actions/datasourceActions.ts @appsmithorg/v1-fe
+app/client/src/api/ActionAPI.tsx @appsmithorg/v1-fe
+app/client/src/ce/components/DSDataFilter/index.tsx @appsmithorg/v1-fe
+app/client/src/ce/constants/ReduxActionConstants.tsx @appsmithorg/v1-fe
+app/client/src/ce/sagas/ApplicationSagas.tsx @appsmithorg/v1-fe
+app/client/src/ce/selectors/environmentSelectors.tsx @appsmithorg/v1-fe
+app/client/src/ce/utils/Environments/index.tsx @appsmithorg/v1-fe
+app/client/src/components/BottomBar/index.tsx @appsmithorg/v1-fe
+app/client/src/components/editorComponents/form/fields/EmbeddedDatasourcePathField.tsx @appsmithorg/v1-fe
+app/client/src/components/formControls/utils.test.ts @appsmithorg/v1-fe
+app/client/src/components/formControls/utils.ts @appsmithorg/v1-fe
+app/client/src/entities/Datasource/index.ts @appsmithorg/v1-fe
+app/client/src/entities/FeatureFlags.ts @appsmithorg/v1-fe
+app/client/src/navigation/FocusEntity.ts @appsmithorg/v1-fe
+app/client/src/pages/Editor/APIEditor/** @appsmithorg/v1-fe
+app/client/src/pages/Editor/DataSourceEditor/** @appsmithorg/v1-fe
+app/client/src/pages/Editor/IntegrationEditor/DatasourceCard.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/IntegrationEditor/IntegrationsHomeScreen.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/IntegrationEditor/NewApi.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/QueryEditor/EditorJSONtoForm.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/SaaSEditor/DatasourceCard.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/SaaSEditor/DatasourceForm.tsx @appsmithorg/v1-fe
+app/client/src/pages/Editor/gitSync/ReconnectDatasourceModal.tsx @appsmithorg/v1-fe
+app/client/src/pages/common/datasourceAuth/index.tsx @appsmithorg/v1-fe
+app/client/src/reducers/entityReducers/datasourceReducer.ts @appsmithorg/v1-fe
+app/client/src/sagas/ActionExecution/PluginActionSaga.ts @appsmithorg/v1-fe
+app/client/src/sagas/DatasourcesSagas.ts @appsmithorg/v1-fe
+app/client/src/sagas/QueryPaneSagas.ts @appsmithorg/v1-fe
+app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @appsmithorg/v1-fe
 
 
 # Team Managers pod
-app/client/src/pages/Settings/**/* @ankitakinger
-app/client/src/pages/workspace/settings.tsx @ankitakinger
-app/client/src/pages/workspace/AppInviteUsersForm.tsx @ankitakinger
-app/client/src/pages/workspace/WorkspaceInviteUsersForm.tsx @ankitakinger
-app/client/src/components/editorComponents/form/FormDialogComponent.tsx @ankitakinger
-app/client/src/ce/pages/AdminSettings/**/* @ankitakinger
-app/client/src/ee/pages/AdminSettings/**/* @ankitakinger
-app/client/src/ce/pages/Applications/EmbedSnippetTab.tsx @ankitakinger
-app/client/src/ee/pages/Applications/EmbedSnippetTab.tsx @ankitakinger
-app/client/src/ce/pages/Applications/PrivateEmbedSettings.tsx @ankitakinger
-app/client/src/ee/pages/Applications/PrivateEmbedSettings.tsx @ankitakinger
-app/client/src/ce/pages/workspace/Members.tsx @ankitakinger
-app/client/src/ee/pages/workspace/Members.tsx @ankitakinger
-app/client/src/ce/pages/workspace/InviteUsersForm.tsx @ankitakinger
-app/client/src/ee/pages/workspace/InviteUsersForm.tsx @ankitakinger
-app/client/src/ce/pages/Upgrade/**/* @ankitakinger
-app/client/src/ee/pages/Auditlogs/**/* @ankitakinger
-app/client/cypress/e2e/Regression/Enterprise/**/* @ankitakinger
-app/client/cypress/e2e/Regression/EE/Enterprise/**/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/AdminSettings/**/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Google/**/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Github/**/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @ankitakinger
+app/client/src/pages/Settings/**/* @appsmithorg/v1-fe
+app/client/src/pages/workspace/settings.tsx @appsmithorg/v1-fe
+app/client/src/pages/workspace/AppInviteUsersForm.tsx @appsmithorg/v1-fe
+app/client/src/pages/workspace/WorkspaceInviteUsersForm.tsx @appsmithorg/v1-fe
+app/client/src/components/editorComponents/form/FormDialogComponent.tsx @appsmithorg/v1-fe
+app/client/src/ce/pages/AdminSettings/**/* @appsmithorg/v1-fe
+app/client/src/ee/pages/AdminSettings/**/* @appsmithorg/v1-fe
+app/client/src/ce/pages/Applications/EmbedSnippetTab.tsx @appsmithorg/v1-fe
+app/client/src/ee/pages/Applications/EmbedSnippetTab.tsx @appsmithorg/v1-fe
+app/client/src/ce/pages/Applications/PrivateEmbedSettings.tsx @appsmithorg/v1-fe
+app/client/src/ee/pages/Applications/PrivateEmbedSettings.tsx @appsmithorg/v1-fe
+app/client/src/ce/pages/workspace/Members.tsx @appsmithorg/v1-fe
+app/client/src/ee/pages/workspace/Members.tsx @appsmithorg/v1-fe
+app/client/src/ce/pages/workspace/InviteUsersForm.tsx @appsmithorg/v1-fe
+app/client/src/ee/pages/workspace/InviteUsersForm.tsx @appsmithorg/v1-fe
+app/client/src/ce/pages/Upgrade/**/* @appsmithorg/v1-fe
+app/client/src/ee/pages/Auditlogs/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/Enterprise/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/EE/Enterprise/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/ClientSide/AdminSettings/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/ClientSide/Google/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/ClientSide/Github/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @appsmithorg/v1-fe
+app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @appsmithorg/v1-fe
 
 # FE pod
-app/client/src/actions/evaluationActions.ts @ApekshaBhosale
-app/client/src/ce/entities/DataTree/**/* @ApekshaBhosale
-app/client/src/ce/entities/DependencyMap/**/* @ApekshaBhosale
-app/client/src/ce/entities/workers/**/* @ApekshaBhosale
-app/client/src/ee/entities/DataTree* @ApekshaBhosale
-app/client/src/ee/entities/workers/**/* @ApekshaBhosale
-app/client/src/sagas/EvaluationsSaga.ts @ApekshaBhosale
-app/client/src/sagas/EvalWorkerActionSagas.ts @ApekshaBhosale
-app/client/src/sagas/LintingSagas.ts @ApekshaBhosale
-app/client/src/sagas/PostEvaluationSags.ts @ApekshaBhosale
-app/client/src/sagas/PostLintingSagas.ts @ApekshaBhosale
-app/client/src/workers/**/* @ApekshaBhosale
-app/client/src/sagas/JSLibrarySaga.ts @ApekshaBhosale
-app/client/src/ce/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
-app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
-app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
-app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
+app/client/src/actions/evaluationActions.ts @appsmithorg/v1-fe
+app/client/src/ce/entities/DataTree/**/* @appsmithorg/v1-fe
+app/client/src/ce/entities/DependencyMap/**/* @appsmithorg/v1-fe
+app/client/src/ce/entities/workers/**/* @appsmithorg/v1-fe
+app/client/src/ee/entities/DataTree* @appsmithorg/v1-fe
+app/client/src/ee/entities/workers/**/* @appsmithorg/v1-fe
+app/client/src/sagas/EvaluationsSaga.ts @appsmithorg/v1-fe
+app/client/src/sagas/EvalWorkerActionSagas.ts @appsmithorg/v1-fe
+app/client/src/sagas/LintingSagas.ts @appsmithorg/v1-fe
+app/client/src/sagas/PostEvaluationSags.ts @appsmithorg/v1-fe
+app/client/src/sagas/PostLintingSagas.ts @appsmithorg/v1-fe
+app/client/src/workers/**/* @appsmithorg/v1-fe
+app/client/src/sagas/JSLibrarySaga.ts @appsmithorg/v1-fe
+app/client/src/ce/ActionExecution/ActionExecutionSagas.ts @appsmithorg/v1-fe
+app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @appsmithorg/v1-fe
+app/client/src/ce/JSFunctionExecutionSaga.ts @appsmithorg/v1-fe
+app/client/src/ee/JSFunctionExecutionSaga.ts @appsmithorg/v1-fe
 
 # Enterprise Success
 app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
 
 # DevOps
-deploy/**/* @sharat87 @pratapaprasanna @nidhi-nair
-.github/workflows/*.yml @sharat87 @nidhi-nair
-app/client/packages/ctl/**/* @sharat87 @pratapaprasanna @nidhi-nair
-Dockerfile @nidhi-nair
+deploy/**/* @appsmithorg/v1-devops 
+.github/workflows/*.yml @appsmithorg/v1-devops 
+app/client/packages/ctl/**/* @appsmithorg/v1-devops 
+Dockerfile @appsmithorg/v1-devops 
 
 # Server dependencies
-app/server/**/pom.xml @sharat87 @nidhi-nair
+app/server/**/pom.xml @sharat87 
 
 # Repository layer
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
@@ -208,4 +214,4 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/par
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/**/* @sharat87
 
 # Cypress
-app/client/cypress/**/* @ApekshaBhosale
+app/client/cypress/**/* @appsmithorg/v1-fe

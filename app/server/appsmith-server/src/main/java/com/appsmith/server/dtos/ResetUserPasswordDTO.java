@@ -11,6 +11,5 @@ public class ResetUserPasswordDTO extends User {
 
     String baseUrl;
 
-    @NotEmpty
-    String token;
+    @NotEmpty String token;
 }

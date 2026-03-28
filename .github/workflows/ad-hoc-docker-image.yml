@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: ad-hoc
+      base-image-tag:
+        description: Base image tag to use for creating appsmith docker image. Defaults to nightly.
+        required: false
+        type: string
+        default: nightly
       pg_tag:
         description: Postgres tag to use for image
         required: false
@@ -122,7 +127,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ inputs.base-image-tag }}
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ inputs.tag }}
           labels: |

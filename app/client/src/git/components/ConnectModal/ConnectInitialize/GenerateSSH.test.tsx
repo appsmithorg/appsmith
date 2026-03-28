@@ -26,7 +26,7 @@ describe("GenerateSSH Component", () => {
 
   it("renders the component correctly", () => {
     render(<GenerateSSH {...defaultProps} />);
-    expect(screen.getByText("Generate SSH key")).toBeInTheDocument();
+    expect(screen.getByText("Configure SSH Key")).toBeInTheDocument();
     expect(
       screen.getByTestId("t--git-connect-remote-input"),
     ).toBeInTheDocument();

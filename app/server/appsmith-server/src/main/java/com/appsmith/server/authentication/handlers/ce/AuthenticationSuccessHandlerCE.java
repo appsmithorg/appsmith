@@ -379,11 +379,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
         }
 
+        // Sanitize the redirect URL extracted from the state parameter to prevent open redirect attacks.
+        // An attacker could craft a malicious state parameter containing an external URL.
+        HttpHeaders headers = exchange.getRequest().getHeaders();
+        redirectUrl = RedirectHelper.sanitizeRedirectUrl(redirectUrl, headers);
+
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
             if (redirectHelper.isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
-                HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
             }
             redirectUrl = redirectHelper.buildSignupSuccessUrl(redirectUrl, addFirstTimeExperienceParam);
