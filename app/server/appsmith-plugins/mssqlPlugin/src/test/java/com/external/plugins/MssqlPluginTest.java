@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -44,11 +45,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
+import static com.appsmith.external.models.Connection.Mode.READ_WRITE;
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -778,23 +782,19 @@ public class MssqlPluginTest {
     public void testReadOnlyConnectionMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        // Set connection mode to READ_ONLY
-        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
-        connection.setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        Connection connection = new Connection();
+        connection.setMode(READ_ONLY);
         dsConfig.setConnection(connection);
 
-        // Create connection pool
         HikariDataSource connectionPool =
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
 
-        // Verify the JDBC URL contains ApplicationIntent=ReadOnly
         assertNotNull(connectionPool);
         String jdbcUrl = connectionPool.getJdbcUrl();
         assertTrue(
                 jdbcUrl.contains("ApplicationIntent=ReadOnly"),
                 "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
 
-        // Cleanup
         connectionPool.close();
     }
 
@@ -802,23 +802,19 @@ public class MssqlPluginTest {
     public void testReadWriteConnectionMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        // Set connection mode to READ_WRITE
-        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
-        connection.setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
+        Connection connection = new Connection();
+        connection.setMode(READ_WRITE);
         dsConfig.setConnection(connection);
 
-        // Create connection pool
         HikariDataSource connectionPool =
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
 
-        // Verify the JDBC URL does NOT contain ApplicationIntent parameter
         assertNotNull(connectionPool);
         String jdbcUrl = connectionPool.getJdbcUrl();
-        assertTrue(
-                !jdbcUrl.contains("ApplicationIntent"),
+        assertFalse(
+                jdbcUrl.contains("ApplicationIntent"),
                 "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
 
-        // Cleanup
         connectionPool.close();
     }
 }

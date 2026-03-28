@@ -76,6 +76,7 @@ import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_P
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static com.external.plugins.constants.MssqlPluginConstants.GENERATE_CRUD_PAGE_SELECT_QUERY;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_INVALID_ERROR_MSG;
@@ -626,10 +627,8 @@ public class MssqlPlugin extends BasePlugin {
 
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
-        // Add connection mode configuration for READ_ONLY
-        if (datasourceConfiguration.getConnection() != null
-                && datasourceConfiguration.getConnection().getMode()
-                        == com.appsmith.external.models.Connection.Mode.READ_ONLY) {
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        if (configurationConnection != null && configurationConnection.getMode() == READ_ONLY) {
             urlBuilder.append("ApplicationIntent=ReadOnly;");
             hikariConfig.setReadOnly(true);
         }
