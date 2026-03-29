@@ -54,7 +54,7 @@ On your development machine, please ensure that:
         cat /etc/hosts | grep appsmith
         ```
 
-1. Run cmd: `cp .env.example .env`
+1. Run cmd: `cp ../../.env.example .env` (from the `app/client` directory)
 1. Run Backend server
 
    - The backend server can be run in two ways
