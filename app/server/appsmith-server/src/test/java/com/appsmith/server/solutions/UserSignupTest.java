@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.server.MockWebSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -66,6 +67,9 @@ public class UserSignupTest {
     @MockBean
     private OrganizationService organizationService;
 
+    @MockBean
+    private TransactionalOperator transactionalOperator;
+
     private UserSignup userSignup;
 
     private static Organization organization;
@@ -74,6 +78,9 @@ public class UserSignupTest {
 
     @BeforeEach
     public void setup() {
+        Mockito.when(transactionalOperator.transactional(Mockito.any(Mono.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         userSignup = new UserSignupImpl(
                 userService,
                 userDataService,
@@ -85,7 +92,8 @@ public class UserSignupTest {
                 userUtils,
                 networkUtils,
                 emailService,
-                organizationService);
+                organizationService,
+                transactionalOperator);
 
         exchange = Mockito.mock(ServerWebExchange.class);
         Mockito.when(exchange.getSession()).thenReturn(Mono.just(new MockWebSession()));

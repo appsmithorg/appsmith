@@ -30,7 +30,6 @@ class UserUtilsTest {
 
     @BeforeEach
     void setUp() {
-        // Create test users
         user1 = new User();
         user1.setId("user1");
         user1.setEmail("user1@test.com");
@@ -55,12 +54,10 @@ class UserUtilsTest {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
 
-                    // Verify instance admin assignments
                     assertThat(instanceAdminPG.getAssignedToUserIds())
                             .contains(user1.getId(), user2.getId())
                             .as("Users should be assigned to instance admin group");
 
-                    // Verify organization admin assignments
                     assertThat(organizationAdminPG.getAssignedToUserIds())
                             .contains(user1.getId(), user2.getId())
                             .as("Users should be assigned to organization admin group");
@@ -72,7 +69,6 @@ class UserUtilsTest {
     void removeInstanceAdmin_WhenUsersProvided_RemovesPermissionsSuccessfully() {
         List<User> users = Arrays.asList(user1, user2);
 
-        // First add the users as admins
         StepVerifier.create(userUtils
                         .makeInstanceAdministrator(users)
                         .then(userUtils.removeInstanceAdmin(users))
@@ -83,12 +79,10 @@ class UserUtilsTest {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
 
-                    // Verify instance admin unassignments
                     assertThat(instanceAdminPG.getAssignedToUserIds())
                             .doesNotContain(user1.getId(), user2.getId())
                             .as("Users should be removed from instance admin group");
 
-                    // Verify organization admin unassignments
                     assertThat(organizationAdminPG.getAssignedToUserIds())
                             .doesNotContain(user1.getId(), user2.getId())
                             .as("Users should be removed from organization admin group");
@@ -100,7 +94,6 @@ class UserUtilsTest {
     void makeInstanceAdministrator_WhenUserAlreadyAdmin_MaintainsPermissionsSuccessfully() {
         List<User> users = List.of(user1);
 
-        // Add user as admin twice
         StepVerifier.create(userUtils
                         .makeInstanceAdministrator(users)
                         .then(userUtils.makeInstanceAdministrator(users))
@@ -111,7 +104,6 @@ class UserUtilsTest {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
 
-                    // Verify user is still assigned exactly once
                     assertThat(instanceAdminPG.getAssignedToUserIds())
                             .contains(user1.getId())
                             .hasSize(1)
@@ -121,6 +113,22 @@ class UserUtilsTest {
                             .contains(user1.getId())
                             .hasSize(1)
                             .as("User should be assigned exactly once to organization admin group");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void makeInstanceAdministrator_ConcurrentCalls_BothUsersAssigned() {
+        Mono<Boolean> assign1 = userUtils.makeInstanceAdministrator(List.of(user1));
+        Mono<Boolean> assign2 = userUtils.makeInstanceAdministrator(List.of(user2));
+
+        StepVerifier.create(
+                        Mono.zip(assign1, assign2)
+                                .then(userUtils.getInstanceAdminPermissionGroup()))
+                .assertNext(instanceAdminPG -> {
+                    assertThat(instanceAdminPG.getAssignedToUserIds())
+                            .contains(user1.getId(), user2.getId())
+                            .as("Both users should be present after concurrent admin assignments");
                 })
                 .verifyComplete();
     }
