@@ -19,7 +19,6 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -85,22 +84,15 @@ public class UserUtilsCE {
             organizationAdminPgMono = getDefaultOrganizationAdminPermissionGroup();
         }
 
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+
         return Mono.zip(getInstanceAdminPermissionGroup(), organizationAdminPgMono)
                 .flatMap(tuple -> {
                     PermissionGroup instanceAdminPg = tuple.getT1();
                     PermissionGroup organizationAdminPg = tuple.getT2();
 
-                    Set<String> assignedToUserIds = new HashSet<>();
-
-                    if (instanceAdminPg.getAssignedToUserIds() != null) {
-                        assignedToUserIds.addAll(instanceAdminPg.getAssignedToUserIds());
-                    }
-                    assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     BridgeUpdate updateObj = Bridge.update();
-                    String path = PermissionGroup.Fields.assignedToUserIds;
-
-                    updateObj.set(path, assignedToUserIds);
-                    // Make Instance Admin is called before the first administrator is created.
+                    updateObj.addEachToSet(PermissionGroup.Fields.assignedToUserIds, userIds);
                     Mono<Integer> updateInstanceAdminPgAssignmentMono =
                             permissionGroupRepository.updateById(instanceAdminPg.getId(), updateObj);
 
@@ -108,16 +100,8 @@ public class UserUtilsCE {
                         return updateInstanceAdminPgAssignmentMono;
                     }
 
-                    // Also assign the users to the organization admin permission group
-                    Set<String> organizationAdminAssignedToUserIds = new HashSet<>();
-                    if (organizationAdminPg.getAssignedToUserIds() != null) {
-                        organizationAdminAssignedToUserIds.addAll(organizationAdminPg.getAssignedToUserIds());
-                    }
-                    organizationAdminAssignedToUserIds.addAll(
-                            users.stream().map(User::getId).collect(Collectors.toList()));
                     BridgeUpdate updateObj2 = Bridge.update();
-                    String path2 = PermissionGroup.Fields.assignedToUserIds;
-                    updateObj2.set(path2, organizationAdminAssignedToUserIds);
+                    updateObj2.addEachToSet(PermissionGroup.Fields.assignedToUserIds, userIds);
                     return updateInstanceAdminPgAssignmentMono.then(
                             permissionGroupRepository.updateById(organizationAdminPg.getId(), updateObj2));
                 })
@@ -138,41 +122,32 @@ public class UserUtilsCE {
             organizationAdminPgMono = getDefaultOrganizationAdminPermissionGroup();
         }
 
+        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+
         return Mono.zip(getInstanceAdminPermissionGroup(), organizationAdminPgMono)
                 .flatMap(tuple -> {
                     PermissionGroup instanceAdminPg = tuple.getT1();
                     PermissionGroup organizationAdminPg = tuple.getT2();
 
-                    if (instanceAdminPg.getAssignedToUserIds() == null) {
-                        instanceAdminPg.setAssignedToUserIds(new HashSet<>());
-                    }
-                    Set<String> assignedToUserIds = new HashSet<>(instanceAdminPg.getAssignedToUserIds());
-                    assignedToUserIds.removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
-
-                    BridgeUpdate updateObj = Bridge.update();
-                    String path = PermissionGroup.Fields.assignedToUserIds;
-
-                    updateObj.set(path, assignedToUserIds);
-                    // Make Instance Admin is called before the first administrator is created.
-                    Mono<Integer> updateInstanceAdminPgAssignmentMono =
-                            permissionGroupRepository.updateById(instanceAdminPg.getId(), updateObj);
+                    Mono<Integer> updateInstanceAdminPgAssignmentMono = Flux.fromIterable(userIds)
+                            .flatMap(userId -> {
+                                BridgeUpdate pullUpdate = Bridge.update();
+                                pullUpdate.pull(PermissionGroup.Fields.assignedToUserIds, userId);
+                                return permissionGroupRepository.updateById(instanceAdminPg.getId(), pullUpdate);
+                            })
+                            .then(Mono.just(1));
 
                     if (!hasLength(organizationAdminPg.getId())) {
                         return updateInstanceAdminPgAssignmentMono;
                     }
 
-                    // Also unassign the users from the organization admin permission group
-                    Set<String> organizationAdminAssignedToUserIds = new HashSet<>();
-                    if (organizationAdminPg.getAssignedToUserIds() != null) {
-                        organizationAdminAssignedToUserIds.addAll(organizationAdminPg.getAssignedToUserIds());
-                    }
-                    organizationAdminAssignedToUserIds.removeAll(
-                            users.stream().map(User::getId).collect(Collectors.toList()));
-                    BridgeUpdate updateObj2 = Bridge.update();
-                    String path2 = PermissionGroup.Fields.assignedToUserIds;
-                    updateObj2.set(path2, organizationAdminAssignedToUserIds);
-                    return updateInstanceAdminPgAssignmentMono.then(
-                            permissionGroupRepository.updateById(organizationAdminPg.getId(), updateObj2));
+                    return updateInstanceAdminPgAssignmentMono.then(Flux.fromIterable(userIds)
+                            .flatMap(userId -> {
+                                BridgeUpdate pullUpdate = Bridge.update();
+                                pullUpdate.pull(PermissionGroup.Fields.assignedToUserIds, userId);
+                                return permissionGroupRepository.updateById(organizationAdminPg.getId(), pullUpdate);
+                            })
+                            .then(Mono.just(1)));
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)

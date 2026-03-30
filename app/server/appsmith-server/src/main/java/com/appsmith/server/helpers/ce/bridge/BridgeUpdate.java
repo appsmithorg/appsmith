@@ -6,6 +6,7 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +25,11 @@ public class BridgeUpdate implements UpdateDefinition {
 
     public BridgeUpdate addToSet(@NonNull String key, @NonNull Object value) {
         update.addToSet(key, value);
+        return this;
+    }
+
+    public BridgeUpdate addEachToSet(@NonNull String key, @NonNull Collection<?> values) {
+        update.addToSet(key).each(values.toArray());
         return this;
     }
 

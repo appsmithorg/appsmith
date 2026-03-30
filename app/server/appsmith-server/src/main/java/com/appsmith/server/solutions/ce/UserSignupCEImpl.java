@@ -34,6 +34,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -82,6 +83,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final NetworkUtils networkUtils;
     private final EmailService emailService;
     private final OrganizationService organizationService;
+    private final TransactionalOperator transactionalOperator;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -98,7 +100,8 @@ public class UserSignupCEImpl implements UserSignupCE {
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
-            OrganizationService organizationService) {
+            OrganizationService organizationService,
+            TransactionalOperator transactionalOperator) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -111,6 +114,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.networkUtils = networkUtils;
         this.emailService = emailService;
         this.organizationService = organizationService;
+        this.transactionalOperator = transactionalOperator;
     }
 
     /**
@@ -124,7 +128,14 @@ public class UserSignupCEImpl implements UserSignupCE {
      * @return Mono of User, published the saved user object with a non-null value for its `getId()`.
      */
     public Mono<User> signupAndLogin(User user, ServerWebExchange exchange) {
+        return createUserForSignup(user).flatMap(signupDTO -> loginCreatedUser(signupDTO, exchange));
+    }
 
+    /**
+     * DB-only user creation: validates email/password, creates the user and default workspace.
+     * Does NOT perform login or session/auth side effects.
+     */
+    private Mono<UserSignupDTO> createUserForSignup(User user) {
         if (!validateEmail(user.getUsername())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL));
         }
@@ -133,9 +144,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .getCurrentUserOrganization()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)));
 
-        // - Only creating user if the password strength is acceptable as per the organization policy
-        // - Welcome email will be sent post user email verification
-        Mono<UserSignupDTO> createUserMono = organizationMono.flatMap(organization -> {
+        return organizationMono.flatMap(organization -> {
             OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
             boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
                     && Boolean.TRUE.equals(organizationConfiguration.getIsStrongPasswordPolicyEnabled());
@@ -157,13 +166,18 @@ public class UserSignupCEImpl implements UserSignupCE {
                 return pair.getT2();
             });
         });
+    }
 
-        return Mono.zip(createUserMono, ReactiveSecurityContextHolder.getContext())
+    /**
+     * Post-commit login/session side effects: sets up Spring Security authentication context,
+     * triggers authentication success handler, and saves session.
+     */
+    private Mono<User> loginCreatedUser(UserSignupDTO signupDTO, ServerWebExchange exchange) {
+        return ReactiveSecurityContextHolder.getContext()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
-                .flatMap(tuple -> {
-                    final User savedUser = tuple.getT1().getUser();
-                    final String workspaceId = tuple.getT1().getDefaultWorkspaceId();
-                    final SecurityContext securityContext = tuple.getT2();
+                .flatMap(securityContext -> {
+                    final User savedUser = signupDTO.getUser();
+                    final String workspaceId = signupDTO.getDefaultWorkspaceId();
 
                     Authentication authentication =
                             new UsernamePasswordAuthenticationToken(savedUser, null, savedUser.getAuthorities());
@@ -175,15 +189,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                             exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
-                    /* TODO
-                      - Add testcases for SignUp service
-                           - Verify that Workspace is created for the user
-                           - Verify that first application is created inside created workspace when “redirectUrl” query parameter is not present in the request
-                           - Verify that first application is not created when “redirectUrl” query parameter is present in the request
-                    */
                     boolean createApplication =
                             StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
-                    // need to create default application
                     Mono<Integer> authenticationSuccessMono = authenticationSuccessHandler
                             .onAuthenticationSuccess(
                                     webFilterExchange, authentication, createApplication, true, workspaceId)
@@ -267,107 +274,120 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
+    /**
+     * Atomically creates the first super user (Instance Administrator) using a reactive Mongo transaction.
+     * The transaction ensures that concurrent requests cannot both succeed: only one will commit
+     * the user creation, admin assignment, and bootstrap-completed flag.
+     *
+     * Post-commit side effects (login, env config, analytics) run only for the winning request.
+     */
     public Mono<User> signupAndLoginSuper(
             UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
-        Mono<User> userMono = userService
-                .isUsersEmpty()
-                .flatMap(isEmpty -> {
-                    if (!Boolean.TRUE.equals(isEmpty)) {
+
+        final User user = new User();
+        user.setEmail(userFromRequest.getEmail());
+        user.setName(userFromRequest.getName());
+        user.setSource(userFromRequest.getSource());
+        user.setState(userFromRequest.getState());
+        user.setIsEnabled(userFromRequest.getIsEnabled());
+        user.setPassword(userFromRequest.getPassword());
+
+        // Phase 1: Transactional — all DB mutations are atomic
+        Mono<UserSignupDTO> bootstrapTx = configService
+                .isBootstrapCompleted()
+                .flatMap(completed -> {
+                    if (Boolean.TRUE.equals(completed)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
-                    final User user = new User();
-                    user.setEmail(userFromRequest.getEmail());
-                    user.setName(userFromRequest.getName());
-                    user.setSource(userFromRequest.getSource());
-                    user.setState(userFromRequest.getState());
-                    user.setIsEnabled(userFromRequest.getIsEnabled());
-                    user.setPassword(userFromRequest.getPassword());
-
-                    Mono<User> userMono1 = signupAndLogin(user, exchange);
-                    return userMono1.elapsed().map(pair -> {
-                        log.debug("UserSignupCEImpl::Time taken to complete signupAndLogin: {} ms", pair.getT1());
-                        return pair.getT2();
-                    });
+                    return createUserForSignup(user)
+                            .flatMap(signupDTO -> userUtils
+                                    .makeInstanceAdministrator(List.of(signupDTO.getUser()))
+                                    .elapsed()
+                                    .map(pair -> {
+                                        log.debug(
+                                                "UserSignupCEImpl::Time taken to complete makeSuperUser: {} ms",
+                                                pair.getT1());
+                                        return pair.getT2();
+                                    })
+                                    .thenReturn(signupDTO))
+                            .flatMap(signupDTO -> configService
+                                    .markBootstrapCompleted()
+                                    .thenReturn(signupDTO));
                 })
-                .flatMap(user -> {
-                    Mono<Boolean> makeSuperUserMono = userUtils
-                            .makeInstanceAdministrator(List.of(user))
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug(
-                                        "UserSignupCEImpl::Time taken to complete makeSuperUser: {} ms", pair.getT1());
-                                return pair.getT2();
-                            });
-                    return makeSuperUserMono.thenReturn(user);
-                })
-                .flatMap(user -> {
-                    final UserData userData = new UserData();
-                    userData.setProficiency(userFromRequest.getProficiency());
-                    userData.setUseCase(userFromRequest.getUseCase());
-
-                    Mono<UserData> userDataMono = userDataService
-                            .updateForUser(user, userData)
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug(
-                                        "UserSignupCEImpl::Time taken to update user data for user: {} ms",
-                                        pair.getT1());
-                                return pair.getT2();
-                            });
-
-                    Mono<Void> applyEnvManagerChangesMono = envManager
-                            .applyChanges(
-                                    Map.of(
-                                            APPSMITH_DISABLE_TELEMETRY.name(),
-                                            String.valueOf(!userFromRequest.getAllowCollectingAnonymousData()),
-                                            APPSMITH_ADMIN_EMAILS.name(),
-                                            user.getEmail()),
-                                    originHeader)
-                            // We need a non-empty value for `.elapsed` to work.
-                            .thenReturn(true)
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
-                                return pair.getT2();
-                            })
-                            .then();
-
-                    /*
-                     * Here, we have decided to move these 2 analytics events to a separate thread.
-                     * - create superuser event
-                     * - installation setup event
-                     * These 2 events have been put in a separate thread, because both of them don't have any impact
-                     * on the user flow, but one of them (installation setup event) is causing performance impact
-                     * when creating superuser (performance impact is because of an external network call in NetworkUtils.getExternalAddress()).
-                     */
-                    Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
-
-                    // In the past, we have seen "Installation Setup Complete" not getting triggered if subscribed
-                    // within
-                    // secondary functions, hence subscribing this in a separate thread to avoid getting cancelled
-                    // because
-                    // of any other secondary function mono throwing an exception
-                    sendInstallationSetupAnalytics(userFromRequest, user, userData)
-                            .subscribeOn(LoadShifter.elasticScheduler)
-                            .subscribe();
-
-                    Mono<Long> allSecondaryFunctions = Mono.when(
-                                    userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
-                            .thenReturn(1L)
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug(
-                                        "UserSignupCEImpl::Time taken to complete all secondary functions: {} ms",
-                                        pair.getT1());
-                                return pair.getT2();
-                            });
-                    return allSecondaryFunctions.thenReturn(user);
+                .as(transactionalOperator::transactional)
+                .onErrorMap(e -> {
+                    if (e instanceof AppsmithException) {
+                        return e;
+                    }
+                    log.debug("Bootstrap transaction conflict for super user creation, mapping to UNAUTHORIZED_ACCESS", e);
+                    return new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
                 });
+
+        // Phase 2: Post-commit — login + side effects only for the winner
+        Mono<User> userMono = bootstrapTx
+                .flatMap(signupDTO -> loginCreatedUser(signupDTO, exchange))
+                .flatMap(savedUser -> runPostCommitBootstrapSideEffects(savedUser, userFromRequest, originHeader));
+
         return userMono.elapsed().map(pair -> {
             log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
             return pair.getT2();
         });
+    }
+
+    /**
+     * Post-commit side effects for super user bootstrap: update user data, apply env changes,
+     * fire analytics events. Failures here are logged but do not invalidate the bootstrap.
+     */
+    private Mono<User> runPostCommitBootstrapSideEffects(
+            User user, UserSignupRequestDTO userFromRequest, String originHeader) {
+        final UserData userData = new UserData();
+        userData.setProficiency(userFromRequest.getProficiency());
+        userData.setUseCase(userFromRequest.getUseCase());
+
+        Mono<UserData> userDataMono = userDataService
+                .updateForUser(user, userData)
+                .elapsed()
+                .map(pair -> {
+                    log.debug(
+                            "UserSignupCEImpl::Time taken to update user data for user: {} ms",
+                            pair.getT1());
+                    return pair.getT2();
+                });
+
+        Mono<Void> applyEnvManagerChangesMono = envManager
+                .applyChanges(
+                        Map.of(
+                                APPSMITH_DISABLE_TELEMETRY.name(),
+                                String.valueOf(!userFromRequest.getAllowCollectingAnonymousData()),
+                                APPSMITH_ADMIN_EMAILS.name(),
+                                user.getEmail()),
+                        originHeader)
+                .thenReturn(true)
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
+                    return pair.getT2();
+                })
+                .then();
+
+        Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
+
+        sendInstallationSetupAnalytics(userFromRequest, user, userData)
+                .subscribeOn(LoadShifter.elasticScheduler)
+                .subscribe();
+
+        Mono<Long> allSecondaryFunctions = Mono.when(
+                        userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
+                .thenReturn(1L)
+                .elapsed()
+                .map(pair -> {
+                    log.debug(
+                            "UserSignupCEImpl::Time taken to complete all secondary functions: {} ms",
+                            pair.getT1());
+                    return pair.getT2();
+                });
+        return allSecondaryFunctions.thenReturn(user);
     }
 
     public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
@@ -448,11 +468,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     analyticsProps.put(ROLE, "");
                     analyticsProps.put(PROFICIENCY, ObjectUtils.defaultIfNull(userData.getProficiency(), ""));
                     analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
-                    // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
-                    // Segment. Instead of showing the ip as is Mixpanel provides derived property.
-                    // As we want derived props alongwith the ip address we are sharing the ip
-                    // address in separate keys
-                    // Ref: https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
                     analyticsProps.put(IP, ip);
                     analyticsProps.put(IP_ADDRESS, ip);
                     analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));

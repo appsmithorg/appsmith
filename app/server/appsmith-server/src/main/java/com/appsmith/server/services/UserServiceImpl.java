@@ -44,7 +44,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            ConfigService configService) {
         super(
                 validator,
                 repository,
@@ -62,6 +63,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 rateLimitService,
                 pacConfigurationService,
                 userServiceHelper,
-                instanceVariablesHelper);
+                instanceVariablesHelper,
+                configService);
     }
 }

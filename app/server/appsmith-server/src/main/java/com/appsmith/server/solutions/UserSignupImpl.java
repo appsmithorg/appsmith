@@ -13,6 +13,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.UserSignupCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Component
 @Slf4j
@@ -29,7 +30,8 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
-            OrganizationService organizationService) {
+            OrganizationService organizationService,
+            TransactionalOperator transactionalOperator) {
 
         super(
                 userService,
@@ -42,6 +44,7 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                 userUtils,
                 networkUtils,
                 emailService,
-                organizationService);
+                organizationService,
+                transactionalOperator);
     }
 }

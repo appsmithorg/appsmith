@@ -33,6 +33,7 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -110,6 +111,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
+    private final ConfigService configService;
 
     @Value("${APPSMITH_BASE_URL:}")
     private String appsmithBaseUrl;
@@ -176,7 +178,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            ConfigService configService) {
 
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -193,6 +196,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.userPoliciesComputeHelper = userServiceHelper;
         this.pacConfigurationService = pacConfigurationService;
         this.instanceVariablesHelper = instanceVariablesHelper;
+        this.configService = configService;
     }
 
     @Override
@@ -794,12 +798,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 userFromDbMono.flatMap(userUtils::isSuperUser).defaultIfEmpty(false);
 
         return Mono.zip(
-                        isUsersEmpty(),
+                        configService.isBootstrapCompleted(),
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         isSuperUserMono)
                 .flatMap(tuple -> {
-                    final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
+                    final boolean bootstrapCompleted = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
                     Boolean isSuperUser = tuple.getT4();
@@ -811,7 +815,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
-                    profile.setIsEmptyInstance(isUsersEmpty);
+                    profile.setIsEmptyInstance(!bootstrapCompleted);
                     profile.setIsAnonymous(userFromDb.isAnonymous());
                     profile.setIsEnabled(userFromDb.isEnabled());
                     profile.setUseCase(userData.getUseCase());

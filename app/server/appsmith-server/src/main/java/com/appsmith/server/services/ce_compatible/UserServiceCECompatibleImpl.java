@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -39,7 +40,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            ConfigService configService) {
         super(
                 validator,
                 repository,
@@ -57,6 +59,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 rateLimitService,
                 pacConfigurationService,
                 userServiceHelper,
-                instanceVariablesHelper);
+                instanceVariablesHelper,
+                configService);
     }
 }

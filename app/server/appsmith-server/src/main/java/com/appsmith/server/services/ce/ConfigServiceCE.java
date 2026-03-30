@@ -29,4 +29,16 @@ public interface ConfigServiceCE {
      * @return Updated Config object
      */
     Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables);
+
+    /**
+     * Check whether bootstrap (first super-user creation) has been completed.
+     * Reads the durable {@code bootstrapCompleted} flag from instanceConfig.
+     * Missing flag on upgraded instances is treated as complete if users already exist.
+     */
+    Mono<Boolean> isBootstrapCompleted();
+
+    /**
+     * Mark the bootstrap as completed by setting the durable flag on instanceConfig.
+     */
+    Mono<Config> markBootstrapCompleted();
 }

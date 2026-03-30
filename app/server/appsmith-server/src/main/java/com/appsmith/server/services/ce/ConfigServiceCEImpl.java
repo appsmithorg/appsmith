@@ -5,23 +5,27 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.BOOTSTRAP_COMPLETED;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_VARIABLES;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
     private final ConfigRepository repository;
+    private final UserRepository userRepository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;
 
-    public ConfigServiceCEImpl(ConfigRepository repository) {
+    public ConfigServiceCEImpl(ConfigRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -95,6 +99,43 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
             configObj.put(INSTANCE_VARIABLES, instanceVariables);
             config.setConfig(configObj);
             return repository.save(config);
+        });
+    }
+
+    @Override
+    public Mono<Boolean> isBootstrapCompleted() {
+        return getByName(FieldName.INSTANCE_CONFIG)
+                .flatMap(instanceConfig -> {
+                    JSONObject config = instanceConfig.getConfig();
+                    Object flag = config.get(BOOTSTRAP_COMPLETED);
+                    if (Boolean.TRUE.equals(flag)) {
+                        return Mono.just(true);
+                    }
+                    // For upgraded instances that already have users but no durable flag,
+                    // treat as bootstrap-completed and backfill the flag.
+                    return userRepository.isUsersEmpty().flatMap(isEmpty -> {
+                        if (Boolean.TRUE.equals(isEmpty)) {
+                            return Mono.just(false);
+                        }
+                        // Users exist but flag is missing — backfill for upgraded instance
+                        config.put(BOOTSTRAP_COMPLETED, true);
+                        instanceConfig.setConfig(config);
+                        return repository.save(instanceConfig).thenReturn(true);
+                    });
+                })
+                .onErrorResume(AppsmithException.class, e -> {
+                    // If instanceConfig doesn't exist yet (very early startup), not bootstrapped
+                    return Mono.just(false);
+                });
+    }
+
+    @Override
+    public Mono<Config> markBootstrapCompleted() {
+        return getByName(FieldName.INSTANCE_CONFIG).flatMap(instanceConfig -> {
+            JSONObject config = instanceConfig.getConfig();
+            config.put(BOOTSTRAP_COMPLETED, true);
+            instanceConfig.setConfig(config);
+            return repository.save(instanceConfig);
         });
     }
 }

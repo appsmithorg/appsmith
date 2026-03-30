@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ConfigServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigServiceImpl extends ConfigServiceCEImpl implements ConfigService {
 
-    public ConfigServiceImpl(ConfigRepository repository) {
-        super(repository);
+    public ConfigServiceImpl(ConfigRepository repository, UserRepository userRepository) {
+        super(repository, userRepository);
     }
 }
