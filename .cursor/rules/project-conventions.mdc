@@ -1,0 +1,89 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Appsmith Project Conventions
+
+## Codebase Structure
+
+- **Frontend**: `app/client/` — React 18, TypeScript, Redux + Redux-Saga, styled-components
+- **Backend**: `app/server/` — Java 25, Spring Boot 3.5, Spring WebFlux (reactive), MongoDB, Maven
+- **E2E Tests**: `app/client/cypress/` — Cypress 13
+- **CI/CD**: `.github/workflows/`
+- **Infrastructure**: `deploy/`
+
+## CE-EE Architecture (Critical)
+
+Appsmith has a Community Edition (CE) and Enterprise Edition (EE). This repo is CE. EE is a private superset that syncs from CE hourly.
+
+### Three-Layer Model
+
+Every extensible service/component follows: **CE → CE-Compatible → EE**
+
+- **CE layer** (`*.ce` package / `src/ce/` directory): Base open-source implementation. Contains all core logic.
+- **CE-Compatible layer** (`*.ce_compatible` package): Graceful degradation layer. When an enterprise license expires, resources created with paid features remain accessible in read-only mode through this layer. In CE repo, these are empty pass-throughs.
+- **EE layer** (parent package / `src/ee/` directory): Enterprise overrides. Methods annotated with `@FeatureFlagged`. In CE repo, EE files are thin stubs that re-export from CE.
+
+### Feature Flag Dispatch (Spring AOP)
+
+`@FeatureFlagged(featureFlagName = FeatureFlagEnum.XXX)` on EE methods. The `FeatureFlaggedMethodInvokerAspect` (`@Around` advice) checks the flag:
+- **Flag ON** → executes the EE method
+- **Flag OFF** → reflectively invokes the superclass (CE-Compatible) method
+- If CE-Compatible doesn't override → falls through to CE base
+
+Flags are evaluated per-organization (cached) with user-level fallback (Flagsmith). Organization flags take precedence.
+
+### Backend CE-EE Pattern
+
+```
+Interface: ServiceCE → ServiceCECompatible → Service
+Impl:      ServiceCEImpl → ServiceCECompatibleImpl → ServiceImpl (@Service)
+```
+
+- `@Service` annotation only on the final `*Impl` class
+- Constructor-based DI exclusively (no field injection)
+- CE impl holds all business logic; final impl is a pass-through in CE repo
+- This pattern applies to services, repositories, controllers, solutions, domains, DTOs
+
+### Frontend CE-EE Pattern
+
+- `app/client/src/ce/` — real implementations (306+ files)
+- `app/client/src/ee/` — re-export stubs in CE: `export * from "ce/..."`
+- **Always import from `"ee/..."`, never from `"ce/"` directly** (enforced by ESLint restricted-imports)
+- TypeScript path alias in `tsconfig.path.json`: `"ee/*": ["ee/*"]`
+- Frontend feature flags: `useFeatureFlag(flagName)` hook from `"utils/hooks/useFeatureFlag"`
+
+### When Creating New Features
+
+- New service? Create full CE → CE-Compatible → EE chain
+- New frontend module? Create `ce/` implementation + `ee/` re-export stub
+- New feature flag? Add to `FeatureFlagEnum` (server) and `FeatureFlag` (client)
+- Extension point for EE? Use `protected` methods in CE impl that EE can override
+
+## Git & PR Conventions
+
+- Branch naming: `fix/fix-name`, `feature/feature-name`
+- PR titles: Conventional Commits format — `type(scope): description`
+- Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+- Scope is optional but recommended
+
+## Pre-existing Automation
+
+- **Husky pre-commit**: Auto-runs `mvn spotless:apply` for server files, `lint-staged` (eslint --fix + prettier --write) for client files, gitleaks for secret scanning
+- **Husky pre-push**: Blocks pushing `app/client/src/ee` files to CE remote
+
+## Build & Verify Commands
+
+```bash
+# Server
+cd app/server && mvn spotless:apply          # Format Java code
+cd app/server && mvn spotless:check          # Check formatting
+cd app/server && ./build.sh -DskipTests      # Build without tests
+
+# Client
+cd app/client && yarn lint                   # ESLint check
+cd app/client && yarn prettier               # Prettier check
+cd app/client && yarn test:unit              # Jest unit tests
+cd app/client && yarn check-types            # TypeScript type-check
+```

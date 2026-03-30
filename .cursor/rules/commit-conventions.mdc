@@ -1,0 +1,30 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Commit & PR Conventions
+
+## PR Title Format (Conventional Commits)
+
+`type(scope): description`
+
+**Types:** feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+
+**Examples:**
+- `feat(widgets): add new table widget capabilities`
+- `fix(auth): resolve login redirect issue`
+- `refactor(api): simplify error handling logic`
+
+## Commit Message Style
+
+- Use descriptive messages with issue reference when applicable
+- Verb-prefixed: "Add ...", "Fix ...", "Update ...", "Remove ..."
+
+## Pre-commit Checks (Automatic via Husky)
+
+Server files staged → `mvn spotless:apply` runs automatically
+Client files staged → `eslint --fix` + `prettier --write` runs automatically
+All files → `gitleaks` secret scanning runs automatically
+
+Do not manually run formatting before commit — Husky handles it.
