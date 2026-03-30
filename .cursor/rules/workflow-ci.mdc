@@ -1,0 +1,39 @@
+---
+description:
+globs: .github/workflows/**/*.yml,.github/workflows/**/*.yaml
+alwaysApply: false
+---
+# GitHub Workflow Conventions
+
+## Validation
+
+When editing workflow files, ensure:
+
+- Valid YAML syntax
+- Required top-level keys: `name`, `on`, `jobs`
+- Every job has a `runs-on` field
+- Action versions are pinned (e.g., `actions/checkout@v4`, not `@main`)
+
+## Key Workflows
+
+| Workflow | Purpose |
+|----------|---------|
+| `client-build.yml` | Client build pipeline |
+| `server-build.yml` | Server build pipeline |
+| `ci-test-limited.yml` | CI test suite |
+| `client-unit-tests.yml` | Client unit tests |
+| `server-integration-tests.yml` | Server integration tests |
+
+## Testing Locally Before Push
+
+```bash
+# Server
+cd app/server && mvn spotless:check          # Formatting
+cd app/server && mvn test                    # Unit tests
+
+# Client
+cd app/client && yarn lint                   # ESLint
+cd app/client && yarn prettier               # Prettier
+cd app/client && yarn test:unit              # Jest
+cd app/client && yarn check-types            # TypeScript
+```
