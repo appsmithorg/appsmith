@@ -318,7 +318,7 @@ public class ServerSchemaMigrationEnforcerTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
 
         ModifiedResources modifiedResources = new ModifiedResources();
-        modifiedResources.setAllModified(true);
+        modifiedResources.setIsAllModified(true);
         applicationJson.setModifiedResources(modifiedResources);
 
         gitFileSystemTestHelper.setupGitRepository(
@@ -344,7 +344,7 @@ public class ServerSchemaMigrationEnforcerTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
 
         ModifiedResources modifiedResources = new ModifiedResources();
-        modifiedResources.setAllModified(true);
+        modifiedResources.setIsAllModified(true);
         applicationJson.setModifiedResources(modifiedResources);
 
         gitFileSystemTestHelper.setupGitRepository(

@@ -73,13 +73,13 @@ public class TriggerServiceCEImpl implements TriggerService {
                     List<Map<String, Object>> response = new ArrayList<>();
                     fileStatusDTO.getFiles().forEach(file -> {
                         Map<String, Object> dropdownOption = new HashMap<>();
-                        if (!file.isProcessed()) {
+                        if (!file.getIsProcessed()) {
                             dropdownOption.put(LABEL, "(Processing...) " + file.getName());
                         } else {
                             dropdownOption.put(LABEL, file.getName());
                         }
                         dropdownOption.put(VALUE, file.getId());
-                        dropdownOption.put(DISABLED, !file.isProcessed());
+                        dropdownOption.put(DISABLED, !file.getIsProcessed());
                         response.add(dropdownOption);
                     });
                     TriggerResultDTO triggerResultDTO = new TriggerResultDTO();

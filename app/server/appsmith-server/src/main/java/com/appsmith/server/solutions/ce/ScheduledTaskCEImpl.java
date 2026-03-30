@@ -90,7 +90,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
             shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
-        if (commonConfig.isTelemetryDisabled()) {
+        if (commonConfig.getIsTelemetryDisabled()) {
             return;
         }
 
@@ -147,7 +147,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     @Observed(name = "pingStats")
     public void pingStats() {
         // TODO @CloudBilling remove cloud hosting check and migrate the cron to report organization level stats
-        if (commonConfig.isTelemetryDisabled() || commonConfig.isCloudHosting()) {
+        if (commonConfig.getIsTelemetryDisabled() || commonConfig.getIsCloudHosting()) {
             return;
         }
 

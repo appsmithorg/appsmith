@@ -60,7 +60,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         }
 
         // TODO remove this condition after multi-tenancy is introduced
-        if (TRUE.equals(commonConfig.isCloudHosting())) {
+        if (TRUE.equals(commonConfig.getIsCloudHosting())) {
             return Mono.just(new UsagePulse());
         }
 

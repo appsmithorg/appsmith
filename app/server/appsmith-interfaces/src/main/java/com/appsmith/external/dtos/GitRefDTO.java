@@ -1,6 +1,7 @@
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.git.constants.ce.RefType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class GitRefDTO {
      */
     String message;
 
+    @JsonProperty("default")
     boolean isDefault;
 
     boolean createdFromLocal;

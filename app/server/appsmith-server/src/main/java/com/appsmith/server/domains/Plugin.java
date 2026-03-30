@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -92,6 +93,7 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean allowUserDatasources = true;
 
+    @JsonProperty("remotePlugin")
     @JsonView(Views.Public.class)
     boolean isRemotePlugin = false;
 
@@ -111,6 +113,7 @@ public class Plugin extends BaseDomain {
     // supported.
     // One can opt out by adding this field in DB object. Generally SaaS plugins and DB which can't be self-hosted can
     // be a candidate for opting out of air-gap
+    @JsonProperty("supportedForAirGap")
     @JsonView(Views.Internal.class)
     boolean isSupportedForAirGap = true;
 

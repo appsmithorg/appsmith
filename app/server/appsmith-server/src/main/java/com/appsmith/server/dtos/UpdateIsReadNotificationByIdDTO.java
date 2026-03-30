@@ -12,6 +12,5 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class UpdateIsReadNotificationByIdDTO extends UpdateIsReadNotificationDTO {
-    @NotNull @NotEmpty
-    private List<String> idList;
+    @NotNull @NotEmpty private List<String> idList;
 }

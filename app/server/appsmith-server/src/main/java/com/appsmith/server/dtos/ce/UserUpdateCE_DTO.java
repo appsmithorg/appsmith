@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -13,6 +14,7 @@ public class UserUpdateCE_DTO {
 
     private String useCase;
 
+    @JsonProperty("intercomConsentGiven")
     private boolean isIntercomConsentGiven;
 
     public boolean hasUserUpdates() {

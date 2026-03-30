@@ -12,8 +12,7 @@ import java.util.List;
 @Setter
 public class UpdateMultiplePageLayoutDTO {
 
-    @NotNull @Valid
-    private List<UpdatePageLayoutDTO> pageLayouts;
+    @NotNull @Valid private List<UpdatePageLayoutDTO> pageLayouts;
 
     @Getter
     @Setter
