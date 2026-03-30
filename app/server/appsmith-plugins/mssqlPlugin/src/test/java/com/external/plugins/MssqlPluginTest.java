@@ -6,7 +6,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -782,9 +781,7 @@ public class MssqlPluginTest {
     public void testReadOnlyConnectionMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        Connection connection = new Connection();
-        connection.setMode(READ_ONLY);
-        dsConfig.setConnection(connection);
+        dsConfig.getConnection().setMode(READ_ONLY);
 
         HikariDataSource connectionPool =
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
@@ -802,9 +799,7 @@ public class MssqlPluginTest {
     public void testReadWriteConnectionMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        Connection connection = new Connection();
-        connection.setMode(READ_WRITE);
-        dsConfig.setConnection(connection);
+        dsConfig.getConnection().setMode(READ_WRITE);
 
         HikariDataSource connectionPool =
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
