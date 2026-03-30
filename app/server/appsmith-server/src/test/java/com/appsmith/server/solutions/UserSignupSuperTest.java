@@ -26,10 +26,6 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.mock.web.server.MockWebSession;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.server.ServerWebExchange;
@@ -126,8 +122,7 @@ class UserSignupSuperTest {
         StepVerifier.create(userSignup.signupAndLoginSuper(makeRequest("test@test.com"), "http://localhost", exchange))
                 .expectErrorSatisfies(error -> {
                     assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(error.getMessage())
-                            .contains(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
+                    assertThat(error.getMessage()).contains(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
                 })
                 .verify();
     }
@@ -149,8 +144,7 @@ class UserSignupSuperTest {
         Mockito.when(userUtils.makeInstanceAdministrator(any())).thenReturn(Mono.just(true));
         Mockito.when(configService.markBootstrapCompleted()).thenReturn(Mono.empty());
 
-        Mockito.when(configService.isBootstrapCompleted())
-                .thenReturn(Mono.just(false));
+        Mockito.when(configService.isBootstrapCompleted()).thenReturn(Mono.just(false));
 
         Mockito.verify(configService, Mockito.never()).markBootstrapCompleted();
     }

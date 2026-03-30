@@ -1,9 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Config;
 import com.appsmith.server.repositories.ConfigRepository;
-import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +21,8 @@ class ConfigServiceBootstrapTest {
 
     @Test
     void isBootstrapCompleted_WhenFlagIsTrue_ReturnsTrue() {
-        configRepository.findByName(FieldName.INSTANCE_CONFIG)
+        configRepository
+                .findByName(FieldName.INSTANCE_CONFIG)
                 .flatMap(config -> {
                     config.getConfig().put(BOOTSTRAP_COMPLETED, true);
                     return configRepository.save(config);
@@ -37,15 +36,15 @@ class ConfigServiceBootstrapTest {
 
     @Test
     void markBootstrapCompleted_SetsFlag() {
-        configRepository.findByName(FieldName.INSTANCE_CONFIG)
+        configRepository
+                .findByName(FieldName.INSTANCE_CONFIG)
                 .flatMap(config -> {
                     config.getConfig().remove(BOOTSTRAP_COMPLETED);
                     return configRepository.save(config);
                 })
                 .block();
 
-        StepVerifier.create(configService.markBootstrapCompleted()
-                        .then(configService.isBootstrapCompleted()))
+        StepVerifier.create(configService.markBootstrapCompleted().then(configService.isBootstrapCompleted()))
                 .assertNext(completed -> assertThat(completed).isTrue())
                 .verifyComplete();
     }
@@ -53,8 +52,7 @@ class ConfigServiceBootstrapTest {
     @Test
     void markBootstrapCompleted_PersistsFlagInConfig() {
         StepVerifier.create(
-                        configService.markBootstrapCompleted()
-                                .then(configService.getByName(FieldName.INSTANCE_CONFIG)))
+                        configService.markBootstrapCompleted().then(configService.getByName(FieldName.INSTANCE_CONFIG)))
                 .assertNext(config -> {
                     Object flag = config.getConfig().get(BOOTSTRAP_COMPLETED);
                     assertThat(flag).isEqualTo(true);

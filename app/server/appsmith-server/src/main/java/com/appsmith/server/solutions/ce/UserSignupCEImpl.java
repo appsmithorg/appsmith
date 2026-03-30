@@ -30,7 +30,6 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -311,16 +310,17 @@ public class UserSignupCEImpl implements UserSignupCE {
                                         return pair.getT2();
                                     })
                                     .thenReturn(signupDTO))
-                            .flatMap(signupDTO -> configService
-                                    .markBootstrapCompleted()
-                                    .thenReturn(signupDTO));
+                            .flatMap(signupDTO ->
+                                    configService.markBootstrapCompleted().thenReturn(signupDTO));
                 })
                 .as(transactionalOperator::transactional)
                 .onErrorMap(e -> {
                     if (e instanceof AppsmithException) {
                         return e;
                     }
-                    log.debug("Bootstrap transaction conflict for super user creation, mapping to UNAUTHORIZED_ACCESS", e);
+                    log.debug(
+                            "Bootstrap transaction conflict for super user creation, mapping to UNAUTHORIZED_ACCESS",
+                            e);
                     return new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
                 });
 
@@ -349,9 +349,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .updateForUser(user, userData)
                 .elapsed()
                 .map(pair -> {
-                    log.debug(
-                            "UserSignupCEImpl::Time taken to update user data for user: {} ms",
-                            pair.getT1());
+                    log.debug("UserSignupCEImpl::Time taken to update user data for user: {} ms", pair.getT1());
                     return pair.getT2();
                 });
 
@@ -377,14 +375,11 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
 
-        Mono<Long> allSecondaryFunctions = Mono.when(
-                        userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
+        Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
                 .thenReturn(1L)
                 .elapsed()
                 .map(pair -> {
-                    log.debug(
-                            "UserSignupCEImpl::Time taken to complete all secondary functions: {} ms",
-                            pair.getT1());
+                    log.debug("UserSignupCEImpl::Time taken to complete all secondary functions: {} ms", pair.getT1());
                     return pair.getT2();
                 });
         return allSecondaryFunctions.thenReturn(user);

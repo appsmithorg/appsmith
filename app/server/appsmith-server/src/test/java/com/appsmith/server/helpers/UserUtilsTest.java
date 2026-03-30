@@ -122,9 +122,7 @@ class UserUtilsTest {
         Mono<Boolean> assign1 = userUtils.makeInstanceAdministrator(List.of(user1));
         Mono<Boolean> assign2 = userUtils.makeInstanceAdministrator(List.of(user2));
 
-        StepVerifier.create(
-                        Mono.zip(assign1, assign2)
-                                .then(userUtils.getInstanceAdminPermissionGroup()))
+        StepVerifier.create(Mono.zip(assign1, assign2).then(userUtils.getInstanceAdminPermissionGroup()))
                 .assertNext(instanceAdminPG -> {
                     assertThat(instanceAdminPG.getAssignedToUserIds())
                             .contains(user1.getId(), user2.getId())
