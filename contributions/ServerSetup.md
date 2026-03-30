@@ -18,7 +18,7 @@ Running the Appsmith Docker image as a container will grant you a running Appsmi
 
 1. Clone the Appsmith repository and change into it
 
-    ```
+    ```console
     git clone https://github.com/appsmithorg/appsmith.git
     cd appsmith
     ```
@@ -87,7 +87,7 @@ After updating `JAVA_HOME`, confirm `echo $JAVA_HOME` points to the Java 25 dire
         Please follow the below steps for enabling the replica set with mongo running inside the docker
         1. Connect to the mongo db running with a mongo shell. Use the below command
 
-            ```
+            ```console
             mongosh
             ```
         2. Once you are inside the mongo shell run the below command.
@@ -385,10 +385,10 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
         Keep this terminal running; RTS must stay up while the Java server is running.
 
-8. Start the Java server by running from `app/server`:
+8. Start the Java server by running from repo root:
 
 ```console
-./scripts/start-dev-server.sh
+./app/server/scripts/start-dev-server.sh
 ```
 
 By default, the server will start on port 8080.
