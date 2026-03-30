@@ -54,10 +54,13 @@ class SomeServiceTest {
 ### Unit test with mocks
 
 ```java
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class SomeServiceUnitTest {
-    @MockBean
+    @Mock
     private DependencyService dependencyService;
+
+    @InjectMocks
+    private SomeServiceCEImpl serviceUnderTest;
 
     @Test
     void methodName_scenario_expectedBehavior() {

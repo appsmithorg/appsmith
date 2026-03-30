@@ -10,7 +10,7 @@ alwaysApply: false
 When editing workflow files, ensure:
 
 - Valid YAML syntax
-- Required top-level keys: `name`, `on`, `jobs`
+- Required top-level keys: `on`, `jobs` (`name` is optional)
 - Every job has a `runs-on` field
 - Action versions are pinned (e.g., `actions/checkout@v4`, not `@main`)
 

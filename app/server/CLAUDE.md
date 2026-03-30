@@ -9,13 +9,13 @@
 
 ### Three-tier inheritance
 
-```
+```text
 Interface: ServiceCE            → ServiceCECompatible            → Service
 Impl:      ServiceCEImpl        → ServiceCECompatibleImpl        → ServiceImpl (@Service)
 Package:   com.x.services.ce      com.x.services.ce_compatible     com.x.services
 ```
 
-- `@Service` / `@Component` annotation **only** on the final `*Impl` class
+- `@Service` / `@Component` annotation on CE-Compatible and final `*Impl` classes (not on CE base classes)
 - Constructor-based DI exclusively (no field injection), use `@RequiredArgsConstructor`
 - CE impl contains all business logic; final impl is a pass-through in CE repo
 - CE-Compatible: empty pass-through in CE (EE overrides for graceful degradation when license expires)

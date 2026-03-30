@@ -23,8 +23,9 @@ alwaysApply: true
 
 ## Pre-commit Checks (Automatic via Husky)
 
-Server files staged → `mvn spotless:apply` runs automatically
-Client files staged → `eslint --fix` + `prettier --write` runs automatically
-All files → `gitleaks` secret scanning runs automatically
+When server files are staged → `mvn spotless:apply` runs automatically
+When client files are staged → `eslint --fix --cache` + `prettier --write --cache` run via lint-staged
+All staged files → `gitleaks` secret scanning runs automatically
+Pre-commit checks are skipped for merge commits.
 
 Do not manually run formatting before commit — Husky handles it.

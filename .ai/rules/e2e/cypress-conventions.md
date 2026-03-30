@@ -17,7 +17,7 @@ cd app/client && npx cypress open                       # Interactive mode
 
 ## Test Structure
 
-```
+```text
 app/client/cypress/
 ├── e2e/
 │   ├── Regression/

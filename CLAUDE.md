@@ -31,12 +31,12 @@ Flags are evaluated per-organization (cached) with user-level fallback (Flagsmit
 
 ### Backend CE-EE Pattern
 
-```
+```text
 Interface: ServiceCE → ServiceCECompatible → Service
 Impl:      ServiceCEImpl → ServiceCECompatibleImpl → ServiceImpl (@Service)
 ```
 
-- `@Service` annotation only on the final `*Impl` class
+- `@Service` annotation on CE-Compatible and final `*Impl` classes (not on CE base classes)
 - Constructor-based DI exclusively (no field injection)
 - CE impl holds all business logic; final impl is a pass-through in CE repo
 - This pattern applies to services, repositories, controllers, solutions, domains, DTOs
@@ -66,7 +66,7 @@ Impl:      ServiceCEImpl → ServiceCECompatibleImpl → ServiceImpl (@Service)
 
 ## Pre-existing Automation
 
-- **Husky pre-commit**: Auto-runs `mvn spotless:apply` for server files, `lint-staged` (eslint --fix + prettier --write) for client files, gitleaks for secret scanning
+- **Husky pre-commit**: When server files are staged, runs `mvn spotless:apply`. When client files are staged, runs `lint-staged` (eslint --fix --cache + prettier --write --cache). All files get `gitleaks` secret scanning. Skipped for merge commits.
 - **Husky pre-push**: Blocks pushing `app/client/src/ee` files to CE remote
 - Do not manually run formatting before commit — Husky handles it.
 

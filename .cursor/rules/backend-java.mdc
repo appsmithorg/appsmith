@@ -14,7 +14,7 @@ alwaysApply: false
 
 Multi-module Maven project under `app/server/`:
 
-```
+```text
 appsmith-server/       — Main server module (controllers, services, repositories, domains)
 appsmith-interfaces/   — Shared contracts (models, exceptions, plugin interfaces)
 appsmith-plugins/      — 25+ database/API connector plugins
@@ -28,7 +28,7 @@ Within `appsmith-server`, packages are organized by feature domain, each with `c
 
 ### Three-tier inheritance
 
-```
+```text
 Interface: ServiceCE            → ServiceCECompatible            → Service
 Impl:      ServiceCEImpl        → ServiceCECompatibleImpl        → ServiceImpl (@Service)
 Package:   com.x.services.ce      com.x.services.ce_compatible     com.x.services
@@ -36,7 +36,7 @@ Package:   com.x.services.ce      com.x.services.ce_compatible     com.x.service
 
 ### Rules
 
-- `@Service` / `@Component` annotation **only** on the final `*Impl` class
+- `@Service` / `@Component` annotation on CE-Compatible and final `*Impl` classes (not on CE base classes)
 - CE impl contains all business logic
 - CE-Compatible is an empty pass-through in CE repo (EE overrides it for graceful degradation)
 - Final `*Impl` is an empty pass-through in CE repo (EE overrides it for enterprise features)
@@ -49,7 +49,7 @@ Always. Even if there's no current EE override, create the empty scaffolding so 
 
 ## Controller Conventions
 
-```
+```text
 CE class (in controllers/ce/): All endpoint logic, NOT annotated as @RestController
 EE class (in controllers/):    @RestController + @RequestMapping, empty body, extends CE
 ```
@@ -130,7 +130,7 @@ All service methods return `Mono<T>` or `Flux<T>`. Key patterns:
 | `@FeatureFlagged` | Controls method execution via feature flag + AOP |
 | `@Encrypted` | Marks fields for at-rest encryption |
 | `@Cache` / `@CacheEvict` | Reactive method result caching / eviction |
-| `@DistributedLock` | Distributed lock with TTL (default 5min) |
+| `@DistributedLock` | Distributed lock with TTL (default 5 min) |
 | `@RateLimit` | Rate-limits API endpoints |
 
 ## Build Commands

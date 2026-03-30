@@ -4,7 +4,7 @@
 
 - Jest 29 + React Testing Library (no Enzyme, no snapshot testing)
 - `@testing-library/react` for rendering/querying
-- `@testing-library/react-hooks` for hook testing via `renderHook`
+- `@testing-library/react` also provides `renderHook` for hook testing
 - `@testing-library/user-event` for user interaction simulation
 - `@testing-library/jest-dom` for DOM matchers
 - MSW (Mock Service Worker) for API mocking
@@ -60,7 +60,7 @@ it("renders label", () => {
 ### Hook test
 
 ```typescript
-import { renderHook, act } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 
 it("returns updated value", () => {
   const { result } = renderHook(() => useMyHook(initialValue));
