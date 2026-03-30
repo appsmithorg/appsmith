@@ -784,15 +784,42 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    private static final Set<Integer> DEFAULT_SMTP_PORTS = Set.of(25, 465, 587, 2525);
+
+    private static final Set<Integer> ALLOWED_SMTP_PORTS = computeAllowedSmtpPorts();
+
+    private static Set<Integer> computeAllowedSmtpPorts() {
+        Set<Integer> ports = new HashSet<>(DEFAULT_SMTP_PORTS);
+        String extra = System.getenv("APPSMITH_MAIL_ALLOWED_PORTS");
+        if (extra != null && !extra.isBlank()) {
+            for (String token : extra.split(",")) {
+                try {
+                    int port = Integer.parseInt(token.trim());
+                    if (port > 0 && port <= 65535) {
+                        ports.add(port);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return Set.copyOf(ports);
+    }
+
     private static final String SMTP_GENERIC_ERROR =
             "Failed to connect to the SMTP server. Please verify the host, " + "port, and credentials are correct.";
 
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper().flatMap(user -> {
+            if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+            }
+
             var resolvedAddress = WebClientUtils.resolveIfAllowed(requestDTO.getSmtpHost());
             if (resolvedAddress.isEmpty()) {
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP host."));
+                return Mono.error(
+                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
             }
 
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

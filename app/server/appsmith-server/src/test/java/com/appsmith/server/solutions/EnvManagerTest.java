@@ -395,9 +395,13 @@ public class EnvManagerTest {
     }
 
     private TestEmailConfigRequestDTO buildDto(String smtpHost) {
+        return buildDto(smtpHost, 25);
+    }
+
+    private TestEmailConfigRequestDTO buildDto(String smtpHost, int port) {
         TestEmailConfigRequestDTO dto = new TestEmailConfigRequestDTO();
         dto.setSmtpHost(smtpHost);
-        dto.setSmtpPort(25);
+        dto.setSmtpPort(port);
         dto.setFromEmail("test@appsmith.com");
         dto.setStarttlsEnabled(false);
         return dto;
@@ -411,7 +415,20 @@ public class EnvManagerTest {
         StepVerifier.create(envManager.sendTestEmail(buildDto(host)))
                 .expectErrorSatisfies(e -> {
                     assertThat(e).isInstanceOf(AppsmithException.class);
-                    assertThat(e.getMessage()).contains("Invalid SMTP host");
+                    assertThat(e.getMessage()).contains("Invalid SMTP configuration");
+                })
+                .verify();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {80, 443, 6379, 8080, 27017, 0, -1})
+    public void sendTestEmail_WhenDisallowedPort_ThrowsException(int port) {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("smtp.gmail.com", port)))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP configuration");
                 })
                 .verify();
     }
