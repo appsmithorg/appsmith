@@ -1,0 +1,144 @@
+# Client Unit Test Conventions (Jest)
+
+## Framework
+
+- Jest 29 + React Testing Library (no Enzyme, no snapshot testing)
+- `@testing-library/react` for rendering/querying
+- `@testing-library/react-hooks` for hook testing via `renderHook`
+- `@testing-library/user-event` for user interaction simulation
+- `@testing-library/jest-dom` for DOM matchers
+- MSW (Mock Service Worker) for API mocking
+- `redux-mock-store` for Redux store mocking
+- Test timeout: 9000ms
+
+## Running Tests
+
+```bash
+cd app/client && yarn test:unit                         # All unit tests with coverage
+cd app/client && yarn test:jest -- --testPathPattern=<pattern>  # Specific tests (watch mode)
+```
+
+## Test Setup (Automatic)
+
+Configured in `test/setup.ts`:
+- MSW server starts `beforeAll`, resets handlers `afterEach`, closes `afterAll`
+- Polyfills: `crypto`, `TextDecoder`, `ReadableStream`, `structuredClone`
+- Mocks: `IntersectionObserver`, `ResizeObserver`, `scrollTo`
+
+## Test Patterns
+
+### Component test (with Redux)
+
+```typescript
+import { render, screen } from "test/testUtils";
+
+describe("MyComponent", () => {
+  it("renders correctly with given props", () => {
+    render(<MyComponent label="test" />, {
+      initialState: store.getState(),
+      url: "/app/page-123",
+    });
+
+    expect(screen.getByText("test")).toBeInTheDocument();
+  });
+});
+```
+
+The custom `render` from `test/testUtils` wraps components in `<BrowserRouter>`, `<Provider store>`, and `<ThemeProvider>`.
+
+### Component test (simple, no Redux)
+
+```typescript
+import { render, screen } from "@testing-library/react";
+
+it("renders label", () => {
+  render(<Button label="Click me" />);
+  expect(screen.getByText("Click me")).toBeInTheDocument();
+});
+```
+
+### Hook test
+
+```typescript
+import { renderHook, act } from "@testing-library/react-hooks";
+
+it("returns updated value", () => {
+  const { result } = renderHook(() => useMyHook(initialValue));
+
+  act(() => { result.current.update(newValue); });
+
+  expect(result.current.value).toBe(newValue);
+});
+```
+
+### Saga test (generator stepping)
+
+```typescript
+import { runSaga } from "redux-saga";
+
+it("dispatches success on valid input", async () => {
+  const dispatched: any[] = [];
+  await runSaga(
+    { dispatch: (action) => dispatched.push(action), getState: () => mockState },
+    mySaga,
+    { type: ReduxActionTypes.TRIGGER, payload: input },
+  ).toPromise();
+
+  expect(dispatched).toContainEqual({ type: ReduxActionTypes.SUCCESS, payload: expected });
+});
+```
+
+### Parameterized test
+
+```typescript
+test.each([
+  ["input1", "expected1"],
+  ["input2", "expected2"],
+])("converts %s to %s", (input, expected) => {
+  expect(transform(input)).toBe(expected);
+});
+```
+
+### Async assertions
+
+```typescript
+import { waitFor } from "@testing-library/react";
+
+await waitFor(() => {
+  expect(screen.getByText("loaded")).toBeInTheDocument();
+});
+```
+
+## Mocking Patterns
+
+### Module mock with partial override
+
+```typescript
+jest.mock("ee/utils/someUtil", () => ({
+  ...jest.requireActual("ee/utils/someUtil"),
+  specificFunction: jest.fn().mockReturnValue(mockValue),
+}));
+```
+
+### MSW API mock
+
+```typescript
+import { rest } from "msw";
+import { server } from "test/__mocks__/server";
+
+beforeEach(() => {
+  server.use(
+    rest.get("/api/v1/resource/:id", (req, res, ctx) =>
+      res(ctx.json({ responseMeta: { status: 200 }, data: mockData })),
+    ),
+  );
+});
+```
+
+## Key Conventions
+
+- Always import from `"ee/..."` in tests too — never from `"ce/"` directly
+- Use `test/testUtils` `render` for Redux-connected components; `@testing-library/react` for pure components
+- Test factories in `test/factories/` for deterministic widget DSL data
+- Callback mocking: `jest.fn()`, verify with `toHaveBeenCalledWith(...)`
+- Assertions: `expect(x).toEqual(y)` for deep equality, `expect(x).toBe(y)` for primitives
