@@ -180,9 +180,7 @@ public class UserSignupTest {
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
-                    assertEquals(
-                            AppsmithError.UNAUTHORIZED_ACCESS.getMessage(),
-                            error.getMessage());
+                    assertEquals(AppsmithError.UNAUTHORIZED_ACCESS.getMessage(), error.getMessage());
                 })
                 .verify();
 
@@ -208,9 +206,7 @@ public class UserSignupTest {
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
-                    assertEquals(
-                            AppsmithError.UNAUTHORIZED_ACCESS.getMessage(),
-                            error.getMessage());
+                    assertEquals(AppsmithError.UNAUTHORIZED_ACCESS.getMessage(), error.getMessage());
                 })
                 .verify();
     }

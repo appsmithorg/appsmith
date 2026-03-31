@@ -76,9 +76,8 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .setOnInsert("status", "CLAIMED")
                 .setOnInsert("claimedAt", Instant.now().toString());
 
-        FindAndModifyOptions options = FindAndModifyOptions.options()
-                .upsert(true)
-                .returnNew(false);
+        FindAndModifyOptions options =
+                FindAndModifyOptions.options().upsert(true).returnNew(false);
 
         return reactiveMongoOperations
                 .findAndModify(query, update, options, Document.class, SUPER_USER_SETUP_COLLECTION)

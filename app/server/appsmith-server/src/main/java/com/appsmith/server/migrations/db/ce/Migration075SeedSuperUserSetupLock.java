@@ -39,8 +39,7 @@ public class Migration075SeedSuperUserSetupLock {
     @Execution
     public void seedSuperUserSetupLock() {
         boolean sentinelExists = mongoTemplate.exists(
-                new Query(Criteria.where("_id").is(SUPER_USER_SETUP_LOCK_ID)),
-                SUPER_USER_SETUP_COLLECTION);
+                new Query(Criteria.where("_id").is(SUPER_USER_SETUP_LOCK_ID)), SUPER_USER_SETUP_COLLECTION);
 
         if (sentinelExists) {
             log.info("Super user setup sentinel already exists. Skipping.");
@@ -48,8 +47,7 @@ public class Migration075SeedSuperUserSetupLock {
         }
 
         long nonSystemUserCount = mongoTemplate.count(
-                new Query(Criteria.where("isSystemGenerated").ne(true)),
-                "user");
+                new Query(Criteria.where("isSystemGenerated").ne(true)), "user");
 
         if (nonSystemUserCount == 0) {
             log.info("No non-system users found. Fresh instance — sentinel will be claimed during first setup.");
@@ -63,7 +61,8 @@ public class Migration075SeedSuperUserSetupLock {
                 .append("source", "migration-075");
 
         mongoTemplate.insert(sentinel, SUPER_USER_SETUP_COLLECTION);
-        log.info("Seeded super user setup sentinel for existing instance with {} non-system user(s).",
+        log.info(
+                "Seeded super user setup sentinel for existing instance with {} non-system user(s).",
                 nonSystemUserCount);
     }
 }

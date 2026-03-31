@@ -173,9 +173,8 @@ public class CustomUserRepositoryCEImplTest {
         }
 
         // Execute all claims concurrently and collect results
-        List<Boolean> results = reactor.core.publisher.Flux.merge(claimMonos)
-                .collectList()
-                .block();
+        List<Boolean> results =
+                reactor.core.publisher.Flux.merge(claimMonos).collectList().block();
 
         assertThat(results).isNotNull();
         assertThat(results).hasSize(concurrentAttempts);
