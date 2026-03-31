@@ -88,7 +88,7 @@ sh /opt/appsmith/run-starting-page-init.sh &
 exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   --add-opens java.base/java.lang=ALL-UNNAMED \
   --add-opens java.base/java.time=ALL-UNNAMED \
-  --add-opens java.base/java.nio=ALL-UNNAMED \  
+  --add-opens java.base/java.nio=ALL-UNNAMED \
   --add-opens java.base/java.util=ALL-UNNAMED \
   -Dserver.port=8080 \
   -XX:+ShowCodeDetailsInExceptionMessages \
