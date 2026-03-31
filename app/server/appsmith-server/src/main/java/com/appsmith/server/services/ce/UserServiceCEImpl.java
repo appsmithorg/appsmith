@@ -786,6 +786,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
+    public Mono<Boolean> claimSuperUserCreationSlot() {
+        return repository.claimSuperUserCreationSlot();
+    }
+
+    @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
 
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();

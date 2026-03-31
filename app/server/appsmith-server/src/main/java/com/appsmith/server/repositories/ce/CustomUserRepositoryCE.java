@@ -12,6 +12,15 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<Boolean> isUsersEmpty();
 
+    /**
+     * Atomically claims the super user creation slot using MongoDB's findAndModify with upsert.
+     * Only the first caller wins — subsequent callers see the existing sentinel document and are rejected.
+     * This eliminates the TOCTOU race condition in the super user creation flow.
+     *
+     * @return Mono<Boolean> — true if this caller successfully claimed the slot, false otherwise.
+     */
+    Mono<Boolean> claimSuperUserCreationSlot();
+
     Flux<String> getSystemGeneratedUserEmails(String organizationId);
 
     Mono<Integer> updateById(String id, UpdateDefinition updateObj);

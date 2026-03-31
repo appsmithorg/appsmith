@@ -270,7 +270,13 @@ public class UserSignupCEImpl implements UserSignupCE {
     public Mono<User> signupAndLoginSuper(
             UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
         Mono<User> userMono = userService
-                .isUsersEmpty()
+                .claimSuperUserCreationSlot()
+                .flatMap(claimed -> {
+                    if (!Boolean.TRUE.equals(claimed)) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+                    return userService.isUsersEmpty();
+                })
                 .flatMap(isEmpty -> {
                     if (!Boolean.TRUE.equals(isEmpty)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
