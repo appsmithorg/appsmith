@@ -17,7 +17,8 @@ describe(
       "@tag.GSheet",
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.AccessControl"],
+      "@tag.AccessControl",
+    ],
   },
   function () {
     let pluginName = "Google Sheets";
@@ -38,6 +39,7 @@ describe(
         // "Read / Write / Delete | All google sheets",
         // "Read / Write | All google sheets",
         // "Read | All google sheets"]);
+      ]);
       dataSources.SaveDSFromDialog(false);
     });
 
