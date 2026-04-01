@@ -617,7 +617,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<? extends Artifact> artifactToConnectMono =
                 gitArtifactHelper.getArtifactById(baseArtifactId, connectToGitPermission);
 
-        Mono<? extends Artifact> connectedArtifactMono = Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono)
+        Mono<? extends Artifact> connectedArtifactMono = GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
+                .then(Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono))
                 .flatMap(tuple -> {
                     Artifact artifact = tuple.getT3();
                     boolean isRepoPrivate = tuple.getT2();
@@ -2892,12 +2893,12 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
             Path repoPath = gitArtifactHelper.getRepoSuffixPath(
                     baseArtifact.getWorkspaceId(), baseArtifact.getId(), gitArtifactMetadata.getRepoName());
             GitAuth gitAuth = gitArtifactMetadata.getGitAuth();
-            return gitExecutor
-                    .cloneRemoteIntoArtifactRepo(
+            return GitUtils.validateGitSshUrl(gitArtifactMetadata.getRemoteUrl())
+                    .then(gitExecutor.cloneRemoteIntoArtifactRepo(
                             repoPath,
                             gitArtifactMetadata.getRemoteUrl(),
                             gitAuth.getPrivateKey(),
-                            gitAuth.getPublicKey())
+                            gitAuth.getPublicKey()))
                     .flatMap(defaultBranch -> gitExecutor.listBranches(repoPath))
                     .flatMap(gitBranchDTOList -> {
                         List<String> branchesToCheckout = new ArrayList<>();
@@ -3176,7 +3177,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(
                         GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl()))
                 .cache();
-        Mono<? extends ArtifactImportDTO> importedArtifactMono = workspaceMono
+        Mono<? extends ArtifactImportDTO> importedArtifactMono = GitUtils.validateGitSshUrl(
+                        gitConnectDTO.getRemoteUrl())
+                .then(workspaceMono)
                 .then(getSSHKeyForCurrentUser())
                 .zipWith(isPrivateRepoMono)
                 .switchIfEmpty(

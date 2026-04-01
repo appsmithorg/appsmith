@@ -160,9 +160,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         String repoName = jsonTransformationDTO.getRepoName();
         Path temporaryStorage = Path.of(workspaceId, placeHolder, repoName);
 
-        return fsGitHandler
-                .cloneRemoteIntoArtifactRepo(
-                        temporaryStorage, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
+        return GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
+                .then(fsGitHandler.cloneRemoteIntoArtifactRepo(
+                        temporaryStorage, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .onErrorResume(error -> {
                     log.error("Error in cloning the remote repo, {}", error.getMessage());
                     return gitAnalyticsUtils
@@ -243,9 +243,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(artifact.getArtifactType());
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(artifact.getWorkspaceId(), artifact.getId(), repoName);
 
-        return fsGitHandler
-                .cloneRemoteIntoArtifactRepo(
-                        repoSuffix, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
+        return GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
+                .then(fsGitHandler.cloneRemoteIntoArtifactRepo(
+                        repoSuffix, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .onErrorResume(error -> {
                     log.error("Error while cloning the remote repo, {}", error.getMessage());
 

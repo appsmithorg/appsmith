@@ -231,7 +231,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitAuth> gitAuthMonoCached =
                 gitHandlingService.getGitAuthForUser(gitConnectDTO).cache();
 
-        Mono<? extends Artifact> blankArtifactForImportMono = isRepositoryLimitReachedForWorkspaceMono
+        Mono<? extends Artifact> blankArtifactForImportMono = GitUtils.validateGitSshUrl(
+                        gitConnectDTO.getRemoteUrl())
+                .then(isRepositoryLimitReachedForWorkspaceMono)
                 .flatMap(isLimitReachedForPrivateRepositories -> {
                     if (!TRUE.equals(isLimitReachedForPrivateRepositories)) {
                         return gitAuthMonoCached;
@@ -1082,7 +1084,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .getArtifactById(baseArtifactId, connectToGitPermission)
                 .flatMap(artifact -> manageSSHKey(gitConnectDTO, artifact))
                 .cache();
-        Mono<? extends Artifact> connectedArtifactMono = Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono)
+        Mono<? extends Artifact> connectedArtifactMono = GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
+                .then(Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono))
                 .flatMap(tuple -> {
                     Artifact artifact = tuple.getT3();
                     Boolean isRepoPrivate = tuple.getT2();

@@ -1100,6 +1100,14 @@ public enum AppsmithError {
             "Invalid Git private key",
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
+    GIT_REMOTE_URL_HOST_BLOCKED(
+            400,
+            AppsmithErrorCode.GIT_REMOTE_URL_HOST_BLOCKED.getCode(),
+            "The Git remote URL host ''{0}'' is not allowed. Connections to internal or reserved addresses are blocked.",
+            AppsmithErrorAction.DEFAULT,
+            "Git remote URL host blocked",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

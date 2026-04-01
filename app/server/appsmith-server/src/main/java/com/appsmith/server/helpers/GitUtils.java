@@ -11,7 +11,9 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClientRequest;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,61 @@ public class GitUtils {
      */
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
             Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
+
+    /**
+     * Extracts the hostname from a Git SSH URL.
+     * Supports both scheme-based (ssh://git@host/path) and SCP-style (git@host:path) formats.
+     *
+     * @param url the Git remote URL
+     * @return the extracted hostname, or null if the URL doesn't match any known SSH format
+     */
+    public static String extractHostFromGitUrl(String url) {
+        if (StringUtils.isEmptyOrNull(url)) {
+            return null;
+        }
+
+        Matcher match = URL_PATTERN_WITH_SCHEME.matcher(url);
+        if (match.matches()) {
+            return match.group("host");
+        }
+
+        match = URL_PATTERN_WITHOUT_SCHEME.matcher(url);
+        if (match.matches()) {
+            return match.group("host");
+        }
+
+        return null;
+    }
+
+    /**
+     * Validates that the host in a Git SSH URL is not a blocked internal/reserved address.
+     * Uses {@link WebClientUtils#resolveIfAllowed(String)} to resolve the hostname and check
+     * against loopback, link-local, multicast, cloud metadata, and ULA addresses.
+     * RFC 1918 private ranges (10/8, 172.16/12, 192.168/16) are intentionally allowed
+     * to support self-hosted Git servers on private networks.
+     *
+     * @param remoteUrl the Git SSH remote URL to validate
+     * @return a Mono that completes empty if allowed, or errors with AppsmithException if blocked
+     */
+    public static Mono<Void> validateGitSshUrl(String remoteUrl) {
+        if (StringUtils.isEmptyOrNull(remoteUrl)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
+        }
+
+        String host = extractHostFromGitUrl(remoteUrl);
+        if (host == null) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Remote URL is not a valid SSH URL. Example: git@example.com:username/reponame.git"));
+        }
+
+        Optional<InetAddress> resolved = WebClientUtils.resolveIfAllowed(host);
+        if (resolved.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED, host));
+        }
+
+        return Mono.empty();
+    }
 
     /**
      * Sample repo urls :

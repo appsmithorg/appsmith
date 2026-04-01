@@ -7,6 +7,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.test.StepVerifier;
 
 import java.util.UUID;
@@ -372,5 +374,110 @@ public class GitUtilsTest {
         metadata.getAutoCommitConfig().setEnabled(false);
         // should be true when auto commit config has enabled=false
         assertThat(GitUtils.isAutoCommitEnabled(metadata)).isFalse();
+    }
+
+    // ==================== SSRF validation tests (APP-15043) ====================
+
+    @Test
+    public void extractHostFromGitUrl_WithScheme_ReturnsHost() {
+        assertThat(GitUtils.extractHostFromGitUrl("ssh://git@github.com/user/repo.git"))
+                .isEqualTo("github.com");
+        assertThat(GitUtils.extractHostFromGitUrl("ssh://git@example.test.net/user/test/tests/testRepo.git"))
+                .isEqualTo("example.test.net");
+        assertThat(GitUtils.extractHostFromGitUrl("ssh://git@127.0.0.1:5432/test"))
+                .isEqualTo("127.0.0.1");
+        assertThat(GitUtils.extractHostFromGitUrl("ssh://git@169.254.169.254:80/meta"))
+                .isEqualTo("169.254.169.254");
+    }
+
+    @Test
+    public void extractHostFromGitUrl_WithoutScheme_ReturnsHost() {
+        assertThat(GitUtils.extractHostFromGitUrl("git@github.com:user/repo.git"))
+                .isEqualTo("github.com");
+        assertThat(GitUtils.extractHostFromGitUrl("git@127.0.0.1:user/repo.git"))
+                .isEqualTo("127.0.0.1");
+        assertThat(GitUtils.extractHostFromGitUrl("git@169.254.169.254:user/repo.git"))
+                .isEqualTo("169.254.169.254");
+        assertThat(GitUtils.extractHostFromGitUrl("git@metadata.google.internal:user/repo.git"))
+                .isEqualTo("metadata.google.internal");
+    }
+
+    @Test
+    public void extractHostFromGitUrl_InvalidUrl_ReturnsNull() {
+        assertThat(GitUtils.extractHostFromGitUrl("https://github.com/user/repo.git"))
+                .isNull();
+        assertThat(GitUtils.extractHostFromGitUrl("not-a-url")).isNull();
+        assertThat(GitUtils.extractHostFromGitUrl("")).isNull();
+        assertThat(GitUtils.extractHostFromGitUrl(null)).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "git@127.0.0.1:user/repo.git",
+            "git@localhost:user/repo.git",
+            "ssh://git@127.0.0.1:5432/test",
+            "ssh://git@localhost/test/repo.git",
+            "git@0.0.0.0:user/repo.git",
+            "git@169.254.169.254:user/repo.git",
+            "ssh://git@169.254.169.254:80/meta",
+            "git@metadata.google.internal:user/repo.git",
+    })
+    public void validateGitSshUrl_BlockedHosts_ThrowsError(String blockedUrl) {
+        StepVerifier.create(GitUtils.validateGitSshUrl(blockedUrl))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    AppsmithException appsmithException = (AppsmithException) error;
+                    assertThat(appsmithException.getAppErrorCode())
+                            .isEqualTo(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED.getAppErrorCode());
+                })
+                .verify();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "git@github.com:user/repo.git",
+            "git@gitlab.com:user/repo.git",
+            "git@bitbucket.org:user/repo.git",
+            "ssh://git@github.com/user/repo.git",
+            "git@ssh.dev.azure.com:v3/org/project/repo.git",
+    })
+    public void validateGitSshUrl_PublicHosts_Allowed(String allowedUrl) {
+        StepVerifier.create(GitUtils.validateGitSshUrl(allowedUrl))
+                .verifyComplete();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "git@192.168.1.100:user/repo.git",
+            "git@10.0.0.1:user/repo.git",
+            "git@172.16.0.1:user/repo.git",
+    })
+    public void validateGitSshUrl_Rfc1918PrivateIps_AllowedForSelfHosted(String privateNetworkUrl) {
+        StepVerifier.create(GitUtils.validateGitSshUrl(privateNetworkUrl))
+                .verifyComplete();
+    }
+
+    @Test
+    public void validateGitSshUrl_NullOrEmpty_ThrowsError() {
+        StepVerifier.create(GitUtils.validateGitSshUrl(null))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                })
+                .verify();
+
+        StepVerifier.create(GitUtils.validateGitSshUrl(""))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                })
+                .verify();
+    }
+
+    @Test
+    public void validateGitSshUrl_InvalidFormat_ThrowsError() {
+        StepVerifier.create(GitUtils.validateGitSshUrl("https://github.com/user/repo.git"))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                })
+                .verify();
     }
 }

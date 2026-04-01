@@ -148,6 +148,7 @@ public enum AppsmithErrorCode {
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
     INSUFFICIENT_PASSWORD_STRENGTH("AE-PSW-4002", "Insufficient password strength"),
+    GIT_REMOTE_URL_HOST_BLOCKED("AE-GIT-5016", "Git remote URL host blocked"),
     ;
     private final String code;
     private final String description;
