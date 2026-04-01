@@ -19,7 +19,7 @@ import EditorNavigation, {
 
 describe(
   "Array Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string;
 
@@ -205,8 +205,7 @@ describe(
         "serialid",
         "name",
         "pay_by_quarter",
-        "schedule",
-      ]);
+        "schedule"]);
       dataSources.AssertQueryTableResponse(0, "1");
       dataSources.AssertQueryTableResponse(1, "Lily Bush");
       dataSources.AssertQueryTableResponse(4, "2");
@@ -220,8 +219,7 @@ describe(
         "serialid",
         "name",
         "pay_by_quarter",
-        "schedule",
-      ]);
+        "schedule"]);
       dataSources.AssertQueryTableResponse(0, "3");
       dataSources.AssertQueryTableResponse(1, "Mary Clark");
       dataSources.AssertQueryTableResponse(2, "[9898,21726,87387,8372837]");
@@ -238,8 +236,7 @@ describe(
         "serialid",
         "name",
         "pay_by_quarter",
-        "schedule",
-      ]);
+        "schedule"]);
       dataSources.AssertQueryTableResponse(0, "3");
       dataSources.AssertQueryTableResponse(1, "Mary Clark");
 
@@ -351,8 +348,7 @@ describe(
       dataSources.AssertQueryResponseHeaders([
         "Test ||",
         "Test || of 2D Array",
-        "Test || with {}",
-      ]);
+        "Test || with {}"]);
       dataSources.AssertQueryTableResponse(0, "[1,2,3,4]");
       dataSources.AssertQueryTableResponse(1, "[[5,6],[1,2],[3,4]]");
       dataSources.AssertQueryTableResponse(2, "[1,2,3,4]");
@@ -365,8 +361,7 @@ describe(
         "array_dims1",
         "array_dims2",
         "array_dims3",
-        "array_dims4",
-      ]);
+        "array_dims4"]);
       dataSources.AssertQueryTableResponse(0, "[0:2]");
       dataSources.AssertQueryTableResponse(1, "[1:3]");
       dataSources.AssertQueryTableResponse(2, "[1:5]");
@@ -387,8 +382,7 @@ describe(
       dataSources.AssertQueryResponseHeaders([
         "array_cat1",
         "array_cat2",
-        "array_cat3",
-      ]);
+        "array_cat3"]);
       dataSources.AssertQueryTableResponse(0, "[1,2,3,4]");
       dataSources.AssertQueryTableResponse(1, "[[1,2],[3,4],[5,6]]");
       dataSources.AssertQueryTableResponse(2, "[[5,6],[1,2],[3,4]]");
@@ -407,8 +401,7 @@ describe(
       dataSources.RunQuery();
       dataSources.AssertQueryResponseHeaders([
         "array_position",
-        "array_positions",
-      ]);
+        "array_positions"]);
       dataSources.AssertQueryTableResponse(0, "7");
       dataSources.AssertQueryTableResponse(1, "[1,4,8]");
 
@@ -436,8 +429,7 @@ describe(
       dataSources.RunQuery();
       dataSources.AssertQueryResponseHeaders([
         "before_replace",
-        "two_becomes_ten",
-      ]);
+        "two_becomes_ten"]);
       dataSources.AssertQueryTableResponse(0, `[1,2,3,2,5]`);
       dataSources.AssertQueryTableResponse(1, `[1,10,3,10,5]`);
 
@@ -454,8 +446,7 @@ describe(
         ">=",
         "@>",
         "<@",
-        "&&",
-      ]);
+        "&&"]);
       dataSources.AssertQueryTableResponse(0, "true");
       dataSources.AssertQueryTableResponse(8, "true");
 
@@ -465,8 +456,7 @@ describe(
       dataSources.RunQuery();
       dataSources.AssertQueryResponseHeaders([
         "array_to_string",
-        "string_to_array",
-      ]);
+        "string_to_array"]);
       dataSources.AssertQueryTableResponse(0, "1,2,3,*,5");
       dataSources.AssertQueryTableResponse(1, `["xx",null,"zz"]`);
 

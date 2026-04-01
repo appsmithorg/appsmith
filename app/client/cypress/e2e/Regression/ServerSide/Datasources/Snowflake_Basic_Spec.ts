@@ -29,10 +29,8 @@ describe.skip(
   {
     tags: [
       "@tag.Datasource",
-      "@tag.Git",
       "@tag.AccessControl",
-      "@tag.Snowflake",
-    ],
+      "@tag.Snowflake"],
   },
   () => {
     it("1. Validate the configuration of database", () => {

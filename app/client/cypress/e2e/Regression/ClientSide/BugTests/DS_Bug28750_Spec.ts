@@ -7,9 +7,7 @@ describe.skip(
     tags: [
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   () => {
     before(() => {

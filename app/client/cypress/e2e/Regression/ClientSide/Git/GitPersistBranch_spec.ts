@@ -12,7 +12,7 @@ let repoName: string;
 describe(
   "Git Persist Branch",
   {
-    tags: ["@tag.Git", "@tag.GitPersistBranch"],
+    tags: ["@tag.Git"],
   },
   function () {
     before(() => {

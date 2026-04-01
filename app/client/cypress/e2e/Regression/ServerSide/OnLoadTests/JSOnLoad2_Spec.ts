@@ -17,9 +17,7 @@ describe(
       "@tag.PropertyPane",
       "@tag.JS",
       "@tag.ImportExport",
-      "@tag.Binding",
-      "@tag.Git",
-    ],
+      "@tag.Binding"],
   },
   function () {
     before(() => {

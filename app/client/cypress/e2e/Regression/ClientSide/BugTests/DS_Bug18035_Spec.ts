@@ -13,9 +13,7 @@ describe(
     tags: [
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     it("1. Create gsheet datasource, click on back button, discard popup should contain save and authorize", function () {

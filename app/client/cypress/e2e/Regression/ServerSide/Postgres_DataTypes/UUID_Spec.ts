@@ -21,7 +21,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "UUID Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string, imageNameToUpload: string;
 
@@ -276,8 +276,7 @@ describe(
         "v4",
         "cryptov4",
         "form_uuid1",
-        "form_uuid2",
-      ]);
+        "form_uuid2"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).not.to.be.empty;
       });

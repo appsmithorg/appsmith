@@ -11,9 +11,7 @@ describe(
     tags: [
       "@tag.Datasource",
       "@tag.Settings",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     let guid, datasourceName;

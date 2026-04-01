@@ -12,10 +12,8 @@ describe(
     tags: [
       "@tag.excludeForAirgap",
       "@tag.Templates",
-      "@tag.Git",
       "@tag.ImportExport",
-      "@tag.Fork",
-    ],
+      "@tag.Fork"],
   },
   () => {
     const NAME_FILTER = "order";

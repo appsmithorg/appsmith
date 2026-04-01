@@ -18,7 +18,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Json & JsonB Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string;
 
@@ -244,8 +244,7 @@ describe(
         "max",
         "sum",
         "avg",
-        "count",
-      ]);
+        "count"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("150");
       });
@@ -431,8 +430,7 @@ describe(
       deployMode.SelectJsonFormMultiSelect("Genres", [
         "Fiction",
         "Thriller",
-        "Horror",
-      ]);
+        "Horror"]);
 
       agHelper.ClickButton("Insert");
       agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
@@ -460,8 +458,7 @@ describe(
       agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
       deployMode.SelectJsonFormMultiSelect("Genres", [
         "Productivity",
-        "Reference",
-      ]);
+        "Reference"]);
 
       agHelper.ClickButton("Insert");
       agHelper.AssertElementVisibility(
@@ -488,8 +485,7 @@ describe(
       agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
       deployMode.SelectJsonFormMultiSelect("Genres", [
         "Fiction",
-        "Spirituality",
-      ]);
+        "Spirituality"]);
 
       agHelper.ClickButton("Insert");
       agHelper.AssertElementVisibility(
@@ -586,8 +582,7 @@ describe(
       dataSources.AssertQueryResponseHeaders([
         "jsonb_each",
         "jsonb_object_keys",
-        "jsonb_extract_path",
-      ]);
+        "jsonb_extract_path"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq('(name,"""Alice""")');
       });
@@ -655,8 +650,7 @@ describe(
       deployMode.SelectJsonFormMultiSelect("Genres", [
         "Marketing & Sales",
         "Self-Help",
-        "Psychology",
-      ]);
+        "Psychology"]);
 
       agHelper.ClickButton("Insert");
       agHelper.AssertElementVisibility(

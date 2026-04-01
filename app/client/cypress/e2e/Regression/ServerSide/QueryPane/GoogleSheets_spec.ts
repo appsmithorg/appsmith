@@ -17,9 +17,7 @@ describe(
       "@tag.GSheet",
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     let pluginName = "Google Sheets";
@@ -39,8 +37,7 @@ describe(
         // Hiding below methods as they are not authorized at this state
         // "Read / Write / Delete | All google sheets",
         // "Read / Write | All google sheets",
-        // "Read | All google sheets",
-      ]);
+        // "Read | All google sheets"]);
       dataSources.SaveDSFromDialog(false);
     });
 

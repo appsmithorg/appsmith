@@ -15,9 +15,7 @@ describe(
     tags: [
       "@tag.Datasource",
       " @tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   () => {
     it("1. Navigation to Graphql pagination field", () => {

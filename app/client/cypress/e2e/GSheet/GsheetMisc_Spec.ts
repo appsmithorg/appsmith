@@ -24,7 +24,7 @@ let spreadSheetName = "test-sheet";
 describe.skip(
   "GSheet Miscellaneous Tests",
   {
-    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.AccessControl"],
   },
   function () {
     const columnHeaders = [
@@ -35,8 +35,7 @@ describe.skip(
       "product_name",
       "manufacturer",
       "price",
-      "rowIndex",
-    ];
+      "rowIndex"];
     before("Setup app and spreadsheet", function () {
       //Add a new app and an add new spreadsheet query
       //Setting up the spreadsheet name

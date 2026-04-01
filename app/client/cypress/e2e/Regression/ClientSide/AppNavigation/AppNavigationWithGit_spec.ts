@@ -15,7 +15,6 @@ describe(
   {
     tags: [
       "@tag.IDE",
-      "@tag.Git",
       "@tag.Sanity",
       "@tag.AccessControl",
       "@tag.Workflows",
@@ -24,8 +23,7 @@ describe(
       "@tag.JS",
       "@tag.Container",
       "@tag.ImportExport",
-      "@tag.PropertyPane",
-    ],
+      "@tag.PropertyPane"],
   },
   function () {
     it("Issue #32050 - Branch parameter should not be removed when navigating from the inline nav more dropdown", () => {

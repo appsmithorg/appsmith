@@ -11,7 +11,7 @@ import {
 
 describe(
   "App level import with Datasource",
-  { tags: ["@tag.ImportExport", "@tag.Git"] },
+  { tags: ["@tag.ImportExport"] },
   () => {
     //this tests coveres Applevel import for MySql, Gsheet is covered in Gsheet folder
     it("1. Bug #26024 - Import an app at App Level with Datasource - MySql", () => {

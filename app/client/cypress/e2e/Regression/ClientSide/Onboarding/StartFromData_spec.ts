@@ -14,9 +14,7 @@ describe(
     tags: [
       "@tag.excludeForAirgap",
       "@tag.Datasource",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     beforeEach(() => {

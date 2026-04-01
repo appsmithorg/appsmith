@@ -25,7 +25,7 @@ let pluginActionForm = new PluginActionForm();
 
 describe(
   "Validate Oracle DS",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
@@ -126,8 +126,7 @@ describe(
       dataSources.AssertDataSourceInfo([
         "Host address",
         "Port",
-        "Service Name",
-      ]);
+        "Service Name"]);
       agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
       dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
       AppSidebar.navigate(AppSidebarButton.Editor);
@@ -167,8 +166,7 @@ describe(
       propPane.AssertPropertiesDropDownValues("Label key", [
         "name",
         "code",
-        "value",
-      ]);
+        "value"]);
       propPane.SelectPropertiesDropDown(
         "Label key",
         "value",

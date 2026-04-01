@@ -12,7 +12,7 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let datasourceName;
 
@@ -43,8 +43,7 @@ describe(
     it("3. Will pass execution params", function () {
       // Bind the table
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-        "Container3",
-      ]);
+        "Container3"]);
       cy.EnableAllCodeEditors();
       cy.testJsontext("tabledata", "{{Query1.data}}");
       // Assert 'posts' data (default)

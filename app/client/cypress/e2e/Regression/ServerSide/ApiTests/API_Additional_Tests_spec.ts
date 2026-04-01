@@ -13,7 +13,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Additional API tests",
-  { tags: ["@tag.Datasource", "@tag.Git"] },
+  { tags: ["@tag.Datasource"] },
   () => {
     it("1. Validate renaming & copying API from editor", () => {
       // Create first API

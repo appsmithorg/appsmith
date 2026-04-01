@@ -8,7 +8,7 @@ let dsName: any;
 
 describe(
   "Validate Redis DS",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     before("Create a new Redis DS", () => {
       dataSources.CreateDataSource("Redis");
@@ -61,8 +61,7 @@ describe(
           "name",
           "ingredients",
           "instructions",
-          "difficulty",
-        ]);
+          "difficulty"]);
       });
       // dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
       //   expect($cellData).to.eq("instructions");
@@ -81,8 +80,7 @@ describe(
           "ingredients",
           "instructions",
           "difficulty",
-          "prep_time",
-        ]);
+          "prep_time"]);
       });
 
       //Deleting the Hash key

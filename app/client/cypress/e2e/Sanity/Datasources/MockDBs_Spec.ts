@@ -20,10 +20,9 @@ describe.skip(
   {
     tags: [
       "@tag.Datasource",
+      "@tag.Sanity",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {

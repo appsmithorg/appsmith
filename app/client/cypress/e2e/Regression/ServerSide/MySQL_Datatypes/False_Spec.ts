@@ -11,7 +11,7 @@ let dsName: any, query: string;
 
 describe(
   "MySQL Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     before("Create Mysql DS & Create mysqlDTs table", function () {
       dataSources.CreateDataSource("MySql");

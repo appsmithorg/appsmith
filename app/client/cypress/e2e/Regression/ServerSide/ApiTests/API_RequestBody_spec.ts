@@ -6,7 +6,7 @@ import {
 
 describe(
   "API Panel request body",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Check whether input exists when form-encoded is selected", function () {
       apiPage.CreateApi("FirstAPI");

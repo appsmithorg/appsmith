@@ -24,7 +24,7 @@ const oneClickBinding = new OneClickBinding();
 describe(
   "Validate MsSQL connection & basic querying with UI flows",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   () => {
     let dsName: any,
@@ -126,8 +126,7 @@ describe(
         "CHAR_OCTET_LENGTH",
         "ORDINAL_POSITION",
         "IS_NULLABLE",
-        "SS_DATA_TYPE",
-      ]);
+        "SS_DATA_TYPE"]);
 
       runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
 
@@ -177,8 +176,7 @@ describe(
         "air_date",
         "episode_image",
         "rating",
-        "votes",
-      ].forEach((column) => {
+        "votes"].forEach((column) => {
         agHelper.AssertElementExist(table._headerCell(column));
       });
 

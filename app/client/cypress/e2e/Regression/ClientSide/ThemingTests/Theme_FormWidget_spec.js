@@ -22,7 +22,7 @@ let themeFont;
 
 describe(
   "Theme validation usecases",
-  { tags: ["@tag.Theme", "@tag.Git"] },
+  { tags: ["@tag.Theme"] },
   function () {
     it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);

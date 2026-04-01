@@ -22,7 +22,7 @@ let dsName: any, query: string;
 
 describe(
   "MySQL Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     before("Load dsl, Change theme, Create Mysql DS", () => {
       agHelper.AddDsl("Datatypes/mySQLdsl");

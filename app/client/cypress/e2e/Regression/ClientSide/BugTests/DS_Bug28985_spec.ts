@@ -7,7 +7,7 @@ import EditorNavigation, {
 
 describe(
   "Api execution results test cases",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     it("1. Check to see if API execution results are preserved after it is renamed", () => {
       const {

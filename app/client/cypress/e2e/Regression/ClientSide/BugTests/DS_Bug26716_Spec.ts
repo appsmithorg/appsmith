@@ -14,9 +14,7 @@ describe.skip(
     tags: [
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     it("1. Create users and movies mock datasources and switch between them through entity explorer, check the active state", function () {

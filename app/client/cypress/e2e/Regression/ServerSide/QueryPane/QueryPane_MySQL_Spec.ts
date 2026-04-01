@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Validate MySQL query UI flows - Bug 14054",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     let dsName: any;
 
@@ -33,24 +33,21 @@ describe(
         "Null",
         "Key",
         "Default",
-        "Extra",
-      ]);
+        "Extra"]);
       runQueryNValidate("Desc employees;", [
         "Field",
         "Type",
         "Null",
         "Key",
         "Default",
-        "Extra",
-      ]);
+        "Extra"]);
       runQueryNValidate("desc lightHouses;", [
         "Field",
         "Type",
         "Null",
         "Key",
         "Default",
-        "Extra",
-      ]);
+        "Extra"]);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -72,8 +69,7 @@ describe(
       runQueryNValidate("SELECT * FROM countryFlags LIMIT 10;", [
         "Country",
         "File_Name",
-        "Flag",
-      ]);
+        "Flag"]);
       dataSources.AddSuggestedWidget(Widgets.Table);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");

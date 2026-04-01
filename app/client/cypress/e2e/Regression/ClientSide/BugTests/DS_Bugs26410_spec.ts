@@ -9,9 +9,7 @@ describe(
     tags: [
       "@tag.Datasource",
       "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+      "@tag.AccessControl"],
   },
   function () {
     it("1. The command of the Mongo query must be preserved and should not default to initial value after changed.", function () {

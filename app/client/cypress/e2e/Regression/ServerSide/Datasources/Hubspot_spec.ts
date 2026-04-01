@@ -22,11 +22,9 @@ describe(
   {
     tags: [
       "@tag.Datasource",
-      "@tag.Git",
       "@tag.AccessControl",
       "@tag.Hubspot",
-      "@tag.excludeForAirgap",
-    ],
+      "@tag.excludeForAirgap"],
   },
   () => {
     it("1. Validate the configuration of Hubspot datasource", () => {

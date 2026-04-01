@@ -18,10 +18,8 @@ describe(
     tags: [
       "@tag.JS",
       "@tag.Datasource",
-      "@tag.Git",
       "@tag.AccessControl",
-      "@tag.Binding",
-    ],
+      "@tag.Binding"],
   },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

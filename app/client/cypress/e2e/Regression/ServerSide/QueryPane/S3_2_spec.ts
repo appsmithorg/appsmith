@@ -21,7 +21,7 @@ import EditorNavigation, {
 
 describe(
   "Validate CRUD queries for Amazon S3 along with UI flow verifications",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let bucketName = "assets-test--appsmith",
       uid: any,
@@ -367,8 +367,7 @@ describe(
       let video = "Videos/defaultVideo.y4m";
 
       EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
-        "Container6",
-      ]);
+        "Container6"]);
       propPane.UpdatePropertyFieldValue("Max no. of files", "2");
 
       propPane.UpdatePropertyFieldValue("Max file size(Mb)", "10");
@@ -386,8 +385,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
-        "Container6",
-      ]);
+        "Container6"]);
       propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
       deployMode.DeployApp();
       video = "Videos/rotatedQRCode.y4m";

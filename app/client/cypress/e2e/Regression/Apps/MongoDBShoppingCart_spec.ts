@@ -14,7 +14,7 @@ import {
 describe(
   "Shopping cart App",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     let datasourceName: string, repoName: any;
@@ -82,8 +82,7 @@ describe(
           description: "{{Description.text}}",
           price: "{{Price.text}}",
           quantity: "{{Quantity.text}}",
-        },
-      ];
+        }];
       agHelper.EnterValue(JSON.stringify(documentText), {
         propFieldName: "",
         directInput: false,

@@ -6,7 +6,7 @@ import {
 
 describe(
   "Partial import App",
-  { tags: ["@tag.ImportExport", "@tag.Git"] },
+  { tags: ["@tag.ImportExport"] },
   () => {
     beforeEach(() => {
       partialImportExport.OpenImportModal();

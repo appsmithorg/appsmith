@@ -43,13 +43,12 @@ const GRAPHQL_LIMIT_DATA = [
   { title_name: "The truth about All" },
   {
     title_name: "Right beautiful use.",
-  },
-];
+  }];
 
 describe(
   "GraphQL Datasource Implementation",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     before(() => {
@@ -313,8 +312,7 @@ describe(
         ].GraphqlApiUrl_TED.replace("/graphql", ""),
         "content-type",
         "application/json",
-        "No",
-      ]);
+        "No"]);
       agHelper.ClickButton("Edit");
       dataSources.ValidateNSelectDropdown(
         "Authentication type",
@@ -323,8 +321,7 @@ describe(
       );
       propPane.AssertPropertiesDropDownValues("Grant type", [
         "Client Credentials",
-        "Authorization Code",
-      ]);
+        "Authorization Code"]);
 
       // For Client Credentials Grant Type, the button should be Save
       // Default first selection from dropdown is Client Credentials
@@ -332,8 +329,7 @@ describe(
 
       propPane.AssertPropertiesDropDownValues("Add Access Token To", [
         "Request Header",
-        "Request Header",
-      ]);
+        "Request Header"]);
       agHelper.AssertElementVisibility(
         locators._visibleTextDiv("Datasource not authorized"),
       );
@@ -347,8 +343,7 @@ describe(
         ].GraphqlApiUrl_TED.replace("/graphql", ""),
         "content-type",
         "application/json",
-        "No",
-      ]);
+        "No"]);
     });
 
     function RunNValidateGraphQL() {
