@@ -8,7 +8,7 @@ import {
 
 describe(
   "Validate Empty DS error messages",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     let dataSourceName: string;
 

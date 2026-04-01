@@ -6,7 +6,7 @@ import {
 
 describe(
   "Create a query with a empty datasource, run, save the query",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();

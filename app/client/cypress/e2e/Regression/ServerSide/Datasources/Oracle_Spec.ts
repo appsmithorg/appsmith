@@ -25,7 +25,7 @@ let pluginActionForm = new PluginActionForm();
 
 describe(
   "Validate Oracle DS",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     let dataSourceName: string, guid: any, query: string, selectQuery: string;
 

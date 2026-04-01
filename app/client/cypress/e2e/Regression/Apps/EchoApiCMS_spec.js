@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Content Management System App",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     before(() => {
       homePage.RenameApplication("EchoApiCMSApp");
