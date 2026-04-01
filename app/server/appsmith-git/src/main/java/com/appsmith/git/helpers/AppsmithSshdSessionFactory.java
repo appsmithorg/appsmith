@@ -1,6 +1,7 @@
 package com.appsmith.git.helpers;
 
 import com.appsmith.external.git.utils.CryptoUtil;
+import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
@@ -161,6 +162,18 @@ public class AppsmithSshdSessionFactory extends SshdSessionFactory {
                         "Accepting server key: connectAddress={}, algorithm={}",
                         connectAddress,
                         serverKey != null ? serverKey.getAlgorithm() : "null");
+
+                if (remoteAddress != null) {
+                    String resolvedIp = remoteAddress.getAddress().getHostAddress();
+                    if (WebClientUtils.resolveIfAllowed(resolvedIp).isEmpty()) {
+                        log.warn(
+                                "Rejecting SSH connection to blocked address: connectAddress={}, resolvedIp={}",
+                                connectAddress,
+                                resolvedIp);
+                        return false;
+                    }
+                }
+
                 return true;
             }
         };
