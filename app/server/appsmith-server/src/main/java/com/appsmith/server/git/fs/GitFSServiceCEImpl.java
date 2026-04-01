@@ -162,7 +162,10 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         return GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
                 .then(fsGitHandler.cloneRemoteIntoArtifactRepo(
-                        temporaryStorage, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
+                        temporaryStorage,
+                        gitConnectDTO.getRemoteUrl(),
+                        gitAuth.getPrivateKey(),
+                        gitAuth.getPublicKey()))
                 .onErrorResume(error -> {
                     if (error instanceof AppsmithException) {
                         return Mono.error(error);

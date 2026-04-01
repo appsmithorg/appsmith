@@ -412,16 +412,17 @@ public class GitUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "git@127.0.0.1:user/repo.git",
-            "git@localhost:user/repo.git",
-            "ssh://git@127.0.0.1:5432/test",
-            "ssh://git@localhost/test/repo.git",
-            "git@0.0.0.0:user/repo.git",
-            "git@169.254.169.254:user/repo.git",
-            "ssh://git@169.254.169.254:80/meta",
-            "git@metadata.google.internal:user/repo.git",
-    })
+    @ValueSource(
+            strings = {
+                "git@127.0.0.1:user/repo.git",
+                "git@localhost:user/repo.git",
+                "ssh://git@127.0.0.1:5432/test",
+                "ssh://git@localhost/test/repo.git",
+                "git@0.0.0.0:user/repo.git",
+                "git@169.254.169.254:user/repo.git",
+                "ssh://git@169.254.169.254:80/meta",
+                "git@metadata.google.internal:user/repo.git",
+            })
     public void validateGitSshUrl_BlockedHosts_ThrowsError(String blockedUrl) {
         StepVerifier.create(GitUtils.validateGitSshUrl(blockedUrl))
                 .expectErrorSatisfies(error -> {
@@ -434,27 +435,27 @@ public class GitUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "git@github.com:user/repo.git",
-            "git@gitlab.com:user/repo.git",
-            "git@bitbucket.org:user/repo.git",
-            "ssh://git@github.com/user/repo.git",
-            "git@ssh.dev.azure.com:v3/org/project/repo.git",
-    })
+    @ValueSource(
+            strings = {
+                "git@github.com:user/repo.git",
+                "git@gitlab.com:user/repo.git",
+                "git@bitbucket.org:user/repo.git",
+                "ssh://git@github.com/user/repo.git",
+                "git@ssh.dev.azure.com:v3/org/project/repo.git",
+            })
     public void validateGitSshUrl_PublicHosts_Allowed(String allowedUrl) {
-        StepVerifier.create(GitUtils.validateGitSshUrl(allowedUrl))
-                .verifyComplete();
+        StepVerifier.create(GitUtils.validateGitSshUrl(allowedUrl)).verifyComplete();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "git@192.168.1.100:user/repo.git",
-            "git@10.0.0.1:user/repo.git",
-            "git@172.16.0.1:user/repo.git",
-    })
+    @ValueSource(
+            strings = {
+                "git@192.168.1.100:user/repo.git",
+                "git@10.0.0.1:user/repo.git",
+                "git@172.16.0.1:user/repo.git",
+            })
     public void validateGitSshUrl_Rfc1918PrivateIps_AllowedForSelfHosted(String privateNetworkUrl) {
-        StepVerifier.create(GitUtils.validateGitSshUrl(privateNetworkUrl))
-                .verifyComplete();
+        StepVerifier.create(GitUtils.validateGitSshUrl(privateNetworkUrl)).verifyComplete();
     }
 
     @Test

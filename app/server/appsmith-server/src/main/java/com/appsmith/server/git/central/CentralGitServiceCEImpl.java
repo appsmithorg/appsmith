@@ -231,8 +231,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitAuth> gitAuthMonoCached =
                 gitHandlingService.getGitAuthForUser(gitConnectDTO).cache();
 
-        Mono<? extends Artifact> blankArtifactForImportMono = GitUtils.validateGitSshUrl(
-                        gitConnectDTO.getRemoteUrl())
+        Mono<? extends Artifact> blankArtifactForImportMono = GitUtils.validateGitSshUrl(gitConnectDTO.getRemoteUrl())
                 .then(isRepositoryLimitReachedForWorkspaceMono)
                 .flatMap(isLimitReachedForPrivateRepositories -> {
                     if (!TRUE.equals(isLimitReachedForPrivateRepositories)) {
