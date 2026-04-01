@@ -164,6 +164,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .then(fsGitHandler.cloneRemoteIntoArtifactRepo(
                         temporaryStorage, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
                     log.error("Error in cloning the remote repo, {}", error.getMessage());
                     return gitAnalyticsUtils
                             .addAnalyticsForGitOperation(
@@ -247,6 +250,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .then(fsGitHandler.cloneRemoteIntoArtifactRepo(
                         repoSuffix, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
                     log.error("Error while cloning the remote repo, {}", error.getMessage());
 
                     Mono<Boolean> deleteLocalRepoMono = commonGitFileUtils.deleteLocalRepo(repoSuffix);

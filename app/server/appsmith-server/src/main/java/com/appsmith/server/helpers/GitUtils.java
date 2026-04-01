@@ -8,6 +8,7 @@ import com.appsmith.util.WebClientUtils;
 import net.minidev.json.JSONObject;
 import org.eclipse.jgit.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClientRequest;
 
 import java.io.IOException;
@@ -91,12 +92,11 @@ public class GitUtils {
                     "Remote URL is not a valid SSH URL. Example: git@example.com:username/reponame.git"));
         }
 
-        Optional<InetAddress> resolved = WebClientUtils.resolveIfAllowed(host);
-        if (resolved.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED, host));
-        }
-
-        return Mono.empty();
+        return Mono.fromCallable(() -> WebClientUtils.resolveIfAllowed(host))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(resolved -> resolved.isPresent()
+                        ? Mono.<Void>empty()
+                        : Mono.error(new AppsmithException(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED, host)));
     }
 
     /**
