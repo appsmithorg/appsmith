@@ -126,7 +126,8 @@ describe(
         "CHAR_OCTET_LENGTH",
         "ORDINAL_POSITION",
         "IS_NULLABLE",
-        "SS_DATA_TYPE"]);
+        "SS_DATA_TYPE",
+      ]);
 
       runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
 
@@ -176,7 +177,8 @@ describe(
         "air_date",
         "episode_image",
         "rating",
-        "votes"].forEach((column) => {
+        "votes",
+      ].forEach((column) => {
         agHelper.AssertElementExist(table._headerCell(column));
       });
 

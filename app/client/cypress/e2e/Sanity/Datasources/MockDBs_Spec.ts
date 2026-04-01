@@ -22,7 +22,8 @@ describe.skip(
       "@tag.Datasource",
       "@tag.Sanity",
       "@tag.excludeForAirgap",
-      "@tag.AccessControl"],
+      "@tag.AccessControl",
+    ],
   },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {

@@ -27,10 +27,7 @@ describe.skip(
   // skipping as snowflake CREDITLIMIT has exceeded its quota. https://github.com/appsmithorg/appsmith/issues/39303
   "Snowflake Basic Tests",
   {
-    tags: [
-      "@tag.Datasource",
-      "@tag.AccessControl",
-      "@tag.Snowflake"],
+    tags: ["@tag.Datasource", "@tag.AccessControl", "@tag.Snowflake"],
   },
   () => {
     it("1. Validate the configuration of database", () => {

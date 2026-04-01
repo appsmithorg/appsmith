@@ -14,7 +14,8 @@ describe(
       "@tag.Sanity",
       "@tag.Datasource",
       "@tag.Table",
-      "@tag.JS"],
+      "@tag.JS",
+    ],
   },
   function () {
     it("Bug 24702: Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {

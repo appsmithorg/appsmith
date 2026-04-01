@@ -61,7 +61,8 @@ describe(
           "name",
           "ingredients",
           "instructions",
-          "difficulty"]);
+          "difficulty",
+        ]);
       });
       // dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
       //   expect($cellData).to.eq("instructions");
@@ -80,7 +81,8 @@ describe(
           "ingredients",
           "instructions",
           "difficulty",
-          "prep_time"]);
+          "prep_time",
+        ]);
       });
 
       //Deleting the Hash key

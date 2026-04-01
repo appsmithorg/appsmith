@@ -23,10 +23,7 @@ if (CURRENT_REPO == REPO.CE) {
   describe(
     "Validate Arango & CURL Import Datasources",
     {
-      tags: [
-        "@tag.Datasource",
-        "@tag.Sanity",
-        "@tag.AccessControl"],
+      tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
     },
     () => {
       let dsName: any,
@@ -165,7 +162,8 @@ if (CURRENT_REPO == REPO.CE) {
           "_id",
           "_rev",
           "country",
-          "places_to_visit"]);
+          "places_to_visit",
+        ]);
         dataSources.AssertQueryTableResponse(0, "1");
 
         //Filter by country & return specific columns
@@ -219,7 +217,8 @@ if (CURRENT_REPO == REPO.CE) {
         dataSources.runQueryAndVerifyResponseViews();
         dataSources.AssertQueryResponseHeaders([
           "writesExecuted",
-          "writesIgnored"]);
+          "writesIgnored",
+        ]);
         dataSources.AssertQueryTableResponse(0, "1"); //confirming write is successful
 
         //Filter for Array type & verify for the newly added place also

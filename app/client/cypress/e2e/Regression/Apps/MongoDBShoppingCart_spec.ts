@@ -82,7 +82,8 @@ describe(
           description: "{{Description.text}}",
           price: "{{Price.text}}",
           quantity: "{{Quantity.text}}",
-        }];
+        },
+      ];
       agHelper.EnterValue(JSON.stringify(documentText), {
         propFieldName: "",
         directInput: false,

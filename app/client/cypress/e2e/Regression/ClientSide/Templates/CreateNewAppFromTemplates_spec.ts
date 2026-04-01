@@ -16,7 +16,8 @@ describe(
       "@tag.Sanity",
       "@tag.ImportExport",
       "@tag.Fork",
-      "@tag.AccessControl"],
+      "@tag.AccessControl",
+    ],
   },
   function () {
     beforeEach(() => {

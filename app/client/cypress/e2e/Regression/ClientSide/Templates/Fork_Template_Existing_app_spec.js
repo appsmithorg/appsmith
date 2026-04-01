@@ -29,7 +29,8 @@ describe(
       "@tag.excludeForAirgap",
       "@tag.Sanity",
       "@tag.ImportExport",
-      "@tag.Fork"],
+      "@tag.Fork",
+    ],
   },
   () => {
     it("1. Fork template from page section", () => {

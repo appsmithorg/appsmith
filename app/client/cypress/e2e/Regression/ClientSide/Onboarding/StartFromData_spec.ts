@@ -11,10 +11,7 @@ import {
 describe(
   "Start with data userflow : Create different datasources and save",
   {
-    tags: [
-      "@tag.excludeForAirgap",
-      "@tag.Datasource",
-      "@tag.AccessControl"],
+    tags: ["@tag.excludeForAirgap", "@tag.Datasource", "@tag.AccessControl"],
   },
   function () {
     beforeEach(() => {

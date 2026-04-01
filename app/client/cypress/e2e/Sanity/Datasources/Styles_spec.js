@@ -8,7 +8,8 @@ describe.skip(
       "@tag.Datasource",
       "@tag.Sanity",
       "@tag.excludeForAirgap",
-      "@tag.AccessControl"],
+      "@tag.AccessControl",
+    ],
   },
   function () {
     const backgroundColorGray700 = "rgb(76, 86, 100)";

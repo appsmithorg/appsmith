@@ -13,7 +13,8 @@ describe(
       "@tag.excludeForAirgap",
       "@tag.Templates",
       "@tag.ImportExport",
-      "@tag.Fork"],
+      "@tag.Fork",
+    ],
   },
   () => {
     const NAME_FILTER = "order";

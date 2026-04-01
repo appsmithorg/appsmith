@@ -15,7 +15,8 @@ describe(
       "@tag.Templates",
       "@tag.excludeForAirgap",
       "@tag.ImportExport",
-      "@tag.Fork"],
+      "@tag.Fork",
+    ],
   },
   () => {
     it("1. Fork a template to the current app + Bug 17477", () => {

@@ -43,7 +43,8 @@ describe(
     it("1. Validate List Files in bucket (all existing files) command, run + Widget Binding", () => {
       const expectedErrorMessages = [
         "NoSuchBucket: The specified bucket does not exist",
-        "InvalidBucketName: The specified bucket is not valid"];
+        "InvalidBucketName: The specified bucket is not valid",
+      ];
 
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
       propPane.UpdatePropertyFieldValue("Default value", "AutoTest");

@@ -37,7 +37,8 @@ describe(
           "Button1",
           "Delete_Button",
           "insert_form",
-          "data_table"],
+          "data_table",
+        ],
       );
     });
 

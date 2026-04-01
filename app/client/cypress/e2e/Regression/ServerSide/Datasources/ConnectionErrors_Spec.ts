@@ -58,7 +58,8 @@ describe(
           "Allow",
           "Prefer",
           "Require",
-          "Disable"]);
+          "Disable",
+        ]);
         dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Disable");
         agHelper.ClearNType(
           dataSources._password,
@@ -69,7 +70,8 @@ describe(
         dataSources.AssertDataSourceInfo([
           "READ_ONLY",
           "host.docker.internal",
-          "fakeapi"]);
+          "fakeapi",
+        ]);
       });
     });
 
@@ -107,7 +109,8 @@ describe(
         propPane.AssertPropertiesDropDownValues("SSL mode", [
           "Default",
           "Required",
-          "Disabled"]);
+          "Disabled",
+        ]);
         dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Required");
         agHelper.ClearNType(
           dataSources._password,
@@ -158,7 +161,8 @@ describe(
         agHelper.GetNClick(locators._visibleTextSpan("Read only"));
         propPane.AssertPropertiesDropDownValues("Connection type", [
           "Direct connection",
-          "Replica set"]);
+          "Replica set",
+        ]);
         dataSources.ValidateNSelectDropdown(
           "Connection type",
           "Direct connection",
@@ -185,7 +189,8 @@ describe(
         propPane.AssertPropertiesDropDownValues("Authentication type", [
           "SCRAM-SHA-1",
           "SCRAM-SHA-256",
-          "MONGODB-CR"]);
+          "MONGODB-CR",
+        ]);
         agHelper.ClearTextField(dataSources._databaseName);
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage(
@@ -209,7 +214,8 @@ describe(
         propPane.AssertPropertiesDropDownValues("SSL mode", [
           "Default",
           "Enabled",
-          "Disabled"]);
+          "Disabled",
+        ]);
         dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Disabled");
         dataSources.TestSaveDatasource();
         dataSources.AssertDataSourceInfo([
@@ -217,7 +223,8 @@ describe(
           "READ_ONLY",
           "Direct connection",
           "host.docker.internal",
-          "28017"]);
+          "28017",
+        ]);
       });
     });
 
@@ -264,7 +271,8 @@ describe(
           "Wasabi",
           "DreamObjects",
           "MinIO",
-          "Other"]);
+          "Other",
+        ]);
         // Below is commented due to bug
         // dataSources.ValidateNSelectDropdown(
         //   "S3 service provider",
@@ -292,7 +300,8 @@ describe(
           "S3 service provider",
           "Amazon S3",
           "Access key",
-          Cypress.env("S3_ACCESS_KEY")]);
+          Cypress.env("S3_ACCESS_KEY"),
+        ]);
       });
     });
   },

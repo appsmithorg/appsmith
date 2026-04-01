@@ -276,7 +276,8 @@ describe(
         "v4",
         "cryptov4",
         "form_uuid1",
-        "form_uuid2"]);
+        "form_uuid2",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).not.to.be.empty;
       });

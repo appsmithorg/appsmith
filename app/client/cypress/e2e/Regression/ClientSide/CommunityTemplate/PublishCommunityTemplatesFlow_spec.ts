@@ -13,7 +13,8 @@ describe(
       "@tag.Templates",
       " @tag.excludeForAirgap",
       "@tag.ImportExport",
-      "@tag.Fork"],
+      "@tag.Fork",
+    ],
   },
   () => {
     afterEach(() => {

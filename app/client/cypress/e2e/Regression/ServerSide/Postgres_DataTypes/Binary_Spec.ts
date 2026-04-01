@@ -237,7 +237,8 @@ describe(
       dataSources.RunQuery();
       dataSources.AssertQueryResponseHeaders([
         "zero octet Hex",
-        "zero octet Escape"]);
+        "zero octet Escape",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("00");
       });
@@ -254,7 +255,8 @@ describe(
         "single quote Escape2",
         "single quote Hex1",
         "single quote Hex2",
-        "single quote Base64"]);
+        "single quote Base64",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("'");
       });
@@ -282,7 +284,8 @@ describe(
         "backslash Escape2",
         "backslash Hex1",
         "backslash Hex2",
-        "backslash Base64"]);
+        "backslash Base64",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("\\\\");
       });
@@ -306,7 +309,8 @@ describe(
       dataSources.AssertQueryResponseHeaders([
         "string bytea_output Escape",
         "string bytea_output Hex",
-        "string bytea_output Base64"]);
+        "string bytea_output Base64",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq(`abc klm *\\251T`);
       });
@@ -327,7 +331,8 @@ describe(
         "Escape2",
         "Hex2",
         "Escape3",
-        "Hex3"]);
+        "Hex3",
+      ]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("123abc456");
       });

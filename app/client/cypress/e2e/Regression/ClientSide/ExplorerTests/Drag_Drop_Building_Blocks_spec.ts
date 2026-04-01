@@ -22,7 +22,8 @@ describe(
       "@tag.PropertyPane",
       "@tag.ImportExport",
       "@tag.Fork",
-      "@tag.Binding"],
+      "@tag.Binding",
+    ],
   },
   () => {
     it("1. Building blocks tag is visible and open by default", () => {

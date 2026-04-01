@@ -33,21 +33,24 @@ describe(
         "Null",
         "Key",
         "Default",
-        "Extra"]);
+        "Extra",
+      ]);
       runQueryNValidate("Desc employees;", [
         "Field",
         "Type",
         "Null",
         "Key",
         "Default",
-        "Extra"]);
+        "Extra",
+      ]);
       runQueryNValidate("desc lightHouses;", [
         "Field",
         "Type",
         "Null",
         "Key",
         "Default",
-        "Extra"]);
+        "Extra",
+      ]);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -69,7 +72,8 @@ describe(
       runQueryNValidate("SELECT * FROM countryFlags LIMIT 10;", [
         "Country",
         "File_Name",
-        "Flag"]);
+        "Flag",
+      ]);
       dataSources.AddSuggestedWidget(Widgets.Table);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");

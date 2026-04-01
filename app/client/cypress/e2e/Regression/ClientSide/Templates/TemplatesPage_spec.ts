@@ -9,7 +9,8 @@ describe(
       "@tag.excludeForAirgap",
       "@tag.Sanity",
       "@tag.ImportExport",
-      "@tag.Fork"],
+      "@tag.Fork",
+    ],
   },
   () => {
     it("1. Templates Modal should have show only 'allowPageImport:true' templates", () => {

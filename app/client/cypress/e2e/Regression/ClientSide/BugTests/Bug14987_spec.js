@@ -8,10 +8,7 @@ import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 describe(
   "Verify setting tab form controls not to have tooltip and tooltip (underline) styles",
   {
-    tags: [
-      "@tag.Datasource",
-      "@tag.Settings",
-      "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Settings", "@tag.AccessControl"],
   },
   function () {
     let guid, datasourceName;

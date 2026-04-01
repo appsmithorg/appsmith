@@ -13,11 +13,7 @@ import EditorNavigation, {
 describe(
   "JSObjects OnLoad Actions tests",
   {
-    tags: [
-      "@tag.PropertyPane",
-      "@tag.JS",
-      "@tag.ImportExport",
-      "@tag.Binding"],
+    tags: ["@tag.PropertyPane", "@tag.JS", "@tag.ImportExport", "@tag.Binding"],
   },
   function () {
     before(() => {

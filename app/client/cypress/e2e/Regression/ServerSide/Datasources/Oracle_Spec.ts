@@ -126,7 +126,8 @@ describe(
       dataSources.AssertDataSourceInfo([
         "Host address",
         "Port",
-        "Service Name"]);
+        "Service Name",
+      ]);
       agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
       dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
       AppSidebar.navigate(AppSidebarButton.Editor);
@@ -166,7 +167,8 @@ describe(
       propPane.AssertPropertiesDropDownValues("Label key", [
         "name",
         "code",
-        "value"]);
+        "value",
+      ]);
       propPane.SelectPropertiesDropDown(
         "Label key",
         "value",
