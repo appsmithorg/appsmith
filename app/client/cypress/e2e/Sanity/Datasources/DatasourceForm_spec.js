@@ -15,7 +15,7 @@ import {
 describe(
   "Datasource form related tests",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     it("1. Check whether the number of key value pairs is equal to number of delete buttons", function () {

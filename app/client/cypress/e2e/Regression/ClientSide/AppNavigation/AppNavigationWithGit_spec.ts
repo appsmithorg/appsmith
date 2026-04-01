@@ -15,7 +15,6 @@ describe(
   {
     tags: [
       "@tag.IDE",
-      "@tag.Git",
       "@tag.Sanity",
       "@tag.AccessControl",
       "@tag.Workflows",

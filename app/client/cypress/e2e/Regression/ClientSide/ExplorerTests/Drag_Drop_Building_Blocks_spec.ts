@@ -20,7 +20,6 @@ describe(
       "@tag.Templates",
       "@tag.excludeForAirgap",
       "@tag.PropertyPane",
-      "@tag.Git",
       "@tag.ImportExport",
       "@tag.Fork",
       "@tag.Binding",

@@ -22,7 +22,7 @@ let dsName: any;
 describe(
   "Validate Mongo Query Pane Validations",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   () => {
     before(() => {
