@@ -49,7 +49,7 @@ const GRAPHQL_LIMIT_DATA = [
 describe(
   "GraphQL Datasource Implementation",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     before(() => {

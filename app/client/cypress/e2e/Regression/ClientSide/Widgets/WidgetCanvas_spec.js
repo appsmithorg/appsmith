@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "reduce long canvas height on widget operation",
-  { tags: ["@tag.Settings"] },
+  { tags: ["@tag.Widget", "@tag.Settings"] },
   () => {
     beforeEach(() => {
       _.agHelper.AddDsl("longCanvasDsl");

@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Bug #15372 Catch block was not triggering in Safari/firefox",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     it("1. Triggers the catch block when the API hits a 404", () => {
       apiPage.CreateAndFillApi(

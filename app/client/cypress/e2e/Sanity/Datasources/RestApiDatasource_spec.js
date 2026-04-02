@@ -9,7 +9,7 @@ import {
 describe.skip(
   "Create a rest datasource",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     it("1. Create a rest datasource + Bug 14566", function () {

@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("lazy widget component render", () => {
+describe("lazy widget component render", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     _.agHelper.AddDsl("lazyRender");
   });

@@ -8,7 +8,7 @@ import {
 describe(
   "Reconnect Datasource Modal validation while importing application",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     let workspaceId;

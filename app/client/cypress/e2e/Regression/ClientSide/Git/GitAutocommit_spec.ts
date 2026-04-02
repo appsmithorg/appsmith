@@ -13,7 +13,6 @@ describe(
   {
     tags: [
       "@tag.Git",
-      "@tag.GitAutocommit",
       "@tag.Sanity",
       "@tag.TedMigration",
       "@tag.AccessControl",
