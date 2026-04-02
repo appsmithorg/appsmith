@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
+import { ModuleInputsContext } from "ee/contexts/ModuleInputsContext";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -56,6 +57,42 @@ const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
+  const moduleInputs = useContext(ModuleInputsContext);
+  const effectiveModelRef = useRef<Record<string, unknown>>({});
+  const effectiveModelKeyRef = useRef<string>("{}");
+
+  // TODO: This is a workaround. The root cause is that `inputs.*` bindings in defaultModel
+  // fail to resolve for Custom widgets inside module instances. Other widget types resolve
+  // fine. The proper fix is in the evaluation pipeline (meta-widget scoping for defaultModel).
+  // Once that is fixed, this fallback and the ModuleInputsContext can be removed.
+  // Fall back to moduleInputs only when model is undefined/null (binding failed to resolve).
+  // An intentionally empty model ({}) from defaultModel is preserved as-is.
+  const effectiveModel = useMemo(() => {
+    const result =
+      (props.model === undefined || props.model === null) &&
+      moduleInputs != null &&
+      Object.keys(moduleInputs).length > 0
+        ? (moduleInputs as Record<string, unknown>)
+        : props.model ?? {};
+
+    // Stabilize reference: return previous object when content is unchanged
+    // to prevent unnecessary postMessage calls and effect re-runs
+    try {
+      const key = JSON.stringify(result);
+
+      if (key === effectiveModelKeyRef.current) {
+        return effectiveModelRef.current;
+      }
+
+      effectiveModelKeyRef.current = key;
+    } catch {
+      // Non-serializable content; treat as changed
+    }
+
+    effectiveModelRef.current = result;
+
+    return result;
+  }, [props.model, moduleInputs]);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -97,7 +134,7 @@ function CustomComponent(props: CustomComponentProps) {
             iframe.current?.contentWindow?.postMessage(
               {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
-                model: props.model,
+                model: effectiveModel,
                 ui: {
                   width: props.width,
                   height: props.height,
@@ -151,24 +188,26 @@ function CustomComponent(props: CustomComponentProps) {
 
     return () => window.removeEventListener("message", handler, false);
   }, [
-    props.model,
+    effectiveModel,
+    theme,
     props.width,
     props.height,
+    props.renderMode,
     props.layoutSystemType,
     props.dynamicHeight,
   ]);
 
   useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
+    if (iframe.current?.contentWindow && isIframeReady) {
       iframe.current.contentWindow.postMessage(
         {
           type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
-          model: props.model,
+          model: effectiveModel,
         },
         "*",
       );
     }
-  }, [props.model]);
+  }, [effectiveModel]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -205,12 +244,8 @@ function CustomComponent(props: CustomComponentProps) {
       iframe.current?.style.setProperty("height", `${props.height}px`);
       setHeight(props.height);
     }
-  }, [
-    props.dynamicHeight,
-    props.height,
-    iframe.current,
-    props.layoutSystemType,
-  ]);
+    // Note: iframe.current intentionally omitted - refs don't trigger re-runs
+  }, [props.dynamicHeight, props.height, props.layoutSystemType]);
 
   const srcDoc = `
     <html>
@@ -281,7 +316,7 @@ function CustomComponent(props: CustomComponentProps) {
 export interface CustomComponentProps {
   execute: (eventName: string, contextObj: Record<string, unknown>) => void;
   update: (data: Record<string, unknown>) => void;
-  model: Record<string, unknown>;
+  model?: Record<string, unknown>;
   srcDoc: {
     html: string;
     js: string;
