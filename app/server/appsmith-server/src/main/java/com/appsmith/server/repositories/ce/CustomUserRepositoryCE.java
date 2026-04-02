@@ -21,6 +21,13 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
      */
     Mono<Boolean> claimSuperUserCreationSlot();
 
+    /**
+     * Releases a previously claimed super user creation slot by removing the sentinel document.
+     * Called when the super user creation flow fails after claiming the slot, so that a subsequent
+     * legitimate attempt can succeed.
+     */
+    Mono<Void> releaseSuperUserCreationSlot();
+
     Flux<String> getSystemGeneratedUserEmails(String organizationId);
 
     Mono<Integer> updateById(String id, UpdateDefinition updateObj);

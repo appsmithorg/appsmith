@@ -191,6 +191,7 @@ public class UserSignupTest {
     public void signupAndLoginSuper_WhenSlotClaimedButUsersExist_RaisesUnauthorized() {
         Mockito.when(userService.claimSuperUserCreationSlot()).thenReturn(Mono.just(true));
         Mockito.when(userService.isUsersEmpty()).thenReturn(Mono.just(false));
+        Mockito.when(userService.releaseSuperUserCreationSlot()).thenReturn(Mono.empty());
 
         UserSignupRequestDTO request = new UserSignupRequestDTO();
         request.setEmail("admin@test.com");
@@ -209,5 +210,8 @@ public class UserSignupTest {
                     assertEquals(AppsmithError.UNAUTHORIZED_ACCESS.getMessage(), error.getMessage());
                 })
                 .verify();
+
+        verify(userService).isUsersEmpty();
+        verify(userService).releaseSuperUserCreationSlot();
     }
 }

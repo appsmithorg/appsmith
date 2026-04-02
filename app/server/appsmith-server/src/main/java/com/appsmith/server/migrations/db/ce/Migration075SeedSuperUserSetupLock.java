@@ -5,6 +5,7 @@ import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -60,9 +61,13 @@ public class Migration075SeedSuperUserSetupLock {
                 .append("claimedAt", Instant.now().toString())
                 .append("source", "migration-075");
 
-        mongoTemplate.insert(sentinel, SUPER_USER_SETUP_COLLECTION);
-        log.info(
-                "Seeded super user setup sentinel for existing instance with {} non-system user(s).",
-                nonSystemUserCount);
+        try {
+            mongoTemplate.insert(sentinel, SUPER_USER_SETUP_COLLECTION);
+            log.info(
+                    "Seeded super user setup sentinel for existing instance with {} non-system user(s).",
+                    nonSystemUserCount);
+        } catch (DuplicateKeyException e) {
+            log.info("Super user setup sentinel was concurrently inserted. Skipping.");
+        }
     }
 }

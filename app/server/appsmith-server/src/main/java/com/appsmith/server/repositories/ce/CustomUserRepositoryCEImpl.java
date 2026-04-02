@@ -92,6 +92,14 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
+    public Mono<Void> releaseSuperUserCreationSlot() {
+        Query query = new Query(Criteria.where("_id").is(SUPER_USER_SETUP_LOCK_ID));
+        return reactiveMongoOperations
+                .remove(query, SUPER_USER_SETUP_COLLECTION)
+                .then();
+    }
+
+    @Override
     public Flux<String> getSystemGeneratedUserEmails(String organizationId) {
         return queryBuilder()
                 .criteria(Bridge.equal(User.Fields.isSystemGenerated, true)
