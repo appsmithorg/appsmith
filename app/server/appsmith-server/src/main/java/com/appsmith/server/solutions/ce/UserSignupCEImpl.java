@@ -269,14 +269,12 @@ public class UserSignupCEImpl implements UserSignupCE {
 
     public Mono<User> signupAndLoginSuper(
             UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
-        Mono<User> userMono = userService
-                .claimSuperUserCreationSlot()
-                .flatMap(claimed -> {
-                    if (!Boolean.TRUE.equals(claimed)) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    }
-                    return createAndSetupSuperUser(userFromRequest, originHeader, exchange);
-                });
+        Mono<User> userMono = userService.claimSuperUserCreationSlot().flatMap(claimed -> {
+            if (!Boolean.TRUE.equals(claimed)) {
+                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            }
+            return createAndSetupSuperUser(userFromRequest, originHeader, exchange);
+        });
         return userMono.elapsed().map(pair -> {
             log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
             return pair.getT2();
