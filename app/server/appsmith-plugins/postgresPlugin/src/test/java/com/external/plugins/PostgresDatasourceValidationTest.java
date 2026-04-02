@@ -176,6 +176,15 @@ public class PostgresDatasourceValidationTest {
         String hostname = "jdbc:postgresql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("Host value cannot contain") && msg.contains(hostname)));
+    }
+
+    @Test
+    public void testValidateDatasource_withHashInHostname_returnsInvalid() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        dsConfig.getEndpoints().get(0).setHost("evil.com#fragment");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")));
     }
 }

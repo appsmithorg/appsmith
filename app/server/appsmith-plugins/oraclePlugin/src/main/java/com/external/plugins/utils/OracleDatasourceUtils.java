@@ -3,6 +3,7 @@ package com.external.plugins.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.JdbcHostValidator;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -113,9 +114,8 @@ public class OracleDatasourceUtils {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (isBlank(endpoint.getHost())) {
                     invalids.add(OracleErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
-                } else if (endpoint.getHost().contains("/")
-                        || endpoint.getHost().contains(":")) {
-                    invalids.add(String.format(OracleErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
+                } else {
+                    JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
                 }
             }
         }

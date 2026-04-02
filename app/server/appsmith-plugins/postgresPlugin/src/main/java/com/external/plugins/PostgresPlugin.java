@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
+import com.appsmith.external.helpers.JdbcHostValidator;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SSHUtils;
 import com.appsmith.external.helpers.Stopwatch;
@@ -710,10 +711,8 @@ public class PostgresPlugin extends BasePlugin {
                 for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
                         invalids.add(PostgresErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
-                    } else if (endpoint.getHost().contains("/")
-                            || endpoint.getHost().contains(":")) {
-                        invalids.add(
-                                String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
+                    } else {
+                        JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
                     }
                 }
             }

@@ -25,4 +25,9 @@ public abstract class BasePluginErrorMessages {
             "Unable to parse content. Expected an array or object of multipart data";
     public static final String ERROR_INVALID_BASE64_FORMAT =
             "Invalid BASE64 format. Expected format: data:mimetype;base64,content";
+    public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Missing hostname.";
+    public static final String DS_INVALID_HOSTNAME_CHARS_ERROR_MSG =
+            "Host value cannot contain `%s` characters. Found `%s`.";
+    public static final String DS_SSRF_HOST_BLOCKED_ERROR_MSG =
+            "The hostname '%s' is not allowed. Connections to metadata endpoints, loopback, and link-local addresses are blocked.";
 }

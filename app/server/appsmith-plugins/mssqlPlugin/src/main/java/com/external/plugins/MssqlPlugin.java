@@ -9,6 +9,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
+import com.appsmith.external.helpers.JdbcHostValidator;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
@@ -396,6 +397,14 @@ public class MssqlPlugin extends BasePlugin {
 
             if (isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
+            } else {
+                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (StringUtils.isEmpty(endpoint.getHost())) {
+                        invalids.add(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
+                    } else {
+                        JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
+                    }
+                }
             }
 
             if (datasourceConfiguration.getConnection() != null

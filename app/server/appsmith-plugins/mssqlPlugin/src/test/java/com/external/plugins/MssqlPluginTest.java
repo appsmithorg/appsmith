@@ -15,6 +15,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -772,5 +775,55 @@ public class MssqlPluginTest {
                     assertEquals("localhost_1433", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"evil.com#fragment", "evil.com/"})
+    public void testValidateDatasource_withInvalidHostname_returnsInvalid(String hostname) {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(hostname);
+        endpoint.setPort(1433L);
+        dsConfig.setEndpoints(List.of(endpoint));
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        dsConfig.setAuthentication(auth);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")),
+                "Expected hostname validation error for '" + hostname + "', got: " + output);
+    }
+
+    @Test
+    public void testValidateDatasource_withEmptyHostname_returnsInvalid() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("");
+        endpoint.setPort(1433L);
+        dsConfig.setEndpoints(List.of(endpoint));
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        dsConfig.setAuthentication(auth);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG));
+    }
+
+    @Test
+    public void testValidateDatasource_withValidHostname_noHostErrors() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("mydb.internal.com");
+        endpoint.setPort(1433L);
+        dsConfig.setEndpoints(List.of(endpoint));
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        dsConfig.setAuthentication(auth);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.stream().noneMatch(msg -> msg.contains("Host value") || msg.contains("hostname")),
+                "Expected no hostname errors for valid host, got: " + output);
     }
 }

@@ -606,9 +606,9 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
 
-        assertEquals(
-                Set.of(String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, hostname)),
-                pluginExecutor.validateDatasource(dsConfig));
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("Host value cannot contain") && msg.contains(hostname)));
     }
 
     @Test

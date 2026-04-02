@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.JdbcHostValidator;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -405,10 +406,8 @@ public class RedshiftPlugin extends BasePlugin {
                 for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
                         invalids.add("Missing hostname.");
-                    } else if (endpoint.getHost().contains("/")
-                            || endpoint.getHost().contains(":")) {
-                        invalids.add(
-                                "Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                    } else {
+                        JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
                     }
                 }
             }

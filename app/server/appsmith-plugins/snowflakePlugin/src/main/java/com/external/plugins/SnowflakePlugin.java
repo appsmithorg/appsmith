@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.JdbcHostValidator;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -244,6 +245,11 @@ public class SnowflakePlugin extends BasePlugin {
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
+            } else {
+                JdbcHostValidator.validateHostname(datasourceConfiguration.getUrl())
+                        .ifPresent(error -> invalids.add(String.format(
+                                SnowflakeErrorMessages.DS_INVALID_ACCOUNT_NAME_ERROR_MSG,
+                                datasourceConfiguration.getUrl())));
             }
 
             if (datasourceConfiguration.getProperties() != null

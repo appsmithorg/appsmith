@@ -40,4 +40,7 @@ public class SnowflakeErrorMessages extends BasePluginErrorMessages {
     public static final String DS_MISSING_PASSPHRASE_FOR_ENCRYPTED_PRIVATE_KEY =
             "Passphrase is required as private key is encrypted";
     public static final String DS_INCORRECT_PASSPHRASE_OR_PRIVATE_KEY = "Passphrase or private key is incorrect";
+
+    public static final String DS_INVALID_ACCOUNT_NAME_ERROR_MSG =
+            "Snowflake account name contains invalid characters. Found `%s`.";
 }

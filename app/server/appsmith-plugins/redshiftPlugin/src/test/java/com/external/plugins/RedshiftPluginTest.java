@@ -151,9 +151,17 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
 
-        assertEquals(
-                Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
-                pluginExecutor.validateDatasource(dsConfig));
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("Host value cannot contain") && msg.contains(hostname)));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithHashInHostname() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("evil.com#fragment");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")));
     }
 
     /* 1. CREATE TABLE users (

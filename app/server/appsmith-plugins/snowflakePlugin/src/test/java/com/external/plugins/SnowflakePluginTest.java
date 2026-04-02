@@ -23,6 +23,8 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
@@ -165,6 +167,48 @@ public class SnowflakePluginTest {
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_SCHEMA_NAME_ERROR_MSG));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"evil.com#", "evil.com:443", "evil.com/path"})
+    public void testValidateDatasource_withInvalidCharsInAccountName_returnsInvalid(String accountName) {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("warehouse", "warehouse"));
+        properties.add(new Property("db", "dbName"));
+        properties.add(new Property("schema", "schemaName"));
+        properties.add(new Property("role", "userRole"));
+        datasourceConfiguration.setUrl(accountName);
+        datasourceConfiguration.setProperties(properties);
+        Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("invalid characters")),
+                "Expected validation error for account name '" + accountName + "', got: " + output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"myaccount", "myaccount.us-east-1.aws"})
+    public void testValidateDatasource_withValidAccountName_noHostErrors(String accountName) {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("warehouse", "warehouse"));
+        properties.add(new Property("db", "dbName"));
+        properties.add(new Property("schema", "schemaName"));
+        properties.add(new Property("role", "userRole"));
+        datasourceConfiguration.setUrl(accountName);
+        datasourceConfiguration.setProperties(properties);
+        Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertTrue(
+                output.stream().noneMatch(msg -> msg.contains("invalid characters")),
+                "Expected no character validation errors for account name '" + accountName + "', got: " + output);
     }
 
     @Test
