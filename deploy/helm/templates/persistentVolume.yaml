@@ -62,18 +62,27 @@ metadata:
     {{- end }}
     description: "Appsmith persistent volume for application data storage"
 spec:
+  # Storage capacity allocation
   capacity:
     storage: {{ .Values.persistence.size | quote }}
-  volumeMode: Filesystem # Mount volume into Pod as a directory.
+  
+  # Volume mode: Filesystem for mounting as directory
+  volumeMode: Filesystem
+  
+  # Access modes: RWO (ReadWriteOnce), ROX (ReadOnlyMany), RWX (ReadWriteMany)
   accessModes:
   {{- range .Values.persistence.accessModes }}
     - {{ . | quote }}
   {{- end }}
+  
+  # Reclaim policy: Delete, Retain, or Recycle
   persistentVolumeReclaimPolicy: {{ .Values.persistence.reclaimPolicy }}
+  
   {{- if .Values.persistence.localStorage }}
+  # Local storage backend - requires nodeAffinity to bind to specific node
   local:
-    path: {{ .Values.persistence.storagePath }} # Path to the directory this PV refers to.
-  nodeAffinity: # nodeAffinity is required when using local volumes.
+    path: {{ .Values.persistence.storagePath }}
+  nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
@@ -82,19 +91,25 @@ spec:
           values: 
             {{- toYaml .Values.persistence.localCluster | nindent 12 }}
   {{- end }}
+  
   {{- if .Values.persistence.storageClass }}
+  # Storage class for dynamic provisioning
   {{- if (eq "-" .Values.persistence.storageClass) }}
   storageClassName: ""
   {{- else }}
   storageClassName: "{{ .Values.persistence.storageClass }}"
   {{- end }}
   {{- end }}
+  
   {{- if .Values.persistence.efs.enabled }}
+  # AWS EFS via CSI driver - suitable for multi-AZ deployments
   csi:
     driver: {{ .Values.persistence.efs.driver | quote }}
     volumeHandle: {{ .Values.persistence.efs.volumeHandle | quote }}
   {{- end }}
+  
   {{- if .Values.persistence.nfs.enabled }}
+  # NFS storage - suitable for on-premises and hybrid deployments
   nfs:
     server: {{ .Values.persistence.nfs.server | quote }}
     path: {{ .Values.persistence.nfs.path | quote }}
@@ -102,7 +117,9 @@ spec:
     readOnly: true
     {{- end }}
   {{- end }}
+  
   {{- if .Values.persistence.ebs.enabled }}
+  # AWS EBS - suitable for single-AZ high-performance requirements
   awsElasticBlockStore:
     volumeID: {{ .Values.persistence.ebs.volumeID | quote }}
     fsType: {{ .Values.persistence.ebs.fsType | default "ext4" | quote }}
@@ -110,7 +127,9 @@ spec:
     readOnly: true
     {{- end }}
   {{- end }}
+  
   {{- if .Values.persistence.gcp.enabled }}
+  # GCP Persistent Disk - suitable for GKE deployments
   gcePersistentDisk:
     pdName: {{ .Values.persistence.gcp.pdName | quote }}
     fsType: {{ .Values.persistence.gcp.fsType | default "ext4" | quote }}
