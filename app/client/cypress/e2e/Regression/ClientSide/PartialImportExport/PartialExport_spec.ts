@@ -9,7 +9,7 @@ const fixtureName = "PartialImportExportSampleApp.json";
 
 describe(
   "Partial export functionality",
-  { tags: ["@tag.ImportExport", "@tag.Git"] },
+  { tags: ["@tag.ImportExport"] },
   () => {
     before(() => {
       agHelper.GenerateUUID();

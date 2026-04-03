@@ -8,7 +8,6 @@ describe(
       "@tag.Templates",
       "@tag.excludeForAirgap",
       "@tag.Sanity",
-      "@tag.Git",
       "@tag.ImportExport",
       "@tag.Fork",
     ],

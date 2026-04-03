@@ -6,7 +6,7 @@ import {
 
 describe(
   "Validate Elasticsearch DS",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     let dsName: any,
       books: any,

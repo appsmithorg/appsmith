@@ -22,7 +22,6 @@ describe(
   {
     tags: [
       "@tag.Datasource",
-      "@tag.Git",
       "@tag.AccessControl",
       "@tag.Hubspot",
       "@tag.excludeForAirgap",

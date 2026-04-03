@@ -21,7 +21,7 @@ let dsName: any,
   cityName = "LA_";
 describe(
   "Validate Firestore DS",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     before("Generate GUID for new Firestore DS", () => {
       agHelper.GenerateUUID();

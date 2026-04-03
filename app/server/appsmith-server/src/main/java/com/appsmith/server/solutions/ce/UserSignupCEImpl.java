@@ -269,7 +269,21 @@ public class UserSignupCEImpl implements UserSignupCE {
 
     public Mono<User> signupAndLoginSuper(
             UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
-        Mono<User> userMono = userService
+        Mono<User> userMono = userService.claimSuperUserCreationSlot().flatMap(claimed -> {
+            if (!Boolean.TRUE.equals(claimed)) {
+                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            }
+            return createAndSetupSuperUser(userFromRequest, originHeader, exchange);
+        });
+        return userMono.elapsed().map(pair -> {
+            log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
+            return pair.getT2();
+        });
+    }
+
+    private Mono<User> createAndSetupSuperUser(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
+        return userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
                     if (!Boolean.TRUE.equals(isEmpty)) {
@@ -363,11 +377,11 @@ public class UserSignupCEImpl implements UserSignupCE {
                                 return pair.getT2();
                             });
                     return allSecondaryFunctions.thenReturn(user);
+                })
+                .onErrorResume(error -> {
+                    log.error("Super user creation failed after claiming slot. Releasing sentinel.", error);
+                    return userService.releaseSuperUserCreationSlot().then(Mono.error(error));
                 });
-        return userMono.elapsed().map(pair -> {
-            log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
-            return pair.getT2();
-        });
     }
 
     public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {

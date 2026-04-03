@@ -4,6 +4,7 @@ import styled, { keyframes, createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import { labelLayoutStyles } from "@design-system/widgets-old";
+import { RcVirtualListScrollbarStyles } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -222,6 +223,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       margin-bottom: 0;
     }
   }
+  ${RcVirtualListScrollbarStyles}
 }
 `;
 
