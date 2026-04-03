@@ -500,6 +500,28 @@ class BaseInputComponent extends React.Component<
     }
   }
 
+  /**
+   * Maps input type to appropriate HTML5 inputmode attribute for mobile keyboards
+   * Provides optimal keyboard experience across iOS and Android
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode
+   */
+  getInputMode(inputType: InputHTMLType = "TEXT"): string | undefined {
+    switch (inputType) {
+      // Show decimal point keypad for currency and numeric inputs
+      case "NUMBER":
+        return "decimal";
+      // Show phone keypad (+, -, *, #) for telephone inputs
+      case "TEL":
+        return "tel";
+      // Show email keypad with @ and . symbols
+      case "EMAIL":
+        return "email";
+      // Default: let browser decide based on input element type
+      default:
+        return undefined;
+    }
+  }
+
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 
@@ -606,6 +628,7 @@ class BaseInputComponent extends React.Component<
           (this.props.rtl ? " rtl" : "")
         }
         disabled={this.props.disabled}
+        inputMode={this.getInputMode(this.props.inputHTMLType)}
         inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
         leftIcon={this.getLeftIcon()}
