@@ -4,6 +4,10 @@
 {{- $releaseName := include "appsmith.fullname" . -}}
 {{- $workloadKind := upper (toString .Values.workload.kind) -}}
 {{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
+{{- /*
+Purpose: Appsmith Deployment/StatefulSet template with high-availability configuration
+Features: Security context, probes, resource limits, affinity rules, and service account integration
+*/ -}}
 apiVersion: apps/v1
 kind: {{ if $useDeployment }}Deployment{{- else }}StatefulSet{{- end }}
 metadata:
@@ -101,11 +105,15 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.containerName }}
+          # Security context: run as non-root user, enforce read-only filesystem where possible
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- $customImage := .Values._image | default dict }}
+          # Container image configuration
           image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
           imagePullPolicy: {{ dig "pullPolicy" "IfNotPresent" $customImage }}
+          
+          # Exposed ports: HTTP, HTTPS, and metrics
           ports:
             - name: http
               containerPort: {{ .Values.HTTPContainerPort | default 80 }}
@@ -116,26 +124,32 @@ spec:
             - name: metrics
               containerPort: {{ .Values.metrics.port }}
               protocol: TCP
+          
+          # Liveness and readiness probes for container health
           {{- $probes := .Values.probes | default dict }}
           startupProbe:
-            # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
+            # Wait for application startup before checking liveness/readiness
             httpGet:
               port: {{ dig "startupProbe" "port" "80" $probes }}
               path: {{ dig "startupProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "startupProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "startupProbe" "periodSeconds" 60 $probes }}
           livenessProbe:
+            # Restart container if health check fails
             httpGet:
               port: {{ dig "livenessProbe" "port" "80" $probes }}
               path: {{ dig "livenessProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "livenessProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "livenessProbe" "periodSeconds" 60 $probes }}
           readinessProbe:
+            # Route traffic only to ready pods
             httpGet:
               port: {{ dig "readinessProbe" "port" "80" $probes }}
               path: {{ dig "readinessProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "readinessProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "readinessProbe" "periodSeconds" 60 $probes }}
+          
+          # Resource allocation: CPU and memory limits
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
