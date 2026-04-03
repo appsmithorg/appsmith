@@ -1,6 +1,5 @@
 ---
-description: GitHub Actions workflow validation — required YAML structure and common mistakes
-globs: .github/workflows/**/*.yml
+globs: .github/workflows/**/*.{yaml,yml}
 alwaysApply: false
 ---
 # GitHub Actions Workflow Validation
