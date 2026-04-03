@@ -32,6 +32,11 @@ Last Updated: 2026-04-04
     {{- fail "persistence.ebs.volumeID is required when EBS is enabled" }}
   {{- end }}
 {{- end }}
+{{- if .Values.persistence.gcp.enabled }}
+  {{- if not .Values.persistence.gcp.pdName }}
+    {{- fail "persistence.gcp.pdName is required when GCP Persistent Disk is enabled" }}
+  {{- end }}
+{{- end }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -90,6 +95,14 @@ spec:
     volumeID: {{ .Values.persistence.ebs.volumeID | quote }}
     fsType: {{ .Values.persistence.ebs.fsType | default "ext4" | quote }}
     {{- if .Values.persistence.ebs.readOnly }}
+    readOnly: true
+    {{- end }}
+  {{- end }}
+  {{- if .Values.persistence.gcp.enabled }}
+  gcePersistentDisk:
+    pdName: {{ .Values.persistence.gcp.pdName | quote }}
+    fsType: {{ .Values.persistence.gcp.fsType | default "ext4" | quote }}
+    {{- if .Values.persistence.gcp.readOnly }}
     readOnly: true
     {{- end }}
   {{- end }}
