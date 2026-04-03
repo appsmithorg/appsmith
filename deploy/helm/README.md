@@ -16,7 +16,7 @@ helm install stable-appsmith/appsmith --generate-name
 
 ## Introduction
 ---
-This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) deployment on a [Kubernetes](kubernetes.io) cluster using [Helm](https://helm.sh) package manager.
+This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) deployment on a [Kubernetes](https://kubernetes.io) cluster using [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 ---
