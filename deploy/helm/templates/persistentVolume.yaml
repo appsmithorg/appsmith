@@ -49,6 +49,18 @@ metadata:
     app.kubernetes.io/component: persistence
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     helm.sh/chart: {{ include "appsmith.chart" . | quote }}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: {{ .Values.persistence.storageClass | default "default" | quote }}
+    {{- if .Values.persistence.backup.enabled }}
+    backup.velero.io/backup-volumes: appsmith-data
+    {{- end }}
+    {{- if .Values.persistence.retention.policy }}
+    retention.policy: {{ .Values.persistence.retention.policy | quote }}
+    {{- end }}
+    {{- if .Values.persistence.retention.days }}
+    retention.days: {{ .Values.persistence.retention.days | quote }}
+    {{- end }}
+    description: "Appsmith persistent volume for application data storage"
 spec:
   capacity:
     storage: {{ .Values.persistence.size | quote }}
