@@ -1,3 +1,7 @@
+{{- /*
+Purpose: Expose Appsmith application endpoints for client and metrics access
+Type: ClusterIP (default), LoadBalancer, or NodePort based on deployment context
+*/ -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,6 +11,7 @@ metadata:
     {{- include "appsmith.labels" . | nindent 4 }}
   {{- if or .Values.service.annotations .Values.commonAnnotations .Values.metrics.enabled }}
   annotations:
+    description: "Appsmith application service"
     {{- if .Values.service.annotations }}
     {{- include "tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
     {{- end }}
@@ -20,21 +25,35 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
+  # Service type: ClusterIP for in-cluster access, LoadBalancer for external, NodePort for node-level access
   type: {{ .Values.service.type }}
+  
   {{- if and (eq .Values.service.type "ClusterIP") .Values.service.clusterIP }}
   clusterIP: {{ .Values.service.clusterIP }}
   {{- end }}
+  
   {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   {{- end }}
+  
+  # Session affinity: Ensure client requests route to same pod for stateful operations
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800 # 3 hours
+  
+  # Service port mappings
   ports:
     - name: {{ .Values.service.portName }}
       port: {{ .Values.service.port }}
       targetPort: http
+      protocol: TCP
       {{- if and (or (eq .Values.service.type "LoadBalancer") (eq .Values.service.type "NodePort")) .Values.service.nodePort }}
       nodePort: {{ .Values.service.nodePort }}
       {{- else if eq .Values.service.type "ClusterIP" }}
       nodePort: null
       {{- end }}
+  
+  # Pod selector for routing traffic
   selector:
     {{- include "appsmith.selectorLabels" . | nindent 4 }}

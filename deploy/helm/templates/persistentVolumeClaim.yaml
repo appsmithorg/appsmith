@@ -1,33 +1,50 @@
 {{- $workloadKind := upper (toString .Values.workload.kind) -}}
 {{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) $useDeployment }}
+{{- /*
+Purpose: Create Kubernetes PersistentVolumeClaim for Appsmith data storage
+Binds to PersistentVolume created in persistentVolume.yaml
+*/ -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ include "appsmith.fullname" . }}
   namespace: {{ include "appsmith.namespace" . }}
-{{- with .Values.persistence.annotations  }}
+  labels:
+    app.kubernetes.io/name: appsmith
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: persistence
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    helm.sh/chart: {{ include "appsmith.chart" . | quote }}
   annotations:
+    description: "Persistent volume claim for Appsmith application data"
+    {{- if .Values.persistence.backup.enabled }}
+    backup.velero.io/backup-volumes: appsmith-data
+    {{- end }}
+{{- with .Values.persistence.annotations  }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-  labels:
-    app: {{ include "appsmith.fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
 spec:
+  # Access modes: RWO (ReadWriteOnce), ROX (ReadOnlyMany), RWX (ReadWriteMany)
   accessModes:
   {{- range .Values.persistence.accessModes }}
     - {{ . | quote }}
   {{- end }}
+  
+  # Volume name: Binds to specific PersistentVolume
   {{- if .Values.persistence.existingClaim.enabled }}
   volumeName: {{ .Values.persistence.existingClaim.name }}
   {{- else}}
   volumeName: {{ include "appsmith.pvName" . }}
   {{- end }}
+  
+  # Storage capacity request
   resources:
     requests:
       storage: {{ .Values.persistence.size | quote }}
+  
+  # Storage class for dynamic provisioning
 {{- if .Values.persistence.storageClass }}
   storageClassName: {{ .Values.persistence.storageClass }}
 {{- else }}
