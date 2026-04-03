@@ -1,3 +1,10 @@
+{{- /*
+Purpose: Create Kubernetes PersistentVolume for Appsmith data persistence
+Supports: EFS (AWS), NFS, EBS (AWS), and local storage backends
+Conditions: Only created when persistence is enabled and no existing claim is used
+Author: Appsmith Team
+Last Updated: 2026-04-04
+*/ -}}
 {{- $workloadKind := upper (toString .Values.workload.kind) -}}
 {{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) $useDeployment }}
