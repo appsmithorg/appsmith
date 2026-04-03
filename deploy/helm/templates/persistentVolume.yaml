@@ -19,6 +19,14 @@ Last Updated: 2026-04-04
     {{- fail "persistence.efs.volumeHandle is required when EFS is enabled" }}
   {{- end }}
 {{- end }}
+{{- if .Values.persistence.nfs.enabled }}
+  {{- if not .Values.persistence.nfs.server }}
+    {{- fail "persistence.nfs.server is required when NFS is enabled" }}
+  {{- end }}
+  {{- if not .Values.persistence.nfs.path }}
+    {{- fail "persistence.nfs.path is required when NFS is enabled" }}
+  {{- end }}
+{{- end }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -64,3 +72,12 @@ spec:
     driver: {{ .Values.persistence.efs.driver | quote }}
     volumeHandle: {{ .Values.persistence.efs.volumeHandle | quote }}
   {{- end }}
+  {{- if .Values.persistence.nfs.enabled }}
+  nfs:
+    server: {{ .Values.persistence.nfs.server | quote }}
+    path: {{ .Values.persistence.nfs.path | quote }}
+    {{- if .Values.persistence.nfs.readOnly }}
+    readOnly: true
+    {{- end }}
+  {{- end }}
+{{- end }}
