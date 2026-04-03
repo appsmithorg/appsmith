@@ -233,16 +233,7 @@ public class WebClientUtils {
             if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
                 return Optional.empty();
             }
-            if (addr instanceof Inet6Address) {
-                byte firstByte = addr.getAddress()[0];
-                if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
-                    return Optional.empty();
-                }
-            }
-            if (addr.isLoopbackAddress()
-                    || addr.isLinkLocalAddress()
-                    || addr.isAnyLocalAddress()
-                    || addr.isMulticastAddress()) {
+            if (isBlockedByAddressType(addr)) {
                 return Optional.empty();
             }
         }
@@ -251,13 +242,63 @@ public class WebClientUtils {
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
-        if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(host))) {
+        if (isHostDisallowed(host)) {
             log.warn("Host {} is disallowed. Failing the request.", host);
             if (promise != null) {
                 promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));
             }
             return true;
         }
+        return false;
+    }
+
+    /**
+     * Checks whether a host (IP literal or hostname) should be blocked. Combines the
+     * static denylist with runtime address-type checks (loopback, link-local, any-local,
+     * multicast, IPv6 ULA) so that the full 127.0.0.0/8 range and equivalent addresses
+     * are rejected regardless of the exact string representation.
+     */
+    private static boolean isHostDisallowed(String host) {
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+
+        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
+            return true;
+        }
+
+        if (isValidIpAddress(canonicalHost)) {
+            try {
+                final InetAddress addr = InetAddress.getByName(canonicalHost);
+                if (isBlockedByAddressType(addr)) {
+                    return true;
+                }
+            } catch (UnknownHostException e) {
+                // Should not happen for a valid IP literal; fall through.
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if the given address belongs to a category that must never be
+     * reached by user-controlled outbound requests: loopback (entire 127.0.0.0/8 and ::1),
+     * link-local, wildcard/any-local, multicast, and IPv6 Unique Local (fc00::/7).
+     */
+    private static boolean isBlockedByAddressType(InetAddress addr) {
+        if (addr.isLoopbackAddress()
+                || addr.isLinkLocalAddress()
+                || addr.isAnyLocalAddress()
+                || addr.isMulticastAddress()) {
+            return true;
+        }
+
+        if (addr instanceof Inet6Address) {
+            byte firstByte = addr.getAddress()[0];
+            if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
+                return true; // IPv6 Unique Local Address (fc00::/7)
+            }
+        }
+
         return false;
     }
 
@@ -279,7 +320,7 @@ public class WebClientUtils {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "IP Address resolution is invalid"));
         }
 
-        return DISALLOWED_HOSTS.contains(canonicalHost)
+        return isHostDisallowed(canonicalHost)
                 ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
                 : Mono.just(request);
     }

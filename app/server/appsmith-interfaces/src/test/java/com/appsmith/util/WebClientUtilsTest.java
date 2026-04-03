@@ -81,6 +81,47 @@ public class WebClientUtilsTest {
         assertTrue(result.isPresent(), "Expected host " + host + " to be allowed");
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "http://127.0.0.2:9001/RPC2",
+                "http://127.0.1.1:9001/RPC2",
+                "http://127.255.255.254:9001/RPC2",
+                "http://0.0.0.0:9001/RPC2",
+            })
+    public void testRequestFilterFnRejectsFullLoopbackRange(String url) throws Exception {
+        StepVerifier.create(invokeRequestFilterFn(url))
+                .expectErrorSatisfies(throwable -> {
+                    assertTrue(throwable instanceof UnknownHostException);
+                    assertEquals(WebClientUtils.HOST_NOT_ALLOWED, throwable.getMessage());
+                })
+                .verify();
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "127.0.0.2",
+                "127.0.1.1",
+                "127.255.255.254",
+            })
+    public void testIsDisallowedAndFailBlocksFullLoopbackRange(String host) {
+        assertTrue(
+                WebClientUtils.isDisallowedAndFail(host, null), "Expected loopback address " + host + " to be blocked");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "127.0.0.2",
+                "127.0.1.1",
+                "127.255.255.254",
+            })
+    public void resolveIfAllowed_blocksFullLoopbackRange(String host) {
+        Optional<InetAddress> result = WebClientUtils.resolveIfAllowed(host);
+        assertTrue(result.isEmpty(), "Expected loopback address " + host + " to be blocked");
+    }
+
     @Test
     public void resolveIfAllowed_blocksUnresolvableHost() {
         Optional<InetAddress> result = WebClientUtils.resolveIfAllowed("definitely-not-a-real-host-xyz123.invalid");
