@@ -8,6 +8,17 @@ Last Updated: 2026-04-04
 {{- $workloadKind := upper (toString .Values.workload.kind) -}}
 {{- $useDeployment := or (eq $workloadKind "DEPLOYMENT") .Values.autoscaling.enabled }}
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) $useDeployment }}
+{{- if not .Values.persistence.size }}
+  {{- fail "persistence.size is required when persistence is enabled" }}
+{{- end }}
+{{- if .Values.persistence.efs.enabled }}
+  {{- if not .Values.persistence.efs.driver }}
+    {{- fail "persistence.efs.driver is required when EFS is enabled" }}
+  {{- end }}
+  {{- if not .Values.persistence.efs.volumeHandle }}
+    {{- fail "persistence.efs.volumeHandle is required when EFS is enabled" }}
+  {{- end }}
+{{- end }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
