@@ -39,6 +39,9 @@ public class WebClientUtils {
 
     private static final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
 
+    // Not final so that tests can simulate Docker environment via reflection
+    private static boolean IN_DOCKER = "1".equals(System.getenv("IN_DOCKER"));
+
     private static final Set<String> DISALLOWED_HOSTS = computeDisallowedHosts();
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
@@ -80,7 +83,7 @@ public class WebClientUtils {
                 "metadata.google.internal",
                 "metadata.tencentyun.com");
 
-        if ("1".equals(System.getenv("IN_DOCKER"))) {
+        if (IN_DOCKER) {
             addDisallowedHosts(hosts, "127.0.0.1", "::1");
         }
 
@@ -233,7 +236,8 @@ public class WebClientUtils {
             if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
                 return Optional.empty();
             }
-            if (isBlockedByAddressType(addr)) {
+            // SMTP path always blocks loopback, regardless of IN_DOCKER
+            if (addr.isLoopbackAddress() || isBlockedByAddressType(addr)) {
                 return Optional.empty();
             }
         }
@@ -281,14 +285,17 @@ public class WebClientUtils {
 
     /**
      * Returns {@code true} if the given address belongs to a category that must never be
-     * reached by user-controlled outbound requests: loopback (entire 127.0.0.0/8 and ::1),
-     * link-local, wildcard/any-local, multicast, and IPv6 Unique Local (fc00::/7).
+     * reached by user-controlled outbound requests. Loopback blocking (entire 127.0.0.0/8
+     * and ::1) is only active inside Docker, consistent with the existing DISALLOWED_HOSTS
+     * policy. Link-local, wildcard/any-local, multicast, and IPv6 Unique Local (fc00::/7)
+     * are always blocked.
      */
     private static boolean isBlockedByAddressType(InetAddress addr) {
-        if (addr.isLoopbackAddress()
-                || addr.isLinkLocalAddress()
-                || addr.isAnyLocalAddress()
-                || addr.isMulticastAddress()) {
+        if (IN_DOCKER && addr.isLoopbackAddress()) {
+            return true;
+        }
+
+        if (addr.isLinkLocalAddress() || addr.isAnyLocalAddress() || addr.isMulticastAddress()) {
             return true;
         }
 

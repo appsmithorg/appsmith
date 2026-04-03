@@ -1,5 +1,7 @@
 package com.appsmith.util;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -8,6 +10,7 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
@@ -18,6 +21,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WebClientUtilsTest {
+
+    private static boolean originalInDocker;
+
+    @BeforeAll
+    static void enableDockerMode() throws Exception {
+        Field field = WebClientUtils.class.getDeclaredField("IN_DOCKER");
+        field.setAccessible(true);
+        originalInDocker = field.getBoolean(null);
+        field.setBoolean(null, true);
+    }
+
+    @AfterAll
+    static void restoreDockerMode() throws Exception {
+        Field field = WebClientUtils.class.getDeclaredField("IN_DOCKER");
+        field.setAccessible(true);
+        field.setBoolean(null, originalInDocker);
+    }
 
     @ParameterizedTest
     @ValueSource(
