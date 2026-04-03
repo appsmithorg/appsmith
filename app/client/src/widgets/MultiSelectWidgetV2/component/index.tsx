@@ -22,7 +22,10 @@ import type { Alignment } from "@blueprintjs/core";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
+import {
+  type LabelPosition,
+  SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX,
+} from "components/constants";
 import { uniqBy } from "lodash";
 import { Icon } from "@design-system/widgets-old";
 import useDropdown from "widgets/useDropdown";
@@ -361,6 +364,7 @@ function MultiSelectComponent({
           }
           labelInValue
           listHeight={300}
+          listItemHeight={SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX}
           loading={loading}
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}
