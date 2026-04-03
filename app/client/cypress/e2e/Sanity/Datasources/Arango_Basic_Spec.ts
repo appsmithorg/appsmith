@@ -23,12 +23,7 @@ if (CURRENT_REPO == REPO.CE) {
   describe(
     "Validate Arango & CURL Import Datasources",
     {
-      tags: [
-        "@tag.Datasource",
-        "@tag.Sanity",
-        "@tag.Git",
-        "@tag.AccessControl",
-      ],
+      tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
     },
     () => {
       let dsName: any,

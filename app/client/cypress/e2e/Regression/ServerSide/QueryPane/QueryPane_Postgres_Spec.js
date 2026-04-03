@@ -21,7 +21,7 @@ let datasourceName;
 
 describe(
   "Validate CRUD queries for Postgres along with UI flow verifications",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     // afterEach(function() {
     //   if (this.currentTest.state === "failed") {

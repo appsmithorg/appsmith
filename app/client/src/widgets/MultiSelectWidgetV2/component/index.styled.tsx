@@ -113,6 +113,66 @@ export const CommonSelectFilterStyle = css<{
   }
 `;
 
+/** Thumb size (vertical width / horizontal height). Horizontal track strip is 8px tall. */
+const RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX = 6;
+/** Matches vertical track width; list padding uses :has() so short lists don’t reserve a gutter. */
+const RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX = 10;
+
+const rcVirtualListScrollbarTrackBase = css`
+  box-sizing: border-box !important;
+  background-color: #fff !important;
+`;
+
+/**
+ * rc-virtual-list / rc-tree-select custom scrollbars: white track, emphasis thumb, 36px radius.
+ * Padding and gutter width stay in sync when a vertical scrollbar is mounted (`:has(...)`).
+ */
+export const RcVirtualListScrollbarStyles = css`
+  .rc-virtual-list-holder-inner,
+  .rc-tree-select-tree-list-holder-inner {
+    padding-inline-end: 0;
+  }
+  .rc-virtual-list:has(.rc-virtual-list-scrollbar-vertical)
+    .rc-virtual-list-holder-inner,
+  .rc-tree-select-tree-list:has(.rc-tree-select-tree-list-scrollbar-vertical)
+    .rc-tree-select-tree-list-holder-inner {
+    padding-inline-end: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px;
+  }
+  .rc-virtual-list-scrollbar-vertical,
+  .rc-tree-select-tree-list-scrollbar-vertical {
+    ${rcVirtualListScrollbarTrackBase}
+    width: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px !important;
+    min-width: ${RC_VIRTUAL_LIST_SCROLLBAR_GUTTER_PX}px !important;
+  }
+  .rc-virtual-list-scrollbar-horizontal,
+  .rc-tree-select-tree-list-scrollbar-horizontal {
+    ${rcVirtualListScrollbarTrackBase}
+    height: 8px !important;
+    min-height: 8px !important;
+  }
+  .rc-virtual-list-scrollbar .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    background-color: var(
+      --ads-v2-color-bg-emphasis,
+      rgba(0, 0, 0, 0.35)
+    ) !important;
+    border-radius: 36px !important;
+  }
+  .rc-virtual-list-scrollbar-vertical .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar-vertical
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    width: ${RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX}px !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 2px !important;
+  }
+  .rc-virtual-list-scrollbar-horizontal .rc-virtual-list-scrollbar-thumb,
+  .rc-tree-select-tree-list-scrollbar-horizontal
+    .rc-tree-select-tree-list-scrollbar-thumb {
+    height: ${RC_VIRTUAL_LIST_SCROLLBAR_THUMB_PX}px !important;
+  }
+`;
+
 const Indicator = styled.div`
   width: 1.2em;
   height: 1.2em;
@@ -381,6 +441,7 @@ ${({ dropDownWidth, id }) => `
       margin-bottom: 0;
     }
   }
+  ${RcVirtualListScrollbarStyles}
 }
 `;
 

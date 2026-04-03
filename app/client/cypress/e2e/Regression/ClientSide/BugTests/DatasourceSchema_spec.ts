@@ -15,7 +15,7 @@ let guid;
 let dataSourceName: string;
 describe(
   "Datasource form related tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     before(() => {
       homePage.CreateNewWorkspace("FetchSchemaOnce", true);

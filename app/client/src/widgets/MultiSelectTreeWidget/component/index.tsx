@@ -26,7 +26,10 @@ import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Icon } from "@design-system/widgets-old";
 import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
+import {
+  type LabelPosition,
+  SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX,
+} from "components/constants";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
@@ -292,6 +295,7 @@ function MultiTreeSelectComponent({
             />
           }
           key={key}
+          listItemHeight={SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX}
           loading={loading}
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}

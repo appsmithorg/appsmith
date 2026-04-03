@@ -19,7 +19,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Validate API request body panel",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

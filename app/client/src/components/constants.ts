@@ -108,6 +108,13 @@ export enum LabelPosition {
 export const SELECT_DEFAULT_HEIGHT = "32px";
 
 /**
+ * Row height passed to rc-select / rc-tree-select virtual lists. Must match dropdown
+ * option CSS (.rc-select-item, tree treenode). If smaller than real rows, the list
+ * thinks content fits, omits the scrollbar, and overflow stays hidden.
+ */
+export const SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX = 38;
+
+/**
  * Default margin bottom value for old select widgets
  */
 export const LABEL_MARGIN_OLD_SELECT = "5px";
