@@ -21,7 +21,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Rest Bugs tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

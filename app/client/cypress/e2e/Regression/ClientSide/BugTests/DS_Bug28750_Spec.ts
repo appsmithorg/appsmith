@@ -4,12 +4,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 describe.skip(
   "Datasource structure schema preview data",
   {
-    tags: [
-      "@tag.Datasource",
-      "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+    tags: ["@tag.Datasource", "@tag.excludeForAirgap", "@tag.AccessControl"],
   },
   () => {
     before(() => {

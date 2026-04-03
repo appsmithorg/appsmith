@@ -18,7 +18,7 @@ import EditorNavigation, {
 
 describe(
   "Binary Datatype tests",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string, imageNameToUpload: string;
 

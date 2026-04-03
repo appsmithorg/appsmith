@@ -24,7 +24,7 @@ let spreadSheetName = "test-sheet";
 describe.skip(
   "GSheet-widget binding",
   {
-    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.AccessControl"],
   },
   function () {
     before("Setup app and spreadsheet", function () {
