@@ -1,9 +1,12 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NetworkUtils;
@@ -30,6 +33,8 @@ import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LEN
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 public class UserSignupTest {
@@ -155,5 +160,58 @@ public class UserSignupTest {
                 .verify();
 
         organization.getOrganizationConfiguration().setIsStrongPasswordPolicyEnabled(false);
+    }
+
+    @Test
+    public void signupAndLoginSuper_WhenSlotNotClaimed_RaisesUnauthorized() {
+        Mockito.when(userService.claimSuperUserCreationSlot()).thenReturn(Mono.just(false));
+
+        UserSignupRequestDTO request = new UserSignupRequestDTO();
+        request.setEmail("admin@test.com");
+        request.setPassword("ValidP@ssw0rd!");
+        request.setName("Admin");
+        request.setSource(LoginSource.FORM);
+        request.setState(UserState.ACTIVATED);
+        request.setIsEnabled(true);
+        request.setAllowCollectingAnonymousData(false);
+
+        Mono<User> result = userSignup.signupAndLoginSuper(request, "http://localhost", exchange);
+
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithException);
+                    assertEquals(AppsmithError.UNAUTHORIZED_ACCESS.getMessage(), error.getMessage());
+                })
+                .verify();
+
+        verify(userService, never()).isUsersEmpty();
+    }
+
+    @Test
+    public void signupAndLoginSuper_WhenSlotClaimedButUsersExist_RaisesUnauthorized() {
+        Mockito.when(userService.claimSuperUserCreationSlot()).thenReturn(Mono.just(true));
+        Mockito.when(userService.isUsersEmpty()).thenReturn(Mono.just(false));
+        Mockito.when(userService.releaseSuperUserCreationSlot()).thenReturn(Mono.empty());
+
+        UserSignupRequestDTO request = new UserSignupRequestDTO();
+        request.setEmail("admin@test.com");
+        request.setPassword("ValidP@ssw0rd!");
+        request.setName("Admin");
+        request.setSource(LoginSource.FORM);
+        request.setState(UserState.ACTIVATED);
+        request.setIsEnabled(true);
+        request.setAllowCollectingAnonymousData(false);
+
+        Mono<User> result = userSignup.signupAndLoginSuper(request, "http://localhost", exchange);
+
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithException);
+                    assertEquals(AppsmithError.UNAUTHORIZED_ACCESS.getMessage(), error.getMessage());
+                })
+                .verify();
+
+        verify(userService).isUsersEmpty();
+        verify(userService).releaseSuperUserCreationSlot();
     }
 }
