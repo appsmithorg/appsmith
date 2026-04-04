@@ -258,6 +258,11 @@ jobs:
   build-deploy-preview:
     needs: [resolve-params, push-image]
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
     defaults:
       run:
         working-directory: "."
@@ -295,10 +300,14 @@ jobs:
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
           kubectl version || true
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+
       - name: Deploy Helm chart
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           IMAGE_HASH: ${{ needs.push-image.outputs.imageHash }}
           AWS_RELEASE_CERT: ${{ secrets.APPSMITH_AWS_RELEASE_CERT_RELEASE }}
           DOCKER_HUB_ORGANIZATION: ${{ vars.DOCKER_HUB_ORGANIZATION }}

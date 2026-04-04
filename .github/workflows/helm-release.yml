@@ -15,6 +15,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     defaults:
       run:
         working-directory: deploy/helm
@@ -29,6 +33,12 @@ jobs:
         with:
           version: v3.6.3
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.HELM_AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
       - name: Get the chart version
         id: chart-version
         run: |
@@ -40,8 +50,6 @@ jobs:
       # If an archive with this version already exists in the bucket, fail immediately.
       - name: Check chart version is not already published
         env:
-          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
           AWS_EC2_METADATA_DISABLED: true
         run: |
           set -o xtrace
@@ -57,8 +65,6 @@ jobs:
           fi
       - name: Publish Helm
         env:
-          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
           # Not really sure why this is needed, but without it, we see the error:
           #   <botocore.awsrequest.AWSRequest object at 0x7fde607adac0>
           #   Error: Process completed with exit code 255.

@@ -8,6 +8,11 @@ on:
 jobs:
   execute:
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       # Checkout the code
       - uses: actions/checkout@v2
@@ -32,11 +37,14 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+
       - name: Delete Helm chart
         env:
-          AWS_ROLE_ARN: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
