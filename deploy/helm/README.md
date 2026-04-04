@@ -22,7 +22,7 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
 ---
 * Install Helm package manager: [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/)
 * Ensure `kubectl` is installed and configured to connect to your cluster
-    * Install kubectl: [kubernetes.io/vi/docs/tasks/tools/install-kubectl/](https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/)
+    * Install kubectl: [https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/](https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/)
     * Minikube: [Setup Kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/)
     * Google Cloud Kubernetes: [Configuring cluster access for kubectl](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
     * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
