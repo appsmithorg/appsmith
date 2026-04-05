@@ -186,9 +186,12 @@ describe(
         `{{JSON.parse(Api1.data).map((item) => {return {"label":item.value, "value":item.abbr};})}}`,
       );
       agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
       );
       agHelper.AssertElementExist(locators._treeSelectTitle);
+      agHelper.GetNClick(
+        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
+      );
     });
 
     it("6. Verify onOptionChange with query", () => {
@@ -228,13 +231,41 @@ describe(
       );
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       deployMode.DeployApp();
-      agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
+      const treeSelectWidget = `${locators._widgetInDeployed("singleselecttreewidget")}`;
+      const treeSelectClickTarget = `${treeSelectWidget} ${locators._treeSelectSelector}`;
+      const dropdownOpenClass = "rc-tree-select-open";
+      agHelper.WaitUntilEleAppear(treeSelectClickTarget);
+      // Phase 1: Click selector until the dropdown is confirmed open.
+      // Uses the library's own open-state class on the widget root, not
+      // the dropdown content, so a slow option render cannot cause a
+      // toggle-close retry.
+      cy.waitUntil(
+        () => {
+          const isOpen =
+            Cypress.$(`${treeSelectWidget} .rc-tree-select`).hasClass(
+              dropdownOpenClass,
+            );
+          if (!isOpen) {
+            cy.get(treeSelectClickTarget).first().click();
+          }
+          return cy.then(() =>
+            Cypress.$(`${treeSelectWidget} .rc-tree-select`).hasClass(
+              dropdownOpenClass,
+            ),
+          );
+        },
+        {
+          errorMsg:
+            "TreeSelect dropdown did not open after clicking the selector",
+          timeout: Cypress.config().pageLoadTimeout,
+          interval: 1000,
+        },
       );
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
-      );
-      agHelper.AssertElementVisibility(locators._treeSelectTitle);
+      // Phase 2: Dropdown is open — wait for the specific option to be
+      // visible before clicking it.
+      cy.xpath(locators._dropDownMultiTreeValue("Green"), {
+        timeout: 10000,
+      }).should("be.visible");
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
       agHelper.ValidateToastMessage("Success");
     });
