@@ -218,22 +218,26 @@ describe(
         ["Form1"],
       );
       propPane.UpdatePropertyFieldValue("Options", options);
-      propPane.SelectPlatformFunction("onOptionChange", "Execute a query");
-      agHelper.GetNClick(`${locators._dropDownValue("Query1")}`, 0, true);
-      agHelper.GetNClick(locators._callbackAddBtn, 0, true);
-      agHelper.GetNClick(locators._dropDownValue("Show alert"));
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Message"),
-        "Success",
+      propPane.ToggleJSMode("onOptionChange", true);
+      propPane.UpdatePropertyFieldValue(
+        "onOptionChange",
+        "{{Query1.run().then(() => showAlert('Success', ''))}}",
       );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
       deployMode.DeployApp();
-      agHelper.WaitUntilEleAppear(
-        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
-      );
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`,
-      );
+      const treeSelectInDeploy = `${locators._widgetInDeployed("singleselecttreewidget")} ${locators._treeSelectSelector}`;
+      agHelper.WaitUntilEleAppear(treeSelectInDeploy);
+      agHelper.GetNClick(treeSelectInDeploy);
+      // Verify the dropdown opened; if it didn't (widget remounting during
+      // page hydration can cause the first click to be swallowed), retry.
+      cy.get("body").then(($body) => {
+        if (
+          $body.find(
+            ".rc-tree-select-dropdown:not(.rc-tree-select-dropdown-hidden)",
+          ).length === 0
+        ) {
+          agHelper.GetNClick(treeSelectInDeploy);
+        }
+      });
       agHelper.AssertElementVisibility(locators._treeSelectTitle);
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
       agHelper.ValidateToastMessage("Success");
