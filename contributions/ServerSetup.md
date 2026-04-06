@@ -46,7 +46,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 
 - Java - OpenJDK 25 (Eclipse Temurin recommended).
 - Maven - Version 3.9+ (preferably 3.9.12).
-- Node.js - Version 20.11.1 (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
+- Node.js - Version 24.14.1 (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
 - A MongoDB database - Refer to the [Setting up a local MongoDB instance](#setting-up-a-local-mongodb-instance) section to setup a MongoDB instance using `Docker`.
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development. To set it up, refer to the [Setting up IntelliJ IDEA](#setting-up-intellij-idea) section.
