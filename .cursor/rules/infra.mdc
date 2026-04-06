@@ -1,0 +1,42 @@
+---
+description: Infrastructure — RTS, deployment (Docker/Helm/AWS), Keycloak SSO, CI scripts
+globs:
+alwaysApply: false
+---
+# Infrastructure & Deployment
+
+## RTS — Real-Time Server (`app/client/packages/rts/`)
+
+- **Stack:** TypeScript, Express.js (Node.js)
+- **Build:** Yarn (part of client workspaces), custom `build.sh`
+- **Entry point:** `src/server.ts`
+- **Purpose:** Real-time features, SCIM user provisioning, workflow proxying (Temporal), analytics
+- **Instrumentation:** OpenTelemetry, Sentry
+- **Key dirs:** `controllers/`, `routes/`, `services/`, `middlewares/`, `scim/`, `workflowProxy/`, `ce/`, `ee/`
+
+## Deployment (`deploy/`)
+
+| Subdirectory | Purpose |
+|---|---|
+| `docker/` | Main deployment — `docker-compose.yml`, Caddy, entrypoints, healthchecks, run scripts |
+| `helm/` | Kubernetes Helm chart |
+| `aws/` | AWS deployment scripts |
+| `aws_ami/` | AMI building configs |
+| `ansible/` | Ansible playbooks |
+| `heroku/` | Heroku config |
+| `digital_ocean/` | DigitalOcean deployment |
+| `packer/` | Machine image templates |
+
+**Caddy (reverse proxy):** Config in `deploy/docker/fs/opt/appsmith/`. `caddy-reconfigure.mjs` generates Caddyfile from env vars. `run-caddy.sh` starts Caddy.
+
+## Keycloak SSO (`app/keycloak-docker-config/`)
+
+Systemd service template for Keycloak 16.1.1 as identity provider (SSO/SAML/OIDC) in enterprise deployments.
+
+## CI/CD Scripts (`scripts/`)
+
+Key scripts: `deploy_preview.sh`, `build_dp_from_branch.sh`, `cleanup_dp.sh`, `health_check.sh`, `generate_info_json.sh`, `prepare_server_artifacts.sh`, `local_testing.sh`
+
+## Developer Docs (`contributions/`)
+
+Setup guides (`ClientSetup.md`, `ServerSetup.md`), contribution guidelines, widget development guide, custom JS library docs.
