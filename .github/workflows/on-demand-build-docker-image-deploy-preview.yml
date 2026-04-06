@@ -258,11 +258,9 @@ jobs:
   build-deploy-preview:
     needs: [resolve-params, push-image]
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       id-token: write
-
     defaults:
       run:
         working-directory: "."
@@ -305,12 +303,6 @@ jobs:
           curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
           kubectl version || true
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
-          aws-region: ap-south-1
 
       - name: Deploy Helm chart
         env:
