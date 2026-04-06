@@ -1,0 +1,198 @@
+name: Appsmith Playwright E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Playwright project (smoke, sanity, regression, regression-git, chromium, chromium-ee). Empty = all projects."
+        required: false
+        type: string
+        default: ""
+      feature:
+        description: "Feature subdirectory within tier (e.g. git, datasource). Only used with tier projects."
+        required: false
+        type: string
+        default: ""
+      flag_overrides:
+        description: 'JSON feature flag overrides merged on top of real server response (e.g. {"flag":true})'
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        description: Docker image name
+        required: false
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      project:
+        description: "Playwright project (smoke, sanity, regression, regression-git, chromium, chromium-ee). Empty = all projects."
+        required: false
+        type: string
+        default: ""
+      feature:
+        description: "Feature subdirectory within tier (e.g. git, datasource)"
+        required: false
+        type: string
+        default: ""
+      flag_overrides:
+        description: "JSON feature flag overrides"
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        description: Docker image name
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  playwright-test:
+    runs-on: warp-ubuntu-latest-x64-4x
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        shell: bash
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.pr != 0 && format('refs/pull/{0}/merge', inputs.pr) || '' }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      - name: Restore Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
+      - name: Install dependencies
+        working-directory: app/client
+        run: yarn install --immutable
+
+      - name: Install Playwright Chromium
+        working-directory: app/client
+        run: npx playwright install chromium --with-deps
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ hashFiles('app/client/yarn.lock') }}
+
+      - name: Get Docker image
+        run: |
+          if [[ '${{ inputs.docker_image_name }}' != '' ]]; then
+            echo 'docker_container_name=${{ inputs.docker_image_name }}' >> "$GITHUB_ENV"
+          else
+            echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+          fi
+
+      - name: Restore Docker image cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: docker-image-${{ github.run_id }}
+
+      - name: Load Docker image
+        run: |
+          if [[ '${{ inputs.docker_image_name }}' == '' ]]; then
+            gunzip ${{ env.docker_container_name }}.tar.gz
+            docker load -i ${{ env.docker_container_name }}.tar
+          else
+            docker pull ${{ env.docker_container_name }}
+          fi
+
+      - name: Start Appsmith container
+        run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 \
+            -v "$PWD/stacks:/appsmith-stacks" \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
+            ${{ env.docker_container_name }}
+
+      - name: Wait for Appsmith to be ready
+        run: |
+          for i in $(seq 1 30); do
+            status=$(curl -o /dev/null -s -w "%{http_code}" http://localhost/api/v1/users || echo "000")
+            if [ "$status" -ne "502" ] && [ "$status" -ne "000" ]; then
+              echo "Appsmith is ready (status: $status)"
+              break
+            fi
+            echo "Waiting for Appsmith... attempt $i (status: $status)"
+            sleep 10
+          done
+
+      - name: Run Playwright tests (attempt 1)
+        id: attempt1
+        continue-on-error: true
+        working-directory: app/client
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost
+          USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          PW_FLAG_OVERRIDES: ${{ inputs.flag_overrides }}
+        run: |
+          ARGS=""
+          if [[ -n "${{ inputs.project }}" ]]; then
+            ARGS="--project=${{ inputs.project }}"
+          fi
+          if [[ -n "${{ inputs.feature }}" ]]; then
+            ARGS="$ARGS tests/*/${{ inputs.feature }}/"
+          fi
+          npx playwright test $ARGS --reporter=blob
+
+      - name: Run Playwright tests (rerun failures)
+        if: steps.attempt1.outcome == 'failure'
+        working-directory: app/client
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost
+          USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          PW_FLAG_OVERRIDES: ${{ inputs.flag_overrides }}
+        run: npx playwright test --last-failed --reporter=blob
+
+      - name: Merge reports
+        if: always()
+        working-directory: app/client
+        run: npx playwright merge-reports --reporter=html,json ./blob-report
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            app/client/playwright-report/
+            app/client/playwright/results/
+          retention-days: 14
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ github.run_id }}
+          path: app/client/playwright/results/**/*.zip
+          retention-days: 7
