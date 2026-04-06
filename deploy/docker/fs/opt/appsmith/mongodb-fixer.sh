@@ -17,10 +17,10 @@ tlog "MongoDB is RUNNING"
 
 for _ in {1..60}; do
   if mongosh --quiet "$APPSMITH_DB_URL" --eval '
-    parseFloat(db.adminCommand({getParameter: 1, featureCompatibilityVersion: 1}).featureCompatibilityVersion.version) < 6 &&
-      db.adminCommand({setFeatureCompatibilityVersion: "6.0"})
+    parseFloat(db.adminCommand({getParameter: 1, featureCompatibilityVersion: 1}).featureCompatibilityVersion.version) < 7 &&
+      db.adminCommand({setFeatureCompatibilityVersion: "7.0", confirm: true})
   '; then
-    tlog "MongoDB version set to 6.0"
+    tlog "MongoDB featureCompatibilityVersion set to 7.0"
     break
   fi
   sleep 1

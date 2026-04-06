@@ -258,6 +258,9 @@ jobs:
   build-deploy-preview:
     needs: [resolve-params, push-image]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: "."
@@ -269,6 +272,12 @@ jobs:
         with:
           ref: "refs/pull/${{ needs.resolve-params.outputs.pr_number }}/merge"
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+
       - name: Print versions of tools
         run: |
           set -o errexit
@@ -279,10 +288,10 @@ jobs:
 
       - name: Install mongosh
         run: |
-          curl -fsSL https://pgp.mongodb.com/server-6.0.asc \
-            | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-          echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" \
-            | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          curl -fsSL https://pgp.mongodb.com/server-7.0.asc \
+            | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+          echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" \
+            | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
           sudo apt-get update
           sudo apt-get install --yes mongodb-mongosh
           echo "MongoSH version: $(mongosh --version)"
@@ -297,8 +306,6 @@ jobs:
 
       - name: Deploy Helm chart
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           IMAGE_HASH: ${{ needs.push-image.outputs.imageHash }}
           AWS_RELEASE_CERT: ${{ secrets.APPSMITH_AWS_RELEASE_CERT_RELEASE }}
           DOCKER_HUB_ORGANIZATION: ${{ vars.DOCKER_HUB_ORGANIZATION }}

@@ -232,6 +232,96 @@ check_db_uri() {
   fi
 }
 
+check_mongodb_compatibility() {
+  # Only check when there is existing data from a previous MongoDB version.
+  # If the data was created with FCV < 6.0, MongoDB 7.0 cannot start on it.
+  local has_existing_data=0
+  for path in \
+    "$MONGO_DB_PATH/WiredTiger" \
+    "$MONGO_DB_PATH/journal" \
+    "$MONGO_DB_PATH/local.0" \
+    "$MONGO_DB_PATH/storage.bson"; do
+    if [[ -e "$path" ]]; then
+      has_existing_data=1
+      break
+    fi
+  done
+
+  if [[ $has_existing_data -eq 0 ]]; then
+    tlog "No existing MongoDB data found, skipping compatibility check"
+    return 0
+  fi
+
+  tlog "Existing MongoDB data found, checking compatibility with MongoDB 7.0"
+
+  local check_log="$TMP/mongodb-compat-check.log"
+
+  # Attempt to start mongod 7.0 against the existing data directory.
+  # If the data has FCV < 6.0, mongod 7.0 will refuse to start.
+  if mongod --fork --port 27117 --dbpath "$MONGO_DB_PATH" --logpath "$check_log" --bind_ip localhost 2>/dev/null; then
+    # mongod started — query the FCV to be sure
+    local fcv
+    fcv=$(mongosh --quiet --port 27117 --eval '
+      db.adminCommand({getParameter: 1, featureCompatibilityVersion: 1}).featureCompatibilityVersion.version
+    ' 2>/dev/null || echo "unknown")
+
+    # Shut down the check instance
+    mongod --port 27117 --dbpath "$MONGO_DB_PATH" --shutdown 2>/dev/null || true
+
+    if [[ "$fcv" == "unknown" ]]; then
+      tlog "Warning: Could not determine featureCompatibilityVersion, proceeding anyway"
+      return 0
+    fi
+
+    local fcv_major
+    fcv_major=$(echo "$fcv" | cut -d. -f1)
+
+    if [[ "$fcv_major" -lt 6 ]]; then
+      echo "" >&2
+      echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+      echo -e "\033[0;31m  MONGODB UPGRADE ERROR\033[0m" >&2
+      echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+      echo -e "\033[0;31m\033[0m" >&2
+      echo -e "\033[0;31m  Your MongoDB data has featureCompatibilityVersion $fcv, which is too old for MongoDB 7.0.\033[0m" >&2
+      echo -e "\033[0;31m  MongoDB 7.0 requires featureCompatibilityVersion 6.0 or later.\033[0m" >&2
+      echo -e "\033[0;31m\033[0m" >&2
+      echo -e "\033[0;31m  To upgrade safely:\033[0m" >&2
+      echo -e "\033[0;31m    1. Run Appsmith v1.52 (the last version with MongoDB 6.0) and let it start fully.\033[0m" >&2
+      echo -e "\033[0;31m       This will automatically upgrade your data to featureCompatibilityVersion 6.0.\033[0m" >&2
+      echo -e "\033[0;31m    2. Stop Appsmith v1.52 cleanly.\033[0m" >&2
+      echo -e "\033[0;31m    3. Then upgrade to this version.\033[0m" >&2
+      echo -e "\033[0;31m\033[0m" >&2
+      echo -e "\033[0;31m  See: https://docs.appsmith.com/getting-started/setup/upgrade-to-latest\033[0m" >&2
+      echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+      exit 1
+    fi
+
+    tlog "MongoDB featureCompatibilityVersion is $fcv — compatible with MongoDB 7.0"
+    return 0
+  fi
+
+  # mongod failed to start — this likely means the data is incompatible
+  echo "" >&2
+  echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+  echo -e "\033[0;31m  MONGODB UPGRADE ERROR\033[0m" >&2
+  echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+  echo -e "\033[0;31m\033[0m" >&2
+  echo -e "\033[0;31m  MongoDB 7.0 could not start with your existing data directory.\033[0m" >&2
+  echo -e "\033[0;31m  This usually means your data was created with MongoDB 5.0 or earlier\033[0m" >&2
+  echo -e "\033[0;31m  and needs an intermediate upgrade to MongoDB 6.0 first.\033[0m" >&2
+  echo -e "\033[0;31m\033[0m" >&2
+  echo -e "\033[0;31m  To upgrade safely:\033[0m" >&2
+  echo -e "\033[0;31m    1. Run Appsmith v1.52 (the last version with MongoDB 6.0) and let it start fully.\033[0m" >&2
+  echo -e "\033[0;31m       This will automatically upgrade your data to featureCompatibilityVersion 6.0.\033[0m" >&2
+  echo -e "\033[0;31m    2. Stop Appsmith v1.52 cleanly.\033[0m" >&2
+  echo -e "\033[0;31m    3. Then upgrade to this version.\033[0m" >&2
+  echo -e "\033[0;31m\033[0m" >&2
+  echo -e "\033[0;31m  Check log for details: $check_log\033[0m" >&2
+  echo -e "\033[0;31m  See: https://docs.appsmith.com/getting-started/setup/upgrade-to-latest\033[0m" >&2
+  echo -e "\033[0;31m====================================================================================================\033[0m" >&2
+  exit 1
+}
+
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
     tlog "Initializing local database"
@@ -240,6 +330,8 @@ init_mongodb() {
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
+
+    check_mongodb_compatibility
 
     if [[ ! -f "$MONGO_DB_KEY" ]]; then
       openssl rand -base64 756 > "$MONGO_DB_KEY"
