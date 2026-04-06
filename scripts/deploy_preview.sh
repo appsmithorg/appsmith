@@ -5,14 +5,7 @@ set -euo pipefail
 
 edition="ce"
 
-# Configure AWS CLI and kubectl environment
-mkdir -p ~/.aws
-cat > ~/.aws/config <<EOF
-[default]
-region = ap-south-1
-output = json
-EOF
-
+# AWS credentials are provided via OIDC (configure-aws-credentials action)
 export region="ap-south-1"
 export cluster_name="uatx-cluster"
 
