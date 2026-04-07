@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.pr != 0 && format('refs/pull/{0}/merge', inputs.pr) || (inputs.branch != '' && inputs.branch || github.sha) }}
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -97,7 +97,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ inputs.pr }}
-      skip-tests: true
+      skip-tests: "true"
       branch: ${{ inputs.branch }}
 
   rts-build:
