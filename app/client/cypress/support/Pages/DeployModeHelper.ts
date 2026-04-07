@@ -234,28 +234,33 @@ export class DeployMode {
     cy.get("body").type("{esc}");
   }
 
-  private scrollVirtualListToOption(option: string) {
+  private scrollVirtualListToOption(option: string): Cypress.Chainable<void> {
     const selector = this.locator._multiSelectOptions(option);
 
-    cy.get(".rc-virtual-list-holder").then(($holder) => {
-      if (Cypress.$(selector).length > 0) return;
+    return cy
+      .get(this.locator._rcVirtualListHolder)
+      .then(($holder) => {
+        if (Cypress.$(selector).length > 0) return;
 
-      const holder = $holder[0];
-      const step = 100;
-      const maxScroll = holder.scrollHeight - holder.clientHeight;
+        const holder = $holder[0];
+        const step = 100;
+        const maxScroll = holder.scrollHeight - holder.clientHeight;
 
-      const scroll = (pos: number) => {
-        holder.scrollTop = pos;
+        const scroll = (pos: number): Cypress.Chainable<void> => {
+          holder.scrollTop = pos;
 
-        return cy.wait(50).then(() => {
-          if (Cypress.$(selector).length > 0) return;
-          if (pos >= maxScroll) return;
+          // rc-virtual-list renders items asynchronously after scrollTop changes;
+          // a short wait is needed because there is no DOM event or Cypress-retryable
+          // assertion to detect when the virtual list has finished re-rendering.
+          return cy.wait(50).then(() => {
+            if (Cypress.$(selector).length > 0) return;
+            if (pos >= maxScroll) return;
 
-          return scroll(pos + step);
-        });
-      };
+            return scroll(pos + step);
+          });
+        };
 
-      scroll(0);
-    });
+        return scroll(0);
+      });
   }
 }
