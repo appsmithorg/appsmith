@@ -1,5 +1,6 @@
 import { test, expect } from "../../../fixtures";
 import { loadMigrationState } from "../../../helpers/migration-state";
+import { API } from "../../../constants/api-routes";
 import { SELECTORS } from "../../../constants/selectors";
 import { DeployPage } from "../../../page-objects/deploy.page";
 
@@ -13,7 +14,9 @@ test.describe("Migration v1.9.24 — Modal & JSON Form (Widgets page)", () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto(`/app/${appSlug}/widgets-*`);
-    await page.waitForLoadState("networkidle");
+    await expect(
+      page.getByRole("button", { name: "Add customer Details" }),
+    ).toBeVisible();
   });
 
   test("add customer via modal form, then delete", async ({ page }) => {
@@ -27,7 +30,7 @@ test.describe("Migration v1.9.24 — Modal & JSON Form (Widgets page)", () => {
     await deploy.fillJsonInput("Phone Number", "999999999");
 
     const addResponse = page.waitForResponse(
-      (r) => r.url().includes("/api/v1/actions/execute") && r.ok(),
+      (r) => r.url().includes(API.actionsExecute) && r.ok(),
     );
     await page.getByRole("button", { name: "Submit" }).nth(1).click();
     await addResponse;
@@ -43,7 +46,7 @@ test.describe("Migration v1.9.24 — Modal & JSON Form (Widgets page)", () => {
     await expect(page.locator(SELECTORS.modal)).toBeVisible();
 
     const deleteResponse = page.waitForResponse(
-      (r) => r.url().includes("/api/v1/actions/execute") && r.ok(),
+      (r) => r.url().includes(API.actionsExecute) && r.ok(),
     );
     await page.getByRole("button", { name: "Confirm" }).click();
     await deleteResponse;

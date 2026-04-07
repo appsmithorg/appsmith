@@ -1,5 +1,6 @@
 import { test, expect } from "../../../fixtures";
 import { loadMigrationState } from "../../../helpers/migration-state";
+import { SELECTORS } from "../../../constants/selectors";
 import { TableComponent } from "../../../page-objects/components/table.component";
 
 test.describe("Migration v1.9.24 — MySQL CRUD (CountryFlags)", () => {
@@ -12,11 +13,9 @@ test.describe("Migration v1.9.24 — MySQL CRUD (CountryFlags)", () => {
 
   test("table renders with countryFlags data", async ({ page }) => {
     await page.goto(`/app/${appSlug}/countryflags-*`);
-    await page.waitForLoadState("networkidle");
 
-    await expect(page.locator(".t--widget-textwidget").first()).toContainText(
-      "countryFlags Data",
-    );
+    const heading = page.locator(SELECTORS.widgetInDeployed("text")).first();
+    await expect(heading).toContainText("countryFlags Data");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -27,7 +26,6 @@ test.describe("Migration v1.9.24 — MySQL CRUD (CountryFlags)", () => {
     page,
   }) => {
     await page.goto(`/app/${appSlug}/countryflags-*`);
-    await page.waitForLoadState("networkidle");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -41,7 +39,6 @@ test.describe("Migration v1.9.24 — MySQL CRUD (CountryFlags)", () => {
 
   test("download CSV contains Bangladesh", async ({ page }) => {
     await page.goto(`/app/${appSlug}/countryflags-*`);
-    await page.waitForLoadState("networkidle");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();

@@ -1,7 +1,7 @@
 import { test, expect } from "../../../fixtures";
 import { loadMigrationState } from "../../../helpers/migration-state";
+import { SELECTORS } from "../../../constants/selectors";
 import { TableComponent } from "../../../page-objects/components/table.component";
-import { DeployPage } from "../../../page-objects/deploy.page";
 
 test.describe("Migration v1.9.24 — MongoDB CRUD", () => {
   let appSlug: string;
@@ -13,11 +13,9 @@ test.describe("Migration v1.9.24 — MongoDB CRUD", () => {
 
   test("table renders with listingAndReviews data", async ({ page }) => {
     await page.goto(`/app/${appSlug}/listingandreviews-*`);
-    await page.waitForLoadState("networkidle");
 
-    await expect(page.locator(".t--widget-textwidget").first()).toContainText(
-      "listingAndReviews Data",
-    );
+    const heading = page.locator(SELECTORS.widgetInDeployed("text")).first();
+    await expect(heading).toContainText("listingAndReviews Data");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -26,7 +24,6 @@ test.describe("Migration v1.9.24 — MongoDB CRUD", () => {
 
   test("filter by _id returns correct amenities", async ({ page }) => {
     await page.goto(`/app/${appSlug}/listingandreviews-*`);
-    await page.waitForLoadState("networkidle");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();

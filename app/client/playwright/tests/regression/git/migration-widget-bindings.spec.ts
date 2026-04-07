@@ -13,7 +13,9 @@ test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto(`/app/${appSlug}/widgets-*`);
-    await page.waitForLoadState("networkidle");
+    await expect(
+      page.locator(SELECTORS.widgetInDeployed("audio")),
+    ).toBeVisible();
   });
 
   test("media and chart widgets are visible", async ({ page }) => {

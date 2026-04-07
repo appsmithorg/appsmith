@@ -61,20 +61,27 @@ expect(await locator.count()).toBe(5);
 
 ## Wait Strategy
 
-Never use hard waits. Always wait for a condition:
+Never use hard waits. Always wait for a specific condition:
 
 ```typescript
-// BAD
+// BAD — hard timeout
 await page.waitForTimeout(500);
 
-// GOOD — wait for element
-await expect(page.getByText("Saved")).toBeVisible();
+// BAD — networkidle is unreliable (waits for "no requests for 500ms", flaky and slow)
+await page.waitForLoadState("networkidle");
 
-// GOOD — wait for API response after mutation
+// GOOD — wait for the element that proves the page is ready
+await expect(page.locator(SELECTORS.widgetInDeployed("text")).first()).toBeVisible();
+
+// GOOD — wait for API response after a mutation
 const response = page.waitForResponse(r => r.url().includes(API.actionsExecute));
 await page.getByRole("button", { name: "Update" }).click();
 await response;
 ```
+
+After `page.goto()`, wait for the **first meaningful element** the test cares about — a heading, a table,
+a button. Playwright's auto-waiting on assertions handles this naturally. Never use `networkidle` as a
+substitute for identifying what "page ready" actually means for your test.
 
 ## Test Structure
 
@@ -258,6 +265,25 @@ use a **setup project** rather than `test.describe.serial()` or duplicating setu
 - State files contain only IDs, slugs, names — never tokens or credentials
 - Tests **never write** to the state file — read-only consumption
 - If a test needs to mutate shared data (e.g., update a DB row), it must restore original state in `afterEach`
+
+## Bulk File Generation Checklist
+
+When generating multiple test files in a batch, **lint-check incrementally** — don't write everything then review.
+
+After writing **each** spec file, verify:
+
+1. **No `networkidle`** — every `page.goto()` must be followed by an `expect(locator).toBeVisible()` or
+   similar condition, never `waitForLoadState("networkidle")`
+2. **No hardcoded API URLs** — every API path string must come from `constants/api-routes.ts` (`API.actionsExecute`,
+   not `"/api/v1/actions/execute"`)
+3. **No inline CSS selectors** — every widget/element selector must come from `constants/selectors.ts`
+   (`SELECTORS.widgetInDeployed("text")`, not `".t--widget-textwidget"`)
+4. **No unused imports** — if a POM or constant was imported speculatively, remove it before moving on
+5. **Run ESLint** — `npx eslint <file> --ext .ts` catches `networkidle`, hard waits, and non-retrying assertions
+
+The agent's default instinct during batch generation is to reach for the "easiest" pattern (`networkidle`,
+inline strings, speculative imports). This checklist exists because that instinct directly violates the
+conventions this file defines.
 
 ## CE / EE Separation
 

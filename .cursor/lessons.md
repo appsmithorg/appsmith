@@ -65,3 +65,14 @@ This is identical to how `auth.setup.ts` writes `storageState` to `playwright/au
 3. **Shared setup project** — import once, save state to JSON, N tests run in parallel reading it
 
 **Lesson:** When setup is cheap (API create workspace ~1s), let each test do its own (Option 2). When setup is expensive (Git import ~10-30s, data seeding), use a setup project (Option 3). The coordination file only carries IDs/URLs between processes — the actual data lives in the database. Don't default to `test.describe.serial()` just because Cypress forced shared state via `testIsolation: false`.
+
+## Playwright: Convention Drift During Bulk File Generation
+**Date:** 2026-04-03
+**Context:** Generated 5 migration test files in a batch — all violated two rules we explicitly set up
+
+When generating multiple files in a batch, the agent drifted from agreed conventions:
+1. Used `page.waitForLoadState("networkidle")` in every spec despite having an ESLint rule banning it and a Cursor rule explaining why.
+2. Used hardcoded `"/api/v1/actions/execute"` instead of `API.actionsExecute` from `constants/api-routes.ts`.
+3. Used inline `.t--widget-textwidget` instead of `SELECTORS.widgetInDeployed("text")` from `constants/selectors.ts`.
+
+**Lesson:** After generating multiple files, audit every file against the established rules — especially wait strategies and constant usage. The `networkidle` shortcut and string literals are the path of least resistance during generation; they're the first things to check. Run ESLint before declaring done: `npx eslint playwright/tests/ --ext .ts`.

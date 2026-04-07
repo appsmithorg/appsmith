@@ -1,5 +1,7 @@
 import { test, expect } from "../../../fixtures";
 import { loadMigrationState } from "../../../helpers/migration-state";
+import { API } from "../../../constants/api-routes";
+import { SELECTORS } from "../../../constants/selectors";
 import { TableComponent } from "../../../page-objects/components/table.component";
 import { DeployPage } from "../../../page-objects/deploy.page";
 
@@ -13,11 +15,9 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
 
   test("table renders with astronauts data", async ({ page }) => {
     await page.goto(`/app/${appSlug}/public-astronauts-*`);
-    await page.waitForLoadState("networkidle");
 
-    await expect(page.locator(".t--widget-textwidget").first()).toContainText(
-      "public_astronauts Data",
-    );
+    const heading = page.locator(SELECTORS.widgetInDeployed("text")).first();
+    await expect(heading).toContainText("public_astronauts Data");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -26,7 +26,6 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
 
   test("filter by id=196 returns Ulf Merbold", async ({ page }) => {
     await page.goto(`/app/${appSlug}/public-astronauts-*`);
-    await page.waitForLoadState("networkidle");
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -38,7 +37,6 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
 
   test("update astronaut status via JSON form", async ({ page }) => {
     await page.goto(`/app/${appSlug}/public-astronauts-*`);
-    await page.waitForLoadState("networkidle");
 
     const deploy = new DeployPage(page);
     const table = new TableComponent(page, "data_table");
@@ -48,7 +46,7 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
     await deploy.fillJsonInput("Statusname", "Active");
 
     const updateResponse = page.waitForResponse(
-      (r) => r.url().includes("/api/v1/actions/execute") && r.ok(),
+      (r) => r.url().includes(API.actionsExecute) && r.ok(),
     );
     await deploy.clickButton("Update").click();
     await updateResponse;
