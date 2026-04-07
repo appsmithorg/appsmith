@@ -437,11 +437,11 @@ public class GitUtilsTest {
     @ParameterizedTest
     @ValueSource(
             strings = {
-                "git@github.com:user/repo.git",
-                "git@gitlab.com:user/repo.git",
-                "git@bitbucket.org:user/repo.git",
-                "ssh://git@github.com/user/repo.git",
-                "git@ssh.dev.azure.com:v3/org/project/repo.git",
+                "git@1.1.1.1:user/repo.git",
+                "git@8.8.8.8:user/repo.git",
+                "git@9.9.9.9:user/repo.git",
+                "ssh://git@1.0.0.1/user/repo.git",
+                "git@208.67.222.222:v3/org/project/repo.git",
             })
     public void validateGitSshUrl_PublicHosts_Allowed(String allowedUrl) {
         StepVerifier.create(GitUtils.validateGitSshUrl(allowedUrl)).verifyComplete();
@@ -480,5 +480,35 @@ public class GitUtilsTest {
                     assertThat(error).isInstanceOf(AppsmithException.class);
                 })
                 .verify();
+    }
+
+    @Test
+    public void validatePersistedGitSshUrl_NullOrEmpty_CompletesEmpty() {
+        StepVerifier.create(GitUtils.validatePersistedGitSshUrl(null)).verifyComplete();
+        StepVerifier.create(GitUtils.validatePersistedGitSshUrl("")).verifyComplete();
+    }
+
+    @Test
+    public void validatePersistedGitSshUrl_HttpsUrl_CompletesEmpty() {
+        StepVerifier.create(GitUtils.validatePersistedGitSshUrl("https://github.com/user/repo.git"))
+                .verifyComplete();
+    }
+
+    @Test
+    public void validatePersistedGitSshUrl_BlockedSshUrl_ThrowsError() {
+        StepVerifier.create(GitUtils.validatePersistedGitSshUrl("git@127.0.0.1:user/repo.git"))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    AppsmithException appsmithException = (AppsmithException) error;
+                    assertThat(appsmithException.getAppErrorCode())
+                            .isEqualTo(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED.getAppErrorCode());
+                })
+                .verify();
+    }
+
+    @Test
+    public void validatePersistedGitSshUrl_AllowedSshUrl_CompletesEmpty() {
+        StepVerifier.create(GitUtils.validatePersistedGitSshUrl("git@8.8.8.8:user/repo.git"))
+                .verifyComplete();
     }
 }

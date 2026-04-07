@@ -98,6 +98,32 @@ public class GitUtils {
     }
 
     /**
+     * Defense-in-depth validation for persisted remote URLs before outbound SSH operations.
+     * Unlike {@link #validateGitSshUrl(String)}, this method gracefully skips null/empty URLs
+     * and non-SSH URLs (e.g. HTTPS), since those don't trigger the SSH SSRF vector.
+     *
+     * @param remoteUrl the persisted Git remote URL to validate
+     * @return a Mono that completes empty if allowed or not an SSH URL, or errors if blocked
+     */
+    public static Mono<Void> validatePersistedGitSshUrl(String remoteUrl) {
+        if (StringUtils.isEmptyOrNull(remoteUrl)) {
+            return Mono.empty();
+        }
+
+        String host = extractHostFromGitUrl(remoteUrl);
+        if (host == null) {
+            // Not an SSH URL (e.g. HTTPS) — no SSH SSRF risk, skip validation
+            return Mono.empty();
+        }
+
+        return Mono.fromCallable(() -> WebClientUtils.resolveIfAllowed(host))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(resolved -> resolved.isPresent()
+                        ? Mono.<Void>empty()
+                        : Mono.error(new AppsmithException(AppsmithError.GIT_REMOTE_URL_HOST_BLOCKED, host)));
+    }
+
+    /**
      * Sample repo urls :
      * git@example.com:user/repoName.git
      * ssh://git@example.org/<workspace_ID>/<repo_name>.git

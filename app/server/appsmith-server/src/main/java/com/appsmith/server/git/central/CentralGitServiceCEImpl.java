@@ -643,11 +643,18 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             artifactMono = generateArtifactForRefCreation(baseArtifact, finalRemoteRefName, gitRefDTO.getRefType());
         }
 
-        Mono<? extends Artifact> checkedOutRemoteArtifactMono = gitHandlingService
-                .fetchRemoteReferences(jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+        Mono<? extends Artifact> checkedOutRemoteArtifactMono = GitUtils.validatePersistedGitSshUrl(
+                        baseGitMetadata.getRemoteUrl())
+                .then(gitHandlingService.fetchRemoteReferences(
+                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth()))
                 .flatMap(ignoredFetchString -> gitHandlingService.checkoutRemoteReference(jsonTransformationDTO))
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout branch", error.getMessage())))
+                .onErrorResume(error -> {
+                    if (error instanceof AppsmithException) {
+                        return Mono.error(error);
+                    }
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, "checkout branch", error.getMessage()));
+                })
                 .flatMap(ignoreRemoteChanges -> {
                     return gitHandlingService
                             .reconstructArtifactJsonFromGitRepository(jsonTransformationDTO)
@@ -751,8 +758,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         fetchRemoteDTO.setIsFetchAll(TRUE);
 
         Mono<Boolean> removeDanglingLock = gitHandlingService.removeDanglingLocks(baseRefTransformationDTO);
-        Mono<String> fetchRemoteMono =
-                gitHandlingService.fetchRemoteReferences(baseRefTransformationDTO, fetchRemoteDTO, baseGitAuth);
+        Mono<String> fetchRemoteMono = GitUtils.validatePersistedGitSshUrl(baseGitMetadata.getRemoteUrl())
+                .then(gitHandlingService.fetchRemoteReferences(baseRefTransformationDTO, fetchRemoteDTO, baseGitAuth));
 
         Mono<? extends Artifact> createBranchMono = acquireGitLockMono
                 .flatMap(ignoreLockAcquisition -> removeDanglingLock
@@ -1758,9 +1765,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
                         }
 
-                        fetchRemoteMono = Mono.defer(() -> gitHandlingService
-                                .fetchRemoteReferences(
-                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+                        fetchRemoteMono = Mono.defer(() -> GitUtils.validatePersistedGitSshUrl(
+                                        baseGitMetadata.getRemoteUrl())
+                                .then(gitHandlingService.fetchRemoteReferences(
+                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth()))
                                 .onErrorResume(error -> {
                                     log.error(
                                             "Error while fetching remote references for artifact: {}, branch: {}",
@@ -2060,6 +2068,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         // current user mono has been zipped just to run in parallel.
         Mono<BranchTrackingStatus> fetchRemoteMono = acquireGitLockMono
+                .then(GitUtils.validatePersistedGitSshUrl(baseArtifactGitData.getRemoteUrl()))
                 .then(Mono.defer(() -> gitHandlingService.fetchRemoteReferences(
                         jsonTransformationDTO, baseArtifactGitData.getGitAuth(), FALSE)))
                 .flatMap(fetchedRemoteString -> {
@@ -2565,8 +2574,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             GitConnectDTO gitConnectDTO = new GitConnectDTO();
             gitConnectDTO.setRemoteUrl(baseGitMetadata.getRemoteUrl());
 
-            return gitHandlingService
-                    .fetchRemoteRepository(gitConnectDTO, gitAuth, baseArtifact, baseGitMetadata.getRepoName())
+            return GitUtils.validatePersistedGitSshUrl(baseGitMetadata.getRemoteUrl())
+                    .then(gitHandlingService.fetchRemoteRepository(
+                            gitConnectDTO, gitAuth, baseArtifact, baseGitMetadata.getRepoName()))
                     .flatMap(defaultBranch -> gitHandlingService.listReferences(jsonTransformationDTO, true))
                     .flatMap(refDTOs -> {
                         ArtifactType artifactType = baseArtifact.getArtifactType();
@@ -2658,8 +2668,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     Mono<String> fetchRemoteMono = Mono.just("");
 
                     if (TRUE.equals(pruneBranches)) {
-                        fetchRemoteMono = gitHandlingService.fetchRemoteReferences(
-                                jsonTransformationDTO, baseGitData.getGitAuth(), TRUE);
+                        fetchRemoteMono = GitUtils.validatePersistedGitSshUrl(baseGitData.getRemoteUrl())
+                                .then(gitHandlingService.fetchRemoteReferences(
+                                        jsonTransformationDTO, baseGitData.getGitAuth(), TRUE));
                     }
 
                     Mono<List<GitRefDTO>> listBranchesMono =
@@ -3027,8 +3038,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 GitHandlingService gitHandlingService =
                                         gitHandlingServiceResolver.getGitHandlingService(gitType);
 
-                                Mono<String> fetchingRemoteMono = gitHandlingService.fetchRemoteReferences(
-                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth());
+                                Mono<String> fetchingRemoteMono =
+                                        GitUtils.validatePersistedGitSshUrl(baseGitMetadata.getRemoteUrl())
+                                                .then(gitHandlingService.fetchRemoteReferences(
+                                                        jsonTransformationDTO,
+                                                        fetchRemoteDTO,
+                                                        baseGitMetadata.getGitAuth()));
 
                                 Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = fetchingRemoteMono
                                         .flatMap(remoteSpecs -> {
@@ -3245,8 +3260,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 GitHandlingService gitHandlingService =
                                         gitHandlingServiceResolver.getGitHandlingService(gitType);
 
-                                Mono<String> fetchRemoteReferencesMono = gitHandlingService.fetchRemoteReferences(
-                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth());
+                                Mono<String> fetchRemoteReferencesMono =
+                                        GitUtils.validatePersistedGitSshUrl(baseGitMetadata.getRemoteUrl())
+                                                .then(gitHandlingService.fetchRemoteReferences(
+                                                        jsonTransformationDTO,
+                                                        fetchRemoteDTO,
+                                                        baseGitMetadata.getGitAuth()));
 
                                 Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = fetchRemoteReferencesMono
                                         .flatMap(remoteSpecs -> {
