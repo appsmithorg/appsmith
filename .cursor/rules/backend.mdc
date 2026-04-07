@@ -1,0 +1,36 @@
+---
+description: Java backend — Spring Boot server, Maven modules, key packages, entry points, and build commands
+globs:
+alwaysApply: false
+---
+# Backend — `app/server/`
+
+- **Stack:** Java 17, Spring Boot 3.x (Reactive WebFlux), MongoDB
+- **Build:** Maven (`pom.xml`) — run with `mvn` or `./mvnw`
+- **Entry point:** `appsmith-server/src/main/java/com/appsmith/server/ServerApplication.java`
+
+## Maven Modules
+
+| Module | Purpose |
+|---|---|
+| `appsmith-server` | Core app — controllers, services, domains, repositories, migrations, Git, exports/imports |
+| `appsmith-interfaces` | Shared DTOs, models, constants, plugin interfaces (contract layer) |
+| `appsmith-plugins` | ~28 datasource plugins (Postgres, Mongo, MySQL, REST API, GraphQL, S3, Snowflake, Redis, Oracle, Google Sheets, OpenAI, Anthropic, etc.) |
+| `appsmith-git` | Git integration — file handlers, converters, services for app version control |
+| `appsmith-ai` | AI features module |
+| `reactive-caching` | Custom reactive caching library |
+
+## Key Packages
+
+`controllers/`, `services/`, `domains/`, `repositories/`, `dtos/`, `configurations/`, `git/`, `authentication/`, `exports/`, `imports/`, `workflows/`, `modules/`, `migrations/`
+
+## EE Pattern
+
+Community and enterprise code coexist. Look for `ce/` and `ee/` sub-packages within each module. Enterprise logic extends or overrides CE implementations.
+
+## Testing
+
+- **Framework:** JUnit
+- **Unit tests:** `**/*Test.java`
+- **Integration tests:** `**/*IntegrationTest.java`
+- **Style check:** Spotless (`./mvnw spotlessCheck`)

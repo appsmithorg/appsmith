@@ -11,7 +11,7 @@ const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe(
   "PgAdmin Clone App",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let datasourceName, tableName;
 

@@ -10,7 +10,7 @@ let currentUrl;
 
 describe(
   "Addwidget from Query and bind with other widgets",
-  { tags: ["@tag.Binding", "@tag.Sanity"] },
+  { tags: ["@tag.Binding", "@tag.Table", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
       _.dataSources.StartDataSourceRoutes();

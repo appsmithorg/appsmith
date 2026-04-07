@@ -8,7 +8,7 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 describe(
   "Authenticated API Datasource",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     const URL = datasourceFormData["authenticatedApiUrl"];
