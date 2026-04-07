@@ -311,7 +311,7 @@ describe(
         expect(
           response?.body.data.pluginErrorDetails.downstreamErrorMessage,
         ).to.contains(
-          'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , null, null, null, null, null, 0, ).',
+          'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
         );
       });
       deployMode.SelectJsonFormDropDown("Passenger");
@@ -323,7 +323,7 @@ describe(
         expect(
           response?.body.data.pluginErrorDetails.downstreamErrorMessage,
         ).to.contains(
-          'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , Passenger, null, null, null, null, null, ).',
+          'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
         );
       });
       deployMode.EnterJSONInputValue("Distance To Go", "7.4");
