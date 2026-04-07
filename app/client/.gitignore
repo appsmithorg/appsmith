@@ -41,6 +41,13 @@ cypress.env.json
 cypress/cypress-logs
 results/
 
+# Playwright
+playwright/auth/
+playwright/.state/
+playwright/results/
+playwright-report/
+blob-report/
+
 
 /docker/*.pem
 /docker/nginx.conf
