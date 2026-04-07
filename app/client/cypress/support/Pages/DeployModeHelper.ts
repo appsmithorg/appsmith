@@ -210,6 +210,7 @@ export class DeployMode {
 
     if (check) {
       options.forEach(($each) => {
+        this.scrollVirtualListToOption($each);
         cy.get(this.locator._multiSelectOptions($each))
           .check({ force: true })
           .wait(800);
@@ -220,6 +221,7 @@ export class DeployMode {
       });
     } else {
       options.forEach(($each) => {
+        this.scrollVirtualListToOption($each);
         cy.get(this.locator._multiSelectOptions($each))
           .uncheck({ force: true })
           .wait(800);
@@ -230,5 +232,30 @@ export class DeployMode {
       });
     }
     cy.get("body").type("{esc}");
+  }
+
+  private scrollVirtualListToOption(option: string) {
+    const selector = this.locator._multiSelectOptions(option);
+
+    cy.get(".rc-virtual-list-holder").then(($holder) => {
+      if (Cypress.$(selector).length > 0) return;
+
+      const holder = $holder[0];
+      const step = 100;
+      const maxScroll = holder.scrollHeight - holder.clientHeight;
+
+      const scroll = (pos: number) => {
+        holder.scrollTop = pos;
+
+        return cy.wait(50).then(() => {
+          if (Cypress.$(selector).length > 0) return;
+          if (pos >= maxScroll) return;
+
+          return scroll(pos + step);
+        });
+      };
+
+      scroll(0);
+    });
   }
 }
