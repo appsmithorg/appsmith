@@ -1,6 +1,6 @@
 ## Introduction
 
-- Deploying Appsmith application on a Kubernetes cluster is easier with [Appsmith's Helm chart](). However, it is best practice to secure your web application with TLS certificates.
+- Deploying Appsmith application on a Kubernetes cluster is easier with [Appsmith's Helm chart](./README.md). However, it is best practice to secure your web application with TLS certificates.
 
 - This guide will show you how to secure HTTP traffic with TLS and SSL certificates using [Cert Manager](https://cert-manager.io/).
 
