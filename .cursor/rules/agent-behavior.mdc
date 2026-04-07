@@ -39,6 +39,8 @@ alwaysApply: true
 - Point at logs, errors, failing tests - then resolve them
 - Zero context switching required from the user
 - Go fix failing CI tests without being told how
+### 7. Optimize tokens
+- Use Programmatic tool calling liberally wherever possible (i.e. code execution)
 ## Task Management
 1. **Plan First**: Write plan to `.cursor/todo.md` with checkable items
 2. **Verify Plan**: Check in before starting implementation

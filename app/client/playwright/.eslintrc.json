@@ -1,0 +1,61 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "prefer-const": "error",
+    "no-console": "warn",
+
+    "no-restricted-properties": [
+      "error",
+      {
+        "object": "page",
+        "property": "waitForTimeout",
+        "message": "Do not use hard waits. Wait for a specific condition (element state, API response) instead."
+      }
+    ],
+
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.property.name='waitForTimeout']",
+        "message": "page.waitForTimeout() is banned. Use expect(locator).toBeVisible(), page.waitForResponse(), or other condition-based waits."
+      },
+      {
+        "selector": "CallExpression[callee.property.name='waitForLoadState'][arguments.0.value='networkidle']",
+        "message": "waitForLoadState('networkidle') is unreliable. Wait for a specific API response with page.waitForResponse() instead."
+      },
+      {
+        "selector": "CallExpression[callee.name='expect'] > AwaitExpression > CallExpression[callee.property.name='textContent']",
+        "message": "expect(await locator.textContent()) loses auto-retry. Use: await expect(locator).toHaveText()"
+      },
+      {
+        "selector": "CallExpression[callee.name='expect'] > AwaitExpression > CallExpression[callee.property.name='isVisible']",
+        "message": "expect(await locator.isVisible()) loses auto-retry. Use: await expect(locator).toBeVisible()"
+      },
+      {
+        "selector": "CallExpression[callee.name='expect'] > AwaitExpression > CallExpression[callee.property.name='innerText']",
+        "message": "expect(await locator.innerText()) loses auto-retry. Use: await expect(locator).toHaveText() or .toContainText()"
+      },
+      {
+        "selector": "CallExpression[callee.name='expect'] > AwaitExpression > CallExpression[callee.property.name='inputValue']",
+        "message": "expect(await locator.inputValue()) loses auto-retry. Use: await expect(locator).toHaveValue()"
+      },
+      {
+        "selector": "CallExpression[callee.name='expect'] > AwaitExpression > CallExpression[callee.property.name='count']",
+        "message": "expect(await locator.count()) loses auto-retry. Use: await expect(locator).toHaveCount()"
+      },
+      {
+        "selector": "MemberExpression[property.name='skip'][object.name='test']",
+        "message": "Use test.fixme('reason') instead of test.skip() to track why tests are skipped."
+      }
+    ]
+  }
+}
