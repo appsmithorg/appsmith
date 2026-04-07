@@ -64,7 +64,7 @@ public class RedshiftPluginTest {
 
     @BeforeAll
     public static void setUp() {
-        address = "address";
+        address = "10.0.0.1";
         port = 5439;
         username = "username";
         password = "password";
@@ -162,6 +162,14 @@ public class RedshiftPluginTest {
         dsConfig.getEndpoints().get(0).setHost("evil.com#fragment");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithMetadataIp() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("169.254.169.254");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.stream().anyMatch(msg -> msg.contains("not allowed")));
     }
 
     /* 1. CREATE TABLE users (

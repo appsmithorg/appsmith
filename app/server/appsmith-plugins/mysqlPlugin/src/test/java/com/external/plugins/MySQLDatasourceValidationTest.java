@@ -52,7 +52,7 @@ public class MySQLDatasourceValidationTest {
 
         /* Set MySQL endpoints */
         ArrayList<Endpoint> mysqlEndpoints = new ArrayList<>();
-        mysqlEndpoints.add(new Endpoint("mysqlHost", 3306L));
+        mysqlEndpoints.add(new Endpoint("10.0.0.1", 3306L));
         datasourceConfiguration.setEndpoints(mysqlEndpoints);
 
         /* Set DB username and password */
@@ -190,6 +190,14 @@ public class MySQLDatasourceValidationTest {
         dsConfig.getEndpoints().get(0).setHost("evil.com#fragment");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")));
+    }
+
+    @Test
+    public void testValidateDatasource_withMetadataIp_returnsInvalid() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        dsConfig.getEndpoints().get(0).setHost("169.254.169.254");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.stream().anyMatch(msg -> msg.contains("not allowed")));
     }
 
     @Test

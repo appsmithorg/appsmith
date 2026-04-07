@@ -402,7 +402,13 @@ public class MssqlPlugin extends BasePlugin {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
                         invalids.add(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                     } else {
-                        JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
+                        Optional<String> hostnameError = JdbcHostValidator.validateHostname(endpoint.getHost());
+                        if (hostnameError.isPresent()) {
+                            invalids.add(hostnameError.get());
+                        } else {
+                            JdbcHostValidator.checkSsrfProtection(endpoint.getHost())
+                                    .ifPresent(invalids::add);
+                        }
                     }
                 }
             }

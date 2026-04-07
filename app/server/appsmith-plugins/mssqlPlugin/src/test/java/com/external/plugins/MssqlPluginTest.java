@@ -811,6 +811,23 @@ public class MssqlPluginTest {
     }
 
     @Test
+    public void testValidateDatasource_withMetadataIp_returnsInvalid() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("169.254.169.254");
+        endpoint.setPort(1433L);
+        dsConfig.setEndpoints(List.of(endpoint));
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        dsConfig.setAuthentication(auth);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                output.stream().anyMatch(msg -> msg.contains("not allowed")),
+                "Expected SSRF blocked error for metadata IP, got: " + output);
+    }
+
+    @Test
     public void testValidateDatasource_withValidHostname_noHostErrors() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint();

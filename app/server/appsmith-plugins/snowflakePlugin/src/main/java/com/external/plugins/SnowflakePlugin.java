@@ -247,9 +247,7 @@ public class SnowflakePlugin extends BasePlugin {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
             } else {
                 JdbcHostValidator.validateHostname(datasourceConfiguration.getUrl())
-                        .ifPresent(error -> invalids.add(String.format(
-                                SnowflakeErrorMessages.DS_INVALID_ACCOUNT_NAME_ERROR_MSG,
-                                datasourceConfiguration.getUrl())));
+                        .ifPresent(invalids::add);
             }
 
             if (datasourceConfiguration.getProperties() != null

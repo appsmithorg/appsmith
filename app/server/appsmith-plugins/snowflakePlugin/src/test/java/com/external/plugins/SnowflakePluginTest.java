@@ -186,7 +186,7 @@ public class SnowflakePluginTest {
         datasourceConfiguration.setProperties(properties);
         Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
         assertTrue(
-                output.stream().anyMatch(msg -> msg.contains("invalid characters")),
+                output.stream().anyMatch(msg -> msg.contains("Host value cannot contain")),
                 "Expected validation error for account name '" + accountName + "', got: " + output);
     }
 
@@ -207,7 +207,7 @@ public class SnowflakePluginTest {
         datasourceConfiguration.setProperties(properties);
         Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
         assertTrue(
-                output.stream().noneMatch(msg -> msg.contains("invalid characters")),
+                output.stream().noneMatch(msg -> msg.contains("Host value cannot contain")),
                 "Expected no character validation errors for account name '" + accountName + "', got: " + output);
     }
 

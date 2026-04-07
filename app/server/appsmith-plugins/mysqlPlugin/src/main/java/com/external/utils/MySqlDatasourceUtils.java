@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
@@ -180,7 +181,13 @@ public class MySqlDatasourceUtils {
                 if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
                     invalids.add(MySQLErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                 } else {
-                    JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
+                    Optional<String> hostnameError = JdbcHostValidator.validateHostname(endpoint.getHost());
+                    if (hostnameError.isPresent()) {
+                        invalids.add(hostnameError.get());
+                    } else {
+                        JdbcHostValidator.checkSsrfProtection(endpoint.getHost())
+                                .ifPresent(invalids::add);
+                    }
                 }
             }
         }

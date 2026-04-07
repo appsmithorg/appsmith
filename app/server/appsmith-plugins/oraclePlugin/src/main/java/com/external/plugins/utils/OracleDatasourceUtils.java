@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,7 +116,13 @@ public class OracleDatasourceUtils {
                 if (isBlank(endpoint.getHost())) {
                     invalids.add(OracleErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                 } else {
-                    JdbcHostValidator.validateHostname(endpoint.getHost()).ifPresent(invalids::add);
+                    Optional<String> hostnameError = JdbcHostValidator.validateHostname(endpoint.getHost());
+                    if (hostnameError.isPresent()) {
+                        invalids.add(hostnameError.get());
+                    } else {
+                        JdbcHostValidator.checkSsrfProtection(endpoint.getHost())
+                                .ifPresent(invalids::add);
+                    }
                 }
             }
         }
