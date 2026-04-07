@@ -11,9 +11,16 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      id-token: write
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          aws-region: ap-south-1
 
       - name: Install mongosh
         run: |
@@ -37,13 +44,9 @@ jobs:
 
       - name: Delete Helm chart
         env:
-          AWS_ROLE_ARN: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
           GH_TOKEN: ${{ github.token }}
           DP_EFS_ID: ${{ secrets.APPSMITH_DP_EFS_ID }}
-
         run: /bin/bash ./scripts/cleanup_dp.sh
