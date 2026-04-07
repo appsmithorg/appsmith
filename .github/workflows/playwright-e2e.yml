@@ -1,0 +1,139 @@
+name: Playwright E2E
+
+# Orchestrates client/server/rts build, Docker image, TED + cloud-services + Appsmith, then Playwright.
+# Manual: workflow_dispatch. PR comment /test-pw: pw-test-command.yml → workflow_call.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number — checkout refs/pull/<n>/merge. Use 0 with branch for branch-only runs."
+        required: false
+        type: number
+        default: 0
+      branch:
+        description: "Branch when pr is 0 (e.g. release)."
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        description: "If set, skip all builds and docker pull this image instead."
+        required: false
+        type: string
+        default: ""
+      project:
+        description: "Playwright --project (e.g. smoke, sanity, regression, chromium). Empty = all."
+        required: false
+        type: string
+        default: ""
+      feature:
+        description: "Feature folder under tests (e.g. git)."
+        required: false
+        type: string
+        default: ""
+      flag_overrides:
+        description: 'JSON feature-flag overrides (e.g. {"flag":true})'
+        required: false
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      pr:
+        required: false
+        type: number
+        default: 0
+      branch:
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        required: false
+        type: string
+        default: ""
+      project:
+        required: false
+        type: string
+        default: ""
+      feature:
+        required: false
+        type: string
+        default: ""
+      flag_overrides:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  path-filter:
+    runs-on: ubuntu-latest
+    outputs:
+      not-ci: ${{ steps.filter.outputs.not-ci }}
+    steps:
+      - name: Checkout for path filter
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.pr != 0 && format('refs/pull/{0}/merge', inputs.pr) || (inputs.branch != '' && inputs.branch || github.sha) }}
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            not-ci:
+              - '!.github/**'
+              - '!app/v2-platform/**'
+
+  client-build:
+    needs: path-filter
+    if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ inputs.pr }}
+      branch: ${{ inputs.branch }}
+
+  server-build:
+    needs: path-filter
+    if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ inputs.pr }}
+      skip-tests: true
+      branch: ${{ inputs.branch }}
+
+  rts-build:
+    needs: path-filter
+    if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ inputs.pr }}
+      branch: ${{ inputs.branch }}
+
+  build-docker-image:
+    needs: [client-build, server-build, rts-build, path-filter]
+    if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: ${{ inputs.pr }}
+      branch: ${{ inputs.branch }}
+
+  playwright-e2e:
+    needs: [path-filter, client-build, server-build, rts-build, build-docker-image]
+    if: |
+      always() &&
+      needs.path-filter.result == 'success' &&
+      needs.path-filter.outputs.not-ci == 'true' &&
+      (
+        (inputs.docker_image_name != '' && needs.build-docker-image.result == 'skipped') ||
+        (inputs.docker_image_name == '' && needs.build-docker-image.result == 'success')
+      )
+    uses: ./.github/workflows/ci-test-playwright.yml
+    secrets: inherit
+    with:
+      pr: ${{ inputs.pr }}
+      branch: ${{ inputs.branch }}
+      docker_image_name: ${{ inputs.docker_image_name }}
+      project: ${{ inputs.project }}
+      feature: ${{ inputs.feature }}
+      flag_overrides: ${{ inputs.flag_overrides }}

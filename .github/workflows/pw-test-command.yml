@@ -80,12 +80,15 @@ jobs:
 
   run-tests:
     needs: parse-and-run
-    uses: ./.github/workflows/ci-test-playwright.yml
+    uses: ./.github/workflows/playwright-e2e.yml
     secrets: inherit
     with:
       project: ${{ needs.parse-and-run.outputs.project }}
       feature: ${{ needs.parse-and-run.outputs.feature }}
       flag_overrides: ${{ needs.parse-and-run.outputs.flag_overrides }}
+      pr: ${{ github.event.client_payload.pull_request.number }}
+      branch: ""
+      docker_image_name: ""
 
   post-results:
     needs: [parse-and-run, run-tests]
