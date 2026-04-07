@@ -3,6 +3,11 @@ name: Playwright E2E
 # Orchestrates client/server/rts build, Docker image, TED + cloud-services + Appsmith, then Playwright.
 # Manual: workflow_dispatch. PR comment /test-pw: pw-test-command.yml → workflow_call.
 
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
 on:
   workflow_dispatch:
     inputs:
