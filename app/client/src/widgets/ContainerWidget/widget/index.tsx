@@ -5,15 +5,14 @@ import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, get, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { contentPaddingValidation } from "widgets/contentPaddingUtils";
 import {
-  contentPaddingValidation,
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
@@ -27,17 +26,17 @@ import {
   type WidgetDefaultProps,
   type FlattenedWidgetProps,
 } from "WidgetProvider/types";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  DEFAULT_CONTENT_PADDING,
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  DEFAULT_CONTENT_PADDING,
-  GridDefaults,
-  WidgetHeightLimits,
-} from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   Positioning,
@@ -316,7 +315,7 @@ export class ContainerWidget extends BaseWidget<
                   example: "10 or 10 20 10 20",
                 },
               },
-            } as ValidationConfig,
+            },
           },
           {
             propertyName: "borderRadius",
@@ -376,6 +375,9 @@ export class ContainerWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.props;
 
     childWidget.rightColumn = componentWidth;
+    // Pass contentPadding to the canvas child so the fixed-layout canvas can
+    // compute the correct snapColumnSpace without touching rightColumn/componentWidth.
+    childWidget.parentContentPadding = this.props.contentPadding;
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;

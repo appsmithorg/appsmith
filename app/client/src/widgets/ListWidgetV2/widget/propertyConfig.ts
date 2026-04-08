@@ -13,9 +13,10 @@ import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
 } from "ee/constants/messages";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-import { DEFAULT_CONTENT_PADDING } from "constants/WidgetConstants";
-import { contentPaddingValidation } from "widgets/WidgetUtils";
+import {
+  contentPaddingValidation,
+  DEFAULT_CONTENT_PADDING,
+} from "widgets/contentPaddingUtils";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
@@ -496,7 +497,7 @@ export const PropertyPaneStyleConfig = [
               example: "10 or 10 20 10 20",
             },
           },
-        } as ValidationConfig,
+        },
       },
       {
         propertyName: "borderRadius",

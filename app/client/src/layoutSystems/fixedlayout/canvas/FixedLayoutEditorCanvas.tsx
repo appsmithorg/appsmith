@@ -1,6 +1,7 @@
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
+import { parseContentPadding } from "widgets/WidgetUtils";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import React, { useMemo } from "react";
@@ -26,7 +27,12 @@ export type CanvasProps = DSLWidget;
  */
 
 export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
-  const { snapGrid } = getSnappedGrid(props, props.componentWidth);
+  const [, pr, , pl] = parseContentPadding(props.parentContentPadding);
+  const paddingAdjustment = pl + pr;
+  const { snapGrid } = getSnappedGrid(
+    props,
+    props.componentWidth - paddingAdjustment,
+  );
   const { snapColumnSpace } = snapGrid;
   const snapRows = getCanvasSnapRows(props.bottomRow);
   const fixedLayoutDropTargetProps = useMemo(

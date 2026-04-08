@@ -21,12 +21,13 @@ import derivedProperties from "./parseDerivedProperties";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   contentPaddingValidation,
+  parseContentPadding,
+} from "widgets/contentPaddingUtils";
+import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
-  parseContentPadding,
 } from "widgets/WidgetUtils";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -488,7 +489,7 @@ class TabsWidget extends BaseWidget<
                   example: "10 or 10 20 10 20",
                 },
               },
-            } as ValidationConfig,
+            },
           },
           {
             propertyName: "borderRadius",
@@ -641,6 +642,9 @@ class TabsWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.props;
 
     childWidgetData.rightColumn = componentWidth;
+    // Pass contentPadding to the canvas child so the fixed-layout canvas can
+    // compute the correct snapColumnSpace without touching rightColumn/componentWidth.
+    childWidgetData.parentContentPadding = this.props.contentPadding;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
       ? childWidgetData.bottomRow

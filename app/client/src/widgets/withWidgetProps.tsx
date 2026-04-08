@@ -230,6 +230,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           props.noPad && props.dropDisabled && props.openParentPropertyPane;
 
         widgetProps.rightColumn = props.rightColumn;
+        // Canvas widgets use parentColumnSpace = 1 (rightColumn is in pixel units),
+        // so componentWidth must be kept in sync with the (possibly adjusted) rightColumn.
+        // The data-tree-computed componentWidth uses the Redux-stored rightColumn and
+        // would not reflect any padding adjustment made in renderChildWidget.
+        widgetProps.componentWidth =
+          props.rightColumn - (widgetProps.leftColumn || 0);
 
         if (isListWidgetCanvas) {
           widgetProps.bottomRow = props.bottomRow;

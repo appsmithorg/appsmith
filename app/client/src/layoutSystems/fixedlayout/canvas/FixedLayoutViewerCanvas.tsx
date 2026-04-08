@@ -1,6 +1,7 @@
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
+import { parseContentPadding } from "widgets/WidgetUtils";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
 import { compact, sortBy } from "lodash";
 import React, { useMemo } from "react";
@@ -21,7 +22,12 @@ export type CanvasProps = ContainerWidgetProps<WidgetProps>;
  */
 
 export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
-  const { snapGrid } = getSnappedGrid(props, props.componentWidth);
+  const [, pr, , pl] = parseContentPadding(props.parentContentPadding);
+  const paddingAdjustment = pl + pr;
+  const { snapGrid } = getSnappedGrid(
+    props,
+    props.componentWidth - paddingAdjustment,
+  );
   const { snapColumnSpace } = snapGrid;
   const layoutSystemProps: AdditionalFixedLayoutProperties = {
     parentColumnSpace: snapColumnSpace,

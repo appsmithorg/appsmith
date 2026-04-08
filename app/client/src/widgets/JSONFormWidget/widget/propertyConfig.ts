@@ -16,8 +16,7 @@ import {
   SUCCESSFULL_BINDING_MESSAGE,
 } from "../constants/messages";
 import { createMessage } from "ee/constants/messages";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-import { contentPaddingValidation } from "widgets/WidgetUtils";
+import { contentPaddingValidation } from "widgets/contentPaddingUtils";
 import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 
@@ -692,7 +691,7 @@ export const styleConfig = [
               example: "10 or 10 20 10 20",
             },
           },
-        } as ValidationConfig,
+        },
       },
       {
         propertyName: "borderRadius",
