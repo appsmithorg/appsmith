@@ -1,5 +1,22 @@
 import type { AppsmithUIConfigs } from "./types";
 
+declare global {
+  interface Window {
+    // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/javascript-api)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Pylon: any;
+    pylon?: {
+      chat_settings: {
+        app_id: string;
+        email?: string;
+        name?: string;
+        avatar_url?: string;
+        account_external_id?: string;
+      };
+    };
+  }
+}
+
 export interface INJECTED_CONFIGS {
   sentry: {
     dsn: string;
