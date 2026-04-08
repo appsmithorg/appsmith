@@ -186,12 +186,15 @@
         parseConfig('{{env "APPSMITH_DISABLE_PYLON"}}') ||
         parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
       // No third-party chat widget on airgapped deployments (same as BetterBugs / legacy Intercom)
-      const PYLON_APP_ID = AIRGAPPED ? "" : PYLON_APP_ID_RAW;
+      const PYLON_APP_ID =
+        AIRGAPPED || typeof PYLON_APP_ID_RAW !== "string"
+          ? ""
+          : PYLON_APP_ID_RAW;
 
       // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/chat-setup)
       // Set initial config BEFORE loading the SDK — the SDK reads window.pylon
       // on init. bootPylon() in React will update with user details later.
-      if (PYLON_APP_ID.length && !DISABLE_PYLON) {
+      if (PYLON_APP_ID && !DISABLE_PYLON) {
         window.pylon = {
           chat_settings: {
             app_id: PYLON_APP_ID,
