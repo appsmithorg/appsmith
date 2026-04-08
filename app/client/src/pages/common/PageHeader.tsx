@@ -10,7 +10,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
-import bootIntercom from "utils/bootIntercom";
+import bootPylon from "utils/bootPylon";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -55,7 +55,7 @@ export function PageHeader(props: PageHeaderProps) {
   }, []);
 
   useEffect(() => {
-    bootIntercom(user);
+    bootPylon(user);
   }, [user?.email]);
 
   const showBanner = useSelector(shouldShowLicenseBanner);

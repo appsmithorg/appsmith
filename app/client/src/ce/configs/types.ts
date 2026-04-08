@@ -49,7 +49,7 @@ export interface AppsmithUIConfigs {
 
   logLevel: LogLevelDesc;
   appVersion: AppVersionData;
-  intercomAppID: string;
+  pylonAppID: string;
   mailEnabled: boolean;
 
   googleRecaptchaSiteKey: {

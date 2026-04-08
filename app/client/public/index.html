@@ -22,7 +22,7 @@
         // could return either boolean or string based on value
         const parseConfig = (config) => {
           if (
-            (config.startsWith("{") && config.startsWith("}")) ||
+            (config.startsWith("{") && config.endsWith("}")) ||
             config.indexOf("__") === 0 ||
             config.indexOf("$") === 0 ||
             config.indexOf("%") === 0
@@ -179,44 +179,52 @@
         parseConfig('{{env "APPSMITH_CLIENT_LOG_LEVEL"}}'),
       );
 
-      const INTERCOM_APP_ID =
+      const PYLON_APP_ID_RAW =
+        parseConfig("%REACT_APP_PYLON_APP_ID%") ||
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
+        parseConfig('{{env "APPSMITH_PYLON_APP_ID"}}') ||
         parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
-      const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
+      const DISABLE_PYLON =
+        parseConfig('{{env "APPSMITH_DISABLE_PYLON"}}') ||
+        parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
+      // No third-party chat widget on airgapped deployments (same as BetterBugs / legacy Intercom)
+      const PYLON_APP_ID = AIRGAPPED ? "" : PYLON_APP_ID_RAW;
 
-      // Initialize the Intercom library
-      if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
+      // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/chat-setup)
+      // Set initial config BEFORE loading the SDK — the SDK reads window.pylon
+      // on init. bootPylon() in React will update with user details later.
+      if (PYLON_APP_ID.length && !DISABLE_PYLON) {
+        window.pylon = {
+          chat_settings: {
+            app_id: PYLON_APP_ID,
+          },
+        };
         (function () {
-          var w = window;
-          var ic = w.Intercom;
-          if (typeof ic === "function") {
-            ic("reattach_activator");
-            ic("update", w.intercomSettings);
-          } else {
-            var d = document;
-            var i = function () {
-              i.c(arguments);
-            };
-            i.q = [];
-            i.c = function (args) {
-              i.q.push(args);
-            };
-            w.Intercom = i;
-            var l = function () {
-              var s = d.createElement("script");
-              s.type = "text/javascript";
-              s.async = true;
-              s.src = "https://widget.intercom.io/widget/" + INTERCOM_APP_ID;
-              var x = d.getElementsByTagName("script")[0];
-              x.parentNode.insertBefore(s, x);
-            };
-            if (document.readyState === "complete") {
-              l();
-            } else if (w.attachEvent) {
-              w.attachEvent("onload", l);
-            } else {
-              w.addEventListener("load", l, false);
-            }
+          var e = window;
+          var t = document;
+          var n = function () {
+            n.e(arguments);
+          };
+          n.q = [];
+          n.e = function (e) {
+            n.q.push(e);
+          };
+          e.Pylon = n;
+          var r = function () {
+            var e = t.createElement("script");
+            e.setAttribute("type", "text/javascript");
+            e.setAttribute("async", "true");
+            e.setAttribute(
+              "src",
+              "https://widget.usepylon.com/widget/" + PYLON_APP_ID,
+            );
+            var n = t.getElementsByTagName("script")[0];
+            n.parentNode.insertBefore(e, n);
+          };
+          if (t.readyState === "complete") {
+            r();
+          } else if (e.addEventListener) {
+            e.addEventListener("load", r, false);
           }
         })();
       }
@@ -260,7 +268,7 @@
           sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
           releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
         },
-        intercomAppID: INTERCOM_APP_ID,
+        pylonAppID: PYLON_APP_ID,
         mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
         googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
         hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),

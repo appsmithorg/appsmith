@@ -5,11 +5,19 @@ import type { INJECTED_CONFIGS } from "ce/configs/index";
 declare global {
   interface Window {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
-    // TODO: Fix this the next time the file is edited
+    // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/javascript-api)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Intercom: any;
+    Pylon: any;
+    pylon?: {
+      chat_settings: {
+        app_id: string;
+        email?: string;
+        name?: string;
+        avatar_url?: string;
+        account_external_id?: string;
+      };
+    };
     evaluationVersion: EvaluationVersion;
-    // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Sentry: any;
   }
