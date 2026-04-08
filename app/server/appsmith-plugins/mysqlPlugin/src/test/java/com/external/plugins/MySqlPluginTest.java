@@ -360,9 +360,9 @@ public class MySqlPluginTest {
         assertEquals("mysql", auth.getUsername());
         assertEquals("", auth.getPassword());
 
-        // Validate datastore
+        // Validate datastore — no password error expected (SSRF error for localhost is OK)
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.isEmpty());
+        assertFalse(output.contains(MySQLErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG));
         // test connect
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
                 .datasourceCreate(dsConfig)
@@ -391,9 +391,9 @@ public class MySqlPluginTest {
         assertEquals("root", mySQLContainerWithInvalidTimezone.getUsername());
         assertEquals("", mySQLContainerWithInvalidTimezone.getPassword());
 
-        // Validate datastore
+        // Validate datastore — no password error expected (SSRF error for localhost is OK)
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.isEmpty());
+        assertFalse(output.contains(MySQLErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG));
         // test connect
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
                 .datasourceCreate(dsConfig)
