@@ -180,6 +180,7 @@ function HelpButton() {
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const user = useSelector(getCurrentUser);
+  const instanceId = useSelector(getInstanceId);
   const dispatch = useDispatch();
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -302,6 +303,7 @@ function HelpButton() {
 
                       if (isPylonChatAvailable()) {
                         if (user?.isIntercomConsentGiven || cloudHosting) {
+                          updatePylonChatIdentity(instanceId, user);
                           window.Pylon("show");
                         } else {
                           setShowIntercomConsent(true);

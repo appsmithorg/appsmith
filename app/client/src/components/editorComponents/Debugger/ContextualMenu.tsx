@@ -1,11 +1,13 @@
 import React from "react";
 import { Classes as BPClasses } from "@blueprintjs/core";
 import type { Dispatch } from "redux";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isPylonChatAvailable } from "utils/bootPylon";
+import { getAppsmithConfigs } from "ee/configs";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
@@ -22,6 +24,8 @@ import {
 } from "@appsmith/ads";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
   DOCS = "DOCS",
@@ -120,8 +124,18 @@ const ContextualMenu = ({
   enableTooltip = true,
   ...props
 }: ContextualMenuProps) => {
-  const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
+  const isPylonConsentSatisfied =
+    cloudHosting || Boolean(user?.isIntercomConsentGiven);
+  const visibleOptions = getOptions(
+    props.error.type,
+    props.error.subType,
+  ).filter(
+    (e) =>
+      e !== CONTEXT_MENU_ACTIONS.CHAT_WIDGET ||
+      (isPylonChatAvailable() && isPylonConsentSatisfied),
+  );
 
   return (
     <Menu className="t--debugger-contextual-error-menu">
@@ -134,18 +148,11 @@ const ContextualMenu = ({
       </Tooltip>
 
       <MenuContent align="end">
-        {options.map((e) => {
+        {visibleOptions.map((e) => {
           const menuProps = searchAction[e];
           const onSelect = () => {
             menuProps.onSelect(props.error, dispatch, props.entity);
           };
-
-          if (
-            e === CONTEXT_MENU_ACTIONS.CHAT_WIDGET &&
-            !isPylonChatAvailable()
-          ) {
-            return null;
-          }
 
           return (
             <MenuItem

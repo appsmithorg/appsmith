@@ -45,14 +45,27 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
   }
 
   const { appVersion, cloudHosting, pylonAppID } = getAppsmithConfigs();
-  const { email, name, username } = user || {};
-  const displayName = name || username || email;
+
+  const email: string | undefined = user?.email;
+  const username =
+    user?.username === ANONYMOUS_USERNAME ? undefined : user?.username;
+  const name: string | undefined = user?.name || username || email;
+
+  // Preserve the boot-time account_external_id if already set; otherwise
+  // compute it the same way bootPylon() does so consent refreshes don't
+  // drop the original account linkage.
+  const existingExternalId = window.pylon?.chat_settings?.account_external_id;
+  const externalId =
+    existingExternalId ||
+    (!cloudHosting && username ? sha256(username) : undefined);
 
   window.pylon = {
     chat_settings: {
+      ...(window.pylon?.chat_settings ?? {}),
       app_id: pylonAppID,
       email,
-      name: displayName,
+      name,
+      ...(externalId ? { account_external_id: externalId } : {}),
     },
   };
 
