@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "ee/configs";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
@@ -23,11 +23,9 @@ import {
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 
-const { intercomAppID } = getAppsmithConfigs();
-
 enum CONTEXT_MENU_ACTIONS {
   DOCS = "DOCS",
-  INTERCOM = "INTERCOM",
+  CHAT_WIDGET = "CHAT_WIDGET",
 }
 
 enum PLUGIN_EXECUTION_ERRORS {
@@ -40,27 +38,27 @@ enum PLUGIN_EXECUTION_ERRORS {
 const getOptions = (type?: string, subType?: string) => {
   const defaultOptions = [
     CONTEXT_MENU_ACTIONS.DOCS,
-    CONTEXT_MENU_ACTIONS.INTERCOM,
+    CONTEXT_MENU_ACTIONS.CHAT_WIDGET,
   ];
 
   if (subType) {
     switch (subType) {
       // These types are sent by the server
       case PLUGIN_EXECUTION_ERRORS.DATASOURCE_CONFIGURATION_ERROR:
-        return [CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.CHAT_WIDGET];
       case PLUGIN_EXECUTION_ERRORS.PLUGIN_ERROR:
-        return [CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.CHAT_WIDGET];
       case PLUGIN_EXECUTION_ERRORS.CONNECTIVITY_ERROR:
         return [CONTEXT_MENU_ACTIONS.DOCS];
       case PLUGIN_EXECUTION_ERRORS.ACTION_CONFIGURATION_ERROR:
-        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.CHAT_WIDGET];
       default:
         return defaultOptions;
     }
   } else {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
-        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.CHAT_WIDGET];
       case PropertyEvaluationErrorType.PARSE:
         return [CONTEXT_MENU_ACTIONS.DOCS];
       default:
@@ -98,20 +96,21 @@ const searchAction: Record<
       openDoc(DocsLink.TROUBLESHOOT_ERROR);
     },
   },
-  [CONTEXT_MENU_ACTIONS.INTERCOM]: {
+  [CONTEXT_MENU_ACTIONS.CHAT_WIDGET]: {
     icon: "support",
     text: createMessage(DEBUGGER_APPSMITH_SUPPORT),
     onSelect: (error: Message) => {
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
-        menuItem: CONTEXT_MENU_ACTIONS.INTERCOM,
+        menuItem: CONTEXT_MENU_ACTIONS.CHAT_WIDGET,
       });
 
       // Search through the omnibar
-      if (intercomAppID && window.Intercom) {
-        window.Intercom(
+      if (isPylonChatAvailable()) {
+        window.Pylon(
           "showNewMessage",
           createMessage(DEBUGGER_INTERCOM_TEXT, error.message.message),
         );
+        window.Pylon("show");
       }
     },
   },
@@ -142,8 +141,8 @@ const ContextualMenu = ({
           };
 
           if (
-            e === CONTEXT_MENU_ACTIONS.INTERCOM &&
-            !(intercomAppID && window.Intercom)
+            e === CONTEXT_MENU_ACTIONS.CHAT_WIDGET &&
+            !isPylonChatAvailable()
           ) {
             return null;
           }

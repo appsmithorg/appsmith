@@ -36,7 +36,7 @@ export interface INJECTED_CONFIGS {
     releaseDate: string;
     edition: string;
   };
-  intercomAppID: string;
+  pylonAppID: string;
   mailEnabled: boolean;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
@@ -99,7 +99,10 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       releaseDate: "",
       edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
-    intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
+    pylonAppID:
+      process.env.REACT_APP_PYLON_APP_ID ||
+      process.env.REACT_APP_INTERCOM_APP_ID ||
+      "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
@@ -246,8 +249,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
         APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
         "",
     },
-    intercomAppID:
-      ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
+    pylonAppID:
+      ENV_CONFIG.pylonAppID || APPSMITH_FEATURE_CONFIGS?.pylonAppID || "",
     mailEnabled:
       ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS?.mailEnabled || false,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
