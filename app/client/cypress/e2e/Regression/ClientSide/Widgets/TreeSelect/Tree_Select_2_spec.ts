@@ -241,10 +241,9 @@ describe(
       // toggle-close retry.
       cy.waitUntil(
         () => {
-          const isOpen =
-            Cypress.$(`${treeSelectWidget} .rc-tree-select`).hasClass(
-              dropdownOpenClass,
-            );
+          const isOpen = Cypress.$(
+            `${treeSelectWidget} .rc-tree-select`,
+          ).hasClass(dropdownOpenClass);
           if (!isOpen) {
             cy.get(treeSelectClickTarget).first().click();
           }
@@ -263,9 +262,9 @@ describe(
       );
       // Phase 2: Dropdown is open — wait for the specific option to be
       // visible before clicking it.
-      cy.xpath(locators._dropDownMultiTreeValue("Green"), {
-        timeout: 10000,
-      }).should("be.visible");
+      agHelper
+        .GetElement(locators._dropDownMultiTreeValue("Green"), "exist", 10000)
+        .should("be.visible");
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
       agHelper.ValidateToastMessage("Success");
     });
