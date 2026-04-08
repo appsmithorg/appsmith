@@ -37,6 +37,10 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> isUsersEmpty();
 
+    Mono<Boolean> claimSuperUserCreationSlot();
+
+    Mono<Void> releaseSuperUserCreationSlot();
+
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);

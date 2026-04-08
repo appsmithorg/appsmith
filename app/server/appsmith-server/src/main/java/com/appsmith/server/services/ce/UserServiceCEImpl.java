@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.EmailNormalizer;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -462,8 +463,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         // It is assumed here that the user's password has already been encoded.
 
-        // convert the user email to lowercase
-        user.setEmail(user.getEmail().toLowerCase());
+        user.setEmail(EmailNormalizer.normalizeEmail(user.getEmail()));
 
         Mono<User> userWithOrgMono =
                 Mono.just(user).flatMap(this::setOrganizationIdForUser).cache();
@@ -783,6 +783,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<Boolean> isUsersEmpty() {
         return repository.isUsersEmpty();
+    }
+
+    @Override
+    public Mono<Boolean> claimSuperUserCreationSlot() {
+        return repository.claimSuperUserCreationSlot();
+    }
+
+    @Override
+    public Mono<Void> releaseSuperUserCreationSlot() {
+        return repository.releaseSuperUserCreationSlot();
     }
 
     @Override

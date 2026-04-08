@@ -15,7 +15,7 @@ const fixtureName = "ImportExport.json";
 
 describe(
   "Partial import and export functionality",
-  { tags: ["@tag.ImportExport", "@tag.Git"] },
+  { tags: ["@tag.ImportExport"] },
   () => {
     before(() => {
       agHelper.GenerateUUID();

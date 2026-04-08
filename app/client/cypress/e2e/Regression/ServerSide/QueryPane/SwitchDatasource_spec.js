@@ -1,7 +1,7 @@
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
 describe.skip(
   "Switch datasource",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let dsName_1, dsName_2, MongoDB;
     beforeEach(() => {

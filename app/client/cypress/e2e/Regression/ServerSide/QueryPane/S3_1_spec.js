@@ -18,7 +18,7 @@ let datasourceName;
 
 describe(
   "Validate CRUD queries for Amazon S3 along with UI flow verifications",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     let fileName;
 

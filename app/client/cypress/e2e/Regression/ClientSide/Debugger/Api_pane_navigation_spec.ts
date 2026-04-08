@@ -12,12 +12,7 @@ import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 describe(
   "Api pane navigation",
   {
-    tags: [
-      "@tag.Datasource",
-      " @tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+    tags: ["@tag.Datasource", " @tag.excludeForAirgap", "@tag.AccessControl"],
   },
   () => {
     it("1. Navigation to Graphql pagination field", () => {

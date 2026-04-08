@@ -11,7 +11,7 @@ let dsName: any;
 describe(
   "Create, test, save then delete a mongo datasource using URI",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     it("1. Create, test, save then delete a mongo datasource using URI without username and password - #24897 ", function () {

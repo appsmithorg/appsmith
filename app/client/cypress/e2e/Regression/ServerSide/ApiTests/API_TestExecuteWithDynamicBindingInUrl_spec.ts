@@ -9,7 +9,7 @@ import {
 describe(
   "Test API execution with dynamic binding in URL - Bug #24218",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   () => {
     it("1. Test API execution with dynamic binding in URL", () => {

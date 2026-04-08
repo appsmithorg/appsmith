@@ -226,7 +226,7 @@ jobs:
       - name: Get Latest flaky Tests
         shell: bash
         run: |
-          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+          touch ~/knownfailures
 
       # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures
@@ -344,7 +344,7 @@ jobs:
       - name: Get Latest flaky Tests
         shell: bash
         run: |
-          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+          touch ~/knownfailures
 
       # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures

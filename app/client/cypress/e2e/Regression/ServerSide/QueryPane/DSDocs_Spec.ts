@@ -14,7 +14,7 @@ let pluginActionForm = new PluginActionForm();
 
 describe(
   "Check datasource doc links",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Verify Postgres documentation opens", function () {
       CreateDummyDSNSave(DataSourceKVP["Postgres"]);

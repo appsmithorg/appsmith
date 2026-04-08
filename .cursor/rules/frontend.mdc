@@ -1,0 +1,51 @@
+---
+description: React frontend — TypeScript SPA, monorepo packages, Redux-Saga, key directories, testing, and build commands
+globs:
+alwaysApply: false
+---
+# Frontend — `app/client/`
+
+- **Stack:** TypeScript, React, Redux, Redux-Saga
+- **Build:** Yarn 3.5.1 (workspaces monorepo), Webpack
+- **Entry point:** `src/index.tsx`
+- **Node:** v20.11.1
+
+## Monorepo Packages (`packages/`)
+
+| Package | Purpose |
+|---|---|
+| `design-system` | Component library (`ads`, `ads-old`, `headless`, `theming`, `widgets`, `widgets-old`) |
+| `ast` | JS AST parser utilities for binding expressions |
+| `dsl` | DSL schema/transformers for app JSON |
+| `icons` | Icon library |
+| `utils` | Shared utility functions |
+
+## Key `src/` Directories
+
+`pages/`, `widgets/`, `sagas/`, `reducers/`, `actions/`, `selectors/`, `components/`, `IDE/`, `git/`, `layoutSystems/`, `plugins/`, `ce/`, `ee/`, `enterprise/`
+
+## EE Pattern
+
+Look for `ce/`, `ee/`, and `enterprise/` directories under `src/`. Enterprise logic extends or overrides CE implementations.
+
+## Testing
+
+- **Unit:** Jest — `yarn run test:unit`
+- **E2E:** Cypress — `yarn cypress run --browser chrome --headless --spec {fileName}` (run from `app/client/`)
+- **Lint check:** ESLint + Prettier — `yarn run lint`
+- **Prettier check:** `yarn run prettier`
+- **Types:** `yarn run check-types`
+
+## Auto-fix Lint & Prettier (run from `app/client/`)
+
+```bash
+# Fix all Prettier formatting issues
+npx prettier --write ./src ./cypress
+
+# Fix all auto-fixable ESLint errors
+npx eslint --fix --cache ./src && npx eslint --fix -c ./cypress/.eslintrc.json --cache ./cypress
+```
+
+## Dev Proxy
+
+Nginx in `nginx/` for local dev. Caddy (`start-caddy.sh`) exists but WIP.

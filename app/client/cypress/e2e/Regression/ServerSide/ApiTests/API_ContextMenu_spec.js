@@ -15,7 +15,7 @@ import {
 
 describe(
   "API Panel Test Functionality ",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Test API copy/Move/delete feature", function () {
       cy.Createpage("SecondPage");
