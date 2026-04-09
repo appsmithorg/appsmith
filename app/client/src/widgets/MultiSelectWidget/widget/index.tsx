@@ -220,6 +220,16 @@ class MultiSelectWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Show a tooltip on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter tooltip text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -557,6 +567,7 @@ class MultiSelectWidget extends BaseWidget<
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        tooltip={this.props.tooltip}
         compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
@@ -620,6 +631,7 @@ export interface DropdownOption {
 
 export interface MultiSelectWidgetProps extends WidgetProps {
   placeholderText?: string;
+  tooltip?: string;
   selectedIndex?: number;
   selectedIndexArr?: number[];
   selectedOption: DropdownOption;

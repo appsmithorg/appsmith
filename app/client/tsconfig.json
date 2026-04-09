@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "ES6",
     "lib": [
       "DOM",
@@ -23,7 +24,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react",
     "downlevelIteration": true,
     "experimentalDecorators": true,
