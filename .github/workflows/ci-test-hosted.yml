@@ -144,7 +144,7 @@ jobs:
             sudo apt-get remove -y google-chrome-stable 
           else 
               echo "Google Chrome Stable is not installed; skipping removal."
-            fi
+          fi
           wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
           sudo apt-get update
           sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
@@ -270,7 +270,7 @@ jobs:
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
           else 
             echo "No cypress results directory found; skipping mv."
-            fi
+          fi
 
       - name: Upload cypress report
         if: failure()
