@@ -9,6 +9,7 @@ declare global {
       chat_settings: {
         app_id: string;
         email?: string;
+        email_hash?: string;
         name?: string;
         avatar_url?: string;
         account_external_id?: string;

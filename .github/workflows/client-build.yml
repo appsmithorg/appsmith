@@ -156,6 +156,7 @@ jobs:
           fi
 
       # We burn React environment & the Segment analytics key into the build itself.
+      # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
       # Client build fails only on errors (EXIT_CODE > 1); warnings (EXIT_CODE <= 1) don’t affect it.
       - name: Create the bundle
@@ -173,6 +174,7 @@ jobs:
           REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT }} \
           REACT_APP_FARO_STACK_ID=${{ secrets.REACT_APP_FARO_STACK_ID }} \
           REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+          REACT_APP_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }} \
           SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
           REACT_APP_VERSION_EDITION="Community" \
           yarn build || EXIT_CODE=$?

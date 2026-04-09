@@ -192,8 +192,11 @@
           : PYLON_APP_ID_RAW;
 
       // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/chat-setup)
-      // Set initial config BEFORE loading the SDK — the SDK reads window.pylon
-      // on init. bootPylon() in React will update with user details later.
+      // Install a stub Pylon() queue so early window.Pylon(...) calls don't error.
+      // The actual SDK script is loaded from bootPylon() in React, AFTER the user's
+      // email_hash has been set on window.pylon.chat_settings — Pylon exposes no API
+      // to update identity post-init, so the SDK must initialize with the full
+      // identity already present on window.pylon.
       if (PYLON_APP_ID && !DISABLE_PYLON) {
         window.pylon = {
           chat_settings: {
@@ -201,8 +204,6 @@
           },
         };
         (function () {
-          var e = window;
-          var t = document;
           var n = function () {
             n.e(arguments);
           };
@@ -210,23 +211,7 @@
           n.e = function (e) {
             n.q.push(e);
           };
-          e.Pylon = n;
-          var r = function () {
-            var e = t.createElement("script");
-            e.setAttribute("type", "text/javascript");
-            e.setAttribute("async", "true");
-            e.setAttribute(
-              "src",
-              "https://widget.usepylon.com/widget/" + PYLON_APP_ID,
-            );
-            var n = t.getElementsByTagName("script")[0];
-            n.parentNode.insertBefore(e, n);
-          };
-          if (t.readyState === "complete") {
-            r();
-          } else if (e.addEventListener) {
-            e.addEventListener("load", r, false);
-          }
+          window.Pylon = n;
         })();
       }
 
