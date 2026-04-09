@@ -15,10 +15,6 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import { Icon } from "@design-system/widgets-old";
-import type { Alignment } from "@blueprintjs/core";
-import { Classes } from "@blueprintjs/core";
-import { Position } from "@blueprintjs/core";
-import { Tooltip2 as Tooltip } from "@blueprintjs/popover2";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
@@ -27,6 +23,10 @@ import {
   SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX,
 } from "components/constants";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { Tooltip } from "@appsmith/ads";
+import type { Alignment } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
+
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -183,85 +183,86 @@ function MultiSelectComponent({
 
   const id = _.uniqueId();
 
-  return (
-    <Tooltip content={tooltip} disabled={!tooltip} position={Position.TOP}>
-      <MultiSelectContainer
-            className={loading ? Classes.SKELETON : ""}
-            compactMode={compactMode}
-            data-testid="multiselect-container"
-            isValid={isValid}
-            labelPosition={labelPosition}
-            ref={_menu as React.RefObject<HTMLDivElement>}
-          >
-            <DropdownStyles
-              dropDownWidth={dropDownWidth}
-              id={id}
-              parentWidth={width - WidgetContainerDiff}
-            />
-            {labelText && (
-              <LabelWithTooltip
-                alignment={labelAlignment}
-                className={`multiselect-label`}
-                color={labelTextColor}
-                compact={compactMode}
-                disabled={disabled}
-                fontSize={labelTextSize}
-                fontStyle={labelStyle}
-                isDynamicHeightEnabled={isDynamicHeightEnabled}
-                loading={loading}
-                position={labelPosition}
-                text={labelText}
-                width={labelWidth}
-              />
-            )}
-            <Select
-              animation="slide-up"
-              // TODO: Make Autofocus a variable in the property pane
-              // autoFocus
-              choiceTransitionName="rc-select-selection__choice-zoom"
-              className="rc-select"
+    return (
+      <Tooltip
+        content={tooltip?.trim()}
+        isDisabled={!tooltip?.trim()}
+        placement="top"
+      >
+        <MultiSelectContainer
+          className={loading ? "bp3-skeleton" : ""} // Replacing Classes.SKELETON with string if needed
+          compactMode={compactMode}
+          data-testid="multiselect-container"
+          isValid={isValid}
+          labelPosition={labelPosition}
+          ref={_menu as React.RefObject<HTMLDivElement>}
+        >
+          <DropdownStyles
+            dropDownWidth={dropDownWidth}
+            id={id}
+            parentWidth={width - WidgetContainerDiff}
+          />
+          {labelText && (
+            <LabelWithTooltip
+              alignment={labelAlignment}
+              className={`multiselect-label`}
+              color={labelTextColor}
+              compact={compactMode}
               disabled={disabled}
-              dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
-              dropdownRender={dropdownRender}
-              dropdownStyle={dropdownStyle}
-              filterOption={serverSideFiltering ? false : filterOption}
-              getPopupContainer={getDropdownPosition}
-              inputIcon={
-                <Icon
-                  className="dropdown-icon"
-                  fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-                  name="dropdown"
-                />
-              }
-              listHeight={300}
-              listItemHeight={SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX}
+              fontSize={labelTextSize}
+              fontStyle={labelStyle}
+              isDynamicHeightEnabled={isDynamicHeightEnabled}
               loading={loading}
-              maxTagCount={"responsive"}
-              maxTagPlaceholder={(e) => `+${e.length} more`}
-              menuItemSelectedIcon={menuItemSelectedIcon}
-              mode="multiple"
-              notFoundContent="No Results Found"
-              onBlur={onBlur}
-              onChange={onChange}
-              onDropdownVisibleChange={onClose}
-              onFocus={onFocus}
-              onSearch={serverSideSearch}
-              options={options}
-              placeholder={placeholder || "select option(s)"}
-              removeIcon={
-                <Icon
-                  className="remove-icon"
-                  fillColor={Colors.GREY_10}
-                  name="close-x"
-                />
-              }
-              showArrow
-              value={value}
+              position={labelPosition}
+              text={labelText}
+              width={labelWidth}
             />
-          </MultiSelectContainer>
-    </Tooltip>
-    
-  );
+          )}
+          <Select
+            animation="slide-up"
+            choiceTransitionName="rc-select-selection__choice-zoom"
+            className="rc-select"
+            disabled={disabled}
+            dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
+            dropdownRender={dropdownRender}
+            dropdownStyle={dropdownStyle}
+            filterOption={serverSideFiltering ? false : filterOption}
+            getPopupContainer={getDropdownPosition}
+            inputIcon={
+              <Icon
+                className="dropdown-icon"
+                fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+                name="dropdown"
+              />
+            }
+            listHeight={300}
+            listItemHeight={SELECT_DROPDOWN_LIST_ITEM_HEIGHT_PX}
+            loading={loading}
+            maxTagCount={"responsive"}
+            maxTagPlaceholder={(e) => `+${e.length} more`}
+            menuItemSelectedIcon={menuItemSelectedIcon}
+            mode="multiple"
+            notFoundContent="No Results Found"
+            onBlur={onBlur}
+            onChange={onChange}
+            onDropdownVisibleChange={onClose}
+            onFocus={onFocus}
+            onSearch={serverSideSearch}
+            options={options}
+            placeholder={placeholder || "select option(s)"}
+            removeIcon={
+              <Icon
+                className="remove-icon"
+                fillColor={Colors.GREY_10}
+                name="close-x"
+              />
+            }
+            showArrow
+            value={value}
+          />
+        </MultiSelectContainer>
+      </Tooltip>
+    );
 }
 
 export default MultiSelectComponent;
