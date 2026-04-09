@@ -89,6 +89,7 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      REACT_APP_PYLON_APP_ID: ${{ secrets.APPSMITH_PYLON_APP_ID }}
 
     steps:
       - name: Checkout PR
