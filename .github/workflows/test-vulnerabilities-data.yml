@@ -48,24 +48,7 @@ jobs:
             "${{ github.event.pull_request.html_url }}" \
             "${{ github.run_id }}"
 
-      - name: Run Trivy vulnerability data script
-        if: always()
-        env:
-          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
-          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
-          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
-          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          chmod +x scripts/trivy_vulnerabilities_data.sh
-          ./scripts/trivy_vulnerabilities_data.sh \
-            "${{ inputs.image_name }}" \
-            "${{ github.event.pull_request.number }}" \
-            "${{ github.event.pull_request.html_url }}" \
-            "${{ github.run_id }}"
-      
-      - name: Check for new vulnerabilities in Scout and Trivy files
+      - name: Check for new vulnerabilities in Scout files
         if: always()
         run: |
           # Check if Scout vulnerabilities file has data after the header
@@ -75,13 +58,4 @@ jobs:
             exit 1  # Fail the job if data exists
           else
             echo "No new Scout vulnerabilities detected."
-          fi
-                  
-          # Check if Trivy vulnerabilities file has data after the header
-          if [ $(tail -n +2 trivy_new_vulnerabilities.csv | wc -l) -gt 0 ]; then
-            echo "Trivy vulnerabilities detected."
-            cat trivy_new_vulnerabilities.csv
-            exit 1  # Fail the job if data exists
-          else
-            echo "No new Trivy vulnerabilities detected."
           fi

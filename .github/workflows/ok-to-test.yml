@@ -32,4 +32,5 @@ jobs:
             ci-test-limit
             build-deploy-preview
             ci-test-limit-count
+            test-pw
           permission: write
