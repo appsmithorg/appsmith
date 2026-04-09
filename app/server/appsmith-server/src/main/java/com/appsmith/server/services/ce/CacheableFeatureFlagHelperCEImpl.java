@@ -99,7 +99,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             Map<String, Object> userTraits = new HashMap<>();
             String emailTrait;
             String emailDomain = userIdentifierService.getEmailDomain(user.getEmail());
-            if (!commonConfig.isCloudHosting()) {
+            if (!commonConfig.getIsCloudHosting()) {
                 emailTrait = userIdentifierService.hash(user.getEmail());
                 if (emailDomain != null) {
                     emailDomain = userIdentifierService.hash(emailDomain);
@@ -111,7 +111,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             userTraits.put("instanceId", instanceId);
             userTraits.put("organizationId", user.getOrganizationId());
             userTraits.put("emailDomain", emailDomain);
-            userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
+            userTraits.put("isTelemetryOn", !commonConfig.getIsTelemetryDisabled());
             // for anonymous user, user.getCreatedAt() is null
             if (user.getCreatedAt() != null) {
                 userTraits.put("createdAt", user.getCreatedAt().getEpochSecond());
@@ -237,7 +237,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     featuresRequestDTO.setOrganizationId(organizationId);
                     featuresRequestDTO.setInstanceId(instanceId);
                     featuresRequestDTO.setAppsmithVersion(appsmithVersion);
-                    featuresRequestDTO.setIsCloudHosting(commonConfig.isCloudHosting());
+                    featuresRequestDTO.setIsCloudHosting(commonConfig.getIsCloudHosting());
                     return featuresRequestDTO;
                 })
                 .flatMap(this::getRemoteFeaturesForOrganization)

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.13</version>
+        <version>3.5.12</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -29,14 +29,16 @@
         <deploy.disabled>true</deploy.disabled>
         <jackson-bom.version>2.17.0</jackson-bom.version>
         <jackson.version>2.17.0</jackson.version>
-        <java.version>17</java.version>
+        <java.version>25</java.version>
         <javadoc.disabled>true</javadoc.disabled>
+        <!-- Pin Lombok to 1.18.42 to avoid breaking @FieldNameConstants inner class constructor change in 1.18.44 -->
+        <lombok.version>1.18.42</lombok.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
-        <okhttp3.version>4.10.0</okhttp3.version>
-        <org.pf4j.version>3.10.0</org.pf4j.version>
+        <okhttp3.version>4.12.0</okhttp3.version>
+        <org.pf4j.version>3.15.0</org.pf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.groupId>com.appsmith</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
@@ -49,7 +51,7 @@
         <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
-        <spotless.version>2.36.0</spotless.version>
+        <spotless.version>3.0.0</spotless.version>
         <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
     <build>
@@ -67,6 +69,19 @@
         </resources>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -103,7 +118,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.5.5</version>
                 <configuration>
                     <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
@@ -113,24 +128,11 @@
                     <testSourceDirectory>src/test/java</testSourceDirectory>
                     <skipTests>${skipUTs}</skipTests>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.5.5</version>
                 <configuration>
                     <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
@@ -146,19 +148,6 @@
                     <skipITs>${skipITs}</skipITs>
                     <!-- Property for skipping integration tests -->
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -211,7 +200,10 @@
                         <!-- Cleanthat will refactor your code, but it may break your style: apply it before your formatter -->
                         <cleanthat/>
                         <!-- apply a specific flavor of google-java-format and reflow long strings -->
-                        <palantirJavaFormat/>
+                        <!-- Pinned to 2.74.0+ for Java 25 syntax support (unnamed variables, etc.) -->
+                        <palantirJavaFormat>
+                            <version>2.74.0</version>
+                        </palantirJavaFormat>
                         <importOrder>
                             <order>,javax|java,\#</order>
                         </importOrder>

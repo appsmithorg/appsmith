@@ -1,0 +1,105 @@
+name: Playwright Test (PR Comment)
+
+on:
+  repository_dispatch:
+    types: [test-pw-command]
+
+jobs:
+  parse-and-run:
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.parse.outputs.project }}
+      feature: ${{ steps.parse.outputs.feature }}
+      flag_overrides: ${{ steps.parse.outputs.flag_overrides }}
+    steps:
+      - name: Acknowledge
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: eyes
+
+      - name: Post run link
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            **Playwright tests triggered** — `${{ github.event.client_payload.slash_command.args.unnamed.all || 'all' }}`
+            [Watch the run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      - name: Parse args
+        id: parse
+        run: |
+          ARGS="${{ github.event.client_payload.slash_command.args.unnamed.all }}"
+
+          # Extract --flags if present (everything after --flags until next -- or end)
+          FLAGS_RAW=""
+          if echo "$ARGS" | grep -q "\-\-flags"; then
+            FLAGS_RAW=$(echo "$ARGS" | sed 's/.*--flags[= ]*//' | awk '{print $1}')
+            ARGS=$(echo "$ARGS" | sed 's/--flags[= ]*[^ ]*//')
+          fi
+
+          TIER=$(echo "$ARGS" | awk '{print $1}' | xargs)
+          FEATURE=$(echo "$ARGS" | awk '{print $2}' | xargs)
+
+          if [ -z "$TIER" ]; then TIER="all"; fi
+
+          # Validate tier
+          case "$TIER" in
+            smoke|sanity|regression|all) ;;
+            *)
+              echo "::error::Invalid tier: $TIER. Use: smoke, sanity, regression, or all"
+              exit 1
+              ;;
+          esac
+
+          # Map tier to Playwright project
+          case "$TIER" in
+            smoke)      PROJECT="smoke" ;;
+            sanity)     PROJECT="sanity" ;;
+            regression) PROJECT="regression" ;;
+            all)        PROJECT="chromium" ;;
+          esac
+
+          # Convert key=val,key=val to JSON
+          FLAG_JSON="{}"
+          if [ -n "$FLAGS_RAW" ]; then
+            FLAG_JSON=$(echo "$FLAGS_RAW" | awk -F',' '{
+              printf "{"
+              for(i=1;i<=NF;i++){
+                split($i,a,"=")
+                printf "\"%s\":%s", a[1], a[2]
+                if(i<NF) printf ","
+              }
+              printf "}"
+            }')
+          fi
+
+          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
+          echo "feature=$FEATURE" >> "$GITHUB_OUTPUT"
+          echo "flag_overrides=$FLAG_JSON" >> "$GITHUB_OUTPUT"
+
+  run-tests:
+    needs: parse-and-run
+    uses: ./.github/workflows/playwright-e2e.yml
+    secrets: inherit
+    with:
+      project: ${{ needs.parse-and-run.outputs.project }}
+      feature: ${{ needs.parse-and-run.outputs.feature }}
+      flag_overrides: ${{ needs.parse-and-run.outputs.flag_overrides }}
+      pr: ${{ github.event.client_payload.pull_request.number }}
+      branch: ""
+      docker_image_name: ""
+
+  post-results:
+    needs: [parse-and-run, run-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post result comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            **Playwright results** — `${{ needs.parse-and-run.outputs.project }}${{ needs.parse-and-run.outputs.feature && format(' ({0})', needs.parse-and-run.outputs.feature) || '' }}`
+            Status: **${{ needs.run-tests.result }}** ${{ needs.run-tests.result == 'success' && '✅' || '❌' }}
+            [View report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

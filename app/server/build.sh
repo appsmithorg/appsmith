@@ -2,7 +2,7 @@
 
 set -o errexit
 
-min_java_major_version=17
+min_java_major_version=25
 
 maven_version_output="$(mvn --version)"
 echo "$maven_version_output"

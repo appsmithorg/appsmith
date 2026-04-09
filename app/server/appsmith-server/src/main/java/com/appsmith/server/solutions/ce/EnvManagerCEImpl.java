@@ -28,6 +28,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -123,6 +124,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * respectively.
      */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile("^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<value>.*)$");
+
+    private static final Pattern SAFE_SHELL_VALUE_PATTERN = Pattern.compile("^[A-Za-z\\d_@%+=:,./-]*$");
 
     private static final Set<String> VARIABLE_WHITELIST =
             Stream.of(EnvVariables.values()).map(Enum::name).collect(Collectors.toUnmodifiableSet());
@@ -238,7 +241,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     private String escapeForShell(String input) {
-        if (org.apache.commons.lang3.StringUtils.containsAny(input, " ?*#'")) {
+        if (input.chars().anyMatch(Character::isISOControl)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "environment variable value");
+        }
+
+        if (!input.isEmpty() && !SAFE_SHELL_VALUE_PATTERN.matcher(input).matches()) {
             return ("'" + input.replace("'", "'\"'\"'") + "'")
                     .replaceAll("^''", "")
                     .replaceAll("''$", "");
@@ -448,7 +455,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
 
                     if (changesCopy.containsKey(APPSMITH_DISABLE_TELEMETRY.name())) {
-                        commonConfig.setTelemetryDisabled(
+                        commonConfig.setIsTelemetryDisabled(
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
@@ -777,18 +784,59 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    private static final Set<Integer> DEFAULT_SMTP_PORTS = Set.of(25, 465, 587, 2525);
+
+    private static final Set<Integer> ALLOWED_SMTP_PORTS = computeAllowedSmtpPorts();
+
+    private static Set<Integer> computeAllowedSmtpPorts() {
+        Set<Integer> ports = new HashSet<>(DEFAULT_SMTP_PORTS);
+        String extra = System.getenv("APPSMITH_MAIL_ALLOWED_PORTS");
+        if (extra != null && !extra.isBlank()) {
+            for (String token : extra.split(",")) {
+                try {
+                    int port = Integer.parseInt(token.trim());
+                    if (port > 0 && port <= 65535) {
+                        ports.add(port);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return Set.copyOf(ports);
+    }
+
+    private static final String SMTP_GENERIC_ERROR =
+            "Failed to connect to the SMTP server. Please verify the host, " + "port, and credentials are correct.";
+
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper().flatMap(user -> {
+            if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+            }
+
+            var resolvedAddress = WebClientUtils.resolveIfAllowed(requestDTO.getSmtpHost());
+            if (resolvedAddress.isEmpty()) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+            }
+
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-            mailSender.setHost(requestDTO.getSmtpHost());
+            mailSender.setHost(resolvedAddress.get().getHostAddress());
             mailSender.setPort(requestDTO.getSmtpPort());
 
             Properties props = mailSender.getJavaMailProperties();
             props.put("mail.transport.protocol", "smtp");
 
-            props.put(
-                    "mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
+            if (requestDTO.getSmtpPort() == 465) {
+                props.put("mail.smtp.ssl.enable", "true");
+                props.put("mail.smtp.starttls.enable", "false");
+            } else {
+                props.put(
+                        "mail.smtp.starttls.enable",
+                        requestDTO.getStarttlsEnabled().toString());
+            }
 
             props.put("mail.smtp.timeout", 7000); // 7 seconds
 
@@ -811,15 +859,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             try {
                 mailSender.testConnection();
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.GENERIC_BAD_REQUEST, e.getMessage().trim()));
+                log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
+                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
             }
 
             try {
                 mailSender.send(message);
             } catch (MailException mailException) {
                 log.error("failed to send test email", mailException);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, mailException.getMessage()));
+                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
             }
             return Mono.just(TRUE);
         });

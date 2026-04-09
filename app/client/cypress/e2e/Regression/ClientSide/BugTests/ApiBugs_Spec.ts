@@ -19,7 +19,7 @@ import {
 
 describe(
   "API Bugs",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
       // Case where api returns array response

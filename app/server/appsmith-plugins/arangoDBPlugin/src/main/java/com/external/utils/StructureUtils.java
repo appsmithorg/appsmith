@@ -79,8 +79,9 @@ public class StructureUtils {
         String filterKey = "_key";
         String filterValue = sampleValues.get("_key");
 
-        String rawQuery = "FOR document IN " + collectionName + "\n" + "FILTER " + "document." + filterKey + " == \""
-                + filterValue + "\"\n" + "RETURN document";
+        String rawQuery = "FOR document IN " + sanitizeCollectionName(collectionName) + "\n" + "FILTER "
+                + "document." + filterKey + " == \"" + escapeAqlStringLiteral(filterValue) + "\"\n"
+                + "RETURN document";
 
         return new DatasourceStructure.Template("Select", rawQuery, true);
     }
@@ -88,7 +89,8 @@ public class StructureUtils {
     private static DatasourceStructure.Template generateCreateTemplate(Map<String, Object> templateConfiguration) {
         String collectionName = (String) templateConfiguration.get("collectionName");
 
-        String rawQuery = "INSERT \n" + "{\n" + "    insertKey: \"insertValue\"\n" + "}\n" + "INTO " + collectionName;
+        String rawQuery = "INSERT \n" + "{\n" + "    insertKey: \"insertValue\"\n" + "}\n" + "INTO "
+                + sanitizeCollectionName(collectionName);
 
         return new DatasourceStructure.Template("Create", rawQuery, false);
     }
@@ -101,13 +103,13 @@ public class StructureUtils {
 
         String rawQuery = "UPDATE\n" + "{\n"
                 + "    "
-                + filterKey + ": \"" + filterValue + "\"\n" + "}\n"
+                + filterKey + ": \"" + escapeAqlStringLiteral(filterValue) + "\"\n" + "}\n"
                 + "WITH\n"
                 + "{\n"
                 + "    updateKey: \"updateVal\"\n"
                 + "}\n"
                 + "IN "
-                + collectionName;
+                + sanitizeCollectionName(collectionName);
 
         return new DatasourceStructure.Template("Update", rawQuery, false);
     }
@@ -117,12 +119,40 @@ public class StructureUtils {
         Map<String, String> sampleValues = (Map<String, String>) templateConfiguration.get("sampleValues");
         String filterValue = sampleValues.get("_key");
 
-        String rawQuery = "REMOVE \"" + filterValue + "\" IN " + collectionName;
+        String rawQuery =
+                "REMOVE \"" + escapeAqlStringLiteral(filterValue) + "\" IN " + sanitizeCollectionName(collectionName);
 
         return new DatasourceStructure.Template("Delete", rawQuery, false);
     }
 
+    /**
+     * Backtick-quotes a collection name for safe inclusion in AQL queries,
+     * preventing AQL injection via crafted collection names. Internal backticks
+     * are escaped by doubling them per AQL identifier quoting rules.
+     */
+    static String sanitizeCollectionName(String collectionName) {
+        if (collectionName == null) {
+            return "``";
+        }
+        return "`" + collectionName.replace("`", "``") + "`";
+    }
+
+    /**
+     * Escapes special characters in a value for safe inclusion within a
+     * double-quoted AQL string literal, preventing AQL injection via
+     * crafted string values.
+     */
+    static String escapeAqlStringLiteral(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
+
     public static String getOneDocumentQuery(String collectionName) {
-        return "for doc in " + collectionName + " limit 1 return doc";
+        return "for doc in " + sanitizeCollectionName(collectionName) + " limit 1 return doc";
     }
 }

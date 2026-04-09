@@ -78,7 +78,7 @@ public class UserUtilsCE {
     public Mono<Boolean> makeInstanceAdministrator(List<User> users) {
 
         // TODO : Replace cloud hosting check with a feature flag check for multi tenancy
-        boolean cloudHosting = commonConfig.isCloudHosting();
+        boolean cloudHosting = commonConfig.getIsCloudHosting();
         Mono<PermissionGroup> organizationAdminPgMono = Mono.just(new PermissionGroup());
 
         if (!cloudHosting) {
@@ -131,7 +131,7 @@ public class UserUtilsCE {
     public Mono<Boolean> removeInstanceAdmin(List<User> users) {
 
         // TODO : Replace cloud hosting check with a feature flag check for multi tenancy
-        boolean cloudHosting = commonConfig.isCloudHosting();
+        boolean cloudHosting = commonConfig.getIsCloudHosting();
         Mono<PermissionGroup> organizationAdminPgMono = Mono.just(new PermissionGroup());
 
         if (!cloudHosting) {

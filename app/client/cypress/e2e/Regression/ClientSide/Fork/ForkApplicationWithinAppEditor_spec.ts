@@ -6,7 +6,7 @@ import EditorNavigation, {
 describe(
   "Fork application across workspaces",
   {
-    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Git", "@tag.Table", "@tag.JS"],
+    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Table", "@tag.JS"],
   },
   function () {
     before(() => {

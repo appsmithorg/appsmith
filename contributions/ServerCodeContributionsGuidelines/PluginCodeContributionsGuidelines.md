@@ -24,7 +24,7 @@ This command will generate a folder called `helloWorldPlugin` with default sourc
 ```
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
+        <java.version>25</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>hello-world-plugin</plugin.id>

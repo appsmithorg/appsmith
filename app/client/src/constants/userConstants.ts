@@ -8,7 +8,7 @@ export interface User {
   username: string;
   name: string;
   gender: Gender;
-  emptyInstance?: boolean;
+  isEmptyInstance?: boolean;
   photoId?: string;
   isSuperUser: boolean;
   role?: string;

@@ -13,7 +13,6 @@ describe(
       "@tag.Fork",
       "@tag.Sanity",
       "@tag.Datasource",
-      "@tag.Git",
       "@tag.Table",
       "@tag.JS",
     ],

@@ -40,8 +40,7 @@ public class ApplicationTemplate extends BaseDomain {
     private Boolean isCommunityTemplate;
     // This will point to the email of the template's author. This cannot be
     // null if the template is a community template
-    @Email
-    private String authorEmail;
+    @Email private String authorEmail;
 
     private int templateGridRowSize;
 

@@ -795,20 +795,20 @@ public class AmazonS3Plugin extends BasePlugin {
                                 deleteMultipleObjects(s3Provider, connection, bucketName, path);
                                 actionResult = Map.of("status", "All files deleted successfully");
                                 break;
-                                /**
-                                 * Commenting out this code section since we have not decided to expose this action to users
-                                 * as of now. In the future, if we do decide to expose this action to the users, just uncommenting this
-                                 * code should take care of gathering the list of buckets. Hence, leaving this commented but
-                                 * intact for future use.
-                                 *
-                                 * case LIST_BUCKETS:
-                                 * List<String> bucketNames = connection.listBuckets()
-                                 * .stream()
-                                 * .map(Bucket::getName)
-                                 * .collect(Collectors.toList());
-                                 * actionResult = Map.of("bucketList", bucketNames);
-                                 * break;
-                                 */
+                            /**
+                             * Commenting out this code section since we have not decided to expose this action to users
+                             * as of now. In the future, if we do decide to expose this action to the users, just uncommenting this
+                             * code should take care of gathering the list of buckets. Hence, leaving this commented but
+                             * intact for future use.
+                             *
+                             * case LIST_BUCKETS:
+                             * List<String> bucketNames = connection.listBuckets()
+                             * .stream()
+                             * .map(Bucket::getName)
+                             * .collect(Collectors.toList());
+                             * actionResult = Map.of("bucketList", bucketNames);
+                             * break;
+                             */
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,

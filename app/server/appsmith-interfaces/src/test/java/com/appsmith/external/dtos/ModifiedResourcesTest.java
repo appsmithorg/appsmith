@@ -17,25 +17,25 @@ public class ModifiedResourcesTest {
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
-        modifiedResources.setAllModified(false);
+        modifiedResources.setIsAllModified(false);
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
-        modifiedResources.setAllModified(true);
+        modifiedResources.setIsAllModified(true);
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isTrue();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
-        modifiedResources.setAllModified(false);
+        modifiedResources.setIsAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of());
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
-        modifiedResources.setAllModified(false);
+        modifiedResources.setIsAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of("any", Set.of()));
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
-        modifiedResources.setAllModified(false);
+        modifiedResources.setIsAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of("PAGE", Set.of("home")));
         assertThat(modifiedResources.isResourceUpdated("PAGE", "home")).isTrue();
         assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();

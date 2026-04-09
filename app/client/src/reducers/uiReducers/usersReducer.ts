@@ -144,12 +144,12 @@ const usersReducer = createReducer(initialState, {
     current: undefined,
     currentUser: {
       ...DefaultCurrentUserDetails,
-      emptyInstance: action.payload,
+      isEmptyInstance: action.payload,
     },
     users: [
       {
         ...DefaultCurrentUserDetails,
-        emptyInstance: action.payload,
+        isEmptyInstance: action.payload,
       },
     ],
   }),

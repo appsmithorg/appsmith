@@ -1,0 +1,293 @@
+---
+description: Playwright E2E test conventions — POM design, assertions, selectors, test structure
+globs:
+  - app/client/playwright/**/*.ts
+  - app/client/playwright.config.ts
+alwaysApply: false
+---
+# Playwright E2E Conventions
+
+## Imports
+
+Tests import `test` and `expect` from the custom fixtures, not from `@playwright/test`:
+
+```typescript
+import { test, expect } from "../../fixtures";
+```
+
+This gives access to custom fixtures (workspace, app, api) and custom matchers (toShowToast).
+
+## Page Object Model Rules
+
+- POMs **never assert**. They return Locators or data. Assertions belong in test files.
+- POMs **never sleep**. No `waitForTimeout`, no post-action delays.
+- POMs **are thin**. A method is 1-5 lines. If longer, split it.
+- POMs **don't compose other POMs**. Tests compose POMs. Multi-POM orchestration goes in `helpers/`.
+- POMs **take `Page` in constructor**. No singletons, no global state.
+
+## Selector Priority
+
+1. `getByRole()` — accessible, resilient to markup changes
+2. `getByLabel()`, `getByPlaceholder()`, `getByText()` — user-visible
+3. `getByTestId()` — explicit contract
+4. `page.locator('[data-*]')` — data attributes from `constants/selectors.ts`
+5. CSS selectors — last resort, requires a comment explaining why
+
+**Never use raw CSS selectors when a user-facing locator exists.** If `getByLabel()` fails, it likely
+means the app has a real a11y issue (missing `<label for>` association). Fall through the priority
+list — e.g. `getByPlaceholder()` — rather than reaching for `page.locator("input[name='...']")`.
+Raw CSS selectors couple tests to DOM implementation, not user behavior — the exact fragility trap
+that Cypress tests fell into.
+
+**Appsmith-specific:** Many form components (e.g. `FormGroup` from `ads-old`) render visual labels
+without proper `<label for>` associations. Prefer `getByPlaceholder()` for these inputs. If neither
+label nor placeholder exists, `getByTestId()` is preferred over raw CSS.
+
+## Assertions
+
+Always use Playwright's auto-retrying `expect`:
+
+```typescript
+// GOOD — auto-retries until timeout
+await expect(locator).toHaveText("Bangladesh");
+await expect(locator).toBeVisible();
+await expect(locator).toHaveCount(5);
+
+// BAD — resolves once, no retry on failure
+expect(await locator.textContent()).toBe("Bangladesh");
+expect(await locator.isVisible()).toBe(true);
+expect(await locator.count()).toBe(5);
+```
+
+## Wait Strategy
+
+Never use hard waits. Always wait for a specific condition:
+
+```typescript
+// BAD — hard timeout
+await page.waitForTimeout(500);
+
+// BAD — networkidle is unreliable (waits for "no requests for 500ms", flaky and slow)
+await page.waitForLoadState("networkidle");
+
+// GOOD — wait for the element that proves the page is ready
+await expect(page.locator(SELECTORS.widgetInDeployed("text")).first()).toBeVisible();
+
+// GOOD — wait for API response after a mutation
+const response = page.waitForResponse(r => r.url().includes(API.actionsExecute));
+await page.getByRole("button", { name: "Update" }).click();
+await response;
+```
+
+After `page.goto()`, wait for the **first meaningful element** the test cares about — a heading, a table,
+a button. Playwright's auto-waiting on assertions handles this naturally. Never use `networkidle` as a
+substitute for identifying what "page ready" actually means for your test.
+
+## Test Structure
+
+- One concern per `test()`. If the name has "and" or "&", split it.
+- No `let` variables mutated across tests. Use fixtures.
+- Setup via API (fast), UI for what you're testing only.
+- Test names: behavior-focused, lowercase. `"filters table by country"` not `"2. Validate Widgets"`
+
+## Constants
+
+- API paths, routes, `data-testid` selectors come from `playwright/constants/`. Never hardcode.
+- Test data (assertion values like `"Bangladesh"`) stays inline.
+- Rule: if the string changes because the **app** changed, it's a constant. If it changes because the **test data** changed, it's inline.
+
+## File Naming
+
+- Specs: `kebab-case.spec.ts`
+- POMs: `kebab-case.page.ts` or `kebab-case.component.ts`
+- Helpers: `kebab-case.ts`
+
+## Flaky Test Handling
+
+- Never use bare `test.skip()`. Use `test.fixme("reason")` to track why.
+- Before merging new specs: `yarn test:pw:flake-check --grep "test name"` (runs 5x).
+- If a test is flaky in CI: file a GitHub issue, add `test.fixme("ISSUE-123: description")`.
+
+## Setup & Config Gotchas
+
+- **Auth setup file location:** `auth.setup.ts` lives in `playwright/fixtures/`, not `playwright/tests/`.
+  The `setup` project in `playwright.config.ts` must have its own `testDir: "./playwright/fixtures"` —
+  otherwise it inherits the top-level `testDir` and never finds the setup file.
+- **Bundled Chromium required:** `playwright install chromium` is a one-time prerequisite for local dev.
+  The `--ui` mode needs bundled Chromium for its shell — it does not detect Brave, and env vars like
+  `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` don't affect `--ui` mode's browser discovery.
+- **Environment variables:** Credentials (`USERNAME`, `PASSWORD`) are loaded from `playwright/.env` via
+  `dotenv` in `playwright.config.ts`. The `run-ui.js` script also loads this file so UI mode picks
+  them up. Never hardcode credentials in test files.
+
+## Test Scoping — Directory-Based (No Tags)
+
+Scoping is done by **directory structure**, not tags. The folder a test lives in IS its scope.
+
+```
+playwright/tests/
+  smoke/                     # ~10-15 tests, "is the app alive?" — every push
+    login.spec.ts
+  sanity/                    # ~50-100 tests, core flows — every PR
+    git/
+    datasource/
+    widgets/
+  regression/                # edge cases, complex interactions — nightly
+    git/
+    datasource/
+  ee/                        # EE-specific tests
+    sanity/
+    regression/
+```
+
+**Rules:**
+- Every spec file lives under `smoke/`, `sanity/`, or `regression/`
+- Feature subdirectories are mandatory within `sanity/` and `regression/`
+- Promotion = moving the file (regression -> sanity -> smoke)
+- No `{ tag: [...] }` metadata — the file path is the tag
+- Run by tier: `yarn test:pw:smoke`, `yarn test:pw:sanity`, `yarn test:pw:regression`
+- Run by feature: `npx playwright test tests/sanity/git/`
+
+**Tier definitions:**
+
+| Tier | Purpose | Run frequency | Target |
+|------|---------|---------------|--------|
+| smoke | Login, create app, basic CRUD | Every push/PR | ~10-15 |
+| sanity | Core flows per feature area | Every PR | ~50-100 |
+| regression | Edge cases, complex interactions | Nightly/release | Unlimited |
+
+## PR Comment Trigger
+
+Trigger Playwright tests from a PR comment:
+
+```
+/test-pw                              # full suite (all CE tiers)
+/test-pw smoke                        # smoke only
+/test-pw sanity git                   # sanity + git feature only
+/test-pw regression datasource        # regression + datasource only
+/test-pw sanity --flags flag=true     # sanity with feature flag overrides
+```
+
+First arg = tier (smoke/sanity/regression/all). Default: all.
+Second arg = feature subdirectory (optional).
+`--flags` = comma-separated key=value overrides (optional).
+
+## Feature Flags — Layered Overrides
+
+**Default: real flags from the server. No blanket mocking.**
+
+Override layers (highest priority wins):
+
+1. **Per-test `page.route()`** — only for tests specifically about flag toggle behavior
+2. **`PW_FLAG_OVERRIDES` env var** — per-run JSON, e.g. `PW_FLAG_OVERRIDES='{"flag":true}' yarn test:pw`
+3. **`playwright/config/feature-flags.ts`** — base config for test environment needs (empty by default)
+4. **Real server response** — the baseline, always fetched first
+
+Overrides **merge on top of** real responses — they never replace them. The `flagOverrides` auto-fixture
+in `fixtures/index.ts` intercepts `/api/v1/users/features` and `/api/v1/consolidated-api/*`, fetches
+the real response, and patches only the specified keys.
+
+```typescript
+// BAD — replaces all flags (Cypress pattern)
+await page.route("**/api/v1/users/features", (route) =>
+  route.fulfill({ json: { data: { my_flag: true } } }),
+);
+
+// GOOD — merges on top of real response
+await page.route("**/api/v1/users/features", async (route) => {
+  const response = await route.fetch();
+  const json = await response.json();
+  json.data = { ...json.data, release_anvil_enabled: false };
+  await route.fulfill({ json });
+});
+```
+
+**When to use each layer:**
+- Most tests: no override (layer 4 — real server)
+- Test environment consistently needs a flag: add to `config/feature-flags.ts` (layer 3)
+- "What if" runs or PR-triggered: `PW_FLAG_OVERRIDES` or `--flags` (layer 2)
+- Testing the flag toggle itself: `page.route()` inline in the test (layer 1)
+
+## Parallelization — Shared Setup Projects
+
+When multiple test files need an expensive, shared precondition (e.g., importing an app via Git),
+use a **setup project** rather than `test.describe.serial()` or duplicating setup in each file.
+
+### Pattern
+
+1. **Setup file** (`playwright/fixtures/<name>.setup.ts`):
+   - Performs the expensive operation once (API-driven, no browser needed)
+   - Writes key state to `playwright/.state/<name>.json`
+   - Is a Playwright "setup project" in config — other projects depend on it
+
+2. **Teardown file** (`playwright/fixtures/<name>.teardown.ts`):
+   - Reads `playwright/.state/<name>.json` and cleans up resources
+   - Linked via `teardown` property on the setup project in config
+
+3. **State reader** (`playwright/helpers/<name>-state.ts`):
+   - Simple module: reads `.state/<name>.json`, returns typed data
+   - Each test file calls this in `test.beforeAll()` to get shared IDs/slugs
+
+4. **Test files**:
+   - Each file is focused on one page or concern
+   - Files run in parallel — they read shared state but don't mutate it
+   - Each test navigates directly to its target page via URL (no sequential page-hopping)
+
+### Config wiring
+
+```typescript
+{
+  name: "my-setup",
+  dependencies: ["setup"],           // auth first
+  testDir: "./playwright/fixtures",
+  testMatch: /my\.setup\.ts/,
+  teardown: "my-teardown",
+  use: { storageState: "playwright/auth/user.json" },
+},
+{
+  name: "my-teardown",
+  testDir: "./playwright/fixtures",
+  testMatch: /my\.teardown\.ts/,
+  use: { storageState: "playwright/auth/user.json" },
+},
+{
+  name: "my-tests",
+  dependencies: ["my-setup"],
+  testDir: "./playwright/tests/regression/my-feature",
+  use: { ...devices["Desktop Chrome"], storageState: "playwright/auth/user.json" },
+},
+```
+
+### Rules
+
+- **`.state/` is gitignored** — never commit state files
+- Setup files use `request` (API context), not `page` — no browser overhead
+- State files contain only IDs, slugs, names — never tokens or credentials
+- Tests **never write** to the state file — read-only consumption
+- If a test needs to mutate shared data (e.g., update a DB row), it must restore original state in `afterEach`
+
+## Bulk File Generation Checklist
+
+When generating multiple test files in a batch, **lint-check incrementally** — don't write everything then review.
+
+After writing **each** spec file, verify:
+
+1. **No `networkidle`** — every `page.goto()` must be followed by an `expect(locator).toBeVisible()` or
+   similar condition, never `waitForLoadState("networkidle")`
+2. **No hardcoded API URLs** — every API path string must come from `constants/api-routes.ts` (`API.actionsExecute`,
+   not `"/api/v1/actions/execute"`)
+3. **No inline CSS selectors** — every widget/element selector must come from `constants/selectors.ts`
+   (`SELECTORS.widgetInDeployed("text")`, not `".t--widget-textwidget"`)
+4. **No unused imports** — if a POM or constant was imported speculatively, remove it before moving on
+5. **Run ESLint** — `npx eslint <file> --ext .ts` catches `networkidle`, hard waits, and non-retrying assertions
+
+The agent's default instinct during batch generation is to reach for the "easiest" pattern (`networkidle`,
+inline strings, speculative imports). This checklist exists because that instinct directly violates the
+conventions this file defines.
+
+## CE / EE Separation
+
+- CE tests: `playwright/tests/{smoke,sanity,regression}/`
+- EE tests: `playwright/tests/ee/{sanity,regression}/`
+- EE POMs: `playwright/page-objects/ee/`
+- Shared POMs and helpers: used by both, no duplication

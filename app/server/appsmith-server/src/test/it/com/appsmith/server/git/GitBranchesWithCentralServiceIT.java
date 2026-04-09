@@ -532,7 +532,7 @@ public class GitBranchesWithCentralServiceIT {
         MergeStatusDTO mergeStatusDTO2 = centralGitService.isBranchMergable(barArtifactId, artifactType, gitMergeDTO2, GitType.FILE_SYSTEM).block();
 
         assertThat(mergeStatusDTO2).isNotNull();
-        assertThat(mergeStatusDTO2.isMergeAble()).isFalse();
+        assertThat(mergeStatusDTO2.getMergeAble()).isFalse();
         assertThat(mergeStatusDTO2.getMessage()).contains(GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage("bar"));
 
         // Create a new branch baz and check for new commit
@@ -565,7 +565,7 @@ public class GitBranchesWithCentralServiceIT {
 
         MergeStatusDTO mergeStatusDTO3 = centralGitService.isBranchMergable(bazArtifact.getId(), artifactType, gitMergeDTO3, GitType.FILE_SYSTEM).block();
         assertThat(mergeStatusDTO3).isNotNull();
-        assertThat(mergeStatusDTO3.isMergeAble()).isTrue();
+        assertThat(mergeStatusDTO3.getMergeAble()).isTrue();
 
         GitStatusDTO barStatus2 = centralGitService.getStatus(barArtifactId, artifactType, true, GitType.FILE_SYSTEM).block();
         assertThat(barStatus2).isNotNull();
@@ -574,7 +574,7 @@ public class GitBranchesWithCentralServiceIT {
         MergeStatusDTO barToBazMergeStatus = centralGitService.mergeBranch(bazArtifact.getId(), artifactType, gitMergeDTO3, GitType.FILE_SYSTEM).block();
 
         assertThat(barToBazMergeStatus).isNotNull();
-        assertThat(barToBazMergeStatus.isMergeAble()).isTrue();
+        assertThat(barToBazMergeStatus.getMergeAble()).isTrue();
         assertThat(barToBazMergeStatus.getStatus()).contains("ALREADY_UP_TO_DATE");
 
         // Since fast-forward should succeed here, top of commit should not change

@@ -371,7 +371,7 @@ public class AutoCommitEligibilityHelperTest {
         applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() - 1);
 
         ModifiedResources modifiedResources = new ModifiedResources();
-        modifiedResources.setAllModified(true);
+        modifiedResources.setIsAllModified(true);
         applicationJson.setModifiedResources(new ModifiedResources());
 
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();

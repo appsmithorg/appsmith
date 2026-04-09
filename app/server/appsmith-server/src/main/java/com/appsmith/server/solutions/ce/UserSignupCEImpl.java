@@ -269,7 +269,21 @@ public class UserSignupCEImpl implements UserSignupCE {
 
     public Mono<User> signupAndLoginSuper(
             UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
-        Mono<User> userMono = userService
+        Mono<User> userMono = userService.claimSuperUserCreationSlot().flatMap(claimed -> {
+            if (!Boolean.TRUE.equals(claimed)) {
+                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            }
+            return createAndSetupSuperUser(userFromRequest, originHeader, exchange);
+        });
+        return userMono.elapsed().map(pair -> {
+            log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
+            return pair.getT2();
+        });
+    }
+
+    private Mono<User> createAndSetupSuperUser(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
+        return userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
                     if (!Boolean.TRUE.equals(isEmpty)) {
@@ -281,7 +295,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setName(userFromRequest.getName());
                     user.setSource(userFromRequest.getSource());
                     user.setState(userFromRequest.getState());
-                    user.setIsEnabled(userFromRequest.isEnabled());
+                    user.setIsEnabled(userFromRequest.getIsEnabled());
                     user.setPassword(userFromRequest.getPassword());
 
                     Mono<User> userMono1 = signupAndLogin(user, exchange);
@@ -320,7 +334,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .applyChanges(
                                     Map.of(
                                             APPSMITH_DISABLE_TELEMETRY.name(),
-                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            String.valueOf(!userFromRequest.getAllowCollectingAnonymousData()),
                                             APPSMITH_ADMIN_EMAILS.name(),
                                             user.getEmail()),
                                     originHeader)
@@ -363,11 +377,11 @@ public class UserSignupCEImpl implements UserSignupCE {
                                 return pair.getT2();
                             });
                     return allSecondaryFunctions.thenReturn(user);
+                })
+                .onErrorResume(error -> {
+                    log.error("Super user creation failed after claiming slot. Releasing sentinel.", error);
+                    return userService.releaseSuperUserCreationSlot().then(Mono.error(error));
                 });
-        return userMono.elapsed().map(pair -> {
-            log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
-            return pair.getT2();
-        });
     }
 
     public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
@@ -378,7 +392,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     user.setSource(LoginSource.FORM);
                     user.setState(UserState.ACTIVATED);
-                    user.setEnabled(true);
+                    user.setIsEnabled(true);
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
@@ -442,8 +456,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     String newsletterSignedUpUserEmail = user.getEmail();
                     String newsletterSignedUpUserName = user.getName();
                     Map<String, Object> analyticsProps = new HashMap<>();
-                    analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
-                    analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
+                    analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.getAllowCollectingAnonymousData());
+                    analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.getSignupForNewsletter());
                     analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
                     analyticsProps.put(ROLE, "");
                     analyticsProps.put(PROFICIENCY, ObjectUtils.defaultIfNull(userData.getProficiency(), ""));

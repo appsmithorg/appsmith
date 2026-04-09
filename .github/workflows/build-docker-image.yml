@@ -5,6 +5,11 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      branch:
+        description: "Branch to checkout when pr is 0 (must match client/server/rts builds)"
+        required: false
+        type: string
+        default: ""
       pr:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
@@ -33,8 +38,14 @@ jobs:
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
+        if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
+
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
 
       - name: Download the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
