@@ -1,6 +1,5 @@
 ARG BASE
-#FROM ${BASE}
-FROM appsmith/base-ce:ww-node-24-upgrade
+FROM ${BASE}
 
 ENV IN_DOCKER=1
 
