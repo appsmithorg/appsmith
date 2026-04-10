@@ -1,0 +1,89 @@
+{{- if .Values.mongodbOperator.enabled }}
+{{- $crName := .Values.mongodbOperator.crName -}}
+{{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
+{{- $storageClass := .Values.mongodbOperator.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
+{{- if not .Values.mongodbOperator.auth.passwordSecretName }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $passwordSecretName }}
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  password: {{ required "mongodbOperator.auth.password is required when passwordSecretName is not set" .Values.mongodbOperator.auth.password | quote }}
+{{- end }}
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ $crName }}
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+spec:
+  members: {{ .Values.mongodbOperator.members }}
+  type: ReplicaSet
+  version: {{ .Values.mongodbOperator.version | quote }}
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: {{ .Values.mongodbOperator.auth.username }}
+      db: {{ .Values.mongodbOperator.auth.database }}
+      passwordSecretRef:
+        name: {{ $passwordSecretName }}
+      roles:
+        - name: dbOwner
+          db: appsmith
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+      scramCredentialsSecretName: {{ $crName }}-scram
+  statefulSet:
+    spec:
+      {{- if or .Values.mongodbOperator.nodeSelector .Values.mongodbOperator.affinity .Values.mongodbOperator.tolerations .Values.mongodbOperator.resources }}
+      template:
+        spec:
+          {{- with .Values.mongodbOperator.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbOperator.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbOperator.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbOperator.resources }}
+          containers:
+            - name: mongod
+              resources:
+                {{- toYaml . | nindent 16 }}
+          {{- end }}
+      {{- end }}
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            resources:
+              requests:
+                storage: {{ .Values.mongodbOperator.persistent.storageSize }}
+            {{- if $storageClass }}
+            storageClassName: {{ $storageClass }}
+            {{- end }}
+        - metadata:
+            name: logs-volume
+          spec:
+            resources:
+              requests:
+                storage: 2Gi
+            {{- if $storageClass }}
+            storageClassName: {{ $storageClass }}
+            {{- end }}
+{{- end }}

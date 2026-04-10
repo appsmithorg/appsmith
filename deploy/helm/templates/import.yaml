@@ -1,5 +1,5 @@
 {{- /* Fail helm chart if autoscaling is enabled and mongo is disabled */ -}}
-{{- if and ( .Values.autoscaling.enabled ) ( not .Values.mongodb.enabled ) }}
+{{- if and ( .Values.autoscaling.enabled ) ( not .Values.mongodb.enabled ) ( not .Values.mongodbOperator.enabled ) }}
 {{- if and ( not .Values.applicationConfig.APPSMITH_DB_URL ) ( not .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
 {{- fail "To enable autoscaling on Appsmith, MongoDB needs to be enabled or an external MongoDB needs to be configured. Refer: https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes#install-appsmith" }}
 {{- end }}
@@ -25,4 +25,16 @@
 {{- /* Fail helm chart if postgresql is enabled along with APPSMITH_DB_URL in the ApplicationConfig */ -}}
 {{- if and ( .Values.postgresql.enabled ) ( .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_DRIVER ) ( .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL )  }}
 {{- fail "PostgreSQL is enabled, but also found APPSMITH_KEYCLOAK_DB_URL configured to an external instance, PostgreSQL needs to be disabled if using an external PostgreSQL instance" }}
+{{- end }}
+
+{{- /* Fail helm chart if installOperator is true but mongodbOperator is not enabled */ -}}
+{{- if and ( .Values.mongodbOperator.installOperator ) ( not .Values.mongodbOperator.enabled ) }}
+{{- fail "mongodbOperator.installOperator is true but mongodbOperator.enabled is false. Enable mongodbOperator.enabled to deploy a MongoDBCommunity resource." }}
+{{- end }}
+
+{{- /* Fail helm chart if mongodbOperator is enabled with operator-only mode and an external URL is also set */ -}}
+{{- if and ( .Values.mongodbOperator.enabled ) ( not .Values.mongodb.enabled ) }}
+{{- if or ( .Values.applicationConfig.APPSMITH_DB_URL ) ( .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
+{{- fail "mongodbOperator is enabled in operator-only mode, but APPSMITH_DB_URL or APPSMITH_MONGODB_URI is also configured. Remove the external URL or disable mongodbOperator." }}
+{{- end }}
 {{- end }}

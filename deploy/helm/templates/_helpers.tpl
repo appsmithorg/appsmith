@@ -129,6 +129,34 @@ Get the PV name, using override if specified
 {{- end -}}
 
 {{/*
+MongoDB Operator: connection string secret name
+The operator auto-generates a secret named <crName>-<db>-<username>
+*/}}
+{{- define "appsmith.mongoOperatorSecretName" -}}
+{{- printf "%s-%s-%s" .Values.mongodbOperator.crName .Values.mongodbOperator.auth.database .Values.mongodbOperator.auth.username -}}
+{{- end -}}
+
+{{/*
+MongoDB Operator: headless service name
+The operator creates a service named <crName>-svc
+*/}}
+{{- define "appsmith.mongoOperatorServiceName" -}}
+{{- printf "%s-svc" .Values.mongodbOperator.crName -}}
+{{- end -}}
+
+{{/*
+MongoDB Operator: password secret name
+Uses existing secret if provided, otherwise auto-generated name
+*/}}
+{{- define "appsmith.mongoOperatorPasswordSecretName" -}}
+{{- if .Values.mongodbOperator.auth.passwordSecretName -}}
+{{- .Values.mongodbOperator.auth.passwordSecretName -}}
+{{- else -}}
+{{- printf "%s-password" .Values.mongodbOperator.crName -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Renders a value that contains template.
 */}}
 {{- define "tplvalues.render" -}}
