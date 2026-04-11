@@ -392,6 +392,7 @@ class SelectComponent extends React.Component<
             fontStyle={labelStyle}
             helpText={labelTooltip}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
+            isRequired={this.props.isRequired}
             loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}

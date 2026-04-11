@@ -563,6 +563,8 @@ class MultiSelectWidget extends BaseWidget<
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
+        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
+        isRequired={this.props.isRequired}
         isValid={this.props.isValid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
