@@ -597,24 +597,11 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             });
         }
 
-        if (page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
-
-            page.getPublishedPage().getLayouts().forEach(layout -> {
-                if (layout.getLayoutOnLoadActions() != null) {
-                    layout.getLayoutOnLoadActions()
-                            .forEach(onLoadAction -> onLoadAction.forEach(actionDTO -> {
-                                String oldActionDTOId = actionDTO.getId();
-                                actionDTO.setId(actionIdMap.get(oldActionDTOId));
-                                if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdsMap)
-                                        && publishedActionIdToCollectionIdsMap.containsKey(actionDTO.getId())) {
-                                    actionDTO.setCollectionId(
-                                            publishedActionIdToCollectionIdsMap.get(actionDTO.getId()));
-                                }
-                                layoutOnLoadActions.add(actionDTO.getId());
-                            }));
-                }
-            });
-        }
+        // Published page layouts must NOT be modified during import.
+        // The published state is only updated by the explicit publishPages step during a successful deploy.
+        // Mutating published layouts here with the import's actionIdMap (which maps Git IDs, not production IDs)
+        // corrupts published layoutOnLoadActions — the production action IDs get replaced with null/wrong values.
+        // See: APP-15122
 
         layoutOnLoadActions.remove(null);
         return layoutOnLoadActions;
