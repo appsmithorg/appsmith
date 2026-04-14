@@ -68,10 +68,8 @@ mongodbOperator:
     ## @param mongodbOperator.auth.database Authentication database (also used as connection path)
     database: "appsmith"
     ## @param mongodbOperator.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
-    ## If empty, a Secret is auto-created using mongodbOperator.auth.password
+    ## If empty, a pre-install Job generates a random password into a Secret named "{crName}-password"
     passwordSecretName: ""
-    ## @param mongodbOperator.auth.password Password used when auto-creating the password Secret
-    password: ""
   persistent:
     ## @param mongodbOperator.persistent.storageSize Storage size for each MongoDB replica
     storageSize: "10Gi"

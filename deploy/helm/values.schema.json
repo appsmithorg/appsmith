@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "mongodb": {
+      "type": "object",
+      "description": "Bitnami MongoDB subchart configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the Bitnami MongoDB subchart",
+          "default": true
+        }
+      }
+    },
+    "mongodbOperator": {
+      "type": "object",
+      "description": "MongoDB Community Operator configuration. Alternative to the Bitnami MongoDB subchart.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy a MongoDBCommunity custom resource",
+          "default": false
+        },
+        "installOperator": {
+          "type": "boolean",
+          "description": "Deploy the MongoDB Community Operator subchart. Set to false if the operator is already installed cluster-wide.",
+          "default": false
+        },
+        "crName": {
+          "type": "string",
+          "description": "Name of the MongoDBCommunity custom resource",
+          "default": "appsmith-mongodb"
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version for the operator to deploy",
+          "default": "8.0.20"
+        },
+        "members": {
+          "type": "integer",
+          "description": "Number of replica set members",
+          "minimum": 1,
+          "default": 3
+        },
+        "replicaSetName": {
+          "type": "string",
+          "description": "Name of the MongoDB replica set",
+          "default": "appsmith-mongodb"
+        },
+        "auth": {
+          "type": "object",
+          "description": "Authentication configuration for the operator-managed MongoDB",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "MongoDB user for Appsmith",
+              "default": "appsmith"
+            },
+            "database": {
+              "type": "string",
+              "description": "Authentication database (also used as the connection path)",
+              "default": "appsmith"
+            },
+            "passwordSecretName": {
+              "type": "string",
+              "description": "Name of an existing Secret containing the password (key: password). If empty, a pre-install Job generates a random password into a Secret named \"{crName}-password\"."
+            }
+          }
+        },
+        "persistent": {
+          "type": "object",
+          "description": "Persistence configuration for MongoDB data volumes",
+          "properties": {
+            "storageSize": {
+              "type": "string",
+              "description": "Storage size for each MongoDB replica PVC",
+              "default": "10Gi"
+            },
+            "storageClass": {
+              "type": "string",
+              "description": "StorageClass for MongoDB PVCs. Empty uses cluster default."
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource requests/limits for MongoDB containers"
+        },
+        "nodeSelector": {
+          "type": "object",
+          "description": "Node selector for MongoDB pods"
+        },
+        "affinity": {
+          "type": "object",
+          "description": "Affinity rules for MongoDB pods"
+        },
+        "tolerations": {
+          "type": "array",
+          "description": "Tolerations for MongoDB pods",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "description": "Bitnami Redis subchart configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the Bitnami Redis subchart",
+          "default": true
+        }
+      }
+    },
+    "postgresql": {
+      "type": "object",
+      "description": "Bitnami PostgreSQL subchart configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the Bitnami PostgreSQL subchart",
+          "default": true
+        }
+      }
+    },
+    "global": {
+      "type": "object",
+      "description": "Global parameters shared across subcharts",
+      "properties": {
+        "storageClass": {
+          "type": "string",
+          "description": "Global StorageClass for Persistent Volume(s)"
+        },
+        "namespaceOverride": {
+          "type": "string",
+          "description": "Override the namespace for resources deployed by the chart"
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "description": "Appsmith application image configuration",
+      "properties": {
+        "registry": {
+          "type": "string",
+          "default": "index.docker.io"
+        },
+        "repository": {
+          "type": "string",
+          "default": "appsmith/appsmith-ee"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
+        },
+        "tag": {
+          "type": "string",
+          "default": "latest"
+        }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Workload resource type: Deployment or StatefulSet",
+          "enum": ["Deployment", "StatefulSet"],
+          "default": "StatefulSet"
+        }
+      }
+    },
+    "autoscaling": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Horizontal Pod Autoscaling (forces Deployment workload type)",
+          "default": false
+        },
+        "minReplicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable data persistence using PVC",
+          "default": true
+        },
+        "size": {
+          "type": "string",
+          "description": "PVC storage request size",
+          "default": "10Gi"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Kubernetes Service type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port",
+          "default": 80
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress",
+          "default": false
+        }
+      }
+    },
+    "applicationConfig": {
+      "type": "object",
+      "description": "Appsmith application configuration environment variables",
+      "properties": {
+        "APPSMITH_DB_URL": {
+          "type": "string",
+          "description": "External MongoDB connection string. Cannot be set when mongodb.enabled or mongodbOperator.enabled (operator-only mode) is true."
+        },
+        "APPSMITH_REDIS_URL": {
+          "type": "string",
+          "description": "External Redis connection string"
+        },
+        "APPSMITH_ENCRYPTION_PASSWORD": {
+          "type": "string",
+          "description": "Encryption password for sensitive data"
+        },
+        "APPSMITH_ENCRYPTION_SALT": {
+          "type": "string",
+          "description": "Encryption salt for sensitive data"
+        }
+      }
+    }
+  }
+}

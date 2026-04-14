@@ -1,0 +1,387 @@
+suite: MongoDB Operator
+templates:
+  - mongodb-community.yaml
+tests:
+  - name: should not create any resources when disabled
+    set:
+      mongodbOperator.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: should render only the MongoDBCommunity CR when enabled (password secret is handled by the pre-install Job)
+    set:
+      mongodbOperator.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: MongoDBCommunity
+      - equal:
+          path: metadata.name
+          value: appsmith-mongodb
+      - equal:
+          path: spec.members
+          value: 3
+      - equal:
+          path: spec.version
+          value: "8.0.20"
+      - equal:
+          path: spec.type
+          value: ReplicaSet
+
+  - name: CR should reference the default password secret name by default
+    set:
+      mongodbOperator.enabled: true
+    asserts:
+      - equal:
+          path: spec.users[0].passwordSecretRef.name
+          value: appsmith-mongodb-password
+
+  - name: CR should reference user-provided secret when auth.passwordSecretName is set
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.auth.passwordSecretName: my-existing-secret
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: MongoDBCommunity
+      - equal:
+          path: spec.users[0].passwordSecretRef.name
+          value: my-existing-secret
+
+  - name: should configure custom member count
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.members: 5
+    asserts:
+      - equal:
+          path: spec.members
+          value: 5
+
+  - name: should configure custom MongoDB version
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.version: "6.0.27"
+    asserts:
+      - equal:
+          path: spec.version
+          value: "6.0.27"
+
+  - name: should set correct user roles
+    set:
+      mongodbOperator.enabled: true
+    asserts:
+      - equal:
+          path: spec.users[0].roles[0]
+          value:
+            name: dbOwner
+            db: appsmith
+      - equal:
+          path: spec.users[0].roles[1]
+          value:
+            name: clusterAdmin
+            db: admin
+
+---
+suite: MongoDB Operator - Transition mode (Bitnami + Operator)
+templates:
+  - deployment.yaml
+  - configMap.yaml
+  - mongodb-community.yaml
+tests:
+  - name: should use Bitnami init container in transition mode
+    templates:
+      - deployment.yaml
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: mongo-init-container
+            image: "docker.io/appsmith/mongodb:6.0.27"
+            command: ['sh', '-c', "until mongosh --host appsmith-mongodb.NAMESPACE.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+          count: 1
+          any: true
+
+  - name: should not use operator init container in transition mode
+    templates:
+      - deployment.yaml
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - notContains:
+          path: spec.template.spec.initContainers
+          content:
+            image: "mongo:8.0.20"
+          any: true
+
+  - name: should set APPSMITH_DB_URL to Bitnami connection string in transition mode
+    templates:
+      - configMap.yaml
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - matchRegex:
+          path: data.APPSMITH_DB_URL
+          pattern: "mongodb\\+srv://root:password@appsmith-mongodb"
+
+  - name: should not inject operator secretKeyRef in transition mode
+    templates:
+      - deployment.yaml
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_DB_URL
+          any: true
+
+  - name: should still create operator CR in transition mode
+    templates:
+      - mongodb-community.yaml
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - isKind:
+          of: MongoDBCommunity
+      - equal:
+          path: metadata.name
+          value: appsmith-mongodb
+
+---
+suite: MongoDB Operator - Deployment integration
+templates:
+  - deployment.yaml
+tests:
+  - name: should use Bitnami init container when only mongodb.enabled
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: mongo-init-container
+          count: 1
+          any: true
+
+  - name: should use operator init container when operator-only mode
+    set:
+      mongodb.enabled: false
+      mongodbOperator.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: mongo-init-container
+            image: "mongo:8.0.20"
+          count: 1
+          any: true
+
+  - name: should inject APPSMITH_DB_URL from secret in operator-only mode
+    set:
+      mongodb.enabled: false
+      mongodbOperator.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_DB_URL
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-mongodb-appsmith-appsmith
+                key: connectionString.standardSrv
+          any: true
+
+  - name: should not inject APPSMITH_DB_URL from secret in transition mode
+    set:
+      mongodb.enabled: true
+      mongodbOperator.enabled: true
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_DB_URL
+          any: true
+
+---
+suite: MongoDB Operator - Password init Job
+templates:
+  - hooks/mongodb-community.yaml
+tests:
+  - name: should not render anything when operator is disabled
+    set:
+      mongodbOperator.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: should not render anything when auth.passwordSecretName is set
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.auth.passwordSecretName: my-existing-secret
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: should render SA, Role, RoleBinding, and Job when no password config is provided
+    set:
+      mongodbOperator.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 4
+      - isKind:
+          of: ServiceAccount
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: appsmith-mongodb-password-init
+        documentIndex: 0
+      - isKind:
+          of: Role
+        documentIndex: 1
+      - isKind:
+          of: RoleBinding
+        documentIndex: 2
+      - isKind:
+          of: Job
+        documentIndex: 3
+      - equal:
+          path: metadata.name
+          value: appsmith-mongodb-password-init
+        documentIndex: 3
+
+  - name: should use crName as prefix for init job name
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.crName: custom-mongo
+    documentIndex: 3
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.name
+          value: custom-mongo-password-init
+
+  - name: Role should allow get on the specific password secret and create on secrets in namespace
+    set:
+      mongodbOperator.enabled: true
+    documentSelector:
+      path: kind
+      value: Role
+    asserts:
+      - equal:
+          path: rules[0]
+          value:
+            apiGroups: [""]
+            resources: ["secrets"]
+            resourceNames: ["appsmith-mongodb-password"]
+            verbs: ["get"]
+      - equal:
+          path: rules[1]
+          value:
+            apiGroups: [""]
+            resources: ["secrets"]
+            verbs: ["create"]
+
+  - name: RoleBinding should reference the SA and Role
+    set:
+      mongodbOperator.enabled: true
+    documentSelector:
+      path: kind
+      value: RoleBinding
+    asserts:
+      - equal:
+          path: subjects[0].kind
+          value: ServiceAccount
+      - equal:
+          path: subjects[0].name
+          value: appsmith-mongodb-password-init
+      - equal:
+          path: roleRef.kind
+          value: Role
+      - equal:
+          path: roleRef.name
+          value: appsmith-mongodb-password-init
+
+  - name: Job should be a Helm pre-install/pre-upgrade hook with before-hook-creation cleanup
+    set:
+      mongodbOperator.enabled: true
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation,hook-succeeded
+
+  - name: Job pod should use alpine/kubectl image and run with non-root hardened security
+    set:
+      mongodbOperator.enabled: true
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: appsmith-mongodb-password-init
+      - equal:
+          path: spec.template.spec.restartPolicy
+          value: Never
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: alpine/kubectl:1.31.0
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+
+  - name: Job should have ttlSecondsAfterFinished set for auto-cleanup
+    set:
+      mongodbOperator.enabled: true
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - equal:
+          path: spec.ttlSecondsAfterFinished
+          value: 60
+
+  - name: Job command should reference the configured password secret name
+    set:
+      mongodbOperator.enabled: true
+      mongodbOperator.crName: custom-mongo
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].command[2]
+          pattern: 'SECRET_NAME="custom-mongo-password"'
+
+---
+suite: MongoDB Operator - Validation
+templates:
+  - import.yaml
+tests:
+  - name: should fail when installOperator is true but enabled is false
+    set:
+      mongodbOperator.installOperator: true
+      mongodbOperator.enabled: false
+    asserts:
+      - failedTemplate:
+          errorMessage: "mongodbOperator.installOperator is true but mongodbOperator.enabled is false. Enable mongodbOperator.enabled to deploy a MongoDBCommunity resource."

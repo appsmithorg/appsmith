@@ -2,22 +2,6 @@
 {{- $crName := .Values.mongodbOperator.crName -}}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
 {{- $storageClass := .Values.mongodbOperator.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
-{{- if not .Values.mongodbOperator.auth.passwordSecretName }}
-{{- $existingSecret := lookup "v1" "Secret" (include "appsmith.namespace" .) $passwordSecretName }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ $passwordSecretName }}
-  namespace: {{ include "appsmith.namespace" . }}
-  labels:
-    {{- include "appsmith.labels" . | nindent 4 }}
-  annotations:
-    helm.sh/resource-policy: keep
-type: Opaque
-stringData:
-  password: {{ if .Values.mongodbOperator.auth.password }}{{ .Values.mongodbOperator.auth.password | quote }}{{ else if and $existingSecret $existingSecret.data (index $existingSecret.data "password") }}{{ index $existingSecret.data "password" | b64dec | quote }}{{ else }}{{ randAlphaNum 24 | quote }}{{ end }}
-{{- end }}
 ---
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
