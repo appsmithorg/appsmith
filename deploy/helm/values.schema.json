@@ -13,18 +13,13 @@
         }
       }
     },
-    "mongodbOperator": {
+    "mongodbCommunity": {
       "type": "object",
-      "description": "MongoDB Community Operator configuration. Alternative to the Bitnami MongoDB subchart.",
+      "description": "MongoDBCommunity cluster configuration. Alternative to the Bitnami MongoDB subchart.",
       "properties": {
         "enabled": {
           "type": "boolean",
           "description": "Deploy a MongoDBCommunity custom resource",
-          "default": false
-        },
-        "installOperator": {
-          "type": "boolean",
-          "description": "Deploy the MongoDB Community Operator subchart. Set to false if the operator is already installed cluster-wide.",
           "default": false
         },
         "crName": {
@@ -34,7 +29,7 @@
         },
         "version": {
           "type": "string",
-          "description": "MongoDB version for the operator to deploy",
+          "description": "MongoDB version to deploy",
           "default": "8.0.20"
         },
         "members": {
@@ -101,6 +96,17 @@
           "items": {
             "type": "object"
           }
+        }
+      }
+    },
+    "mongodbOperator": {
+      "type": "object",
+      "description": "MongoDB Community Operator subchart. Values are passed through to the upstream community-operator chart.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Install the MongoDB Community Operator subchart. Set to false if the operator is already installed cluster-wide.",
+          "default": false
         }
       }
     },
@@ -239,7 +245,7 @@
       "properties": {
         "APPSMITH_DB_URL": {
           "type": "string",
-          "description": "External MongoDB connection string. Cannot be set when mongodb.enabled or mongodbOperator.enabled (operator-only mode) is true."
+          "description": "External MongoDB connection string. Cannot be set when mongodb.enabled or mongodbCommunity.enabled (operator-only mode) is true."
         },
         "APPSMITH_REDIS_URL": {
           "type": "string",

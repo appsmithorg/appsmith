@@ -11,10 +11,10 @@ The resulting Secret has no Helm release labels/annotations and no
 ownerReferences, so ArgoCD does not track or diff it (matching how the
 MongoDB operator's own generated secrets behave).
 */}}
-{{- if .Values.mongodbOperator.enabled }}
-{{- if not .Values.mongodbOperator.auth.passwordSecretName }}
+{{- if .Values.mongodbCommunity.enabled }}
+{{- if not .Values.mongodbCommunity.auth.passwordSecretName }}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
-{{- $jobName := printf "%s-password-init" .Values.mongodbOperator.crName | trunc 63 | trimSuffix "-" -}}
+{{- $jobName := printf "%s-password-init" .Values.mongodbCommunity.crName | trunc 63 | trimSuffix "-" -}}
 {{- $namespace := include "appsmith.namespace" . -}}
 ---
 apiVersion: v1

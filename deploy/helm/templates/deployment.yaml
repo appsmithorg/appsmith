@@ -89,12 +89,12 @@ spec:
         image:  "{{  .Values.mongodb.image.registry }}/{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
       {{- end }}
         command: ['sh', '-c', "until mongosh --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
-      {{- else if .Values.mongodbOperator.enabled }}
+      {{- else if .Values.mongodbCommunity.enabled }}
       - name: mongo-init-container
       {{- if ((.Values.initContainer.mongodb).image) }}
         image: {{ .Values.initContainer.mongodb.image }}
       {{- else }}
-        image: "mongo:{{ .Values.mongodbOperator.version }}"
+        image: "mongo:{{ .Values.mongodbCommunity.version }}"
       {{- end }}
         command: ['sh', '-c', "until mongosh --host {{ include "appsmith.mongoOperatorServiceName" . }}.{{ include "appsmith.namespace" . }}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo operator; sleep 2; done"]
       {{- end }}
@@ -172,7 +172,7 @@ spec:
             - name: LD_PRELOAD
               value: /usr/local/lib/libnss_wrapper.so
             {{- end }}
-            {{- if and .Values.mongodbOperator.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) }}
+            {{- if and .Values.mongodbCommunity.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) }}
             - name: APPSMITH_DB_URL
               valueFrom:
                 secretKeyRef:

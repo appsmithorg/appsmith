@@ -133,7 +133,7 @@ MongoDB Operator: connection string secret name
 The operator auto-generates a secret named <crName>-<db>-<username>
 */}}
 {{- define "appsmith.mongoOperatorSecretName" -}}
-{{- printf "%s-%s-%s" .Values.mongodbOperator.crName .Values.mongodbOperator.auth.database .Values.mongodbOperator.auth.username -}}
+{{- printf "%s-%s-%s" .Values.mongodbCommunity.crName .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
 {{- end -}}
 
 {{/*
@@ -141,7 +141,7 @@ MongoDB Operator: headless service name
 The operator creates a service named <crName>-svc
 */}}
 {{- define "appsmith.mongoOperatorServiceName" -}}
-{{- printf "%s-svc" .Values.mongodbOperator.crName -}}
+{{- printf "%s-svc" .Values.mongodbCommunity.crName -}}
 {{- end -}}
 
 {{/*
@@ -149,10 +149,10 @@ MongoDB Operator: password secret name
 Uses existing secret if provided, otherwise auto-generated name
 */}}
 {{- define "appsmith.mongoOperatorPasswordSecretName" -}}
-{{- if .Values.mongodbOperator.auth.passwordSecretName -}}
-{{- .Values.mongodbOperator.auth.passwordSecretName -}}
+{{- if .Values.mongodbCommunity.auth.passwordSecretName -}}
+{{- .Values.mongodbCommunity.auth.passwordSecretName -}}
 {{- else -}}
-{{- printf "%s-password" .Values.mongodbOperator.crName -}}
+{{- printf "%s-password" .Values.mongodbCommunity.crName -}}
 {{- end -}}
 {{- end -}}
 

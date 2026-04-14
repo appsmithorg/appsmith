@@ -1,7 +1,7 @@
-{{- if .Values.mongodbOperator.enabled }}
-{{- $crName := .Values.mongodbOperator.crName -}}
+{{- if .Values.mongodbCommunity.enabled }}
+{{- $crName := .Values.mongodbCommunity.crName -}}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
-{{- $storageClass := .Values.mongodbOperator.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
+{{- $storageClass := .Values.mongodbCommunity.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
 ---
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
@@ -11,15 +11,15 @@ metadata:
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
 spec:
-  members: {{ .Values.mongodbOperator.members }}
+  members: {{ .Values.mongodbCommunity.members }}
   type: ReplicaSet
-  version: {{ .Values.mongodbOperator.version | quote }}
+  version: {{ .Values.mongodbCommunity.version | quote }}
   security:
     authentication:
       modes: ["SCRAM"]
   users:
-    - name: {{ .Values.mongodbOperator.auth.username }}
-      db: {{ .Values.mongodbOperator.auth.database }}
+    - name: {{ .Values.mongodbCommunity.auth.username }}
+      db: {{ .Values.mongodbCommunity.auth.database }}
       passwordSecretRef:
         name: {{ $passwordSecretName }}
       roles:
@@ -32,22 +32,22 @@ spec:
       scramCredentialsSecretName: {{ $crName }}-scram
   statefulSet:
     spec:
-      {{- if or .Values.mongodbOperator.nodeSelector .Values.mongodbOperator.affinity .Values.mongodbOperator.tolerations .Values.mongodbOperator.resources }}
+      {{- if or .Values.mongodbCommunity.nodeSelector .Values.mongodbCommunity.affinity .Values.mongodbCommunity.tolerations .Values.mongodbCommunity.resources }}
       template:
         spec:
-          {{- with .Values.mongodbOperator.nodeSelector }}
+          {{- with .Values.mongodbCommunity.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.mongodbOperator.affinity }}
+          {{- with .Values.mongodbCommunity.affinity }}
           affinity:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.mongodbOperator.tolerations }}
+          {{- with .Values.mongodbCommunity.tolerations }}
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.mongodbOperator.resources }}
+          {{- with .Values.mongodbCommunity.resources }}
           containers:
             - name: mongod
               resources:
@@ -60,7 +60,7 @@ spec:
           spec:
             resources:
               requests:
-                storage: {{ .Values.mongodbOperator.persistent.storageSize }}
+                storage: {{ .Values.mongodbCommunity.persistent.storageSize }}
             {{- if $storageClass }}
             storageClassName: {{ $storageClass }}
             {{- end }}

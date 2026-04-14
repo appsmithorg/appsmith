@@ -4,14 +4,14 @@ templates:
 tests:
   - name: should not create any resources when disabled
     set:
-      mongodbOperator.enabled: false
+      mongodbCommunity.enabled: false
     asserts:
       - hasDocuments:
           count: 0
 
   - name: should render only the MongoDBCommunity CR when enabled (password secret is handled by the pre-install Job)
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - hasDocuments:
           count: 1
@@ -32,7 +32,7 @@ tests:
 
   - name: CR should reference the default password secret name by default
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - equal:
           path: spec.users[0].passwordSecretRef.name
@@ -40,8 +40,8 @@ tests:
 
   - name: CR should reference user-provided secret when auth.passwordSecretName is set
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.auth.passwordSecretName: my-existing-secret
+      mongodbCommunity.enabled: true
+      mongodbCommunity.auth.passwordSecretName: my-existing-secret
     asserts:
       - hasDocuments:
           count: 1
@@ -53,8 +53,8 @@ tests:
 
   - name: should configure custom member count
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.members: 5
+      mongodbCommunity.enabled: true
+      mongodbCommunity.members: 5
     asserts:
       - equal:
           path: spec.members
@@ -62,8 +62,8 @@ tests:
 
   - name: should configure custom MongoDB version
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.version: "6.0.27"
+      mongodbCommunity.enabled: true
+      mongodbCommunity.version: "6.0.27"
     asserts:
       - equal:
           path: spec.version
@@ -71,7 +71,7 @@ tests:
 
   - name: should set correct user roles
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - equal:
           path: spec.users[0].roles[0]
@@ -96,7 +96,7 @@ tests:
       - deployment.yaml
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - contains:
           path: spec.template.spec.initContainers
@@ -112,7 +112,7 @@ tests:
       - deployment.yaml
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - notContains:
           path: spec.template.spec.initContainers
@@ -125,7 +125,7 @@ tests:
       - configMap.yaml
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - matchRegex:
           path: data.APPSMITH_DB_URL
@@ -136,7 +136,7 @@ tests:
       - deployment.yaml
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - notContains:
           path: spec.template.spec.containers[0].env
@@ -149,7 +149,7 @@ tests:
       - mongodb-community.yaml
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - isKind:
           of: MongoDBCommunity
@@ -174,7 +174,7 @@ tests:
   - name: should use operator init container when operator-only mode
     set:
       mongodb.enabled: false
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - contains:
           path: spec.template.spec.initContainers
@@ -187,7 +187,7 @@ tests:
   - name: should inject APPSMITH_DB_URL from secret in operator-only mode
     set:
       mongodb.enabled: false
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - contains:
           path: spec.template.spec.containers[0].env
@@ -202,7 +202,7 @@ tests:
   - name: should not inject APPSMITH_DB_URL from secret in transition mode
     set:
       mongodb.enabled: true
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - notContains:
           path: spec.template.spec.containers[0].env
@@ -217,22 +217,22 @@ templates:
 tests:
   - name: should not render anything when operator is disabled
     set:
-      mongodbOperator.enabled: false
+      mongodbCommunity.enabled: false
     asserts:
       - hasDocuments:
           count: 0
 
   - name: should not render anything when auth.passwordSecretName is set
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.auth.passwordSecretName: my-existing-secret
+      mongodbCommunity.enabled: true
+      mongodbCommunity.auth.passwordSecretName: my-existing-secret
     asserts:
       - hasDocuments:
           count: 0
 
   - name: should render SA, Role, RoleBinding, and Job when no password config is provided
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     asserts:
       - hasDocuments:
           count: 4
@@ -259,8 +259,8 @@ tests:
 
   - name: should use crName as prefix for init job name
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.crName: custom-mongo
+      mongodbCommunity.enabled: true
+      mongodbCommunity.crName: custom-mongo
     documentIndex: 3
     asserts:
       - isKind:
@@ -271,7 +271,7 @@ tests:
 
   - name: Role should allow get on the specific password secret and create on secrets in namespace
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     documentSelector:
       path: kind
       value: Role
@@ -292,7 +292,7 @@ tests:
 
   - name: RoleBinding should reference the SA and Role
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     documentSelector:
       path: kind
       value: RoleBinding
@@ -312,7 +312,7 @@ tests:
 
   - name: Job should be a Helm pre-install/pre-upgrade hook with before-hook-creation cleanup
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     documentSelector:
       path: kind
       value: Job
@@ -326,7 +326,7 @@ tests:
 
   - name: Job pod should use alpine/kubectl image and run with non-root hardened security
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     documentSelector:
       path: kind
       value: Job
@@ -352,7 +352,7 @@ tests:
 
   - name: Job should have ttlSecondsAfterFinished set for auto-cleanup
     set:
-      mongodbOperator.enabled: true
+      mongodbCommunity.enabled: true
     documentSelector:
       path: kind
       value: Job
@@ -363,8 +363,8 @@ tests:
 
   - name: Job command should reference the configured password secret name
     set:
-      mongodbOperator.enabled: true
-      mongodbOperator.crName: custom-mongo
+      mongodbCommunity.enabled: true
+      mongodbCommunity.crName: custom-mongo
     documentSelector:
       path: kind
       value: Job
@@ -378,10 +378,11 @@ suite: MongoDB Operator - Validation
 templates:
   - import.yaml
 tests:
-  - name: should fail when installOperator is true but enabled is false
+  - name: should fail when mongodbCommunity is enabled in operator-only mode and APPSMITH_DB_URL is set
     set:
-      mongodbOperator.installOperator: true
-      mongodbOperator.enabled: false
+      mongodb.enabled: false
+      mongodbCommunity.enabled: true
+      applicationConfig.APPSMITH_DB_URL: "mongodb://external"
     asserts:
       - failedTemplate:
-          errorMessage: "mongodbOperator.installOperator is true but mongodbOperator.enabled is false. Enable mongodbOperator.enabled to deploy a MongoDBCommunity resource."
+          errorMessage: "mongodbCommunity is enabled in operator-only mode, but APPSMITH_DB_URL or APPSMITH_MONGODB_URI is also configured. Remove the external URL or disable mongodbCommunity."

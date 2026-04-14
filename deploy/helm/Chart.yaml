@@ -33,8 +33,8 @@ dependencies:
     version: 25.27.0
     appVersion: 2.54.1
     repository: https://prometheus-community.github.io/helm-charts
-  - condition: mongodbOperator.installOperator
-    alias: community-operator
+  - condition: mongodbOperator.enabled
+    alias: mongodbOperator
     name: community-operator
     version: 0.13.0
     appVersion: 0.13.0

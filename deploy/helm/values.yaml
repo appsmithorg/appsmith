@@ -45,60 +45,63 @@ mongodb:
     affinity: {}
     tolerations: []
 
-## MongoDB Community Operator parameters
+## MongoDBCommunity cluster parameters
+## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
+## See templates/mongodb-community.yaml for the CR definition.
 ## Use this as an alternative to the Bitnami MongoDB subchart above.
-## See templates/mongodb-community.yaml for the MongoDBCommunity CR definition.
-mongodbOperator:
-  ## @param mongodbOperator.enabled Deploy a MongoDBCommunity custom resource
+mongodbCommunity:
+  ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
-  ## @param mongodbOperator.installOperator Deploy the MongoDB Community Operator subchart
-  ## Set to false if the operator is already installed cluster-wide
-  installOperator: false
-  ## @param mongodbOperator.crName Name of the MongoDBCommunity custom resource
+  ## @param mongodbCommunity.crName Name of the MongoDBCommunity custom resource
   crName: "appsmith-mongodb"
-  ## @param mongodbOperator.version MongoDB version for the operator to deploy
+  ## @param mongodbCommunity.version MongoDB version to deploy
   version: "8.0.20"
-  ## @param mongodbOperator.members Number of replica set members
+  ## @param mongodbCommunity.members Number of replica set members
   members: 3
-  ## @param mongodbOperator.replicaSetName Name of the MongoDB replica set
+  ## @param mongodbCommunity.replicaSetName Name of the MongoDB replica set
   replicaSetName: "appsmith-mongodb"
   auth:
-    ## @param mongodbOperator.auth.username MongoDB user for Appsmith
+    ## @param mongodbCommunity.auth.username MongoDB user for Appsmith
     username: "appsmith"
-    ## @param mongodbOperator.auth.database Authentication database (also used as connection path)
+    ## @param mongodbCommunity.auth.database Authentication database (also used as connection path)
     database: "appsmith"
-    ## @param mongodbOperator.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
+    ## @param mongodbCommunity.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
     ## If empty, a pre-install Job generates a random password into a Secret named "{crName}-password"
     passwordSecretName: ""
   persistent:
-    ## @param mongodbOperator.persistent.storageSize Storage size for each MongoDB replica
+    ## @param mongodbCommunity.persistent.storageSize Storage size for each MongoDB replica
     storageSize: "10Gi"
-    ## @param mongodbOperator.persistent.storageClass StorageClass for MongoDB PVCs (empty uses cluster default)
+    ## @param mongodbCommunity.persistent.storageClass StorageClass for MongoDB PVCs (empty uses cluster default)
     storageClass: ""
-  ## @param mongodbOperator.resources Resource requests/limits for MongoDB containers
+  ## @param mongodbCommunity.resources Resource requests/limits for MongoDB containers
   resources: {}
-  ## @param mongodbOperator.nodeSelector Node selector for MongoDB pods
+  ## @param mongodbCommunity.nodeSelector Node selector for MongoDB pods
   nodeSelector: {}
-  ## @param mongodbOperator.affinity Affinity rules for MongoDB pods
+  ## @param mongodbCommunity.affinity Affinity rules for MongoDB pods
   affinity: {}
-  ## @param mongodbOperator.tolerations Tolerations for MongoDB pods
+  ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
   tolerations: []
 
-## MongoDB Community Operator subchart value overrides
-## These are passed through to the community-operator subchart via its alias.
+## MongoDB Community Operator subchart
+## Values under this key are passed through to the upstream community-operator chart (aliased to mongodbOperator).
+## Set mongodbOperator.enabled=true to install the operator alongside this chart; set it to false if the
+## operator is already installed cluster-wide and you only want to deploy the MongoDBCommunity CR.
 ## Ref: https://github.com/mongodb/helm-charts/tree/main/charts/community-operator
-community-operator:
-  ## @param community-operator.registry Override image registries for operator components
+mongodbOperator:
+  ## @param mongodbOperator.enabled Install the MongoDB Community Operator subchart
+  enabled: false
+  ## @param mongodbOperator.registry Override image registries for operator components
   ## Useful for private registries or air-gapped environments
   registry:
     operator: quay.io/mongodb
     agent: quay.io/mongodb
     versionUpgradeHook: quay.io/mongodb
     readinessProbe: quay.io/mongodb
-  ## @param community-operator.mongodb Override the MongoDB server image source
+  ## @param mongodbOperator.mongodb Override the MongoDB server image source
   mongodb:
     repo: docker.io/mongodb
-  ## @param community-operator.community-operator-crds.enabled Install CRDs via the operator subchart
+  ## @param mongodbOperator.community-operator-crds.enabled Install CRDs via the operator subchart
+  ## Set to false if the MongoDBCommunity CRD is already installed in the cluster
   community-operator-crds:
     enabled: true
 
