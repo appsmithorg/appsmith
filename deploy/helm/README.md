@@ -153,6 +153,41 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `storageClass.mountOptions`					| Mount options used by Persistent Volumes															| `{}`								|
 | `storageClass.parameters`						| Storage Class parameters																							| `{}`								|
 
+### MongoDB Community Operator parameters
+
+The chart can optionally deploy MongoDB via the [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator) instead of the default Bitnami MongoDB subchart. This is recommended for new installs. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for a step-by-step install guide.
+
+Two independent toggles:
+
+- `mongodbCommunity.enabled` — deploy a `MongoDBCommunity` CR (the database)
+- `mongodbOperator.enabled` — install the operator subchart (set to `false` if the operator is already installed cluster-wide)
+
+When `mongodbCommunity.enabled` is `true` and no password is configured, a pre-install Job generates a random password into a Secret named `{crName}-password`. The Job is idempotent and compatible with ArgoCD.
+
+| Name                                                   | Description                                                                                                                    | Value              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| `mongodbCommunity.enabled`                             | Deploy a `MongoDBCommunity` custom resource                                                                                    | `false`            |
+| `mongodbCommunity.crName`                              | Name of the `MongoDBCommunity` custom resource                                                                                 | `appsmith-mongodb` |
+| `mongodbCommunity.version`                             | MongoDB version to deploy                                                                                                      | `8.0.20`           |
+| `mongodbCommunity.members`                             | Number of replica set members                                                                                                  | `3`                |
+| `mongodbCommunity.replicaSetName`                      | Name of the MongoDB replica set                                                                                                | `appsmith-mongodb` |
+| `mongodbCommunity.auth.username`                       | MongoDB user for Appsmith                                                                                                      | `appsmith`         |
+| `mongodbCommunity.auth.database`                       | Authentication database (also used as connection path)                                                                         | `appsmith`         |
+| `mongodbCommunity.auth.passwordSecretName`             | Name of an existing Secret containing the password (key: `password`). When empty, a pre-install Job autogenerates the Secret. | `""`               |
+| `mongodbCommunity.persistent.storageSize`              | Storage size for each MongoDB replica PVC                                                                                      | `10Gi`             |
+| `mongodbCommunity.persistent.storageClass`             | StorageClass for MongoDB PVCs. Empty uses cluster default (or `global.storageClass`).                                          | `""`               |
+| `mongodbCommunity.resources`                           | Resource requests/limits for MongoDB containers                                                                                | `{}`               |
+| `mongodbCommunity.nodeSelector`                        | Node selector for MongoDB pods                                                                                                 | `{}`               |
+| `mongodbCommunity.affinity`                            | Affinity rules for MongoDB pods                                                                                                | `{}`               |
+| `mongodbCommunity.tolerations`                         | Tolerations for MongoDB pods                                                                                                   | `[]`               |
+| `mongodbOperator.enabled`                              | Install the MongoDB Community Operator subchart                                                                                | `false`            |
+| `mongodbOperator.registry.operator`                    | Override registry for the operator image                                                                                       | `quay.io/mongodb`  |
+| `mongodbOperator.registry.agent`                       | Override registry for the operator agent image                                                                                 | `quay.io/mongodb`  |
+| `mongodbOperator.registry.versionUpgradeHook`          | Override registry for the version upgrade hook image                                                                           | `quay.io/mongodb`  |
+| `mongodbOperator.registry.readinessProbe`              | Override registry for the readiness probe image                                                                                | `quay.io/mongodb`  |
+| `mongodbOperator.mongodb.repo`                         | Override repository for MongoDB server images                                                                                  | `docker.io/mongodb`|
+| `mongodbOperator.community-operator-crds.enabled`      | Install the `MongoDBCommunity` CRD via the operator subchart. Set to `false` if the CRD is already installed cluster-wide.    | `true`             |
+
 ### Auto update chart's image
 | Name										| Description																		|	Value					|
 | -----------------------	|	--------------------------------------------- | -------------	|
