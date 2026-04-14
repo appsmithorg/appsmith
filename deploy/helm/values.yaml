@@ -49,6 +49,12 @@ mongodb:
 ## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
 ## See templates/mongodb-community.yaml for the CR definition.
 ## Use this as an alternative to the Bitnami MongoDB subchart above.
+##
+## PREREQUISITE: The MongoDB Community Operator (and its CRDs) must be installed in the cluster
+## before setting mongodbCommunity.enabled=true. Install it once per cluster via the upstream chart:
+##   helm install mongodb-operator oci://ghcr.io/mongodb/helm-charts/community-operator \
+##     --version 0.13.0 --namespace mongodb-operator --create-namespace
+## See docs/install-mongodb-operator.md for full instructions.
 mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
@@ -81,29 +87,6 @@ mongodbCommunity:
   affinity: {}
   ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
   tolerations: []
-
-## MongoDB Community Operator subchart
-## Values under this key are passed through to the upstream community-operator chart (aliased to mongodbOperator).
-## Set mongodbOperator.enabled=true to install the operator alongside this chart; set it to false if the
-## operator is already installed cluster-wide and you only want to deploy the MongoDBCommunity CR.
-## Ref: https://github.com/mongodb/helm-charts/tree/main/charts/community-operator
-mongodbOperator:
-  ## @param mongodbOperator.enabled Install the MongoDB Community Operator subchart
-  enabled: false
-  ## @param mongodbOperator.registry Override image registries for operator components
-  ## Useful for private registries or air-gapped environments
-  registry:
-    operator: quay.io/mongodb
-    agent: quay.io/mongodb
-    versionUpgradeHook: quay.io/mongodb
-    readinessProbe: quay.io/mongodb
-  ## @param mongodbOperator.mongodb Override the MongoDB server image source
-  mongodb:
-    repo: docker.io/mongodb
-  ## @param mongodbOperator.community-operator-crds.enabled Install CRDs via the operator subchart
-  ## Set to false if the MongoDBCommunity CRD is already installed in the cluster
-  community-operator-crds:
-    enabled: true
 
 ## postgresql parameters
 postgresql:

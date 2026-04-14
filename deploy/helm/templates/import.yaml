@@ -27,9 +27,6 @@
 {{- fail "PostgreSQL is enabled, but also found APPSMITH_KEYCLOAK_DB_URL configured to an external instance, PostgreSQL needs to be disabled if using an external PostgreSQL instance" }}
 {{- end }}
 
-{{- /* Fail helm chart if a MongoDBCommunity CR is being deployed without an operator to reconcile it */ -}}
-{{- /* Users can set mongodbOperator.enabled=false only when the operator is already installed cluster-wide */ -}}
-
 {{- /* Fail helm chart if mongodbCommunity is enabled in operator-only mode and an external URL is also set */ -}}
 {{- if and ( .Values.mongodbCommunity.enabled ) ( not .Values.mongodb.enabled ) }}
 {{- if or ( .Values.applicationConfig.APPSMITH_DB_URL ) ( .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
