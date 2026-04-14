@@ -157,14 +157,18 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 The chart can deploy MongoDB via the [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator) instead of the default Bitnami MongoDB subchart. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for a step-by-step install guide.
 
-**Prerequisite**: the MongoDB Community Operator (and its CRDs) must already be installed in the cluster. This chart does not install the operator itself. Install it once per cluster via the upstream chart:
+**Prerequisite**: the MongoDB Community Operator (and its CRDs) must already be installed in the cluster, and it must watch the namespace where you install Appsmith. This chart does not install the operator itself. Install it once per cluster via the upstream chart:
 
 ```bash
+# Cluster-wide watch (recommended)
 helm install mongodb-operator \
   oci://ghcr.io/mongodb/helm-charts/community-operator \
   --version 0.13.0 \
-  --namespace mongodb-operator --create-namespace
+  --namespace mongodb-operator --create-namespace \
+  --set operator.watchNamespace="*"
 ```
+
+The operator defaults to watching only its own namespace. Use `operator.watchNamespace="*"` for cluster-wide, or install the operator directly in the namespace you'll use for Appsmith. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for all options.
 
 Then enable `mongodbCommunity.enabled=true` on this chart to deploy a `MongoDBCommunity` custom resource that the operator will reconcile into a replica set. When `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{crName}-password`. The Job is idempotent and compatible with ArgoCD.
 

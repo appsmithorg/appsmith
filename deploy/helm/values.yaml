@@ -51,9 +51,12 @@ mongodb:
 ## Use this as an alternative to the Bitnami MongoDB subchart above.
 ##
 ## PREREQUISITE: The MongoDB Community Operator (and its CRDs) must be installed in the cluster
-## before setting mongodbCommunity.enabled=true. Install it once per cluster via the upstream chart:
+## and must watch the namespace where you install Appsmith. The operator defaults to watching only
+## its own namespace — use --set operator.watchNamespace="*" for cluster-wide watch, or install
+## the operator directly in the Appsmith namespace. Example:
 ##   helm install mongodb-operator oci://ghcr.io/mongodb/helm-charts/community-operator \
-##     --version 0.13.0 --namespace mongodb-operator --create-namespace
+##     --version 0.13.0 --namespace mongodb-operator --create-namespace \
+##     --set operator.watchNamespace="*"
 ## See docs/install-mongodb-operator.md for full instructions.
 mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
