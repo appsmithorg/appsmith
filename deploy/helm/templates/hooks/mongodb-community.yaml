@@ -95,7 +95,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: create-password
-          image: alpine/kubectl:1.31.0
+          image: alpine/kubectl:1.34.2
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
