@@ -65,16 +65,18 @@ kubectl get mongodbcommunity -n appsmith
 Expected output (abridged):
 
 ```
-NAME                                            READY   STATUS
-appsmith-0                                      1/1     Running
-appsmith-mongodb-0                              2/2     Running
-appsmith-postgresql-0                           1/1     Running
-appsmith-redis-master-0                         1/1     Running
-mongodb-kubernetes-operator-...                 1/1     Running
+NAME                                                  READY   STATUS
+appsmith-0                                            1/1     Running
+appsmith-mongodb-community-0                          2/2     Running
+appsmith-postgresql-0                                 1/1     Running
+appsmith-redis-master-0                               1/1     Running
+mongodb-kubernetes-operator-...                       1/1     Running
 
-NAME               PHASE     VERSION
-appsmith-mongodb   Running   8.0.20
+NAME                         PHASE     VERSION
+appsmith-mongodb-community   Running   8.0.20
 ```
+
+(Names shown assume a release named `appsmith`. The operator-managed resources are prefixed with `<release-fullname>-mongodb-community` by default — see `mongodbCommunity.name` to override.)
 
 ### Access the UI
 
@@ -90,17 +92,17 @@ For production access, configure an Ingress — see [exposing Appsmith online](h
 
 ## Retrieving the generated MongoDB password
 
-The MongoDB user password is in a Secret named `appsmith-mongodb-password`:
+The MongoDB user password is in a Secret named `<mongodbCommunity.name>-password` — for a release named `appsmith` with default naming, that's `appsmith-mongodb-community-password`:
 
 ```bash
-kubectl get secret appsmith-mongodb-password -n appsmith \
+kubectl get secret appsmith-mongodb-community-password -n appsmith \
   -o jsonpath='{.data.password}' | base64 -d
 ```
 
 Appsmith itself reads its connection string from an operator-managed Secret:
 
 ```bash
-kubectl get secret appsmith-mongodb-appsmith-appsmith -n appsmith \
+kubectl get secret appsmith-mongodb-community-appsmith-appsmith -n appsmith \
   -o jsonpath='{.data.connectionString\.standardSrv}' | base64 -d
 ```
 
@@ -261,7 +263,7 @@ kubectl logs -n appsmith -l app.kubernetes.io/name=mongodb-kubernetes-operator -
 
 Common causes:
 - The password Secret doesn't exist. If you set `mongodbCommunity.auth.passwordSecretName`, verify the Secret exists and has a `password` key.
-- The MongoDB image can't be pulled. Check `kubectl describe pod appsmith-mongodb-0` for image-pull errors.
+- The MongoDB image can't be pulled. Check `kubectl describe pod <mongodbCommunity.name>-0` for image-pull errors.
 
 ### StatefulSet fails with `serviceaccount "mongodb-kubernetes-appdb" not found`
 
@@ -289,7 +291,7 @@ kubectl logs -n appsmith appsmith-0 -c mongo-init-container
 
 ### Password init Job fails with image pull error
 
-**Symptom**: `appsmith-mongodb-password-init` Job pod is in `ImagePullBackOff` for `alpine/kubectl:<version>`.
+**Symptom**: `<mongodbCommunity.name>-password-init` Job pod is in `ImagePullBackOff` for `alpine/kubectl:<version>`.
 
 **Cause**: the pinned `alpine/kubectl` image tag isn't published on Docker Hub. The repository only publishes recent versions.
 

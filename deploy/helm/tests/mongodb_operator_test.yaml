@@ -19,7 +19,7 @@ tests:
           of: MongoDBCommunity
       - equal:
           path: metadata.name
-          value: appsmith-mongodb
+          value: RELEASE-NAME-appsmith-mongodb-community
       - equal:
           path: spec.members
           value: 1
@@ -36,7 +36,7 @@ tests:
     asserts:
       - equal:
           path: spec.users[0].passwordSecretRef.name
-          value: appsmith-mongodb-password
+          value: RELEASE-NAME-appsmith-mongodb-community-password
 
   - name: CR should reference user-provided secret when auth.passwordSecretName is set
     set:
@@ -155,7 +155,7 @@ tests:
           of: MongoDBCommunity
       - equal:
           path: metadata.name
-          value: appsmith-mongodb
+          value: RELEASE-NAME-appsmith-mongodb-community
 
 ---
 suite: MongoDB Operator - Deployment integration
@@ -195,7 +195,7 @@ tests:
             name: APPSMITH_DB_URL
             valueFrom:
               secretKeyRef:
-                name: appsmith-mongodb-appsmith-appsmith
+                name: RELEASE-NAME-appsmith-mongodb-community-appsmith-appsmith
                 key: connectionString.standardSrv
           any: true
 
@@ -241,7 +241,7 @@ tests:
         documentIndex: 0
       - equal:
           path: metadata.name
-          value: appsmith-mongodb-password-init
+          value: RELEASE-NAME-appsmith-mongodb-community-password-init
         documentIndex: 0
       - isKind:
           of: Role
@@ -254,7 +254,7 @@ tests:
         documentIndex: 3
       - equal:
           path: metadata.name
-          value: appsmith-mongodb-password-init
+          value: RELEASE-NAME-appsmith-mongodb-community-password-init
         documentIndex: 3
 
   - name: should use mongodbCommunity.name as prefix for init job name
@@ -281,7 +281,7 @@ tests:
           value:
             apiGroups: [""]
             resources: ["secrets"]
-            resourceNames: ["appsmith-mongodb-password"]
+            resourceNames: ["RELEASE-NAME-appsmith-mongodb-community-password"]
             verbs: ["get"]
       - equal:
           path: rules[1]
@@ -302,13 +302,13 @@ tests:
           value: ServiceAccount
       - equal:
           path: subjects[0].name
-          value: appsmith-mongodb-password-init
+          value: RELEASE-NAME-appsmith-mongodb-community-password-init
       - equal:
           path: roleRef.kind
           value: Role
       - equal:
           path: roleRef.name
-          value: appsmith-mongodb-password-init
+          value: RELEASE-NAME-appsmith-mongodb-community-password-init
 
   - name: Job should be a Helm pre-install/pre-upgrade hook with before-hook-creation cleanup
     set:
@@ -333,7 +333,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.serviceAccountName
-          value: appsmith-mongodb-password-init
+          value: RELEASE-NAME-appsmith-mongodb-community-password-init
       - equal:
           path: spec.template.spec.restartPolicy
           value: Never

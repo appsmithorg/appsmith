@@ -129,11 +129,25 @@ Get the PV name, using override if specified
 {{- end -}}
 
 {{/*
+MongoDBCommunity CR name
+Returns the user-provided mongodbCommunity.name if set, otherwise computes
+"<fullname>-mongodb-community" so transition installs don't collide with the
+Bitnami MongoDB subchart's StatefulSet/pod names.
+*/}}
+{{- define "appsmith.mongoCommunityName" -}}
+{{- if .Values.mongodbCommunity.name -}}
+{{- .Values.mongodbCommunity.name -}}
+{{- else -}}
+{{- printf "%s-mongodb-community" (include "appsmith.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 MongoDB Operator: connection string secret name
 The operator auto-generates a secret named <CR name>-<db>-<username>
 */}}
 {{- define "appsmith.mongoOperatorSecretName" -}}
-{{- printf "%s-%s-%s" .Values.mongodbCommunity.name .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
+{{- printf "%s-%s-%s" (include "appsmith.mongoCommunityName" .) .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
 {{- end -}}
 
 {{/*
@@ -141,18 +155,18 @@ MongoDB Operator: headless service name
 The operator creates a service named <CR name>-svc
 */}}
 {{- define "appsmith.mongoOperatorServiceName" -}}
-{{- printf "%s-svc" .Values.mongodbCommunity.name -}}
+{{- printf "%s-svc" (include "appsmith.mongoCommunityName" .) -}}
 {{- end -}}
 
 {{/*
 MongoDB Operator: password secret name
-Uses existing secret if provided, otherwise auto-generated name
+Uses existing secret if provided, otherwise derives from the CR name
 */}}
 {{- define "appsmith.mongoOperatorPasswordSecretName" -}}
 {{- if .Values.mongodbCommunity.auth.passwordSecretName -}}
 {{- .Values.mongodbCommunity.auth.passwordSecretName -}}
 {{- else -}}
-{{- printf "%s-password" .Values.mongodbCommunity.name -}}
+{{- printf "%s-password" (include "appsmith.mongoCommunityName" .) -}}
 {{- end -}}
 {{- end -}}
 

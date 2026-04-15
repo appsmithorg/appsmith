@@ -26,11 +26,10 @@
         },
         "name": {
           "type": "string",
-          "description": "Name of the MongoDBCommunity custom resource.",
-          "default": "appsmith-mongodb",
-          "minLength": 1,
+          "description": "Name of the MongoDBCommunity custom resource. When empty, defaults to '<release-fullname>-mongodb-community'.",
+          "default": "",
           "maxLength": 63,
-          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
         },
         "version": {
           "type": "string",

@@ -58,7 +58,11 @@ mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
   ## @param mongodbCommunity.name Name of the MongoDBCommunity custom resource
-  name: "appsmith-mongodb"
+  ## When empty (default), the chart computes "<release-fullname>-mongodb-community".
+  ## The computed default avoids colliding with Bitnami's StatefulSet names during transition
+  ## (Mode B) and produces descriptive names in clusters with multiple databases. Override to
+  ## pin a specific name or keep existing naming across chart upgrades.
+  name: ""
   ## @param mongodbCommunity.version MongoDB version to deploy
   version: "8.0.20"
   ## @param mongodbCommunity.members Number of replica set members

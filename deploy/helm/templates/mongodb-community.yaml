@@ -1,5 +1,5 @@
 {{- if .Values.mongodbCommunity.enabled }}
-{{- $name := .Values.mongodbCommunity.name -}}
+{{- $name := include "appsmith.mongoCommunityName" . -}}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
 {{- $storageClass := .Values.mongodbCommunity.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
 ---
