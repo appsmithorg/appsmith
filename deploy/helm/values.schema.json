@@ -1,9 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "Appsmith Helm chart values",
-  "description": "Partial schema. Currently validates only mongodbCommunity.* values; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
+  "description": "Partial schema. Currently validates only mongodbCommunity.* and mongodbOperator.enabled; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
   "type": "object",
   "properties": {
+    "mongodbOperator": {
+      "type": "object",
+      "description": "MongoDB Kubernetes Operator subchart. Other properties are passed through to the upstream mongodb-kubernetes chart and are not validated here.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Install the MongoDB Kubernetes Operator subchart alongside this chart.",
+          "default": false
+        }
+      }
+    },
     "mongodbCommunity": {
       "type": "object",
       "description": "MongoDBCommunity cluster configuration. Requires the MongoDB Community Operator to be pre-installed in the cluster (see docs/install-mongodb-operator.md).",

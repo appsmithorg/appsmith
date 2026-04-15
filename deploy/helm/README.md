@@ -155,22 +155,31 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 ### MongoDB Community Operator parameters
 
-The chart can deploy MongoDB via the [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator) instead of the default Bitnami MongoDB subchart. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for a step-by-step install guide.
+The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart, or leave it off if the operator is already installed elsewhere.
 
-**Prerequisite**: the MongoDB Community Operator (and its CRDs) must already be installed in the cluster, and it must watch the namespace where you install Appsmith. This chart does not install the operator itself. Install it once per cluster via the upstream chart:
+Quickstart for a fresh install:
 
 ```bash
-# Cluster-wide watch (recommended)
-helm install mongodb-operator \
-  oci://ghcr.io/mongodb/helm-charts/community-operator \
-  --version 0.13.0 \
-  --namespace mongodb-operator --create-namespace \
-  --set operator.watchNamespace="*"
+kubectl create namespace appsmith
+helm install appsmith appsmith/appsmith -n appsmith \
+  --set mongodb.enabled=false \
+  --set mongodbCommunity.enabled=true \
+  --set mongodbOperator.enabled=true
 ```
 
-The operator defaults to watching only its own namespace. Use `operator.watchNamespace="*"` for cluster-wide, or install the operator directly in the namespace you'll use for Appsmith. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for all options.
+See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide including cross-namespace operator setups and the watch-scope caveat for pre-existing operator installs.
 
-Then enable `mongodbCommunity.enabled=true` on this chart to deploy a `MongoDBCommunity` custom resource that the operator will reconcile into a replica set. When `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{name}-password`. The Job is idempotent and compatible with ArgoCD.
+When `mongodbCommunity.enabled=true` and `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{name}-password`. The Job is idempotent and compatible with ArgoCD.
+
+#### Subchart values (`mongodbOperator.*`)
+
+| Name | Description | Value |
+|---|---|---|
+| `mongodbOperator.enabled` | Install the upstream MongoDB Kubernetes Operator subchart alongside this chart | `false` |
+
+Other `mongodbOperator.*` values pass through to the upstream [mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) chart. Common overrides include `mongodbOperator.operator.watchNamespace` and `mongodbOperator.registry.*` — see the upstream chart's values reference.
+
+#### MongoDBCommunity CR values (`mongodbCommunity.*`)
 
 | Name                                       | Description                                                                                                                    | Value              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |

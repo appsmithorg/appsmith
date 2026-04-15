@@ -50,14 +50,10 @@ mongodb:
 ## See templates/mongodb-community.yaml for the CR definition.
 ## Use this as an alternative to the Bitnami MongoDB subchart above.
 ##
-## PREREQUISITE: The MongoDB Community Operator (and its CRDs) must be installed in the cluster
-## and must watch the namespace where you install Appsmith. The operator defaults to watching only
-## its own namespace — use --set operator.watchNamespace="*" for cluster-wide watch, or install
-## the operator directly in the Appsmith namespace. Example:
-##   helm install mongodb-operator oci://ghcr.io/mongodb/helm-charts/community-operator \
-##     --version 0.13.0 --namespace mongodb-operator --create-namespace \
-##     --set operator.watchNamespace="*"
-## See docs/install-mongodb-operator.md for full instructions.
+## Pair with mongodbOperator.enabled=true below to install the MongoDB Kubernetes Operator as a
+## subchart in the same release. If the operator is already running elsewhere in the cluster,
+## leave mongodbOperator.enabled=false and ensure its "mongodb-kubernetes-appdb" ServiceAccount
+## exists in this namespace. See docs/install-mongodb-operator.md for details.
 mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
@@ -90,6 +86,21 @@ mongodbCommunity:
   affinity: {}
   ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
   tolerations: []
+
+## MongoDB Kubernetes Operator subchart
+## Values under this key are passed through to the upstream mongodb-kubernetes chart (aliased to mongodbOperator).
+## When mongodbOperator.enabled=true, the operator is installed alongside Appsmith in this release's namespace
+## and will reconcile the MongoDBCommunity CR defined above. The upstream chart ships CRDs in its crds/ directory,
+## so fresh-cluster installs work in a single helm install.
+##
+## When mongodbOperator.enabled=false (default), the chart assumes the operator is managed elsewhere
+## (a separate Helm release, OLM, etc.) and expects the "mongodb-kubernetes-appdb" ServiceAccount to
+## exist in this namespace. See docs/install-mongodb-operator.md.
+##
+## Ref: https://github.com/mongodb/mongodb-kubernetes/tree/main/helm_chart
+mongodbOperator:
+  ## @param mongodbOperator.enabled Install the MongoDB Kubernetes Operator subchart
+  enabled: false
 
 ## postgresql parameters
 postgresql:
