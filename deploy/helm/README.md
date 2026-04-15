@@ -155,7 +155,7 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 ### MongoDB Community Operator parameters
 
-The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart, or leave it off if the operator is already installed elsewhere.
+The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart.
 
 Quickstart for a fresh install:
 
@@ -167,7 +167,7 @@ helm install appsmith appsmith/appsmith -n appsmith \
   --set mongodbOperator.enabled=true
 ```
 
-See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide including cross-namespace operator setups and the watch-scope caveat for pre-existing operator installs.
+See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide.
 
 When `mongodbCommunity.enabled=true` and `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{name}-password`. The Job is idempotent and compatible with ArgoCD.
 

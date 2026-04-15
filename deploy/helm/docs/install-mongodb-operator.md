@@ -53,8 +53,6 @@ Explanation:
 | `mongodbCommunity.enabled=true` | Deploy a `MongoDBCommunity` CR for the operator to reconcile |
 | `mongodbOperator.enabled=true` | Install the upstream MongoDB Kubernetes Operator subchart in the same namespace |
 
-No MongoDB password needs to be supplied — the chart's pre-install Job autogenerates one.
-
 ### Verify the install
 
 ```bash
@@ -65,18 +63,16 @@ kubectl get mongodbcommunity -n appsmith
 Expected output (abridged):
 
 ```
-NAME                                                  READY   STATUS
-appsmith-0                                            1/1     Running
-appsmith-mongo-0                          2/2     Running
-appsmith-postgresql-0                                 1/1     Running
-appsmith-redis-master-0                               1/1     Running
-mongodb-kubernetes-operator-...                       1/1     Running
+NAME                              READY   STATUS
+appsmith-0                        1/1     Running
+appsmith-mongo-0                  2/2     Running
+appsmith-postgresql-0             1/1     Running
+appsmith-redis-master-0           1/1     Running
+mongodb-kubernetes-operator-...   1/1     Running
 
-NAME                         PHASE     VERSION
+NAME             PHASE     VERSION
 appsmith-mongo   Running   8.0.20
 ```
-
-(Names shown assume a release named `appsmith`. The operator-managed resources are prefixed with `<release-fullname>-mongodb-community` by default — see `mongodbCommunity.name` to override.)
 
 ### Access the UI
 
@@ -105,21 +101,6 @@ Appsmith itself reads its connection string from an operator-managed Secret:
 kubectl get secret appsmith-mongo-appsmith-appsmith -n appsmith \
   -o jsonpath='{.data.connectionString\.standardSrv}' | base64 -d
 ```
-
----
-
-## Alternative: use a pre-existing operator
-
-If the MongoDB Kubernetes Operator is already installed elsewhere in the cluster (a separate Helm release, OLM, Kustomize, etc.), leave `mongodbOperator.enabled=false` and ensure the `mongodb-kubernetes-appdb` ServiceAccount exists in the Appsmith namespace:
-
-```bash
-helm install appsmith appsmith/appsmith -n appsmith --wait --timeout 10m \
-  --set mongodb.enabled=false \
-  --set mongodbCommunity.enabled=true
-  # mongodbOperator.enabled defaults to false
-```
-
-Cross-namespace operator setups have an asymmetric behavior in the upstream chart worth knowing about — see [Cross-namespace operator setups](#cross-namespace-operator-setups) below.
 
 ---
 
@@ -166,27 +147,6 @@ mongodbCommunity:
 
 Scaling from 1 to 3 after the fact is a value change on upgrade — the operator handles adding members to the replica set without downtime.
 
-### Cross-namespace operator setups
-
-When `mongodbOperator.enabled=true`, the operator is installed in the same namespace as Appsmith, and its `mongodb-kubernetes-appdb` ServiceAccount ends up where it's needed — no special handling required.
-
-When running the operator in a *different* namespace from Appsmith (pre-existing install, multi-tenant setup), be aware of an upstream chart quirk:
-
-- The operator pod needs to watch the Appsmith namespace (via `operator.watchNamespace`)
-- The `mongodb-kubernetes-appdb` ServiceAccount must exist *in the Appsmith namespace*
-- If the operator was installed with `operator.watchNamespace="*"` (wildcard), the upstream chart does **not** create the per-namespace RBAC — it only installs it in the operator's own namespace. This causes MongoDB StatefulSet creation to fail with `serviceaccount "mongodb-kubernetes-appdb" not found`
-
-The clean fix is to install the operator with an explicit namespace list:
-
-```bash
-helm install mongodb-operator mongodb/mongodb-kubernetes \
-  --version 1.8.0 \
-  --namespace mongodb-operator --create-namespace \
-  --set operator.watchNamespace="appsmith"
-```
-
-This creates the `mongodb-kubernetes-appdb` ServiceAccount + RBAC in every listed namespace. To add namespaces later, upgrade the operator release with an expanded list.
-
 ---
 
 ## Deploying with ArgoCD
@@ -223,8 +183,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
 ```
-
-If you prefer a separate Application for the operator (for example, because the operator should be cluster-wide infrastructure while Appsmith is an app-team concern), set `mongodbOperator.enabled=false` on this Application and manage the operator via its own chart/Application.
 
 ---
 
@@ -264,20 +222,6 @@ kubectl logs -n appsmith -l app.kubernetes.io/name=mongodb-kubernetes-operator -
 Common causes:
 - The password Secret doesn't exist. If you set `mongodbCommunity.auth.passwordSecretName`, verify the Secret exists and has a `password` key.
 - The MongoDB image can't be pulled. Check `kubectl describe pod <mongodbCommunity.name>-0` for image-pull errors.
-
-### StatefulSet fails with `serviceaccount "mongodb-kubernetes-appdb" not found`
-
-**Cause**: the operator is in a different namespace and was installed with `operator.watchNamespace="*"`. See [Cross-namespace operator setups](#cross-namespace-operator-setups).
-
-**Fix**: reinstall or upgrade the operator with an explicit watch namespace list:
-
-```bash
-helm upgrade mongodb-operator mongodb/mongodb-kubernetes \
-  -n <operator-namespace> --reuse-values \
-  --set operator.watchNamespace="appsmith"
-```
-
-Then restart the operator: `kubectl rollout restart deploy/mongodb-kubernetes-operator -n <operator-namespace>`.
 
 ### Appsmith pod stuck in `Init`
 

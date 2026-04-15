@@ -47,13 +47,8 @@ mongodb:
 
 ## MongoDBCommunity cluster parameters
 ## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
-## See templates/mongodb-community.yaml for the CR definition.
-## Use this as an alternative to the Bitnami MongoDB subchart above.
-##
-## Pair with mongodbOperator.enabled=true below to install the MongoDB Kubernetes Operator as a
-## subchart in the same release. If the operator is already running elsewhere in the cluster,
-## leave mongodbOperator.enabled=false and ensure its "mongodb-kubernetes-appdb" ServiceAccount
-## exists in this namespace. See docs/install-mongodb-operator.md for details.
+## See templates/mongodb-community.yaml for the CR definition and docs/install-mongodb-operator.md
+## for the install guide. Pair with mongodbOperator.enabled=true below to bundle the operator.
 mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
@@ -95,13 +90,9 @@ mongodbCommunity:
 
 ## MongoDB Kubernetes Operator subchart
 ## Values under this key are passed through to the upstream mongodb-kubernetes chart (aliased to mongodbOperator).
-## When mongodbOperator.enabled=true, the operator is installed alongside Appsmith in this release's namespace
-## and will reconcile the MongoDBCommunity CR defined above. The upstream chart ships CRDs in its crds/ directory,
-## so fresh-cluster installs work in a single helm install.
-##
-## When mongodbOperator.enabled=false (default), the chart assumes the operator is managed elsewhere
-## (a separate Helm release, OLM, etc.) and expects the "mongodb-kubernetes-appdb" ServiceAccount to
-## exist in this namespace. See docs/install-mongodb-operator.md.
+## Set mongodbOperator.enabled=true to bundle the operator with this release — it installs in the same namespace
+## and reconciles the MongoDBCommunity CR defined above. Leave it false only if you're managing the operator
+## separately and accept responsibility for its RBAC in this namespace.
 ##
 ## Ref: https://github.com/mongodb/mongodb-kubernetes/tree/main/helm_chart
 mongodbOperator:
