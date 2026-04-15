@@ -17,7 +17,7 @@
     },
     "mongodbCommunity": {
       "type": "object",
-      "description": "MongoDBCommunity cluster configuration. Requires the MongoDB Community Operator to be pre-installed in the cluster (see docs/install-mongodb-operator.md).",
+      "description": "MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator, or supply your own. Preview feature — see docs/install-mongodb-operator.md.",
       "properties": {
         "enabled": {
           "type": "boolean",

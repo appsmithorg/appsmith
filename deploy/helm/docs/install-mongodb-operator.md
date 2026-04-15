@@ -1,5 +1,7 @@
 # Install Appsmith with the MongoDB Kubernetes Operator
 
+> **Preview feature in chart 3.7.0.** This path installs and runs, but migration from an existing Bitnami-backed Appsmith release to the operator-managed path isn't fully documented yet. Pilot this path before relying on it for production data.
+
 This guide installs Appsmith with MongoDB managed by the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart.
 
 ## Why use the operator

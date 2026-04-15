@@ -155,6 +155,8 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 ### MongoDB Community Operator parameters
 
+> **Preview feature in 3.7.0** — pilot before relying on it for production data. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for known limitations.
+
 The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart.
 
 Quickstart for a fresh install:
