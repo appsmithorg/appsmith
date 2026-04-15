@@ -33,7 +33,7 @@ To expose your Appsmith service to be accessible from the Internet, please refer
 
 2. MongoDB Community Operator:
 
-  CR Name:           {{ .Values.mongodbCommunity.crName }}
+  CR Name:           {{ .Values.mongodbCommunity.name }}
   MongoDB Version:   {{ .Values.mongodbCommunity.version }}
   Members:           {{ .Values.mongodbCommunity.members }}
   Service:           {{ include "appsmith.mongoOperatorServiceName" . }}.{{ .Release.Namespace }}.svc.cluster.local

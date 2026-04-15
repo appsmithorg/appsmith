@@ -13,7 +13,7 @@
           "description": "Deploy a MongoDBCommunity custom resource.",
           "default": false
         },
-        "crName": {
+        "name": {
           "type": "string",
           "description": "Name of the MongoDBCommunity custom resource.",
           "default": "appsmith-mongodb",
@@ -56,7 +56,7 @@
             },
             "passwordSecretName": {
               "type": "string",
-              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{crName}-password\"."
+              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{name}-password\"."
             }
           }
         },

@@ -170,12 +170,12 @@ helm install mongodb-operator \
 
 The operator defaults to watching only its own namespace. Use `operator.watchNamespace="*"` for cluster-wide, or install the operator directly in the namespace you'll use for Appsmith. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for all options.
 
-Then enable `mongodbCommunity.enabled=true` on this chart to deploy a `MongoDBCommunity` custom resource that the operator will reconcile into a replica set. When `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{crName}-password`. The Job is idempotent and compatible with ArgoCD.
+Then enable `mongodbCommunity.enabled=true` on this chart to deploy a `MongoDBCommunity` custom resource that the operator will reconcile into a replica set. When `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{name}-password`. The Job is idempotent and compatible with ArgoCD.
 
 | Name                                       | Description                                                                                                                    | Value              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
 | `mongodbCommunity.enabled`                 | Deploy a `MongoDBCommunity` custom resource                                                                                    | `false`            |
-| `mongodbCommunity.crName`                  | Name of the `MongoDBCommunity` custom resource                                                                                 | `appsmith-mongodb` |
+| `mongodbCommunity.name`                    | Name of the `MongoDBCommunity` custom resource                                                                                 | `appsmith-mongodb` |
 | `mongodbCommunity.version`                 | MongoDB version to deploy                                                                                                      | `8.0.20`           |
 | `mongodbCommunity.members`                 | Number of replica set members                                                                                                  | `3`                |
 | `mongodbCommunity.replicaSetName`          | Name of the MongoDB replica set                                                                                                | `appsmith-mongodb` |

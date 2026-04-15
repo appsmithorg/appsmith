@@ -1,12 +1,12 @@
 {{- if .Values.mongodbCommunity.enabled }}
-{{- $crName := .Values.mongodbCommunity.crName -}}
+{{- $name := .Values.mongodbCommunity.name -}}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
 {{- $storageClass := .Values.mongodbCommunity.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
 ---
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
 metadata:
-  name: {{ $crName }}
+  name: {{ $name }}
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
@@ -29,7 +29,7 @@ spec:
           db: admin
         - name: userAdminAnyDatabase
           db: admin
-      scramCredentialsSecretName: {{ $crName }}-scram
+      scramCredentialsSecretName: {{ $name }}-scram
   statefulSet:
     spec:
       {{- if or .Values.mongodbCommunity.nodeSelector .Values.mongodbCommunity.affinity .Values.mongodbCommunity.tolerations .Values.mongodbCommunity.resources }}

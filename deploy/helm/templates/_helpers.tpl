@@ -130,18 +130,18 @@ Get the PV name, using override if specified
 
 {{/*
 MongoDB Operator: connection string secret name
-The operator auto-generates a secret named <crName>-<db>-<username>
+The operator auto-generates a secret named <CR name>-<db>-<username>
 */}}
 {{- define "appsmith.mongoOperatorSecretName" -}}
-{{- printf "%s-%s-%s" .Values.mongodbCommunity.crName .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
+{{- printf "%s-%s-%s" .Values.mongodbCommunity.name .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
 {{- end -}}
 
 {{/*
 MongoDB Operator: headless service name
-The operator creates a service named <crName>-svc
+The operator creates a service named <CR name>-svc
 */}}
 {{- define "appsmith.mongoOperatorServiceName" -}}
-{{- printf "%s-svc" .Values.mongodbCommunity.crName -}}
+{{- printf "%s-svc" .Values.mongodbCommunity.name -}}
 {{- end -}}
 
 {{/*
@@ -152,7 +152,7 @@ Uses existing secret if provided, otherwise auto-generated name
 {{- if .Values.mongodbCommunity.auth.passwordSecretName -}}
 {{- .Values.mongodbCommunity.auth.passwordSecretName -}}
 {{- else -}}
-{{- printf "%s-password" .Values.mongodbCommunity.crName -}}
+{{- printf "%s-password" .Values.mongodbCommunity.name -}}
 {{- end -}}
 {{- end -}}
 

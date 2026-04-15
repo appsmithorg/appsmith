@@ -257,10 +257,10 @@ tests:
           value: appsmith-mongodb-password-init
         documentIndex: 3
 
-  - name: should use crName as prefix for init job name
+  - name: should use mongodbCommunity.name as prefix for init job name
     set:
       mongodbCommunity.enabled: true
-      mongodbCommunity.crName: custom-mongo
+      mongodbCommunity.name: custom-mongo
     documentIndex: 3
     asserts:
       - isKind:
@@ -364,7 +364,7 @@ tests:
   - name: Job command should reference the configured password secret name
     set:
       mongodbCommunity.enabled: true
-      mongodbCommunity.crName: custom-mongo
+      mongodbCommunity.name: custom-mongo
     documentSelector:
       path: kind
       value: Job

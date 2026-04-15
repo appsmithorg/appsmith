@@ -14,7 +14,7 @@ MongoDB operator's own generated secrets behave).
 {{- if .Values.mongodbCommunity.enabled }}
 {{- if not .Values.mongodbCommunity.auth.passwordSecretName }}
 {{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
-{{- $jobName := printf "%s-password-init" .Values.mongodbCommunity.crName | trunc 63 | trimSuffix "-" -}}
+{{- $jobName := printf "%s-password-init" .Values.mongodbCommunity.name | trunc 63 | trimSuffix "-" -}}
 {{- $namespace := include "appsmith.namespace" . -}}
 ---
 apiVersion: v1
