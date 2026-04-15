@@ -13623,7 +13623,7 @@ __metadata:
     "@types/node": "*"
     "@types/nodemailer": ^6.4.17
     "@types/readline-sync": ^1.4.8
-    axios: ^1.12.0
+    axios: ^1.15.0
     dotenv: 10.0.0
     express: ^4.20.0
     express-validator: ^6.14.2
@@ -13769,7 +13769,7 @@ __metadata:
     assert-never: ^1.2.1
     astring: ^1.7.5
     async-mutex: ^0.5.0
-    axios: ^1.12.0
+    axios: ^1.15.0
     babel-jest: ^27.4.2
     babel-loader: ^8.2.3
     babel-plugin-lodash: ^3.3.4
@@ -14427,14 +14427,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.0":
-  version: 1.12.2
-  resolution: "axios@npm:1.12.2"
+"axios@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "axios@npm:1.15.0"
   dependencies:
-    follow-redirects: ^1.15.6
-    form-data: ^4.0.4
-    proxy-from-env: ^1.1.0
-  checksum: f0331594fe053a4bbff04104edb073973a3aabfad2e56b0aa18de82428aa63f6f0839ca3d837258ec739cb4528014121793b1649a21e5115ffb2bf8237eadca3
+    follow-redirects: ^1.15.11
+    form-data: ^4.0.5
+    proxy-from-env: ^2.1.0
+  checksum: 95a8455554867a083ab3772fcadba42a22ec4bb546dccc66011556d837a07e544ae006675a30a5c43453f3e37e7c0982e934cec482c06b75abead2a2c157448a
   languageName: node
   linkType: hard
 
@@ -20122,13 +20122,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.15.6":
-  version: 1.15.6
-  resolution: "follow-redirects@npm:1.15.6"
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.15.11":
+  version: 1.16.0
+  resolution: "follow-redirects@npm:1.16.0"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: a62c378dfc8c00f60b9c80cab158ba54e99ba0239a5dd7c81245e5a5b39d10f0c35e249c3379eae719ff0285fff88c365dd446fab19dee771f1d76252df1bbf5
+  checksum: e90dce4607b1f6b8b9883287f912585573c19088209ad82341d550a795b4ba514522b73b1b340cf618279df27975cd46504d09149be60291ba6767384c1fd8f8
   languageName: node
   linkType: hard
 
@@ -29076,10 +29076,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-from-env@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "proxy-from-env@npm:1.1.0"
-  checksum: ed7fcc2ba0a33404958e34d95d18638249a68c430e30fcb6c478497d72739ba64ce9810a24f53a7d921d0c065e5b78e3822759800698167256b04659366ca4d4
+"proxy-from-env@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "proxy-from-env@npm:2.1.0"
+  checksum: b106ad790f26d47ba4791af3fe8cba5c8d35d85020119c82c05b413eb11b3ab97d2393ecaed51bca97c2788fa256408283dfeb4d970b2ebcae6702310f064e7e
   languageName: node
   linkType: hard
 
