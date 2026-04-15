@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Appsmith Helm chart values",
+  "description": "Partial schema. Currently validates only mongodbCommunity.* values; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
+  "type": "object",
+  "properties": {
+    "mongodbCommunity": {
+      "type": "object",
+      "description": "MongoDBCommunity cluster configuration. Requires the MongoDB Community Operator to be pre-installed in the cluster (see docs/install-mongodb-operator.md).",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy a MongoDBCommunity custom resource.",
+          "default": false
+        },
+        "crName": {
+          "type": "string",
+          "description": "Name of the MongoDBCommunity custom resource.",
+          "default": "appsmith-mongodb",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version to deploy.",
+          "default": "8.0.20"
+        },
+        "members": {
+          "type": "integer",
+          "description": "Number of replica set members.",
+          "default": 3,
+          "minimum": 1
+        },
+        "replicaSetName": {
+          "type": "string",
+          "description": "Name of the MongoDB replica set.",
+          "default": "appsmith-mongodb",
+          "minLength": 1
+        },
+        "auth": {
+          "type": "object",
+          "description": "Authentication configuration for the MongoDB user Appsmith connects as.",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "MongoDB user for Appsmith.",
+              "default": "appsmith",
+              "minLength": 1
+            },
+            "database": {
+              "type": "string",
+              "description": "Authentication database (also used as the connection path).",
+              "default": "appsmith",
+              "minLength": 1
+            },
+            "passwordSecretName": {
+              "type": "string",
+              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{crName}-password\"."
+            }
+          }
+        },
+        "persistent": {
+          "type": "object",
+          "description": "Persistence configuration for MongoDB data volumes.",
+          "properties": {
+            "storageSize": {
+              "type": "string",
+              "description": "Storage size for each MongoDB replica PVC.",
+              "default": "10Gi"
+            },
+            "storageClass": {
+              "type": "string",
+              "description": "StorageClass for MongoDB PVCs. Empty uses the cluster default (or global.storageClass)."
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource requests/limits for MongoDB containers."
+        },
+        "nodeSelector": {
+          "type": "object",
+          "description": "Node selector for MongoDB pods."
+        },
+        "affinity": {
+          "type": "object",
+          "description": "Affinity rules for MongoDB pods."
+        },
+        "tolerations": {
+          "type": "array",
+          "description": "Tolerations for MongoDB pods.",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
