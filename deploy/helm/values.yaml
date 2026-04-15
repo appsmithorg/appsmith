@@ -107,6 +107,14 @@ mongodbCommunity:
 mongodbOperator:
   ## @param mongodbOperator.enabled Install the MongoDB Kubernetes Operator subchart
   enabled: false
+  ## @param mongodbOperator.operator.telemetry.enabled Enable the upstream operator's phone-home telemetry.
+  ## Disabled by default. When enabled, the upstream chart installs a ClusterRole named
+  ## "{operator.name}-cluster-telemetry" whose name does not include the operator's namespace, so it
+  ## collides if multiple Appsmith releases (each bundling their own operator) are installed in the
+  ## same cluster. Safe to re-enable if you run a single operator cluster-wide.
+  operator:
+    telemetry:
+      enabled: false
 
 ## postgresql parameters
 postgresql:

@@ -117,7 +117,7 @@ tests:
       - notContains:
           path: spec.template.spec.initContainers
           content:
-            image: "mongo:8.0.20"
+            image: "quay.io/mongodb/mongodb-community-server:8.0.20-ubi8"
           any: true
 
   - name: should set APPSMITH_DB_URL to Bitnami connection string in transition mode
@@ -180,7 +180,7 @@ tests:
           path: spec.template.spec.initContainers
           content:
             name: mongo-init-container
-            image: "mongo:8.0.20"
+            image: "quay.io/mongodb/mongodb-community-server:8.0.20-ubi8"
           count: 1
           any: true
 

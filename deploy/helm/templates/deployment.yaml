@@ -91,11 +91,7 @@ spec:
         command: ['sh', '-c', "until mongosh --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
       {{- else if .Values.mongodbCommunity.enabled }}
       - name: mongo-init-container
-      {{- if ((.Values.initContainer.mongodb).image) }}
-        image: {{ .Values.initContainer.mongodb.image }}
-      {{- else }}
-        image: "mongo:{{ .Values.mongodbCommunity.version }}"
-      {{- end }}
+        image: {{ include "appsmith.mongoInitContainerImage" . | quote }}
         command: ['sh', '-c', "until mongosh --host {{ include "appsmith.mongoOperatorServiceName" . }}.{{ include "appsmith.namespace" . }}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo operator; sleep 2; done"]
       {{- end }}
       {{- if .Values.postgresql.enabled }}
