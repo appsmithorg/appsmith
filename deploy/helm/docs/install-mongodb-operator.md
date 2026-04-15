@@ -141,14 +141,16 @@ helm install appsmith appsmith/appsmith -n appsmith --wait --timeout 10m \
 
 When `mongodbCommunity.auth.passwordSecretName` is set, the chart skips the pre-install Job and assumes the Secret is correctly populated.
 
-### Resource sizing
+### Resource sizing and HA
 
-The defaults fit a development cluster. For production, pin replica count, resources, and storage:
+The chart's defaults are tuned for evaluation and dev: a single-member replica set with modest storage. MongoDB is fully functional in this mode but has no failover.
+
+For production, scale to three members, pin resources, and set an explicit `StorageClass`:
 
 ```yaml
 mongodbCommunity:
   enabled: true
-  members: 3                         # replica set size
+  members: 3                         # replica set size (odd number recommended)
   persistent:
     storageSize: 100Gi
     storageClass: gp3                # or omit to use cluster default
@@ -159,6 +161,8 @@ mongodbCommunity:
     limits:
       memory: 4Gi
 ```
+
+Scaling from 1 to 3 after the fact is a value change on upgrade — the operator handles adding members to the replica set without downtime.
 
 ### Cross-namespace operator setups
 

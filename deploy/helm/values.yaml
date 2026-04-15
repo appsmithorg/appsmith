@@ -62,7 +62,10 @@ mongodbCommunity:
   ## @param mongodbCommunity.version MongoDB version to deploy
   version: "8.0.20"
   ## @param mongodbCommunity.members Number of replica set members
-  members: 3
+  ## Defaults to 1 to minimize footprint for evaluation and dev installs. For production
+  ## HA, set to 3 (odd number recommended for replica set quorum). The operator handles
+  ## scaling between these online — it's just a value change on upgrade.
+  members: 1
   ## @param mongodbCommunity.replicaSetName Name of the MongoDB replica set
   replicaSetName: "appsmith-mongodb"
   auth:

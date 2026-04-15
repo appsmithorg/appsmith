@@ -186,7 +186,7 @@ Other `mongodbOperator.*` values pass through to the upstream [mongodb-kubernete
 | `mongodbCommunity.enabled`                 | Deploy a `MongoDBCommunity` custom resource                                                                                    | `false`            |
 | `mongodbCommunity.name`                    | Name of the `MongoDBCommunity` custom resource                                                                                 | `appsmith-mongodb` |
 | `mongodbCommunity.version`                 | MongoDB version to deploy                                                                                                      | `8.0.20`           |
-| `mongodbCommunity.members`                 | Number of replica set members                                                                                                  | `3`                |
+| `mongodbCommunity.members`                 | Number of replica set members. `1` is a dev-friendly default; set to `3` for production HA.                                    | `1`                |
 | `mongodbCommunity.replicaSetName`          | Name of the MongoDB replica set                                                                                                | `appsmith-mongodb` |
 | `mongodbCommunity.auth.username`           | MongoDB user for Appsmith                                                                                                      | `appsmith`         |
 | `mongodbCommunity.auth.database`           | Authentication database (also used as connection path)                                                                         | `appsmith`         |

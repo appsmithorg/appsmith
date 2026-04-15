@@ -39,8 +39,8 @@
         },
         "members": {
           "type": "integer",
-          "description": "Number of replica set members.",
-          "default": 3,
+          "description": "Number of replica set members. Defaults to 1 for low-footprint installs; set to 3 for production HA.",
+          "default": 1,
           "minimum": 1
         },
         "replicaSetName": {
