@@ -129,6 +129,20 @@ Get the PV name, using override if specified
 {{- end -}}
 
 {{/*
+Password init Job image: the kubectl image used by the pre-install/pre-upgrade
+Job that bootstraps the MongoDB user password Secret.
+
+Resolution:
+  - Registry: global.imageRegistry if set, otherwise mongodbCommunity.passwordInit.image.registry
+  - Repository and tag: from mongodbCommunity.passwordInit.image
+*/}}
+{{- define "appsmith.mongoPasswordInitImage" -}}
+{{- $img := .Values.mongodbCommunity.passwordInit.image -}}
+{{- $registry := (.Values.global).imageRegistry | default $img.registry -}}
+{{- printf "%s/%s:%s" $registry $img.repository $img.tag -}}
+{{- end -}}
+
+{{/*
 Init container image used to wait for the MongoDBCommunity replica set.
 
 Follows the same registry the upstream operator uses for MongoDBCommunity pods.

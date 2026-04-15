@@ -339,7 +339,7 @@ tests:
           value: Never
       - equal:
           path: spec.template.spec.containers[0].image
-          value: alpine/kubectl:1.34.2
+          value: docker.io/alpine/kubectl:latest
       - equal:
           path: spec.template.spec.containers[0].securityContext.runAsNonRoot
           value: true

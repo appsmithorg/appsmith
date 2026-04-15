@@ -95,8 +95,8 @@ spec:
       restartPolicy: Never
       containers:
         - name: create-password
-          image: alpine/kubectl:1.34.2
-          imagePullPolicy: IfNotPresent
+          image: {{ include "appsmith.mongoPasswordInitImage" . | quote }}
+          imagePullPolicy: {{ .Values.mongodbCommunity.passwordInit.image.pullPolicy }}
           command:
             - /bin/sh
             - -c

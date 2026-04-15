@@ -108,7 +108,7 @@ kubectl get secret appsmith-mongo-appsmith-appsmith -n appsmith \
 
 ### Bring your own MongoDB password Secret
 
-If you manage secrets externally (Vault, SOPS, ExternalSecrets, etc.), create the Secret first and point the chart at it:
+If you manage secrets externally (Vault, SOPS, ExternalSecrets, etc.), create the Secret yourself and point the chart at it via `mongodbCommunity.auth.passwordSecretName`. The Secret must contain a single key named `password` holding the plaintext password — the example below uses `kubectl create secret` to show the required format, but you can produce the same shape through whatever tooling you already use.
 
 ```bash
 kubectl create secret generic my-mongodb-secret \
@@ -235,8 +235,18 @@ kubectl logs -n appsmith appsmith-0 -c mongo-init-container
 
 ### Password init Job fails with image pull error
 
-**Symptom**: `<mongodbCommunity.name>-password-init` Job pod is in `ImagePullBackOff` for `alpine/kubectl:<version>`.
+**Symptom**: `<mongodbCommunity.name>-password-init` Job pod is in `ImagePullBackOff` for `alpine/kubectl`.
 
-**Cause**: the pinned `alpine/kubectl` image tag isn't published on Docker Hub. The repository only publishes recent versions.
+**Cause**: the cluster cannot pull `docker.io/alpine/kubectl` — either the registry is unreachable (air-gapped) or policy blocks pulls from Docker Hub.
 
-**Fix**: mirror the image to a registry you control, or update the chart to a supported tag. Report as a bug if you see this in a released chart version.
+**Fix**: redirect the image via either:
+
+```bash
+# Chart-wide: affects all images that honor global.imageRegistry (including Bitnami subcharts)
+--set global.imageRegistry=my-registry.example.com
+
+# Scoped to the init Job only:
+--set mongodbCommunity.passwordInit.image.registry=my-registry.example.com
+--set mongodbCommunity.passwordInit.image.repository=my/kubectl
+--set mongodbCommunity.passwordInit.image.tag=1.34.2
+```
