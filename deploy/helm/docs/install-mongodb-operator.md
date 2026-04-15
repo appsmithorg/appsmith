@@ -188,10 +188,20 @@ spec:
 
 ## Uninstall
 
+Delete the `MongoDBCommunity` resource first so the operator can finish processing its finalizer while it's still running. Then uninstall the release and remove the namespace:
+
 ```bash
+# 1. Delete the CR and wait for the operator to clear its finalizer
+kubectl delete mongodbcommunity -n appsmith --all --wait=true
+
+# 2. Uninstall Appsmith (and the bundled operator, if enabled)
 helm uninstall appsmith -n appsmith
+
+# 3. Remove the namespace
 kubectl delete namespace appsmith
 ```
+
+Skipping step 1 can leave the `MongoDBCommunity` resource stuck with an unresolved finalizer once the operator Deployment is gone, which blocks namespace deletion. If that happens, see the [troubleshooting section](#namespace-deletion-hangs-after-helm-uninstall).
 
 This removes Appsmith, the bundled operator (if installed via this chart), and all operator-reconciled resources tied to its `MongoDBCommunity` CR.
 
@@ -222,6 +232,19 @@ kubectl logs -n appsmith -l app.kubernetes.io/name=mongodb-kubernetes-operator -
 Common causes:
 - The password Secret doesn't exist. If you set `mongodbCommunity.auth.passwordSecretName`, verify the Secret exists and has a `password` key.
 - The MongoDB image can't be pulled. Check `kubectl describe pod <mongodbCommunity.name>-0` for image-pull errors.
+
+### Namespace deletion hangs after `helm uninstall`
+
+**Symptom**: `kubectl delete namespace appsmith` never completes after uninstalling the release. The `MongoDBCommunity` resource is still listed with a `deletionTimestamp` set.
+
+**Cause**: the `MongoDBCommunity` CR has a finalizer that the operator is responsible for removing. When `mongodbOperator.enabled=true`, Helm may tear down the operator Deployment before the operator finishes processing the CR's deletion, leaving the finalizer in place forever.
+
+**Fix**: clear the finalizer manually, then the namespace deletion proceeds:
+
+```bash
+kubectl patch mongodbcommunity -n appsmith <mongodbCommunity.name> \
+  --type=merge -p '{"metadata":{"finalizers":[]}}'
+```
 
 ### Appsmith pod stuck in `Init`
 

@@ -24,7 +24,7 @@ spec:
         name: {{ $passwordSecretName }}
       roles:
         - name: dbOwner
-          db: appsmith
+          db: {{ .Values.mongodbCommunity.auth.database }}
         - name: clusterAdmin
           db: admin
         - name: userAdminAnyDatabase
