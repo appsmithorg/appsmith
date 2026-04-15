@@ -131,14 +131,19 @@ Get the PV name, using override if specified
 {{/*
 MongoDBCommunity CR name
 Returns the user-provided mongodbCommunity.name if set, otherwise computes
-"<fullname>-mongodb-community" so transition installs don't collide with the
-Bitnami MongoDB subchart's StatefulSet/pod names.
+"<fullname>-mongo". The "-mongo" suffix (vs "-mongodb") intentionally avoids
+collision with the Bitnami MongoDB subchart's StatefulSet/pod names during
+the Mode B transition window.
+
+Truncated to 60 chars so that the StatefulSet's pod ordinals (name + "-N")
+stay inside the 63-char DNS-label limit. Users overriding mongodbCommunity.name
+are responsible for keeping their own value short enough.
 */}}
 {{- define "appsmith.mongoCommunityName" -}}
 {{- if .Values.mongodbCommunity.name -}}
 {{- .Values.mongodbCommunity.name -}}
 {{- else -}}
-{{- printf "%s-mongodb-community" (include "appsmith.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-mongo" (include "appsmith.fullname" .) | trunc 60 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 

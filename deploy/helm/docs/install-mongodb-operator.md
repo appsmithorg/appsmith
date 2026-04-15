@@ -67,13 +67,13 @@ Expected output (abridged):
 ```
 NAME                                                  READY   STATUS
 appsmith-0                                            1/1     Running
-appsmith-mongodb-community-0                          2/2     Running
+appsmith-mongo-0                          2/2     Running
 appsmith-postgresql-0                                 1/1     Running
 appsmith-redis-master-0                               1/1     Running
 mongodb-kubernetes-operator-...                       1/1     Running
 
 NAME                         PHASE     VERSION
-appsmith-mongodb-community   Running   8.0.20
+appsmith-mongo   Running   8.0.20
 ```
 
 (Names shown assume a release named `appsmith`. The operator-managed resources are prefixed with `<release-fullname>-mongodb-community` by default — see `mongodbCommunity.name` to override.)
@@ -92,17 +92,17 @@ For production access, configure an Ingress — see [exposing Appsmith online](h
 
 ## Retrieving the generated MongoDB password
 
-The MongoDB user password is in a Secret named `<mongodbCommunity.name>-password` — for a release named `appsmith` with default naming, that's `appsmith-mongodb-community-password`:
+The MongoDB user password is in a Secret named `<mongodbCommunity.name>-password` — for a release named `appsmith` with default naming, that's `appsmith-mongo-password`:
 
 ```bash
-kubectl get secret appsmith-mongodb-community-password -n appsmith \
+kubectl get secret appsmith-mongo-password -n appsmith \
   -o jsonpath='{.data.password}' | base64 -d
 ```
 
 Appsmith itself reads its connection string from an operator-managed Secret:
 
 ```bash
-kubectl get secret appsmith-mongodb-community-appsmith-appsmith -n appsmith \
+kubectl get secret appsmith-mongo-appsmith-appsmith -n appsmith \
   -o jsonpath='{.data.connectionString\.standardSrv}' | base64 -d
 ```
 
