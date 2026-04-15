@@ -38,6 +38,32 @@ describe("defaultValueValidation", () => {
     });
   });
 
+  it("should preserve decimal precision for valid string defaults", () => {
+    result = defaultValueValidation(
+      "123.00",
+      { decimals: 2 } as CurrencyInputWidgetProps,
+      _,
+    );
+
+    expect(result).toEqual({
+      isValid: true,
+      parsed: "123.00",
+      messages: [{ name: "", message: "" }],
+    });
+
+    result = defaultValueValidation(
+      "4.10",
+      { decimals: 2 } as CurrencyInputWidgetProps,
+      _,
+    );
+
+    expect(result).toEqual({
+      isValid: true,
+      parsed: "4.10",
+      messages: [{ name: "", message: "" }],
+    });
+  });
+
   it("should validate defaulttext with object value", () => {
     const value = {};
 

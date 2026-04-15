@@ -77,6 +77,22 @@ export function defaultValueValidation(
   const decimalSeperator = getLocaleDecimalSeperator();
   const defaultDecimalSeperator = ".";
 
+  const getParsedString = (parsedValue: number) => {
+    if (!_.isString(value)) {
+      return String(parsedValue);
+    }
+
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue.includes(defaultDecimalSeperator)) {
+      return String(parsedValue);
+    }
+
+    const [, fractionalPart = ""] = trimmedValue.split(defaultDecimalSeperator);
+
+    return parsedValue.toFixed(fractionalPart.length);
+  };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -144,7 +160,7 @@ export function defaultValueValidation(
       messages = [EMPTY_ERROR_MESSAGE];
     }
 
-    parsed = String(parsed);
+    parsed = getParsedString(parsed);
   }
 
   return {
