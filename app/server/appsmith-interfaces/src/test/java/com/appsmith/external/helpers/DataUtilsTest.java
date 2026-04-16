@@ -309,4 +309,65 @@ public class DataUtilsTest {
                 .expectComplete()
                 .verify();
     }
+
+    @Test
+    public void testParseMultipartFileData_withBase64FileArray_returnsExpectedBody() {
+        List<Property> properties = new ArrayList<>();
+        String base64DataUrl = "data:application/pdf;base64,JVBERi0xLjQKMSAwIG9iago=";
+        final Property p1 = new Property(
+                "fileField",
+                "[{\"name\": \"test.pdf\", \"type\": \"application/pdf\", \"data\": \"" + base64DataUrl + "\"}]");
+        p1.setType("file");
+        properties.add(p1);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    assertTrue(content.contains(
+                            "Content-Disposition: form-data; name=\"fileField\"; filename=\"test.pdf\""));
+                    assertTrue(content.contains("Content-Type: application/pdf"));
+                })
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void testParseMultipartFileData_withBinaryFileContainingHtmlEntityBytes_succeeds() {
+        List<Property> properties = new ArrayList<>();
+        final Property p1 = new Property(
+                "fileField",
+                "[{\"name\": \"test.pdf\", \"type\": \"application/pdf\", "
+                        + "\"data\": \"binary-prefix\u0026#xA;binary-suffix\"}]");
+        p1.setType("file");
+        properties.add(p1);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    assertTrue(content.contains(
+                            "Content-Disposition: form-data; name=\"fileField\"; filename=\"test.pdf\""));
+                    assertTrue(content.contains("Content-Type: application/pdf"));
+                    assertTrue(content.contains("&#xA;"));
+                })
+                .expectComplete()
+                .verify();
+    }
 }
