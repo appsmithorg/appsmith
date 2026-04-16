@@ -313,56 +313,32 @@ init_replica_set() {
   fi
 }
 
-# Pre-flight check for embedded MongoDB 7.0 upgrades.
+# Pre-flight check for embedded MongoDB 7.0 upgrades on existing data.
 #
 # MongoDB 7.0 refuses to start on data whose featureCompatibilityVersion (FCV)
 # is below 6.0. Without a check up front, supervisord would retry mongod a few
 # times and give up, leaving the container in a confusing degraded state with
 # no clear error for the operator.
 #
-# Strategy:
-#   - Fast path (common): a marker file ($MONGO_DB_PATH/.appsmith-fcv) maintained
-#     by mongodb-fixer.sh on every successful boot records the current FCV. If
-#     it's present and >= 6.0, we proceed with zero overhead.
-#   - Hard fail: marker says FCV < 6.0 → print actionable error and exit.
-#   - Transitional (rare): marker missing but data exists (e.g., first boot on
-#     this release after upgrading from an older Appsmith that predates the
-#     marker). Do a one-time mongod --fork to probe compatibility. If it starts,
-#     proceed; the fixer will write the marker after supervisord brings mongod
-#     up for real. If it fails, print the same actionable error and exit.
+# Fast path (common): marker file ($MONGO_DB_PATH/.appsmith-fcv) is written by
+# mongodb-fixer.sh only after it confirms the current FCV on a running mongod,
+# so its presence implies a compatible FCV. Skip the probe with zero overhead.
+#
+# Transitional (rare): on first boot of this release after upgrading from an
+# older Appsmith that predates the marker, the marker is missing. Do a one-time
+# mongod --fork probe to verify the data is compatible. If it starts, proceed;
+# the fixer will write the marker after supervisord brings mongod up for real.
+# If it fails, print an actionable error and exit.
+#
+# Caller is responsible for invoking this only when there's existing local-Mongo
+# data to check (i.e. not a fresh install, not an external mongo).
 ensure_mongodb_fcv_compatible() {
-  # Only applies to the embedded (local) MongoDB.
-  if [[ $isUriLocal -ne 0 ]]; then
-    return
-  fi
-
   local marker="$MONGO_DB_PATH/.appsmith-fcv"
-
-  # Fresh install / no data on disk — nothing to check.
-  if [[ ! -e "$MONGO_DB_PATH/WiredTiger" ]]; then
+  if [[ -f "$marker" ]]; then
+    tlog "MongoDB FCV marker present; skipping pre-flight check"
     return
   fi
 
-  if [[ -f "$marker" ]]; then
-    local marker_fcv
-    marker_fcv="$(tr -d '[:space:]' < "$marker" 2>/dev/null || true)"
-    if [[ "$marker_fcv" =~ ^[0-9]+\.[0-9]+$ ]] && awk -v v="$marker_fcv" 'BEGIN {exit !(v+0 >= 6.0)}'; then
-      tlog "MongoDB FCV marker ok (featureCompatibilityVersion=$marker_fcv); skipping pre-flight check"
-      return
-    fi
-    tlog "====================================================================================================" >&2
-    tlog "==" >&2
-    tlog "== ERROR: Embedded MongoDB has been upgraded to 7.0, but the existing data is at featureCompatibilityVersion '${marker_fcv:-unknown}', which is below the required 6.0 minimum." >&2
-    tlog "== To upgrade safely:" >&2
-    tlog "==   1. Roll back to Appsmith v1.99 (the last release shipped with MongoDB 6.x)" >&2
-    tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
-    tlog "==   3. Shut down, then upgrade to this release" >&2
-    tlog "==" >&2
-    tlog "====================================================================================================" >&2
-    exit 1
-  fi
-
-  # Marker missing, but data exists — one-time pre-flight probe.
   tlog "No MongoDB FCV marker found on existing data; running one-time compatibility probe"
   local probe_log="$TMP/mongo-fcv-probe.log"
   : > "$probe_log"
@@ -679,7 +655,9 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
-    ensure_mongodb_fcv_compatible
+    if [[ $shouldPerformInitdb -eq 0 && $isUriLocal -eq 0 ]]; then
+      ensure_mongodb_fcv_compatible
+    fi
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
