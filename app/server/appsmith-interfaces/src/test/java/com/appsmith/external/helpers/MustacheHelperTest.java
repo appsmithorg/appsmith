@@ -608,16 +608,20 @@ public class MustacheHelperTest {
     }
 
     /**
-     * This test case validates the unescaping of HTML characters to string
+     * Verifies that HTML entities other than &quot;/&#34; are NOT decoded.
+     * Previously, unescapeHtml4() decoded all entities, but this corrupted binary data
+     * containing entity-like byte sequences (e.g., &#xA; in PDFs). Now only &quot; and
+     * &#34; are handled for JSON validity.
+     * See: https://linear.app/appsmith/issue/V2-3662
      */
     @Test
-    public void render_WhenValueContainsHtmlReservedCharacters_ReturnsEscapedCharacters() {
+    public void render_WhenValueContainsHtmlReservedCharacters_DoesNotDecodeNonQuoteEntities() {
         final String rendered = render(
                 "Testing html lt {{ltSymbol}} and gt {{gtSymbol}} symbols",
                 Map.of(
                         "ltSymbol", "&lt;",
                         "gtSymbol", "&gt;"));
-        assertThat(rendered).isEqualTo("Testing html lt < and gt > symbols");
+        assertThat(rendered).isEqualTo("Testing html lt &lt; and gt &gt; symbols");
     }
 
     /**

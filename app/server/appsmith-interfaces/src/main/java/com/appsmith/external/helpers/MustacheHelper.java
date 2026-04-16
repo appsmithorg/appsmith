@@ -5,7 +5,6 @@ import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.MustacheBindingToken;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -358,13 +357,12 @@ public class MustacheHelper {
                 rendered.append(token.getValue());
             }
         }
-        /**
-         * ReplaceAll is used to escape the double quotes symbol with \" so that
-         * JSON remains valid.
-         * &quot; and &#34; both are HTML reserved characters for double quotes (")
-         */
-        return StringEscapeUtils.unescapeHtml4(
-                rendered.toString().replaceAll("&quot;", "\\\\&quot;").replaceAll("&#34;", "\\\\&#34;"));
+        // Only handle &quot; and &#34; (HTML-encoded double quotes) by converting them
+        // to escaped double quotes (\") for JSON validity. Do NOT use unescapeHtml4()
+        // because it decodes ALL HTML entities (e.g., &#xA; → newline, &lt; → <), which
+        // corrupts binary file content that contains entity-like byte sequences.
+        // See: https://linear.app/appsmith/issue/V2-3662
+        return rendered.toString().replace("&quot;", "\\\"").replace("&#34;", "\\\"");
     }
 
     /**
