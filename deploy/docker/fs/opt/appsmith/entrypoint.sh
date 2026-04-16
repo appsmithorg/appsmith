@@ -359,7 +359,7 @@ ensure_mongodb_fcv_compatible() {
     tlog "==" >&2
     tlog "== ERROR: Embedded MongoDB has been upgraded to 7.0, but the existing data is at featureCompatibilityVersion '${marker_fcv:-unknown}', which is below the required 6.0 minimum." >&2
     tlog "== To upgrade safely:" >&2
-    tlog "==   1. Roll back to the previous Appsmith release (the last one shipped with MongoDB 6.x)" >&2
+    tlog "==   1. Roll back to Appsmith v1.99 (the last release shipped with MongoDB 6.x)" >&2
     tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
     tlog "==   3. Shut down, then upgrade to this release" >&2
     tlog "==" >&2
@@ -386,7 +386,7 @@ ensure_mongodb_fcv_compatible() {
     tlog "== mongod log: $probe_err" >&2
   fi
   tlog "== To upgrade safely:" >&2
-  tlog "==   1. Roll back to the previous Appsmith release (the last one shipped with MongoDB 6.x)" >&2
+  tlog "==   1. Roll back to Appsmith v1.99 (the last release shipped with MongoDB 6.x)" >&2
   tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
   tlog "==   3. Shut down, then upgrade to this release" >&2
   tlog "==" >&2
