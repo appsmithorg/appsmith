@@ -305,11 +305,12 @@ public class DataUtils {
 
         final String fileValue = (String) property.getValue();
         final String key = property.getKey();
+        // Normalize once: routing decisions must be structural, not substring-based on raw input.
+        // Leading whitespace previously misrouted valid JSON payloads to the base64 path. See V2-3662.
+        final String normalized = fileValue == null ? "" : fileValue.trim();
 
-        if (fileValue.contains(BASE64_DELIMITER) && !fileValue.startsWith("{") && !fileValue.startsWith("[")) {
-            processBase64Data(fileValue, key, bodyBuilder, outputMessage);
-        } else {
-            List<MultipartFormDataDTO> multipartFormDataDTOs = parseMultipartData(fileValue);
+        if (normalized.startsWith("{") || normalized.startsWith("[")) {
+            List<MultipartFormDataDTO> multipartFormDataDTOs = parseMultipartData(normalized);
 
             for (MultipartFormDataDTO dto : multipartFormDataDTOs) {
                 String dataString = String.valueOf(dto.getData());
@@ -319,6 +320,11 @@ public class DataUtils {
                     processRegularData(dataString, key, bodyBuilder, outputMessage, dto.getName(), dto.getType());
                 }
             }
+        } else if (normalized.contains(BASE64_DELIMITER)) {
+            processBase64Data(normalized, key, bodyBuilder, outputMessage);
+        } else {
+            // Fall back to existing behavior for non-JSON, non-base64 strings (error thrown downstream).
+            parseMultipartData(normalized);
         }
     }
 
