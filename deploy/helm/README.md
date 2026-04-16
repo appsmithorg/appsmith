@@ -189,7 +189,6 @@ Other `mongodbOperator.*` values pass through to the upstream [mongodb-kubernete
 | `mongodbCommunity.name`                    | Name of the `MongoDBCommunity` custom resource. When empty, defaults to `<release-fullname>-mongo`.                            | `""`               |
 | `mongodbCommunity.version`                 | MongoDB version to deploy                                                                                                      | `8.0.20`           |
 | `mongodbCommunity.members`                 | Number of replica set members. `1` is a dev-friendly default; set to `3` for production HA.                                    | `1`                |
-| `mongodbCommunity.replicaSetName`          | Name of the MongoDB replica set                                                                                                | `appsmith-mongodb` |
 | `mongodbCommunity.auth.username`           | MongoDB user for Appsmith                                                                                                      | `appsmith`         |
 | `mongodbCommunity.auth.database`           | Authentication database (also used as connection path)                                                                         | `appsmith`         |
 | `mongodbCommunity.auth.passwordSecretName` | Name of an existing Secret containing the password (key: `password`). When empty, a pre-install Job autogenerates the Secret. | `""`               |

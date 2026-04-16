@@ -64,8 +64,6 @@ mongodbCommunity:
   ## HA, set to 3 (odd number recommended for replica set quorum). The operator handles
   ## scaling between these online — it's just a value change on upgrade.
   members: 1
-  ## @param mongodbCommunity.replicaSetName Name of the MongoDB replica set
-  replicaSetName: "appsmith-mongodb"
   auth:
     ## @param mongodbCommunity.auth.username MongoDB user for Appsmith
     username: "appsmith"

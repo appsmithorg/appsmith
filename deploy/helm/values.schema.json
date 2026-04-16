@@ -42,12 +42,6 @@
           "default": 1,
           "minimum": 1
         },
-        "replicaSetName": {
-          "type": "string",
-          "description": "Name of the MongoDB replica set.",
-          "default": "appsmith-mongodb",
-          "minLength": 1
-        },
         "auth": {
           "type": "object",
           "description": "Authentication configuration for the MongoDB user Appsmith connects as.",

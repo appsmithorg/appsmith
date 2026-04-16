@@ -64,7 +64,7 @@ kubectl get mongodbcommunity -n appsmith
 
 Expected output (abridged):
 
-```
+```text
 NAME                              READY   STATUS
 appsmith-0                        1/1     Running
 appsmith-mongo-0                  2/2     Running
