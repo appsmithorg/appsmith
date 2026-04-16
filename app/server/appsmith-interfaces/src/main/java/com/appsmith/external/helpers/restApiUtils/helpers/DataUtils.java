@@ -306,7 +306,7 @@ public class DataUtils {
         final String fileValue = (String) property.getValue();
         final String key = property.getKey();
 
-        if (fileValue.contains(BASE64_DELIMITER)) {
+        if (fileValue.contains(BASE64_DELIMITER) && !fileValue.startsWith("{") && !fileValue.startsWith("[")) {
             processBase64Data(fileValue, key, bodyBuilder, outputMessage);
         } else {
             List<MultipartFormDataDTO> multipartFormDataDTOs = parseMultipartData(fileValue);
