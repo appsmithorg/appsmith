@@ -320,9 +320,12 @@ init_replica_set() {
 # times and give up, leaving the container in a confusing degraded state with
 # no clear error for the administrator.
 #
-# Fast path: marker file ($MONGO_DB_PATH/.appsmith-fcv) is written by
-# mongodb-fixer.sh only after it confirms the current FCV on a running mongod,
-# so its presence implies a compatible FCV. Skip the probe with zero overhead.
+# Fast path: marker file ($MONGO_DB_PATH/.appsmith-mongo-fcv-min) is written by
+# mongodb-fixer.sh only after mongod is confirmed running under this Appsmith
+# release. Its presence proves this release has already booted successfully on
+# this data, so the probe can be skipped with zero overhead. Contents record
+# the FCV floor this release commits to, for future upgrade decisions; they
+# aren't consulted here.
 #
 # First boot after upgrade: no marker yet. Do a one-time mongod --fork probe
 # to verify the data is compatible. If it starts, proceed; the fixer will
@@ -335,7 +338,7 @@ ensure_mongodb_fcv_compatible() {
     return
   fi
 
-  local marker="$MONGO_DB_PATH/.appsmith-fcv"
+  local marker="$MONGO_DB_PATH/.appsmith-mongo-fcv-min"
   if [[ -f "$marker" ]]; then
     tlog "MongoDB FCV marker present; skipping pre-flight check"
     return
