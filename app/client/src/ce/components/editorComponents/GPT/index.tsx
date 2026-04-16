@@ -7,6 +7,8 @@ import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
 import React from "react";
 import type CodeMirror from "codemirror";
 
+export { AISidePanel } from "./AISidePanel";
+
 export type AIEditorContext = Partial<{
   functionName: string;
   cursorLineNumber: number;
