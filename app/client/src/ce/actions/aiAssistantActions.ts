@@ -28,7 +28,10 @@ export interface FetchAIResponsePayload {
     functionString?: string;
     mode?: string;
     currentValue?: string;
+    /** Unpublished action id for server-side datasource schema resolution */
     entityId?: string;
+    databaseSchema?: string;
+    datasourceType?: string;
   };
 }
 
@@ -81,6 +84,7 @@ export interface AIEditorContextPayload {
   currentValue?: string;
   editorId?: string;
   entityName?: string;
+  /** Unpublished action id — sent to server for schema injection */
   entityId?: string;
   propertyPath?: string;
 }
@@ -92,6 +96,7 @@ export const updateAIContext = (
   payload: { context },
 });
 
+// Combined action: updates context and opens panel
 export const openAIPanelWithContext = (
   context: AIEditorContextPayload,
 ): ReduxAction<{ context: AIEditorContextPayload }> => ({

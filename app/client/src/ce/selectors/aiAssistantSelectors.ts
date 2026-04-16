@@ -1,47 +1,56 @@
 import type { DefaultRootState } from "react-redux";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAIAssistantState(state: DefaultRootState) {
   return undefined;
 }
 
-export function getHasAIApiKey(_state: DefaultRootState): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getHasAIApiKey(state: DefaultRootState): boolean {
   return false;
 }
 
-export function getAIProvider(_state: DefaultRootState): string | undefined {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getAIProvider(state: DefaultRootState): string | undefined {
   return undefined;
 }
 
-export function getIsAILoading(_state: DefaultRootState): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getIsAILoading(state: DefaultRootState): boolean {
   return false;
 }
 
-export function getAIMessages(_state: DefaultRootState): never[] {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getAIMessages(state: DefaultRootState): never[] {
   return [];
 }
 
-export function getAILastResponse(
-  _state: DefaultRootState,
-): string | undefined {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getAILastResponse(state: DefaultRootState): string | undefined {
   return undefined;
 }
 
-export function getAIError(_state: DefaultRootState): string | undefined {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getAIError(state: DefaultRootState): string | undefined {
   return undefined;
 }
 
-export function getIsAIEnabled(_state: DefaultRootState): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getIsAIEnabled(state: DefaultRootState): boolean {
   return false;
 }
 
-export function getIsAIConfigLoaded(_state: DefaultRootState): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getIsAIConfigLoaded(state: DefaultRootState): boolean {
   return false;
 }
 
-export function getIsAIPanelOpen(_state: DefaultRootState): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getIsAIPanelOpen(state: DefaultRootState): boolean {
   return false;
 }
 
-export function getAIEditorContext(_state: DefaultRootState): null {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getAIEditorContext(state: DefaultRootState): null {
   return null;
 }
