@@ -654,4 +654,34 @@ public class MustacheHelperTest {
 
         assertThat(rendered).isEqualTo(dataWithEntities);
     }
+
+    /**
+     * Proves the JSON-quote escape is scoped to binding values only. When the template
+     * contains a literal &quot; AND the binding value also contains a &quot;, only the
+     * value is mutated; the literal is preserved byte-for-byte.
+     * Regression test for: V2-3662 (follow-up)
+     */
+    @Test
+    public void render_WhenTemplateLiteralAndValueBothContainQuoteEntity_OnlyValueIsEscaped() {
+        final String rendered = render("literal &quot; then {{data}} end", Map.of("data", "A&quot;B"));
+
+        // Template literal preserved
+        assertThat(rendered).startsWith("literal &quot; then ");
+        assertThat(rendered).endsWith(" end");
+        // Binding value escaped for JSON validity
+        assertThat(rendered).contains("A\\\"B");
+        assertThat(rendered).isEqualTo("literal &quot; then A\\\"B end");
+    }
+
+    /**
+     * A literal &quot; sitting in the template text (not inside a mustache binding)
+     * must pass through unchanged. Only binding values participate in JSON-validity
+     * escaping.
+     */
+    @Test
+    public void render_WhenTemplateLiteralContainsQuoteEntity_IsPreserved() {
+        final String rendered = render("static &quot;literal&quot; {{k}}", Map.of("k", "v"));
+
+        assertThat(rendered).isEqualTo("static &quot;literal&quot; v");
+    }
 }
