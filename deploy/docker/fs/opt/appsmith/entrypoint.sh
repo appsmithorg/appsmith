@@ -318,21 +318,20 @@ init_replica_set() {
 # MongoDB 7.0 refuses to start on data whose featureCompatibilityVersion (FCV)
 # is below 6.0. Without a check up front, supervisord would retry mongod a few
 # times and give up, leaving the container in a confusing degraded state with
-# no clear error for the operator.
+# no clear error for the administrator.
 #
-# Fast path (common): marker file ($MONGO_DB_PATH/.appsmith-fcv) is written by
+# Fast path: marker file ($MONGO_DB_PATH/.appsmith-fcv) is written by
 # mongodb-fixer.sh only after it confirms the current FCV on a running mongod,
 # so its presence implies a compatible FCV. Skip the probe with zero overhead.
 #
-# Transitional (rare): on first boot of this release after upgrading from an
-# older Appsmith that predates the marker, the marker is missing. Do a one-time
-# mongod --fork probe to verify the data is compatible. If it starts, proceed;
-# the fixer will write the marker after supervisord brings mongod up for real.
-# If it fails, print an actionable error and exit.
+# First boot after upgrade: no marker yet. Do a one-time mongod --fork probe
+# to verify the data is compatible. If it starts, proceed; the fixer will
+# write the marker after supervisord brings mongod up for real. If it fails,
+# print an actionable error and exit.
 ensure_mongodb_fcv_compatible() {
   # Only applies to existing local-Mongo data — fresh installs have nothing to
   # check, and external Mongo is out of our control.
-  if [[ $shouldPerformInitdb -ne 0 || $isUriLocal -ne 0 ]]; then
+  if [[ $shouldPerformInitdb -gt 0 || $isUriLocal -gt 0 ]]; then
     return
   fi
 
@@ -346,7 +345,10 @@ ensure_mongodb_fcv_compatible() {
   local probe_log="$TMP/mongo-fcv-probe.log"
   : > "$probe_log"
   if mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$probe_log" --bind_ip localhost >/dev/null 2>&1; then
-    mongod --dbpath "$MONGO_DB_PATH" --shutdown >/dev/null 2>&1 || true
+    if ! mongod --dbpath "$MONGO_DB_PATH" --shutdown >/dev/null 2>&1; then
+      tlog "ERROR: Pre-flight mongod probe started but shutdown failed. The probe mongod may still hold port 27017 or the data lock, which would prevent supervisord from starting mongod. Aborting. See $probe_log for details." >&2
+      exit 1
+    fi
     tlog "Pre-flight probe succeeded; mongodb-fixer will write the FCV marker after supervisord starts mongod"
     return
   fi
