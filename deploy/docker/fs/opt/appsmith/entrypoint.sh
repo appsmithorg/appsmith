@@ -296,6 +296,11 @@ init_replica_set() {
     sleep 10
     mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
+    # Seed the FCV marker so the pre-flight compatibility check can fast-path on the
+    # next container boot. A fresh MongoDB 7.0 install defaults featureCompatibilityVersion
+    # to 7.0; mongodb-fixer will refresh this with the authoritative value shortly after
+    # supervisord starts mongod. See ensure_mongodb_fcv_compatible below.
+    ( printf '%s\n' "7.0" > "$MONGO_DB_PATH/.appsmith-fcv.tmp" && mv -f "$MONGO_DB_PATH/.appsmith-fcv.tmp" "$MONGO_DB_PATH/.appsmith-fcv" ) || tlog "warning: failed to write initial FCV marker"
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
@@ -311,6 +316,83 @@ init_replica_set() {
       exit 1
     fi
   fi
+}
+
+# Pre-flight check for embedded MongoDB 7.0 upgrades.
+#
+# MongoDB 7.0 refuses to start on data whose featureCompatibilityVersion (FCV)
+# is below 6.0. Without a check up front, supervisord would retry mongod a few
+# times and give up, leaving the container in a confusing degraded state with
+# no clear error for the operator.
+#
+# Strategy:
+#   - Fast path (common): a marker file ($MONGO_DB_PATH/.appsmith-fcv) maintained
+#     by mongodb-fixer.sh on every successful boot records the current FCV. If
+#     it's present and >= 6.0, we proceed with zero overhead.
+#   - Hard fail: marker says FCV < 6.0 → print actionable error and exit.
+#   - Transitional (rare): marker missing but data exists (e.g., first boot on
+#     this release after upgrading from an older Appsmith that predates the
+#     marker). Do a one-time mongod --fork to probe compatibility. If it starts,
+#     proceed; the fixer will write the marker after supervisord brings mongod
+#     up for real. If it fails, print the same actionable error and exit.
+ensure_mongodb_fcv_compatible() {
+  # Only applies to the embedded (local) MongoDB.
+  if [[ $isUriLocal -ne 0 ]]; then
+    return
+  fi
+
+  local marker="$MONGO_DB_PATH/.appsmith-fcv"
+
+  # Fresh install / no data on disk — nothing to check.
+  if [[ ! -e "$MONGO_DB_PATH/WiredTiger" ]]; then
+    return
+  fi
+
+  if [[ -f "$marker" ]]; then
+    local marker_fcv
+    marker_fcv="$(tr -d '[:space:]' < "$marker" 2>/dev/null || true)"
+    if [[ "$marker_fcv" =~ ^[0-9]+\.[0-9]+$ ]] && awk -v v="$marker_fcv" 'BEGIN {exit !(v+0 >= 6.0)}'; then
+      tlog "MongoDB FCV marker ok (featureCompatibilityVersion=$marker_fcv); skipping pre-flight check"
+      return
+    fi
+    tlog "====================================================================================================" >&2
+    tlog "==" >&2
+    tlog "== ERROR: Embedded MongoDB has been upgraded to 7.0, but the existing data is at featureCompatibilityVersion '${marker_fcv:-unknown}', which is below the required 6.0 minimum." >&2
+    tlog "== To upgrade safely:" >&2
+    tlog "==   1. Roll back to the previous Appsmith release (the last one shipped with MongoDB 6.x)" >&2
+    tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
+    tlog "==   3. Shut down, then upgrade to this release" >&2
+    tlog "==" >&2
+    tlog "====================================================================================================" >&2
+    exit 1
+  fi
+
+  # Marker missing, but data exists — one-time pre-flight probe.
+  tlog "No MongoDB FCV marker found on existing data; running one-time compatibility probe"
+  local probe_log="$TMP/mongo-fcv-probe.log"
+  : > "$probe_log"
+  if mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$probe_log" --bind_ip localhost >/dev/null 2>&1; then
+    mongod --dbpath "$MONGO_DB_PATH" --shutdown >/dev/null 2>&1 || true
+    tlog "Pre-flight probe succeeded; mongodb-fixer will write the FCV marker after supervisord starts mongod"
+    return
+  fi
+
+  local probe_err
+  probe_err="$(grep -Ei 'featurecompatibilityversion|upgrade|downgrade' "$probe_log" 2>/dev/null | tail -n 1 || true)"
+  tlog "====================================================================================================" >&2
+  tlog "==" >&2
+  tlog "== ERROR: Embedded MongoDB 7.0 failed to start on the existing data. The most common cause is that the data is at featureCompatibilityVersion below the required 6.0 minimum." >&2
+  if [[ -n "$probe_err" ]]; then
+    tlog "== mongod log: $probe_err" >&2
+  fi
+  tlog "== To upgrade safely:" >&2
+  tlog "==   1. Roll back to the previous Appsmith release (the last one shipped with MongoDB 6.x)" >&2
+  tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
+  tlog "==   3. Shut down, then upgrade to this release" >&2
+  tlog "==" >&2
+  tlog "== Full mongod log: $probe_log" >&2
+  tlog "====================================================================================================" >&2
+  exit 1
 }
 
 use-mongodb-key() {
@@ -602,6 +684,7 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
+    ensure_mongodb_fcv_compatible
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
