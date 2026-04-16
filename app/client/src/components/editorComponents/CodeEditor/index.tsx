@@ -315,7 +315,12 @@ class CodeEditor extends Component<Props, State> {
   private peekOverlayExpressionIdentifier: PeekOverlayExpressionIdentifier;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   currentLineNumber: number | null = null;
-  AIEnabled = false;
+  private getAIEnabled = (): boolean =>
+    isAIEnabled(
+      this.props.featureFlags,
+      this.props.mode,
+      this.props.hasAIApiKey,
+    ) && Boolean(this.props.AIAssisted);
   private multiplexConfig?: MultiplexingModeConfig;
 
   constructor(props: Props) {
@@ -344,12 +349,6 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
-    this.AIEnabled =
-      isAIEnabled(
-        this.props.featureFlags,
-        this.props.mode,
-        this.props.hasAIApiKey,
-      ) && Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -587,14 +586,12 @@ class CodeEditor extends Component<Props, State> {
   }, 200);
 
   componentDidUpdate(prevProps: Props): void {
-    // Recalculate AIEnabled when hasAIApiKey changes (e.g., after saga loads settings)
-    if (prevProps.hasAIApiKey !== this.props.hasAIApiKey) {
-      this.AIEnabled =
-        isAIEnabled(
-          this.props.featureFlags,
-          this.props.mode,
-          this.props.hasAIApiKey,
-        ) && Boolean(this.props.AIAssisted);
+    if (
+      !prevProps.AIAssisted &&
+      this.props.AIAssisted &&
+      !this.props.isAIConfigLoaded
+    ) {
+      this.props.loadAISettings();
     }
 
     const identifierHasChanged =
@@ -1210,7 +1207,7 @@ class CodeEditor extends Component<Props, State> {
               pluginIdToPlugin: this.props.pluginIdToPlugin,
               recentEntities: this.props.recentEntities,
               featureFlags: this.props.featureFlags,
-              enableAIAssistance: this.AIEnabled,
+              enableAIAssistance: this.getAIEnabled(),
               focusEditor: this.focusEditor,
               executeCommand: this.props.executeCommand,
               isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
@@ -1434,7 +1431,7 @@ class CodeEditor extends Component<Props, State> {
         pluginIdToPlugin: this.props.pluginIdToPlugin,
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
-        enableAIAssistance: this.AIEnabled,
+        enableAIAssistance: this.getAIEnabled(),
         focusEditor: this.focusEditor,
         executeCommand: this.props.executeCommand,
         isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
@@ -1741,18 +1738,19 @@ class CodeEditor extends Component<Props, State> {
           </Button>
         </div>
 
-        {this.AIEnabled && (
+        {this.getAIEnabled() && (
           <div className="absolute bottom-[6px] right-[6px] z-4">
             <AskAIButton
               entity={entityInformation}
               mode={this.props.mode}
               onClick={() => {
-                try {
-                  const currentValue =
-                    typeof this.props.input.value === "string"
-                      ? this.props.input.value
-                      : "";
+                const currentValue = this.editor
+                  ? this.editor.getValue()
+                  : typeof this.props.input.value === "string"
+                    ? this.props.input.value
+                    : "";
 
+                try {
                   let aiContext = {
                     functionName: "",
                     cursorLineNumber: 0,
@@ -1784,7 +1782,7 @@ class CodeEditor extends Component<Props, State> {
                   console.error("Error opening AI panel:", error);
                   this.props.openAIPanelWithContext({
                     mode: this.props.mode,
-                    currentValue: "",
+                    currentValue,
                   });
                 }
               }}
@@ -1810,7 +1808,7 @@ class CodeEditor extends Component<Props, State> {
           useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
-            AIEnabled={this.AIEnabled}
+            AIEnabled={this.getAIEnabled()}
             border={border}
             borderLess={borderLess}
             className={`${className} ${replayHighlightClass} ${
