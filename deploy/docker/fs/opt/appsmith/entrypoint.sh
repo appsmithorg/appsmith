@@ -329,10 +329,13 @@ init_replica_set() {
 # mongod --fork probe to verify the data is compatible. If it starts, proceed;
 # the fixer will write the marker after supervisord brings mongod up for real.
 # If it fails, print an actionable error and exit.
-#
-# Caller is responsible for invoking this only when there's existing local-Mongo
-# data to check (i.e. not a fresh install, not an external mongo).
 ensure_mongodb_fcv_compatible() {
+  # Only applies to existing local-Mongo data — fresh installs have nothing to
+  # check, and external Mongo is out of our control.
+  if [[ $shouldPerformInitdb -ne 0 || $isUriLocal -ne 0 ]]; then
+    return
+  fi
+
   local marker="$MONGO_DB_PATH/.appsmith-fcv"
   if [[ -f "$marker" ]]; then
     tlog "MongoDB FCV marker present; skipping pre-flight check"
@@ -655,9 +658,7 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
-    if [[ $shouldPerformInitdb -eq 0 && $isUriLocal -eq 0 ]]; then
-      ensure_mongodb_fcv_compatible
-    fi
+    ensure_mongodb_fcv_compatible
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
