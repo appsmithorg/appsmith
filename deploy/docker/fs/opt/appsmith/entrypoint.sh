@@ -296,11 +296,6 @@ init_replica_set() {
     sleep 10
     mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    # Seed the FCV marker so the pre-flight compatibility check can fast-path on the
-    # next container boot. A fresh MongoDB 7.0 install defaults featureCompatibilityVersion
-    # to 7.0; mongodb-fixer will refresh this with the authoritative value shortly after
-    # supervisord starts mongod. See ensure_mongodb_fcv_compatible below.
-    ( printf '%s\n' "7.0" > "$MONGO_DB_PATH/.appsmith-fcv.tmp" && mv -f "$MONGO_DB_PATH/.appsmith-fcv.tmp" "$MONGO_DB_PATH/.appsmith-fcv" ) || tlog "warning: failed to write initial FCV marker"
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
