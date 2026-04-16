@@ -90,11 +90,10 @@ mongodbCommunity:
   ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the MongoDB user password Secret).
   ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
   ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
-  ## version if you need byte-level reproducibility. The registry is overridden by global.imageRegistry
-  ## when set, which is useful for air-gapped clusters and private-registry mirrors.
+  ## version if you need byte-level reproducibility.
   passwordInit:
     image:
-      ## @param mongodbCommunity.passwordInit.image.registry Registry for the kubectl image (overridden by global.imageRegistry)
+      ## @param mongodbCommunity.passwordInit.image.registry Registry for the kubectl image
       registry: docker.io
       ## @param mongodbCommunity.passwordInit.image.repository Repository path for the kubectl image
       repository: alpine/kubectl
@@ -163,15 +162,10 @@ prometheus:
 ## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
 ##
 
-## @param global.imageRegistry Global image registry. When set, overrides the registry used by
-##   this chart's configurable images (e.g. mongodbCommunity.passwordInit.image) and is honored
-##   by the Bitnami subcharts (redis, mongodb, postgresql, prometheus). Use this to redirect all
-##   image pulls to a mirror or private registry.
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
 ##
 global:
-  imageRegistry: ""
   storageClass: ""
   namespaceOverride: ""
 ## @param fullnameOverride String to fully override appsmith.fullname template

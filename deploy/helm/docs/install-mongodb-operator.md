@@ -264,13 +264,9 @@ kubectl logs -n appsmith appsmith-0 -c mongo-init-container
 
 **Cause**: the cluster cannot pull `docker.io/alpine/kubectl` — either the registry is unreachable (air-gapped) or policy blocks pulls from Docker Hub.
 
-**Fix**: redirect the image via either:
+**Fix**: override the image to point at your registry:
 
 ```bash
-# Chart-wide: affects all images that honor global.imageRegistry (including Bitnami subcharts)
---set global.imageRegistry=my-registry.example.com
-
-# Scoped to the init Job only:
 --set mongodbCommunity.passwordInit.image.registry=my-registry.example.com
 --set mongodbCommunity.passwordInit.image.repository=my/kubectl
 --set mongodbCommunity.passwordInit.image.tag=1.34.2
