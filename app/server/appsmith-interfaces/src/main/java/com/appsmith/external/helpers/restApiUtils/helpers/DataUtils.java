@@ -400,12 +400,15 @@ public class DataUtils {
         bodyBuilder.asyncPart(key, data, DataBuffer.class).filename(filename).contentType(MediaType.valueOf(mimeType));
     }
 
-    // Parse JSON multipart data
+    // Parse JSON multipart data. Trims input so leading whitespace does not cause
+    // a valid JSON payload to be rejected as invalid multipart data. Consistent with
+    // objectFromJson() in this class which trims before type detection.
     private List<MultipartFormDataDTO> parseMultipartData(String fileValue) throws IOException {
-        if (fileValue.startsWith("{")) {
-            return Collections.singletonList(objectMapper.readValue(fileValue, MultipartFormDataDTO.class));
-        } else if (fileValue.startsWith("[")) {
-            return Arrays.asList(objectMapper.readValue(fileValue, MultipartFormDataDTO[].class));
+        final String trimmed = fileValue == null ? "" : fileValue.trim();
+        if (trimmed.startsWith("{")) {
+            return Collections.singletonList(objectMapper.readValue(trimmed, MultipartFormDataDTO.class));
+        } else if (trimmed.startsWith("[")) {
+            return Arrays.asList(objectMapper.readValue(trimmed, MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, ERROR_INVALID_MULTIPART_DATA);
