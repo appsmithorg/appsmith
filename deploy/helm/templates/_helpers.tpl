@@ -129,6 +129,22 @@ Get the PV name, using override if specified
 {{- end -}}
 
 {{/*
+Returns "true" when Appsmith should target the operator-managed MongoDB,
+meaning: the MongoDBCommunity CR is enabled, Bitnami MongoDB is disabled, and
+no other config source could be supplying APPSMITH_DB_URL (the values-level
+applicationConfig keys, secretName, secrets, or externalSecrets).
+
+Used to gate both the operator-mode init container (which waits for the
+operator-managed service) and the explicit APPSMITH_DB_URL env injection
+(which would otherwise silently override a user-supplied URL).
+*/}}
+{{- define "appsmith.useOperatorMongo" -}}
+{{- if and .Values.mongodbCommunity.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) (not .Values.secretName) (not .Values.secrets) (not .Values.externalSecrets.enabled) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Password init Job image: the kubectl image used by the pre-install/pre-upgrade
 Job that bootstraps the MongoDB user password Secret.
 */}}

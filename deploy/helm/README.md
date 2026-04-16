@@ -163,7 +163,7 @@ Quickstart for a fresh install:
 
 ```bash
 kubectl create namespace appsmith
-helm install appsmith appsmith/appsmith -n appsmith \
+helm install appsmith stable-appsmith/appsmith -n appsmith \
   --set mongodb.enabled=false \
   --set mongodbCommunity.enabled=true \
   --set mongodbOperator.enabled=true
@@ -171,7 +171,7 @@ helm install appsmith appsmith/appsmith -n appsmith \
 
 See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide.
 
-When `mongodbCommunity.enabled=true` and `mongodbCommunity.auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{mongodbCommunity.name}-password`. The Job is idempotent and compatible with ArgoCD.
+When `mongodbCommunity.enabled=true` and `mongodbCommunity.auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret whose name is derived from the resolved `mongodbCommunity.name` value with a `-password` suffix. The resolved name defaults to `<release-fullname>-mongo` when `mongodbCommunity.name` isn't explicitly set — so for a release named `appsmith` the Secret is `appsmith-mongo-password`. The Job is idempotent and compatible with ArgoCD.
 
 #### Subchart values (`mongodbOperator.*`)
 

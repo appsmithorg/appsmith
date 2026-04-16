@@ -60,7 +60,8 @@
             },
             "passwordSecretName": {
               "type": "string",
-              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{name}-password\"."
+              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{name}-password\".",
+              "default": ""
             }
           }
         },
