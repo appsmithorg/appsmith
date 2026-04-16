@@ -619,4 +619,35 @@ public class MustacheHelperTest {
                         "gtSymbol", "&gt;"));
         assertThat(rendered).isEqualTo("Testing html lt < and gt > symbols");
     }
+
+    /**
+     * This test verifies that binary data containing HTML-entity-like byte sequences
+     * (e.g., &#xA; which is a newline entity) is NOT corrupted by the render method.
+     * PDF files and other binary content may contain such sequences as raw bytes.
+     * Regression test for: https://linear.app/appsmith/issue/V2-3662
+     */
+    @Test
+    public void render_WhenBinaryDataContainsHtmlEntityLikeSequences_DoesNotCorruptData() {
+        String binaryDataWithEntity = "[{\"name\":\"test.pdf\",\"type\":\"application/pdf\","
+                + "\"data\":\"some-binary-prefix\u0026#xA;some-binary-suffix\"}]";
+
+        final String rendered = render("{{filePicker.files}}", Map.of("filePicker.files", binaryDataWithEntity));
+
+        assertThat(rendered).isEqualTo(binaryDataWithEntity);
+        assertThat(rendered).contains("&#xA;");
+        assertThat(rendered).doesNotContain("\n");
+    }
+
+    /**
+     * Verifies that other HTML numeric character references in binary content
+     * are not decoded (e.g., &#xD; for carriage return, &#9; for tab).
+     */
+    @Test
+    public void render_WhenBinaryDataContainsVariousHtmlEntities_DoesNotCorruptData() {
+        String dataWithEntities = "prefix&#xD;middle&#9;suffix&amp;end&lt;final&gt;done";
+
+        final String rendered = render("{{data}}", Map.of("data", dataWithEntities));
+
+        assertThat(rendered).isEqualTo(dataWithEntities);
+    }
 }
