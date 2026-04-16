@@ -347,22 +347,32 @@ public class MustacheHelper {
                 if (!keyValueMap.containsKey(tokenSubstring)) {
                     rendered.append(token.getValue());
                 } else if (bindingValue != null) {
-                    // If the binding value is not null, then append the binding value to the rendered string.
-                    // We are using the token.getValue() here to get the original value of the binding.
-                    // This is because we want to preserve the original formatting of the binding.
-                    // For example, if the binding is {{Input.text}}, we want to preserve the {{}} around it.
-                    rendered.append(bindingValue);
+                    // Handle &quot; and &#34; (HTML-encoded double quotes) inside the binding
+                    // VALUE only, converting them to escaped double quotes (\") so interpolating
+                    // the value into a JSON template keeps the JSON valid.
+                    //
+                    // Scoping to the binding value is deliberate: template literals and
+                    // pass-through content (e.g., binary uploads) must never be mutated by this
+                    // JSON-validity escape. Historically the replacement ran on the fully
+                    // assembled string and corrupted binary data that happened to contain these
+                    // byte sequences. See: https://linear.app/appsmith/issue/V2-3662
+                    rendered.append(escapeHtmlDoubleQuoteEntities(bindingValue));
                 }
             } else {
                 rendered.append(token.getValue());
             }
         }
-        // Only handle &quot; and &#34; (HTML-encoded double quotes) by converting them
-        // to escaped double quotes (\") for JSON validity. Do NOT use unescapeHtml4()
-        // because it decodes ALL HTML entities (e.g., &#xA; → newline, &lt; → <), which
-        // corrupts binary file content that contains entity-like byte sequences.
-        // See: https://linear.app/appsmith/issue/V2-3662
-        return rendered.toString().replace("&quot;", "\\\"").replace("&#34;", "\\\"");
+        return rendered.toString();
+    }
+
+    private static String escapeHtmlDoubleQuoteEntities(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        if (value.indexOf('&') < 0) {
+            return value;
+        }
+        return value.replace("&quot;", "\\\"").replace("&#34;", "\\\"");
     }
 
     /**
