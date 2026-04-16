@@ -171,7 +171,7 @@ helm install appsmith appsmith/appsmith -n appsmith \
 
 See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide.
 
-When `mongodbCommunity.enabled=true` and `auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{name}-password`. The Job is idempotent and compatible with ArgoCD.
+When `mongodbCommunity.enabled=true` and `mongodbCommunity.auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret named `{mongodbCommunity.name}-password`. The Job is idempotent and compatible with ArgoCD.
 
 #### Subchart values (`mongodbOperator.*`)
 

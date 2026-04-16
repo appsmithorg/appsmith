@@ -26,9 +26,9 @@
         },
         "name": {
           "type": "string",
-          "description": "Name of the MongoDBCommunity custom resource. When empty, defaults to '<release-fullname>-mongo'.",
+          "description": "Name of the MongoDBCommunity custom resource. When empty, defaults to '<release-fullname>-mongo'. Keep under 60 chars — derived resource names append suffixes like -password and -svc.",
           "default": "",
-          "maxLength": 63,
+          "maxLength": 60,
           "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
         },
         "version": {

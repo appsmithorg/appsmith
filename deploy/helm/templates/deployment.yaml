@@ -168,7 +168,11 @@ spec:
             - name: LD_PRELOAD
               value: /usr/local/lib/libnss_wrapper.so
             {{- end }}
-            {{- if and .Values.mongodbCommunity.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) }}
+            {{- if and .Values.mongodbCommunity.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) (not .Values.secretName) (not .Values.externalSecrets.enabled) }}
+            {{/* Inject the operator-managed connection string only when no other config source
+                 could be supplying APPSMITH_DB_URL. Explicit env: entries win over envFrom: in
+                 Kubernetes, so injecting here would silently override a user-provided DB URL
+                 coming from secretName, externalSecrets, etc. */}}
             - name: APPSMITH_DB_URL
               valueFrom:
                 secretKeyRef:

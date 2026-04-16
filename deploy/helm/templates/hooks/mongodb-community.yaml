@@ -93,6 +93,10 @@ spec:
     spec:
       serviceAccountName: {{ $jobName }}
       restartPolicy: Never
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
       containers:
         - name: create-password
           image: {{ include "appsmith.mongoPasswordInitImage" . | quote }}

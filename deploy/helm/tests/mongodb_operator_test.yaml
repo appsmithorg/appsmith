@@ -76,12 +76,12 @@ tests:
       - equal:
           path: spec.users[0].roles[0]
           value:
-            name: dbOwner
+            name: readWrite
             db: appsmith
       - equal:
           path: spec.users[0].roles[1]
           value:
-            name: clusterAdmin
+            name: clusterMonitor
             db: admin
 
 ---
@@ -129,7 +129,7 @@ tests:
     asserts:
       - matchRegex:
           path: data.APPSMITH_DB_URL
-          pattern: "mongodb\\+srv://root:password@appsmith-mongodb"
+          pattern: "mongodb\\+srv://.*@appsmith-mongodb"
 
   - name: should not inject operator secretKeyRef in transition mode
     templates:

@@ -23,11 +23,9 @@ spec:
       passwordSecretRef:
         name: {{ $passwordSecretName }}
       roles:
-        - name: dbOwner
+        - name: readWrite
           db: {{ .Values.mongodbCommunity.auth.database }}
-        - name: clusterAdmin
-          db: admin
-        - name: userAdminAnyDatabase
+        - name: clusterMonitor
           db: admin
       scramCredentialsSecretName: {{ $name }}-scram
   statefulSet:
