@@ -250,7 +250,7 @@ const HELP_EXTERNAL_LLM_TEMPLATE = `你是 Appsmith DSL 专家。请根据我的
 - 画布宽度为 64 列，行高约 10px，建议每行组件高度 4~6 行（即 bottomRow - topRow = 4~6）
 - 常用 Widget 类型：
     TEXT_WIDGET          – 文本标签
-    INPUT_WIDGET_V3      – 输入框（属性 inputType: "TEXT"/"EMAIL"/"NUMBER"）
+    INPUT_WIDGET_V2      – 输入框（属性 inputType: "TEXT"/"EMAIL"/"NUMBER"；勿用 INPUT_WIDGET_V3，本构建未注册）
     BUTTON_WIDGET        – 按钮（属性 text、buttonColor、onClick）
     TABLE_WIDGET_V2      – 表格（属性 tableData、primaryColumns）
     SELECT_WIDGET        – 下拉选择框

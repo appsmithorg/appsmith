@@ -110,6 +110,7 @@ Hard rules for the DSL JSON:
 - Every widget MUST have a unique widgetId (short UUID), type, widgetName, and grid fields (topRow, bottomRow, leftColumn, rightColumn).
 - Canvas is 64 columns wide. Rows are grid units (~10px each).
 - Widget names MUST be PascalCase (e.g. "UserTable", "SubmitButton").
+- Text/email/number inputs MUST use type "INPUT_WIDGET_V2" with inputType (TEXT, EMAIL, etc.). Never use "INPUT_WIDGET_V3" — it is not registered in this codebase and will crash widget loading.
 - Use Appsmith primary color #553DE9 for buttons and accents.
 - Parameterise all dynamic values: {{QueryName.data}}, {{Input.text}}, etc.
 - When modifying an existing DSL, preserve ALL existing widgets unless asked to remove them.
