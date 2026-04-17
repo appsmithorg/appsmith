@@ -4618,6 +4618,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monaco-editor/loader@npm:^1.5.0":
+  version: 1.7.0
+  resolution: "@monaco-editor/loader@npm:1.7.0"
+  dependencies:
+    state-local: ^1.0.6
+  checksum: e3a4f095827101216d72d0a0dcb4e4d29ae2c911a7ed59210b00e9ad48680a4132983a31170668918dd9b486c98fe97996357d58cc76fda34f3217848a19befb
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.6.0":
+  version: 4.7.0
+  resolution: "@monaco-editor/react@npm:4.7.0"
+  dependencies:
+    "@monaco-editor/loader": ^1.5.0
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 8b3bd8adfcd6af70dc5f965e986932269e1e2c2a0f6beb5a3c632c8c7942c1341f6086d9664f9a949983bdf4a04a706e529a93bfec3b5884642915dfcc0354c3
+  languageName: node
+  linkType: hard
+
 "@mongodb-js/saslprep@npm:^1.1.0, @mongodb-js/saslprep@npm:^1.1.9":
   version: 1.2.0
   resolution: "@mongodb-js/saslprep@npm:1.2.0"
@@ -13695,6 +13717,7 @@ __metadata:
     "@grafana/faro-webpack-plugin": ^0.2.1
     "@manaflair/redux-batch": ^1.0.0
     "@mantine/hooks": ^5.10.1
+    "@monaco-editor/react": ^4.6.0
     "@octokit/rest": ^20.0.1
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/context-zone": ^1.30.0
@@ -13893,6 +13916,8 @@ __metadata:
     mixpanel-browser: ^2.55.1
     moment: 2.29.4
     moment-timezone: ^0.5.35
+    monaco-editor: 0.52.0
+    monaco-editor-webpack-plugin: 7.1.1
     msw: ^0.28.0
     mutative: ^1.1.0
     nanoid: 3.3.11
@@ -26051,6 +26076,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"monaco-editor-webpack-plugin@npm:7.1.1":
+  version: 7.1.1
+  resolution: "monaco-editor-webpack-plugin@npm:7.1.1"
+  dependencies:
+    loader-utils: ^2.0.2
+  peerDependencies:
+    monaco-editor: ">= 0.31.0"
+    webpack: ^4.5.0 || 5.x
+  checksum: 44471024b5b903e2b0ee5f101e7f614771407aa0e2403c5591be1a1243d957273e37244089d7266c6fb00d9c76b621f4d7be4d2c1afe782c098950fafa3b1dd6
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:0.52.0":
+  version: 0.52.0
+  resolution: "monaco-editor@npm:0.52.0"
+  checksum: 76ab4ea38dfd2bc5687a2d777d7fc14fd7182ac6ed1ed6819b76a47924434bf3a08bcb75c68cd5aff20db86a7633ac46b335a6971ae21a8723a7dcf3e8289931
+  languageName: node
+  linkType: hard
+
 "mongodb-connection-string-url@npm:^2.6.0":
   version: 2.6.0
   resolution: "mongodb-connection-string-url@npm:2.6.0"
@@ -32608,6 +32652,13 @@ __metadata:
   version: 1.2.0
   resolution: "stackframe@npm:1.2.0"
   checksum: 37d659bdd574e118a48c445a9a054a2b8dee6d6ad54eb16c51c7dae622c0f4994b9ff4e47d744aa6cfd14c00b477e145f34db3df78771f3e783ce8f357616d00
+  languageName: node
+  linkType: hard
+
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: d1afcf1429e7e6eb08685b3a94be8797db847369316d4776fd51f3962b15b984dacc7f8e401ad20968e5798c9565b4b377afedf4e4c4d60fe7495e1cbe14a251
   languageName: node
   linkType: hard
 
