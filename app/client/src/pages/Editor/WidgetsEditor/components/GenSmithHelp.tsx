@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { Button } from "@appsmith/ads";
 
@@ -14,7 +14,6 @@ const fadeIn = keyframes`
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
   z-index: 20000;
   display: flex;
   align-items: center;
@@ -22,7 +21,21 @@ const Overlay = styled.div`
   padding: 24px;
 `;
 
+const Backdrop = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+`;
+
+const selectableText = `
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+`;
+
 const Panel = styled.div`
+  position: relative;
+  z-index: 1;
   background: var(--ads-v2-color-bg);
   border-radius: 10px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
@@ -33,6 +46,8 @@ const Panel = styled.div`
   flex-direction: column;
   animation: ${fadeIn} 0.18s ease;
   overflow: hidden;
+  outline: none;
+  ${selectableText}
 `;
 
 const PanelHeader = styled.div`
@@ -43,6 +58,7 @@ const PanelHeader = styled.div`
   border-bottom: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
   background: linear-gradient(135deg, #553de9 0%, #7c5cfc 100%);
+  ${selectableText}
 `;
 
 const PanelTitle = styled.h2`
@@ -53,6 +69,7 @@ const PanelTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 8px;
+  ${selectableText}
 `;
 
 const PanelBody = styled.div`
@@ -61,12 +78,14 @@ const PanelBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  ${selectableText}
 `;
 
 const Section = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  ${selectableText}
 `;
 
 const SectionTitle = styled.h3`
@@ -79,6 +98,7 @@ const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 6px;
+  ${selectableText}
 `;
 
 const Card = styled.div<{ accent?: string }>`
@@ -91,6 +111,7 @@ const Card = styled.div<{ accent?: string }>`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  ${selectableText}
 `;
 
 const CardTitle = styled.div`
@@ -100,31 +121,57 @@ const CardTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+  ${selectableText}
 `;
 
 const CardDesc = styled.div`
   font-size: 12px;
   color: var(--ads-v2-color-fg-muted);
   line-height: 1.6;
+  ${selectableText}
+`;
+
+const CodeBlockToolbar = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+`;
+
+const CopyMiniBtn = styled.button`
+  border: 1px solid rgba(205, 214, 244, 0.35);
+  background: rgba(30, 30, 46, 0.95);
+  color: #cba6f7;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(49, 50, 68, 0.98);
+  }
 `;
 
 const CodeBlock = styled.pre`
-  margin: 4px 0 0;
+  margin: 0;
   padding: 8px 10px;
   background: #1e1e2e;
   color: #cdd6f4;
-  border-radius: 5px;
+  border-radius: 0 0 5px 5px;
   font-size: 11px;
   line-height: 1.55;
   overflow-x: auto;
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
+  cursor: text;
+  ${selectableText}
 `;
 
 const Grid2 = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  ${selectableText}
 
   @media (max-width: 560px) {
     grid-template-columns: 1fr;
@@ -158,11 +205,126 @@ const Tag = styled.span<{ type: "manual" | "code" | "ai" }>`
     type === "manual" ? "#fef3c7" : type === "code" ? "#dbeafe" : "#ede9fe"};
   color: ${({ type }) =>
     type === "manual" ? "#92400e" : type === "code" ? "#1e40af" : "#5b21b6"};
+  ${selectableText}
 `;
 
 // ---------------------------------------------------------------------------
 // Help Button (exported standalone)
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Copyable prompt templates (single source of truth for display + copy)
+// ---------------------------------------------------------------------------
+
+const HELP_SAMPLE_AI_PROMPTS = `# 新增组件（AI 会自动知道已有哪些 Query）
+新增一个数据表格，绑定到 GetCandidates 的返回数据，显示 name 和 email 两列
+
+# 修改已有组件
+把 PageTitle 的文字改为"HR 候选人系统"，颜色改为 #553DE9
+
+# 需要 JS 逻辑（AI 会生成 JS Object 代码，出现在 Generated JS 面板）
+为 EmailInput 添加邮箱格式验证，提交时如果格式错误弹出提示
+
+# 迭代调试（有历史记录时使用）
+刚才生成的表格，邮箱列的绑定写错了，应该是 item.email 不是 item.emailAddress`;
+
+const HELP_SAMPLE_ENV = `# app/client/.env — 每个提供商各自独立，有 KEY 就会出现在下拉里
+
+REACT_APP_AI_GEMINI_KEY=AIzaSy...
+REACT_APP_AI_GEMINI_MODEL=gemini-2.5-flash-preview-04-17   # 可省略
+
+REACT_APP_AI_QWEN_KEY=sk-xxx
+REACT_APP_AI_QWEN_MODEL=qwen3-235b-a22b
+
+REACT_APP_AI_DEEPSEEK_KEY=sk-xxx
+REACT_APP_AI_DEEPSEEK_MODEL=deepseek-chat
+
+# REACT_APP_AI_OPENAI_KEY=sk-xxx   ← 注释掉则不显示在下拉里`;
+
+const HELP_EXTERNAL_LLM_TEMPLATE = `你是 Appsmith DSL 专家。请根据我的需求生成一个合法的嵌套 JSON DSL，直接输出原始 JSON，不要 markdown 代码块，不要任何解释文字。
+
+## DSL 格式规范
+- 根节点必须是 { "type": "CANVAS_WIDGET", "widgetId": "0", "widgetName": "MainContainer", "children": [...] }
+- 每个 Widget 必须包含字段：widgetId（8位随机字母数字）、type、widgetName（PascalCase）、
+  topRow、bottomRow、leftColumn、rightColumn
+- 画布宽度为 64 列，行高约 10px，建议每行组件高度 4~6 行（即 bottomRow - topRow = 4~6）
+- 常用 Widget 类型：
+    TEXT_WIDGET          – 文本标签
+    INPUT_WIDGET_V3      – 输入框（属性 inputType: "TEXT"/"EMAIL"/"NUMBER"）
+    BUTTON_WIDGET        – 按钮（属性 text、buttonColor、onClick）
+    TABLE_WIDGET_V2      – 表格（属性 tableData、primaryColumns）
+    SELECT_WIDGET        – 下拉选择框
+    FORM_WIDGET          – 表单容器
+- 动态绑定语法：{{ QueryName.data }}、{{ WidgetName.text }}、{{ JSObjectName.method() }}
+- 按钮颜色推荐使用 Appsmith 主色 #553DE9
+
+## DSL 示例（参考格式，不要照抄）
+{
+  "type": "CANVAS_WIDGET",
+  "widgetId": "0",
+  "widgetName": "MainContainer",
+  "topRow": 0, "bottomRow": 100, "leftColumn": 0, "rightColumn": 64,
+  "children": [
+    {
+      "type": "TEXT_WIDGET",
+      "widgetId": "txt00001",
+      "widgetName": "PageTitle",
+      "text": "候选人管理",
+      "fontSize": "HEADING1",
+      "topRow": 0, "bottomRow": 4, "leftColumn": 0, "rightColumn": 32
+    },
+    {
+      "type": "TABLE_WIDGET_V2",
+      "widgetId": "tbl00001",
+      "widgetName": "CandidateTable",
+      "tableData": "{{ GetCandidates.data }}",
+      "primaryColumns": {
+        "name":  { "columnType": "text", "label": "姓名",  "alias": "name" },
+        "email": { "columnType": "text", "label": "邮箱", "alias": "email" }
+      },
+      "topRow": 5, "bottomRow": 35, "leftColumn": 0, "rightColumn": 64
+    }
+  ]
+}
+
+## 本页面已有的 Query（可直接绑定）
+# 请将实际 Query 名称和数据源替换到下面：
+- GetCandidates   数据源: sheet-frey（Google Sheets），返回行数组
+- AddCandidate    数据源: sheet-frey，写入一行
+
+## 本页面已有的 JS Object（可直接调用）
+# 如果没有 JS Object，删除这一节；如有，填入名称和方法：
+- （暂无）
+
+## 我的功能需求
+# 在这里描述你要实现的 UI：
+请生成一个候选人管理页面，包含：
+1. 顶部标题"候选人管理"
+2. 一个显示所有候选人的表格（绑定 GetCandidates.data），列：姓名、邮箱
+3. 表格下方一个表单，含姓名输入框和邮箱输入框
+4. 表单底部一个"提交"按钮，点击后执行 AddCandidate.run() 并刷新 GetCandidates.run()`;
+
+function CopyableCodeBlock({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [text]);
+
+  return (
+    <>
+      <CodeBlockToolbar>
+        <CopyMiniBtn onClick={handleCopy} type="button">
+          {copied ? "✓ 已复制" : "复制全文"}
+        </CopyMiniBtn>
+      </CodeBlockToolbar>
+      <CodeBlock>{text}</CodeBlock>
+    </>
+  );
+}
 
 const HelpBtn = styled.button`
   width: 22px;
@@ -194,6 +356,16 @@ const HelpBtn = styled.button`
 
 export function GenSmithHelp() {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(
+    function focusGenSmithHelpPanel() {
+      if (open) {
+        panelRef.current?.focus({ preventScroll: true });
+      }
+    },
+    [open],
+  );
 
   return (
     <>
@@ -206,10 +378,23 @@ export function GenSmithHelp() {
       </HelpBtn>
 
       {open && (
-        <Overlay onClick={() => setOpen(false)}>
-          <Panel onClick={(e) => e.stopPropagation()}>
+        <Overlay>
+          <Backdrop
+            onClick={() => {
+              if (window.getSelection()?.toString()) return;
+
+              setOpen(false);
+            }}
+          />
+          <Panel
+            aria-labelledby="gensmith-help-title"
+            aria-modal="true"
+            ref={panelRef}
+            role="dialog"
+            tabIndex={-1}
+          >
             <PanelHeader>
-              <PanelTitle>
+              <PanelTitle id="gensmith-help-title">
                 <span>✦</span> GenSmith 使用说明
               </PanelTitle>
               <button
@@ -406,7 +591,7 @@ export function GenSmithHelp() {
                     <br />
                     这意味着：
                     <br />• AI 总是知道有哪些 Query 可以引用（如{" "}
-                    <code>{"{{GetCandidates.data}}"})</code>）
+                    <code>{"{{GetCandidates.data}}"}</code>）
                     <br />
                     • 如果你已经创建了 JS Object，AI
                     能看到它的代码，可以修改或扩展
@@ -416,17 +601,7 @@ export function GenSmithHelp() {
                 </Card>
                 <Card accent="#8b5cf6">
                   <CardTitle>示例 Prompt</CardTitle>
-                  <CodeBlock>{`# 新增组件（AI 会自动知道已有哪些 Query）
-新增一个数据表格，绑定到 GetCandidates 的返回数据，显示 name 和 email 两列
-
-# 修改已有组件
-把 PageTitle 的文字改为"HR 候选人系统"，颜色改为 #553DE9
-
-# 需要 JS 逻辑（AI 会生成 JS Object 代码，出现在 Generated JS 面板）
-为 EmailInput 添加邮箱格式验证，提交时如果格式错误弹出提示
-
-# 迭代调试（有历史记录时使用）
-刚才生成的表格，邮箱列的绑定写错了，应该是 item.email 不是 item.emailAddress`}</CodeBlock>
+                  <CopyableCodeBlock text={HELP_SAMPLE_AI_PROMPTS} />
                 </Card>
               </Section>
 
@@ -441,18 +616,7 @@ export function GenSmithHelp() {
                     <strong> AI Generate 面板左侧会出现下拉菜单</strong>
                     ，直接切换无需再次重启。
                   </CardDesc>
-                  <CodeBlock>{`# app/client/.env — 每个提供商各自独立，有 KEY 就会出现在下拉里
-
-REACT_APP_AI_GEMINI_KEY=AIzaSy...
-REACT_APP_AI_GEMINI_MODEL=gemini-2.5-flash-preview-04-17   # 可省略
-
-REACT_APP_AI_QWEN_KEY=sk-xxx
-REACT_APP_AI_QWEN_MODEL=qwen3-235b-a22b
-
-REACT_APP_AI_DEEPSEEK_KEY=sk-xxx
-REACT_APP_AI_DEEPSEEK_MODEL=deepseek-chat
-
-# REACT_APP_AI_OPENAI_KEY=sk-xxx   ← 注释掉则不显示在下拉里`}</CodeBlock>
+                  <CopyableCodeBlock text={HELP_SAMPLE_ENV} />
                 </Card>
                 <Grid2>
                   <Card accent="#10b981">
@@ -492,7 +656,9 @@ REACT_APP_AI_DEEPSEEK_MODEL=deepseek-chat
                 <Card accent="#0ea5e9">
                   <CardTitle>使用流程</CardTitle>
                   <CardDesc>
-                    1. 复制下面的 Prompt 模板
+                    1. 点代码块右上角的 <strong>复制全文</strong>
+                    ，或先在本弹窗内点一下再拖选文字（避免 Cmd+C 仍复制背后
+                    Monaco 里的内容）
                     <br />
                     2. 在 ChatGPT / Gemini / Claude
                     等网页粘贴，填入你的查询信息和功能需求
@@ -504,68 +670,7 @@ REACT_APP_AI_DEEPSEEK_MODEL=deepseek-chat
                 </Card>
                 <Card accent="#0ea5e9">
                   <CardTitle>完整 Prompt 模板（复制修改后使用）</CardTitle>
-                  <CodeBlock>{`你是 Appsmith DSL 专家。请根据我的需求生成一个合法的嵌套 JSON DSL，直接输出原始 JSON，不要 markdown 代码块，不要任何解释文字。
-
-## DSL 格式规范
-- 根节点必须是 { "type": "CANVAS_WIDGET", "widgetId": "0", "widgetName": "MainContainer", "children": [...] }
-- 每个 Widget 必须包含字段：widgetId（8位随机字母数字）、type、widgetName（PascalCase）、
-  topRow、bottomRow、leftColumn、rightColumn
-- 画布宽度为 64 列，行高约 10px，建议每行组件高度 4~6 行（即 bottomRow - topRow = 4~6）
-- 常用 Widget 类型：
-    TEXT_WIDGET          – 文本标签
-    INPUT_WIDGET_V3      – 输入框（属性 inputType: "TEXT"/"EMAIL"/"NUMBER"）
-    BUTTON_WIDGET        – 按钮（属性 text、buttonColor、onClick）
-    TABLE_WIDGET_V2      – 表格（属性 tableData、primaryColumns）
-    SELECT_WIDGET        – 下拉选择框
-    FORM_WIDGET          – 表单容器
-- 动态绑定语法：{{ QueryName.data }}、{{ WidgetName.text }}、{{ JSObjectName.method() }}
-- 按钮颜色推荐使用 Appsmith 主色 #553DE9
-
-## DSL 示例（参考格式，不要照抄）
-{
-  "type": "CANVAS_WIDGET",
-  "widgetId": "0",
-  "widgetName": "MainContainer",
-  "topRow": 0, "bottomRow": 100, "leftColumn": 0, "rightColumn": 64,
-  "children": [
-    {
-      "type": "TEXT_WIDGET",
-      "widgetId": "txt00001",
-      "widgetName": "PageTitle",
-      "text": "候选人管理",
-      "fontSize": "HEADING1",
-      "topRow": 0, "bottomRow": 4, "leftColumn": 0, "rightColumn": 32
-    },
-    {
-      "type": "TABLE_WIDGET_V2",
-      "widgetId": "tbl00001",
-      "widgetName": "CandidateTable",
-      "tableData": "{{ GetCandidates.data }}",
-      "primaryColumns": {
-        "name":  { "columnType": "text", "label": "姓名",  "alias": "name" },
-        "email": { "columnType": "text", "label": "邮箱", "alias": "email" }
-      },
-      "topRow": 5, "bottomRow": 35, "leftColumn": 0, "rightColumn": 64
-    }
-  ]
-}
-
-## 本页面已有的 Query（可直接绑定）
-# 请将实际 Query 名称和数据源替换到下面：
-- GetCandidates   数据源: sheet-frey（Google Sheets），返回行数组
-- AddCandidate    数据源: sheet-frey，写入一行
-
-## 本页面已有的 JS Object（可直接调用）
-# 如果没有 JS Object，删除这一节；如有，填入名称和方法：
-- （暂无）
-
-## 我的功能需求
-# 在这里描述你要实现的 UI：
-请生成一个候选人管理页面，包含：
-1. 顶部标题"候选人管理"
-2. 一个显示所有候选人的表格（绑定 GetCandidates.data），列：姓名、邮箱
-3. 表格下方一个表单，含姓名输入框和邮箱输入框
-4. 表单底部一个"提交"按钮，点击后执行 AddCandidate.run() 并刷新 GetCandidates.run()`}</CodeBlock>
+                  <CopyableCodeBlock text={HELP_EXTERNAL_LLM_TEMPLATE} />
                 </Card>
                 <Card accent="#0ea5e9">
                   <CardTitle>小技巧</CardTitle>
