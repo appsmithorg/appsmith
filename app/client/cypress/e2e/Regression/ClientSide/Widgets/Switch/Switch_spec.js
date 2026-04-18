@@ -154,6 +154,41 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
+    it("6a. Regression: programmatic defaultSwitchState changes sync isSwitchedOn for dependents (#41566)", function () {
+      // Bind dependent text widget to Switch1.isSwitchedOn
+      cy.openPropertyPane("textwidget");
+      cy.updateCodeInput(
+        ".t--property-control-text",
+        `{{Toggler.isSwitchedOn}}`,
+      );
+
+      // Seed default to true and assert dependent reflects it
+      cy.openPropertyPane("switchwidget");
+      cy.get(".t--property-control-defaultstate input").last().then(($el) => {
+        if (!$el.is(":checked")) cy.wrap($el).click({ force: true });
+      });
+      cy.get(".t--widget-textwidget")
+        .scrollIntoView()
+        .should("contain", "true");
+
+      // User toggles the Switch once so meta.isSwitchedOn starts overriding the default
+      cy.get(`${formWidgetsPage.switchWidget} label`).first().click();
+      cy.get(".t--widget-textwidget")
+        .scrollIntoView()
+        .should("contain", "false");
+
+      // Programmatic change to defaultSwitchState should now propagate to dependents
+      cy.openPropertyPane("switchwidget");
+      cy.get(".t--property-control-defaultstate input").last().click();
+      cy.get(".t--widget-textwidget")
+        .scrollIntoView()
+        .should("contain", "true");
+
+      // Restore binding used by the next test
+      cy.openPropertyPane("textwidget");
+      cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);
+    });
+
     it("6. Check isDirty meta property", function () {
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);

@@ -434,10 +434,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     }
 
     // Sync meta when isSwitchedOn changes programmatically so dependents don't see a stale value.
-    if (
-      this.props.isSwitchedOn !== prevProps.isSwitchedOn &&
-      this.props.onChange
-    ) {
+    if (this.props.isSwitchedOn !== prevProps.isSwitchedOn) {
       this.props.updateWidgetMetaProperty(
         "isSwitchedOn",
         this.props.isSwitchedOn,
