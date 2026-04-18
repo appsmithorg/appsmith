@@ -5,7 +5,6 @@ import Page from "./Page";
 import {
   createMessage,
   PAGE_SERVER_TIMEOUT_DESCRIPTION,
-  PAGE_SERVER_TIMEOUT_ERROR_CODE,
   PAGE_SERVER_TIMEOUT_TITLE,
 } from "ee/constants/messages";
 
@@ -23,7 +22,6 @@ function ServerTimeout() {
         </Button>
       }
       description={createMessage(PAGE_SERVER_TIMEOUT_DESCRIPTION)}
-      errorCode={createMessage(PAGE_SERVER_TIMEOUT_ERROR_CODE)}
       title={createMessage(PAGE_SERVER_TIMEOUT_TITLE)}
     />
   );
