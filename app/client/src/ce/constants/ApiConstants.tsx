@@ -2,13 +2,56 @@ import type { CreateAxiosDefaults } from "axios";
 import { ID_EXTRACTION_REGEX } from "constants/routes";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 
-export const REQUEST_TIMEOUT_MS = 20000;
-export const DEFAULT_ACTION_TIMEOUT = 10000;
-export const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = 15000;
-export const DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS = 30000;
-export const DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS = 60000;
-export const FILE_UPLOAD_TRIGGER_TIMEOUT_MS = 60000;
-export const CONSOLIDATED_API_TIMEOUT_MS = 60000;
+// Default client-side timeout values (in milliseconds).
+// These can be overridden at runtime via `window.APPSMITH_FEATURE_CONFIGS.timeouts`,
+// which is populated from environment variables in `public/index.html`.
+// See issue #41540 for rationale.
+export const DEFAULT_TIMEOUTS = {
+  REQUEST_TIMEOUT_MS: 20000,
+  DEFAULT_ACTION_TIMEOUT: 10000,
+  DEFAULT_EXECUTE_ACTION_TIMEOUT_MS: 15000,
+  DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS: 30000,
+  DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS: 60000,
+  FILE_UPLOAD_TRIGGER_TIMEOUT_MS: 60000,
+  CONSOLIDATED_API_TIMEOUT_MS: 60000,
+} as const;
+
+type TimeoutKey = keyof typeof DEFAULT_TIMEOUTS;
+
+// Resolve a timeout value from the runtime-injected config, falling back to the
+// compiled-in default when no override is provided or the value is invalid.
+// Safe to call in both the main thread and web workers.
+const resolveTimeout = (key: TimeoutKey): number => {
+  const fallback = DEFAULT_TIMEOUTS[key];
+
+  if (typeof window === "undefined") return fallback;
+
+  const override = window.APPSMITH_FEATURE_CONFIGS?.timeouts?.[key];
+
+  if (typeof override !== "number" || !Number.isFinite(override) || override <= 0) {
+    return fallback;
+  }
+
+  return override;
+};
+
+export const REQUEST_TIMEOUT_MS = resolveTimeout("REQUEST_TIMEOUT_MS");
+export const DEFAULT_ACTION_TIMEOUT = resolveTimeout("DEFAULT_ACTION_TIMEOUT");
+export const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = resolveTimeout(
+  "DEFAULT_EXECUTE_ACTION_TIMEOUT_MS",
+);
+export const DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS = resolveTimeout(
+  "DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS",
+);
+export const DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS = resolveTimeout(
+  "DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS",
+);
+export const FILE_UPLOAD_TRIGGER_TIMEOUT_MS = resolveTimeout(
+  "FILE_UPLOAD_TRIGGER_TIMEOUT_MS",
+);
+export const CONSOLIDATED_API_TIMEOUT_MS = resolveTimeout(
+  "CONSOLIDATED_API_TIMEOUT_MS",
+);
 
 export const DEFAULT_AXIOS_CONFIG: CreateAxiosDefaults = {
   baseURL: "/api/",

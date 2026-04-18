@@ -42,6 +42,16 @@
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
         const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
         const DISABLE_BETTERBUGS = parseConfig('{{env "APPSMITH_DISABLE_BETTERBUGS"}}');
+        // Parse a positive integer millisecond value from a config string.
+        // Returns `undefined` when unset or invalid so callers can fall back
+        // to their compiled-in defaults. See issue #41540.
+        const parseTimeoutConfig = (config) => {
+          const raw = parseConfig(config);
+          if (typeof raw !== "string") return undefined;
+          const parsed = parseInt(raw, 10);
+          if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+          return parsed;
+        };
       </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
@@ -271,6 +281,32 @@
         pricingUrl:
           parseConfig('{{env "APPSMITH_PRICING_URL"}}') ||
           "https://www.appsmith.com/pricing",
+        // Optional overrides for client-side timeout values (in milliseconds).
+        // Unset / invalid values fall back to compiled-in defaults in
+        // src/ce/constants/ApiConstants.tsx (see issue #41540).
+        timeouts: {
+          REQUEST_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_REQUEST_TIMEOUT_MS"}}',
+          ),
+          DEFAULT_ACTION_TIMEOUT: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_DEFAULT_ACTION_TIMEOUT_MS"}}',
+          ),
+          DEFAULT_EXECUTE_ACTION_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_EXECUTE_ACTION_TIMEOUT_MS"}}',
+          ),
+          DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_TEST_DATASOURCE_TIMEOUT_MS"}}',
+          ),
+          DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_AI_QUERY_TIMEOUT_MS"}}',
+          ),
+          FILE_UPLOAD_TRIGGER_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_FILE_UPLOAD_TIMEOUT_MS"}}',
+          ),
+          CONSOLIDATED_API_TIMEOUT_MS: parseTimeoutConfig(
+            '{{env "APPSMITH_CLIENT_CONSOLIDATED_API_TIMEOUT_MS"}}',
+          ),
+        },
       };
     </script>
   </body>

@@ -43,6 +43,15 @@ export interface INJECTED_CONFIGS {
   disableIframeWidgetSandbox: boolean;
   pricingUrl: string;
   customerPortalUrl: string;
+  timeouts?: {
+    REQUEST_TIMEOUT_MS?: number;
+    DEFAULT_ACTION_TIMEOUT?: number;
+    DEFAULT_EXECUTE_ACTION_TIMEOUT_MS?: number;
+    DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS?: number;
+    DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS?: number;
+    FILE_UPLOAD_TRIGGER_TIMEOUT_MS?: number;
+    CONSOLIDATED_API_TIMEOUT_MS?: number;
+  };
 }
 
 const capitalizeText = (text: string) => {
