@@ -43,6 +43,11 @@ export interface INJECTED_CONFIGS {
   disableIframeWidgetSandbox: boolean;
   pricingUrl: string;
   customerPortalUrl: string;
+  // Optional runtime overrides for client-side timeouts. Keys mirror the
+  // constants in `constants/ApiConstants.tsx`, which consumes this object
+  // directly from `window.APPSMITH_FEATURE_CONFIGS` at module load. These
+  // values are intentionally NOT surfaced through `getConfigsFromEnvVars` /
+  // `getAppsmithConfigs` — no plumbing exists here on purpose.
   timeouts?: {
     REQUEST_TIMEOUT_MS?: number;
     DEFAULT_ACTION_TIMEOUT?: number;

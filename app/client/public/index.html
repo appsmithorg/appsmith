@@ -45,11 +45,22 @@
         // Parse a positive integer millisecond value from a config string.
         // Returns `undefined` when unset or invalid so callers can fall back
         // to their compiled-in defaults. See issue #41540.
+        // Strict: rejects values like "20000ms" or "1e4" that parseInt would
+        // silently accept, so misconfigured env vars surface as a warning
+        // rather than a half-parsed number.
         const parseTimeoutConfig = (config) => {
           const raw = parseConfig(config);
           if (typeof raw !== "string") return undefined;
-          const parsed = parseInt(raw, 10);
-          if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+          const trimmed = raw.trim();
+          if (!/^\d+$/.test(trimmed)) {
+            console.warn(
+              "Ignoring invalid APPSMITH_CLIENT_*_TIMEOUT_MS value (expected a positive integer):",
+              raw,
+            );
+            return undefined;
+          }
+          const parsed = Number(trimmed);
+          if (!Number.isInteger(parsed) || parsed <= 0) return undefined;
           return parsed;
         };
       </script>
