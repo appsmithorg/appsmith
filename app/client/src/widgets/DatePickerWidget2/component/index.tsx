@@ -370,6 +370,7 @@ class DatePickerComponent extends React.Component<
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
           >
             <DateInput
+              canClearSelection={this.props.canClearSelection ?? true}
               className={this.props.isLoading ? "bp3-skeleton" : ""}
               closeOnSelection={this.props.closeOnSelection}
               dayPickerProps={{
@@ -535,6 +536,7 @@ interface DatePickerComponentProps extends ComponentProps {
   isPopoverOpen?: boolean;
   onDateOutOfRange?: () => void;
   isRequired?: boolean;
+  canClearSelection?: boolean;
 }
 
 interface DatePickerComponentState {

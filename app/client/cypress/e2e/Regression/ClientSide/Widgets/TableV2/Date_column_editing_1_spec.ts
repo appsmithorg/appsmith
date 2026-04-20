@@ -144,35 +144,46 @@ describe(
       agHelper.AssertElementVisibility(`${table._dateRangePickerShortcuts}`);
     });
 
-    it("6. should check property pane Required toggle functionality", () => {
+    it("6. should show clear for non-required date cells and hide it for required ones", () => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.NavigateBackToPropertyPane();
+      table.EditColumn("release_date", "v2");
+      propPane.TogglePropertyState("Required", "Off");
+      agHelper.Sleep(2000);
+      table.ClickOnEditIcon(0, 2);
+      cy.get("body").then(($body) => {
+        expect(
+          $body.find(`${table._dateInputPopover} button:contains("Clear")`)
+            .length,
+        ).to.eq(1);
+      });
+      agHelper.GetNClick(
+        `${locators._widgetInCanvas(draggableWidgets.TEXT)}`,
+        0,
+      );
+      agHelper.AssertElementAbsence(table._dateInputPopover);
+
+      propPane.TogglePropertyState("Required", "On");
+      agHelper.Sleep(2000);
+      table.ClickOnEditIcon(0, 2);
+      cy.get("body").then(($body) => {
+        expect(
+          $body.find(`${table._dateInputPopover} button:contains("Clear")`)
+            .length,
+        ).to.eq(0);
+      });
+      agHelper.GetNClick(
+        `${locators._widgetInCanvas(draggableWidgets.TEXT)}`,
+        0,
+      );
+      agHelper.AssertElementAbsence(table._dateInputPopover);
+    });
+
+    it("7. should check required date cells behave as expected when adding a new row to table", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.NavigateBackToPropertyPane();
       table.EditColumn("release_date", "v2");
       propPane.TogglePropertyState("Required", "On");
-      agHelper.Sleep(2000);
-      //Edits the date by selecting from the popup
-      table.ClickOnEditIcon(0, 2);
-      agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
-      );
-      //Clears the date selected in previous step
-      table.ClickOnEditIcon(0, 2);
-      agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
-      );
-      agHelper
-        .GetText(table._popoverErrorMsg("This field is required"))
-        .then(($textData) => expect($textData).to.eq("This field is required"));
-      agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
-      );
-      agHelper.AssertElementAbsence(
-        table._popoverErrorMsg("This field is required"),
-      );
-    });
-
-    it("7. should check date cells behave as expected when adding a new row to table", () => {
-      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.NavigateBackToPropertyPane();
       propPane.TogglePropertyState("Allow adding a row", "On");
       table.AddNewRow();
@@ -187,6 +198,12 @@ describe(
         .then(($textData) => expect($textData).to.eq(""));
       agHelper.GetNClick(`${table._tableRow1Child3} ${locators._inputField}`);
       agHelper.AssertElementVisibility(table._datePicker);
+      cy.get("body").then(($body) => {
+        expect(
+          $body.find(`${table._dateInputPopover} button:contains("Clear")`)
+            .length,
+        ).to.eq(0);
+      });
       agHelper
         .GetElement(table._editCellEditor)
         .should("have.css", "border")

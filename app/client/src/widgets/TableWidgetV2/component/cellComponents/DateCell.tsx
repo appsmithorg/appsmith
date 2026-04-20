@@ -323,6 +323,7 @@ export const DateCell = (props: DateComponentProps) => {
           <DateComponent
             accentColor={accentColor}
             borderRadius={borderRadius || DEFAULT_BORDER_RADIUS}
+            canClearSelection={!isRequired}
             closeOnSelection
             compactMode
             dateFormat={outputFormat}
