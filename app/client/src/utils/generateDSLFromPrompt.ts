@@ -16,6 +16,9 @@ import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer"
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import { generateDslFromPrompt } from "./aiService";
 import type { AiServiceConfig, ConversationTurn } from "./aiService";
+import { compileRecipe, validateRecipe } from "./gensmithRecipes";
+import type { Recipe } from "./gensmithRecipes";
+import { sanitizeDsl } from "./gensmithSanitizer";
 
 // ---------------------------------------------------------------------------
 // Type helpers
@@ -187,6 +190,10 @@ export interface GenerateResult {
   formattedJson: string;
   /** JS Object code suggested by AI, or null if the request needed no new JS. */
   jsCode: string | null;
+  /** "recipe" = LLM emitted a recipe (deterministic compile); "dsl" = raw DSL. */
+  source: "recipe" | "dsl";
+  /** Human-readable label for the badge in the UI (e.g. "crud-table"). */
+  sourceLabel: string;
   /** Full user message sent to LLM — store in conversation history. */
   userMessage: string;
   /** Raw LLM response — store in conversation history. */
@@ -213,8 +220,9 @@ export async function generateAndApplyDsl(
 
   const {
     assistantMessage,
-    dsl: generatedNested,
+    dsl: rawDsl,
     jsCode,
+    recipe,
     userMessage,
   } = await generateDslFromPrompt(
     prompt,
@@ -225,17 +233,47 @@ export async function generateAndApplyDsl(
     history,
   );
 
-  const validationError = validateNestedDsl(generatedNested);
+  let generatedNested: NestedWidget;
+  let source: "recipe" | "dsl";
+  let sourceLabel: string;
+  let useMerge = mergeIntoExisting;
 
-  if (validationError) {
-    throw new Error(`AI returned invalid DSL: ${validationError}`);
+  if (recipe) {
+    // Recipe path: deterministic compile, always replace the page (a recipe
+    // describes an entire page). This avoids fighting leftover widgets from
+    // previous AI attempts.
+    const recipeError = validateRecipe(recipe);
+
+    if (recipeError) {
+      throw new Error(`AI returned invalid recipe: ${recipeError}`);
+    }
+
+    generatedNested = compileRecipe(recipe as Recipe) as NestedWidget;
+    source = "recipe";
+    sourceLabel = (recipe as { type?: string }).type ?? "recipe";
+    useMerge = false;
+  } else {
+    // Raw-DSL path: validate, then always run the sanitizer so common AI
+    // mistakes (INPUT_WIDGET_V3, junk columns, out-of-grid buttons, etc.)
+    // are repaired before we dispatch.
+    if (!rawDsl) throw new Error("AI returned neither recipe nor DSL.");
+
+    const validationError = validateNestedDsl(rawDsl);
+
+    if (validationError) {
+      throw new Error(`AI returned invalid DSL: ${validationError}`);
+    }
+
+    generatedNested = sanitizeDsl(rawDsl) as NestedWidget;
+    source = "dsl";
+    sourceLabel = "dsl";
   }
 
   const generatedFlat = flattenDSL(
     generatedNested as FlattenedDSL<WidgetProps>,
   ) as CanvasWidgetsReduxState;
 
-  const finalFlat = mergeIntoExisting
+  const finalFlat = useMerge
     ? smartMerge(currentFlatDsl, generatedFlat)
     : generatedFlat;
 
@@ -249,6 +287,8 @@ export async function generateAndApplyDsl(
     nestedDsl: finalNested,
     formattedJson: JSON.stringify(finalNested, null, 2),
     jsCode,
+    source,
+    sourceLabel,
     userMessage,
     assistantMessage,
   };

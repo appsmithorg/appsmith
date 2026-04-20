@@ -30,10 +30,13 @@ loader.config({ monaco });
 import { Button, Text } from "@appsmith/ads";
 import { flattenDSL, nestDSL, ROOT_CONTAINER_WIDGET_ID } from "@shared/dsl";
 import type { FlattenedDSL, NestedDSL } from "@shared/dsl";
-import { updateAndSaveLayout } from "actions/pageActions";
+import { saveLayout, updateAndSaveLayout } from "actions/pageActions";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPageSavingError,
+} from "selectors/editorSelectors";
 import type { DefaultRootState } from "react-redux";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -44,6 +47,7 @@ import {
 } from "utils/generateDSLFromPrompt";
 import { getAvailableProviders, PROVIDER_LABELS } from "utils/aiService";
 import type { AiProvider, ConversationTurn } from "utils/aiService";
+import { sanitizeDsl } from "utils/gensmithSanitizer";
 import { GenSmithHelp } from "./GenSmithHelp";
 
 // ---------------------------------------------------------------------------
@@ -135,6 +139,76 @@ const ProviderSelect = styled.select`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+`;
+
+const SourceBadge = styled.span<{ $source: "recipe" | "dsl" }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  background: ${({ $source }) =>
+    $source === "recipe" ? "rgba(85,61,233,0.12)" : "rgba(245,158,11,0.12)"};
+  color: ${({ $source }) => ($source === "recipe" ? "#553DE9" : "#B45309")};
+  border: 1px solid
+    ${({ $source }) =>
+      $source === "recipe" ? "rgba(85,61,233,0.3)" : "rgba(245,158,11,0.3)"};
+`;
+
+const SaveStatusPill = styled.span<{
+  $state: "saving" | "saved" | "error";
+}>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  background: ${({ $state }) =>
+    $state === "saving"
+      ? "rgba(245,158,11,0.14)"
+      : $state === "saved"
+        ? "rgba(16,185,129,0.14)"
+        : "rgba(220,38,38,0.14)"};
+  color: ${({ $state }) =>
+    $state === "saving"
+      ? "#B45309"
+      : $state === "saved"
+        ? "#047857"
+        : "#B91C1C"};
+  border: 1px solid
+    ${({ $state }) =>
+      $state === "saving"
+        ? "rgba(245,158,11,0.3)"
+        : $state === "saved"
+          ? "rgba(16,185,129,0.3)"
+          : "rgba(220,38,38,0.3)"};
+
+  & .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    ${({ $state }) =>
+      $state === "saving" ? "animation: pulse 1s ease-in-out infinite;" : ""}
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
   }
 `;
 
@@ -471,6 +545,57 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
   // ── Error state ──────────────────────────────────────────────────────────
   const [parseError, setParseError] = useState<string | null>(null);
 
+  // ── Save-status tracking ─────────────────────────────────────────────────
+  // We track whether the LAST dispatched update has been persisted to the
+  // server. This matters because the user's next action is often "Deploy",
+  // which publishes the *saved* DSL — if we click Deploy before the save
+  // saga completes, the published page will lag behind the preview.
+  const isPageSavingInStore = useSelector(
+    (state: DefaultRootState) => state.ui.editor.loadingStates.saving,
+  );
+  const savingError = useSelector(getPageSavingError);
+
+  // Local "we have a pending apply" flag — goes true right when we dispatch,
+  // clears when Redux confirms `saving=false`.
+  const [pendingSave, setPendingSave] = useState(false);
+  const lastSavedAtRef = useRef<number | null>(null);
+  const [justSavedTick, setJustSavedTick] = useState(0);
+
+  useEffect(() => {
+    if (!pendingSave) return;
+
+    if (isPageSavingInStore) return; // still saving
+
+    // saving flipped back to false → save is done.
+    setPendingSave(false);
+    lastSavedAtRef.current = Date.now();
+    setJustSavedTick((t) => t + 1);
+  }, [isPageSavingInStore, pendingSave]);
+
+  // Hide the "Saved" pill after 3s.
+  const [showJustSaved, setShowJustSaved] = useState(false);
+
+  useEffect(() => {
+    if (justSavedTick === 0) return;
+
+    setShowJustSaved(true);
+    const handle = setTimeout(() => setShowJustSaved(false), 3000);
+
+    return () => clearTimeout(handle);
+  }, [justSavedTick]);
+
+  const saveStatus: "idle" | "saving" | "saved" | "error" = savingError
+    ? "error"
+    : pendingSave || isPageSavingInStore
+      ? "saving"
+      : showJustSaved
+        ? "saved"
+        : "idle";
+
+  const markSavePending = useCallback(() => {
+    setPendingSave(true);
+  }, []);
+
   // ── UI → Code: subscribe to Redux widget changes ─────────────────────────
   const storeJson = useSelector(
     (state: DefaultRootState) => serializePageDsl(getCanvasWidgets(state)),
@@ -487,6 +612,12 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
   // ── Generated JS panel ────────────────────────────────────────────────────
   const [generatedJs, setGeneratedJs] = useState<string | null>(null);
   const [jsCopied, setJsCopied] = useState(false);
+
+  // ── Last-generation source badge ────────────────────────────────────────
+  const [lastSource, setLastSource] = useState<{
+    source: "recipe" | "dsl";
+    label: string;
+  } | null>(null);
 
   const handleCopyJs = useCallback(() => {
     if (!generatedJs) return;
@@ -510,7 +641,14 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
           return;
         }
 
-        const flat = flattenDSL(nested);
+        // CRITICAL: run the sanitizer BEFORE flatten/dispatch. This stamps
+        // `version: LATEST_DSL_VERSION` on the root so Appsmith's server-
+        // side migration runner doesn't run the v18→v19 grid-density
+        // migration (which silently multiplies every column by 4, produces
+        // the "deploy looks 4× too big" symptom). Also strips rowIndex
+        // junk, fixes modal inner-canvas snap grid, etc.
+        const sanitized = sanitizeDsl(nested);
+        const flat = flattenDSL(sanitized);
 
         skipNextExternalSyncRef.current = true;
         setParseError(null);
@@ -519,11 +657,16 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
             shouldReplay: true,
           }),
         );
+        // Also kick the debounced save directly so it trailing-edges as soon
+        // as possible — otherwise the user may click Deploy during the 500ms
+        // debounce and publish the old DSL.
+        dispatch(saveLayout());
+        markSavePending();
       } catch (e) {
         setParseError(e instanceof Error ? e.message : "Invalid JSON");
       }
     },
-    [dispatch],
+    [dispatch, markSavePending],
   );
 
   const debouncedApply = useMemo(
@@ -551,6 +694,7 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
       const next = value ?? "";
 
       setEditorText(next);
+      setLastSource(null);
       debouncedApply(next);
     },
     [debouncedApply],
@@ -599,6 +743,7 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
 
       setEditorText(result.formattedJson);
       setParseError(null);
+      setLastSource({ source: result.source, label: result.sourceLabel });
 
       if (result.jsCode) {
         setGeneratedJs(result.jsCode);
@@ -606,6 +751,8 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
 
       skipNextExternalSyncRef.current = true;
       dispatch(updateAndSaveLayout(result.flatDsl, { shouldReplay: true }));
+      dispatch(saveLayout());
+      markSavePending();
 
       // Store turn for iterative follow-ups
       addTurn(
@@ -627,6 +774,7 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
     history,
     storeJson,
     addTurn,
+    markSavePending,
   ]);
 
   const displayError = parseError || aiError;
@@ -639,6 +787,31 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
         <EditorToolbar>
           <Text kind="heading-xs">GenSmith — Page DSL</Text>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {saveStatus !== "idle" && (
+              <SaveStatusPill
+                $state={
+                  saveStatus === "saving"
+                    ? "saving"
+                    : saveStatus === "saved"
+                      ? "saved"
+                      : "error"
+                }
+                title={
+                  saveStatus === "saving"
+                    ? "正在保存到服务器… 请等待后再 Deploy，否则会发布旧版本"
+                    : saveStatus === "saved"
+                      ? "已保存，可以安全 Deploy"
+                      : "保存失败，请重试 Apply Code"
+                }
+              >
+                <span className="dot" />
+                {saveStatus === "saving"
+                  ? "Saving…"
+                  : saveStatus === "saved"
+                    ? "Saved · 可以 Deploy"
+                    : "Save failed"}
+              </SaveStatusPill>
+            )}
             <GenSmithHelp />
             <Button kind="secondary" onClick={handleFormat} size="sm">
               Format
@@ -672,6 +845,19 @@ export function PageDslMonacoSplit(props: PageDslMonacoSplitProps) {
                   </option>
                 ))}
               </ProviderSelect>
+            )}
+            {lastSource && (
+              <SourceBadge
+                $source={lastSource.source}
+                title={
+                  lastSource.source === "recipe"
+                    ? "LLM emitted a high-level recipe — compiled deterministically by GenSmith for consistent layout."
+                    : "LLM emitted raw DSL — sanitizer applied fixes, but quality depends on the model."
+                }
+              >
+                {lastSource.source === "recipe" ? "✦ Recipe" : "⚠ Raw DSL"} ·{" "}
+                {lastSource.label}
+              </SourceBadge>
             )}
             {history.length > 0 && (
               <HistoryChip

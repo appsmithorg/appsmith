@@ -216,17 +216,21 @@ const Tag = styled.span<{ type: "manual" | "code" | "ai" }>`
 // Copyable prompt templates (single source of truth for display + copy)
 // ---------------------------------------------------------------------------
 
-const HELP_SAMPLE_AI_PROMPTS = `# 新增组件（AI 会自动知道已有哪些 Query）
-新增一个数据表格，绑定到 GetCandidates 的返回数据，显示 name 和 email 两列
+const HELP_SAMPLE_AI_PROMPTS = `# ✦ 推荐：用一句话描述你要的「页面类型」，AI 会输出 Recipe，由 GenSmith 确定性编译成像素级正确的页面
 
-# 修改已有组件
+做一个候选人管理页面，表格显示 GetCandidates 的 name 和 email 两列，顶部有刷新和新增按钮，点击新增弹出模态框录入 name、email 并调用 AddCandidate
+
+# 或者：注册表单
+做一个用户注册表单，字段用户名、邮箱、密码，点击注册调用 RegisterUser，成功后跳转
+
+# 修改已有组件（会走 Raw DSL 路径 + 自动 sanitize）
 把 PageTitle 的文字改为"HR 候选人系统"，颜色改为 #553DE9
 
 # 需要 JS 逻辑（AI 会生成 JS Object 代码，出现在 Generated JS 面板）
 为 EmailInput 添加邮箱格式验证，提交时如果格式错误弹出提示
 
 # 迭代调试（有历史记录时使用）
-刚才生成的表格，邮箱列的绑定写错了，应该是 item.email 不是 item.emailAddress`;
+刚才生成的表格里邮箱列的绑定写错了，应该是 item.email 不是 item.emailAddress`;
 
 const HELP_SAMPLE_ENV = `# app/client/.env — 每个提供商各自独立，有 KEY 就会出现在下拉里
 
@@ -241,68 +245,146 @@ REACT_APP_AI_DEEPSEEK_MODEL=deepseek-chat
 
 # REACT_APP_AI_OPENAI_KEY=sk-xxx   ← 注释掉则不显示在下拉里`;
 
-const HELP_EXTERNAL_LLM_TEMPLATE = `你是 Appsmith DSL 专家。请根据我的需求生成一个合法的嵌套 JSON DSL，直接输出原始 JSON，不要 markdown 代码块，不要任何解释文字。
+const HELP_EXTERNAL_LLM_TEMPLATE = `你是 GenSmith 布局规划师。根据任务性质，你有两种输出模式（二选一，不要混用）：
 
-## DSL 格式规范
-- 根节点必须是 { "type": "CANVAS_WIDGET", "widgetId": "0", "widgetName": "MainContainer", "children": [...] }
-- 每个 Widget 必须包含字段：widgetId（8位随机字母数字）、type、widgetName（PascalCase）、
-  topRow、bottomRow、leftColumn、rightColumn
-- 画布宽度为 64 列，行高约 10px，建议每行组件高度 4~6 行（即 bottomRow - topRow = 4~6）
-- 常用 Widget 类型：
-    TEXT_WIDGET          – 文本标签
-    INPUT_WIDGET_V2      – 输入框（属性 inputType: "TEXT"/"EMAIL"/"NUMBER"；勿用 INPUT_WIDGET_V3，本构建未注册）
-    BUTTON_WIDGET        – 按钮（属性 text、buttonColor、onClick）
-    TABLE_WIDGET_V2      – 表格（属性 tableData、primaryColumns）
-    SELECT_WIDGET        – 下拉选择框
-    FORM_WIDGET          – 表单容器
-- 动态绑定语法：{{ QueryName.data }}、{{ WidgetName.text }}、{{ JSObjectName.method() }}
-- 按钮颜色推荐使用 Appsmith 主色 #553DE9
+### 模式 A —— "recipe" 模式（从零生成/整体重建页面时用）
+输出一份高级 recipe JSON，由 GenSmith 的确定性编译器生成像素级正确的 Appsmith DSL，你不需要也不应该写 DSL。
 
-## DSL 示例（参考格式，不要照抄）
+### 模式 B —— "patch DSL" 模式（只微调现有页面的某个属性时用）⭐
+当用户说"把 X 改成 Y""调整某个按钮的颜色""模态框改成默认不展示"这种 **针对已有页面做小改动** 的请求时，直接输出修改后的**完整 DSL**（不要 recipe），只改动目标属性，其它 widget 一字不动原样复制。
+
+👉 判断标准：prompt 里是否粘贴了"已有页面"/"existing DSL"/"已经有这个页面"？
+- 是 → 模式 B（patch DSL）
+- 否 → 模式 A（recipe）
+
+========================================================================
+
+## 模式 A —— 输出格式（严格遵守，不要加 markdown 代码块、不要多余解释）
+
+---GENSMITH-RECIPE---
+{ ... recipe JSON ... }
+---END-RECIPE---
+
+## 模式 B —— 输出格式（直接输出 DSL JSON，不要任何围栏）
+
 {
   "type": "CANVAS_WIDGET",
-  "widgetId": "0",
   "widgetName": "MainContainer",
-  "topRow": 0, "bottomRow": 100, "leftColumn": 0, "rightColumn": 64,
-  "children": [
-    {
-      "type": "TEXT_WIDGET",
-      "widgetId": "txt00001",
-      "widgetName": "PageTitle",
-      "text": "候选人管理",
-      "fontSize": "HEADING1",
-      "topRow": 0, "bottomRow": 4, "leftColumn": 0, "rightColumn": 32
-    },
-    {
-      "type": "TABLE_WIDGET_V2",
-      "widgetId": "tbl00001",
-      "widgetName": "CandidateTable",
-      "tableData": "{{ GetCandidates.data }}",
-      "primaryColumns": {
-        "name":  { "columnType": "text", "label": "姓名",  "alias": "name" },
-        "email": { "columnType": "text", "label": "邮箱", "alias": "email" }
-      },
-      "topRow": 5, "bottomRow": 35, "leftColumn": 0, "rightColumn": 64
-    }
+  ... （原封不动复制 + 修改目标属性）...
+}
+
+模式 B 硬性规则：
+- 根 CANVAS_WIDGET 必须保留 \`"version": 94\`（如果原始 DSL 有）。没有则加上，否则 deploy 时会被放大 4 倍。
+- 除了你要改的属性之外，**一字不动**复制所有原有 widget、字段、顺序、widgetId。
+- 不要"顺便优化"任何其它地方。用户只要求改一个点，就只改那一个点。
+- DSL 必须是合法 JSON。
+
+## Recipe 类型（选最匹配需求的一种）
+
+### 1) crud-table — 列表+增删改查页面（最常用）
+{
+  "type": "crud-table",
+  "title": "候选人管理",
+  "listQuery": "GetCandidates",                  // 必填：表格数据来源
+  "refreshQueryAfterMutation": "GetCandidates",  // 可选，默认同 listQuery
+  "searchable": true,                             // 可选，默认 true
+  "columns": [                                    // 只列出用户真正想看的列
+    { "field": "name",  "label": "姓名",  "type": "text"  },
+    { "field": "email", "label": "邮箱",  "type": "email" }
+  ],
+  "createQuery": "AddCandidate",                  // 可选：填了就会生成"+ 新增"按钮和模态框
+  "createFields": [                               // 如果 createQuery 填了，必填
+    { "name": "name",  "label": "姓名",  "type": "text",  "required": true, "placeholder": "请输入姓名" },
+    { "name": "email", "label": "邮箱",  "type": "email", "required": true, "placeholder": "请输入邮箱" }
   ]
 }
 
-## 本页面已有的 Query（可直接绑定）
-# 请将实际 Query 名称和数据源替换到下面：
-- GetCandidates   数据源: sheet-frey（Google Sheets），返回行数组
-- AddCandidate    数据源: sheet-frey，写入一行
+⚠️ 千万不要把 rowIndex / _id 等系统字段放进 columns。
+⚠️ query 名称必须大小写一致，对应当前页面真实存在的 Query。
 
-## 本页面已有的 JS Object（可直接调用）
-# 如果没有 JS Object，删除这一节；如有，填入名称和方法：
+### 2) form — 独立表单页（注册/登录/提交反馈）
+{
+  "type": "form",
+  "title": "注册",
+  "description": "创建你的账号",                  // 可选
+  "submitQuery": "RegisterUser",                  // 必填
+  "submitLabel": "注册",                          // 可选，默认"提交"
+  "onSuccess": "showAlert('注册成功')",           // 可选：提交成功后执行的 JS
+  "fields": [
+    { "name": "username", "label": "用户名", "type": "text",     "required": true },
+    { "name": "password", "label": "密码",   "type": "password", "required": true }
+  ]
+}
+
+### 3) blank — 空白页（仅当明确要求时）
+{ "type": "blank", "title": "我的页面" }
+
+## 字段类型枚举
+- 输入框 type：text | email | password | number | textarea | date
+- 列 type：text | number | email | date | image
+
+## 小改动速查表（模式 B 专用）
+用户的常见诉求 → 需要改的字段：
+- **模态框默认不打开 / 关闭自动弹出**：MODAL_WIDGET 的 \`"isVisible": false\`（Appsmith 里 modal 的 isVisible 就是"是否初始打开"，置 false 即可让模态框只由 showModal('<名称>') 触发打开）
+- **模态框默认打开**：MODAL_WIDGET \`"isVisible": true\`
+- **按钮禁用**：\`"isDisabled": true\` 或 \`"isDisabled": "{{<binding>}}"\`
+- **按钮文字 / 颜色 / 主次**：\`text\` / \`buttonColor\` / \`buttonVariant\`(PRIMARY|SECONDARY|TERTIARY)
+- **控件隐藏**：非 modal 的 widget 用 \`"isVisible": false\` 即可在部署后不显示（注意 modal 用 isVisible 是"初始打开"而不是"隐藏"）
+- **表格列顺序 / 宽度**：\`columnOrder\` 数组、\`primaryColumns.<field>.width\`
+- **表格隐藏搜索 / 分页**：\`isVisibleSearch\` / \`isVisiblePagination\`
+
+⚠️ 特别注意：MODAL_WIDGET 的 \`isVisible\` 不是"显示/隐藏"，而是"页面加载时是否自动打开"。这是整个 Appsmith 里最坑的一个属性，一定记住。
+
+## 可选：追加 JS Object 代码
+如果需要可复用的 JS 逻辑，append 在 recipe 之后：
+
+---GENSMITH-JS---
+// JS Object: Helpers
+export default { validate: (e) => /^\\S+@\\S+$/.test(e) }
+
+## 本页已有的 Query（只能用这些，大小写一致）
+- GetCandidates   数据源 sheet-frey（Google Sheets），返回 [{name, email, ...}]
+- AddCandidate    写入 sheet-frey 一行，入参 name, email
+
+## 本页已有的 JS Object
 - （暂无）
 
-## 我的功能需求
-# 在这里描述你要实现的 UI：
-请生成一个候选人管理页面，包含：
-1. 顶部标题"候选人管理"
-2. 一个显示所有候选人的表格（绑定 GetCandidates.data），列：姓名、邮箱
-3. 表格下方一个表单，含姓名输入框和邮箱输入框
-4. 表单底部一个"提交"按钮，点击后执行 AddCandidate.run() 并刷新 GetCandidates.run()`;
+## 我要实现（示例——请替换成你自己的需求）
+
+### 示例 1：从零生成（模式 A）
+请生成一个候选人管理页面：
+- 标题"候选人管理"
+- 表格显示 GetCandidates.data，只保留 name（姓名）和 email（邮箱）两列
+- 顶部"刷新"和"+ 新增"按钮
+- 点击"+ 新增"弹出模态框，录入 name、email，提交调用 AddCandidate 并刷新列表
+
+### 示例 2：对现有页面做小改动（模式 B）
+> 把下面这个页面的模态框改成默认不展开（只有点"+ 新增"按钮才弹出）。其它**一字不改**，widgetId、顺序全部保留。
+>
+> 已有页面如下：
+> \`\`\`json
+> { ... 这里粘贴你的 DSL ... }
+> \`\`\`
+
+（此时 AI 应直接输出修改后的完整 DSL JSON，不要 recipe 围栏；改动点仅为 AddModal 的 \`isVisible: true\` → \`false\`。）`;
+
+const HELP_RECIPE_EXAMPLE = `---GENSMITH-RECIPE---
+{
+  "type": "crud-table",
+  "title": "候选人管理",
+  "listQuery": "GetCandidates",
+  "refreshQueryAfterMutation": "GetCandidates",
+  "columns": [
+    { "field": "name",  "label": "姓名",  "type": "text"  },
+    { "field": "email", "label": "邮箱",  "type": "email" }
+  ],
+  "createQuery": "AddCandidate",
+  "createFields": [
+    { "name": "name",  "label": "姓名",  "type": "text",  "required": true, "placeholder": "请输入姓名" },
+    { "name": "email", "label": "邮箱",  "type": "email", "required": true, "placeholder": "请输入邮箱" }
+  ]
+}
+---END-RECIPE---`;
 
 function CopyableCodeBlock({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -414,6 +496,236 @@ export function GenSmithHelp() {
             </PanelHeader>
 
             <PanelBody>
+              {/* ── Recipe 架构（新） ── */}
+              <Section>
+                <SectionTitle>
+                  ✦ 核心理念：Recipe 驱动（弱模型也能出高质量页面）
+                </SectionTitle>
+                <Card accent="#553de9">
+                  <CardTitle>为什么 Recipe？</CardTitle>
+                  <CardDesc>
+                    让 LLM 直接写像素级精确的 DSL（64
+                    列栅格、模态框独立坐标系、TableV2 primaryColumns
+                    结构…）对任何模型都不稳定——弱模型几乎必错，强模型也会偶尔失手。
+                    <br />
+                    GenSmith 让 AI 只输出一份{" "}
+                    <strong>高层语义 JSON（Recipe）</strong>，
+                    本地的确定性编译器来生成像素完美、风格统一的 DSL。
+                    <br />
+                    <br />
+                    效果：即便用便宜的小模型，做出来的页面也是产品级一致的排版和样式。
+                  </CardDesc>
+                </Card>
+                <Grid2>
+                  <Card accent="#553de9">
+                    <CardTitle>支持的 Recipe 类型</CardTitle>
+                    <CardDesc>
+                      • <code>crud-table</code> — 列表+新增+刷新，90%
+                      后台页面需求
+                      <br />• <code>form</code> — 独立表单（注册/登录/反馈）
+                      <br />• <code>blank</code> — 空白页
+                      <br />
+                      <br />
+                      无法覆盖的复杂场景（自定义图表组合、多 Tab 等）会自动
+                      fallback 到 Raw DSL 路径，并由 <strong>
+                        Sanitizer
+                      </strong>{" "}
+                      修复常见错误（按钮过大、 列越界、rowIndex
+                      垃圾列、INPUT_WIDGET_V3 等）。
+                    </CardDesc>
+                  </Card>
+                  <Card accent="#553de9">
+                    <CardTitle>AI Generate 面板的 Badge</CardTitle>
+                    <CardDesc>
+                      每次生成后，在下拉右侧会显示一个标签：
+                      <br />• <strong>✦ Recipe · crud-table</strong> —
+                      走的编译器路径（理想）
+                      <br />• <strong>⚠ Raw DSL</strong> — LLM 没有用
+                      Recipe，走的 sanitizer 路径
+                      <br />
+                      <br />
+                      如果老是出现 ⚠ Raw DSL，说明你的 prompt
+                      过于特殊或模型忽视了系统提示，
+                      可以换个说法或切换到更强的模型。
+                    </CardDesc>
+                  </Card>
+                </Grid2>
+                <Card accent="#553de9">
+                  <CardTitle>Recipe 示例（AI 输出的就是这种）</CardTitle>
+                  <CopyableCodeBlock text={HELP_RECIPE_EXAMPLE} />
+                </Card>
+              </Section>
+
+              {/* ── Apply Code → Deploy 正确节奏 ── */}
+              <Section>
+                <SectionTitle>
+                  💾 Apply Code → Deploy 的正确节奏（重要！）
+                </SectionTitle>
+                <Card accent="#f59e0b">
+                  <CardTitle>为什么我 Deploy 后看到的还是旧页面？</CardTitle>
+                  <CardDesc>
+                    点击 <strong>AI Generate</strong> 或{" "}
+                    <strong>Apply Code</strong> 之后， GenSmith 会把新 DSL 写入
+                    Redux（预览立刻刷新）， 但真正落库到服务端有一个小延迟（约
+                    500ms – 1s）。
+                    <br />
+                    <br />
+                    如果你在这个窗口期里就点了 <strong>Deploy</strong>
+                    ，服务端发布的依然是
+                    <strong>旧的已保存版本</strong>。
+                    <br />
+                    <br />
+                    解决：看 GenSmith 顶部工具栏的 <strong>状态胶囊</strong>：
+                    <br />• 🟡 <code>Saving…</code> — 正在保存，
+                    <strong>请不要点 Deploy</strong>
+                    <br />• 🟢 <code>Saved · 可以 Deploy</code> — 已落库，随便点
+                    <br />• 🔴 <code>Save failed</code> — 重新点一次 Apply Code
+                  </CardDesc>
+                </Card>
+              </Section>
+
+              {/* ── DSL 版本号 ── */}
+              <Section>
+                <SectionTitle>
+                  🧬 如果你看到 “Deploy 之后页面突然放大 4 倍”
+                </SectionTitle>
+                <Card accent="#dc2626">
+                  <CardTitle>
+                    根因：DSL 缺 version → 触发 v19 栅格迁移
+                  </CardTitle>
+                  <CardDesc>
+                    Appsmith 对没有 <code>version</code> 字段的 DSL
+                    会把它当成远古版本， 运行一串历史迁移脚本，其中第 19 步（
+                    <code>migrateToNewLayout</code>） 会把
+                    <strong>所有组件的列/行坐标乘以 4</strong>——于是表格宽度变成
+                    4 倍、按钮变成 4 倍，页面跑到 5000px 宽。
+                    <br />
+                    <br />
+                    解决：GenSmith 现在自动在 MainContainer 根节点写
+                    <code>{`"version": 94`}</code>（
+                    <code>LATEST_DSL_VERSION</code>），
+                    迁移器就会跳过这串脚本。Recipe 路径和 Raw DSL
+                    兜底路径都已经修好了， 你应该再也看不到这个问题。
+                    <br />
+                    <br />
+                    如果你是手写 raw DSL：<strong>一定要</strong>带
+                    <code>{`"version": 94`}</code> 在最外层的{" "}
+                    <code>MainContainer</code> 上。
+                  </CardDesc>
+                </Card>
+              </Section>
+
+              {/* ── 预览区中的模态框 ── */}
+              <Section>
+                <SectionTitle>
+                  🪟 GenSmith 预览里模态框好像不居中？
+                </SectionTitle>
+                <Card accent="#2563eb">
+                  <CardTitle>这是预览窗口的限制，不是 DSL 有问题</CardTitle>
+                  <CardDesc>
+                    GenSmith 打开的时候，页面的一半被 JSON 编辑器占掉了，
+                    右边只剩下真实应用的一半宽度来做预览。 但 Appsmith 的{" "}
+                    <strong>ModalWidget</strong> 总是以
+                    <strong>整个浏览器窗口为坐标系</strong>居中（position:
+                    fixed）， 所以你会看到它只展示在预览区的一半，另一半“溢出”到
+                    JSON 编辑器那边。
+                    <br />
+                    <br />
+                    验证方法：
+                    <br />
+                    1) 先等 🟢 <code>Saved · 可以 Deploy</code>
+                    <br />
+                    2) 关闭 GenSmith 面板（右上角 ✕ Exit）
+                    <br />
+                    3) 或直接打开 Deploy 后的 Preview
+                    <br />→ 模态框就会相对真实应用居中，没有问题。
+                  </CardDesc>
+                </Card>
+              </Section>
+
+              {/* ── 模态框默认关闭 + 外部 AI 微调 ── */}
+              <Section>
+                <SectionTitle>
+                  🔔 模态框自动弹出 & 如何用外部 AI 做小改动
+                </SectionTitle>
+                <Grid2>
+                  <Card accent="#be185d">
+                    <CardTitle>
+                      ⚠ Appsmith 陷阱：MODAL 的 isVisible 是“初始打开”
+                    </CardTitle>
+                    <CardDesc>
+                      和其它 widget 不同，
+                      <strong>MODAL_WIDGET 的 isVisible</strong>
+                      不是“显示/隐藏”，而是
+                      <strong>页面加载时是否自动弹开</strong>。 置{" "}
+                      <code>true</code> 会导致每次进页面模态框都“啪”地弹出来。
+                      <br />
+                      <br />
+                      GenSmith 现在会自动把生成的模态框设为{" "}
+                      <code>isVisible: false</code>，由“+ 新增”按钮的
+                      <code>{`showModal('AddModal')`}</code> 来打开。从外部 AI
+                      粘贴进来的 DSL 也会被自动修正。
+                    </CardDesc>
+                  </Card>
+                  <Card accent="#0f766e">
+                    <CardTitle>🪄 外部 AI 小改动的正确用法</CardTitle>
+                    <CardDesc>
+                      外部 AI 默认会<strong>重新生成整个 recipe</strong>
+                      ——当你想做一个微调（比如“把模态框改成默认不展开”）时，
+                      它会回给你一整段和原来一样的 recipe，看上去什么都没变。
+                      <br />
+                      <br />
+                      正确姿势：在“我要实现”后面把
+                      <strong>当前 DSL JSON 粘贴进去</strong>
+                      （整段复制 GenSmith 左边 JSON 编辑器的内容），并明确写
+                      “只改 X，其余一字不动”。提示模板已经更新了， AI
+                      会自动切到“patch DSL”模式，输出修改后的完整 DSL，
+                      你直接复制回 GenSmith → Apply Code 就行。
+                    </CardDesc>
+                  </Card>
+                </Grid2>
+              </Section>
+
+              {/* ── 拖拽与两种编辑模式 ── */}
+              <Section>
+                <SectionTitle>🖱 什么时候可以用鼠标拖拽调整？</SectionTitle>
+                <Grid2>
+                  <Card accent="#047857">
+                    <CardTitle>✅ GenSmith 关闭后：自由拖拽</CardTitle>
+                    <CardDesc>
+                      关闭 GenSmith 面板（右上角 ✕ Exit）回到标准 Appsmith
+                      编辑器， 这时所有组件都可以自由拖拽缩放调位置。
+                      <br />
+                      <br />
+                      推荐流程：
+                      <br />
+                      1) 用 GenSmith 让 AI 快速生成骨架
+                      <br />
+                      2) 等 <code>Saved</code> 胶囊出现
+                      <br />
+                      3) Exit GenSmith
+                      <br />
+                      4) 在正常画布里拖拽微调（可选）
+                      <br />
+                      5) Deploy
+                    </CardDesc>
+                  </Card>
+                  <Card accent="#b45309">
+                    <CardTitle>⚠ GenSmith 开启中：JSON 是源</CardTitle>
+                    <CardDesc>
+                      GenSmith 打开的时候，左边的 JSON 编辑器是
+                      <strong>唯一真实源</strong>。 你在右边预览区尝试拖拽会被
+                      300ms 内的同步覆盖，看起来像“回弹”。
+                      <br />
+                      <br />在 GenSmith 里要改尺寸，请直接改 JSON（
+                      <code>leftColumn</code>/<code>rightColumn</code>/
+                      <code>topRow</code>/<code>bottomRow</code>） 或让 AI
+                      重新生成。这是故意的设计——避免两边打架。
+                    </CardDesc>
+                  </Card>
+                </Grid2>
+              </Section>
+
               {/* ── 整体分工 ── */}
               <Section>
                 <SectionTitle>
