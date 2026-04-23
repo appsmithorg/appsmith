@@ -448,6 +448,7 @@
     "brace-expansion": "1.1.12",
     "form-data": "4.0.4",
     "fast-xml-parser": "4.5.4",
-    "handlebars": "4.7.9"
+    "handlebars": "4.7.9",
+    "protobufjs": "^7.5.5"
   }
 }
