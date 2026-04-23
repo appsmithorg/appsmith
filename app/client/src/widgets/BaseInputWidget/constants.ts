@@ -22,6 +22,7 @@ export enum NumberInputStepButtonPosition {
 export enum InputMode {
   // Shows numeric keypad with 0-9
   NUMERIC = "numeric",
+  NONE = "none",
   // Shows numeric keypad with 0-9 and decimal point (.)
   DECIMAL = "decimal",
   // Shows phone keypad with 0-9, *, # and standard dial keys

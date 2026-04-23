@@ -17,7 +17,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "ee/constants/messages";
-import type { NumberInputStepButtonPosition } from "../constants";
+import type { InputMode, NumberInputStepButtonPosition } from "../constants";
 import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
@@ -505,17 +505,17 @@ class BaseInputComponent extends React.Component<
    * Provides optimal keyboard experience across iOS and Android
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode
    */
-  getInputMode(inputType: InputHTMLType = "TEXT"): string | undefined {
+  getInputMode(inputType: InputHTMLType = "TEXT"): InputMode | undefined {
     switch (inputType) {
       // Show decimal point keypad for currency and numeric inputs
       case "NUMBER":
-        return "decimal";
+        return InputMode.DECIMAL;
       // Show phone keypad (+, -, *, #) for telephone inputs
       case "TEL":
-        return "tel";
+        return InputMode.TEL;
       // Show email keypad with @ and . symbols
       case "EMAIL":
-        return "email";
+        return InputMode.EMAIL;
       // Default: let browser decide based on input element type
       default:
         return undefined;

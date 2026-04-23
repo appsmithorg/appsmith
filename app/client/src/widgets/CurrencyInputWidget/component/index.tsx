@@ -49,9 +49,8 @@ class CurrencyInputComponent extends React.Component<CurrencyInputComponentProps
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        // iOS keyboard fix: Use NUMBER type to trigger numeric keypad with decimal support
-        // This ensures users see inputmode="decimal" on mobile devices
-        // References: iOS numeric keypad support for currency inputs (Issue #41496)
+        
+        
         inputHTMLType="NUMBER"
         inputType={InputTypes.CURRENCY}
         intent={this.props.intent}
