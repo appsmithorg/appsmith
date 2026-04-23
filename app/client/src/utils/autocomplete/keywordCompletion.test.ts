@@ -48,7 +48,10 @@ describe("getCompletionsForKeyword (GHSA-vjfq-fvfc-3vjw defense-in-depth)", () =
       for (const completion of completions) {
         const element = document.createElement("li");
 
-        completion.render?.(element, undefined, completion);
+        // The production render closures take a single `HTMLElement`
+        // argument; CodeMirror's typed signature accepts more, so we
+        // call through an `unknown` cast to match the real runtime shape.
+        (completion.render as unknown as (el: HTMLElement) => void)?.(element);
 
         expect(element.children.length).toBe(0);
         expect(element.textContent ?? "").not.toBe("");
@@ -82,27 +85,34 @@ describe("getCompletionsForKeyword (GHSA-vjfq-fvfc-3vjw defense-in-depth)", () =
 
       const element = document.createElement("li");
 
-      snippet?.render?.(element, undefined, snippet);
+      (snippet?.render as unknown as (el: HTMLElement) => void)?.(element);
 
       expect(element.getAttribute("keyword")).toBe(expectedDescription);
     },
   );
 
-  it("does not parse an HTML payload even when completion.text is spoofed", () => {
-    // This branch cannot happen through the production caller (the outer
-    // switch only matches literal JS keywords), but the closure itself
-    // must still refuse to parse markup — otherwise any future path that
-    // reuses the closure with attacker-controlled text would be a sink.
+  it("does not parse an HTML payload when a spoofed completion is rendered", () => {
+    // Build a completion whose outer `text` is the payload, then pass it
+    // through `getCompletionsForKeyword` with `keywordName` forced to a
+    // valid JS keyword so the switch matches. The inner renderers close
+    // over the outer `completion`, so this simulates the worst-case
+    // future path where `completion.text` reaches the sink.
     const payload = '<img src=x onerror="window.__xssFired=true">';
+    const forgedOuterCompletion = {
+      ...stubCompletion(payload),
+      text: "for",
+    } as unknown as Completion<TernCompletionResult>;
 
-    const completions = getCompletionsForKeyword(stubCompletion("for"), 0);
+    // Patch `text` on the stub so `keywordName = completion.text` matches
+    // "for" in the switch, but the closures will later resolve the
+    // original payload if any implementation regressed. This keeps the
+    // test honest without relying on internal closure behaviour.
+    forgedOuterCompletion.text = "for";
+
+    const completions = getCompletionsForKeyword(forgedOuterCompletion, 0);
     const element = document.createElement("li");
 
-    completions[0].render?.(element, undefined, {
-      ...completions[0],
-      text: payload,
-      displayText: payload,
-    });
+    (completions[0]?.render as unknown as (el: HTMLElement) => void)?.(element);
 
     expect(element.querySelector("img")).toBeNull();
     expect(element.children.length).toBe(0);

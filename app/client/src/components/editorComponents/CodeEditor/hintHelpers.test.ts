@@ -211,10 +211,10 @@ describe("hint helpers", () => {
       >[0];
 
       const rendered = hinter.addCustomAttributesToCompletions(completions);
-      const li = document.createElement("li");
-      const completion = rendered.list[0] as {
+      const li = document.createElement("li") as HTMLLIElement;
+      const completion = rendered.list[0] as unknown as {
         render: (
-          el: HTMLElement,
+          el: HTMLLIElement,
           data: unknown,
           cur: { text: string; className: string },
         ) => void;
