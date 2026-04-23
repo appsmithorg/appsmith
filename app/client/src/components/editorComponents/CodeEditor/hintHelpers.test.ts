@@ -181,4 +181,74 @@ describe("hint helpers", () => {
       );
     });
   });
+
+  describe("XSS regression (GHSA-vjfq-fvfc-3vjw)", () => {
+    // A workspace Developer who can run DDL on a shared datasource used to be
+    // able to inject arbitrary JavaScript into another member's browser by
+    // creating a table whose name is an HTML payload. The SQL hint renderer
+    // wrote the raw identifier to `innerHTML`. These tests lock the renderer
+    // to `textContent` so the payload can never be parsed as markup again.
+
+    const HTML_PAYLOAD = '<img src=x onerror="window.__xssFired=true">';
+    const SVG_PAYLOAD = '<svg onload="window.__xssFired=true"></svg>';
+
+    beforeEach(() => {
+      // @ts-expect-error test probe
+      delete window.__xssFired;
+    });
+
+    function runRenderer(text: string, className: string) {
+      const hinter = new SqlHintHelper();
+
+      hinter.setDatasourceTableKeys({ [text]: "table" });
+
+      const completions = {
+        from: { line: 0, ch: 0 },
+        to: { line: 0, ch: 0 },
+        list: [{ text, className, displayText: text }],
+      } as unknown as Parameters<
+        SqlHintHelper["addCustomAttributesToCompletions"]
+      >[0];
+
+      const rendered = hinter.addCustomAttributesToCompletions(completions);
+      const li = document.createElement("li");
+      const completion = rendered.list[0] as {
+        render: (
+          el: HTMLElement,
+          data: unknown,
+          cur: { text: string; className: string },
+        ) => void;
+      };
+
+      completion.render(li, undefined, { text, className });
+
+      return li;
+    }
+
+    it("renders a malicious table name as text, not HTML", () => {
+      const li = runRenderer(HTML_PAYLOAD, "CodeMirror-hint-table");
+
+      expect(li.querySelector("img")).toBeNull();
+      expect(li.textContent).toBe(HTML_PAYLOAD);
+      // @ts-expect-error test probe
+      expect(window.__xssFired).toBeUndefined();
+    });
+
+    it("renders a malicious SVG table name without creating an SVG element", () => {
+      const li = runRenderer(SVG_PAYLOAD, "CodeMirror-hint-table");
+
+      expect(li.querySelector("svg")).toBeNull();
+      expect(li.textContent).toBe(SVG_PAYLOAD);
+      // @ts-expect-error test probe
+      expect(window.__xssFired).toBeUndefined();
+    });
+
+    it("renders a malicious table.column composite key as text", () => {
+      const composite = `public.${HTML_PAYLOAD}`;
+      const li = runRenderer(composite, "CodeMirror-hint-table");
+
+      expect(li.querySelector("img")).toBeNull();
+      expect(li.textContent).toBe(composite);
+    });
+  });
 });
