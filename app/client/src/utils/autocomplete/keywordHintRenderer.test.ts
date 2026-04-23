@@ -62,4 +62,33 @@ describe("renderKeywordHint (GHSA-vjfq-fvfc-3vjw defense-in-depth)", () => {
     expect(element.textContent).toBe("");
     expect(element.getAttribute("keyword")).toBe("");
   });
+
+  it("uses a separate description for the keyword attribute when provided", () => {
+    // The CSS rule `.CodeMirror-Tern-completion-keyword[keyword]:after
+    // { content: attr(keyword); }` renders the `keyword` attribute as a
+    // human-readable suffix. Callers in keywordCompletion.ts pass a
+    // descriptive label there (e.g. "For Loop") that is intentionally
+    // different from the label rendered inside the hint (e.g. "for").
+    const element = document.createElement("li");
+
+    renderKeywordHint(element, "for", "For Loop");
+
+    expect(element.textContent).toBe("for");
+    expect(element.getAttribute("keyword")).toBe("For Loop");
+    expect(element.children.length).toBe(0);
+  });
+
+  it("does not HTML-parse the description either", () => {
+    const element = document.createElement("li");
+    const payload = '<img src=x onerror="window.__xssFired=true">';
+
+    renderKeywordHint(element, "for", payload);
+
+    // The description is written as an attribute value, which is never
+    // parsed as HTML. Confirm it round-trips intact.
+    expect(element.getAttribute("keyword")).toBe(payload);
+    expect(element.children.length).toBe(0);
+    // @ts-expect-error test probe
+    expect(window.__xssFired).toBeUndefined();
+  });
 });
