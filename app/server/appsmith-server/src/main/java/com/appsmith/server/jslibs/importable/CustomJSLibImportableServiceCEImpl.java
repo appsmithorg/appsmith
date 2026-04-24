@@ -34,6 +34,24 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
         return null;
     }
 
+    /**
+     * Nulls the primary key, audit fields, policies and git metadata on every {@link CustomJSLib} in the
+     * incoming JSON so an attacker-controlled {@code id} cannot overwrite an existing library row. The
+     * importer matches on library identity fields ({@code uidString}, {@code name}), not on DB id.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (artifactExchangeJson == null || artifactExchangeJson.getCustomJSLibList() == null) {
+            return;
+        }
+        artifactExchangeJson.getCustomJSLibList().forEach(customJSLib -> {
+            if (customJSLib != null) {
+                customJSLib.sanitiseToExportDBObject();
+                customJSLib.makePristine();
+            }
+        });
+    }
+
     // Persists relevant information and updates mapped resources
     @Override
     public Mono<Void> importEntities(
