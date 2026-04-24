@@ -6,10 +6,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class DslUtilsTest {
@@ -95,5 +100,173 @@ class DslUtilsTest {
         JsonNode replacedDsl = DslUtils.replaceValuesInSpecificDynamicBindingPath(dsl, "existingPath", replacementMap);
         Assertions.assertThat(replacedDsl.get("existingPath").asText())
                 .isEqualTo("newishFieldValue1 newerFieldValue2 newishFieldValue1 newerFieldValue2");
+    }
+
+    @Test
+    void generateWidgetId_producesTenCharLowercaseAlphanumericIds() {
+        String widgetId = DslUtils.generateWidgetId();
+        Assertions.assertThat(widgetId).hasSize(10).matches("[0-9a-z]{10}");
+    }
+
+    @Test
+    void generateWidgetId_producesDistinctIdsAcrossCalls() {
+        Set<String> generatedIds = new HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            generatedIds.add(DslUtils.generateWidgetId());
+        }
+        // With a 36^10 space, 1000 calls should never collide in practice.
+        Assertions.assertThat(generatedIds).hasSize(1000);
+    }
+
+    @Test
+    void regenerateWidgetIds_withNullOrEmptyDsl_returnsInputAsIs() {
+        Assertions.assertThat(DslUtils.regenerateWidgetIds(null)).isNull();
+        JSONObject empty = new JSONObject();
+        Assertions.assertThat(DslUtils.regenerateWidgetIds(empty)).isSameAs(empty);
+    }
+
+    @Test
+    void regenerateWidgetIds_preservesMainContainerIdAndRegeneratesChildIds() {
+        JSONObject child = new JSONObject();
+        child.put("widgetId", "childWidgetId1");
+        child.put("widgetName", "Button1");
+        child.put("parentId", "0");
+
+        JSONArray children = new JSONArray();
+        children.add(child);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", children);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        // MainContainer id is preserved
+        Assertions.assertThat(regenerated.get("widgetId")).isEqualTo("0");
+        Assertions.assertThat(regenerated.get("widgetName")).isEqualTo("MainContainer");
+
+        // Child widget id is regenerated, but the parentId reference to MainContainer is preserved
+        List<?> regeneratedChildren = (List<?>) regenerated.get("children");
+        Assertions.assertThat(regeneratedChildren).hasSize(1);
+        JSONObject regeneratedChild = (JSONObject) regeneratedChildren.get(0);
+        Assertions.assertThat(regeneratedChild.get("widgetId"))
+                .isNotEqualTo("childWidgetId1")
+                .asString()
+                .matches("[0-9a-z]{10}");
+        Assertions.assertThat(regeneratedChild.get("widgetName")).isEqualTo("Button1");
+        Assertions.assertThat(regeneratedChild.get("parentId")).isEqualTo("0");
+    }
+
+    @Test
+    void regenerateWidgetIds_rewritesAllInternalReferencesConsistently() {
+        // Build: MainContainer -> Container (parent) -> Button (child of Container).
+        JSONObject button = new JSONObject();
+        button.put("widgetId", "buttonOldId");
+        button.put("widgetName", "Button1");
+        button.put("parentId", "containerOldId");
+
+        JSONArray containerChildren = new JSONArray();
+        containerChildren.add(button);
+
+        JSONObject container = new JSONObject();
+        container.put("widgetId", "containerOldId");
+        container.put("widgetName", "Container1");
+        container.put("parentId", "0");
+        container.put("children", containerChildren);
+        // Widget-specific id reference (e.g. List widget's mainCanvasId) must also be rewritten.
+        container.put("mainCanvasId", "buttonOldId");
+
+        JSONArray rootChildren = new JSONArray();
+        rootChildren.add(container);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", rootChildren);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        JSONObject regeneratedContainer = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
+        JSONObject regeneratedButton = (JSONObject) ((List<?>) regeneratedContainer.get("children")).get(0);
+
+        String newContainerId = (String) regeneratedContainer.get("widgetId");
+        String newButtonId = (String) regeneratedButton.get("widgetId");
+
+        Assertions.assertThat(newContainerId).isNotEqualTo("containerOldId").matches("[0-9a-z]{10}");
+        Assertions.assertThat(newButtonId).isNotEqualTo("buttonOldId").matches("[0-9a-z]{10}");
+        // Container keeps its parent (MainContainer) reference.
+        Assertions.assertThat(regeneratedContainer.get("parentId")).isEqualTo("0");
+        // Button's parent reference has been rewritten to the new container id.
+        Assertions.assertThat(regeneratedButton.get("parentId")).isEqualTo(newContainerId);
+        // Arbitrary widget-specific references are rewritten to the new button id.
+        Assertions.assertThat(regeneratedContainer.get("mainCanvasId")).isEqualTo(newButtonId);
+    }
+
+    @Test
+    void regenerateWidgetIds_doesNotMutateSourceDsl() {
+        JSONObject child = new JSONObject();
+        child.put("widgetId", "originalChildId");
+        child.put("widgetName", "Button1");
+
+        JSONArray children = new JSONArray();
+        children.add(child);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "originalRootId");
+        dsl.put("widgetName", "Canvas1");
+        dsl.put("children", children);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        Assertions.assertThat(regenerated).isNotSameAs(dsl);
+        // Source DSL widget ids are untouched.
+        Assertions.assertThat(dsl.get("widgetId")).isEqualTo("originalRootId");
+        JSONObject originalChild = (JSONObject) ((List<?>) dsl.get("children")).get(0);
+        Assertions.assertThat(originalChild.get("widgetId")).isEqualTo("originalChildId");
+        // Regenerated DSL has different widget ids.
+        Assertions.assertThat(regenerated.get("widgetId")).isNotEqualTo("originalRootId");
+    }
+
+    @Test
+    void regenerateWidgetIds_producesNoDuplicateIdsAcrossTree() {
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+
+        JSONArray children = new JSONArray();
+        for (int i = 0; i < 20; i++) {
+            JSONObject child = new JSONObject();
+            child.put("widgetId", "child" + i);
+            child.put("widgetName", "Widget" + i);
+            child.put("parentId", "0");
+            children.add(child);
+        }
+        dsl.put("children", children);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        Set<String> ids = new HashSet<>();
+        ids.add((String) regenerated.get("widgetId"));
+        for (Object child : (List<?>) regenerated.get("children")) {
+            ids.add((String) ((JSONObject) child).get("widgetId"));
+        }
+        // 1 MainContainer + 20 distinct child ids.
+        Assertions.assertThat(ids).hasSize(21);
+    }
+
+    @Test
+    void regenerateWidgetIds_emptyChildrenArray_regeneratesRootId() {
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "rootOldId");
+        dsl.put("widgetName", "Canvas1");
+        dsl.put("children", new ArrayList<>());
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        Assertions.assertThat(regenerated.get("widgetId"))
+                .isNotEqualTo("rootOldId")
+                .asString()
+                .matches("[0-9a-z]{10}");
     }
 }

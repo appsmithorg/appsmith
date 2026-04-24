@@ -35,6 +35,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
+import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -641,7 +642,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             String id = new ObjectId().toString();
                             newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
-                            newLayout.setDsl(layout.getDsl());
+                            // Regenerate widget ids so the cloned page does not collide with the
+                            // source page at application level. The helper preserves referential
+                            // integrity inside the DSL (e.g. parentId), and leaves the root
+                            // MainContainer id ("0") untouched.
+                            newLayout.setDsl(DslUtils.regenerateWidgetIds(layout.getDsl()));
                             return newLayout;
                         })
                         .collectList()
