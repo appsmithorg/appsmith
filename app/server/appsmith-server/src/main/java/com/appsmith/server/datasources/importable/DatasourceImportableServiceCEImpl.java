@@ -78,6 +78,29 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         return null;
     }
 
+    /**
+     * Nulls the primary key, self-locating foreign keys ({@code datasourceId}, {@code environmentId},
+     * {@code workspaceId}) and audit fields on every {@link DatasourceStorage} in the incoming JSON. This
+     * prevents a crafted payload from overwriting an existing datasource row via an attacker-controlled
+     * id, and from side-stepping workspace / environment scoping. The importer resolves a datasource from
+     * the workspace using its {@code name} and {@code pluginId}, not the incoming id.
+     *
+     * <p>Delegates to {@link DatasourceStorage#sanitiseToExportDBObject()}, which centralises the
+     * DatasourceStorage-specific identity stripping alongside the common {@code BaseDomain} cleanup.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (artifactExchangeJson == null || artifactExchangeJson.getDatasourceList() == null) {
+            return;
+        }
+        artifactExchangeJson.getDatasourceList().forEach(datasourceStorage -> {
+            if (datasourceStorage != null) {
+                datasourceStorage.sanitiseToExportDBObject();
+                datasourceStorage.makePristine();
+            }
+        });
+    }
+
     // Requires pluginMap to be present in importable resources.
     // Updates datasourceNameToIdMap in importable resources.
     // Also directly updates required information in DB

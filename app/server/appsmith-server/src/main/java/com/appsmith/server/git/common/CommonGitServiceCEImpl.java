@@ -737,14 +737,14 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                         return exportService
                                                 .exportByArtifactId(artifactId, VERSION_CONTROL, artifactType)
                                                 .flatMap(artifactExchangeJson -> {
-                                                    artifactExchangeJson
-                                                            .getArtifact()
-                                                            .setGitArtifactMetadata(gitArtifactMetadata);
-                                                    return importService.importArtifactInWorkspaceFromGit(
-                                                            workspaceId,
-                                                            artifactId,
-                                                            artifactExchangeJson,
-                                                            defaultBranch);
+                                                    artifact.setGitArtifactMetadata(gitArtifactMetadata);
+                                                    return gitArtifactHelper
+                                                            .saveArtifact(artifact)
+                                                            .then(importService.importArtifactInWorkspaceFromGit(
+                                                                    workspaceId,
+                                                                    artifactId,
+                                                                    artifactExchangeJson,
+                                                                    defaultBranch));
                                                 });
                                     }
                                 })
@@ -3276,7 +3276,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         gitArtifactMetadata.setLastCommittedAt(Instant.now());
 
                         artifact.setGitArtifactMetadata(gitArtifactMetadata);
-                        return Mono.just(artifact).zipWith(profileMono);
+                        return gitArtifactHelper.saveArtifact(artifact).zipWith(profileMono);
                     });
                 })
                 .flatMap(objects -> {
@@ -3343,7 +3343,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                     "Datasource already exists with the same name")));
                                 }
 
-                                artifactExchangeJson.getArtifact().setGitArtifactMetadata(gitArtifactMetadata);
                                 return importService
                                         .importArtifactInWorkspaceFromGit(
                                                 workspaceId, artifact.getId(), artifactExchangeJson, defaultBranch)

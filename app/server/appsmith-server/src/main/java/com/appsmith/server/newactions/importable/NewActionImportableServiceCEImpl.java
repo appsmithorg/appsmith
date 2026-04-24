@@ -59,6 +59,31 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         return applicationImportableService;
     }
 
+    /**
+     * Strips audit fields, policies, git metadata, and foreign-key pointers on every {@link NewAction}
+     * carried by the incoming JSON.
+     *
+     * <p><b>Deliberate carve-out:</b> {@link NewAction#getId()} is <em>not</em> nulled here. Exported JSON
+     * stores a synthetic composite id of the form {@code pageName_actionName} on each action, which the
+     * importer consumes as a wiring key to remap {@code layoutOnLoadActions} and related cross-references
+     * before the action is saved. Nulling the id at this layer would break that wiring.
+     *
+     * <p>Save-time safety for the primary key is provided by the existing
+     * {@code newAction.makePristine()} call inside {@code prepareActionForImport}, which runs immediately
+     * before {@code repository.save} and nulls the composite id once it is no longer needed for wiring.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (artifactExchangeJson == null || artifactExchangeJson.getActionList() == null) {
+            return;
+        }
+        artifactExchangeJson.getActionList().forEach(newAction -> {
+            if (newAction != null) {
+                newAction.sanitiseToExportDBObject();
+            }
+        });
+    }
+
     // Requires contextNameMap, contextNameToOldNameMap, pluginMap and datasourceNameToIdMap, to be present in
     // importable resources.
     // Updates actionResultDTO in importable resources.
