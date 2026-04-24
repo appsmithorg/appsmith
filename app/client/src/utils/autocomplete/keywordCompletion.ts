@@ -1,4 +1,5 @@
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
+import { renderKeywordHint } from "./keywordHintRenderer";
 
 export const getCompletionsForKeyword = (
   completion: Completion<TernCompletionResult>,
@@ -19,8 +20,7 @@ export const getCompletionsForKeyword = (
         name: "for-loop",
         text: `for(let i=0;i < array.length;i++){\n${indentationSpace}\tconst element = array[i];\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "For Loop");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "For Loop");
         },
       });
       completions.push({
@@ -28,8 +28,7 @@ export const getCompletionsForKeyword = (
         name: "for-in-loop",
         text: `for(const key in object) {\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "For-in Loop");
-          element.innerHTML = "forin";
+          renderKeywordHint(element, "forin", "For-in Loop");
         },
       });
       completions.push({
@@ -37,8 +36,7 @@ export const getCompletionsForKeyword = (
         name: "for-of-loop",
         text: `for(const iterator of object){\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "For-of Loop");
-          element.innerHTML = "forof";
+          renderKeywordHint(element, "forof", "For-of Loop");
         },
       });
       break;
@@ -49,8 +47,7 @@ export const getCompletionsForKeyword = (
         name: "while-loop",
         text: `while(condition){\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "While Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "While Statement");
         },
       });
       break;
@@ -61,8 +58,7 @@ export const getCompletionsForKeyword = (
         name: "do-while-statement",
         text: `do{\n\n${indentationSpace}} while (condition);`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "do-While Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "do-While Statement");
         },
       });
       break;
@@ -74,8 +70,7 @@ export const getCompletionsForKeyword = (
         name: "if-statement",
         text: `if(condition){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "if Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "if Statement");
         },
       });
 
@@ -86,8 +81,7 @@ export const getCompletionsForKeyword = (
         name: "switch-statement",
         text: `switch(key){\n${indentationSpace}\tcase value:\n${indentationSpace}\t\tbreak;\n${indentationSpace}\tdefault:\n${indentationSpace}\t\tbreak;\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "Switch Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "Switch Statement");
         },
       });
 
@@ -98,8 +92,7 @@ export const getCompletionsForKeyword = (
         name: "function-statement",
         text: `function name(params){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "Function Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "Function Statement");
         },
       });
 
@@ -110,8 +103,7 @@ export const getCompletionsForKeyword = (
         name: "try-catch",
         text: `try{\n\n${indentationSpace}}catch(error){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "Try-catch Statement");
-          element.innerHTML = "try-catch";
+          renderKeywordHint(element, "try-catch", "Try-catch Statement");
         },
       });
       break;
@@ -122,8 +114,7 @@ export const getCompletionsForKeyword = (
         name: "throw-exception",
         text: `throw new Error("");`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "Throw Exception");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "Throw Exception");
         },
       });
       break;
@@ -133,8 +124,7 @@ export const getCompletionsForKeyword = (
         name: "new-statement",
         text: `const name = new type(arguments);`,
         render: (element: HTMLElement) => {
-          element.setAttribute("keyword", "new Statement");
-          element.innerHTML = completion.text;
+          renderKeywordHint(element, completion.text, "new Statement");
         },
       });
       break;
@@ -145,8 +135,11 @@ export const getCompletionsForKeyword = (
           name: "async-function",
           text: `async function() {\n\n${indentationSpace}}`,
           render: (element: HTMLElement) => {
-            element.setAttribute("keyword", "async Function Statement");
-            element.innerHTML = completion.text;
+            renderKeywordHint(
+              element,
+              completion.text,
+              "async Function Statement",
+            );
           },
         },
         {
@@ -154,8 +147,11 @@ export const getCompletionsForKeyword = (
           name: "async-arrow-function",
           text: `async () => {\n\n${indentationSpace}}`,
           render: (element: HTMLElement) => {
-            element.setAttribute("keyword", "async Arrow Function Statement");
-            element.innerHTML = completion.text;
+            renderKeywordHint(
+              element,
+              completion.text,
+              "async Arrow Function Statement",
+            );
           },
         },
       );

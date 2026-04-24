@@ -136,19 +136,21 @@ public class DatasourceStorage extends GitSyncedDomain {
         return CollectionUtils.isEmpty(invalids);
     }
 
-    public void sanitiseToExportResource(Map<String, String> pluginMap) {
+    @Override
+    public void sanitiseToExportDBObject() {
         this.setDatasourceId(null);
         this.setEnvironmentId(null);
-        this.setPolicies(null);
-        this.setUpdatedAt(null);
-        this.setCreatedAt(null);
-        this.setUserPermissions(null);
         this.setIsConfigured(null);
         this.setInvalids(null);
         this.setId(null);
         this.setWorkspaceId(null);
-        this.setPluginId(pluginMap.get(this.getPluginId()));
         this.setIsRecentlyCreated(null);
+        super.sanitiseToExportDBObject();
+    }
+
+    public void sanitiseToExportResource(Map<String, String> pluginMap) {
+        this.sanitiseToExportDBObject();
+        this.setPluginId(pluginMap.get(this.getPluginId()));
     }
 
     @JsonView({Views.Internal.class})
