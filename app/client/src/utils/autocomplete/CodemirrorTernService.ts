@@ -13,6 +13,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
+import { renderKeywordHint } from "./keywordHintRenderer";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
@@ -605,13 +606,12 @@ class CodeMirrorTernService {
           element: HTMLElement,
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          self: any,
+          _self: any,
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data: any,
         ) => {
-          element.setAttribute("keyword", data.displayText);
-          element.innerHTML = data.displayText;
+          renderKeywordHint(element, data.displayText);
         };
 
         const trimmedFocusedValueLength = lineValue
