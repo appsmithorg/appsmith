@@ -96,29 +96,35 @@ public class DslUtils {
             Map<String, Object> typedMap = (Map<String, Object>) mapNode;
             for (Map.Entry<String, Object> entry : typedMap.entrySet()) {
                 Object value = entry.getValue();
-                if (value instanceof String stringValue) {
+                if (value instanceof String stringValue && isWidgetIdReferenceKey(entry.getKey())) {
+                    // Only rewrite string values at keys that denote a widget id reference
+                    // (e.g. widgetId, parentId, mainCanvasId, selectedTabWidgetId). This avoids
+                    // clobbering fields like widgetName or user content strings that might
+                    // coincidentally match a widget id.
                     String replacement = oldToNewWidgetIdMap.get(stringValue);
                     if (replacement != null) {
                         entry.setValue(replacement);
                     }
-                } else {
+                } else if (!(value instanceof String)) {
                     rewriteWidgetIdReferences(value, oldToNewWidgetIdMap);
                 }
             }
         } else if (node instanceof List<?> listNode) {
-            List<Object> typedList = (List<Object>) listNode;
-            for (int i = 0; i < typedList.size(); i++) {
-                Object element = typedList.get(i);
-                if (element instanceof String stringValue) {
-                    String replacement = oldToNewWidgetIdMap.get(stringValue);
-                    if (replacement != null) {
-                        typedList.set(i, replacement);
-                    }
-                } else {
+            for (Object element : listNode) {
+                if (!(element instanceof String)) {
                     rewriteWidgetIdReferences(element, oldToNewWidgetIdMap);
                 }
             }
         }
+    }
+
+    private static boolean isWidgetIdReferenceKey(String key) {
+        // DSL fields that hold widget id references follow the camelCase convention of ending
+        // with "Id" (widgetId, parentId, mainCanvasId, referencedWidgetId, selectedTabWidgetId,
+        // prefixMetaWidgetId, ...). Fields that happen to end with "Id" but hold non-widget-id
+        // values (e.g. tabId -> "tab1") are safe because the value lookup in the oldToNew map
+        // still acts as a second filter.
+        return key != null && key.endsWith("Id");
     }
 
     private static JSONObject deepCopy(JSONObject source) {

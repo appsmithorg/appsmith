@@ -256,6 +256,49 @@ class DslUtilsTest {
     }
 
     @Test
+    void regenerateWidgetIds_doesNotRewriteNonIdReferenceFieldsThatMatchAWidgetId() {
+        // Guard against false-positive rewrites: if a non-id field (e.g. widgetName, user text
+        // content, dynamic binding paths) happens to contain the same string as a widget id,
+        // the rewriter must leave it alone.
+        JSONObject child = new JSONObject();
+        child.put("widgetId", "Table1");
+        // widgetName deliberately shares the same value as the widgetId (as Appsmith's
+        // PageServiceTest fixtures do). It must survive the regeneration unchanged.
+        child.put("widgetName", "Table1");
+        child.put("parentId", "0");
+        // A plain text field whose content happens to equal the widget id must also survive.
+        child.put("text", "Table1");
+        // Dynamic binding path lists reference property names (e.g. "primaryColumns._id"),
+        // never widget ids. They must survive untouched even if a path fragment matches.
+        JSONArray bindingPaths = new JSONArray();
+        JSONObject pathEntry = new JSONObject();
+        pathEntry.put("key", "Table1");
+        bindingPaths.add(pathEntry);
+        child.put("dynamicBindingPathList", bindingPaths);
+
+        JSONArray children = new JSONArray();
+        children.add(child);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", children);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        JSONObject regeneratedChild = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
+        String newWidgetId = (String) regeneratedChild.get("widgetId");
+
+        Assertions.assertThat(newWidgetId).isNotEqualTo("Table1").matches("[0-9a-z]{10}");
+        Assertions.assertThat(regeneratedChild.get("widgetName")).isEqualTo("Table1");
+        Assertions.assertThat(regeneratedChild.get("text")).isEqualTo("Table1");
+        Assertions.assertThat(regeneratedChild.get("parentId")).isEqualTo("0");
+        JSONObject regeneratedPathEntry =
+                (JSONObject) ((List<?>) regeneratedChild.get("dynamicBindingPathList")).get(0);
+        Assertions.assertThat(regeneratedPathEntry.get("key")).isEqualTo("Table1");
+    }
+
+    @Test
     void regenerateWidgetIds_emptyChildrenArray_regeneratesRootId() {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetId", "rootOldId");
