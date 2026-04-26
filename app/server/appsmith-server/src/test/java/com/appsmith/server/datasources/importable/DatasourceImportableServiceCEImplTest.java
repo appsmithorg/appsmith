@@ -11,6 +11,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,12 +38,15 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
     @Mock
     DatasourceStorageService datasourceStorageService;
 
+    @Mock
+    DatasourcePermission datasourcePermission;
+
     DatasourceImportableServiceCEImpl importService;
 
     @BeforeEach
     void setUp() {
-        importService =
-                new DatasourceImportableServiceCEImpl(datasourceService, workspaceService, datasourceStorageService);
+        importService = new DatasourceImportableServiceCEImpl(
+                datasourceService, workspaceService, datasourceStorageService, datasourcePermission);
     }
 
     // Helper to call the private method using reflection
