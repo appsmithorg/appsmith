@@ -4,18 +4,24 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +30,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DatasourceImportableServiceCEImplTest { // Renamed class to match convention
@@ -37,12 +48,15 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
     @Mock
     DatasourceStorageService datasourceStorageService;
 
+    @Mock
+    DatasourcePermission datasourcePermission;
+
     DatasourceImportableServiceCEImpl importService;
 
     @BeforeEach
     void setUp() {
-        importService =
-                new DatasourceImportableServiceCEImpl(datasourceService, workspaceService, datasourceStorageService);
+        importService = new DatasourceImportableServiceCEImpl(
+                datasourceService, workspaceService, datasourceStorageService, datasourcePermission);
     }
 
     // Helper to call the private method using reflection
@@ -227,5 +241,28 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
         callUpdateAuthenticationDTOWithReflection(storage, decryptedFields);
 
         assertNull(dsConfig.getAuthentication(), "Authentication should not be set if authType is null");
+    }
+
+    @Test
+    @DisplayName("GHSA-93mf-9h52-gfxp: getEntitiesPresentInWorkspace must enforce READ_DATASOURCES permission")
+    void should_enforceReadPermission_when_getEntitiesPresentInWorkspace_isCalled() {
+        // Given
+        String workspaceId = "workspace1";
+        Datasource ds = new Datasource();
+        ds.setId("ds1");
+        ds.setName("TestDS");
+        when(datasourcePermission.getReadPermission()).thenReturn(AclPermission.READ_DATASOURCES);
+        when(datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, AclPermission.READ_DATASOURCES))
+                .thenReturn(Flux.just(ds));
+
+        // When
+        Flux<Datasource> result = importService.getEntitiesPresentInWorkspace(workspaceId);
+
+        // Then
+        StepVerifier.create(result)
+                .expectNextCount(1)
+                .verifyComplete();
+        verify(datasourceService).getAllByWorkspaceIdWithStorages(workspaceId, AclPermission.READ_DATASOURCES);
+        verify(datasourceService, never()).getAllByWorkspaceIdWithStorages(eq(workspaceId), isNull());
     }
 }
