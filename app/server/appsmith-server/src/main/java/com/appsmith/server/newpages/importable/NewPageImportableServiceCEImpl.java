@@ -60,6 +60,26 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         return null;
     }
 
+    /**
+     * Nulls the primary key, base-branch pointer, audit fields and policies on every {@link NewPage}
+     * carried by the incoming {@link ApplicationJson}, so an attacker-controlled {@code id} in the JSON
+     * cannot overwrite an existing page row at save time. {@code gitSyncId} is retained as the legitimate
+     * correlation key used by the importer to match against existing DB records.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (!(artifactExchangeJson instanceof ApplicationJson applicationJson)
+                || applicationJson.getPageList() == null) {
+            return;
+        }
+        applicationJson.getPageList().forEach(newPage -> {
+            if (newPage != null) {
+                newPage.sanitiseToExportDBObject();
+                newPage.makePristine();
+            }
+        });
+    }
+
     // Updates pageNameToIdMap and pageNameMap in importable resources.
     // Also, directly updates required information in DB
     @Override

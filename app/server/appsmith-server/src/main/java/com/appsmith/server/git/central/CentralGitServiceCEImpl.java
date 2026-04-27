@@ -277,7 +277,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     return workspaceMono
                             .flatMap(workspace -> createArtifactForGitConnect(
                                     gitConnectDTO, artifactType, workspaceId, repoName, uniqueIdentifier))
-                            .map(baseArtifact -> {
+                            .flatMap(baseArtifact -> {
                                 GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                                 gitArtifactMetadata.setGitAuth(gitAuth);
                                 gitArtifactMetadata.setDefaultArtifactId(baseArtifact.getId());
@@ -290,7 +290,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 gitHandlingService.setRepositoryDetailsInGitArtifactMetadata(
                                         gitConnectDTO, gitArtifactMetadata);
                                 baseArtifact.setGitArtifactMetadata(gitArtifactMetadata);
-                                return baseArtifact;
+                                return gitArtifactHelperResolver
+                                        .getArtifactHelper(baseArtifact.getArtifactType())
+                                        .saveArtifact(baseArtifact);
                             });
                 })
                 .onErrorResume(error -> {
@@ -365,7 +367,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             "Datasource already exists with the same name"));
                                 }
 
-                                artifactExchangeJson.getArtifact().setGitArtifactMetadata(baseGitMetadata);
                                 return importService
                                         .importArtifactInWorkspaceFromGit(
                                                 workspaceId, baseArtifact.getId(), artifactExchangeJson, defaultBranch)
@@ -1277,9 +1278,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return exportService
                                         .exportByArtifactId(artifactId, VERSION_CONTROL, artifactType)
                                         .flatMap(artifactJson -> {
-                                            artifactJson.getArtifact().setGitArtifactMetadata(gitArtifactMetadata);
-                                            return importService.importArtifactInWorkspaceFromGit(
-                                                    workspaceId, artifactId, artifactJson, defaultBranch);
+                                            artifact.setGitArtifactMetadata(gitArtifactMetadata);
+                                            return gitArtifactHelper
+                                                    .saveArtifact(artifact)
+                                                    .then(importService.importArtifactInWorkspaceFromGit(
+                                                            workspaceId, artifactId, artifactJson, defaultBranch));
                                         });
                             })
                             .onErrorResume(e -> {
