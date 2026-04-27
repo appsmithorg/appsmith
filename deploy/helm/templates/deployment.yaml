@@ -103,7 +103,7 @@ spec:
         - name: {{ .Values.containerName }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          {{- $customImage := .Values._image | default dict }}
+          {{- $customImage := coalesce .Values._image .Values.image dict }}
           image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
           imagePullPolicy: {{ dig "pullPolicy" "IfNotPresent" $customImage }}
           ports:
