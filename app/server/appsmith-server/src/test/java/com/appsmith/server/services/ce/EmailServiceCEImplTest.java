@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -36,6 +37,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest
+// GHSA-j9gf-vw2f-9hrw: invite/admin-invite flows now require APPSMITH_BASE_URL to be configured
+// (auth-gated, so they fail closed with a configuration error rather than silent success).
+// Set it to the value the tests pass as the Origin header so the strict-match path activates.
+@TestPropertySource(properties = "APPSMITH_BASE_URL=http://example.com")
 class EmailServiceCEImplTest {
 
     @SpyBean
