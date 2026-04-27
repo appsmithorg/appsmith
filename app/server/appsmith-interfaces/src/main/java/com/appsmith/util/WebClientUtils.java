@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -196,6 +197,57 @@ public class WebClientUtils {
         protected AddressResolver<InetSocketAddress> newResolver(EventExecutor executor) {
             return new InetSocketAddressResolver(executor, new NameResolver(executor));
         }
+    }
+
+    /**
+     * Resolves a hostname and validates that none of its addresses are disallowed for
+     * outbound connections from non-HTTP paths (e.g. SMTP via JavaMail). Checks against
+     * the cloud-metadata denylist, loopback, link-local, any-local, multicast, and IPv6
+     * Unique Local Addresses (fc00::/7). Returns the first validated resolved address so
+     * callers can connect to it directly, preventing DNS-rebinding TOCTOU bypasses.
+     *
+     * <p>RFC 1918 site-local ranges (10/8, 172.16/12, 192.168/16) are intentionally
+     * allowed because legitimate SMTP servers frequently reside on private networks.
+     *
+     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked
+     */
+    public static Optional<InetAddress> resolveIfAllowed(String host) {
+        if (!StringUtils.hasText(host)) {
+            return Optional.empty();
+        }
+
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+
+        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
+            return Optional.empty();
+        }
+
+        final InetAddress[] resolved;
+        try {
+            resolved = InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            return Optional.empty();
+        }
+
+        for (InetAddress addr : resolved) {
+            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
+                return Optional.empty();
+            }
+            if (addr instanceof Inet6Address) {
+                byte firstByte = addr.getAddress()[0];
+                if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
+                    return Optional.empty();
+                }
+            }
+            if (addr.isLoopbackAddress()
+                    || addr.isLinkLocalAddress()
+                    || addr.isAnyLocalAddress()
+                    || addr.isMulticastAddress()) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.of(resolved[0]);
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {

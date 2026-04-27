@@ -7,7 +7,7 @@ import {
 
 describe(
   "Test curl import flow",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Test curl import flow for POST action with JSON body", function () {
       cy.fixture("datasources").then((datasourceFormData) => {

@@ -5,7 +5,15 @@ import type { EntityTypeValue } from "ee/entities/DataTree/types";
 
 export const APPSMITH_AI = "Appsmith AI";
 
-export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
+export function isAISupportedMode(mode: TEditorModes) {
+  return false;
+}
+
+export function isAIEnabled(
+  ff: FeatureFlags,
+  mode: TEditorModes,
+  hasApiKey?: boolean,
+) {
   return false;
 }
 

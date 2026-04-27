@@ -7,7 +7,10 @@ import {
   LABEL_MARGIN_OLD_SELECT,
   SELECT_DEFAULT_HEIGHT,
 } from "components/constants";
-import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import {
+  CommonSelectFilterStyle,
+  RcVirtualListScrollbarStyles,
+} from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
   Icon,
   labelLayoutStyles,
@@ -277,6 +280,7 @@ border: 1px solid #E8E8E8;
 						outline: none !important;
     }
     ${CommonSelectFilterStyle}
+    ${RcVirtualListScrollbarStyles}
     .rc-tree-select-item {
 	font-size: 16px;
 	line-height: 1.5;

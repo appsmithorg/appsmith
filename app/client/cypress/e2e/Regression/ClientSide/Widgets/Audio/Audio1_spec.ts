@@ -14,7 +14,7 @@ const URL = "https://assets.appsmith.com/widgets/birds_chirping.mp3";
 
 describe(
   "Audio Widget functionality tests",
-  { tags: ["@tag.Audio", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.Widget", "@tag.Audio", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);

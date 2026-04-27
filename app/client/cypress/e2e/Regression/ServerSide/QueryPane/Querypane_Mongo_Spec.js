@@ -23,7 +23,7 @@ let datasourceName;
 describe(
   "Validate Mongo query commands",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     // afterEach(function() {

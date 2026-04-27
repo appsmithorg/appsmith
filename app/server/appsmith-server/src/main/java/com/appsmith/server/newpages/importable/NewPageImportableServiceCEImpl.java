@@ -60,6 +60,26 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         return null;
     }
 
+    /**
+     * Nulls the primary key, base-branch pointer, audit fields and policies on every {@link NewPage}
+     * carried by the incoming {@link ApplicationJson}, so an attacker-controlled {@code id} in the JSON
+     * cannot overwrite an existing page row at save time. {@code gitSyncId} is retained as the legitimate
+     * correlation key used by the importer to match against existing DB records.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (!(artifactExchangeJson instanceof ApplicationJson applicationJson)
+                || applicationJson.getPageList() == null) {
+            return;
+        }
+        applicationJson.getPageList().forEach(newPage -> {
+            if (newPage != null) {
+                newPage.sanitiseToExportDBObject();
+                newPage.makePristine();
+            }
+        });
+    }
+
     // Updates pageNameToIdMap and pageNameMap in importable resources.
     // Also, directly updates required information in DB
     @Override
@@ -597,24 +617,11 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             });
         }
 
-        if (page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
-
-            page.getPublishedPage().getLayouts().forEach(layout -> {
-                if (layout.getLayoutOnLoadActions() != null) {
-                    layout.getLayoutOnLoadActions()
-                            .forEach(onLoadAction -> onLoadAction.forEach(actionDTO -> {
-                                String oldActionDTOId = actionDTO.getId();
-                                actionDTO.setId(actionIdMap.get(oldActionDTOId));
-                                if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdsMap)
-                                        && publishedActionIdToCollectionIdsMap.containsKey(actionDTO.getId())) {
-                                    actionDTO.setCollectionId(
-                                            publishedActionIdToCollectionIdsMap.get(actionDTO.getId()));
-                                }
-                                layoutOnLoadActions.add(actionDTO.getId());
-                            }));
-                }
-            });
-        }
+        // Published page layouts must NOT be modified during import.
+        // The published state is only updated by the explicit publishPages step during a successful deploy.
+        // Mutating published layouts here with the import's actionIdMap (which maps Git IDs, not production IDs)
+        // corrupts published layoutOnLoadActions — the production action IDs get replaced with null/wrong values.
+        // See: APP-15122
 
         layoutOnLoadActions.remove(null);
         return layoutOnLoadActions;
