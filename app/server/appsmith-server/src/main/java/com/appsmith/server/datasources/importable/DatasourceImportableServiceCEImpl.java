@@ -603,7 +603,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
 
     @Override
     public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(
-                workspaceId, datasourcePermission.getReadPermission());
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getReadPermission());
     }
 }

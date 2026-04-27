@@ -259,9 +259,7 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
         Flux<Datasource> result = importService.getEntitiesPresentInWorkspace(workspaceId);
 
         // Then
-        StepVerifier.create(result)
-                .expectNextCount(1)
-                .verifyComplete();
+        StepVerifier.create(result).expectNextCount(1).verifyComplete();
         verify(datasourceService).getAllByWorkspaceIdWithStorages(workspaceId, AclPermission.READ_DATASOURCES);
         verify(datasourceService, never()).getAllByWorkspaceIdWithStorages(eq(workspaceId), isNull());
     }
