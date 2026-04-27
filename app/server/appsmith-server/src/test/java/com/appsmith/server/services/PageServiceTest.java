@@ -948,7 +948,12 @@ public class PageServiceTest {
                     assertThat(clonedDsl.get("widgetId")).isNotEqualTo("firstWidget");
                     Object clonedChildren = clonedDsl.get("children");
                     assertThat(clonedChildren).isInstanceOf(List.class);
-                    JSONObject clonedChild = (JSONObject) ((List<?>) clonedChildren).get(0);
+                    // After persisting the cloned page and reading it back, nested DSL nodes
+                    // come back as LinkedHashMap rather than net.minidev.json.JSONObject, so we
+                    // assert against the generic Map contract instead of casting to JSONObject.
+                    Object firstChild = ((List<?>) clonedChildren).get(0);
+                    assertThat(firstChild).isInstanceOf(Map.class);
+                    Map<?, ?> clonedChild = (Map<?, ?>) firstChild;
                     assertThat(clonedChild.get("widgetName")).isEqualTo("Table1");
                     assertThat(clonedChild.get("widgetId")).isNotEqualTo("Table1");
                     assertThat(unpublishedPage.getLayouts().get(0).getWidgetNames())
