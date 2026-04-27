@@ -50,6 +50,27 @@ public interface ArtifactBasedImportServiceCE<
      */
     void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
+    /**
+     * Strips identity fields (e.g. primary key {@code id}, {@code baseId}, foreign-key pointers like
+     * {@code gitApplicationMetadata} or {@code datasourceId}, plus audit fields like {@code createdAt},
+     * {@code updatedAt}, {@code policies}) from every domain object reachable through the
+     * {@link ArtifactExchangeJson}. Retains the legitimate correlation key {@code gitSyncId} and any
+     * name-based cross-references the importer rewires via name-maps.
+     *
+     * <p>This is a defensive step invoked once at the top of the import pipeline, before validation and
+     * before any importable service consumes the JSON. It ensures that a crafted or otherwise polluted
+     * JSON cannot overwrite existing database documents by carrying attacker-controlled ids.
+     *
+     * <p>Implementations should delegate to the canonical {@code sanitiseToExportDBObject()} and
+     * {@code makePristine()} on each entity, mirroring what a freshly-exported JSON looks like, with a
+     * narrow carve-out for entities whose composite {@code id} is consumed by the importer as a wiring
+     * key (e.g. {@code NewAction}/{@code ActionCollection}); those entities rely on the existing
+     * save-time {@code makePristine()} in their per-service importers.
+     *
+     * @param artifactExchangeJson the incoming JSON payload; mutated in place
+     */
+    default void sanitizeJsonForImport(ArtifactExchangeJson artifactExchangeJson) {}
+
     U getImportableArtifactDTO(Artifact importableArtifact, List<Datasource> datasourceList, String environmentId);
 
     /**

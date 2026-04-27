@@ -41,4 +41,27 @@ public interface ImportableServiceCE<T extends BaseDomain> {
     default Flux<T> getEntitiesPresentInWorkspace(String workspaceId) {
         return null;
     }
+
+    /**
+     * Strips identity fields (primary key {@code id}, {@code baseId}, foreign-key pointers, git metadata,
+     * audit fields, policies) from the slice of the {@link ArtifactExchangeJson} that this service owns,
+     * so that a crafted or otherwise polluted payload cannot overwrite existing DB documents via
+     * attacker-controlled ids.
+     *
+     * <p>Invoked once at the top of the import pipeline, before validation and before any importable
+     * service consumes the JSON. Retains {@code gitSyncId} and name-based cross-references which are the
+     * legitimate glue the importer rewires via name-maps.
+     *
+     * <p>Implementations should delegate to the canonical {@code sanitiseToExportDBObject()} and
+     * {@code makePristine()} on each entity they own. Services whose entities expose a composite id that
+     * the importer consumes as a wiring key (e.g. {@code NewAction} / {@code ActionCollection} using
+     * {@code pageName_actionName}) may skip {@code makePristine()} here and rely on the existing
+     * save-time {@code makePristine()} in their own {@code importEntities} pipeline.
+     *
+     * <p>Default is a no-op so services that don't own any JSON-level list (e.g. context-agnostic helpers)
+     * don't need to override.
+     *
+     * @param artifactExchangeJson the incoming JSON payload; mutated in place
+     */
+    default void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {}
 }

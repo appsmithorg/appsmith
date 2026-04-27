@@ -423,6 +423,20 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         Mono<? extends ArtifactExchangeJson> migratedArtifactJsonMono = artifactBasedImportService
                 .migrateArtifactExchangeJson(branchedArtifactId, artifactExchangeJson)
                 .flatMap(importedDoc -> {
+                    // Step 1.5: Defensive identity-field sanitisation of the incoming JSON.
+                    // Nulls primary keys, base-branch pointers, audit fields, policies and git metadata on
+                    // every reachable domain object before any downstream service consumes the payload.
+                    // This prevents a crafted or otherwise polluted JSON from overwriting existing DB
+                    // documents via attacker-controlled ids. Retains {@code gitSyncId} and name-based
+                    // cross-references which are the legitimate glue the importer rewires via name-maps.
+                    //
+                    // Datasource is sanitised centrally (it is a cross-cutting entity shared across all
+                    // artifact types). Artifact-specific entities (pages, actions, collections, modules,
+                    // module instances, themes, jslibs) are sanitised by the artifact-based import
+                    // service, which delegates to each per-entity ImportableService.
+                    datasourceImportableService.sanitizeEntitiesInJsonForImport(importedDoc);
+                    artifactBasedImportService.sanitizeJsonForImport(importedDoc);
+
                     // Step 2: Validation of artifact JSON
                     // check for validation error and raise exception if error found
                     String errorField = validateArtifactExchangeJson(importedDoc);
