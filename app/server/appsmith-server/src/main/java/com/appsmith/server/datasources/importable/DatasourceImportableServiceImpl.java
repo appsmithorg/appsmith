@@ -5,6 +5,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +15,8 @@ public class DatasourceImportableServiceImpl extends DatasourceImportableService
     public DatasourceImportableServiceImpl(
             DatasourceService datasourceService,
             WorkspaceService workspaceService,
-            DatasourceStorageService datasourceStorageService) {
-        super(datasourceService, workspaceService, datasourceStorageService);
+            DatasourceStorageService datasourceStorageService,
+            DatasourcePermission datasourcePermission) {
+        super(datasourceService, workspaceService, datasourceStorageService, datasourcePermission);
     }
 }
