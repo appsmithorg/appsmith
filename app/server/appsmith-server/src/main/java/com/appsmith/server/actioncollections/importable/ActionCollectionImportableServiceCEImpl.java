@@ -46,6 +46,31 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         return applicationImportableService;
     }
 
+    /**
+     * Strips audit fields, policies, git metadata and foreign-key pointers on every
+     * {@link ActionCollection} carried by the incoming JSON.
+     *
+     * <p><b>Deliberate carve-out:</b> {@link ActionCollection#getId()} is <em>not</em> nulled here. Like
+     * {@code NewAction}, exported JSON stores a synthetic composite id of the form
+     * {@code pageName_collectionName} that the importer consumes as a wiring key for name-to-id remapping
+     * before the collection is saved.
+     *
+     * <p>Save-time safety for the primary key is provided by the existing
+     * {@code actionCollection.makePristine()} call inside this service's import pipeline, which runs
+     * immediately before the collection is persisted.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (artifactExchangeJson == null || artifactExchangeJson.getActionCollectionList() == null) {
+            return;
+        }
+        artifactExchangeJson.getActionCollectionList().forEach(actionCollection -> {
+            if (actionCollection != null) {
+                actionCollection.sanitiseToExportDBObject();
+            }
+        });
+    }
+
     // Requires contextNameMap, contextNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
     // resources.
     // Updates actionCollectionResultDTO in importable resources.
