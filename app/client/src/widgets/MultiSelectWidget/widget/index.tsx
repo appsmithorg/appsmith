@@ -564,7 +564,6 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         isRequired={this.props.isRequired}
-        isRequired={this.props.isRequired}
         isValid={this.props.isValid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
