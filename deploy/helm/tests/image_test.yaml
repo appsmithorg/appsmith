@@ -45,3 +45,20 @@ tests:
       - equal:
           path: spec.template.spec.containers[?(@.name == "appsmith")].image
           value: quay.io/myorg/custom-appsmith:2.0.0
+  - name: _image should partially override image fields when some keys set
+    set:
+      image:
+        registry: quay.io
+        repository: myorg/base-appsmith
+        tag: "2.1.0"
+        pullPolicy: IfNotPresent
+      _image:
+        repository: myorg/override-appsmith
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: quay.io/myorg/override-appsmith:2.1.0
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].imagePullPolicy
+          value: Always
