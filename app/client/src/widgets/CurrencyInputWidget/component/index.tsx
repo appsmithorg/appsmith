@@ -48,9 +48,7 @@ class CurrencyInputComponent extends React.Component<CurrencyInputComponentProps
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
-        iconName={this.props.iconName}
-        
-        
+        iconName={this.props.iconName}   
         inputHTMLType="NUMBER"
         inputType={InputTypes.CURRENCY}
         intent={this.props.intent}

@@ -17,8 +17,8 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "ee/constants/messages";
-import type { InputMode, NumberInputStepButtonPosition } from "../constants";
-import { InputTypes } from "../constants";
+import { InputMode, InputTypes } from "../constants";
+import type { NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";

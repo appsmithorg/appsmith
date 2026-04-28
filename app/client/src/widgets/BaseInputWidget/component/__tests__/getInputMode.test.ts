@@ -18,3 +18,8 @@ describe("getInputMode", () => {
     expect(getInputMode("TEXT")).toBeUndefined();
   });
 });
+expect(getInputMode()).toBeUndefined();
+
+function expect(arg0: InputMode | undefined) {
+  throw new Error("Function not implemented.");
+}
