@@ -6,6 +6,7 @@ export enum InputTypes {
   EMAIL = "EMAIL",
   PASSWORD = "PASSWORD",
   CURRENCY = "CURRENCY",
+  NONE = "none",
 }
 
 export enum NumberInputStepButtonPosition {
