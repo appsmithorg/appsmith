@@ -183,6 +183,35 @@ public class ApplicationImportServiceCEImpl
     }
 
     /**
+     * Strips identity fields from the incoming {@link ApplicationJson} so a crafted or otherwise polluted
+     * payload cannot overwrite existing database documents via attacker-controlled ids.
+     *
+     * <p>This method handles only the artifact root (the {@link Application} itself). Per-entity
+     * sanitization is delegated to each injected {@link ImportableService#sanitizeEntitiesInJsonForImport
+     * sanitizeEntitiesInJsonForImport} implementation, which keeps the carve-out knowledge (e.g.
+     * {@code NewAction} preserving its composite id as a wiring key) co-located with the service that
+     * owns the entity.
+     */
+    @Override
+    public void sanitizeJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (!(artifactExchangeJson instanceof ApplicationJson applicationJson)) {
+            return;
+        }
+
+        Application exportedApplication = applicationJson.getExportedApplication();
+        if (exportedApplication != null) {
+            exportedApplication.sanitiseToExportDBObject();
+            exportedApplication.makePristine();
+        }
+
+        themeImportableService.sanitizeEntitiesInJsonForImport(applicationJson);
+        newPageImportableService.sanitizeEntitiesInJsonForImport(applicationJson);
+        customJSLibImportableService.sanitizeEntitiesInJsonForImport(applicationJson);
+        newActionImportableService.sanitizeEntitiesInJsonForImport(applicationJson);
+        actionCollectionImportableService.sanitizeEntitiesInJsonForImport(applicationJson);
+    }
+
+    /**
      * this method removes the application name from JSON file as updating the
      * app-name is not supported via import
      * this avoids name conflict during import flow within workspace
@@ -450,14 +479,14 @@ public class ApplicationImportServiceCEImpl
                             return staticUrlService
                                     .generateAndUpdateApplicationSlugForImportsOnExistingApps(
                                             appFromJson, existingAppFromDB)
-                                    .map(newApplication -> {
+                                    .map(appJsonWithUniqueSlug -> {
                                         // This method sets the published mode properties in the imported
                                         // application.When a user imports an application from the git repo,
                                         // since the git only stores the unpublished version, the current
                                         // deployed version in the newly imported app is not updated.
                                         // This function sets the initial deployed version to the same as the
                                         // edit mode one.
-                                        setPropertiesToExistingApplication(newApplication, existingAppFromDB);
+                                        setPropertiesToExistingApplication(appJsonWithUniqueSlug, existingAppFromDB);
                                         return existingAppFromDB;
                                     });
                         })
