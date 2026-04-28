@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Locale;
+import java.util.Objects;
+
 /**
  * CE implementation of {@link SecureBaseUrlResolverCE}.
  *
@@ -14,9 +19,10 @@ import reactor.core.publisher.Mono;
  *
  * <ol>
  *   <li>If {@code APPSMITH_BASE_URL} is configured, it is the only acceptable host. If
- *       the provided value does not match, an {@link AppsmithException} is emitted
- *       (preserves the strict-mode protection added in PR #41426 for
- *       <a href="https://github.com/appsmithorg/appsmith/security/advisories/GHSA-7hf5-mc28-xmcv">GHSA-7hf5-mc28-xmcv</a>).
+ *       the provided value does not match (compared by URL origin — scheme + host + effective port,
+ *       per RFC 6454), an {@link AppsmithException} is emitted. This preserves the strict-mode
+ *       protection added in PR #41426 for
+ *       <a href="https://github.com/appsmithorg/appsmith/security/advisories/GHSA-7hf5-mc28-xmcv">GHSA-7hf5-mc28-xmcv</a>.
  *       The insecure compatibility flag does NOT weaken this branch.</li>
  *   <li>If {@code APPSMITH_BASE_URL} is unset and {@code APPSMITH_ALLOW_INSECURE_ORIGIN_BASED_LINKS}
  *       is true, the legacy behaviour is restored: the caller-supplied value is
@@ -50,7 +56,11 @@ public class SecureBaseUrlResolverCEImpl implements SecureBaseUrlResolverCE {
     @Override
     public Mono<String> resolveSecureBaseUrl(String providedBaseUrl) {
         if (StringUtils.hasText(appsmithBaseUrl)) {
-            if (!appsmithBaseUrl.equals(providedBaseUrl)) {
+            if (!sameOrigin(appsmithBaseUrl, providedBaseUrl)) {
+                log.warn(
+                        "Origin mismatch: provided='{}' does not match configured APPSMITH_BASE_URL='{}'.",
+                        providedBaseUrl,
+                        appsmithBaseUrl);
                 return Mono.error(new AppsmithException(
                         AppsmithError.GENERIC_BAD_REQUEST,
                         "Origin header does not match APPSMITH_BASE_URL configuration."));
@@ -70,5 +80,61 @@ public class SecureBaseUrlResolverCEImpl implements SecureBaseUrlResolverCE {
                 + "email verification, invites) are disabled until APPSMITH_BASE_URL is set. "
                 + "See https://github.com/appsmithorg/appsmith/security/advisories/GHSA-j9gf-vw2f-9hrw");
         return Mono.empty();
+    }
+
+    /**
+     * Compares two URLs by their origin (scheme + host + effective port) per RFC 6454, rather than
+     * by raw string equality. Tolerates insignificant differences such as trailing slashes and
+     * default-port elision (e.g. {@code http://example.com} and {@code http://example.com:80} are
+     * the same origin) while still rejecting any difference in scheme, host, or non-default port.
+     *
+     * <p>Returns {@code false} for any malformed URL or null/blank input. Userinfo, path, query,
+     * and fragment are deliberately ignored — only the security-relevant origin is compared.
+     */
+    private static boolean sameOrigin(String configured, String provided) {
+        if (!StringUtils.hasText(configured) || !StringUtils.hasText(provided)) {
+            return false;
+        }
+        try {
+            URI configuredUri = new URI(configured.trim());
+            URI providedUri = new URI(provided.trim());
+
+            String configuredScheme = lowerCase(configuredUri.getScheme());
+            String providedScheme = lowerCase(providedUri.getScheme());
+            if (!Objects.equals(configuredScheme, providedScheme)) {
+                return false;
+            }
+
+            String configuredHost = lowerCase(configuredUri.getHost());
+            String providedHost = lowerCase(providedUri.getHost());
+            if (configuredHost == null || !Objects.equals(configuredHost, providedHost)) {
+                // Reject when host can't be parsed (e.g. opaque URIs) or hosts differ.
+                return false;
+            }
+
+            return effectivePort(configuredUri) == effectivePort(providedUri);
+        } catch (URISyntaxException e) {
+            log.warn("Failed to parse URL for origin comparison: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private static int effectivePort(URI uri) {
+        int port = uri.getPort();
+        if (port != -1) {
+            return port;
+        }
+        String scheme = lowerCase(uri.getScheme());
+        if ("http".equals(scheme)) {
+            return 80;
+        }
+        if ("https".equals(scheme)) {
+            return 443;
+        }
+        return -1;
+    }
+
+    private static String lowerCase(String value) {
+        return value == null ? null : value.toLowerCase(Locale.ROOT);
     }
 }

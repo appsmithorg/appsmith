@@ -118,4 +118,91 @@ class SecureBaseUrlResolverCEImplTest {
         SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
         assertNotNull(resolver);
     }
+
+    // region URL-origin normalisation — comparison must follow RFC 6454 (scheme + host + effective port),
+    // not raw string equality. Without this, real-world deployments hit spurious mismatches whenever the
+    // configured value and the inbound `Origin` header differ on insignificant syntax (trailing slash,
+    // default-port elision, host case). All accepted matches below resolve to the SAME origin per the
+    // RFC; all rejected ones genuinely differ in scheme, host, or non-default port.
+
+    @Test
+    void resolveSecureBaseUrl_whenConfiguredHasTrailingSlash_andOriginDoesNot_match() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost/", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost"))
+                .expectNext("http://localhost/")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenOriginHasTrailingSlash_andConfiguredDoesNot_match() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost/"))
+                .expectNext("http://localhost")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenOriginHasDefaultHttpPort_andConfiguredOmitsIt_match() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost:80"))
+                .expectNext("http://localhost")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenOriginHasDefaultHttpsPort_andConfiguredOmitsIt_match() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("https://appsmith.example:443"))
+                .expectNext("https://appsmith.example")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenHostCasingDiffers_match() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://Appsmith.Example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("https://appsmith.example"))
+                .expectNext("https://Appsmith.Example")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenSchemesDiffer_errors() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://appsmith.example"))
+                .verifyError(AppsmithException.class);
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenNonDefaultPortsDiffer_errors() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost:8080", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost:9090"))
+                .verifyError(AppsmithException.class);
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenOriginIsMalformed_errors() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("not a url")).verifyError(AppsmithException.class);
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenAttackerUsesUserinfoTrick_errors() throws Exception {
+        // Tricks like https://appsmith.example@evil.com must NOT be accepted as the same origin
+        // as https://appsmith.example. URI parsing places appsmith.example in userinfo and evil.com
+        // as the host — so the host comparison rejects.
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("https://appsmith.example@evil.example"))
+                .verifyError(AppsmithException.class);
+    }
+
+    // endregion
 }
