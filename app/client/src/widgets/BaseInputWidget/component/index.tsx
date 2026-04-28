@@ -424,6 +424,26 @@ export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
 
+/**
+ * Maps input type to appropriate HTML5 inputmode attribute for mobile keyboards
+ * Provides optimal keyboard experience across iOS and Android
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode
+ */
+export const getInputMode = (
+  inputType: InputHTMLType = "TEXT",
+): InputMode | undefined => {
+  switch (inputType) {
+    case "NUMBER":
+      return InputMode.DECIMAL;
+    case "TEL":
+      return InputMode.TEL;
+    case "EMAIL":
+      return InputMode.EMAIL;
+    default:
+      return undefined;
+  }
+};
+
 class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
@@ -500,27 +520,11 @@ class BaseInputComponent extends React.Component<
     }
   }
 
-  /**
-   * Maps input type to appropriate HTML5 inputmode attribute for mobile keyboards
-   * Provides optimal keyboard experience across iOS and Android
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode
-   */
-  getInputMode(inputType: InputHTMLType = "TEXT"): InputMode | undefined {
-    switch (inputType) {
-      // Show decimal point keypad for currency and numeric inputs
-      case "NUMBER":
-        return InputMode.DECIMAL;
-      // Show phone keypad (+, -, *, #) for telephone inputs
-      case "TEL":
-        return InputMode.TEL;
-      // Show email keypad with @ and . symbols
-      case "EMAIL":
-        return InputMode.EMAIL;
-      // Default: let browser decide based on input element type
-      default:
-        return undefined;
-    }
-  }
+  private getInputMode = (
+    inputType: InputHTMLType = "TEXT",
+  ): InputMode | undefined => {
+    return getInputMode(inputType);
+  };
 
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
