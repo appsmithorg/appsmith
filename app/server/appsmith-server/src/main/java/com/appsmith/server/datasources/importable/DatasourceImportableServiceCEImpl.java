@@ -23,6 +23,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,14 +49,17 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
     private final DatasourceService datasourceService;
     private final WorkspaceService workspaceService;
     private final DatasourceStorageService datasourceStorageService;
+    private final DatasourcePermission datasourcePermission;
 
     public DatasourceImportableServiceCEImpl(
             DatasourceService datasourceService,
             WorkspaceService workspaceService,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.workspaceService = workspaceService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
@@ -599,6 +603,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
 
     @Override
     public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, null);
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getReadPermission());
     }
 }
