@@ -43,6 +43,9 @@ utils/observability/tempo-data/*
 # Ignore the mongo data backup directory for Mongo to PG migrations
 mongo-data**
 
+# ignore local mongodb data/binary artifacts developers create during local testing
+mongodb*
+!deploy/helm/**/mongodb*
+
 # ignore the task file as it will be different for different project implementations.
 TASKS.md
-mongodb*

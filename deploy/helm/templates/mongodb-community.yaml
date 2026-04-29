@@ -1,0 +1,74 @@
+{{- if .Values.mongodbCommunity.enabled }}
+{{- $name := include "appsmith.mongoCommunityName" . -}}
+{{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
+{{- $storageClass := .Values.mongodbCommunity.persistent.storageClass | default ((.Values.global).storageClass | default "") -}}
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+spec:
+  members: {{ .Values.mongodbCommunity.members }}
+  type: ReplicaSet
+  version: {{ .Values.mongodbCommunity.version | quote }}
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: {{ .Values.mongodbCommunity.auth.username }}
+      db: {{ .Values.mongodbCommunity.auth.database }}
+      passwordSecretRef:
+        name: {{ $passwordSecretName }}
+      roles:
+        - name: readWrite
+          db: {{ .Values.mongodbCommunity.auth.database }}
+        - name: clusterMonitor
+          db: admin
+      scramCredentialsSecretName: {{ $name }}-scram
+  statefulSet:
+    spec:
+      {{- if or .Values.mongodbCommunity.nodeSelector .Values.mongodbCommunity.affinity .Values.mongodbCommunity.tolerations .Values.mongodbCommunity.resources }}
+      template:
+        spec:
+          {{- with .Values.mongodbCommunity.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbCommunity.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbCommunity.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbCommunity.resources }}
+          containers:
+            - name: mongod
+              resources:
+                {{- toYaml . | nindent 16 }}
+          {{- end }}
+      {{- end }}
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            resources:
+              requests:
+                storage: {{ .Values.mongodbCommunity.persistent.storageSize }}
+            {{- if $storageClass }}
+            storageClassName: {{ $storageClass }}
+            {{- end }}
+        - metadata:
+            name: logs-volume
+          spec:
+            resources:
+              requests:
+                storage: 2Gi
+            {{- if $storageClass }}
+            storageClassName: {{ $storageClass }}
+            {{- end }}
+{{- end }}
