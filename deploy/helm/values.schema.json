@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Appsmith Helm chart values",
+  "description": "Partial schema. Currently validates only mongodbCommunity.* and mongodbOperator.enabled; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
+  "type": "object",
+  "properties": {
+    "mongodbOperator": {
+      "type": "object",
+      "description": "MongoDB Kubernetes Operator subchart. Other properties are passed through to the upstream mongodb-kubernetes chart and are not validated here.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Install the MongoDB Kubernetes Operator subchart alongside this chart.",
+          "default": false
+        }
+      }
+    },
+    "mongodbCommunity": {
+      "type": "object",
+      "description": "MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator. PREVIEW (chart 3.7.0) — documented for fresh installs in this release; a documented migration path from an existing Bitnami-backed release is being prepared separately. See docs/install-mongodb-operator.md.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy a MongoDBCommunity custom resource.",
+          "default": false
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the MongoDBCommunity custom resource. When empty, defaults to '<release-fullname>-mongo'. Keep under 60 chars — derived resource names append suffixes like -password and -svc.",
+          "default": "",
+          "maxLength": 60,
+          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version to deploy.",
+          "default": "8.0.20"
+        },
+        "members": {
+          "type": "integer",
+          "description": "Number of replica set members. Defaults to 1 for low-footprint installs; set to 3 for production HA.",
+          "default": 1,
+          "minimum": 1
+        },
+        "auth": {
+          "type": "object",
+          "description": "Authentication configuration for the MongoDB user Appsmith connects as.",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "MongoDB user for Appsmith.",
+              "default": "appsmith",
+              "minLength": 1
+            },
+            "database": {
+              "type": "string",
+              "description": "Authentication database (also used as the connection path).",
+              "default": "appsmith",
+              "minLength": 1
+            },
+            "passwordSecretName": {
+              "type": "string",
+              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{name}-password\".",
+              "default": ""
+            }
+          }
+        },
+        "persistent": {
+          "type": "object",
+          "description": "Persistence configuration for MongoDB data volumes.",
+          "properties": {
+            "storageSize": {
+              "type": "string",
+              "description": "Storage size for each MongoDB replica PVC.",
+              "default": "10Gi"
+            },
+            "storageClass": {
+              "type": "string",
+              "description": "StorageClass for MongoDB PVCs. Empty uses the cluster default (or global.storageClass)."
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource requests/limits for MongoDB containers."
+        },
+        "nodeSelector": {
+          "type": "object",
+          "description": "Node selector for MongoDB pods."
+        },
+        "affinity": {
+          "type": "object",
+          "description": "Affinity rules for MongoDB pods."
+        },
+        "tolerations": {
+          "type": "array",
+          "description": "Tolerations for MongoDB pods.",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
