@@ -203,13 +203,29 @@ initContainer: {}
   #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
 ## Image
 ##
+## @param image.registry Container image registry
+## @param image.repository Container image repository
+## @param image.tag Container image tag (defaults to "latest" when omitted)
+## @param image.pullPolicy Container image pull policy
+## @param image.pullSecrets Image pull secret name (single secret)
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ee
   pullPolicy: IfNotPresent
   pullSecrets: ""
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
+
+## DEPRECATED: use `image` instead.
+## `_image` is kept for backwards compatibility with older install guides / values files.
+## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
+## override fields like `repository` and `tag` without restating the full image.
+##
+## @param _image.registry DEPRECATED. Container image registry override (merged into image)
+## @param _image.repository DEPRECATED. Container image repository override (merged into image)
+## @param _image.tag DEPRECATED. Container image tag override (merged into image)
+## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
+## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
+_image: {}
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##

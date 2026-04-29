@@ -4,6 +4,69 @@
   "description": "Partial schema. Currently validates only mongodbCommunity.* and mongodbOperator.enabled; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
   "type": "object",
   "properties": {
+    "image": {
+      "type": "object",
+      "description": "Appsmith container image configuration.",
+      "properties": {
+        "registry": {
+          "type": "string",
+          "description": "Container image registry.",
+          "default": "index.docker.io"
+        },
+        "repository": {
+          "type": "string",
+          "description": "Container image repository.",
+          "default": "appsmith/appsmith-ee"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Container image tag. Defaults to \"latest\" when omitted.",
+          "default": "latest"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Container image pull policy.",
+          "default": "IfNotPresent"
+        },
+        "pullSecrets": {
+          "type": "string",
+          "description": "Image pull secret name (single secret).",
+          "default": ""
+        }
+      }
+    },
+    "_image": {
+      "type": "object",
+      "deprecated": true,
+      "description": "DEPRECATED: use image instead. Kept for backwards compatibility; merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.",
+      "properties": {
+        "registry": {
+          "type": "string",
+          "description": "DEPRECATED. Container image registry override (merged into image).",
+          "default": ""
+        },
+        "repository": {
+          "type": "string",
+          "description": "DEPRECATED. Container image repository override (merged into image).",
+          "default": ""
+        },
+        "tag": {
+          "type": "string",
+          "description": "DEPRECATED. Container image tag override (merged into image).",
+          "default": ""
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "DEPRECATED. Container image pull policy override (merged into image).",
+          "default": ""
+        },
+        "pullSecrets": {
+          "type": "string",
+          "description": "DEPRECATED. Image pull secret name override (merged into image).",
+          "default": ""
+        }
+      }
+    },
     "mongodbOperator": {
       "type": "object",
       "description": "MongoDB Kubernetes Operator subchart. Other properties are passed through to the upstream mongodb-kubernetes chart and are not validated here.",
