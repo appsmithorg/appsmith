@@ -49,6 +49,11 @@ mongodb:
 ## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
 ## See templates/mongodb-community.yaml for the CR definition and docs/install-mongodb-operator.md
 ## for the install guide. Pair with mongodbOperator.enabled=true below to bundle the operator.
+##
+## PREVIEW (chart 3.7.0): documented for fresh installs in this release. A documented
+## migration path from an existing Bitnami-backed Appsmith release is being prepared
+## separately — if you have an existing install, watch for that documentation before
+## changing mongodbCommunity.enabled on a release with production data.
 mongodbCommunity:
   ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
   enabled: false
