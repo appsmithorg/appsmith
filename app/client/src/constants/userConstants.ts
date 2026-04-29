@@ -20,6 +20,9 @@ export interface User {
   isAnonymous?: boolean;
   isIntercomConsentGiven?: boolean;
   emailVerified: boolean;
+  // GHSA-j9gf-vw2f-9hrw — admin warning banner signal. Optional: older servers
+  // pre-rolling-deploy may not include the field, in which case the banner stays hidden.
+  instanceBaseUrlConfigurationHealthy?: boolean;
 }
 
 export interface UserApplication {

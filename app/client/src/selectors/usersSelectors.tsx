@@ -27,3 +27,26 @@ export const getFeatureFlagsFetching = (state: DefaultRootState) =>
 
 export const getIsUserLoggedIn = (state: DefaultRootState): boolean =>
   state.ui.users.currentUser?.email !== ANONYMOUS_USERNAME;
+
+/**
+ * GHSA-j9gf-vw2f-9hrw — admin warning banner gate. Returns true only when ALL of:
+ *   - the current user is an instance super user,
+ *   - admin settings are visible to them (RBAC / license tier guard),
+ *   - and the server explicitly reports `instanceBaseUrlConfigurationHealthy === false`.
+ *
+ * The explicit `=== false` (rather than `!value`) is deliberate: during a rolling
+ * deploy where a newer client briefly sees an older server's response without the
+ * field, `undefined === false` is `false`, so the banner stays hidden until both
+ * sides are deployed.
+ */
+export const getShouldShowBaseUrlMissingBanner = (
+  state: DefaultRootState,
+): boolean => {
+  const user = state.ui?.users?.currentUser;
+
+  return Boolean(
+    user?.isSuperUser &&
+      user?.adminSettingsVisible &&
+      user?.instanceBaseUrlConfigurationHealthy === false,
+  );
+};
