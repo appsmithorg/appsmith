@@ -205,4 +205,31 @@ class SecureBaseUrlResolverCEImplTest {
     }
 
     // endregion
+
+    // region isBaseUrlConfigurationHealthy — instance-config health signal driving the admin
+    // warning banner. The signal answers "can this instance generate token-bearing email links
+    // without depending on a request-time hint?". CE semantics: true iff APPSMITH_BASE_URL is
+    // set. The insecure-flag fallback intentionally does NOT mark the instance as healthy —
+    // operators who opted into the deprecated escape hatch should still see the warning so the
+    // deprecation pressure is preserved.
+
+    @Test
+    void isBaseUrlConfigurationHealthy_returnsTrueWhenBaseUrlSet() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.isBaseUrlConfigurationHealthy())
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
+    void isBaseUrlConfigurationHealthy_returnsFalseWhenBaseUrlBlank() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("", false);
+
+        StepVerifier.create(resolver.isBaseUrlConfigurationHealthy())
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    // endregion
 }

@@ -82,6 +82,11 @@ public class SecureBaseUrlResolverCEImpl implements SecureBaseUrlResolverCE {
         return Mono.empty();
     }
 
+    @Override
+    public Mono<Boolean> isBaseUrlConfigurationHealthy() {
+        return Mono.just(StringUtils.hasText(appsmithBaseUrl));
+    }
+
     /**
      * Compares two URLs by their origin (scheme + host + effective port) per RFC 6454, rather than
      * by raw string equality. Tolerates insignificant differences such as trailing slashes and

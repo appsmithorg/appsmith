@@ -33,4 +33,23 @@ public interface SecureBaseUrlResolverCE {
      *     does not match (strict-mode enforcement, preserved from prior hardening).
      */
     Mono<String> resolveSecureBaseUrl(String providedBaseUrl);
+
+    /**
+     * Reports whether this instance is in a state where token-bearing email flows
+     * (forgot-password, email verification, invites) can generate links without
+     * depending on a request-time hint such as the {@code Origin} header.
+     *
+     * <p>The CE implementation returns {@code true} iff {@code APPSMITH_BASE_URL} is set;
+     * the EE override returns {@code true} unconditionally when the multi-org feature flag
+     * is on (each organization derives its own canonical URL from slug + deploymentDomain).
+     *
+     * <p>Drives the in-product admin warning banner shown to instance super-users. The
+     * insecure-flag fallback intentionally does NOT mark the instance as healthy — operators
+     * who opted into the deprecated {@code APPSMITH_ALLOW_INSECURE_ORIGIN_BASED_LINKS} escape
+     * hatch should still see the warning so the deprecation pressure is preserved.
+     *
+     * @return {@code Mono} emitting {@code true} when no banner should be shown,
+     *     {@code false} when the banner should warn that token-bearing emails are disabled.
+     */
+    Mono<Boolean> isBaseUrlConfigurationHealthy();
 }
