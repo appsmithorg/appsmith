@@ -775,16 +775,26 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<Boolean> isSuperUserMono =
                 userFromDbMono.flatMap(userUtils::isSuperUser).defaultIfEmpty(false);
 
+        // GHSA-j9gf-vw2f-9hrw — surface the resolver health signal on the profile so the
+        // client can render the admin warning banner when the instance is in fail-closed mode
+        // for token-bearing email flows. .onErrorReturn(true) defends against a transient
+        // resolver/feature-flag failure breaking login (false-negative banner is preferable to
+        // a broken /v1/users/profile call).
+        Mono<Boolean> isBaseUrlConfigurationHealthyMono =
+                secureBaseUrlResolver.isBaseUrlConfigurationHealthy().onErrorReturn(true);
+
         return Mono.zip(
                         isUsersEmpty(),
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
-                        isSuperUserMono)
+                        isSuperUserMono,
+                        isBaseUrlConfigurationHealthyMono)
                 .flatMap(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
                     Boolean isSuperUser = tuple.getT4();
+                    Boolean isBaseUrlConfigurationHealthy = tuple.getT5();
 
                     final UserProfileDTO profile = new UserProfileDTO();
 
@@ -804,6 +814,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
                     profile.setIsSuperUser(isSuperUser);
                     profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
+                    profile.setInstanceBaseUrlConfigurationHealthy(isBaseUrlConfigurationHealthy);
                     return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
                 });
     }

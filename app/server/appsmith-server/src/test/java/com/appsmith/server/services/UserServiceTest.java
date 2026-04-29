@@ -722,6 +722,25 @@ public class UserServiceTest {
     }
 
     /**
+     * GHSA-j9gf-vw2f-9hrw — pins that the {@code SecureBaseUrlResolver#isBaseUrlConfigurationHealthy()}
+     * signal flows through the DTO assembler. In the test profile {@code APPSMITH_BASE_URL} is unset,
+     * so the resolver returns {@code false} regardless of the {@code APPSMITH_ALLOW_INSECURE_ORIGIN_BASED_LINKS}
+     * flag (the health signal answers "is base URL configured?", not "are emails currently being sent?").
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void buildUserProfileDTO_includesBaseUrlConfigurationHealthy() {
+        StepVerifier.create(sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO))
+                .assertNext(userProfileDTO -> {
+                    assertThat(userProfileDTO.getInstanceBaseUrlConfigurationHealthy())
+                            .as("In test profile APPSMITH_BASE_URL is unset, so the resolver-derived "
+                                    + "health signal must be false on the assembled DTO")
+                            .isFalse();
+                })
+                .verifyComplete();
+    }
+
+    /**
      * This test case asserts that on every user creation, User Management role is auto-created and associated with that user.
      */
     @Test
