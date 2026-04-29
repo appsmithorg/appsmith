@@ -57,6 +57,7 @@ import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
+import BaseUrlMissingBanner from "components/editorComponents/BaseUrlMissingBanner";
 import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -188,6 +189,11 @@ export default function AppRouter() {
         ) : (
           <>
             <RouteChangeListener />
+            {/* GHSA-j9gf-vw2f-9hrw — admin warning banner sits at the very top of the
+                render tree so it pushes AppHeader and the rest of the layout down by its
+                own height. Returns null for non-admins / healthy instances, so non-target
+                users pay zero render cost. */}
+            <BaseUrlMissingBanner />
             <Walkthrough>
               <AppHeader />
               <Routes />
