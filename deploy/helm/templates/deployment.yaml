@@ -190,9 +190,10 @@ spec:
             - secretRef:
                 name: "{{ include "appsmith.fullname" . }}-external-secret"
             {{- end }}
-      {{- if .Values.image.pullSecrets}}
+      {{- $pullSecretName := dig "pullSecrets" "" $customImage }}
+      {{- if $pullSecretName }}
       imagePullSecrets:
-        - name: {{ .Values.image.pullSecrets }}
+        - name: {{ $pullSecretName }}
       {{- end }}
       volumes:
       {{- if .Values.customCAcert }}
