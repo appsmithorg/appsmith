@@ -1,30 +1,36 @@
 import { getShouldShowBaseUrlMissingBanner } from "./usersSelectors";
 
-// Minimal Redux state shape; the selector only reads ui.users.currentUser.
-const stateWith = (currentUser: object | null) =>
-  ({ ui: { users: { currentUser } } }) as never;
+// Minimal Redux state shape; the selector reads ui.users.currentUser AND
+// organization.organizationConfiguration.
+const stateWith = (
+  currentUser: object | null,
+  orgConfig: object | undefined = undefined,
+) =>
+  ({
+    ui: { users: { currentUser } },
+    organization: orgConfig
+      ? { organizationConfiguration: orgConfig }
+      : undefined,
+  }) as never;
+
+const SUPER_ADMIN = {
+  isSuperUser: true,
+  adminSettingsVisible: true,
+};
 
 describe("getShouldShowBaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
-  it("returns true for super user with admin settings visible and unhealthy config", () => {
+  it("returns true for super user with admin settings visible and unhealthy org config", () => {
     expect(
       getShouldShowBaseUrlMissingBanner(
-        stateWith({
-          isSuperUser: true,
-          adminSettingsVisible: true,
-          instanceBaseUrlConfigurationHealthy: false,
-        }),
+        stateWith(SUPER_ADMIN, { instanceBaseUrlConfigurationHealthy: false }),
       ),
     ).toBe(true);
   });
 
-  it("returns false when configuration is healthy", () => {
+  it("returns false when org config is healthy", () => {
     expect(
       getShouldShowBaseUrlMissingBanner(
-        stateWith({
-          isSuperUser: true,
-          adminSettingsVisible: true,
-          instanceBaseUrlConfigurationHealthy: true,
-        }),
+        stateWith(SUPER_ADMIN, { instanceBaseUrlConfigurationHealthy: true }),
       ),
     ).toBe(false);
   });
@@ -32,11 +38,10 @@ describe("getShouldShowBaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
   it("returns false for non-super-user", () => {
     expect(
       getShouldShowBaseUrlMissingBanner(
-        stateWith({
-          isSuperUser: false,
-          adminSettingsVisible: true,
-          instanceBaseUrlConfigurationHealthy: false,
-        }),
+        stateWith(
+          { isSuperUser: false, adminSettingsVisible: true },
+          { instanceBaseUrlConfigurationHealthy: false },
+        ),
       ),
     ).toBe(false);
   });
@@ -44,29 +49,34 @@ describe("getShouldShowBaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
   it("returns false when admin settings hidden (RBAC / license guard)", () => {
     expect(
       getShouldShowBaseUrlMissingBanner(
-        stateWith({
-          isSuperUser: true,
-          adminSettingsVisible: false,
-          instanceBaseUrlConfigurationHealthy: false,
-        }),
+        stateWith(
+          { isSuperUser: true, adminSettingsVisible: false },
+          { instanceBaseUrlConfigurationHealthy: false },
+        ),
       ),
     ).toBe(false);
   });
 
-  // Rolling-deploy safety: newer client paired briefly with older server.
-  // Field absent => banner must stay hidden, not flip on as a false positive.
-  it("returns false when health field is missing (rolling deploy)", () => {
-    expect(
-      getShouldShowBaseUrlMissingBanner(
-        stateWith({
-          isSuperUser: true,
-          adminSettingsVisible: true,
-        }),
-      ),
-    ).toBe(false);
+  // Rolling-deploy safety: newer client briefly paired with older server has the
+  // health field absent on org config. Banner must stay hidden, not flip on as a
+  // false positive.
+  it("returns false when health field is missing from org config (rolling deploy)", () => {
+    expect(getShouldShowBaseUrlMissingBanner(stateWith(SUPER_ADMIN, {}))).toBe(
+      false,
+    );
+  });
+
+  it("returns false when org config is missing entirely", () => {
+    expect(getShouldShowBaseUrlMissingBanner(stateWith(SUPER_ADMIN))).toBe(
+      false,
+    );
   });
 
   it("returns false when currentUser is null", () => {
-    expect(getShouldShowBaseUrlMissingBanner(stateWith(null))).toBe(false);
+    expect(
+      getShouldShowBaseUrlMissingBanner(
+        stateWith(null, { instanceBaseUrlConfigurationHealthy: false }),
+      ),
+    ).toBe(false);
   });
 });

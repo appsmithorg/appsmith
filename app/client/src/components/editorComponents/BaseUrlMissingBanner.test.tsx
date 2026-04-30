@@ -10,12 +10,15 @@ import BaseUrlMissingBanner from "./BaseUrlMissingBanner";
 
 const mockStore = configureStore([]);
 
-const storeWith = (currentUser: object | null) =>
-  mockStore({ ui: { users: { currentUser } } });
+const storeWith = (currentUser: object | null, orgConfig?: object) =>
+  mockStore({
+    ui: { users: { currentUser } },
+    organization: orgConfig ? { organizationConfiguration: orgConfig } : {},
+  });
 
-const renderBanner = (currentUser: object | null) =>
+const renderBanner = (currentUser: object | null, orgConfig?: object) =>
   render(
-    <Provider store={storeWith(currentUser)}>
+    <Provider store={storeWith(currentUser, orgConfig)}>
       <ThemeProvider theme={lightTheme}>
         <Router>
           <BaseUrlMissingBanner />
@@ -24,13 +27,14 @@ const renderBanner = (currentUser: object | null) =>
     </Provider>,
   );
 
+const SUPER_ADMIN = {
+  isSuperUser: true,
+  adminSettingsVisible: true,
+};
+
 describe("BaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
-  it("renders for super-user with admin settings visible and unhealthy config", () => {
-    renderBanner({
-      isSuperUser: true,
-      adminSettingsVisible: true,
-      instanceBaseUrlConfigurationHealthy: false,
-    });
+  it("renders for super-user with admin settings visible and unhealthy org config", () => {
+    renderBanner(SUPER_ADMIN, { instanceBaseUrlConfigurationHealthy: false });
 
     expect(
       screen.getByTestId("t--base-url-missing-banner"),
@@ -40,10 +44,8 @@ describe("BaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not render when configuration is healthy", () => {
-    const { container } = renderBanner({
-      isSuperUser: true,
-      adminSettingsVisible: true,
+  it("does not render when org config is healthy", () => {
+    const { container } = renderBanner(SUPER_ADMIN, {
       instanceBaseUrlConfigurationHealthy: true,
     });
 
@@ -51,32 +53,33 @@ describe("BaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
   });
 
   it("does not render for non-super-user", () => {
-    const { container } = renderBanner({
-      isSuperUser: false,
-      adminSettingsVisible: true,
-      instanceBaseUrlConfigurationHealthy: false,
-    });
+    const { container } = renderBanner(
+      { isSuperUser: false, adminSettingsVisible: true },
+      { instanceBaseUrlConfigurationHealthy: false },
+    );
 
     expect(container.firstChild).toBeNull();
   });
 
   it("does not render when admin settings hidden (RBAC / license guard)", () => {
-    const { container } = renderBanner({
-      isSuperUser: true,
-      adminSettingsVisible: false,
-      instanceBaseUrlConfigurationHealthy: false,
-    });
+    const { container } = renderBanner(
+      { isSuperUser: true, adminSettingsVisible: false },
+      { instanceBaseUrlConfigurationHealthy: false },
+    );
 
     expect(container.firstChild).toBeNull();
   });
 
-  // Rolling-deploy safety: newer client briefly paired with older server has the
-  // health field absent. Banner must stay hidden until both sides are deployed.
-  it("does not render when health field is missing (rolling deploy)", () => {
-    const { container } = renderBanner({
-      isSuperUser: true,
-      adminSettingsVisible: true,
-    });
+  // Rolling-deploy safety: org config without the new field. Banner must stay
+  // hidden, not flip on as a false positive.
+  it("does not render when health field is missing from org config (rolling deploy)", () => {
+    const { container } = renderBanner(SUPER_ADMIN, {});
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  it("does not render when org config is missing entirely", () => {
+    const { container } = renderBanner(SUPER_ADMIN);
 
     expect(container.firstChild).toBeNull();
   });

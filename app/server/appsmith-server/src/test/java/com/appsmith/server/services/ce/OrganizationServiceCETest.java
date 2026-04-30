@@ -234,6 +234,27 @@ class OrganizationServiceCETest {
                 .verifyComplete();
     }
 
+    /**
+     * GHSA-j9gf-vw2f-9hrw — pins that the {@code SecureBaseUrlResolver#isBaseUrlConfigurationHealthy()}
+     * signal flows through the org-config assembler. In the test profile {@code APPSMITH_BASE_URL}
+     * is unset, so the resolver returns {@code false} and the assembled config exposes that to the
+     * client. The signal lives on org config (not user profile) because it's instance-state and
+     * because {@code /v1/consolidated-api} — the only always-called bootstrap endpoint — already
+     * carries org config in its response.
+     */
+    @Test
+    @WithUserDetails("api_user")
+    void getOrganizationConfig_includesBaseUrlConfigurationHealthy() {
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getInstanceBaseUrlConfigurationHealthy())
+                            .as("In test profile APPSMITH_BASE_URL is unset, so the resolver-derived "
+                                    + "health signal must be false on the assembled org config")
+                            .isFalse();
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails("anonymousUser")
     void getOrganizationConfig_AnonymousUser_DoesNotExposeInstanceMetadata() {
