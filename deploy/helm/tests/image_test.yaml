@@ -1,0 +1,64 @@
+templates:
+  - deployment.yaml
+tests:
+  - name: image should use custom registry with default repository and tag
+    set:
+      image:
+        registry: ghcr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: ghcr.io/appsmith/appsmith-ee:latest
+  - name: image should use custom repository with default registry and tag
+    set:
+      image:
+        repository: acme/my-appsmith
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: index.docker.io/acme/my-appsmith:latest
+  - name: image should use custom tag with default registry and repository
+    set:
+      image:
+        tag: v1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: index.docker.io/appsmith/appsmith-ee:v1.2.3
+  - name: image should use custom registry repository and tag together
+    set:
+      image:
+        registry: quay.io
+        repository: myorg/custom-appsmith
+        tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: quay.io/myorg/custom-appsmith:2.0.0
+  - name: _image should take precedence and render full image when all fields set
+    set:
+      _image:
+        registry: quay.io
+        repository: myorg/custom-appsmith
+        tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: quay.io/myorg/custom-appsmith:2.0.0
+  - name: _image should partially override image fields when some keys set
+    set:
+      image:
+        registry: quay.io
+        repository: myorg/base-appsmith
+        tag: "2.1.0"
+        pullPolicy: IfNotPresent
+      _image:
+        repository: myorg/override-appsmith
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].image
+          value: quay.io/myorg/override-appsmith:2.1.0
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].imagePullPolicy
+          value: Always
