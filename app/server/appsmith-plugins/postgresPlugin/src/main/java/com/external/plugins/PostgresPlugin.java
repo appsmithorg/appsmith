@@ -9,6 +9,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.helpers.SSHUtils;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
@@ -160,7 +161,8 @@ public class PostgresPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
+    public static class PostgresPluginExecutor
+            implements SmartSubstitutionInterface, PluginExecutor<ConnectionContext<HikariDataSource>> {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
@@ -229,7 +231,7 @@ public class PostgresPlugin extends BasePlugin {
          * action and datasource configurations are
          * prepared (binding replacement) using PluginExecutor.variableSubstitution
          *
-         * @param connection              : This is the connection that is established
+         * @param connectionContext              : This is the connection that is established
          *                                to the data source. This connection is
          *                                according
          *                                to the parameters in Datasource Configuration
@@ -245,7 +247,7 @@ public class PostgresPlugin extends BasePlugin {
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-                HikariDataSource connection,
+                ConnectionContext<HikariDataSource> connectionContext,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -282,7 +284,8 @@ public class PostgresPlugin extends BasePlugin {
             // In case of non-prepared statement, simply do bind replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
+                return executeCommon(
+                        connectionContext, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
             }
 
             // Prepared statement
@@ -294,7 +297,7 @@ public class PostgresPlugin extends BasePlugin {
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(
-                            connection,
+                            connectionContext,
                             datasourceConfiguration,
                             actionConfiguration,
                             TRUE,
@@ -350,7 +353,7 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         private Mono<ActionExecutionResult> executeCommon(
-                HikariDataSource connection,
+                ConnectionContext<HikariDataSource> connectionContext,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration,
                 Boolean preparedStatement,
@@ -367,6 +370,7 @@ public class PostgresPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
             Instant requestedAt = Instant.now();
+            HikariDataSource connection = connectionContext.getConnection();
 
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName()
@@ -665,7 +669,7 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(
-                HikariDataSource connection,
+                ConnectionContext<HikariDataSource> connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
             // Unused function
@@ -674,7 +678,8 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionContext<HikariDataSource>> datasourceCreate(
+                DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Postgres plugin.");
             try {
                 Class.forName(JDBC_DRIVER);
@@ -693,10 +698,10 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(HikariDataSource connection) {
-            if (connection != null) {
-                connection.close();
-            }
+        public void datasourceDestroy(ConnectionContext<HikariDataSource> connection) {
+            Mono.fromRunnable(() -> destroyDatasourceConnectionContext(connection))
+                    .subscribeOn(scheduler)
+                    .subscribe();
         }
 
         @Override
@@ -782,11 +787,13 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+                ConnectionContext<HikariDataSource> connectionContext,
+                DatasourceConfiguration datasourceConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": getStructure() called for Postgres plugin.");
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            HikariDataSource connection = connectionContext.getConnection();
 
             return Mono.fromSupplier(() -> {
                         Connection connectionFromPool;
@@ -1178,7 +1185,7 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(
+    private static ConnectionContext<HikariDataSource> createConnectionPool(
             DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
@@ -1210,162 +1217,194 @@ public class PostgresPlugin extends BasePlugin {
 
         List<String> hosts = new ArrayList<>();
 
-        if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L));
-            }
-        } else {
-            ConnectionContext<HikariDataSource> connectionContext;
-            connectionContext = getConnectionContext(
-                    datasourceConfiguration, CONNECTION_METHOD_INDEX, DEFAULT_POSTGRES_PORT, HikariDataSource.class);
+        ConnectionContext<HikariDataSource> connectionContext;
+        connectionContext = getConnectionContext(
+                datasourceConfiguration, CONNECTION_METHOD_INDEX, DEFAULT_POSTGRES_PORT, HikariDataSource.class);
 
-            hosts.add(LOCALHOST + ":"
-                    + connectionContext.getSshTunnelContext().getServerSocket().getLocalPort());
-        }
-
-        urlBuilder.append(String.join(",", hosts)).append("/");
-
-        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-            urlBuilder.append(authentication.getDatabaseName());
-        }
-
-        /**
-         * JDBC connection parameter to auto resolve argument type when using prepared
-         * statements. Please note that this auto deduction of type happens only when
-         * the argument is bound using `setString()` method. In our case, it means that
-         * we have identified the argument data type as String.
-         * Quoting from doc:
-         * If stringtype is set to unspecified, parameters will be sent to the server as
-         * untyped values, and the server will attempt to infer an appropriate type.
-         * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
-         */
-        urlBuilder.append("?stringtype=unspecified");
-
-        urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
-
-        /*
-         * - Ideally, it is never expected to be null because the SSL dropdown is set to
-         * a initial value.
-         */
-        if (datasourceConfiguration.getConnection() == null
-                || datasourceConfiguration.getConnection().getSsl() == null
-                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            throw new AppsmithPluginException(
-                    PostgresPluginError.POSTGRES_PLUGIN_ERROR, PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
-        }
-
-        /*
-         * - By default, the driver configures SSL in the preferred mode.
-         */
-        SSLDetails.AuthType sslAuthType =
-                datasourceConfiguration.getConnection().getSsl().getAuthType();
-        switch (sslAuthType) {
-            case ALLOW:
-            case PREFER:
-            case REQUIRE:
-                config.addDataSourceProperty("ssl", "true");
-                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
-
-                break;
-            case DISABLE:
-                config.addDataSourceProperty("ssl", "false");
-                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
-
-                break;
-            case DEFAULT:
-                /* do nothing - accept default driver setting */
-                break;
-
-            case VERIFY_CA:
-            case VERIFY_FULL:
-                config.addDataSourceProperty("ssl", "true");
-                if (sslAuthType == SSLDetails.AuthType.VERIFY_FULL) {
-                    config.addDataSourceProperty("sslmode", "verify-full");
-                } else {
-                    config.addDataSourceProperty("sslmode", "verify-ca");
-                }
-                // Common properties for both VERIFY_CA and VERIFY_FULL
-                config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
-                config.addDataSourceProperty(
-                        "clientCertString",
-                        new String(
-                                datasourceConfiguration
-                                        .getConnection()
-                                        .getSsl()
-                                        .getClientCACertificateFile()
-                                        .getDecodedContent(),
-                                StandardCharsets.UTF_8));
-                config.addDataSourceProperty(
-                        "clientKeyString",
-                        new String(
-                                datasourceConfiguration
-                                        .getConnection()
-                                        .getSsl()
-                                        .getClientKeyCertificateFile()
-                                        .getDecodedContent(),
-                                StandardCharsets.UTF_8));
-                config.addDataSourceProperty(
-                        "serverCACertString",
-                        new String(
-                                datasourceConfiguration
-                                        .getConnection()
-                                        .getSsl()
-                                        .getServerCACertificateFile()
-                                        .getDecodedContent(),
-                                StandardCharsets.UTF_8));
-
-                break;
-
-            default:
-                throw new AppsmithPluginException(
-                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
-                        String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
-        }
-
-        String url = urlBuilder.toString();
-        config.setJdbcUrl(url);
-
-        // Configuring leak detection threshold for 60 seconds. Any connection which
-        // hasn't been released in 60 seconds
-        // should get tracked (maybe falsely for long-running queries) as leaked
-        // connection
-        config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
-
-        // Set read only mode if applicable
-        switch (configurationConnection.getMode()) {
-            case READ_WRITE: {
-                config.setReadOnly(false);
-                break;
-            }
-            case READ_ONLY: {
-                config.setReadOnly(true);
-                config.addDataSourceProperty("readOnlyMode", "always");
-                break;
-            }
-        }
-
-        // Now create the connection pool from the configuration
-        HikariDataSource datasource = null;
         try {
-            datasource = new HikariDataSource(config);
-        } catch (PoolInitializationException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof PSQLException) {
-                PSQLException psqlException = (PSQLException) cause;
-                String sqlState = psqlException.getSQLState();
-                if (PSQLState.CONNECTION_UNABLE_TO_CONNECT.getState().equals(sqlState)) {
+            if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L));
+                }
+            } else {
+                hosts.add(LOCALHOST + ":"
+                        + connectionContext
+                                .getSshTunnelContext()
+                                .getServerSocket()
+                                .getLocalPort());
+            }
+
+            urlBuilder.append(String.join(",", hosts)).append("/");
+
+            if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                urlBuilder.append(authentication.getDatabaseName());
+            }
+
+            /**
+             * JDBC connection parameter to auto resolve argument type when using prepared
+             * statements. Please note that this auto deduction of type happens only when
+             * the argument is bound using `setString()` method. In our case, it means that
+             * we have identified the argument data type as String.
+             * Quoting from doc:
+             * If stringtype is set to unspecified, parameters will be sent to the server as
+             * untyped values, and the server will attempt to infer an appropriate type.
+             * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
+             */
+            urlBuilder.append("?stringtype=unspecified");
+
+            urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to
+             * a initial value.
+             */
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                throw new AppsmithPluginException(
+                        PostgresPluginError.POSTGRES_PLUGIN_ERROR, PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+            }
+
+            /*
+             * - By default, the driver configures SSL in the preferred mode.
+             */
+            SSLDetails.AuthType sslAuthType =
+                    datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case ALLOW:
+                case PREFER:
+                case REQUIRE:
+                    config.addDataSourceProperty("ssl", "true");
+                    config.addDataSourceProperty(
+                            "sslmode", sslAuthType.toString().toLowerCase());
+
+                    break;
+                case DISABLE:
+                    config.addDataSourceProperty("ssl", "false");
+                    config.addDataSourceProperty(
+                            "sslmode", sslAuthType.toString().toLowerCase());
+
+                    break;
+                case DEFAULT:
+                    /* do nothing - accept default driver setting */
+                    break;
+
+                case VERIFY_CA:
+                case VERIFY_FULL:
+                    config.addDataSourceProperty("ssl", "true");
+                    if (sslAuthType == SSLDetails.AuthType.VERIFY_FULL) {
+                        config.addDataSourceProperty("sslmode", "verify-full");
+                    } else {
+                        config.addDataSourceProperty("sslmode", "verify-ca");
+                    }
+                    // Common properties for both VERIFY_CA and VERIFY_FULL
+                    config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
+                    config.addDataSourceProperty(
+                            "clientCertString",
+                            new String(
+                                    datasourceConfiguration
+                                            .getConnection()
+                                            .getSsl()
+                                            .getClientCACertificateFile()
+                                            .getDecodedContent(),
+                                    StandardCharsets.UTF_8));
+                    config.addDataSourceProperty(
+                            "clientKeyString",
+                            new String(
+                                    datasourceConfiguration
+                                            .getConnection()
+                                            .getSsl()
+                                            .getClientKeyCertificateFile()
+                                            .getDecodedContent(),
+                                    StandardCharsets.UTF_8));
+                    config.addDataSourceProperty(
+                            "serverCACertString",
+                            new String(
+                                    datasourceConfiguration
+                                            .getConnection()
+                                            .getSsl()
+                                            .getServerCACertificateFile()
+                                            .getDecodedContent(),
+                                    StandardCharsets.UTF_8));
+
+                    break;
+
+                default:
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            PostgresErrorMessages.DS_INVALID_HOSTNAME_AND_PORT_MSG,
-                            psqlException.getMessage());
+                            PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                            String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
+            }
+
+            String url = urlBuilder.toString();
+            config.setJdbcUrl(url);
+
+            // Configuring leak detection threshold for 60 seconds. Any connection which
+            // hasn't been released in 60 seconds
+            // should get tracked (maybe falsely for long-running queries) as leaked
+            // connection
+            config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+            // Set read only mode if applicable
+            switch (configurationConnection.getMode()) {
+                case READ_WRITE: {
+                    config.setReadOnly(false);
+                    break;
+                }
+                case READ_ONLY: {
+                    config.setReadOnly(true);
+                    config.addDataSourceProperty("readOnlyMode", "always");
+                    break;
                 }
             }
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    cause != null ? cause.getMessage() : e.getMessage());
+
+            // Now create the connection pool from the configuration
+            HikariDataSource datasource = null;
+            try {
+                datasource = new HikariDataSource(config);
+            } catch (PoolInitializationException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof PSQLException) {
+                    PSQLException psqlException = (PSQLException) cause;
+                    String sqlState = psqlException.getSQLState();
+                    if (PSQLState.CONNECTION_UNABLE_TO_CONNECT.getState().equals(sqlState)) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                PostgresErrorMessages.DS_INVALID_HOSTNAME_AND_PORT_MSG,
+                                psqlException.getMessage());
+                    }
+                }
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                        cause != null ? cause.getMessage() : e.getMessage());
+            }
+
+            connectionContext.setConnection(datasource);
+            return connectionContext;
+        } catch (RuntimeException e) {
+            destroyDatasourceConnectionContext(connectionContext);
+            throw e;
+        }
+    }
+
+    private static void destroyDatasourceConnectionContext(ConnectionContext<HikariDataSource> connectionContext) {
+        if (connectionContext == null) {
+            return;
         }
 
-        return datasource;
+        if (connectionContext.getConnection() != null) {
+            connectionContext.getConnection().close();
+        }
+
+        SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
+        if (sshTunnelContext != null) {
+            try {
+                sshTunnelContext.getServerSocket().close();
+                sshTunnelContext.getSshClient().disconnect();
+                sshTunnelContext.getThread().interrupt();
+            } catch (IOException e) {
+                log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
+            }
+        }
     }
 }
