@@ -15,7 +15,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -62,8 +61,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     private final InstanceVariablesHelper instanceVariablesHelper;
 
-    private final SecureBaseUrlResolver secureBaseUrlResolver;
-
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -75,14 +72,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             CommonConfig commonConfig,
             ObservationRegistry observationRegistry,
             UserOrganizationHelper userOrganizationHelper,
-            InstanceVariablesHelper instanceVariablesHelper,
-            // @Lazy breaks an EE-only construction-time cycle: the EE override of
-            // SecureBaseUrlResolverImpl injects FeatureFlagService, which in turn injects
-            // OrganizationService. Without @Lazy, Spring fails to construct any of these
-            // three beans. The lazy proxy defers actual resolution until first method call
-            // (during getClientPertinentOrganization), by which point all beans are wired.
-            // Has no functional effect on CE where the cycle doesn't exist.
-            @Lazy SecureBaseUrlResolver secureBaseUrlResolver) {
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -92,7 +82,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.observationRegistry = observationRegistry;
         this.userOrganizationHelper = userOrganizationHelper;
         this.instanceVariablesHelper = instanceVariablesHelper;
-        this.secureBaseUrlResolver = secureBaseUrlResolver;
     }
 
     @Override
@@ -324,23 +313,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         clientOrganization.setId(dbOrganization.getId());
         clientOrganization.setUserPermissions(dbOrganization.getUserPermissions());
 
-        // GHSA-j9gf-vw2f-9hrw — surface the resolver health signal on the org config so the
-        // client can render the admin warning banner when the instance is in fail-closed mode
-        // for token-bearing email flows. This rides on /v1/consolidated-api which is the only
-        // bootstrap call hit on every SPA reload — putting the signal on userProfile (where it
-        // first lived) was incorrect because the field is instance-state, not user-state.
-        // .onErrorReturn(true) so a transient resolver/feature-flag failure produces a
-        // false-negative banner rather than breaking org-config fetch entirely.
-        final Organization finalClientOrganization = clientOrganization;
-        return secureBaseUrlResolver
-                .isBaseUrlConfigurationHealthy()
-                .onErrorReturn(true)
-                .map(healthy -> {
-                    finalClientOrganization
-                            .getOrganizationConfiguration()
-                            .setInstanceBaseUrlConfigurationHealthy(healthy);
-                    return finalClientOrganization;
-                });
+        return Mono.just(clientOrganization);
     }
 
     // This function is used to save the organization object in the database and evict the cache
