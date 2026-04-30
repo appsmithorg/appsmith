@@ -76,7 +76,13 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             ObservationRegistry observationRegistry,
             UserOrganizationHelper userOrganizationHelper,
             InstanceVariablesHelper instanceVariablesHelper,
-            SecureBaseUrlResolver secureBaseUrlResolver) {
+            // @Lazy breaks an EE-only construction-time cycle: the EE override of
+            // SecureBaseUrlResolverImpl injects FeatureFlagService, which in turn injects
+            // OrganizationService. Without @Lazy, Spring fails to construct any of these
+            // three beans. The lazy proxy defers actual resolution until first method call
+            // (during getClientPertinentOrganization), by which point all beans are wired.
+            // Has no functional effect on CE where the cycle doesn't exist.
+            @Lazy SecureBaseUrlResolver secureBaseUrlResolver) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;

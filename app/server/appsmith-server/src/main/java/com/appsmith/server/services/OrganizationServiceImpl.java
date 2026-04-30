@@ -29,7 +29,7 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
             ObservationRegistry observationRegistry,
             UserOrganizationHelper userOrganizationHelper,
             InstanceVariablesHelper instanceVariablesHelper,
-            SecureBaseUrlResolver secureBaseUrlResolver) {
+            @Lazy SecureBaseUrlResolver secureBaseUrlResolver) {
         super(
                 validator,
                 repository,
