@@ -39,9 +39,7 @@ describe("BaseUrlMissingBanner — GHSA-j9gf-vw2f-9hrw", () => {
     expect(
       screen.getByTestId("t--base-url-missing-banner"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Email delivery is disabled on this instance/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Email delivery is disabled/i)).toBeInTheDocument();
   });
 
   it("does not render when org config is healthy", () => {

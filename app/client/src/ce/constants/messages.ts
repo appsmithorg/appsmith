@@ -1018,10 +1018,8 @@ export const I_UNDERSTAND = () => "I understand";
 
 // Admin warning banner — shown when APPSMITH_BASE_URL is unset and the resolver is in
 // fail-closed mode for token-bearing email flows. See GHSA-j9gf-vw2f-9hrw.
-export const BASE_URL_MISSING_BANNER_TITLE = () =>
-  "Email delivery is disabled on this instance";
 export const BASE_URL_MISSING_BANNER_BODY = () =>
-  "Forgot-password, email-verification, and invite emails will not be delivered until APPSMITH_BASE_URL is configured. Set it from Admin Settings to restore email-based flows.";
+  "Email delivery is disabled — forgot-password, email-verification and invite emails will not be sent until APPSMITH_BASE_URL is configured.";
 export const BASE_URL_MISSING_BANNER_CTA = () => "Configure APPSMITH_BASE_URL";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
