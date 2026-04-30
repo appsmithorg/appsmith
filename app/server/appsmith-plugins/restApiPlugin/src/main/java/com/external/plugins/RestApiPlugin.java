@@ -226,10 +226,11 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(String.format(
-                                "An error has occurred while trying to run the API query for url: %s, path: %s",
-                                datasourceConfiguration.getUrl(), actionConfiguration.getPath()));
-                        error.printStackTrace();
+                        log.error(
+                                "REST API execution failed for url: {}, path: {}",
+                                datasourceConfiguration.getUrl(),
+                                actionConfiguration.getPath(),
+                                error);
                         if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(
                                     RestApiPluginError.API_EXECUTION_FAILED,

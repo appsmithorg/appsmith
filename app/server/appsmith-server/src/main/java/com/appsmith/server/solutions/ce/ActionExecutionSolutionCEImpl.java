@@ -391,7 +391,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         return actionExecutionResultMono
                 .zipWith(editorConfigLabelMapMono, (result, labelMap) -> {
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
-                        result.setRequest(null);
+                        sanitizeRequestForViewMode(result);
                     } else if (result.getRequest() != null
                             && result.getRequest().getRequestParams() != null) {
                         transformRequestParams(result, labelMap);
@@ -870,9 +870,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             } else if (error instanceof StaleConnectionException e) {
                 return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR, e.getMessage());
             } else {
-                log.debug(
-                        "{}: In the action execution error mode.",
-                        Thread.currentThread().getName(),
+                log.warn(
+                        "Action execution failed for action '{}' (id: {}): {}",
+                        actionDTO.getName(),
+                        actionDTO.getId(),
+                        error.getMessage(),
                         error);
                 return error;
             }
@@ -881,6 +883,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
     protected Function<? super Throwable, Mono<ActionExecutionResult>> executionExceptionHandler(ActionDTO actionDTO) {
         return error -> {
+            log.warn(
+                    "Handling execution error for action '{}' (id: {}): {}",
+                    actionDTO.getName(),
+                    actionDTO.getId(),
+                    error.getMessage());
             ActionExecutionResult result = new ActionExecutionResult();
             result.setErrorInfo(error);
             result.setIsExecutionSuccess(false);
@@ -1091,6 +1098,23 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
 
         return result;
+    }
+
+    /**
+     * In view/published mode, strip potentially sensitive fields from the request object
+     * (headers, body, URL, params) while retaining safe metadata (action ID, timestamp,
+     * HTTP method) so users can correlate which action failed and when.
+     */
+    void sanitizeRequestForViewMode(ActionExecutionResult result) {
+        ActionExecutionRequest original = result.getRequest();
+        if (original == null) {
+            return;
+        }
+        ActionExecutionRequest sanitized = new ActionExecutionRequest();
+        sanitized.setActionId(original.getActionId());
+        sanitized.setRequestedAt(original.getRequestedAt());
+        sanitized.setHttpMethod(original.getHttpMethod());
+        result.setRequest(sanitized);
     }
 
     /**
