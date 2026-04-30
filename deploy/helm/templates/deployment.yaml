@@ -89,6 +89,10 @@ spec:
         image:  "{{  .Values.mongodb.image.registry }}/{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
       {{- end }}
         command: ['sh', '-c', "until mongosh --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+      {{- else if eq (include "appsmith.useOperatorMongo" .) "true" }}
+      - name: mongo-init-container
+        image: {{ include "appsmith.mongoInitContainerImage" . | quote }}
+        command: ['sh', '-c', "until mongosh --host {{ include "appsmith.mongoOperatorServiceName" . }}.{{ include "appsmith.namespace" . }}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo operator; sleep 2; done"]
       {{- end }}
       {{- if .Values.postgresql.enabled }}
       - name: psql-init-container
@@ -103,8 +107,8 @@ spec:
         - name: {{ .Values.containerName }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          {{- $customImage := .Values._image | default dict }}
-          image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
+          {{- $customImage := mergeOverwrite (.Values.image | deepCopy) (.Values._image | default dict) }}
+          image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" "latest" $customImage }}
           imagePullPolicy: {{ dig "pullPolicy" "IfNotPresent" $customImage }}
           ports:
             - name: http
@@ -164,6 +168,13 @@ spec:
             - name: LD_PRELOAD
               value: /usr/local/lib/libnss_wrapper.so
             {{- end }}
+            {{- if eq (include "appsmith.useOperatorMongo" .) "true" }}
+            - name: APPSMITH_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "appsmith.mongoOperatorSecretName" . }}
+                  key: connectionString.standardSrv
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
@@ -179,9 +190,10 @@ spec:
             - secretRef:
                 name: "{{ include "appsmith.fullname" . }}-external-secret"
             {{- end }}
-      {{- if .Values.image.pullSecrets}}
+      {{- $pullSecretName := dig "pullSecrets" "" $customImage }}
+      {{- if $pullSecretName }}
       imagePullSecrets:
-        - name: {{ .Values.image.pullSecrets }}
+        - name: {{ $pullSecretName }}
       {{- end }}
       volumes:
       {{- if .Values.customCAcert }}
