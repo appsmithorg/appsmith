@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://appsmith.com/charts/appsmith/values.schema.json",
+    "$id": "https://helm.appsmith.com/values.schema.json",
     "title": "Appsmith Helm chart values",
     "type": "object",
     "properties": {
