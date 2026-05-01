@@ -13982,7 +13982,7 @@ __metadata:
     unescape-js: ^1.1.4
     url-search-params-polyfill: ^8.0.0
     usehooks-ts: ^3.1.0
-    uuid: ^9.0.0
+    uuid: ^14.0.0
     validate-color: ^2.2.4
     web-vitals: 3.5.2
     webpack: ^5.98.0
@@ -34908,6 +34908,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uuid@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "uuid@npm:14.0.0"
+  bin:
+    uuid: dist-node/bin/uuid
+  checksum: 08608584a79e987cdae000fa8eb724fa51dd8aafc136cd9fa9a8c87d07b246c56eec5fd9027fdb3e49a863eedf758bc19e325909ce281955c7a027fed67dc89e
+  languageName: node
+  linkType: hard
+
 "uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
@@ -34917,7 +34926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^9.0.1":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
