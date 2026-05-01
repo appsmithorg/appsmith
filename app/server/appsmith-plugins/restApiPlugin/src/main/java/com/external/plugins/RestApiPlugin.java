@@ -227,8 +227,8 @@ public class RestApiPlugin extends BasePlugin {
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
                         log.error(
-                                "REST API execution failed for url: {}, path: {}",
-                                datasourceConfiguration.getUrl(),
+                                "REST API execution failed for method: {}, path: {}",
+                                actionExecutionRequest.getHttpMethod(),
                                 actionConfiguration.getPath(),
                                 error);
                         if (!(error instanceof AppsmithPluginException)) {
