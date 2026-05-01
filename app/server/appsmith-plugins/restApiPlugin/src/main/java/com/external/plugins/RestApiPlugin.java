@@ -226,7 +226,7 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        log.error(
+                        log.debug(
                                 "REST API execution failed for method: {}, path: {}",
                                 actionExecutionRequest.getHttpMethod(),
                                 actionConfiguration.getPath(),

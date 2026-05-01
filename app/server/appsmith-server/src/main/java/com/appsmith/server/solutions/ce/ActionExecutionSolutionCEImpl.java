@@ -870,7 +870,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             } else if (error instanceof StaleConnectionException e) {
                 return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR, e.getMessage());
             } else {
-                log.warn(
+                log.debug(
                         "Action execution failed for action '{}' (id: {}): {}",
                         actionDTO.getName(),
                         actionDTO.getId(),

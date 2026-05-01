@@ -148,7 +148,7 @@ public class RestAPIActivateUtils {
                                 result.setBody(objectMapper.readTree(jsonBody));
                                 responseDataType = ResponseDataType.JSON;
                             } catch (IOException e) {
-                                log.warn(
+                                log.debug(
                                         "Response declared Content-Type application/json but body is not valid JSON. Falling back to string representation.");
                                 String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
