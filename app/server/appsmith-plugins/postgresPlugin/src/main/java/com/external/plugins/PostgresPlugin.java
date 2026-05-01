@@ -701,7 +701,9 @@ public class PostgresPlugin extends BasePlugin {
         public void datasourceDestroy(ConnectionContext<HikariDataSource> connection) {
             Mono.fromRunnable(() -> destroyDatasourceConnectionContext(connection))
                     .subscribeOn(scheduler)
-                    .subscribe();
+                    .subscribe(
+                            null,
+                            error -> log.error("Failed to destroy Postgres datasource connection context.", error));
         }
 
         @Override
@@ -1399,11 +1401,21 @@ public class PostgresPlugin extends BasePlugin {
         SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
         if (sshTunnelContext != null) {
             try {
-                sshTunnelContext.getServerSocket().close();
-                sshTunnelContext.getSshClient().disconnect();
-                sshTunnelContext.getThread().interrupt();
+                if (sshTunnelContext.getServerSocket() != null) {
+                    sshTunnelContext.getServerSocket().close();
+                }
             } catch (IOException e) {
-                log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
+                log.warn("Failed to close SSH tunnel server socket.", e);
+            }
+            try {
+                if (sshTunnelContext.getSshClient() != null) {
+                    sshTunnelContext.getSshClient().disconnect();
+                }
+            } catch (IOException e) {
+                log.warn("Failed to disconnect SSH client.", e);
+            }
+            if (sshTunnelContext.getThread() != null) {
+                sshTunnelContext.getThread().interrupt();
             }
         }
     }
