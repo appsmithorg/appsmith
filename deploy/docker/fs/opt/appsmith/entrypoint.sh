@@ -102,8 +102,29 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+    local generated_appsmith_redis_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" "$generated_appsmith_redis_password" > "$ENV_PATH"
+  else
+    tlog "Configuration file already exists"
+    # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
+    # Only inject auth into the Redis URL when it points to the embedded (localhost) Redis.
+    if ! grep -q "APPSMITH_REDIS_PASSWORD" "$ENV_PATH"; then
+      local generated_appsmith_redis_password=$(
+        tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+        echo ''
+      )
+      echo $'\nAPPSMITH_REDIS_PASSWORD='"$generated_appsmith_redis_password" >> "$ENV_PATH"
+      # Update the Redis URL to include the password, but only for the embedded Redis.
+      local current_redis_url
+      current_redis_url=$(grep "^APPSMITH_REDIS_URL=" "$ENV_PATH" | tail -1 | cut -d= -f2-)
+      if [[ "$current_redis_url" == *"localhost"* || "$current_redis_url" == *"127.0.0.1"* ]]; then
+        sed -i "s|^APPSMITH_REDIS_URL=.*|APPSMITH_REDIS_URL=redis://:${generated_appsmith_redis_password}@127.0.0.1:6379|" "$ENV_PATH"
+      fi
+    fi
   fi
 
   tlog "Load environment configuration"
@@ -485,6 +506,16 @@ configure_supervisord() {
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
+      # Write Redis server config so the password is not visible in the process list.
+      # Placed in $TMP so it is regenerated each startup.
+      cat > "$TMP/redis.conf" <<REDIS_CONF
+save 15 1
+dir /appsmith-stacks/data/redis
+daemonize no
+logfile ""
+requirepass ${APPSMITH_REDIS_PASSWORD:-}
+REDIS_CONF
+      chmod 600 "$TMP/redis.conf"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"

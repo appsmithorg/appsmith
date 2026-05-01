@@ -6,7 +6,7 @@
     "./lib/*": "./lib/*.js"
   },
   "engines": {
-    "node": "^20.11.1",
+    "node": "^24.14.1",
     "yarn": "^3.5.1"
   },
   "packageManager": "yarn@3.5.1",
@@ -448,6 +448,8 @@
     "brace-expansion": "1.1.12",
     "form-data": "4.0.4",
     "fast-xml-parser": "4.5.4",
-    "handlebars": "4.7.9"
+    "handlebars": "4.7.9",
+    "canvas": "^3.0.0",
+    "protobufjs": "^7.5.5"
   }
 }
