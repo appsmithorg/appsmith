@@ -95,6 +95,11 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod, TriggerMe
         return true;
     }
 
+    /**
+     * Builds the GET request for {@code spreadsheets.values.batchGet} to fetch row data.
+     * Range strings are encoded with {@link GoogleSheetsApiEncoding#encodeQueryParameter(String)}
+     * so sheet names containing characters such as '+' are sent correctly in the query string.
+     */
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 

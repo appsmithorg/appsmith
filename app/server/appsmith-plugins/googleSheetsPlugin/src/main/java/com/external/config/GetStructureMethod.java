@@ -65,6 +65,11 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
         return true;
     }
 
+    /**
+     * Builds the GET request for {@code spreadsheets.values.batchGet} used to infer sheet structure.
+     * Range strings are encoded with {@link GoogleSheetsApiEncoding#encodeQueryParameter(String)}
+     * so sheet names containing characters such as '+' are sent correctly in the query string.
+     */
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
