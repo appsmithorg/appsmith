@@ -6,6 +6,7 @@ import com.appsmith.external.services.FilterDataService;
 import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
 import com.external.plugins.exceptions.GSheetsPluginError;
+import com.external.utils.GoogleSheetsApiEncoding;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
@@ -67,15 +69,17 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         final List<String> ranges = validateInputs(methodConfig);
+        final List<String> encodedRanges =
+                ranges.stream().map(GoogleSheetsApiEncoding::encodeQueryParameter).collect(Collectors.toList());
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(
                 this.BASE_SHEETS_API_URL, methodConfig.getSpreadsheetId() /* spreadsheet Id */ + "/values:batchGet");
         uriBuilder.queryParam("majorDimension", "ROWS");
-        uriBuilder.queryParam("ranges", ranges);
+        uriBuilder.queryParam("ranges", encodedRanges);
 
         return webClient
                 .method(HttpMethod.GET)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.empty());
     }
 
