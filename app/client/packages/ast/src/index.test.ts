@@ -1,8 +1,9 @@
-import { parseJSObject } from "../index";
+import { parseJSObject, entityRefactorFromCode } from "../index";
 import {
   extractIdentifierInfoFromCode,
   getMemberExpressionObjectFromProperty,
   isFunctionPresent,
+  wrapCode,
 } from "../src/index";
 
 describe("getAllIdentifiers", () => {
@@ -793,5 +794,82 @@ describe("getMemberExpressionObjectFromProperty", () => {
 
       expect(actualResponse).toStrictEqual(testDatum.expectedResponse);
     }
+  });
+});
+
+describe("entityRefactorFromCode", () => {
+  it("should refactor a simple identifier reference", () => {
+    const script = "inputs.title";
+    const result = entityRefactorFromCode(
+      script,
+      "inputs",
+      "Commons1.inputs",
+      false,
+      2,
+    );
+
+    expect(result.isSuccess).toBe(true);
+    const body = result.body as { script: string; refactorCount: number };
+
+    expect(body.script).toBe("Commons1.inputs.title");
+    expect(body.refactorCount).toBe(1);
+  });
+
+  it("should refactor inputs in a multi-line object literal (custom widget defaultModel)", () => {
+    // This is the exact pattern from a custom widget's defaultModel inside a UI module.
+    // The binding content starts with a newline followed by {, which triggers
+    // JavaScript's ASI after 'return' in wrapCode, causing a SyntaxError.
+    const script = `\n  {\n    title: inputs.title,\n    fields: inputs.fields,\n  }\n`;
+    const result = entityRefactorFromCode(
+      script,
+      "inputs",
+      "Commons1.inputs",
+      false,
+      2,
+    );
+
+    expect(result.isSuccess).toBe(true);
+    const body = result.body as { script: string; refactorCount: number };
+
+    expect(body.script).toContain("Commons1.inputs.title");
+    expect(body.script).toContain("Commons1.inputs.fields");
+    expect(body.refactorCount).toBe(2);
+  });
+
+  it("should refactor inputs in an inline object literal", () => {
+    const script = "{ title: inputs.title, fields: inputs.fields }";
+    const result = entityRefactorFromCode(
+      script,
+      "inputs",
+      "Commons1.inputs",
+      false,
+      2,
+    );
+
+    expect(result.isSuccess).toBe(true);
+    const body = result.body as { script: string; refactorCount: number };
+
+    expect(body.script).toContain("Commons1.inputs.title");
+    expect(body.script).toContain("Commons1.inputs.fields");
+    expect(body.refactorCount).toBe(2);
+  });
+
+  it("should refactor entity names in standard widget bindings", () => {
+    const script = "Api1.data";
+    const result = entityRefactorFromCode(script, "Api1", "NewApi1", false, 2);
+
+    expect(result.isSuccess).toBe(true);
+    const body = result.body as { script: string; refactorCount: number };
+
+    expect(body.script).toBe("NewApi1.data");
+    expect(body.refactorCount).toBe(1);
+  });
+
+  it("should handle wrapCode/unwrapCode roundtrip correctly", () => {
+    const code = "inputs.title";
+    const wrapped = wrapCode(code);
+
+    expect(wrapped).toContain("return");
+    expect(wrapped).toContain(code);
   });
 });

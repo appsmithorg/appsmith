@@ -5,17 +5,7 @@ set -euo pipefail
 
 edition="ce"
 
-# Configure AWS CLI and kubectl environment
-mkdir -p ~/.aws
-cat > ~/.aws/config <<EOF
-[default]
-region = ap-south-1
-output = json
-EOF
-
-aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
-
+# AWS credentials are provided via OIDC (configure-aws-credentials action)
 export region="ap-south-1"
 export cluster_name="uatx-cluster"
 
@@ -40,6 +30,7 @@ export APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY"
 export APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH"
 export APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING"
 export APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY"
+export APPSMITH_PYLON_APP_ID="${APPSMITH_PYLON_APP_ID:-}"
 export IN_DOCKER="$IN_DOCKER"
 
 # Update kubeconfig
@@ -122,6 +113,7 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH" \
   --set applicationConfig.APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING" \
   --set applicationConfig.APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY" \
+  --set applicationConfig.APPSMITH_PYLON_APP_ID="$APPSMITH_PYLON_APP_ID" \
   --set applicationConfig.IN_DOCKER="$IN_DOCKER" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key=instance_name \

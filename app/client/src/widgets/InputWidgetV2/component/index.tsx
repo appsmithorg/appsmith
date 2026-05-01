@@ -51,6 +51,7 @@ const InputComponent = (props: InputComponentProps) => {
       isDynamicHeightEnabled={props.isDynamicHeightEnabled}
       isInvalid={isInvalid}
       isLoading={props.isLoading}
+      isRequired={props.isRequired}
       label={props.label}
       labelAlignment={props.labelAlignment}
       labelPosition={props.labelPosition}

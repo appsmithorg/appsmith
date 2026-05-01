@@ -22,7 +22,7 @@ public class UserIdentifierServiceCEImplTest {
 
     @Test
     void getUserIdentifier_whenCloudHosting_returnsEmail() {
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(true);
         User user = new User();
         user.setEmail("test@gmail.com");
         assertThat(userIdentifierService.getUserIdentifier(user)).isEqualTo("test@gmail.com");
@@ -30,7 +30,7 @@ public class UserIdentifierServiceCEImplTest {
 
     @Test
     void getUserIdentifier_whenSelfHosted_returnsHashedEmail() {
-        Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
+        Mockito.when(commonConfig.getIsCloudHosting()).thenReturn(false);
         User user = new User();
         user.setEmail("test@gmail.com");
         String hashedEmail = userIdentifierService.hash("test@gmail.com");

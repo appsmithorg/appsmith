@@ -56,7 +56,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
     private static void updateConnection(OAuth2AuthorizationCode connection, OAuth2 token) {
         connection.setToken(token.getAuthenticationResponse().getToken());
-        connection.setHeader(token.getIsTokenHeader());
+        connection.setIsHeader(token.getIsTokenHeader());
         connection.setHeaderPrefix(token.getHeaderPrefix());
         connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
         connection.setRefreshToken(token.getAuthenticationResponse().getRefreshToken());
@@ -180,7 +180,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
     private Mono<ClientRequest> addTokenToRequest(ClientRequest clientRequest) {
         // Check to see where the token needs to be added
-        if (this.isHeader()) {
+        if (this.getIsHeader()) {
             final String finalHeaderPrefix =
                     this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank()
                             ? this.getHeaderPrefix().trim() + " "

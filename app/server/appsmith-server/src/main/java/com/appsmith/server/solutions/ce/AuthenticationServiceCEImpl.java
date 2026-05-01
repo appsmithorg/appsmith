@@ -241,7 +241,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return datasourceService
-                                .findById(splitStates[1])
+                                .findById(splitStates[1], datasourcePermission.getEditPermission())
                                 .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
                                         datasource1, splitStates[2]));
                 })
@@ -250,7 +250,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final HttpClient httpClient = HttpClient.create();
 
-                    if (oAuth2.isUseSelfSignedCert()) {
+                    if (oAuth2.getUseSelfSignedCert()) {
                         httpClient.secure(
                                 SSLHelper.sslCheckForHttpClient(datasourceStorage.getDatasourceConfiguration()));
                     }

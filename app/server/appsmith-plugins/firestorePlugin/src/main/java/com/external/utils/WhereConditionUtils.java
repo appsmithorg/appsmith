@@ -91,9 +91,9 @@ public class WhereConditionUtils {
                 return query.whereLessThanOrEqualTo(fieldPath, value);
             case EQ:
                 return query.whereEqualTo(fieldPath, value);
-                // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
-                // case NOT_EQ:
-                //     return Mono.just(query.whereNotEqualTo(path, value));
+            // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
+            // case NOT_EQ:
+            //     return Mono.just(query.whereNotEqualTo(path, value));
             case GT:
                 return query.whereGreaterThan(fieldPath, value);
             case GTE:
@@ -118,9 +118,9 @@ public class WhereConditionUtils {
                             FirestoreErrorMessages.WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG,
                             e.getMessage());
                 }
-                // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
-                // case NOT_IN:
-                //     return Mono.just(query.whereNotIn(fieldPath, value));
+            // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
+            // case NOT_IN:
+            //     return Mono.just(query.whereNotIn(fieldPath, value));
             default:
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

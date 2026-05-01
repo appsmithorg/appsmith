@@ -8,7 +8,7 @@ import {
 describe(
   "Authentiacted Api with OAuth 2.O authorization code test cases",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function () {

@@ -13,7 +13,7 @@ import {
 
 describe(
   "Test Top + Stacked navigation style",
-  { tags: ["@tag.IDE", "@tag.ImportExport", "@tag.PropertyPane", "@tag.Git"] },
+  { tags: ["@tag.IDE", "@tag.ImportExport", "@tag.PropertyPane"] },
   function () {
     before(() => {
       // Import an application

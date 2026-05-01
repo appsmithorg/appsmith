@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BlacklistedEnvVariableHelper;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -349,6 +352,29 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void unsafeShellValuesAreQuoted() {
+        final String content = "APPSMITH_DISABLE_TELEMETRY=false";
+
+        StepVerifier.create(envManager.transformEnvContent(
+                        content, Map.of("APPSMITH_DISABLE_TELEMETRY", "$(touch${IFS}/tmp/pwned)")))
+                .assertNext(value ->
+                        assertThat(value).containsExactly("APPSMITH_DISABLE_TELEMETRY='$(touch${IFS}/tmp/pwned)'"))
+                .verifyComplete();
+    }
+
+    @Test
+    public void controlCharactersInValuesAreRejected() {
+        final String content = "APPSMITH_DISABLE_TELEMETRY=false";
+
+        StepVerifier.create(envManager.transformEnvContent(
+                        content,
+                        Map.of("APPSMITH_DISABLE_TELEMETRY", "false\nAPPSMITH_JAVA_ARGS=$(touch${IFS}/tmp/pwned)")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER))
+                .verify();
+    }
+
+    @Test
     public void sendTestEmail_WhenUserNotSuperUser_ThrowsException() {
         User user = new User();
         user.setEmail("sample-super-user");
@@ -358,6 +384,52 @@ public class EnvManagerTest {
 
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
+                .verify();
+    }
+
+    private void mockSuperUser() {
+        User user = new User();
+        user.setEmail("admin@appsmith.com");
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
+    }
+
+    private TestEmailConfigRequestDTO buildDto(String smtpHost) {
+        return buildDto(smtpHost, 25);
+    }
+
+    private TestEmailConfigRequestDTO buildDto(String smtpHost, int port) {
+        TestEmailConfigRequestDTO dto = new TestEmailConfigRequestDTO();
+        dto.setSmtpHost(smtpHost);
+        dto.setSmtpPort(port);
+        dto.setFromEmail("test@appsmith.com");
+        dto.setStarttlsEnabled(false);
+        return dto;
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"127.0.0.1", "169.254.169.254", "localhost"})
+    public void sendTestEmail_WhenBlockedHost_ThrowsException(String host) {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto(host)))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP configuration");
+                })
+                .verify();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {80, 443, 6379, 8080, 27017, 0, -1})
+    public void sendTestEmail_WhenDisallowedPort_ThrowsException(int port) {
+        mockSuperUser();
+
+        StepVerifier.create(envManager.sendTestEmail(buildDto("smtp.gmail.com", port)))
+                .expectErrorSatisfies(e -> {
+                    assertThat(e).isInstanceOf(AppsmithException.class);
+                    assertThat(e.getMessage()).contains("Invalid SMTP configuration");
+                })
                 .verify();
     }
 

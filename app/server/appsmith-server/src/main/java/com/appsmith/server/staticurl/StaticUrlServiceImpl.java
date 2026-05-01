@@ -97,7 +97,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @see TextUtils#isSlugFormatValid(String)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Application> updateApplicationSlug(String branchedApplicationId, UniqueSlugDTO staticUrlDTO) {
         log.info("Starting application slug update for applicationId: {}", branchedApplicationId);
 
@@ -129,7 +129,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      *   <li>Appending a random suffix if the slug is already taken</li>
      * </ol>
      *
-     * <p>This method is feature-flagged and requires the {@code release_static_url_enabled}
+     * <p>This method is feature-flagged and requires the {@code license_static_url_enabled}
      * feature flag to be enabled.</p>
      *
      * @param branchedApplicationId the ID of the application
@@ -139,10 +139,10 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the current slug format is invalid
      *
      * @see #generateUniqueApplicationSlug(Application, String, int)
-     * @see FeatureFlagEnum#release_static_url_enabled
+     * @see FeatureFlagEnum#license_static_url_enabled
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<String> suggestUniqueApplicationSlug(String branchedApplicationId) {
         log.info("Suggesting unique application slug for applicationId: {}", branchedApplicationId);
 
@@ -184,7 +184,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      *   <li>Generating unique slugs for all pages in the application</li>
      * </ol>
      *
-     * <p>This method is feature-flagged and requires the {@code release_static_url_enabled}
+     * <p>This method is feature-flagged and requires the {@code license_static_url_enabled}
      * feature flag to be enabled.</p>
      *
      * @param branchedApplicationId the ID of the application
@@ -194,11 +194,11 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the slug format is invalid
      * @throws AppsmithException if the slug is already taken by another application
      *
-     * @see FeatureFlagEnum#release_static_url_enabled
+     * @see FeatureFlagEnum#license_static_url_enabled
      * @see #generateUniquePageSlugsForApplication(Application)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Application> autoGenerateStaticUrl(String branchedApplicationId, UniqueSlugDTO uniqueSlugDTO) {
         log.info("Auto-generating static URL for applicationId: {}", branchedApplicationId);
 
@@ -504,7 +504,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the application is not found
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Application> deleteStaticUrlSettings(String branchedApplicationId) {
         log.info("Deleting static URL settings for applicationId: {}", branchedApplicationId);
 
@@ -600,7 +600,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the application is not found
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<UniqueSlugDTO> isApplicationSlugUnique(String branchedApplicationId, String uniqueSlug) {
         log.info(
                 "Checking application slug uniqueness for applicationId: {}, slug: {}",
@@ -695,7 +695,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the slug is already taken by another page
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<NewPage> updatePageSlug(UniqueSlugDTO uniqueSlugDTO) {
         String pageId = uniqueSlugDTO.getBranchedPageId();
         final String normalizedPageSlug = TextUtils.makeSlug(uniqueSlugDTO.getUniquePageSlug());
@@ -895,7 +895,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @throws AppsmithException if the page or application is not found
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<UniqueSlugDTO> isPageSlugUnique(String branchedPageId, String uniquePageSlug) {
         log.info("Checking page slug uniqueness for pageId: {}, slug: {}", branchedPageId, uniquePageSlug);
 
@@ -1077,7 +1077,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @see GitUtils#isArtifactConnectedToGit(GitArtifactMetadata)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Tuple2<Application, NewPage>> getApplicationAndPageTupleFromStaticNames(
             String uniqueAppSlug, String uniquePageSlug, String refName, ApplicationMode mode) {
 
@@ -1161,17 +1161,17 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * the application has a unique slug. If the static URL is not enabled or
      * the slug format is invalid, it clears the slug.</p>
      *
-     * <p>This method is feature-flagged and requires the {@code release_static_url_enabled}
+     * <p>This method is feature-flagged and requires the {@code license_static_url_enabled}
      * feature flag to be enabled.</p>
      *
      * @param application the application being imported
      * @return Mono&lt;Application&gt; the application with updated slug
      *
-     * @see FeatureFlagEnum#release_static_url_enabled
+     * @see FeatureFlagEnum#license_static_url_enabled
      * @see #generateUniqueApplicationSlug(Application, String, int)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Application> generateAndUpdateApplicationSlugForNewImports(Application application) {
         log.info("Generating application slug for new import - applicationId: {}", application.getId());
         StaticUrlSettings staticUrlSettingsFromJson = application.getStaticUrlSettings();
@@ -1202,18 +1202,18 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * application to ensure slug uniqueness. It uses the existing application
      * as the base for uniqueness checking.</p>
      *
-     * <p>This method is feature-flagged and requires the {@code release_static_url_enabled}
+     * <p>This method is feature-flagged and requires the {@code license_static_url_enabled}
      * feature flag to be enabled.</p>
      *
      * @param applicationFromJson the application being imported from JSON
      * @param applicationFromDB the existing application in the database
      * @return Mono&lt;Application&gt; the application with updated slug
      *
-     * @see FeatureFlagEnum#release_static_url_enabled
+     * @see FeatureFlagEnum#license_static_url_enabled
      * @see #generateUniqueApplicationSlug(Application, String, int)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<Application> generateAndUpdateApplicationSlugForImportsOnExistingApps(
             Application applicationFromJson, Application applicationFromDB) {
         log.info(
@@ -1251,7 +1251,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * slugs don't conflict with existing pages. It handles both Git-connected
      * and non-Git applications differently.</p>
      *
-     * <p>This method is feature-flagged and requires the {@code release_static_url_enabled}
+     * <p>This method is feature-flagged and requires the {@code license_static_url_enabled}
      * feature flag to be enabled.</p>
      *
      * @param pagesToImport the pages being imported
@@ -1259,11 +1259,11 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
      * @param importedApplication the application being imported into
      * @return Mono&lt;List&lt;NewPage&gt;&gt; the pages with updated unique slugs
      *
-     * @see FeatureFlagEnum#release_static_url_enabled
+     * @see FeatureFlagEnum#license_static_url_enabled
      * @see GitUtils#isArtifactConnectedToGit(GitArtifactMetadata)
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<List<NewPage>> updateUniquePageSlugsBeforeImport(
             List<NewPage> pagesToImport, List<NewPage> pagesFromDb, Application importedApplication) {
 
@@ -1329,7 +1329,7 @@ public class StaticUrlServiceImpl extends StaticUrlServiceCECompatibleImpl imple
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_static_url_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_static_url_enabled)
     public Mono<PageDTO> updateUniqueSlugBeforeClone(PageDTO incomingPageDTO, List<NewPage> existingPagesFromApp) {
         if (!StringUtils.hasText(incomingPageDTO.getUniqueSlug())) {
             return Mono.just(incomingPageDTO);

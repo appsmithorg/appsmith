@@ -33,7 +33,7 @@ public class GitCloudServicesUtils {
         return configService
                 .getInstanceId()
                 .map(instanceId -> {
-                    if (commonConfig.isCloudHosting()) {
+                    if (commonConfig.getIsCloudHosting()) {
                         return instanceId + "_" + workspaceId;
                     } else {
                         return instanceId;

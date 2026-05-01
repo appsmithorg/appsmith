@@ -37,11 +37,11 @@ public class SegmentConfig {
 
     @Bean
     public Analytics analyticsRunner() {
-        if (commonConfig.isTelemetryDisabled()) {
+        if (commonConfig.getIsTelemetryDisabled()) {
             return null;
         }
 
-        final String analyticsWriteKey = commonConfig.isCloudHosting() ? writeKey : ceKey;
+        final String analyticsWriteKey = commonConfig.getIsCloudHosting() ? writeKey : ceKey;
         if (StringUtils.isEmpty(analyticsWriteKey)) {
             // We don't have the Segment Key, returning `null` here will disable analytics calls from AnalyticsService.
             return null;

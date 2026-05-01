@@ -20,8 +20,8 @@ describe.skip(
   {
     tags: [
       "@tag.Datasource",
+      "@tag.Sanity",
       "@tag.excludeForAirgap",
-      "@tag.Git",
       "@tag.AccessControl",
     ],
   },

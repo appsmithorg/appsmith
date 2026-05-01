@@ -12,15 +12,10 @@ ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 ARG APPSMITH_BETTERBUGS_API_KEY
 ENV APPSMITH_BETTERBUGS_API_KEY=${APPSMITH_BETTERBUGS_API_KEY}
 
-COPY deploy/docker/fs /
+ARG APPSMITH_PYLON_APP_ID
+ENV APPSMITH_PYLON_APP_ID=${APPSMITH_PYLON_APP_ID}
 
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:git-core/ppa && \
-    apt-get update && \
-    apt-get install -y git tar zstd openssh-client && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+COPY deploy/docker/fs /
 
 RUN <<END
   if ! [ -f info.json ]; then

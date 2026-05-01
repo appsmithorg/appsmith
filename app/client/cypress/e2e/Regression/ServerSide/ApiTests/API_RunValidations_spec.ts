@@ -8,7 +8,7 @@ import {
 
 describe(
   "API Panel request body",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.AccessControl"] },
   function () {
     it("1. Ensure that the run button is disabled when there are empty fields.", function () {
       apiPage.CreateApi("FirstAPI");

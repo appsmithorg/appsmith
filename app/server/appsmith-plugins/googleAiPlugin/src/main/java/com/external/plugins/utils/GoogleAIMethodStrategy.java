@@ -21,8 +21,9 @@ public class GoogleAIMethodStrategy {
 
         return switch (requestType) {
             case GoogleAIConstants.GENERATE_CONTENT_MODELS -> new GenerateContentCommand();
-            default -> throw Exceptions.propagate(
-                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+            default ->
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
     }
 
@@ -40,8 +41,9 @@ public class GoogleAIMethodStrategy {
     public static GoogleAICommand selectExecutionMethod(String command) {
         return switch (command) {
             case GoogleAIConstants.GENERATE_CONTENT -> new GenerateContentCommand();
-            default -> throw Exceptions.propagate(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command));
+            default ->
+                throw Exceptions.propagate(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command));
         };
     }
 }

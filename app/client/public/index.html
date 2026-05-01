@@ -74,7 +74,7 @@
     </script>
     <!-- End of Reo Javascript -->
 
-    <!-- Start of BetterBugs Recording Links (logs + recorder; only when BetterBugs enabled and not airgapped) -->
+    <!-- Start of BetterBugs Recording Links — https://docs.betterbugs.io/dashboard/workspace-settings/recording-links -->
     <script type="text/javascript">
       if (!DISABLE_BETTERBUGS && !AIRGAPPED) {
         window.__BetterbugsRecordingLinkConfig = {
@@ -82,16 +82,14 @@
           successMessageHeaderText: "Information received",
           successMessageSubHeaderText: "Our support team will use it to review the issue",
         };
-        (function () {
-          var s1 = document.createElement("script");
-          s1.src = "https://cdn.betterbugs.io/scripts/latest/logs-capture.js";
-          s1.async = true;
-          document.head.appendChild(s1);
-          var s2 = document.createElement("script");
-          s2.src = "https://cdn.betterbugs.io/scripts/latest/recorder.js";
-          s2.async = true;
-          document.head.appendChild(s2);
-        })();
+        const s1 = document.createElement("script");
+        s1.src = "https://pkg.betterbugs.io/scripts/latest/logs-capture.js";
+        s1.async = false;
+        document.head.appendChild(s1);
+        const s2 = document.createElement("script");
+        s2.src = "https://pkg.betterbugs.io/scripts/latest/recorder.js";
+        s2.async = false;
+        document.head.appendChild(s2);
       }
     </script>
     <!-- End of BetterBugs Recording Links -->

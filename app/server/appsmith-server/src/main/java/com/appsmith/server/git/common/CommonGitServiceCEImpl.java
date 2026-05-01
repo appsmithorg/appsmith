@@ -737,14 +737,14 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                         return exportService
                                                 .exportByArtifactId(artifactId, VERSION_CONTROL, artifactType)
                                                 .flatMap(artifactExchangeJson -> {
-                                                    artifactExchangeJson
-                                                            .getArtifact()
-                                                            .setGitArtifactMetadata(gitArtifactMetadata);
-                                                    return importService.importArtifactInWorkspaceFromGit(
-                                                            workspaceId,
-                                                            artifactId,
-                                                            artifactExchangeJson,
-                                                            defaultBranch);
+                                                    artifact.setGitArtifactMetadata(gitArtifactMetadata);
+                                                    return gitArtifactHelper
+                                                            .saveArtifact(artifact)
+                                                            .then(importService.importArtifactInWorkspaceFromGit(
+                                                                    workspaceId,
+                                                                    artifactId,
+                                                                    artifactExchangeJson,
+                                                                    defaultBranch));
                                                 });
                                     }
                                 })
@@ -2674,7 +2674,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                                         .getGitArtifactMetadata()
                                                                         .getIsRepoPrivate(),
                                                                 false,
-                                                                mergeStatusDTO.isMergeAble()))
+                                                                mergeStatusDTO.getMergeAble()))
                                                         .then(Mono.just(mergeStatusDTO))))
                                         .onErrorResume(error -> {
                                             try {
@@ -2916,7 +2916,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                  We just cloned from the remote default branch.
                                  Update the isDefault flag If it's also set as default in DB
                                 */
-                                gitBranchDTO.setDefault(true);
+                                gitBranchDTO.setIsDefault(true);
                             }
                         }
 
@@ -2933,7 +2933,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                             // This can happen when user has changed the default branch other
                                             // than
                                             // remote
-                                            gitBranchDTO.setDefault(gitArtifactMetadata
+                                            gitBranchDTO.setIsDefault(gitArtifactMetadata
                                                     .getDefaultBranchName()
                                                     .equals(branchName));
                                             gitBranchDTOList.add(gitBranchDTO);
@@ -2974,7 +2974,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 .map(branchDTOList -> {
                     for (GitBranchDTO branchDTO : branchDTOList) {
                         if (StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), defaultBranchName)) {
-                            branchDTO.setDefault(true);
+                            branchDTO.setIsDefault(true);
                             break;
                         }
                     }
@@ -3276,7 +3276,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         gitArtifactMetadata.setLastCommittedAt(Instant.now());
 
                         artifact.setGitArtifactMetadata(gitArtifactMetadata);
-                        return Mono.just(artifact).zipWith(profileMono);
+                        return gitArtifactHelper.saveArtifact(artifact).zipWith(profileMono);
                     });
                 })
                 .flatMap(objects -> {
@@ -3343,7 +3343,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                     "Datasource already exists with the same name")));
                                 }
 
-                                artifactExchangeJson.getArtifact().setGitArtifactMetadata(gitArtifactMetadata);
                                 return importService
                                         .importArtifactInWorkspaceFromGit(
                                                 workspaceId, artifact.getId(), artifactExchangeJson, defaultBranch)

@@ -1847,7 +1847,7 @@ describe("Tests for DependencyMapUtils", () => {
     "appsmith.user.name": true,
     "appsmith.user.photoId": true,
     "appsmith.user.enableTelemetry": true,
-    "appsmith.user.emptyInstance": true,
+    "appsmith.user.isEmptyInstance": true,
     "appsmith.user.accountNonExpired": true,
     "appsmith.user.accountNonLocked": true,
     "appsmith.user.credentialsNonExpired": true,

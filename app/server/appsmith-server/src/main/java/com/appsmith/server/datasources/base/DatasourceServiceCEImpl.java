@@ -47,8 +47,6 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -927,39 +925,24 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     /**
-     * Sets isRecentlyCreated flag to the datasources that were created recently.
-     * It finds the most recent `recentlyUsedCount` numbers of datasources based on the `createdAt` field and set
-     * the flag on for them.
-     *
+     * Sets isRecentlyCreated flag on the most recently created datasources.
+     * This is a best-effort UX hint — failures here must never break the datasource listing API.
      * @param datasourceList    List datasources
      * @param recentlyUsedCount How many should be marked as recently created
      */
     private void markRecentlyUsed(List<Datasource> datasourceList, int recentlyUsedCount) {
-        if (CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
+        if (CollectionUtils.isEmpty(datasourceList)) {
             return;
         }
 
-        // Here are the steps that we're following here:
-        // 1. Put the index of each datasource and the createdDate into a list of Tuple2<Integer, Instant>
-        // 2. Sort that list based on createdDate in descending order
-        // 3. Take first `recentlyUsedCount` numbers of Tuple2 from the list
-        // 4. Fetch corresponding datasource using the index of Tuple2 and set the recentlyUsed=true
-
-        List<Tuple2<Integer, Instant>> indexAndCreatedDates = new ArrayList<>(datasourceList.size());
-
-        for (int i = 0; i < datasourceList.size(); i++) {
-            Datasource datasource = datasourceList.get(i);
-            indexAndCreatedDates.add(Tuples.of(i, datasource.getCreatedAt()));
-        }
-
-        // provide a comparator to sort Tuple2<Integer, Instant> in reversed order of Instant
-        indexAndCreatedDates.sort(Comparator.comparing(Tuple2::getT2, Comparator.reverseOrder()));
-
-        // set the flag based on indexes from indexAndCreatedDates
-        for (int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
-            Tuple2<Integer, Instant> objects = indexAndCreatedDates.get(i);
-            Datasource datasource = datasourceList.get(objects.getT1());
-            datasource.setIsRecentlyCreated(true);
+        try {
+            datasourceList.stream()
+                    .filter(ds -> ds.getCreatedAt() != null)
+                    .sorted(Comparator.comparing(Datasource::getCreatedAt, Comparator.reverseOrder()))
+                    .limit(recentlyUsedCount)
+                    .forEach(ds -> ds.setIsRecentlyCreated(true));
+        } catch (Exception e) {
+            log.warn("Failed to mark recently created datasources", e);
         }
     }
 

@@ -11,7 +11,7 @@ import {
 describe.skip(
   "Datasource form OAuth2 client credentials related tests",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     let clientId, clientSecret;

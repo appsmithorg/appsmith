@@ -7,10 +7,8 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.ReactiveQueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 
 import java.lang.reflect.Method;
 
@@ -27,14 +25,15 @@ import java.lang.reflect.Method;
 public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
     private final ReactiveMongoOperations mongoOperations;
-    private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
-    ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider =
-            ReactiveQueryMethodEvaluationContextProvider.DEFAULT.DEFAULT;
-    private ExpressionParser expressionParser = new SpelExpressionParser();
+    private final ValueExpressionDelegate valueExpressionDelegate;
 
-    public SoftDeleteMongoQueryLookupStrategy(QueryLookupStrategy strategy, ReactiveMongoOperations mongoOperations) {
+    public SoftDeleteMongoQueryLookupStrategy(
+            QueryLookupStrategy strategy,
+            ReactiveMongoOperations mongoOperations,
+            ValueExpressionDelegate valueExpressionDelegate) {
         this.strategy = strategy;
         this.mongoOperations = mongoOperations;
+        this.valueExpressionDelegate = valueExpressionDelegate;
     }
 
     @Override
@@ -47,12 +46,10 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
             return repositoryQuery;
         }
 
-        if (!(repositoryQuery instanceof ReactivePartTreeMongoQuery)) {
+        if (!(repositoryQuery instanceof ReactivePartTreeMongoQuery partTreeQuery)) {
             return repositoryQuery;
         }
-        ReactivePartTreeMongoQuery partTreeQuery = (ReactivePartTreeMongoQuery) repositoryQuery;
 
-        return new SoftDeletePartTreeMongoQuery(
-                method, partTreeQuery, this.mongoOperations, EXPRESSION_PARSER, evaluationContextProvider);
+        return new SoftDeletePartTreeMongoQuery(method, partTreeQuery, this.mongoOperations, valueExpressionDelegate);
     }
 }

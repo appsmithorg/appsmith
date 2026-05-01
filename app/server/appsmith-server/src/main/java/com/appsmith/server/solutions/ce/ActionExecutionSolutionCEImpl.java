@@ -452,20 +452,24 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .flatMap(groupedPartsFlux -> {
                     String key = groupedPartsFlux.key();
                     return switch (key) {
-                        case PARAM_KEY_REGEX -> groupedPartsFlux.flatMap(
-                                part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        case BLOB_KEY_REGEX -> this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount)
-                                .then(Mono.empty());
-                        case EXECUTE_ACTION_DTO -> groupedPartsFlux
-                                .next()
-                                .flatMap(part -> this.parseExecuteActionPart(part, dto))
-                                .then(Mono.empty());
-                        case PARAMETER_MAP -> groupedPartsFlux
-                                .next()
-                                .flatMap(part -> this.parseExecuteParameterMapPart(part, dto))
-                                .then(Mono.empty());
-                        default -> Mono.error(new AppsmithException(
-                                AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found: " + key));
+                        case PARAM_KEY_REGEX ->
+                            groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
+                        case BLOB_KEY_REGEX ->
+                            this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount)
+                                    .then(Mono.empty());
+                        case EXECUTE_ACTION_DTO ->
+                            groupedPartsFlux
+                                    .next()
+                                    .flatMap(part -> this.parseExecuteActionPart(part, dto))
+                                    .then(Mono.empty());
+                        case PARAMETER_MAP ->
+                            groupedPartsFlux
+                                    .next()
+                                    .flatMap(part -> this.parseExecuteParameterMapPart(part, dto))
+                                    .then(Mono.empty());
+                        default ->
+                            Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found: " + key));
                     };
                 });
     }
@@ -1199,7 +1203,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     data.put("appId", actionDTO.getApplicationId());
                     data.put(FieldName.APP_MODE, appMode);
                     data.put("appName", application.getName());
-                    data.put("isExampleApp", application.isAppIsExample());
+                    data.put("isExampleApp", application.getAppIsExample());
 
                     String dsCreatedAt = "";
                     if (datasourceStorage.getCreatedAt() != null) {

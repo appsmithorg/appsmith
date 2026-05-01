@@ -78,7 +78,7 @@ const unevalTreeFromMainThread = {
       username: "someuser@appsmith.com",
       name: "Some name",
       enableTelemetry: true,
-      emptyInstance: false,
+      isEmptyInstance: false,
       accountNonExpired: true,
       accountNonLocked: true,
       credentialsNonExpired: true,

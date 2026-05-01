@@ -153,6 +153,52 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `storageClass.mountOptions`					| Mount options used by Persistent Volumes															| `{}`								|
 | `storageClass.parameters`						| Storage Class parameters																							| `{}`								|
 
+### MongoDB Community Operator parameters
+
+> **Preview feature in 3.7.0** — documented for fresh installs in this release. A documented migration path from an existing Bitnami-backed Appsmith release is being prepared separately. Pilot before relying on it for production data. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for known limitations.
+
+The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart.
+
+Quickstart for a fresh install:
+
+```bash
+kubectl create namespace appsmith
+helm install appsmith stable-appsmith/appsmith -n appsmith \
+  --set mongodb.enabled=false \
+  --set mongodbCommunity.enabled=true \
+  --set mongodbOperator.enabled=true
+```
+
+See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide.
+
+When `mongodbCommunity.enabled=true` and `mongodbCommunity.auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret whose name is derived from the resolved `mongodbCommunity.name` value with a `-password` suffix. The resolved name defaults to `<release-fullname>-mongo` when `mongodbCommunity.name` isn't explicitly set — so for a release named `appsmith` the Secret is `appsmith-mongo-password`. The Job is idempotent and compatible with ArgoCD.
+
+#### Subchart values (`mongodbOperator.*`)
+
+| Name | Description | Value |
+|---|---|---|
+| `mongodbOperator.enabled` | Install the upstream MongoDB Kubernetes Operator subchart alongside this chart | `false` |
+
+Other `mongodbOperator.*` values pass through to the upstream [mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) chart. Common overrides include `mongodbOperator.operator.watchNamespace` and `mongodbOperator.registry.*` — see the upstream chart's values reference.
+
+#### MongoDBCommunity CR values (`mongodbCommunity.*`)
+
+| Name                                       | Description                                                                                                                    | Value              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| `mongodbCommunity.enabled`                 | Deploy a `MongoDBCommunity` custom resource                                                                                    | `false`            |
+| `mongodbCommunity.name`                    | Name of the `MongoDBCommunity` custom resource. When empty, defaults to `<release-fullname>-mongo`.                            | `""`               |
+| `mongodbCommunity.version`                 | MongoDB version to deploy                                                                                                      | `8.0.20`           |
+| `mongodbCommunity.members`                 | Number of replica set members. `1` is a dev-friendly default; set to `3` for production HA.                                    | `1`                |
+| `mongodbCommunity.auth.username`           | MongoDB user for Appsmith                                                                                                      | `appsmith`         |
+| `mongodbCommunity.auth.database`           | Authentication database (also used as connection path)                                                                         | `appsmith`         |
+| `mongodbCommunity.auth.passwordSecretName` | Name of an existing Secret containing the password (key: `password`). When empty, a pre-install Job autogenerates the Secret. | `""`               |
+| `mongodbCommunity.persistent.storageSize`  | Storage size for each MongoDB replica PVC                                                                                      | `10Gi`             |
+| `mongodbCommunity.persistent.storageClass` | StorageClass for MongoDB PVCs. Empty uses cluster default (or `global.storageClass`).                                          | `""`               |
+| `mongodbCommunity.resources`               | Resource requests/limits for MongoDB containers                                                                                | `{}`               |
+| `mongodbCommunity.nodeSelector`            | Node selector for MongoDB pods                                                                                                 | `{}`               |
+| `mongodbCommunity.affinity`                | Affinity rules for MongoDB pods                                                                                                | `{}`               |
+| `mongodbCommunity.tolerations`             | Tolerations for MongoDB pods                                                                                                   | `[]`               |
+
 ### Auto update chart's image
 | Name										| Description																		|	Value					|
 | -----------------------	|	--------------------------------------------- | -------------	|

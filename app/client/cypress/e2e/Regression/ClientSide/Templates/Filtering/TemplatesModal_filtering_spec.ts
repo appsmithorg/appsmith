@@ -12,7 +12,6 @@ describe(
     tags: [
       "@tag.excludeForAirgap",
       "@tag.Templates",
-      "@tag.Git",
       "@tag.ImportExport",
       "@tag.Fork",
     ],

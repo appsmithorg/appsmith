@@ -134,7 +134,7 @@ export function Login(props: LoginFormProps) {
     );
   }, []);
 
-  if (currentUser?.emptyInstance) {
+  if (currentUser?.isEmptyInstance) {
     return <Redirect to={SETUP} />;
   }
 

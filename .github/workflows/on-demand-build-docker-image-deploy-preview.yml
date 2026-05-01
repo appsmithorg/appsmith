@@ -250,6 +250,8 @@ jobs:
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
+            APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
+            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}
 
     outputs:
@@ -258,6 +260,9 @@ jobs:
   build-deploy-preview:
     needs: [resolve-params, push-image]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: "."
@@ -268,6 +273,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ needs.resolve-params.outputs.pr_number }}/merge"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          aws-region: ap-south-1
 
       - name: Print versions of tools
         run: |
@@ -297,8 +308,6 @@ jobs:
 
       - name: Deploy Helm chart
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
           IMAGE_HASH: ${{ needs.push-image.outputs.imageHash }}
           AWS_RELEASE_CERT: ${{ secrets.APPSMITH_AWS_RELEASE_CERT_RELEASE }}
           DOCKER_HUB_ORGANIZATION: ${{ vars.DOCKER_HUB_ORGANIZATION }}
@@ -318,6 +327,8 @@ jobs:
           APPSMITH_CARBON_API_BASE_PATH: ${{ secrets.APPSMITH_CARBON_API_BASE_PATH }}
           APPSMITH_AI_SERVER_MANAGED_HOSTING: ${{ secrets.APPSMITH_AI_SERVER_MANAGED_HOSTING }}
           APPSMITH_BETTERBUGS_API_KEY: ${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
+          APPSMITH_PYLON_APP_ID: ${{ secrets.APPSMITH_PYLON_APP_ID }}
+          APPSMITH_PYLON_IDENTITY_SECRET: ${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
           IN_DOCKER: ${{ secrets.IN_DOCKER }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH

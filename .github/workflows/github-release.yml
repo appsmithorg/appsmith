@@ -278,6 +278,8 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
+            APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
+            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ needs.prelude.outputs.docker_tags }}

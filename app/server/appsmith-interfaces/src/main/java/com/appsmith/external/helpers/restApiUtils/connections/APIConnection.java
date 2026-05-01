@@ -13,7 +13,7 @@ public abstract class APIConnection implements ExchangeFilterFunction {
         final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         HttpClient httpClient = HttpClient.create();
 
-        if (oAuth2.isUseSelfSignedCert()) {
+        if (oAuth2.getUseSelfSignedCert()) {
             httpClient = httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
         }
 

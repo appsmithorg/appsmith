@@ -6,12 +6,7 @@ import EditorNavigation, {
 describe(
   "Fix UQI query switching",
   {
-    tags: [
-      "@tag.Datasource",
-      "@tag.excludeForAirgap",
-      "@tag.Git",
-      "@tag.AccessControl",
-    ],
+    tags: ["@tag.Datasource", "@tag.excludeForAirgap", "@tag.AccessControl"],
   },
   function () {
     it("1. The command of the Mongo query must be preserved and should not default to initial value after changed.", function () {

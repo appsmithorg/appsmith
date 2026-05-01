@@ -350,20 +350,15 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   );
 };
 
+const WRAP_CODE_PREFIX = "\n    (function() {\n      return ";
+const WRAP_CODE_SUFFIX = "\n    })\n  ";
+
 export const wrapCode = (code: string) => {
-  return `
-    (function() {
-      return ${code}
-    })
-  `;
+  return `${WRAP_CODE_PREFIX}${code}${WRAP_CODE_SUFFIX}`;
 };
 
-//Tech-debt: should upgrade this to better logic
-//Used slice for a quick resolve of critical bug
 const unwrapCode = (code: string) => {
-  const unwrapedCode = code.slice(32);
-
-  return unwrapedCode.slice(0, -10);
+  return code.slice(WRAP_CODE_PREFIX.length, -WRAP_CODE_SUFFIX.length);
 };
 
 const getFunctionalParamNamesFromNode = (
@@ -486,8 +481,17 @@ export const entityRefactorFromCode = (
   //Sanitizing leads to removal of special charater.
   //Hence we are not sanatizing the script. Fix(#18492)
   //If script is a JSObject then replace export default to decalartion.
+  // Trim leading whitespace before wrapping to prevent ASI after 'return'.
+  // When code starts with a newline before '{' (e.g., multi-line object literals
+  // in custom widget defaultModel), JS inserts a semicolon after 'return',
+  // making '{' parse as a block statement instead of an object literal.
+  let leadingWhitespace = "";
+
   if (isJSObject) script = jsObjectToCode(script);
-  else script = wrapCode(script);
+  else {
+    leadingWhitespace = script.match(/^(\s*)/)?.[0] ?? "";
+    script = wrapCode(script.trimStart());
+  }
 
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
@@ -572,7 +576,7 @@ export const entityRefactorFromCode = (
 
     //If script is a JSObject then revert decalartion to export default.
     if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
-    else refactorScript = unwrapCode(refactorScript);
+    else refactorScript = leadingWhitespace + unwrapCode(refactorScript);
 
     return {
       isSuccess: true,

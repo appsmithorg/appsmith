@@ -128,6 +128,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.NAME_SEPARATOR;
@@ -5214,6 +5215,101 @@ public class ImportServiceTests {
                     assertThat(updatedActionNames).hasSize(1);
                     updatedActionNames.forEach(actionName -> {
                         assertThat(actionName).contains("MyAction");
+                    });
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * The import pipeline must sanitise any self-locating ids that arrive in the uploaded JSON
+     * (application/page/layout ids, baseIds, etc.) so a crafted payload cannot overwrite existing
+     * DB rows or smuggle cross-workspace references. This test uses a fixture whose pageList
+     * entries carry tampered ids ("page_conversations"/"page_investors") and name-based
+     * placeholders ("Conversations"/"Investors") inside unpublishedPage / layouts, and verifies
+     * that after import every persisted entity carries a freshly generated ObjectId while the
+     * name-based cross-references are still correctly rewired to those new ids.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_tamperedPageIdsInJson_importedEntitiesGetFreshIds() {
+        final Pattern objectIdPattern = Pattern.compile("^[a-f0-9]{24}$");
+        final List<String> placeholderIds =
+                List.of("page_conversations", "page_investors", "Conversations", "Investors");
+        final String fixturePath = "com/appsmith/server/imports/internal/fund-raising-crm.json";
+
+        // Parse the fixture once up front so we can assert the pre-conditions that make this test
+        // meaningful: if the fixture ever loses its tampered ids the test fails loudly here instead
+        // of silently passing downstream.
+        ApplicationJson rawApplicationJson = createAppJson(fixturePath).block();
+        assertThat(rawApplicationJson).isNotNull();
+        assertThat(rawApplicationJson.getPageList()).hasSize(2);
+
+        List<String> tamperedPageIds =
+                rawApplicationJson.getPageList().stream().map(NewPage::getId).collect(Collectors.toList());
+        assertThat(tamperedPageIds).containsExactlyInAnyOrder("page_conversations", "page_investors");
+
+        List<String> tamperedBaseIds = rawApplicationJson.getPageList().stream()
+                .map(NewPage::getBaseId)
+                .collect(Collectors.toList());
+        assertThat(tamperedBaseIds).containsExactlyInAnyOrder("page_conversations", "page_investors");
+
+        List<String> unpublishedPagePlaceholderIds = rawApplicationJson.getExportedApplication().getPages().stream()
+                .map(ApplicationPage::getId)
+                .collect(Collectors.toList());
+        assertThat(unpublishedPagePlaceholderIds).containsExactlyInAnyOrder("Conversations", "Investors");
+
+        String newWorkspaceId = createTemplateWorkspace().getId();
+
+        Mono<Application> importMono = createAppJson(fixturePath).flatMap(applicationJson -> importService
+                .importNewArtifactInWorkspaceFromJson(newWorkspaceId, applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact));
+
+        StepVerifier.create(importMono.flatMap(application -> Mono.zip(
+                        Mono.just(application),
+                        newPageService
+                                .findNewPagesByApplicationId(application.getId(), READ_PAGES)
+                                .collectList())))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewPage> newPageList = tuple.getT2();
+
+                    assertThat(application.getId()).matches(objectIdPattern);
+                    assertThat(application.getWorkspaceId()).isEqualTo(newWorkspaceId);
+
+                    assertThat(application.getPages()).hasSize(2);
+                    application.getPages().forEach(applicationPage -> {
+                        assertThat(applicationPage.getId()).matches(objectIdPattern);
+                        assertThat(applicationPage.getId()).isNotIn(placeholderIds);
+                    });
+
+                    assertThat(newPageList).hasSize(2);
+
+                    List<String> newPageNames = newPageList.stream()
+                            .map(newPage -> newPage.getUnpublishedPage().getName())
+                            .collect(Collectors.toList());
+                    assertThat(newPageNames).containsExactlyInAnyOrder("Conversations", "Investors");
+
+                    List<String> applicationPageIds = application.getPages().stream()
+                            .map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+
+                    newPageList.forEach(newPage -> {
+                        assertThat(newPage.getId()).matches(objectIdPattern);
+                        assertThat(newPage.getId()).isNotIn(placeholderIds);
+                        assertThat(newPage.getBaseId()).isNotIn(placeholderIds);
+                        if (newPage.getBaseId() != null) {
+                            assertThat(newPage.getBaseId()).matches(objectIdPattern);
+                        }
+                        assertThat(newPage.getApplicationId()).isEqualTo(application.getId());
+                        assertThat(applicationPageIds).contains(newPage.getId());
+
+                        PageDTO unpublishedPageDTO = newPage.getUnpublishedPage();
+                        assertThat(unpublishedPageDTO).isNotNull();
+                        assertThat(unpublishedPageDTO.getLayouts()).isNotEmpty();
+                        unpublishedPageDTO.getLayouts().forEach(layout -> {
+                            assertThat(layout.getId()).matches(objectIdPattern);
+                            assertThat(layout.getId()).isNotIn(placeholderIds);
+                        });
                     });
                 })
                 .verifyComplete();

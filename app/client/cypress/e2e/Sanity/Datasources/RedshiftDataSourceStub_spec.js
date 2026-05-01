@@ -6,7 +6,7 @@ import { ObjectsRegistry } from "../../../support/Objects/Registry";
 describe(
   "Redshift datasource test cases",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.AccessControl"],
   },
   function () {
     beforeEach(() => {
