@@ -102,3 +102,5 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
 }
 
 export default CurrencyInputComponent;
+
+expect(getInputMode()).toBeUndefined();
