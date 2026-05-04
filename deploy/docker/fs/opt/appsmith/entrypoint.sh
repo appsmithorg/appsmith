@@ -366,9 +366,13 @@ ensure_mongodb_fcv_compatible() {
   fi
 
   tlog "No MongoDB FCV marker found on existing data; running one-time compatibility probe"
-  local probe_log="$TMP/mongo-fcv-probe.log"
-  : > "$probe_log"
-  if mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$probe_log" --bind_ip localhost >/dev/null 2>&1; then
+  # Persist the probe log inside the Mongo data directory so it survives container
+  # restarts. $TMP would be wiped, leaving no forensic trail when an admin comes
+  # back to investigate why their container exited. Append rather than truncate so
+  # repeated probe runs (e.g. multiple failed upgrade attempts) all stay on record.
+  local probe_log="$MONGO_DB_PATH/fcv-probe.log"
+  printf '\n===== Appsmith MongoDB FCV pre-flight probe @ %s =====\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$probe_log" 2>/dev/null || true
+  if mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$probe_log" --logappend --bind_ip localhost >/dev/null 2>&1; then
     if ! mongod --dbpath "$MONGO_DB_PATH" --shutdown >/dev/null 2>&1; then
       tlog "ERROR: Pre-flight mongod probe started but shutdown failed. The probe mongod may still hold port 27017 or the data lock, which would prevent supervisord from starting mongod. Aborting. See $probe_log for details." >&2
       exit 1
