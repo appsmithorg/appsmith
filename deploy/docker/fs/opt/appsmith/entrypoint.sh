@@ -389,10 +389,14 @@ ensure_mongodb_fcv_compatible() {
   if [[ -n "$probe_err" ]]; then
     tlog "== mongod log: $probe_err" >&2
   fi
+  tlog "==" >&2
+  tlog "== Your data has NOT been altered. This container exited before MongoDB started, so the database files on disk are exactly as you left them. You do not need to restore from backup — follow the steps below to recover." >&2
+  tlog "==" >&2
   tlog "== To upgrade safely:" >&2
-  tlog "==   1. Roll back to Appsmith v1.99 (the last release shipped with MongoDB 6.x)" >&2
-  tlog "==   2. Let the container start fully — it will raise the compatibility version to 6.0 automatically" >&2
-  tlog "==   3. Shut down, then upgrade to this release" >&2
+  tlog "==" >&2
+  tlog "==   1. Alter your Appsmith deployment to use v1.99 (the latest release shipped with MongoDB 6.x)" >&2
+  tlog "==   2. Let the container start fully — it will raise the MongoDB compatibility version to 6.0 automatically" >&2
+  tlog "==   3. Shut down, then alter your Appsmith deployment to use this version again" >&2
   tlog "==" >&2
   tlog "== Full mongod log: $probe_log" >&2
   tlog "====================================================================================================" >&2
