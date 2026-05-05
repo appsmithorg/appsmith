@@ -124,7 +124,7 @@
     "axios": "^1.15.0",
     "bfj": "^7.0.2",
     "camelcase": "^6.2.1",
-    "classnames": "^2.3.1",
+    "classnames": "^2.5.1",
     "clsx": "^1.2.1",
     "codemirror": "^5.65.13",
     "codemirror-graphql": "^1.2.14",
