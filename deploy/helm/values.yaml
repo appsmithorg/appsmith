@@ -45,6 +45,85 @@ mongodb:
     affinity: {}
     tolerations: []
 
+## MongoDBCommunity cluster parameters
+## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
+## See templates/mongodb-community.yaml for the CR definition and docs/install-mongodb-operator.md
+## for the install guide. Pair with mongodbOperator.enabled=true below to bundle the operator.
+##
+## PREVIEW (chart 3.7.0): documented for fresh installs in this release. A documented
+## migration path from an existing Bitnami-backed Appsmith release is being prepared
+## separately — if you have an existing install, watch for that documentation before
+## changing mongodbCommunity.enabled on a release with production data.
+mongodbCommunity:
+  ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
+  enabled: false
+  ## @param mongodbCommunity.name Name of the MongoDBCommunity custom resource
+  ## When empty (default), the chart computes "<release-fullname>-mongo". The "-mongo" suffix
+  ## (vs Bitnami's "-mongodb") keeps operator-managed resources from colliding with Bitnami
+  ## StatefulSet names during the Mode B transition window. Override to pin a specific name.
+  name: ""
+  ## @param mongodbCommunity.version MongoDB version to deploy
+  version: "8.0.20"
+  ## @param mongodbCommunity.members Number of replica set members
+  ## Defaults to 1 to minimize footprint for evaluation and dev installs. For production
+  ## HA, set to 3 (odd number recommended for replica set quorum). The operator handles
+  ## scaling between these online — it's just a value change on upgrade.
+  members: 1
+  auth:
+    ## @param mongodbCommunity.auth.username MongoDB user for Appsmith
+    username: "appsmith"
+    ## @param mongodbCommunity.auth.database Authentication database (also used as connection path)
+    database: "appsmith"
+    ## @param mongodbCommunity.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
+    ## If empty, a pre-install Job generates a random password into a Secret named "{name}-password"
+    passwordSecretName: ""
+  persistent:
+    ## @param mongodbCommunity.persistent.storageSize Storage size for each MongoDB replica
+    storageSize: "10Gi"
+    ## @param mongodbCommunity.persistent.storageClass StorageClass for MongoDB PVCs (empty uses cluster default)
+    storageClass: ""
+  ## @param mongodbCommunity.resources Resource requests/limits for MongoDB containers
+  resources: {}
+  ## @param mongodbCommunity.nodeSelector Node selector for MongoDB pods
+  nodeSelector: {}
+  ## @param mongodbCommunity.affinity Affinity rules for MongoDB pods
+  affinity: {}
+  ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
+  tolerations: []
+  ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the MongoDB user password Secret).
+  ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
+  ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
+  ## version if you need byte-level reproducibility.
+  passwordInit:
+    image:
+      ## @param mongodbCommunity.passwordInit.image.registry Registry for the kubectl image
+      registry: docker.io
+      ## @param mongodbCommunity.passwordInit.image.repository Repository path for the kubectl image
+      repository: alpine/kubectl
+      ## @param mongodbCommunity.passwordInit.image.tag Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      tag: latest
+      ## @param mongodbCommunity.passwordInit.image.pullPolicy Image pull policy for the Job
+      pullPolicy: IfNotPresent
+
+## MongoDB Kubernetes Operator subchart
+## Values under this key are passed through to the upstream mongodb-kubernetes chart (aliased to mongodbOperator).
+## Set mongodbOperator.enabled=true to bundle the operator with this release — it installs in the same namespace
+## and reconciles the MongoDBCommunity CR defined above. Leave it false only if you're managing the operator
+## separately and accept responsibility for its RBAC in this namespace.
+##
+## Ref: https://github.com/mongodb/mongodb-kubernetes/tree/main/helm_chart
+mongodbOperator:
+  ## @param mongodbOperator.enabled Install the MongoDB Kubernetes Operator subchart
+  enabled: false
+  ## @param mongodbOperator.operator.telemetry.enabled Enable the upstream operator's phone-home telemetry.
+  ## Disabled by default. When enabled, the upstream chart installs a ClusterRole named
+  ## "{operator.name}-cluster-telemetry" whose name does not include the operator's namespace, so it
+  ## collides if multiple Appsmith releases (each bundling their own operator) are installed in the
+  ## same cluster. Safe to re-enable if you run a single operator cluster-wide.
+  operator:
+    telemetry:
+      enabled: false
+
 ## postgresql parameters
 postgresql:
   enabled: true
@@ -124,13 +203,29 @@ initContainer: {}
   #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
 ## Image
 ##
+## @param image.registry Container image registry
+## @param image.repository Container image repository
+## @param image.tag Container image tag (defaults to "latest" when omitted)
+## @param image.pullPolicy Container image pull policy
+## @param image.pullSecrets Image pull secret name (single secret)
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ee
   pullPolicy: IfNotPresent
   pullSecrets: ""
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
+
+## DEPRECATED: use `image` instead.
+## `_image` is kept for backwards compatibility with older install guides / values files.
+## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
+## override fields like `repository` and `tag` without restating the full image.
+##
+## @param _image.registry DEPRECATED. Container image registry override (merged into image)
+## @param _image.repository DEPRECATED. Container image repository override (merged into image)
+## @param _image.tag DEPRECATED. Container image tag override (merged into image)
+## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
+## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
+_image: {}
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
