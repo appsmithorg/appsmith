@@ -11,7 +11,7 @@ sources:
   - https://github.com/appsmithorg/appsmith
 home: https://www.appsmith.com/
 icon: https://assets.appsmith.com/appsmith-icon.png
-version: 3.6.10
+version: 3.7.0
 dependencies:
   - condition: redis.enabled
     name: redis
@@ -33,3 +33,8 @@ dependencies:
     version: 25.27.0
     appVersion: 2.54.1
     repository: https://prometheus-community.github.io/helm-charts
+  - condition: mongodbOperator.enabled
+    alias: mongodbOperator
+    name: mongodb-kubernetes
+    version: 1.8.0
+    repository: https://mongodb.github.io/helm-charts
