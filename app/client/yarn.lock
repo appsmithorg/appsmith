@@ -13841,7 +13841,7 @@ __metadata:
     fusioncharts: ^3.18.0
     graphql: ^16.8.1
     history: ^4.10.1
-    html-webpack-plugin: ^5.5.0
+    html-webpack-plugin: ^5.6.7
     husky: ^8.0.0
     identity-obj-proxy: ^3.0.0
     interweave: ^12.7.2
@@ -21443,9 +21443,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "html-webpack-plugin@npm:5.5.0"
+"html-webpack-plugin@npm:^5.6.7":
+  version: 5.6.7
+  resolution: "html-webpack-plugin@npm:5.6.7"
   dependencies:
     "@types/html-minifier-terser": ^6.0.0
     html-minifier-terser: ^6.0.2
@@ -21453,8 +21453,14 @@ __metadata:
     pretty-error: ^4.0.0
     tapable: ^2.0.0
   peerDependencies:
+    "@rspack/core": 0.x || 1.x
     webpack: ^5.20.0
-  checksum: f3d84d0df71fe2f5bac533cc74dce41ab058558cdcc6ff767d166a2abf1cf6fb8491d54d60ddbb34e95c00394e379ba52e0468e0284d1d0cc6a42987056e8219
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    webpack:
+      optional: true
+  checksum: 043d17f0988fb173dd1a03159fc2e0c9a4d528f7f439b5318c72ec239e3c2be8267167c23a5a09f034c2c14ae0fccf8ab3055bee91151bb832744da2df29bfb6
   languageName: node
   linkType: hard
 
