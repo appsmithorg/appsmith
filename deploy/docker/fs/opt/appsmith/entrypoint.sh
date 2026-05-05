@@ -390,13 +390,18 @@ ensure_mongodb_fcv_compatible() {
     tlog "== mongod log: $probe_err" >&2
   fi
   tlog "==" >&2
-  tlog "== Your data has NOT been altered. This container exited before MongoDB started, so the database files on disk are exactly as you left them. You do not need to restore from backup — follow the steps below to recover." >&2
+  tlog "== About this error:" >&2
+  tlog "==   Appsmith 2.x ships with MongoDB 7.x, which requires the database to be at featureCompatibilityVersion (FCV) 6.0 or higher. Appsmith releases 1.93 to 1.99 automatically raise FCV to 6.0 on boot, so any instance that has run one of those releases is fine. Instances that have only ever run Appsmith older than 1.66 may still be at FCV 5.0, which MongoDB 7.x refuses to load." >&2
   tlog "==" >&2
-  tlog "== To upgrade safely:" >&2
+  tlog "==   This check only runs for instances using the embedded MongoDB. Instances configured with an external MongoDB are not affected." >&2
   tlog "==" >&2
-  tlog "==   1. Alter your Appsmith deployment to use v1.99 (the latest release shipped with MongoDB 6.x)" >&2
-  tlog "==   2. Let the container start fully — it will raise the MongoDB compatibility version to 6.0 automatically" >&2
-  tlog "==   3. Shut down, then alter your Appsmith deployment to use this version again" >&2
+  tlog "==   The failure happens during MongoDB pre-flight, before any Appsmith service comes online. No Appsmith database migrations have been attempted, so rolling back to a 1.x release is simply a matter of changing the image version on your deployment." >&2
+  tlog "==" >&2
+  tlog "== To recover:" >&2
+  tlog "==" >&2
+  tlog "==   1. Alter your Appsmith deployment to use a release in the 1.93 to 1.99 range (we recommend the latest, 1.99). These ship with MongoDB 6.x and will raise the compatibility version automatically." >&2
+  tlog "==   2. Let the container start fully so the MongoDB FCV upgrade completes." >&2
+  tlog "==   3. Shut down, then alter your Appsmith deployment to use this version again." >&2
   tlog "==" >&2
   tlog "== Full mongod log: $probe_log" >&2
   tlog "====================================================================================================" >&2
