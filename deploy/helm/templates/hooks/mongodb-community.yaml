@@ -1,0 +1,127 @@
+{{/*
+Creates the MongoDB user password secret via a pre-install/pre-upgrade Job
+when the user hasn't provided one via auth.passwordSecretName.
+
+The Job is idempotent: if the secret already exists, it exits without change.
+This keeps the password stable across Helm upgrades and ArgoCD re-syncs —
+unlike a template-based `lookup` + `randAlphaNum` approach, which causes
+ArgoCD to see a diff on every sync and would overwrite the password.
+
+The resulting Secret has no Helm release labels/annotations and no
+ownerReferences, so ArgoCD does not track or diff it (matching how the
+MongoDB operator's own generated secrets behave).
+*/}}
+{{- if .Values.mongodbCommunity.enabled }}
+{{- if not .Values.mongodbCommunity.auth.passwordSecretName }}
+{{- $passwordSecretName := include "appsmith.mongoOperatorPasswordSecretName" . -}}
+{{- $jobName := printf "%s-password-init" (include "appsmith.mongoCommunityName" .) | trunc 63 | trimSuffix "-" -}}
+{{- $namespace := include "appsmith.namespace" . -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+rules:
+  # Check whether the password secret already exists (scoped to one name).
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ $passwordSecretName | quote }}]
+    verbs: ["get"]
+  # Create it if it doesn't. resourceNames can't scope `create` (the name
+  # is in the request body, not the URL), so this is namespace-scoped.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: {{ $jobName }}
+    namespace: {{ $namespace }}
+roleRef:
+  kind: Role
+  name: {{ $jobName }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 60
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "appsmith.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ $jobName }}
+      restartPolicy: Never
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
+      containers:
+        - name: create-password
+          image: {{ include "appsmith.mongoPasswordInitImage" . | quote }}
+          imagePullPolicy: {{ .Values.mongodbCommunity.passwordInit.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              SECRET_NAME={{ $passwordSecretName | quote }}
+              NAMESPACE={{ $namespace | quote }}
+              if kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" >/dev/null 2>&1; then
+                echo "Secret $SECRET_NAME already exists; leaving it untouched."
+                exit 0
+              fi
+              PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
+              kubectl -n "$NAMESPACE" create secret generic "$SECRET_NAME" \
+                --from-literal=password="$PASSWORD"
+              echo "Created secret $SECRET_NAME."
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+{{- end }}
+{{- end }}

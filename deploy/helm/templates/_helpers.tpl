@@ -129,6 +129,107 @@ Get the PV name, using override if specified
 {{- end -}}
 
 {{/*
+Returns "true" when Appsmith should target the operator-managed MongoDB,
+meaning: the MongoDBCommunity CR is enabled, Bitnami MongoDB is disabled, and
+no other config source could be supplying APPSMITH_DB_URL (the values-level
+applicationConfig keys, secretName, secrets, or externalSecrets).
+
+Used to gate both the operator-mode init container (which waits for the
+operator-managed service) and the explicit APPSMITH_DB_URL env injection
+(which would otherwise silently override a user-supplied URL).
+*/}}
+{{- define "appsmith.useOperatorMongo" -}}
+{{- if and .Values.mongodbCommunity.enabled (not .Values.mongodb.enabled) (not .Values.applicationConfig.APPSMITH_DB_URL) (not .Values.applicationConfig.APPSMITH_MONGODB_URI) (not .Values.secretName) (not .Values.secrets) (not .Values.externalSecrets.enabled) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Password init Job image: the kubectl image used by the pre-install/pre-upgrade
+Job that bootstraps the MongoDB user password Secret.
+*/}}
+{{- define "appsmith.mongoPasswordInitImage" -}}
+{{- $img := .Values.mongodbCommunity.passwordInit.image -}}
+{{- printf "%s/%s:%s" $img.registry $img.repository $img.tag -}}
+{{- end -}}
+
+{{/*
+Init container image used to wait for the MongoDBCommunity replica set.
+
+Follows the same registry the upstream operator uses for MongoDBCommunity pods.
+The intent is that users with a private registry or pull-through proxy only
+configure the image source in one place (mongodbOperator.mongodb.repo) and the
+init container picks up the same path automatically.
+
+Resolution order:
+  1. .Values.initContainer.mongodb.image — full override from the user.
+  2. Otherwise construct "<repo>/mongodb-community-server:<version>-ubi8", where:
+       - <repo> follows .Values.mongodbOperator.mongodb.repo when set (either by
+         the subchart defaults when mongodbOperator.enabled=true, or by explicit
+         user override when the subchart is disabled).
+       - Falls back to "quay.io/mongodb" when unset (matches the subchart's
+         current default in v1.8.0).
+  The image name ("mongodb-community-server") and suffix ("-ubi8") are pinned
+  because the operator hardcodes those for MongoDBCommunity resources regardless
+  of the chart's other mongodb.* values.
+*/}}
+{{- define "appsmith.mongoInitContainerImage" -}}
+{{- if ((.Values.initContainer).mongodb).image -}}
+{{- .Values.initContainer.mongodb.image -}}
+{{- else -}}
+{{- $repo := ((.Values.mongodbOperator).mongodb).repo | default "quay.io/mongodb" -}}
+{{- printf "%s/mongodb-community-server:%s-ubi8" $repo .Values.mongodbCommunity.version -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+MongoDBCommunity CR name
+Returns the user-provided mongodbCommunity.name if set, otherwise computes
+"<fullname>-mongo". The "-mongo" suffix (vs "-mongodb") intentionally avoids
+collision with the Bitnami MongoDB subchart's StatefulSet/pod names during
+the Mode B transition window.
+
+Truncated to 60 chars so that the StatefulSet's pod ordinals (name + "-N")
+stay inside the 63-char DNS-label limit. Users overriding mongodbCommunity.name
+are responsible for keeping their own value short enough.
+*/}}
+{{- define "appsmith.mongoCommunityName" -}}
+{{- if .Values.mongodbCommunity.name -}}
+{{- .Values.mongodbCommunity.name -}}
+{{- else -}}
+{{- printf "%s-mongo" (include "appsmith.fullname" .) | trunc 60 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+MongoDB Operator: connection string secret name
+The operator auto-generates a secret named <CR name>-<db>-<username>
+*/}}
+{{- define "appsmith.mongoOperatorSecretName" -}}
+{{- printf "%s-%s-%s" (include "appsmith.mongoCommunityName" .) .Values.mongodbCommunity.auth.database .Values.mongodbCommunity.auth.username -}}
+{{- end -}}
+
+{{/*
+MongoDB Operator: headless service name
+The operator creates a service named <CR name>-svc
+*/}}
+{{- define "appsmith.mongoOperatorServiceName" -}}
+{{- printf "%s-svc" (include "appsmith.mongoCommunityName" .) -}}
+{{- end -}}
+
+{{/*
+MongoDB Operator: password secret name
+Uses existing secret if provided, otherwise derives from the CR name
+*/}}
+{{- define "appsmith.mongoOperatorPasswordSecretName" -}}
+{{- if .Values.mongodbCommunity.auth.passwordSecretName -}}
+{{- .Values.mongodbCommunity.auth.passwordSecretName -}}
+{{- else -}}
+{{- printf "%s-password" (include "appsmith.mongoCommunityName" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Renders a value that contains template.
 */}}
 {{- define "tplvalues.render" -}}

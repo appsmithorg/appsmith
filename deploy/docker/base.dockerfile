@@ -66,10 +66,10 @@ RUN <<END
   mkdir -p /opt/node
   arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"
 
-  curl -LOsS "https://nodejs.org/dist/latest-v20.x/SHASUMS256.txt"
+  curl -LOsS "https://nodejs.org/dist/latest-v24.x/SHASUMS256.txt"
   filename="$(awk '/linux-'"$arch"'.tar.gz/ {print $2}' SHASUMS256.txt)"
 
-  curl -LOsS "https://nodejs.org/dist/latest-v20.x/$filename"
+  curl -LOsS "https://nodejs.org/dist/latest-v24.x/$filename"
   grep "$filename" SHASUMS256.txt | sha256sum -c -
   tar -xzf "$filename" -C /opt/node --strip-components 1
 
