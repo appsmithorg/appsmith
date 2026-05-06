@@ -139,11 +139,6 @@ jobs:
 
       - name: Install Google Chrome 129.0.6668.100
         run: |
-          # apt-get update has been hanging on Azure-backed WarpBuild runners due to
-          # ongoing azure.archive.ubuntu.com mirror flakiness. Skip the index refresh
-          # and rely on the runner image's existing apt cache to resolve Chrome's
-          # transitive deps — they're stable libs (libnss3, libgbm1, etc.) and don't
-          # change between weekly runner image rebuilds.
           sudo apt-get remove -y google-chrome-stable || true
           wget -q --timeout=30 --tries=3 https://appsmith-github-chrome-129-debian.s3.us-east-2.amazonaws.com/google-chrome-stable_129.0.6668.100-1_amd64.deb
           sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
