@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getCurrentUser,
+  getShouldShowBaseUrlMissingBanner,
+} from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import type { DefaultRootState } from "react-redux";
@@ -10,6 +13,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
+import BaseUrlMissingBanner from "components/editorComponents/BaseUrlMissingBanner";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
 
@@ -61,14 +65,23 @@ export function PageHeader(props: PageHeaderProps) {
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
+  // GHSA-j9gf-vw2f-9hrw — fold the base-url-missing admin banner into the same
+  // isBannerVisible signal that the existing license/trial banner uses, so the
+  // page header gets pushed down by the banner's height (40px desktop / 70px
+  // mobile) when either banner is visible. Without this, the page header — which
+  // has a higher z-index — paints over the fixed-position banner at top: 0.
+  const showBaseUrlBanner = useSelector(getShouldShowBaseUrlMissingBanner);
+  const isAnyBannerVisible =
+    (showBanner && (isHomePage || isLicensePage)) || showBaseUrlBanner;
 
   return (
     <>
       <Banner />
+      <BaseUrlMissingBanner />
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
         hideShadow={props.hideShadow || false}
-        isBannerVisible={showBanner && (isHomePage || isLicensePage)}
+        isBannerVisible={isAnyBannerVisible}
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >

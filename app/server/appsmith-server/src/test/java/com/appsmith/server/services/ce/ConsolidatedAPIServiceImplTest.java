@@ -34,6 +34,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -50,6 +51,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +104,23 @@ public class ConsolidatedAPIServiceImplTest {
 
     @MockBean
     ProductAlertService mockProductAlertService;
+
+    /**
+     * GHSA-j9gf-vw2f-9hrw — the consolidated-api now calls
+     * {@link SecureBaseUrlResolver#isBaseUrlConfigurationHealthy()} alongside the org-config
+     * fetch. Mock it here so the test class doesn't escape into the real EE resolver chain
+     * (which transitively pulls in FeatureFlagService → OrganizationService and would NPE
+     * since OrganizationService is itself a @MockBean returning null for unstubbed methods).
+     */
+    @MockBean
+    SecureBaseUrlResolver mockSecureBaseUrlResolver;
+
+    @BeforeEach
+    void stubSecureBaseUrlResolver() {
+        // Default to healthy=true. Existing tests don't care about the admin-banner state;
+        // dedicated tests for the banner signal stub their own override on this mock.
+        when(mockSecureBaseUrlResolver.isBaseUrlConfigurationHealthy()).thenReturn(Mono.just(true));
+    }
 
     @SpyBean
     NewPageService spyNewPageService;
