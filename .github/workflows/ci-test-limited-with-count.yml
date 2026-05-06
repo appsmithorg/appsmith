@@ -310,9 +310,13 @@ jobs:
 
       - name: Install Google Chrome 129.0.6668.100
         run: |
-          sudo apt-get remove google-chrome-stable
+          # apt-get update has been hanging on Azure-backed WarpBuild runners due to
+          # ongoing azure.archive.ubuntu.com mirror flakiness. Skip the index refresh
+          # and rely on the runner image's existing apt cache to resolve Chrome's
+          # transitive deps — they're stable libs (libnss3, libgbm1, etc.) and don't
+          # change between weekly runner image rebuilds.
+          sudo apt-get remove -y google-chrome-stable || true
           wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
-          sudo apt-get update
           sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
           echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
           google-chrome --version
