@@ -485,13 +485,25 @@
                     "type": "object",
                     "properties": {
                         "driver": {
-                            "type": "null"
+                            "description": "CSI driver name for the EFS volume.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "enabled": {
-                            "type": "null"
+                            "description": "Enable EFS-backed persistence.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
                         },
                         "volumeHandle": {
-                            "type": "null"
+                            "description": "EFS filesystem volume handle (fs-xxxx[::access-point]).",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 },
@@ -504,13 +516,25 @@
                     "type": "object",
                     "properties": {
                         "claimName": {
-                            "type": "null"
+                            "description": "Explicit claimName to set on the pod's volume mount.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "enabled": {
-                            "type": "null"
+                            "description": "Set to true to mount an existing PVC instead of provisioning a new one.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
                         },
                         "name": {
-                            "type": "null"
+                            "description": "Name used to look up the existing PVC.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 },

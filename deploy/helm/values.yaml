@@ -577,13 +577,19 @@ persistence:
 
   # @schema description: Use an existing PVC instead of creating one.
   existingClaim:
+    # @schema type: [boolean, "null"]; description: Set to true to mount an existing PVC instead of provisioning a new one.
     enabled:
+    # @schema type: [string, "null"]; description: Name used to look up the existing PVC.
     name:
+    # @schema type: [string, "null"]; description: Explicit claimName to set on the pod's volume mount.
     claimName:
   # @schema description: AWS EFS CSI driver configuration when using an EFS-backed volume.
   efs:
+    # @schema type: [boolean, "null"]; description: Enable EFS-backed persistence.
     enabled:
+    # @schema type: [string, "null"]; description: CSI driver name for the EFS volume.
     driver:
+    # @schema type: [string, "null"]; description: EFS filesystem volume handle (fs-xxxx[::access-point]).
     volumeHandle:
   # @schema description: Fine-tuning options for the volumeClaimTemplate used by the StatefulSet.
   volumeClaimTemplates:

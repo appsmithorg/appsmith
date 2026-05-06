@@ -25,9 +25,14 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v4
+        with:
+          # Helm 4 — pinned so we don't silently track future major bumps.
+          version: v4.1.4
 
       - name: Install helm-values-schema-json plugin
-        run: helm plugin install https://github.com/losisin/helm-values-schema-json.git
+        # --verify=false is required by Helm 4's stricter plugin install path
+        # (the plugin source doesn't ship verification metadata).
+        run: helm plugin install --verify=false https://github.com/losisin/helm-values-schema-json.git
 
       - name: Regenerate schema from values.yaml
         run: |
