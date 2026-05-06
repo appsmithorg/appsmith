@@ -17,105 +17,15 @@
             "type": "object"
         },
         "applicationConfig": {
-            "description": "Map of APPSMITH_* environment variables passed to the application container. Common keys are documented below. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list. Arbitrary additional string-valued keys are accepted.",
+            "description": "Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.",
             "type": "object",
-            "properties": {
-                "APPSMITH_CLIENT_LOG_LEVEL": {
-                    "type": "string"
-                },
-                "APPSMITH_CUSTOM_DOMAIN": {
-                    "type": "string"
-                },
-                "APPSMITH_DB_URL": {
-                    "type": "string"
-                },
-                "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX": {
-                    "type": "string"
-                },
-                "APPSMITH_DISABLE_TELEMETRY": {
-                    "type": "string"
-                },
-                "APPSMITH_ENCRYPTION_PASSWORD": {
-                    "type": "string"
-                },
-                "APPSMITH_ENCRYPTION_SALT": {
-                    "type": "string"
-                },
-                "APPSMITH_FORM_LOGIN_DISABLED": {
-                    "type": "string"
-                },
-                "APPSMITH_KEYCLOAK_DB_DRIVER": {
-                    "type": "string"
-                },
-                "APPSMITH_KEYCLOAK_DB_PASSWORD": {
-                    "type": "string"
-                },
-                "APPSMITH_KEYCLOAK_DB_URL": {
-                    "type": "string"
-                },
-                "APPSMITH_KEYCLOAK_DB_USERNAME": {
-                    "type": "string"
-                },
-                "APPSMITH_LICENSE_KEY": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_ENABLED": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_FROM": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_HOST": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_PASSWORD": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_PORT": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_SMTP_AUTH": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_SMTP_TLS_ENABLED": {
-                    "type": "string"
-                },
-                "APPSMITH_MAIL_USERNAME": {
-                    "type": "string"
-                },
-                "APPSMITH_OAUTH2_GITHUB_CLIENT_ID": {
-                    "type": "string"
-                },
-                "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET": {
-                    "type": "string"
-                },
-                "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID": {
-                    "type": "string"
-                },
-                "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET": {
-                    "type": "string"
-                },
-                "APPSMITH_RECAPTCHA_ENABLED": {
-                    "type": "string"
-                },
-                "APPSMITH_RECAPTCHA_SECRET_KEY": {
-                    "type": "string"
-                },
-                "APPSMITH_RECAPTCHA_SITE_KEY": {
-                    "type": "string"
-                },
-                "APPSMITH_REDIS_URL": {
-                    "type": "string"
-                },
-                "APPSMITH_REPLY_TO": {
-                    "type": "string"
-                },
-                "APPSMITH_SIGNUP_DISABLED": {
-                    "type": "string"
-                }
-            },
             "additionalProperties": {
-                "type": "string"
+                "type": [
+                    "string",
+                    "boolean",
+                    "integer",
+                    "number"
+                ]
             }
         },
         "autoscaling": {

@@ -705,36 +705,67 @@ autoupdate:
 # @schema description: Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.
 secretName: ""
 
-# @schema description: Map of APPSMITH_* environment variables passed to the application container. Common keys are documented below. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list. Arbitrary additional string-valued keys are accepted.
-applicationConfig: # @schema additionalProperties: {type: string}
+# @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.
+applicationConfig: # @schema additionalProperties: {type: [string, boolean, integer, number]}
+  # @schema hidden: true
   APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
+  # @schema hidden: true
   APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""
+  # @schema hidden: true
   APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ""
+  # @schema hidden: true
   APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ""
+  # @schema hidden: true
   APPSMITH_FORM_LOGIN_DISABLED: ""
+  # @schema hidden: true
   APPSMITH_SIGNUP_DISABLED: ""
+  # @schema hidden: true
   APPSMITH_CLIENT_LOG_LEVEL: ""
+  # @schema hidden: true
   APPSMITH_MAIL_ENABLED: ""
+  # @schema hidden: true
   APPSMITH_MAIL_HOST: ""
+  # @schema hidden: true
   APPSMITH_MAIL_PORT: ""
+  # @schema hidden: true
   APPSMITH_MAIL_USERNAME: ""
+  # @schema hidden: true
   APPSMITH_MAIL_PASSWORD: ""
+  # @schema hidden: true
   APPSMITH_MAIL_FROM: ""
+  # @schema hidden: true
   APPSMITH_REPLY_TO: ""
+  # @schema hidden: true
   APPSMITH_MAIL_SMTP_AUTH: ""
+  # @schema hidden: true
   APPSMITH_MAIL_SMTP_TLS_ENABLED: ""
+  # @schema hidden: true
   APPSMITH_DISABLE_TELEMETRY: ""
+  # @schema hidden: true
   APPSMITH_RECAPTCHA_SITE_KEY: ""
+  # @schema hidden: true
   APPSMITH_RECAPTCHA_SECRET_KEY: ""
+  # @schema hidden: true
   APPSMITH_RECAPTCHA_ENABLED: ""
+  # @schema hidden: true
   APPSMITH_DB_URL: ""
+  # @schema hidden: true
   APPSMITH_REDIS_URL: ""
+  # @schema hidden: true
   APPSMITH_ENCRYPTION_PASSWORD: ""
+  # @schema hidden: true
   APPSMITH_ENCRYPTION_SALT: ""
+  # @schema hidden: true
   APPSMITH_CUSTOM_DOMAIN: ""
+  # @schema hidden: true
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+  # @schema hidden: true
   APPSMITH_LICENSE_KEY: ""
+  # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_DRIVER: ""
+  # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_USERNAME: ""
+  # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_PASSWORD: ""
+  # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_URL: ""

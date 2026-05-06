@@ -81,6 +81,19 @@ tests:
     asserts:
       - notFailedTemplate: {}
 
+  - name: accepts boolean and integer applicationConfig values
+    # Users naturally write `true` rather than `"true"` in YAML; Helm/K8s
+    # stringify scalars when rendering env vars, so the schema must accept
+    # all scalar types here.
+    set:
+      applicationConfig:
+        APPSMITH_DISABLE_TELEMETRY: true
+        APPSMITH_SIGNUP_DISABLED: false
+        APPSMITH_DISABLE_MONITORING: 1
+        APPSMITH_MAIL_PORT: 587
+    asserts:
+      - notFailedTemplate: {}
+
   - name: accepts arbitrary redis pass-through keys
     set:
       redis:
