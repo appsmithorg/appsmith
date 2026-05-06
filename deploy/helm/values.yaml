@@ -699,7 +699,7 @@ autoupdate:
 # @schema description: Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.
 secretName: ""
 
-# @schema description: Map of APPSMITH_* environment variables passed to the application container. Known keys are documented below. Arbitrary additional string-valued keys are accepted.
+# @schema description: Map of APPSMITH_* environment variables passed to the application container. Common keys are documented below. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list. Arbitrary additional string-valued keys are accepted.
 applicationConfig: # @schema additionalProperties: {type: string}
   APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
   APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""

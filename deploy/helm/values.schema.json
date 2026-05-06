@@ -17,7 +17,7 @@
             "type": "object"
         },
         "applicationConfig": {
-            "description": "Map of APPSMITH_* environment variables passed to the application container. Known keys are documented below. Arbitrary additional string-valued keys are accepted.",
+            "description": "Map of APPSMITH_* environment variables passed to the application container. Common keys are documented below. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list. Arbitrary additional string-valued keys are accepted.",
             "type": "object",
             "properties": {
                 "APPSMITH_CLIENT_LOG_LEVEL": {
