@@ -110,8 +110,8 @@ describe("FormGroup", () => {
       "admin-settings-form-group-helptext-link",
     );
 
-    expect(tooltipLink).toHaveAttribute("href", setting.helpTextLink);
-    expect(tooltipLink).toHaveAttribute("target", "_blank");
+    expect(tooltipLink.getAttribute("href")).toBe(setting.helpTextLink);
+    expect(tooltipLink.getAttribute("target")).toBe("_blank");
     expect(tooltipLink.textContent).toBe("Learn more");
   });
 });
