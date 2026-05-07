@@ -1,4 +1,5 @@
 import { render, screen } from "test/testUtils";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
 import { SettingTypes } from "ee/pages/AdminSettings/config/types";
@@ -30,6 +31,12 @@ describe("FormGroup", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    // Reset shared fixture so test outcomes don't depend on order (CodeRabbit
+    // flagged cross-test state leakage; new tests below add helpTextLink which
+    // compounded the issue).
+    setting.helpText = "";
+    setting.subText = "";
+    setting.helpTextLink = undefined;
   });
 
   it("is rendered", () => {
@@ -84,5 +91,33 @@ describe("FormGroup", () => {
     );
 
     expect(formGroupChild).toHaveLength(1);
+  });
+
+  it("does not render a tooltip docs link when helpTextLink is unset", async () => {
+    setting.helpText = "some help text";
+    setting.helpTextLink = undefined;
+    renderComponent();
+    const helpIcon = screen.getByTestId("admin-settings-form-group-helptext");
+
+    await userEvent.hover(helpIcon);
+    expect(
+      screen.queryByTestId("admin-settings-form-group-helptext-link"),
+    ).toBeNull();
+  });
+
+  it("renders a tooltip docs link when helpTextLink is set", async () => {
+    setting.helpText = "some help text";
+    setting.helpTextLink = "https://docs.appsmith.com/example";
+    renderComponent();
+    const helpIcon = screen.getByTestId("admin-settings-form-group-helptext");
+
+    await userEvent.hover(helpIcon);
+    const tooltipLink = await screen.findByTestId(
+      "admin-settings-form-group-helptext-link",
+    );
+
+    expect(tooltipLink.getAttribute("href")).toBe(setting.helpTextLink);
+    expect(tooltipLink.getAttribute("target")).toBe("_blank");
+    expect(tooltipLink.textContent).toBe("Learn more");
   });
 });

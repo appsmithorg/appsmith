@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -44,7 +45,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
         super(
                 validator,
                 repository,
@@ -62,6 +64,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 rateLimitService,
                 pacConfigurationService,
                 userServiceHelper,
-                instanceVariablesHelper);
+                instanceVariablesHelper,
+                secureBaseUrlResolver);
     }
 }

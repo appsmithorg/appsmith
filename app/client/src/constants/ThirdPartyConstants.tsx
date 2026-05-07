@@ -10,6 +10,8 @@ export const GET_RELEASE_NOTES_URL = (tagName: string) =>
   `${GITHUB_RELEASE_URL}/${tagName}`;
 export const SELF_HOSTING_DOC =
   "https://docs.appsmith.com/getting-started/setup";
+export const APPSMITH_BASE_URL_SETUP_DOC =
+  "https://docs.appsmith.com/getting-started/setup/environment-variables#appsmith_base_url";
 export const GOOGLE_MAPS_SETUP_DOC =
   "https://docs.appsmith.com/getting-started/setup/instance-configuration/google-maps";
 export const GOOGLE_SIGNUP_SETUP_DOC =

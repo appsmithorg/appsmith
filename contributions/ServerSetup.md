@@ -46,7 +46,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 
 - Java - OpenJDK 25 (Eclipse Temurin recommended).
 - Maven - Version 3.9+ (preferably 3.9.12).
-- Node.js - Version 20.11.1 (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
+- Node.js - Version 24.14.1 (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
 - A MongoDB database - Refer to the [Setting up a local MongoDB instance](#setting-up-a-local-mongodb-instance) section to setup a MongoDB instance using `Docker`.
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development. To set it up, refer to the [Setting up IntelliJ IDEA](#setting-up-intellij-idea) section.
@@ -190,14 +190,14 @@ APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
 
     **Steps to run RTS:**
 
-    1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+    1. Ensure you have Node.js 24.14.1 installed. If you have a different version, use a node version manager:
 
         ```console
-        nvm use 20.11.1
+        nvm use 24.14.1
         ```
         or
         ```console
-        fnm use 20.11.1
+        fnm use 24.14.1
         ```
 
     2. Navigate to the RTS directory (from repo root):
@@ -243,7 +243,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development.
 - Java - OpenJDK 25 (Eclipse Temurin recommended) in WSL.
 - Maven - Version 3.9+ (preferably 3.9.12) in WSL.
-- Node.js - Version 20.11.1 in WSL (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
+- Node.js - Version 24.14.1 in WSL (required for RTS server). You can use a node version manager like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage Node versions.
 
 This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these.
 
@@ -355,14 +355,14 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
     **Steps to run RTS:**
 
-    1. Ensure you have Node.js 20.11.1 installed. If you have a different version, use a node version manager:
+    1. Ensure you have Node.js 24.14.1 installed. If you have a different version, use a node version manager:
 
         ```console
-        nvm use 20.11.1
+        nvm use 24.14.1
         ```
         or
         ```console
-        fnm use 20.11.1
+        fnm use 24.14.1
         ```
 
     2. Navigate to the RTS directory (from repo root):
