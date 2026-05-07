@@ -93,6 +93,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
                   <Link
                     data-testid="admin-settings-form-group-helptext-link"
                     kind="primary"
+                    rel="noopener noreferrer"
                     target="_blank"
                     to={setting.helpTextLink}
                   >

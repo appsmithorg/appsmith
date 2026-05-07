@@ -31,6 +31,12 @@ describe("FormGroup", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    // Reset shared fixture so test outcomes don't depend on order (CodeRabbit
+    // flagged cross-test state leakage; new tests below add helpTextLink which
+    // compounded the issue).
+    setting.helpText = "";
+    setting.subText = "";
+    setting.helpTextLink = undefined;
   });
 
   it("is rendered", () => {
