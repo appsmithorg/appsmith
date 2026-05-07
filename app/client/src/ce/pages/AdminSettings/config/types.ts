@@ -62,6 +62,7 @@ export type Setting = ControlType & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parse?: (value: any) => any;
   helpText?: string;
+  helpTextLink?: string;
   label?: React.ReactNode;
   name?: string;
   placeholder?: string;
