@@ -81,8 +81,14 @@
             "type": "string"
         },
         "customCAcert": {
-            "description": "Custom CA certificates to trust at runtime. Each key maps to a PEM-encoded certificate file mounted into the container.",
-            "type": "null"
+            "description": "Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "type": "string"
+            }
         },
         "externalSecrets": {
             "description": "External Secrets Operator integration configuration.",

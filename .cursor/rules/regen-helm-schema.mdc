@@ -50,4 +50,4 @@ The flags must match `.github/workflows/helm-schema.yml` exactly or CI will repo
 ## Reference
 
 - Plugin docs: https://github.com/losisin/helm-values-schema-json
-- Annotation reference (after plugin install): `~/Library/helm/plugins/helm-values-schema-json.git/docs/README.md`
+- Annotation reference (after plugin install): `$(helm env HELM_PLUGINS)/helm-values-schema-json.git/docs/README.md` — `helm env HELM_PLUGINS` resolves to the platform-specific location (macOS: `~/Library/helm/plugins`, Linux: `~/.local/share/helm/plugins`, Windows: `%APPDATA%\helm\plugins`).

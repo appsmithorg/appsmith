@@ -452,7 +452,7 @@ ingress:
   # @schema description: IngressClass name to use for the Ingress resource.
   className: "nginx"
 
-# @schema description: Custom CA certificates to trust at runtime. Each key maps to a PEM-encoded certificate file mounted into the container.
+# @schema type: [object, "null"]; additionalProperties: {type: string}; description: Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).
 customCAcert:
 # cert1: |
 # paste-cert-1-contents-here

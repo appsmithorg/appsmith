@@ -86,7 +86,11 @@ jobs:
         if: steps.chart-version.outputs.channel == 'stable'
         run: |
           base="${{ steps.chart-version.outputs.base }}"
-          tarball_url="${{ vars.HELM_REPO_URL }}/appsmith-${base}.tgz"
+          # Strip any trailing slash from HELM_REPO_URL so we never produce
+          # a doubled slash in the tarball URL.
+          repo_url="${{ vars.HELM_REPO_URL }}"
+          repo_url="${repo_url%/}"
+          tarball_url="${repo_url}/appsmith-${base}.tgz"
           if curl -fsIL -o /dev/null "${tarball_url}"; then
             echo "::error::Chart version ${base} is already published at ${tarball_url}."
             echo "::error::Bump 'version:' in deploy/helm/Chart.yaml before merging."
@@ -137,6 +141,7 @@ jobs:
           # delivers, not whatever release-tip happens to ship.
           if [[ "${channel}" == "stable" ]]; then
             aws s3 cp values.schema.json "s3://${{ vars.HELM_S3_BUCKET }}/values.schema.json" \
+              --content-type "application/json" \
               --cache-control "public, max-age=60"
           fi
 
@@ -154,4 +159,5 @@ jobs:
           # Tarballs are content-addressed (digest in index) so they can
           # cache aggressively — leave their default cache-control alone.
           aws s3 cp /tmp/reindex/index.yaml "s3://${{ vars.HELM_S3_BUCKET }}/index.yaml" \
+            --content-type "application/x-yaml" \
             --cache-control "public, max-age=60"
