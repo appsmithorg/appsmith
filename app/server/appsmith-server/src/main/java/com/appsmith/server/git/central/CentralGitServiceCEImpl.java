@@ -38,11 +38,13 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import com.appsmith.server.events.GitDiscardChangesEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
+import com.appsmith.server.git.central.helpers.GitDiscardChangesAsyncEventManager;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
@@ -134,6 +136,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected final ExportService exportService;
 
     private final GitAutoCommitHelper gitAutoCommitHelper;
+    private final GitDiscardChangesAsyncEventManager gitDiscardChangesAsyncEventManager;
     private final TransactionalOperator transactionalOperator;
     protected final ObservationRegistry observationRegistry;
 
@@ -854,9 +857,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         // Use usingWhen so the git lock is acquired and released exactly once per invocation,
         // regardless of how the pipeline terminates (success, error, or cancellation).
         // The refCreationPipeline (ref creation + import + publish + analytics) all runs under
-        // the lock; discardChanges below runs *after* the lock is released so it never blocks
-        // subsequent git ops on the same base artifact, and is set up as a best-effort cleanup
-        // so we can flip it to fire-and-forget async in a follow-up.
+        // the lock. Source-branch cleanup is published after the lock is released so create-ref
+        // returns without waiting for the expensive discard/import path.
         Mono<? extends Artifact> createBranchMono = Mono.usingWhen(
                         gitRedisUtils.acquireGitLock(
                                 artifactType, baseArtifactId, GitCommandConstants.CREATE_REF, TRUE),
@@ -870,23 +872,32 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             releaseError.getMessage());
                                     return Mono.just(TRUE);
                                 }))
-                // After the lock is released, reset the source branch to its last commit.
-                // Best-effort: a failure here must NOT convert a successful branch creation into
-                // an error for the caller. Kept synchronous for now so external observers see a
-                // consistent source branch on return, but ready to be fire-and-forget async later.
+                // After the lock is released, reset the source branch to its last commit in the
+                // background. Best-effort: a failure here must NOT convert a successful branch
+                // creation into an error for the caller.
                 .flatMap(newImportedArtifact -> {
                     if (RefType.tag.equals(refType)) {
                         return Mono.just(newImportedArtifact);
                     }
-                    return discardChanges(sourceArtifact, gitType, FALSE)
-                            .onErrorResume(cleanupError -> {
+
+                    return userDataService
+                            .getGitProfileForCurrentUser(baseArtifactId)
+                            .doOnNext(gitProfile ->
+                                    gitDiscardChangesAsyncEventManager.publishAsyncEvent(new GitDiscardChangesEvent(
+                                            sourceArtifact.getId(),
+                                            artifactType,
+                                            gitType,
+                                            FALSE,
+                                            gitProfile.getAuthorName(),
+                                            gitProfile.getAuthorEmail())))
+                            .onErrorResume(cleanupEventError -> {
                                 log.warn(
-                                        "Best-effort discardChanges on source artifact {} after ref creation failed: {}",
+                                        "Failed to publish async discardChanges event for source artifact {} after ref creation: {}",
                                         sourceArtifact.getId(),
-                                        cleanupError.getMessage());
+                                        cleanupEventError.getMessage());
                                 return Mono.empty();
                             })
-                            .then(Mono.just(newImportedArtifact));
+                            .thenReturn(newImportedArtifact);
                 })
                 .onErrorResume(error -> {
                     log.error("An error occurred while creating reference. error {}", error.getMessage(), error);
@@ -2324,6 +2335,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<? extends Artifact> discardChanges(
             String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        return discardChanges(branchedArtifactId, artifactType, gitType, TRUE);
+    }
+
+    @Override
+    public Mono<? extends Artifact> discardChanges(
+            String branchedArtifactId, ArtifactType artifactType, GitType gitType, Boolean isValidateAndPublish) {
 
         if (!hasText(branchedArtifactId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
@@ -2334,7 +2351,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         return gitArtifactHelper
                 .getArtifactById(branchedArtifactId, artifactEditPermission)
-                .flatMap(branchedArtifact -> discardChanges(branchedArtifact, gitType));
+                .flatMap(branchedArtifact -> discardChanges(branchedArtifact, gitType, isValidateAndPublish));
     }
 
     protected Mono<? extends Artifact> discardChanges(Artifact branchedArtifact, GitType gitType) {

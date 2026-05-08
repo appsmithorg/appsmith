@@ -4,6 +4,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
+import com.appsmith.server.git.central.helpers.GitDiscardChangesAsyncEventManager;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
@@ -43,6 +44,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             ImportService importService,
             ExportService exportService,
             GitAutoCommitHelper gitAutoCommitHelper,
+            GitDiscardChangesAsyncEventManager gitDiscardChangesAsyncEventManager,
             TransactionalOperator transactionalOperator,
             ObservationRegistry observationRegistry) {
         super(
@@ -62,6 +64,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
                 importService,
                 exportService,
                 gitAutoCommitHelper,
+                gitDiscardChangesAsyncEventManager,
                 transactionalOperator,
                 observationRegistry);
     }
