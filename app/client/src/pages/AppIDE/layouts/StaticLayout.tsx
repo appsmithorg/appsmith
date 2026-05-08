@@ -19,6 +19,7 @@ import {
   GridContainer,
   LayoutContainer,
 } from "IDE/Components/LayoutComponents";
+import { GlobalAISidePanel } from "ee/components/editorComponents/GlobalAISidePanel";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();
@@ -65,6 +66,7 @@ export const StaticLayout = React.memo(() => {
           <LayoutContainer name={Areas.PropertyPane}>
             <RightPane />
           </LayoutContainer>
+          <GlobalAISidePanel />
         </GridContainer>
       </EditorWrapperContainer>
       <BottomBar />

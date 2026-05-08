@@ -32,6 +32,27 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
     }
 
     /**
+     * Nulls the primary key, audit fields and policies on both the unpublished and published themes in
+     * the incoming JSON so an attacker-controlled theme {@code id} cannot overwrite an existing
+     * (potentially system) theme row. For non-system themes the importer creates or re-uses a theme
+     * scoped to the workspace; for system themes it resolves by name.
+     */
+    @Override
+    public void sanitizeEntitiesInJsonForImport(ArtifactExchangeJson artifactExchangeJson) {
+        if (artifactExchangeJson == null) {
+            return;
+        }
+        if (artifactExchangeJson.getUnpublishedTheme() != null) {
+            artifactExchangeJson.getUnpublishedTheme().sanitiseToExportDBObject();
+            artifactExchangeJson.getUnpublishedTheme().makePristine();
+        }
+        if (artifactExchangeJson.getPublishedTheme() != null) {
+            artifactExchangeJson.getPublishedTheme().sanitiseToExportDBObject();
+            artifactExchangeJson.getPublishedTheme().makePristine();
+        }
+    }
+
+    /**
      * This method imports a theme from a JSON file to an application. The destination application can already have
      * a theme set or not. If no theme is set, it means the application is being created from a JSON import, git import.
      * In that case, we'll import the edit mode theme from the JSON file and update the application.

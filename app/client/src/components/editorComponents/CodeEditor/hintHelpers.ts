@@ -162,7 +162,10 @@ export class SqlHintHelper {
         LiElement.setAttribute("icontext", iconText);
         LiElement.classList.add("cm-sql-hint");
         LiElement.classList.add(`cm-sql-hint-${iconBgType}`);
-        LiElement.innerHTML = text;
+        // Using textContent (not innerHTML) to prevent stored XSS — database
+        // table/column names can legitimately contain any character, so we
+        // must render them as text. See GHSA-vjfq-fvfc-3vjw.
+        LiElement.textContent = text;
       };
 
       return completion;

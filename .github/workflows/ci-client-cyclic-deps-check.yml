@@ -70,6 +70,15 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
 
+      # Re-run setup-node against the base branch's package.json so that if the
+      # PR bumps the required Node version, `yarn install --immutable` still
+      # satisfies the base branch's engines constraint.
+      - name: Use Node.js (base branch)
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
       - name: Install dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |

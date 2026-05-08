@@ -24,6 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.EmailNormalizer;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -46,7 +47,6 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -110,41 +110,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
-
-    @Value("${APPSMITH_BASE_URL:}")
-    private String appsmithBaseUrl;
-
-    /**
-     * Resolves and validates the base URL for security-sensitive operations like password reset
-     * and email verification. This method ensures that URLs in emails point to trusted domains.
-     *
-     * <p>In single-org (CE) mode:
-     * <ul>
-     *   <li>If APPSMITH_BASE_URL is configured, validates that the provided URL matches it</li>
-     *   <li>If APPSMITH_BASE_URL is not configured, uses the provided URL (backward compatibility)</li>
-     * </ul>
-     *
-     * <p>This method can be overridden in EE to handle multi-org setups where each organization
-     * has its own base URL.
-     *
-     * @param providedBaseUrl The base URL from the request (typically from Origin header)
-     * @return Mono<String> The validated/resolved base URL to use for constructing email links
-     */
-    protected Mono<String> resolveSecureBaseUrl(String providedBaseUrl) {
-        // If APPSMITH_BASE_URL is not configured, use provided URL for backwards compatibility
-        if (!StringUtils.hasText(appsmithBaseUrl)) {
-            return Mono.just(providedBaseUrl);
-        }
-
-        // If APPSMITH_BASE_URL is configured, validate that Origin header matches it
-        if (!appsmithBaseUrl.equals(providedBaseUrl)) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.GENERIC_BAD_REQUEST,
-                    "Origin header does not match APPSMITH_BASE_URL configuration."));
-        }
-
-        return Mono.just(appsmithBaseUrl);
-    }
+    private final SecureBaseUrlResolver secureBaseUrlResolver;
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -176,7 +142,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
 
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -193,6 +160,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.userPoliciesComputeHelper = userServiceHelper;
         this.pacConfigurationService = pacConfigurationService;
         this.instanceVariablesHelper = instanceVariablesHelper;
+        this.secureBaseUrlResolver = secureBaseUrlResolver;
     }
 
     @Override
@@ -226,13 +194,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Resolve the secure base URL (validates in single-org, may be overridden for multi-org)
-        return resolveSecureBaseUrl(resetUserPasswordDTO.getBaseUrl()).flatMap(secureBaseUrl -> {
-            // Use the resolved secure base URL instead of the client-provided one
-            resetUserPasswordDTO.setBaseUrl(secureBaseUrl);
-            String email = resetUserPasswordDTO.getEmail();
-            return processForgotPasswordTokenGeneration(email, resetUserPasswordDTO);
-        });
+        // Resolve the secure base URL through the trusted resolver. When APPSMITH_BASE_URL is unset
+        // (and the insecure compatibility flag is off) the resolver returns Mono.empty(), causing
+        // this entire chain to complete without dispatching email — preserving the generic success
+        // response that anti-enumeration relies on. See GHSA-j9gf-vw2f-9hrw.
+        return secureBaseUrlResolver
+                .resolveSecureBaseUrl(resetUserPasswordDTO.getBaseUrl())
+                .flatMap(secureBaseUrl -> {
+                    resetUserPasswordDTO.setBaseUrl(secureBaseUrl);
+                    String email = resetUserPasswordDTO.getEmail();
+                    return processForgotPasswordTokenGeneration(email, resetUserPasswordDTO);
+                });
     }
 
     private Mono<Boolean> processForgotPasswordTokenGeneration(
@@ -868,13 +840,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Resolve the secure base URL (validates in single-org, may be overridden for multi-org)
-        return resolveSecureBaseUrl(resendEmailVerificationDTO.getBaseUrl()).flatMap(secureBaseUrl -> {
-            // Use the resolved secure base URL instead of the client-provided one
-            resendEmailVerificationDTO.setBaseUrl(secureBaseUrl);
-            String email = resendEmailVerificationDTO.getEmail();
-            return processResendEmailVerification(email, resendEmailVerificationDTO, redirectUrl);
-        });
+        // Resolve the secure base URL through the trusted resolver. When APPSMITH_BASE_URL is unset
+        // (and the insecure compatibility flag is off) the resolver returns Mono.empty(), causing
+        // this entire chain to complete without dispatching email. See GHSA-j9gf-vw2f-9hrw.
+        return secureBaseUrlResolver
+                .resolveSecureBaseUrl(resendEmailVerificationDTO.getBaseUrl())
+                .flatMap(secureBaseUrl -> {
+                    resendEmailVerificationDTO.setBaseUrl(secureBaseUrl);
+                    String email = resendEmailVerificationDTO.getEmail();
+                    return processResendEmailVerification(email, resendEmailVerificationDTO, redirectUrl);
+                });
     }
 
     private Mono<Boolean> processResendEmailVerification(

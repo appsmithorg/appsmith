@@ -1,4 +1,4 @@
-import { createMessage } from "ee/constants/messages";
+import { createMessage, LEARN_MORE } from "ee/constants/messages";
 import React from "react";
 import styled from "styled-components";
 import { Icon, Tooltip, Text, Link } from "@appsmith/ads";
@@ -57,6 +57,12 @@ export const StyledLink = styled(Link)`
   margin-top: 8px;
 `;
 
+const StyledHelpTextTooltipContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-2);
+`;
+
 export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup
@@ -79,7 +85,27 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
           </Text>
         )}
         {setting.helpText && (
-          <Tooltip content={createMessage(() => setting.helpText || "")}>
+          <Tooltip
+            content={
+              setting.helpTextLink ? (
+                <StyledHelpTextTooltipContent>
+                  <span>{createMessage(() => setting.helpText || "")}</span>
+                  <Link
+                    data-testid="admin-settings-form-group-helptext-link"
+                    kind="primary"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    to={setting.helpTextLink}
+                  >
+                    {createMessage(LEARN_MORE)}
+                  </Link>
+                </StyledHelpTextTooltipContent>
+              ) : (
+                createMessage(() => setting.helpText || "")
+              )
+            }
+            mouseLeaveDelay={0.3}
+          >
             <Icon
               className={"help-icon"}
               color="var(--ads-v2-color-fg)"
