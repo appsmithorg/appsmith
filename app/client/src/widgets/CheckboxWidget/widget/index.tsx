@@ -427,15 +427,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
 
-    // Handle programmatic changes
-    if (
-      this.props.isChecked !== prevProps.isChecked &&
-      this.props.onCheckChange
-    ) {
-      this.props.updateWidgetMetaProperty("isChecked", this.props.isChecked);
-    }
-  }
-
   static getSetterConfig(): SetterConfig {
     return {
       __setters: {
