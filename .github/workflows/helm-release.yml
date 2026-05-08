@@ -11,13 +11,11 @@ name: Helm Charts Publish
 #              --devel to install). S3 lifecycle (configured on the bucket,
 #              not in this workflow) prunes -release.* tarballs after N days.
 #
-# Pull requests touching deploy/helm/** also run, but skip the publish
-# steps. The version-collision check still fires, so a PR that forgets to
-# bump Chart.yaml's version (when the on-disk version was already
-# published) fails CI before merge.
+# PRs touching deploy/helm/** run the version-collision check (no
+# publish), so a PR that forgets to bump Chart.yaml's version fails
+# before merge.
 #
-# Variables (set as repository variables, not secrets — both are public
-# values and we want them readable by fork PRs):
+# Repo variables (deliberately not secrets, so fork PRs can read them):
 # - vars.HELM_S3_BUCKET   bucket name for `aws s3 ...` operations
 # - vars.HELM_REPO_URL    full URL (incl. scheme) clients fetch charts from
 
@@ -75,21 +73,17 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "channel=${channel}" >> "$GITHUB_OUTPUT"
 
-      # Stable releases are immutable — fail if a tarball at this version
-      # already exists at the public chart URL. Skipped for the release
-      # channel because pre-release versions are SHA-suffixed and never
-      # collide with already-published tarballs.
-      #
-      # HEAD against the public URL needs no credentials, so this check
-      # works identically on PRs (incl. from forks) and on push events.
+      # Stable releases are immutable — fail if this version already
+      # exists at the public chart URL. Skipped for the release channel:
+      # SHA-suffixed pre-release versions are unique by construction.
+      # HEAD against the public URL needs no AWS credentials, so this
+      # works identically for fork PRs.
       - name: Check chart version is not already published
         if: steps.chart-version.outputs.channel == 'stable'
         run: |
           base="${{ steps.chart-version.outputs.base }}"
-          # Strip any trailing slash from HELM_REPO_URL so we never produce
-          # a doubled slash in the tarball URL.
           repo_url="${{ vars.HELM_REPO_URL }}"
-          repo_url="${repo_url%/}"
+          repo_url="${repo_url%/}"  # avoid double slash if var has trailing /
           tarball_url="${repo_url}/appsmith-${base}.tgz"
           if curl -fsIL -o /dev/null "${tarball_url}"; then
             echo "::error::Chart version ${base} is already published at ${tarball_url}."
@@ -99,9 +93,6 @@ jobs:
           echo "OK: chart version ${base} is not yet published."
 
       - name: Publish Helm
-        # Only publish on push (or manual dispatch) against master or release.
-        # PRs and dispatches against feature branches run the version-collision
-        # check above and stop there.
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release'
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
@@ -116,48 +107,57 @@ jobs:
           channel="${{ steps.chart-version.outputs.channel }}"
           tarball="appsmith-${version}.tgz"
 
+          # Isolated dir used for both `helm package` output and
+          # `helm repo index` input. Indexing from this dir (rather than
+          # deploy/helm/) ensures `helm repo index` sees only our
+          # first-party tarball — not the dependency tarballs that
+          # `helm dep build` leaves in ./charts/, which would otherwise
+          # be indexed as bogus top-level entries.
+          pkg_dir="${RUNNER_TEMP}/helm-publish"
+          mkdir -p "${pkg_dir}"
+
           echo "Publishing chart version ${version} to channel=${channel}"
 
           helm dep build
+          helm package . --version "${version}" --destination "${pkg_dir}"
 
-          # Override the on-disk Chart.yaml version for release-channel builds.
-          helm package . --version "${version}"
-
-          # Upload the tarball. Tag release-channel objects so an S3 lifecycle
-          # rule can expire them after N days; stable objects stay forever.
+          # Tag release-channel objects so an S3 lifecycle rule can expire
+          # them; stable objects stay forever. `aws s3 cp` doesn't accept
+          # --tagging, so the tagged path uses the lower-level s3api.
           if [[ "${channel}" == "release" ]]; then
-            aws s3 cp "${tarball}" "s3://${{ vars.HELM_S3_BUCKET }}/" \
+            aws s3api put-object \
+              --bucket "${{ vars.HELM_S3_BUCKET }}" \
+              --key "${tarball}" \
+              --body "${pkg_dir}/${tarball}" \
               --tagging "channel=release"
           else
-            aws s3 cp "${tarball}" "s3://${{ vars.HELM_S3_BUCKET }}/"
+            aws s3 cp "${pkg_dir}/${tarball}" "s3://${{ vars.HELM_S3_BUCKET }}/"
           fi
 
-          # Publish the bare values.schema.json on stable releases only.
-          # The schema is also bundled inside every chart .tgz (that's
-          # what Helm itself validates against on install). The bare URL
-          # exists for IDEs that fetch via the `# yaml-language-server:
-          # $schema=...` directive — keeping it tied to stable means
-          # IDE schema reflects what default `helm install` actually
-          # delivers, not whatever release-tip happens to ship.
+          # Publish the bare values.schema.json for IDEs that fetch via
+          # `# yaml-language-server: $schema=...`. The schema is also
+          # bundled inside every chart .tgz — Helm itself validates
+          # against that. Stable-only so the bare URL reflects what
+          # default `helm install` delivers.
           if [[ "${channel}" == "stable" ]]; then
             aws s3 cp values.schema.json "s3://${{ vars.HELM_S3_BUCKET }}/values.schema.json" \
               --content-type "application/json" \
               --cache-control "public, max-age=60"
           fi
 
-          # Regenerate index.yaml from current bucket state rather than
-          # appending via --merge. This way, when the lifecycle rule deletes
-          # expired -release.* tarballs, the next publish naturally drops
-          # them from the index — no separate cleanup workflow needed.
-          mkdir -p /tmp/reindex
-          aws s3 sync "s3://${{ vars.HELM_S3_BUCKET }}/" /tmp/reindex/ \
-            --exclude '*' --include '*.tgz'
-          helm repo index /tmp/reindex/ --url "${{ vars.HELM_REPO_URL }}"
+          # Append-only merge: existing entries keep their original
+          # metadata (including `created` timestamps). Pruning entries
+          # for expired release-channel tarballs is the cleanup job's
+          # responsibility, not this one.
+          aws s3 cp "s3://${{ vars.HELM_S3_BUCKET }}/index.yaml" "${pkg_dir}/"
+          helm repo index "${pkg_dir}" \
+            --url "${{ vars.HELM_REPO_URL }}" \
+            --merge "${pkg_dir}/index.yaml"
 
           # Short cache-control on index.yaml so `helm repo update` sees
-          # new versions promptly even if the bucket is fronted by a CDN.
-          # Tarballs are content-addressed (digest in index) so they can
-          # cache aggressively — leave their default cache-control alone.
-          aws s3 cp /tmp/reindex/index.yaml "s3://${{ vars.HELM_S3_BUCKET }}/index.yaml" \
+          # new versions promptly behind any CDN. Tarballs are content-
+          # addressed via digest in the index, so leave their headers
+          # alone — they can cache aggressively.
+          aws s3 cp "${pkg_dir}/index.yaml" "s3://${{ vars.HELM_S3_BUCKET }}/index.yaml" \
             --content-type "application/x-yaml" \
             --cache-control "public, max-age=60"
