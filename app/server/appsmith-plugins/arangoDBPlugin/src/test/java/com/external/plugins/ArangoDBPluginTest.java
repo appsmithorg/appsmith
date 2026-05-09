@@ -31,8 +31,6 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,7 +76,7 @@ public class ArangoDBPluginTest {
                 .user(user)
                 .password(password)
                 .useSsl(false)
-                .useProtocol(Protocol.HTTP_VPACK)
+                .protocol(Protocol.HTTP2_JSON)
                 .build();
 
         arangoDB.createDatabase(dbName);
@@ -141,7 +139,7 @@ public class ArangoDBPluginTest {
         schema.setLevel(CollectionSchema.Level.NONE);
         CollectionCreateOptions options = new CollectionCreateOptions();
         options.type(CollectionType.DOCUMENT);
-        options.setSchema(schema);
+        options.schema(schema);
 
         ArangoCollection collection = arangoDatabase.collection(collectionName);
         if (collection.exists()) {
@@ -162,9 +160,9 @@ public class ArangoDBPluginTest {
                         "luckyNumber",
                         987654321L,
                         "dob",
-                        LocalDate.of(2018, 12, 31),
+                        Map.of("year", 2018, "month", 12, "day", 31),
                         "netWorth",
-                        new BigDecimal("123456.789012")),
+                        "123456.789012"),
                 Map.of("name", "Alden Cantrell", "gender", "M", "age", 30),
                 Map.of("name", "Kierra Gentry", "gender", "F", "age", 40)));
     }

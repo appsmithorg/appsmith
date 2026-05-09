@@ -20,12 +20,15 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import com.arangodb.ContentType;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
+import com.arangodb.serde.jackson.JacksonSerde;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
 import com.external.plugins.exceptions.ArangoDBPluginError;
 import com.external.utils.ArangoDBErrorUtils;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.pf4j.Extension;
@@ -102,7 +105,7 @@ public class ArangoDBPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName()
                                 + ": got action execution result from ArangoDB plugin.");
-                        ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                        ArangoCursor<Map> cursor = db.query(query, Map.class, null, null);
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(true);
                         List<Map> docList = new ArrayList<>();
@@ -226,15 +229,23 @@ public class ArangoDBPlugin extends BasePlugin {
         /**
          * - Builder properties are explained here:
          * https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+         *
+         * The custom Jackson serde enables {@link DeserializationFeature#USE_LONG_FOR_INTS} so query results
+         * deserialize all JSON integer values into {@code Long}. This preserves the numeric-type behavior of the
+         * legacy 6.x driver (which delivered integers via VPACK as {@code Long}) and keeps the structure-tree
+         * column types (Long vs Integer) stable for users after the 7.x driver upgrade.
          */
         private Builder getBasicBuilder(DBAuth auth) {
             String username = auth.getUsername();
             String password = auth.getPassword();
+            JacksonSerde serde = JacksonSerde.of(ContentType.JSON)
+                    .configure(mapper -> mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true));
             Builder dbBuilder = new Builder()
                     .maxConnections(5)
                     .user(username)
                     .password(password)
-                    .useProtocol(Protocol.HTTP_VPACK);
+                    .protocol(Protocol.HTTP2_JSON)
+                    .serde(serde);
 
             return dbBuilder;
         }
@@ -362,7 +373,7 @@ public class ArangoDBPlugin extends BasePlugin {
                                 new ArrayList<>(),
                                 templates));
 
-                        ArangoCursor<Map> cursor = db.query(getOneDocumentQuery(collectionName), null, null, Map.class);
+                        ArangoCursor<Map> cursor = db.query(getOneDocumentQuery(collectionName), Map.class, null, null);
                         Map document = new HashMap();
                         List<Map> docList = cursor.asListRemaining();
                         if (!CollectionUtils.isEmpty(docList)) {
