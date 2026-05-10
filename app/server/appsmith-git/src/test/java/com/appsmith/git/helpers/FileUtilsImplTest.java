@@ -170,6 +170,38 @@ public class FileUtilsImplTest {
     }
 
     /**
+     * GHSA-m4hv-9p7g-56vm: Path traversal in file read operations.
+     * readFile/readFiles/readFileAsString must reject paths that escape the git root.
+     */
+    @Test
+    public void reconstructMetadata_pathTraversalInRepoSuffix_throwsSecurityException() {
+        // Craft a repoSuffix that traverses above the git root directory
+        Path maliciousRepoSuffix = Path.of("workspace", "app", "..", "..", "..", "..", "etc");
+
+        // The internal readFile call should detect the path escapes gitRoot and throw.
+        // Before the fix, this would silently attempt to read /etc/metadata.json and return null.
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            fileUtils.reconstructMetadataFromGitRepository(maliciousRepoSuffix).block();
+        });
+    }
+
+    /**
+     * GHSA-m4hv-9p7g-56vm: Verify that valid paths within git root still work.
+     */
+    @Test
+    public void reconstructMetadata_validPathWithinGitRoot_doesNotThrowSecurityException() throws IOException {
+        Path validRepoSuffix = Path.of("workspace1", "app1", "repo1");
+        Path fullRepoPath = localTestDirectoryPath.resolve(validRepoSuffix);
+        Files.createDirectories(fullRepoPath);
+        Files.writeString(fullRepoPath.resolve("metadata.json"), "{\"fileFormatVersion\": 5}");
+
+        // Should NOT throw — the path is within the git root
+        Object result =
+                fileUtils.reconstructMetadataFromGitRepository(validRepoSuffix).block();
+        Assertions.assertNotNull(result);
+    }
+
+    /**
      * This will delete localTestDirectory and its contents after the test is executed.
      */
     private void deleteLocalTestDirectoryPath() {
