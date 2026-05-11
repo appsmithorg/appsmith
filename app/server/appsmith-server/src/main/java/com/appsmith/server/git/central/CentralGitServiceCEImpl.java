@@ -880,16 +880,21 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         return Mono.just(newImportedArtifact);
                     }
 
-                    return userDataService
-                            .getGitProfileForCurrentUser(baseArtifactId)
-                            .doOnNext(gitProfile ->
-                                    gitDiscardChangesAsyncEventManager.publishAsyncEvent(new GitDiscardChangesEvent(
-                                            sourceArtifact.getId(),
-                                            artifactType,
-                                            gitType,
-                                            FALSE,
-                                            gitProfile.getAuthorName(),
-                                            gitProfile.getAuthorEmail())))
+                    return Mono.zip(
+                                    userDataService.getGitProfileForCurrentUser(baseArtifactId),
+                                    sessionUserService.getCurrentUser())
+                            .doOnNext(tuple -> {
+                                GitProfile gitProfile = tuple.getT1();
+                                User user = tuple.getT2();
+                                gitDiscardChangesAsyncEventManager.publishAsyncEvent(new GitDiscardChangesEvent(
+                                        sourceArtifact.getId(),
+                                        artifactType,
+                                        gitType,
+                                        FALSE,
+                                        gitProfile.getAuthorName(),
+                                        gitProfile.getAuthorEmail(),
+                                        user));
+                            })
                             .onErrorResume(cleanupEventError -> {
                                 log.warn(
                                         "Failed to publish async discardChanges event for source artifact {} after ref creation: {}",

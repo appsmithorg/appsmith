@@ -1,6 +1,7 @@
 package com.appsmith.server.events;
 
 import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.git.central.GitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,4 +25,7 @@ public class GitDiscardChangesEvent {
 
     @ToString.Exclude
     private String authorEmail;
+
+    @ToString.Exclude
+    private User user;
 }

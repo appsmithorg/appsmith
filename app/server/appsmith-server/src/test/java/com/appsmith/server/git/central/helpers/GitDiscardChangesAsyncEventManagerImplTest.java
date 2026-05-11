@@ -2,6 +2,7 @@ package com.appsmith.server.git.central.helpers;
 
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.events.GitDiscardChangesEvent;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.central.GitType;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Proxy;
@@ -59,10 +61,23 @@ class GitDiscardChangesAsyncEventManagerImplTest {
         };
     }
 
+    private static User user() {
+        User user = new User();
+        user.setEmail("author@example.com");
+        user.setName("author");
+        return user;
+    }
+
     @Test
     void publishAsyncEvent_publishesGitDiscardChangesEvent() {
         GitDiscardChangesEvent event = new GitDiscardChangesEvent(
-                "artifact-id", ArtifactType.APPLICATION, GitType.FILE_SYSTEM, FALSE, "author", "author@example.com");
+                "artifact-id",
+                ArtifactType.APPLICATION,
+                GitType.FILE_SYSTEM,
+                FALSE,
+                "author",
+                "author@example.com",
+                user());
 
         manager.publishAsyncEvent(event);
 
@@ -71,10 +86,18 @@ class GitDiscardChangesAsyncEventManagerImplTest {
 
     @Test
     void discardChangesEventListener_discardsChangesThroughAnnotatedProxyWithEventParameters() throws Exception {
+        User user = user();
         GitDiscardChangesEvent event = new GitDiscardChangesEvent(
-                "artifact-id", ArtifactType.APPLICATION, GitType.FILE_SYSTEM, FALSE, "author", "author@example.com");
+                "artifact-id",
+                ArtifactType.APPLICATION,
+                GitType.FILE_SYSTEM,
+                FALSE,
+                "author",
+                "author@example.com",
+                user);
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Object[]> capturedArgs = new AtomicReference<>();
+        AtomicReference<Object> capturedPrincipal = new AtomicReference<>();
         GitDiscardChangesAsyncEventManager gitDiscardChangesAsyncEventManager =
                 new GitDiscardChangesAsyncEventManager() {
 
@@ -95,8 +118,11 @@ class GitDiscardChangesAsyncEventManagerImplTest {
                         capturedArgs.set(new Object[] {
                             branchedArtifactId, authorName, authorEmail, artifactType, gitType, isValidateAndPublish
                         });
-                        latch.countDown();
-                        return Mono.just(new Application());
+                        return ReactiveSecurityContextHolder.getContext()
+                                .doOnNext(context -> capturedPrincipal.set(
+                                        context.getAuthentication().getPrincipal()))
+                                .thenReturn(new Application())
+                                .doOnSuccess(ignored -> latch.countDown());
                     }
                 };
         gitDiscardChangesAsyncEventManagerProvider = providerFor(gitDiscardChangesAsyncEventManager);
@@ -114,6 +140,7 @@ class GitDiscardChangesAsyncEventManagerImplTest {
                         ArtifactType.APPLICATION,
                         GitType.FILE_SYSTEM,
                         FALSE);
+        assertThat(capturedPrincipal.get()).isSameAs(user);
     }
 
     @Test

@@ -20,6 +20,7 @@ public enum GitRouteOperation {
     MERGE(true),
     MERGE_STATUS(true),
     DELETE_REF(true),
+    ASYNC_DISCARD(true),
     DISCARD_CHANGES(true),
     LIST_REFS(true),
     AUTO_COMMIT(true),

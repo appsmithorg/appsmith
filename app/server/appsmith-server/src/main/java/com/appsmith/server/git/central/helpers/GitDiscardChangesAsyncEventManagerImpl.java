@@ -13,6 +13,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -38,6 +41,9 @@ public class GitDiscardChangesAsyncEventManagerImpl implements GitDiscardChanges
     public void discardChangesEventListener(GitDiscardChangesEvent event) {
         log.info("received event for git discard changes: {}", event);
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                event.getUser(), null, event.getUser().getAuthorities());
+
         gitDiscardChangesAsyncEventManagerProvider
                 .getObject()
                 .discardChanges(
@@ -47,6 +53,7 @@ public class GitDiscardChangesAsyncEventManagerImpl implements GitDiscardChanges
                         event.getArtifactType(),
                         event.getGitType(),
                         event.getIsValidateAndPublish())
+                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe(
                         result -> log.info(
@@ -58,7 +65,7 @@ public class GitDiscardChangesAsyncEventManagerImpl implements GitDiscardChanges
     @Override
     @GitRoute(
             artifactType = ArtifactType.APPLICATION,
-            operation = GitRouteOperation.DISCARD_CHANGES,
+            operation = GitRouteOperation.ASYNC_DISCARD,
             fieldName = "branchedArtifactId",
             authorName = "authorName",
             authorEmail = "authorEmail")
