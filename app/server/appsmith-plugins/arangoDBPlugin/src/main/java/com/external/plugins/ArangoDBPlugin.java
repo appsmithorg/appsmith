@@ -223,6 +223,13 @@ public class ArangoDBPlugin extends BasePlugin {
                         return Mono.just(dbBuilder.build().db(dbName));
                     })
                     .flatMap(obj -> obj)
+                    // The default PluginExecutor.testDatasource(DatasourceConfiguration) wrapper swallows
+                    // datasourceCreate errors silently into a DatasourceTestResult, so without this log a
+                    // Builder.build() failure (e.g. a missing runtime class, bad SSL config) surfaces to the
+                    // UI as a generic "test failed" with no trace on the server side. Log it explicitly so
+                    // operators can diagnose connection-setup failures from the appsmith container logs.
+                    .doOnError(error ->
+                            log.error("ArangoDB datasourceCreate failed before connection was established.", error))
                     .subscribeOn(scheduler);
         }
 
@@ -230,10 +237,25 @@ public class ArangoDBPlugin extends BasePlugin {
          * - Builder properties are explained here:
          * https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
          *
-         * The custom Jackson serde enables {@link DeserializationFeature#USE_LONG_FOR_INTS} so query results
-         * deserialize all JSON integer values into {@code Long}. This preserves the numeric-type behavior of the
-         * legacy 6.x driver (which delivered integers via VPACK as {@code Long}) and keeps the structure-tree
-         * column types (Long vs Integer) stable for users after the 7.x driver upgrade.
+         * <p>Protocol choice: we use HTTP/1.1 + JSON ({@link Protocol#HTTP_JSON}) rather than the v7 default
+         * {@link Protocol#HTTP2_JSON}. Both avoid the {@code jackson-serde-vpack} module - so they keep the
+         * vulnerable shaded {@code jackson-core 2.11.3} out of the runtime classpath, which is the whole point
+         * of the v6 -> v7 upgrade (CVE-2025-52999). The HTTP/1.1 variant is preferred because:
+         *
+         * <ul>
+         *   <li>The Cypress {@code Arango_Basic_Spec.ts} test against a dockerized {@code arangodb:latest}
+         *       reached from the appsmith container over {@code host.docker.internal:host-gateway} fails
+         *       with HTTP2_JSON (Test datasource times out / silently emits no connection), but succeeds
+         *       with HTTP_JSON. HTTP/2 cleartext via h2c upgrade through the host-gateway routing was the
+         *       differentiator.</li>
+         *   <li>HTTP/1.1 is closer to the v6 wire shape ({@code Protocol.HTTP_VPACK} also rode HTTP/1.1),
+         *       so the v7 upgrade does not silently change the connection-level behavior for users.</li>
+         * </ul>
+         *
+         * <p>The custom Jackson serde enables {@link DeserializationFeature#USE_LONG_FOR_INTS} so query
+         * results deserialize all JSON integer values into {@code Long}. This preserves the numeric-type
+         * behavior of the legacy 6.x driver (which delivered integers via VPACK as {@code Long}) and keeps
+         * the structure-tree column types (Long vs Integer) stable for users after the 7.x driver upgrade.
          */
         private Builder getBasicBuilder(DBAuth auth) {
             String username = auth.getUsername();
@@ -244,7 +266,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     .maxConnections(5)
                     .user(username)
                     .password(password)
-                    .protocol(Protocol.HTTP2_JSON)
+                    .protocol(Protocol.HTTP_JSON)
                     .serde(serde);
 
             return dbBuilder;

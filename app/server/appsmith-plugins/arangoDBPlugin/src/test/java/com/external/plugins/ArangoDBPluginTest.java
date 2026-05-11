@@ -76,7 +76,7 @@ public class ArangoDBPluginTest {
                 .user(user)
                 .password(password)
                 .useSsl(false)
-                .protocol(Protocol.HTTP2_JSON)
+                .protocol(Protocol.HTTP_JSON)
                 .build();
 
         arangoDB.createDatabase(dbName);
