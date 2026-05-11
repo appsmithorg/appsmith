@@ -5,6 +5,7 @@ import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.arangodb.ArangoDBException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.net.UnknownHostException;
@@ -51,14 +52,23 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
              * Re-formatted error message: Could not find host address. Please edit the 'Host Address' and/or the
              * 'Port' field to provide the desired endpoint.
              *
-             * The underlying signal we want to detect is "the configured host could not be reached". This shows up
-             * differently across driver versions:
-             *  - Driver 6 surfaced "java.net.UnknownHostException: ..." in the top-level message string.
-             *  - Driver 7 (Vert.x WebClient) consolidates host-reachability failures under "Cannot contact any
-             *    host!" with the original {@link UnknownHostException} attached as a cause in the chain.
+             * We want this friendly message only for true DNS / name-resolution failures, not for every connection
+             * problem. This is subtle on driver 7.x:
+             *  - Driver 6 surfaced "java.net.UnknownHostException: ..." inline in the top-level message string.
+             *  - Driver 7 (Vert.x WebClient) wraps *all* connectivity failures - DNS, SSL handshake, connection
+             *    refused, timeouts - under a generic "Cannot contact any host!" {@link ArangoDBException}, with
+             *    the real cause carried inside an aggregated {@code ArangoDBMultipleException} (whose nested
+             *    exceptions are NOT exposed via the standard {@link Throwable#getCause()} chain). Matching the
+             *    "Cannot contact any host" wrapper text would therefore incorrectly re-label SSL/timeout/refused
+             *    errors as "invalid hostname" and hide the real failure from the user.
              *
-             * We walk the cause chain for {@link UnknownHostException} and also match the known top-level message
-             * patterns so we keep producing the same friendly error to the user.
+             * We detect DNS errors two ways:
+             *   1. Walk the standard cause chain for an actual {@link UnknownHostException} - catches drivers
+             *      that wrap the DNS failure as a proper cause.
+             *   2. Scan the full stack trace text for DNS-specific markers (UnknownHostException class name,
+             *      Netty's "Failed to resolve" message, the libc "nodename nor servname" message). This catches
+             *      driver 7.x where the DNS failure is buried inside ArangoDBMultipleException's aggregated list.
+             * Everything else falls through and the user sees the original verbose driver message.
              */
             Throwable cause = externalError;
             while (cause != null) {
@@ -68,10 +78,10 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
                 cause = cause.getCause();
             }
 
-            String externalErrorMessage = externalError.getMessage();
-            if (externalErrorMessage != null
-                    && (externalErrorMessage.contains("UnknownHostException")
-                            || externalErrorMessage.contains("Cannot contact any host"))) {
+            String fullStackTrace = ExceptionUtils.getStackTrace(externalError);
+            if (fullStackTrace.contains("UnknownHostException")
+                    || fullStackTrace.contains("Failed to resolve ")
+                    || fullStackTrace.contains("nodename nor servname")) {
                 return DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
             }
         }
