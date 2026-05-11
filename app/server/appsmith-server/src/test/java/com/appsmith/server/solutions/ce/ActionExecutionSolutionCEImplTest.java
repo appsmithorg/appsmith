@@ -463,4 +463,44 @@ class ActionExecutionSolutionCEImplTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    void sanitizeRequestForViewMode_retainsSafeFieldsAndStripsSensitiveOnes() {
+        var original = new com.appsmith.external.models.ActionExecutionRequest();
+        original.setActionId("action-123");
+        original.setRequestedAt(java.time.Instant.parse("2026-04-30T12:00:00Z"));
+        original.setHttpMethod(HttpMethod.POST);
+        original.setUrl("https://internal-api.example.com/secret?key=abc");
+        original.setBody("{\"password\": \"s3cret\"}");
+        original.setHeaders(Map.of("Authorization", "Bearer token"));
+        original.setRequestParams(List.of("sensitive-param"));
+
+        var result = new ActionExecutionResult();
+        result.setRequest(original);
+
+        actionExecutionSolution.sanitizeRequestForViewMode(result);
+
+        var sanitized = result.getRequest();
+        assertNotNull(sanitized);
+        assertEquals("action-123", sanitized.getActionId());
+        assertEquals(java.time.Instant.parse("2026-04-30T12:00:00Z"), sanitized.getRequestedAt());
+        assertEquals(HttpMethod.POST, sanitized.getHttpMethod());
+
+        // Sensitive fields must be stripped
+        assertEquals(null, sanitized.getUrl());
+        assertEquals(null, sanitized.getBody());
+        assertEquals(null, sanitized.getHeaders());
+        assertEquals(null, sanitized.getRequestParams());
+        assertEquals(null, sanitized.getExecutionParameters());
+    }
+
+    @Test
+    void sanitizeRequestForViewMode_handlesNullRequest() {
+        var result = new ActionExecutionResult();
+        result.setRequest(null);
+
+        actionExecutionSolution.sanitizeRequestForViewMode(result);
+
+        assertEquals(null, result.getRequest());
+    }
 }

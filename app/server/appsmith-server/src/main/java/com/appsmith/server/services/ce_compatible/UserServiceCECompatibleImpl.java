@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -39,7 +40,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
         super(
                 validator,
                 repository,
@@ -57,6 +59,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 rateLimitService,
                 pacConfigurationService,
                 userServiceHelper,
-                instanceVariablesHelper);
+                instanceVariablesHelper,
+                secureBaseUrlResolver);
     }
 }

@@ -174,6 +174,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             -e APPSMITH_RATE_LIMIT=1000 \
+            -e APPSMITH_BASE_URL=http://localhost \
             -e APPSMITH_CARBON_API_BASE_PATH=https://carbon.appsmith.com \
             -e APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY" \
             -e APPSMITH_AI_SERVER_MANAGED_HOSTING=true \

@@ -1,0 +1,124 @@
+# Tests for values.schema.json — confirms the schema rejects invalid input
+# and accepts pass-through dependency values.
+#
+# Helm validates user-supplied values against values.schema.json before rendering,
+# so schema violations surface as render failures here.
+
+suite: values schema
+templates:
+  - deployment.yaml
+tests:
+  # ---- Negative tests: schema should reject these ----
+
+  - name: rejects invalid service.type (not in enum)
+    set:
+      service:
+        type: NotARealType
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects negative replicas
+    set:
+      replicas: -5
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects workload.kind outside enum
+    set:
+      workload:
+        kind: DaemonSet
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects invalid image.pullPolicy
+    set:
+      image:
+        pullPolicy: Sometimes
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects out-of-range service.port
+    set:
+      service:
+        port: 99999
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects mongodbCommunity.name with invalid chars
+    set:
+      mongodbCommunity:
+        enabled: true
+        name: "Has Spaces And UPPERCASE"
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects mongodbCommunity.members below minimum
+    set:
+      mongodbCommunity:
+        enabled: true
+        members: 0
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects non-boolean redis.enabled
+    set:
+      redis:
+        enabled: "yes"
+    asserts:
+      - failedTemplate: {}
+
+  # ---- Positive tests: schema should accept these ----
+
+  - name: accepts default values
+    asserts:
+      - notFailedTemplate: {}
+
+  - name: accepts arbitrary applicationConfig keys
+    set:
+      applicationConfig:
+        APPSMITH_CUSTOM_NEW_KEY: "value"
+        SOME_OTHER_VAR: "another"
+    asserts:
+      - notFailedTemplate: {}
+
+  - name: accepts boolean and integer applicationConfig values
+    # Users naturally write `true` rather than `"true"` in YAML; Helm/K8s
+    # stringify scalars when rendering env vars, so the schema must accept
+    # all scalar types here.
+    set:
+      applicationConfig:
+        APPSMITH_DISABLE_TELEMETRY: true
+        APPSMITH_SIGNUP_DISABLED: false
+        APPSMITH_DISABLE_MONITORING: 1
+        APPSMITH_MAIL_PORT: 587
+    asserts:
+      - notFailedTemplate: {}
+
+  - name: accepts arbitrary redis pass-through keys
+    set:
+      redis:
+        enabled: true
+        someBitnamiOption: foo
+        master:
+          persistence:
+            size: 50Gi
+    asserts:
+      - notFailedTemplate: {}
+
+  - name: accepts arbitrary mongodb pass-through keys
+    set:
+      mongodb:
+        enabled: true
+        anyUpstreamKnob: bar
+    asserts:
+      - notFailedTemplate: {}
+
+  - name: accepts arbitrary mongodbOperator pass-through keys
+    set:
+      mongodbOperator:
+        enabled: true
+        anything:
+          nested:
+            deeply: yes
+    asserts:
+      - notFailedTemplate: {}
