@@ -23,7 +23,7 @@ redis: # @schema additionalProperties: true
   image:
     registry: docker.io
     repository: redis
-    tag: 7.0.15
+    tag: 7.4.9
 
 ## MongoDB parameters
 ## Values are passed through to the Bitnami mongodb subchart; not validated by this schema.
@@ -242,7 +242,7 @@ strategyType: RollingUpdate
 # @schema description: Init container image overrides for bundled redis/mongodb/postgresql dependencies.
 initContainer: {}
   # redis:
-  #   image: docker.io/redis:7.0.15
+  #   image: docker.io/redis:7.4.9
   # mongodb:
   #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
   # postgresql:
