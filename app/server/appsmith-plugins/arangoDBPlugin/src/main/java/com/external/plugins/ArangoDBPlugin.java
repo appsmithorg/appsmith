@@ -220,7 +220,7 @@ public class ArangoDBPlugin extends BasePlugin {
                          * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
                          * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
                          */
-                        return Mono.just(dbBuilder.build().db(dbName));
+                        return Mono.just(buildWithPluginClassLoader(dbBuilder).db(dbName));
                     })
                     .flatMap(obj -> obj)
                     // The default PluginExecutor.testDatasource(DatasourceConfiguration) wrapper swallows
@@ -234,23 +234,42 @@ public class ArangoDBPlugin extends BasePlugin {
         }
 
         /**
+         * Driver v7's {@code ArangoDB.Builder.build()} resolves the {@code ProtocolProvider} via
+         * {@link java.util.ServiceLoader#load(Class)}, which uses the current thread's context
+         * ClassLoader (TCCL). Under PF4J + Spring Boot the TCCL is the parent {@code LaunchedClassLoader}
+         * and cannot see {@code META-INF/services/com.arangodb.internal.net.ProtocolProvider} - that file
+         * lives inside {@code http-protocol-*.jar} in the plugin's {@code lib/}, so the SPI iterator is
+         * empty and the build throws
+         * <pre>com.arangodb.ArangoDBException: No ProtocolProvider found for protocol: HTTP_JSON</pre>
+         *
+         * <p>Set the TCCL to this plugin class's loader (the PF4J {@code PluginClassLoader}) for the
+         * duration of the build call so the SPI lookup sees the plugin classpath, then restore the
+         * original TCCL. The resulting {@code ArangoDB} instance retains its protocol provider, so
+         * subsequent calls (including {@code connection.getVersion()} in {@link #testDatasource}) do not
+         * need the TCCL swap.
+         */
+        private com.arangodb.ArangoDB buildWithPluginClassLoader(Builder dbBuilder) {
+            Thread current = Thread.currentThread();
+            ClassLoader original = current.getContextClassLoader();
+            try {
+                current.setContextClassLoader(this.getClass().getClassLoader());
+                return dbBuilder.build();
+            } finally {
+                current.setContextClassLoader(original);
+            }
+        }
+
+        /**
          * - Builder properties are explained here:
          * https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
          *
-         * <p>Protocol choice: we use HTTP/1.1 + JSON ({@link Protocol#HTTP_JSON}) rather than the v7 default
-         * {@link Protocol#HTTP2_JSON}. Both avoid the {@code jackson-serde-vpack} module - so they keep the
-         * vulnerable shaded {@code jackson-core 2.11.3} out of the runtime classpath, which is the whole point
-         * of the v6 -> v7 upgrade (CVE-2025-52999). The HTTP/1.1 variant is preferred because:
-         *
-         * <ul>
-         *   <li>The Cypress {@code Arango_Basic_Spec.ts} test against a dockerized {@code arangodb:latest}
-         *       reached from the appsmith container over {@code host.docker.internal:host-gateway} fails
-         *       with HTTP2_JSON (Test datasource times out / silently emits no connection), but succeeds
-         *       with HTTP_JSON. HTTP/2 cleartext via h2c upgrade through the host-gateway routing was the
-         *       differentiator.</li>
-         *   <li>HTTP/1.1 is closer to the v6 wire shape ({@code Protocol.HTTP_VPACK} also rode HTTP/1.1),
-         *       so the v7 upgrade does not silently change the connection-level behavior for users.</li>
-         * </ul>
+         * <p>Protocol choice: we use {@link Protocol#HTTP_JSON} rather than the v7 default
+         * {@link Protocol#HTTP2_JSON}. Both keep the {@code jackson-serde-vpack} module out of the runtime
+         * classpath, so the vulnerable shaded {@code jackson-core 2.11.3} stays gone - that is the whole
+         * point of the v6 -> v7 upgrade (CVE-2025-52999). HTTP/1.1 is chosen for parity with the v6
+         * transport ({@code Protocol.HTTP_VPACK} also rode HTTP/1.1), so the driver upgrade does not
+         * silently change connection-level behavior (TLS negotiation, proxy / load-balancer handling,
+         * keep-alive semantics) for users who already have ArangoDB datasources working today.
          *
          * <p>The custom Jackson serde enables {@link DeserializationFeature#USE_LONG_FOR_INTS} so query
          * results deserialize all JSON integer values into {@code Long}. This preserves the numeric-type
