@@ -20,12 +20,15 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import com.arangodb.ContentType;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
+import com.arangodb.serde.jackson.JacksonSerde;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
 import com.external.plugins.exceptions.ArangoDBPluginError;
 import com.external.utils.ArangoDBErrorUtils;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.pf4j.Extension;
@@ -102,7 +105,7 @@ public class ArangoDBPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName()
                                 + ": got action execution result from ArangoDB plugin.");
-                        ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                        ArangoCursor<Map> cursor = db.query(query, Map.class, null, null);
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(true);
                         List<Map> docList = new ArrayList<>();
@@ -217,24 +220,73 @@ public class ArangoDBPlugin extends BasePlugin {
                          * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
                          * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
                          */
-                        return Mono.just(dbBuilder.build().db(dbName));
+                        return Mono.just(buildWithPluginClassLoader(dbBuilder).db(dbName));
                     })
                     .flatMap(obj -> obj)
+                    // The default PluginExecutor.testDatasource(DatasourceConfiguration) wrapper swallows
+                    // datasourceCreate errors silently into a DatasourceTestResult, so without this log a
+                    // Builder.build() failure (e.g. a missing runtime class, bad SSL config) surfaces to the
+                    // UI as a generic "test failed" with no trace on the server side. Log it explicitly so
+                    // operators can diagnose connection-setup failures from the appsmith container logs.
+                    .doOnError(error ->
+                            log.error("ArangoDB datasourceCreate failed before connection was established.", error))
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * Driver v7's {@code ArangoDB.Builder.build()} resolves the {@code ProtocolProvider} via
+         * {@link java.util.ServiceLoader#load(Class)}, which uses the current thread's context
+         * ClassLoader (TCCL). Under PF4J + Spring Boot the TCCL is the parent {@code LaunchedClassLoader}
+         * and cannot see {@code META-INF/services/com.arangodb.internal.net.ProtocolProvider} - that file
+         * lives inside {@code http-protocol-*.jar} in the plugin's {@code lib/}, so the SPI iterator is
+         * empty and the build throws
+         * <pre>com.arangodb.ArangoDBException: No ProtocolProvider found for protocol: HTTP_JSON</pre>
+         *
+         * <p>Set the TCCL to this plugin class's loader (the PF4J {@code PluginClassLoader}) for the
+         * duration of the build call so the SPI lookup sees the plugin classpath, then restore the
+         * original TCCL. The resulting {@code ArangoDB} instance retains its protocol provider, so
+         * subsequent calls (including {@code connection.getVersion()} in {@link #testDatasource}) do not
+         * need the TCCL swap.
+         */
+        private com.arangodb.ArangoDB buildWithPluginClassLoader(Builder dbBuilder) {
+            Thread current = Thread.currentThread();
+            ClassLoader original = current.getContextClassLoader();
+            try {
+                current.setContextClassLoader(this.getClass().getClassLoader());
+                return dbBuilder.build();
+            } finally {
+                current.setContextClassLoader(original);
+            }
         }
 
         /**
          * - Builder properties are explained here:
          * https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+         *
+         * <p>Protocol choice: we use {@link Protocol#HTTP_JSON} rather than the v7 default
+         * {@link Protocol#HTTP2_JSON}. Both keep the {@code jackson-serde-vpack} module out of the runtime
+         * classpath, so the vulnerable shaded {@code jackson-core 2.11.3} stays gone - that is the whole
+         * point of the v6 -> v7 upgrade (CVE-2025-52999). HTTP/1.1 is chosen for parity with the v6
+         * transport ({@code Protocol.HTTP_VPACK} also rode HTTP/1.1), so the driver upgrade does not
+         * silently change connection-level behavior (TLS negotiation, proxy / load-balancer handling,
+         * keep-alive semantics) for users who already have ArangoDB datasources working today.
+         *
+         * <p>The custom Jackson serde enables {@link DeserializationFeature#USE_LONG_FOR_INTS} so query
+         * results deserialize all JSON integer values into {@code Long}. This preserves the numeric-type
+         * behavior of the legacy 6.x driver (which delivered integers via VPACK as {@code Long}) and keeps
+         * the structure-tree column types (Long vs Integer) stable for users after the 7.x driver upgrade.
          */
         private Builder getBasicBuilder(DBAuth auth) {
             String username = auth.getUsername();
             String password = auth.getPassword();
+            JacksonSerde serde = JacksonSerde.of(ContentType.JSON)
+                    .configure(mapper -> mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true));
             Builder dbBuilder = new Builder()
                     .maxConnections(5)
                     .user(username)
                     .password(password)
-                    .useProtocol(Protocol.HTTP_VPACK);
+                    .protocol(Protocol.HTTP_JSON)
+                    .serde(serde);
 
             return dbBuilder;
         }
@@ -362,7 +414,7 @@ public class ArangoDBPlugin extends BasePlugin {
                                 new ArrayList<>(),
                                 templates));
 
-                        ArangoCursor<Map> cursor = db.query(getOneDocumentQuery(collectionName), null, null, Map.class);
+                        ArangoCursor<Map> cursor = db.query(getOneDocumentQuery(collectionName), Map.class, null, null);
                         Map document = new HashMap();
                         List<Map> docList = cursor.asListRemaining();
                         if (!CollectionUtils.isEmpty(docList)) {
