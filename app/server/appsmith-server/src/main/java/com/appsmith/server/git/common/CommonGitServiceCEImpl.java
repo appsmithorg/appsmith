@@ -2912,7 +2912,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         for (GitBranchDTO gitBranchDTO : gitBranchDTOList) {
                             if (gitBranchDTO.getBranchName().startsWith("origin/")) {
                                 // remove origin/ prefix from the remote branch name
-                                String branchName = gitBranchDTO.getBranchName().replace("origin/", "");
+                                String branchName = stripOriginPrefix(gitBranchDTO.getBranchName());
                                 // The root defaultArtifact is always there, no need to check out it again
                                 if (!branchName.equals(gitArtifactMetadata.getRefName())) {
                                     branchesToCheckout.add(branchName);
