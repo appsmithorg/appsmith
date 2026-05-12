@@ -108,7 +108,7 @@
                 - sh
                 - -c
                 - until redis-cli -h RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done
-              image: docker.io/redis:7.0.15
+              image: docker.io/redis:7.4.9
               name: redis-init-container
             - command:
                 - sh
