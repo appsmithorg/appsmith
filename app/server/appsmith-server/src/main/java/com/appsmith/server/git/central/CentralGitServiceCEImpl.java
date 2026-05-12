@@ -138,7 +138,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected final ObservationRegistry observationRegistry;
 
     protected static final String ORIGIN = "origin/";
-    protected static final String REMOTE_NAME_REPLACEMENT = "";
 
     private boolean isInvalidSshKeyError(Throwable throwable) {
         // Log the original error for debugging purposes
@@ -517,7 +516,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         }
 
         String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
-        final String finalRefName = gitRefDTO.getRefName().replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        final String finalRefName = stripOriginPrefix(gitRefDTO.getRefName());
         ArtifactType artifactType = baseArtifact.getArtifactType();
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -620,7 +619,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
         final String baseRefName = baseGitMetadata.getRefName();
         final String workspaceId = baseArtifact.getWorkspaceId();
-        final String finalRemoteRefName = gitRefDTO.getRefName().replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        final String finalRemoteRefName = stripOriginPrefix(gitRefDTO.getRefName());
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO(
                 workspaceId, baseArtifactId, repoName, baseArtifact.getArtifactType());
@@ -909,7 +908,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 sourceArtifact.getId(), VERSION_CONTROL, sourceArtifact.getArtifactType());
     }
 
-    private String stripOriginPrefix(String refName) {
+    static String stripOriginPrefix(String refName) {
         if (refName == null) {
             return "";
         }
@@ -940,7 +939,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         String normalisedIncomingRefName = stripOriginPrefix(incomingGitRefDTO.getRefName());
         Boolean isDuplicateName = fetchedGitRefDTOS.stream()
                 .map(GitRefDTO::getRefName)
-                .map(this::stripOriginPrefix)
+                .map(CentralGitServiceCEImpl::stripOriginPrefix)
                 .anyMatch(normalisedIncomingRefName::equals);
 
         if (TRUE.equals(isDuplicateName)) {
@@ -2651,7 +2650,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             }
 
                             // remove `origin/` prefix from the remote branch name
-                            String branchName = gitRefDTO.getRefName().replace(ORIGIN, REMOTE_NAME_REPLACEMENT);
+                            String branchName = stripOriginPrefix(gitRefDTO.getRefName());
                             branchesToCheckout.add(branchName);
 
                             // TODO: base artifact wouldn't be cloned if from remote the default branch is changed,
@@ -3214,8 +3213,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                             workspaceId,
                                                             destinationArtifact.getId(),
                                                             artifactExchangeJson,
-                                                            destinationBranch.replaceFirst(
-                                                                    ORIGIN, REMOTE_NAME_REPLACEMENT))
+                                                            stripOriginPrefix(destinationBranch))
                                                     .flatMap(importedDestinationArtifact -> {
                                                         CommitDTO commitDTO = new CommitDTO();
                                                         commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE

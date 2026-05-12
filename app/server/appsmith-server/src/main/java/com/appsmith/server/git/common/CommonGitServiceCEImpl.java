@@ -145,7 +145,16 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final GitAutoCommitHelper gitAutoCommitHelper;
 
     private static final String ORIGIN = "origin/";
-    private static final String REMOTE_NAME_REPLACEMENT = "";
+
+    static String stripOriginPrefix(String refName) {
+        if (refName == null) {
+            return "";
+        }
+        if (refName.startsWith(ORIGIN)) {
+            return refName.substring(ORIGIN.length());
+        }
+        return refName;
+    }
 
     private Mono<Boolean> addFileLock(String baseArtifactId, String commandName, boolean isLockRequired) {
         if (!Boolean.TRUE.equals(isLockRequired)) {
@@ -1343,7 +1352,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         }
 
         String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
-        final String finalBranchName = branchToBeCheckedOut.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        final String finalBranchName = stripOriginPrefix(branchToBeCheckedOut);
 
         GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(baseArtifact.getArtifactType());
 
@@ -1420,7 +1429,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
         final String baseBranchName = baseGitMetadata.getRefName();
         final String workspaceId = baseArtifact.getWorkspaceId();
-        final String finalRemoteBranchName = remoteBranchName.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        final String finalRemoteBranchName = stripOriginPrefix(remoteBranchName);
 
         Path repoSuffixPath = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
@@ -1650,8 +1659,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                 // We are only supporting origin as the remote name so this is safe
                                                 //  but needs to be altered if we start supporting user defined remote
                                                 // names
-                                                .anyMatch(branch -> branch.getBranchName()
-                                                        .replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT)
+                                                .anyMatch(branch -> stripOriginPrefix(branch.getBranchName())
                                                         .equals(branchDTO.getBranchName()));
 
                                         if (isDuplicateName) {
@@ -2462,7 +2470,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                 workspaceId,
                                                 destinationArtifact.getId(),
                                                 artifactExchangeJson,
-                                                destinationBranch.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT))
+                                                stripOriginPrefix(destinationBranch))
                                         .flatMap(importedDestinationArtifact -> {
                                             GitCommitDTO commitDTO = new GitCommitDTO();
                                             commitDTO.setDoPush(true);
