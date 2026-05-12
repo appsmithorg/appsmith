@@ -38,7 +38,7 @@ on:
         description: "test-event-driver image tag"
         required: false
         type: string
-        default: "latest"
+        default: "upgrade-ted"
 
 jobs:
   playwright-test:
@@ -135,7 +135,7 @@ jobs:
           ted_tag="${{ inputs.ted_tag }}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-            "appsmith/test-event-driver:${ted_tag:-latest}"
+            "appsmith/test-event-driver:${ted_tag:-upgrade-ted}"
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e KEYGEN_API_URL=http://host.docker.internal:5001 \
@@ -221,6 +221,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ hashFiles('app/client/yarn.lock') }}
 
+      # continue-on-error: failed run keeps outcome=failure but conclusion=success — rerun must use outcome.
       - name: Run Playwright tests (attempt 1)
         id: attempt1
         continue-on-error: true
@@ -241,6 +242,7 @@ jobs:
           npx playwright test $ARGS --reporter=blob
 
       - name: Run Playwright tests (rerun failures)
+        id: attempt2
         if: steps.attempt1.outcome == 'failure'
         working-directory: app/client
         env:
@@ -248,7 +250,13 @@ jobs:
           USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           PW_FLAG_OVERRIDES: ${{ inputs.flag_overrides }}
-        run: npx playwright test --last-failed --reporter=blob
+        run: |
+          ARGS=""
+          if [[ -n "${{ inputs.project }}" ]]; then
+            ARGS="--project=${{ inputs.project }}"
+          fi
+          # --last-failed reads blob-report from attempt 1; do not repeat path globs (avoids 0 tests detected)
+          npx playwright test $ARGS --last-failed --reporter=blob
 
       - name: Merge reports
         if: always()
@@ -263,12 +271,5 @@ jobs:
           path: |
             app/client/playwright-report/
             app/client/playwright/results/
-          retention-days: 14
-
-      - name: Upload traces on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces-${{ github.run_id }}
-          path: app/client/playwright/results/**/*.zip
+            app/client/playwright/.state/
           retention-days: 7
