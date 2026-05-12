@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -35,7 +34,6 @@ public class GitDiscardChangesAsyncEventManagerImpl implements GitDiscardChanges
         applicationEventPublisher.publishEvent(event);
     }
 
-    @Async
     @EventListener
     @Override
     public void discardChangesEventListener(GitDiscardChangesEvent event) {
