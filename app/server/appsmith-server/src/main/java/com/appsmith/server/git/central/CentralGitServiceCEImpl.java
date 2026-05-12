@@ -11,6 +11,7 @@ import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.dto.CommitDTO;
@@ -893,7 +894,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         FALSE,
                                         gitProfile.getAuthorName(),
                                         gitProfile.getAuthorEmail(),
-                                        user));
+                                        user,
+                                        sourceArtifact instanceof BaseDomain baseDomain
+                                                ? baseDomain.getUpdatedAt()
+                                                : null));
                             })
                             .onErrorResume(cleanupEventError -> {
                                 log.warn(

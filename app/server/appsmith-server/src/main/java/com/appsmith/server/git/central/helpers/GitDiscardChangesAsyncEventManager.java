@@ -6,6 +6,8 @@ import com.appsmith.server.events.GitDiscardChangesEvent;
 import com.appsmith.server.git.central.GitType;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+
 public interface GitDiscardChangesAsyncEventManager {
 
     void publishAsyncEvent(GitDiscardChangesEvent event);
@@ -18,5 +20,6 @@ public interface GitDiscardChangesAsyncEventManager {
             String authorEmail,
             ArtifactType artifactType,
             GitType gitType,
-            Boolean isValidateAndPublish);
+            Boolean isValidateAndPublish,
+            Instant expectedUpdatedAt);
 }

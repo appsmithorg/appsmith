@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.Instant;
+
 /**
  * DTO to pass discard changes data from the request flow to a background job.
  */
@@ -28,4 +30,6 @@ public class GitDiscardChangesEvent {
 
     @ToString.Exclude
     private User user;
+
+    private Instant expectedUpdatedAt;
 }
