@@ -1,6 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import type { MigrationState } from "../fixtures/migration.setup";
+import type {
+  MigrationState,
+  MigrationPage,
+} from "../fixtures/migration.setup";
 
 const STATE_FILE = path.resolve(__dirname, "../.state/migration.json");
 
@@ -12,5 +15,20 @@ export function loadMigrationState(): MigrationState {
     );
   }
 
-  return JSON.parse(fs.readFileSync(STATE_FILE, "utf-8"));
+  const state: MigrationState = JSON.parse(
+    fs.readFileSync(STATE_FILE, "utf-8"),
+  );
+
+  return state;
+}
+
+export function getPage(state: MigrationState, key: string): MigrationPage {
+  const page = state.pages[key];
+  if (!page) {
+    const available = Object.keys(state.pages);
+    throw new Error(
+      `Page "${key}" not found in migration state. Available keys: [${available.join(", ")}]`,
+    );
+  }
+  return page;
 }
