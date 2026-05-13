@@ -13,7 +13,7 @@
 <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/appsmithorg/appsmith?color=00FF0&style=for-the-badge">
 </a>
 <a href="https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=badge">
-<img src="https://img.shields.io/docker/pulls/appsmith/appsmith-ce?color=4591df&style=for-the-badge">
+<img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/appsmith/appsmith-ce?color=4591df&style=for-the-badge">
 </a>
 <a href="https://www.youtube.com/@appsmith/?sub_confirmation=1" target="_blank">
     <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCMYwzPG2txS8nR5ZbNY6T5g?color=00FF0&style=for-the-badge">
@@ -29,7 +29,7 @@
 
 各组织会构建自定义应用程序，如仪表盘、管理面板、客户360视图、IT自动化和服务管理工具，以帮助团队更高效地工作。Appsmith 是一个开源低代码平台，可简化自定义应用程序的开发、部署和维护。了解更多请访问我们的[官网](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)。
 
-[![100秒了解Appsmith](/static/images/appsmith-introduction-video-tile.png)](https://www.youtube.com/watch?v=jhyDI0e1o08?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)
+[![100秒了解Appsmith](/static/images/appsmith-introduction-video-tile.png)](https://www.youtube.com/watch?v=jhyDI0e1o08&utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 ## 安装
 
