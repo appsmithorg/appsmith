@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
@@ -320,10 +321,15 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
             // find existing actions in all the branches of this artifact and put them in a map
             Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
-            if (artifact.getGitArtifactMetadata() != null) {
+            if (GitUtils.isArtifactConnectedToGit(artifact.getGitArtifactMetadata())) {
+
+                List<String> allOtherBranches = importingMetaDTO.getBranchedArtifactIds().stream()
+                        .filter(branchedArtifactId -> !branchedArtifactId.equals(importingMetaDTO.getArtifactId())
+                                && !branchedArtifactId.equals(artifact.getId()))
+                        .toList();
+
                 actionsInOtherBranchesMono = artifactBasedImportableService
-                        .getExistingResourcesInOtherBranchesFlux(
-                                importingMetaDTO.getBranchedArtifactIds(), artifact.getId())
+                        .getExistingResourcesInOtherBranchesFlux(allOtherBranches)
                         .filter(newAction -> newAction.getGitSyncId() != null)
                         .collectMap(NewAction::getGitSyncId);
             } else {
