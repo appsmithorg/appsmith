@@ -52,4 +52,5 @@ alwaysApply: true
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code.
 - **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
 - **No Trigger Happy**: Don't start write actions and long plans without confirming intent from user explicitly
-- **Minimat Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+- **No Assumptions**: If something is ambiguous or unclear, ask — don't guess. Only assume when the user explicitly says to. Misinterpreting a value as dynamic vs literal, or guessing a parameter name, wastes more time than a quick clarification.
+- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.

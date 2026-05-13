@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
@@ -21,6 +22,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -128,6 +130,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ObservationHelper observationHelper;
+    private final SecureBaseUrlResolver secureBaseUrlResolver;
 
     protected <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK, data);
@@ -207,9 +210,28 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .cache();
         fetches.add(featureFlagsForCurrentUserResponseDTOMonoCache);
 
-        /* Get organization config data */
+        /* Get organization config data, then enrich with the runtime
+         * `instanceBaseUrlConfigurationHealthy` signal that drives the admin warning banner
+         * for GHSA-j9gf-vw2f-9hrw. The resolver call is intentionally co-located here in the
+         * orchestration layer rather than inside OrganizationServiceCEImpl: in EE the resolver
+         * depends on FeatureFlagService which depends on OrganizationService, so injecting it
+         * into the org service would create a construction-time cycle. Co-locating in the
+         * consumer (consolidated-api) keeps the data layer cycle-free.
+         * .onErrorReturn(true) so a transient resolver/feature-flag failure produces a
+         * false-negative banner rather than breaking the org-config fetch entirely. */
         fetches.add(organizationService
                 .getOrganizationConfiguration()
+                .zipWith(secureBaseUrlResolver.isBaseUrlConfigurationHealthy().onErrorReturn(true))
+                .map(tuple -> {
+                    var organization = tuple.getT1();
+                    // Defensive: org-service production code always populates the config, but
+                    // some test fixtures and mocks return a bare Organization. Don't NPE.
+                    if (organization.getOrganizationConfiguration() == null) {
+                        organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                    }
+                    organization.getOrganizationConfiguration().setInstanceBaseUrlConfigurationHealthy(tuple.getT2());
+                    return organization;
+                })
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching organization config", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setOrganizationConfig)

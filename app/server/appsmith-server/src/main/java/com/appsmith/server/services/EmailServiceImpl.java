@@ -1,13 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.EmailServiceHelper;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.ce.EmailServiceCEImpl;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService {
-    public EmailServiceImpl(EmailSender emailSender, EmailServiceHelper emailServiceHelper) {
-        super(emailSender, emailServiceHelper);
+    public EmailServiceImpl(
+            EmailSender emailSender,
+            EmailServiceHelper emailServiceHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
+        super(emailSender, emailServiceHelper, secureBaseUrlResolver);
     }
 }

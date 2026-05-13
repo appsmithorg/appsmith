@@ -102,8 +102,29 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+    local generated_appsmith_redis_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" "$generated_appsmith_redis_password" > "$ENV_PATH"
+  else
+    tlog "Configuration file already exists"
+    # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
+    # Only inject auth into the Redis URL when it points to the embedded (localhost) Redis.
+    if ! grep -q "APPSMITH_REDIS_PASSWORD" "$ENV_PATH"; then
+      local generated_appsmith_redis_password=$(
+        tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+        echo ''
+      )
+      echo $'\nAPPSMITH_REDIS_PASSWORD='"$generated_appsmith_redis_password" >> "$ENV_PATH"
+      # Update the Redis URL to include the password, but only for the embedded Redis.
+      local current_redis_url
+      current_redis_url=$(grep "^APPSMITH_REDIS_URL=" "$ENV_PATH" | tail -1 | cut -d= -f2-)
+      if [[ "$current_redis_url" == *"localhost"* || "$current_redis_url" == *"127.0.0.1"* ]]; then
+        sed -i "s|^APPSMITH_REDIS_URL=.*|APPSMITH_REDIS_URL=redis://:${generated_appsmith_redis_password}@127.0.0.1:6379|" "$ENV_PATH"
+      fi
+    fi
   fi
 
   tlog "Load environment configuration"
@@ -313,6 +334,80 @@ init_replica_set() {
   fi
 }
 
+# Pre-flight check for embedded MongoDB 7.0 upgrades on existing data.
+#
+# MongoDB 7.0 refuses to start on data whose featureCompatibilityVersion (FCV)
+# is below 6.0. Without a check up front, supervisord would retry mongod a few
+# times and give up, leaving the container in a confusing degraded state with
+# no clear error for the administrator.
+#
+# Fast path: marker file ($MONGO_DB_PATH/.appsmith-mongo-fcv-min) is written by
+# mongodb-fixer.sh only after mongod is confirmed running under this Appsmith
+# release. Its presence proves this release has already booted successfully on
+# this data, so the probe can be skipped with zero overhead. Contents record
+# the FCV floor this release commits to, for future upgrade decisions; they
+# aren't consulted here.
+#
+# First boot after upgrade: no marker yet. Do a one-time mongod --fork probe
+# to verify the data is compatible. If it starts, proceed; the fixer will
+# write the marker after supervisord brings mongod up for real. If it fails,
+# print an actionable error and exit.
+ensure_mongodb_fcv_compatible() {
+  # Only applies to existing local-Mongo data — fresh installs have nothing to
+  # check, and external Mongo is out of our control.
+  if [[ $shouldPerformInitdb -gt 0 || $isUriLocal -gt 0 ]]; then
+    return
+  fi
+
+  local marker="$MONGO_DB_PATH/.appsmith-mongo-fcv-min"
+  if [[ -f "$marker" ]]; then
+    tlog "MongoDB FCV marker present; skipping pre-flight check"
+    return
+  fi
+
+  tlog "No MongoDB FCV marker found on existing data; running one-time compatibility probe"
+  # Persist the probe log inside the Mongo data directory so it survives container
+  # restarts. $TMP would be wiped, leaving no forensic trail when an admin comes
+  # back to investigate why their container exited. Append rather than truncate so
+  # repeated probe runs (e.g. multiple failed upgrade attempts) all stay on record.
+  local probe_log="$MONGO_DB_PATH/fcv-probe.log"
+  printf '\n===== Appsmith MongoDB FCV pre-flight probe @ %s =====\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$probe_log" 2>/dev/null || true
+  if mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$probe_log" --logappend --bind_ip localhost >/dev/null 2>&1; then
+    if ! mongod --dbpath "$MONGO_DB_PATH" --shutdown >/dev/null 2>&1; then
+      tlog "ERROR: Pre-flight mongod probe started but shutdown failed. The probe mongod may still hold port 27017 or the data lock, which would prevent supervisord from starting mongod. Aborting. See $probe_log for details." >&2
+      exit 1
+    fi
+    tlog "Pre-flight probe succeeded; mongodb-fixer will write the FCV marker after supervisord starts mongod"
+    return
+  fi
+
+  local probe_err
+  probe_err="$(grep -Ei 'featurecompatibilityversion|upgrade|downgrade' "$probe_log" 2>/dev/null | tail -n 1 || true)"
+  tlog "====================================================================================================" >&2
+  tlog "==" >&2
+  tlog "== ERROR: Embedded MongoDB 7.0 failed to start on the existing data. The most common cause is that the data is at featureCompatibilityVersion below the required 6.0 minimum." >&2
+  if [[ -n "$probe_err" ]]; then
+    tlog "== mongod log: $probe_err" >&2
+  fi
+  tlog "==" >&2
+  tlog "== About this error:" >&2
+  tlog "==   Appsmith 2.x ships with MongoDB 7.x, which requires the database to be at featureCompatibilityVersion (FCV) 6.0 or higher. Appsmith releases 1.96 to 1.99 automatically raise FCV to 6.0 on boot, so any instance that has run one of those releases is fine. Instances that have only ever run Appsmith older than 1.70 may still be at FCV 5.0, which MongoDB 7.x refuses to load." >&2
+  tlog "==" >&2
+  tlog "==   This check only runs for instances using the embedded MongoDB. Instances configured with an external MongoDB are not affected." >&2
+  tlog "==" >&2
+  tlog "==   The failure happens during MongoDB pre-flight, before any Appsmith service comes online. No Appsmith database migrations have been attempted, so rolling back to a 1.x release is simply a matter of changing the image version on your deployment." >&2
+  tlog "==" >&2
+  tlog "== To recover:" >&2
+  tlog "==" >&2
+  tlog "==   1. Alter your Appsmith deployment to use a release in the 1.96 to 1.99 range (we recommend the latest, 1.99). These ship with MongoDB 6.x and will raise the compatibility version automatically." >&2
+  tlog "==   2. Let the container start fully so the MongoDB FCV upgrade completes." >&2
+  tlog "==   3. Shut down, then alter your Appsmith deployment to use this version again." >&2
+  tlog "==" >&2
+  tlog "== Full mongod log: $probe_log" >&2
+  tlog "====================================================================================================" >&2
+  exit 1
+}
+
 use-mongodb-key() {
   # We copy the MongoDB key file to `$MONGODB_TMP_KEY_PATH`, so that we can reliably set its permissions to 600.
   # Why? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
@@ -424,6 +519,16 @@ configure_supervisord() {
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
+      # Write Redis server config so the password is not visible in the process list.
+      # Placed in $TMP so it is regenerated each startup.
+      cat > "$TMP/redis.conf" <<REDIS_CONF
+save 15 1
+dir /appsmith-stacks/data/redis
+daemonize no
+logfile ""
+requirepass ${APPSMITH_REDIS_PASSWORD:-}
+REDIS_CONF
+      chmod 600 "$TMP/redis.conf"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
@@ -602,6 +707,7 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
+    ensure_mongodb_fcv_compatible
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku

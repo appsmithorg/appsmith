@@ -893,6 +893,15 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
+    MISCONFIGURED_INSTANCE_BASE_URL(
+            500,
+            AppsmithErrorCode.MISCONFIGURED_INSTANCE_BASE_URL.getCode(),
+            "APPSMITH_BASE_URL is not configured. Token-bearing email flows are disabled until the canonical instance URL is set.",
+            AppsmithErrorAction.DEFAULT,
+            "Instance base URL not configured",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
     INVALID_SMTP_CONFIGURATION(
             400,
             AppsmithErrorCode.INVALID_SMTP_CONFIGURATION.getCode(),

@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -548,7 +549,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(value -> {
@@ -614,7 +615,7 @@ public class PostgresPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -642,7 +643,7 @@ public class PostgresPluginTest {
     @Test
     public void testApplicationName() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(
@@ -669,7 +670,7 @@ public class PostgresPluginTest {
     @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
@@ -1018,10 +1019,10 @@ public class PostgresPluginTest {
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(pool -> {
-            pool.close();
+            pool.getConnection().close();
             return pluginExecutor.executeParameterized(pool, new ExecuteActionDTO(), dsConfig, actionConfiguration);
         });
 
@@ -1052,7 +1053,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1131,7 +1132,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1221,7 +1222,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1302,7 +1303,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1367,7 +1368,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1423,7 +1424,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1441,7 +1442,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLE);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1459,7 +1460,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.REQUIRE);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono).verifyErrorSatisfies(error -> {
@@ -1480,7 +1481,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFER);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1502,7 +1503,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ALLOW);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1520,7 +1521,7 @@ public class PostgresPluginTest {
     @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
@@ -1577,7 +1578,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1623,7 +1624,7 @@ public class PostgresPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1641,7 +1642,7 @@ public class PostgresPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM dataTypeTest");
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> connectionPoolMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> connectionPoolMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> resultMono = connectionPoolMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -1704,7 +1705,7 @@ public class PostgresPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1780,7 +1781,7 @@ public class PostgresPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1813,7 +1814,7 @@ public class PostgresPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("UPDATE public.\"users\" set created_on = '2021-03-24 14:05:34' where id = 3;");
 
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -1861,7 +1862,7 @@ public class PostgresPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
@@ -1924,7 +1925,7 @@ public class PostgresPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono =
+        Mono<ConnectionContext<HikariDataSource>> connectionCreateMono =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono.flatMap(
