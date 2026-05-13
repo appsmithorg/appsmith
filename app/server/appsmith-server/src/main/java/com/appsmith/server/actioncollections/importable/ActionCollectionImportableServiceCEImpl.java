@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -170,10 +171,16 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     .collectMap(ActionCollection::getGitSyncId);
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
-                    if (artifact.getGitArtifactMetadata() != null) {
+                    if (GitUtils.isArtifactConnectedToGit(artifact.getGitArtifactMetadata())) {
+
+                        List<String> allOtherBranches = importingMetaDTO.getBranchedArtifactIds().stream()
+                                .filter(branchedArtifactId ->
+                                        !branchedArtifactId.equals(importingMetaDTO.getArtifactId())
+                                                && !branchedArtifactId.equals(artifact.getId()))
+                                .toList();
+
                         actionCollectionsInBranchesMono = artifactBasedImportableService
-                                .getExistingResourcesInOtherBranchesFlux(
-                                        importingMetaDTO.getBranchedArtifactIds(), artifact.getId())
+                                .getExistingResourcesInOtherBranchesFlux(allOtherBranches)
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
                     } else {
