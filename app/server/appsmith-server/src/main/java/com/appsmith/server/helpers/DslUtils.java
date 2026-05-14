@@ -71,20 +71,33 @@ public class DslUtils {
         return dsl;
     }
 
-    private static void collectWidgetIds(JSONObject widget, Map<String, String> oldToNewWidgetIdMap) {
-        Object widgetIdValue = widget.get(FieldName.WIDGET_ID);
-        if (widgetIdValue instanceof String widgetId
-                && !widgetId.isEmpty()
-                && !MAIN_CONTAINER_WIDGET_ID.equals(widgetId)
-                && !oldToNewWidgetIdMap.containsKey(widgetId)) {
-            oldToNewWidgetIdMap.put(widgetId, generateWidgetId());
-        }
-
-        Object children = widget.get(FieldName.CHILDREN);
-        if (children instanceof List<?> childrenList) {
-            for (Object child : childrenList) {
-                if (child instanceof JSONObject childObject) {
-                    collectWidgetIds(childObject, oldToNewWidgetIdMap);
+    @SuppressWarnings("unchecked")
+    private static void collectWidgetIds(Object node, Map<String, String> oldToNewWidgetIdMap) {
+        if (node instanceof Map<?, ?> mapNode) {
+            Map<String, Object> typedMap = (Map<String, Object>) mapNode;
+            Object widgetIdValue = typedMap.get(FieldName.WIDGET_ID);
+            if (widgetIdValue instanceof String widgetId
+                    && !widgetId.isEmpty()
+                    && !MAIN_CONTAINER_WIDGET_ID.equals(widgetId)
+                    && !oldToNewWidgetIdMap.containsKey(widgetId)) {
+                oldToNewWidgetIdMap.put(widgetId, generateWidgetId());
+            }
+            // Walk every nested Map/List, not just the "children" array. List widgets keep their
+            // template widgets under FieldName.LIST_WIDGET_TEMPLATE (a Map of widgetName -> widget
+            // JSONObject); a child-only traversal would miss those template widget ids and leave
+            // them unchanged after regeneration. Recursing into every nested container makes this
+            // robust to any widget that nests further widgets outside the canonical "children"
+            // array. Non-widget objects (those without a "widgetId" key) are walked but contribute
+            // nothing to the map.
+            for (Object value : typedMap.values()) {
+                if (!(value instanceof String)) {
+                    collectWidgetIds(value, oldToNewWidgetIdMap);
+                }
+            }
+        } else if (node instanceof List<?> listNode) {
+            for (Object element : listNode) {
+                if (!(element instanceof String)) {
+                    collectWidgetIds(element, oldToNewWidgetIdMap);
                 }
             }
         }

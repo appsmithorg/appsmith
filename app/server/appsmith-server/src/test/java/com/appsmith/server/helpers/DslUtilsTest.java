@@ -299,6 +299,60 @@ class DslUtilsTest {
     }
 
     @Test
+    void regenerateWidgetIds_regeneratesIdsInsideListWidgetTemplate() {
+        // List widgets keep their per-row widget definitions under "template" (a Map of widget
+        // name -> widget JSONObject) rather than under "children". The regenerator must walk
+        // into "template" too, otherwise the template widget ids are left untouched and would
+        // collide with the originals when the page is cloned.
+        JSONObject templateImage = new JSONObject();
+        templateImage.put("widgetId", "templateImageOldId");
+        templateImage.put("widgetName", "Image1");
+        templateImage.put("type", "IMAGE_WIDGET");
+        templateImage.put("parentId", "listOldId");
+
+        JSONObject template = new JSONObject();
+        template.put("Image1", templateImage);
+
+        JSONObject listWidget = new JSONObject();
+        listWidget.put("widgetId", "listOldId");
+        listWidget.put("widgetName", "List1");
+        listWidget.put("type", "LIST_WIDGET");
+        listWidget.put("parentId", "0");
+        listWidget.put("template", template);
+        // List widgets also keep a "mainCanvasId" pointing at the canvas that hosts the
+        // template instance. It must be rewritten consistently with the template widget id
+        // (here we point it at the template widget itself for the sake of the test).
+        listWidget.put("mainCanvasId", "templateImageOldId");
+        listWidget.put("children", new JSONArray());
+
+        JSONArray rootChildren = new JSONArray();
+        rootChildren.add(listWidget);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", rootChildren);
+
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+
+        JSONObject regeneratedList = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
+        JSONObject regeneratedTemplate = (JSONObject) regeneratedList.get("template");
+        JSONObject regeneratedTemplateImage = (JSONObject) regeneratedTemplate.get("Image1");
+
+        String newListId = (String) regeneratedList.get("widgetId");
+        String newTemplateImageId = (String) regeneratedTemplateImage.get("widgetId");
+
+        Assertions.assertThat(newListId).isNotEqualTo("listOldId").matches("[0-9a-z]{10}");
+        Assertions.assertThat(newTemplateImageId)
+                .isNotEqualTo("templateImageOldId")
+                .matches("[0-9a-z]{10}");
+        // Template widget keeps its parent (List) reference, rewritten to the new List id.
+        Assertions.assertThat(regeneratedTemplateImage.get("parentId")).isEqualTo(newListId);
+        // The List's mainCanvasId reference is rewritten to the new template widget id.
+        Assertions.assertThat(regeneratedList.get("mainCanvasId")).isEqualTo(newTemplateImageId);
+    }
+
+    @Test
     void regenerateWidgetIds_emptyChildrenArray_regeneratesRootId() {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetId", "rootOldId");
