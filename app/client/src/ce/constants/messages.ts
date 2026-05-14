@@ -487,11 +487,11 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 // error pages
 export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
-export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
+export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "408";
 export const PAGE_SERVER_TIMEOUT_TITLE = () =>
-  "Appsmith server is taking too long to respond";
+  "Request timed out";
 export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
-  `Please retry after some time`;
+  `The server is taking too long to respond. Please retry after some time`;
 export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
 export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
