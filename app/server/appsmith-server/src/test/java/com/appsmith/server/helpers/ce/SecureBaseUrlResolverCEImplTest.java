@@ -35,6 +35,9 @@ class SecureBaseUrlResolverCEImplTest {
         Field flagField = SecureBaseUrlResolverCEImpl.class.getDeclaredField("allowInsecureOriginBasedLinks");
         flagField.setAccessible(true);
         flagField.set(resolver, allowInsecureFallback);
+        // Trigger the @PostConstruct hook so trailing-slash normalization runs in tests, mirroring
+        // the runtime Spring lifecycle.
+        resolver.init();
         return resolver;
     }
 
@@ -126,11 +129,33 @@ class SecureBaseUrlResolverCEImplTest {
     // RFC; all rejected ones genuinely differ in scheme, host, or non-default port.
 
     @Test
-    void resolveSecureBaseUrl_whenConfiguredHasTrailingSlash_andOriginDoesNot_match() throws Exception {
+    void resolveSecureBaseUrl_whenConfiguredHasTrailingSlash_isNormalizedAndOriginStillMatches() throws Exception {
+        // Trailing slash on the configured value is stripped at @PostConstruct so that downstream
+        // "%s/path" formatting in email templates does not produce "//path". The origin check
+        // still tolerates the mismatched-slash inbound Origin header per RFC 6454.
         SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost/", false);
 
         StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost"))
-                .expectNext("http://localhost/")
+                .expectNext("http://localhost")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenConfiguredHasMultipleTrailingSlashes_allAreStripped() throws Exception {
+        SecureBaseUrlResolverCEImpl resolver = newResolver("http://localhost///", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("http://localhost"))
+                .expectNext("http://localhost")
+                .verifyComplete();
+    }
+
+    @Test
+    void resolveSecureBaseUrl_whenConfiguredHasNoTrailingSlash_isReturnedVerbatim() throws Exception {
+        // Pin the no-op path: normalization must not alter URLs that don't end in a slash.
+        SecureBaseUrlResolverCEImpl resolver = newResolver("https://appsmith.example", false);
+
+        StepVerifier.create(resolver.resolveSecureBaseUrl("https://appsmith.example"))
+                .expectNext("https://appsmith.example")
                 .verifyComplete();
     }
 

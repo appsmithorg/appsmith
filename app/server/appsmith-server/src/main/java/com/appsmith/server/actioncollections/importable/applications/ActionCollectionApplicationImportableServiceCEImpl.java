@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,11 +57,8 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     }
 
     @Override
-    public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(
-            List<String> branchedArtifactIds, String currentArtifactId) {
-        return repository
-                .findAllByApplicationIds(branchedArtifactIds, null)
-                .filter(actionCollection -> !Objects.equals(actionCollection.getApplicationId(), currentArtifactId));
+    public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(List<String> branchedArtifactIds) {
+        return repository.findAllByApplicationIds(branchedArtifactIds, null);
     }
 
     @Override

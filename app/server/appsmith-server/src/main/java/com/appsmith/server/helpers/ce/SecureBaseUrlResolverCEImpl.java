@@ -2,6 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
@@ -52,6 +53,21 @@ public class SecureBaseUrlResolverCEImpl implements SecureBaseUrlResolverCE {
      */
     @Value("${APPSMITH_ALLOW_INSECURE_ORIGIN_BASED_LINKS:false}")
     private boolean allowInsecureOriginBasedLinks;
+
+    /**
+     * Strip trailing slash(es) from the configured base URL once, at bean initialization, so that
+     * downstream {@code "%s/path"} formatting in email templates does not produce
+     * {@code "https://host//path"}. Doubled slashes are silently passed through by Caddy in the
+     * standard self-hosted image and break SPA routing on the client (React-Router does not
+     * collapse empty path segments). One-time normalization here avoids a class of footgun for
+     * operators who copy-paste a URL ending in {@code /}.
+     */
+    @PostConstruct
+    public void init() {
+        if (StringUtils.hasText(appsmithBaseUrl)) {
+            appsmithBaseUrl = appsmithBaseUrl.replaceAll("/+$", "");
+        }
+    }
 
     @Override
     public Mono<String> resolveSecureBaseUrl(String providedBaseUrl) {

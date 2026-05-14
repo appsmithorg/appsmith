@@ -20,7 +20,7 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
 
     Flux<T> getExistingResourcesInCurrentArtifactFlux(Artifact artifact);
 
-    Flux<T> getExistingResourcesInOtherBranchesFlux(List<String> branchedArtifactIds, String currentArtifactId);
+    Flux<T> getExistingResourcesInOtherBranchesFlux(List<String> branchedArtifactIds);
 
     void updateArtifactId(T resource, Artifact artifact);
 

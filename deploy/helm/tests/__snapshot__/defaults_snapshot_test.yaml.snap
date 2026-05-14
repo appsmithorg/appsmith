@@ -25,7 +25,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.7.0
+        appsmith.sh/chart: appsmith-3.8.0
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
   3: |
@@ -36,7 +36,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.7.0
+        appsmith.sh/chart: appsmith-3.8.0
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -108,7 +108,7 @@
                 - sh
                 - -c
                 - until redis-cli -h RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done
-              image: docker.io/redis:7.0.15
+              image: docker.io/redis:7.4.9
               name: redis-init-container
             - command:
                 - sh
@@ -142,7 +142,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.7.0
+        appsmith.sh/chart: appsmith-3.8.0
       name: RELEASE-NAME-appsmith-headless
       namespace: NAMESPACE
     spec:
@@ -181,7 +181,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.7.0
+        appsmith.sh/chart: appsmith-3.8.0
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -202,7 +202,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.7.0
+        appsmith.sh/chart: appsmith-3.8.0
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     secrets:

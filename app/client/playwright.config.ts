@@ -30,16 +30,23 @@ export default defineConfig({
 
   use: {
     baseURL,
-    trace: "on-first-retry",
+    ignoreHTTPSErrors: true,
+    trace: "on",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "on",
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
   },
 
   projects: [
     {
+      name: "signup-setup",
+      testDir: "./playwright/fixtures",
+      testMatch: /signup\.setup\.ts/,
+    },
+    {
       name: "setup",
+      dependencies: ["signup-setup"],
       testDir: "./playwright/fixtures",
       testMatch: /auth\.setup\.ts/,
     },
@@ -89,6 +96,7 @@ export default defineConfig({
         storageState: "playwright/auth/user.json",
       },
       testDir: "./playwright/tests/regression",
+      testIgnore: ["**/git/**"],
     },
     {
       name: "regression-git",
@@ -98,25 +106,6 @@ export default defineConfig({
         storageState: "playwright/auth/user.json",
       },
       testDir: "./playwright/tests/regression/git",
-    },
-
-    {
-      name: "chromium",
-      dependencies: ["setup"],
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "playwright/auth/user.json",
-      },
-      testIgnore: ["**/ee/**"],
-    },
-    {
-      name: "chromium-ee",
-      dependencies: ["setup"],
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "playwright/auth/user.json",
-      },
-      testDir: "./playwright/tests/ee",
     },
   ],
 });
