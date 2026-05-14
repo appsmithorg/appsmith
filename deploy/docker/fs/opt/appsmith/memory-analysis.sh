@@ -420,8 +420,10 @@ if [[ "$WITH_THREADS" -eq 1 && "$SAMPLE_SECS" -gt 0 && -n "${java_pid:-}" ]] \
       echo ""
       echo "  $stuck_count thread(s) RUNNABLE on the same top frame in both snapshots:"
       # Group identical (name-prefix, frame) pairs so pool members collapse.
+      # The suffix to strip lives before the TAB separating name and frame —
+      # not at end-of-line — so anchor on \t rather than $.
       echo "$stuck" \
-        | sed -E 's/^([^\t]+)(-[0-9]+(-[0-9]+)*)$/\1/' \
+        | sed -E 's/-[0-9]+(-[0-9]+)*\t/\t/' \
         | awk -F'\t' '{key=$1"\t"$2; count[key]++} END {for (k in count) print count[k]"\t"k}' \
         | sort -t$'\t' -k1,1 -rn \
         | head -20 \
