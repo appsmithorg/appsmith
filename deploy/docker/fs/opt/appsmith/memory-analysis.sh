@@ -29,23 +29,28 @@ set -u
 
 SKIP_MONGO=0
 WITH_THREADS=0
+WITH_THREAD_SAMPLE=0
 SAMPLE_SECS=0
 for arg in "$@"; do
   case "$arg" in
     --no-mongo)            SKIP_MONGO=1 ;;
     --threads)             WITH_THREADS=1 ;;
-    --threads-sample)      WITH_THREADS=1; SAMPLE_SECS=10 ;;
-    --threads-sample=*)    WITH_THREADS=1; SAMPLE_SECS="${arg#*=}" ;;
+    --threads-sample)      WITH_THREADS=1; WITH_THREAD_SAMPLE=1; SAMPLE_SECS=10 ;;
+    --threads-sample=*)    WITH_THREADS=1; WITH_THREAD_SAMPLE=1; SAMPLE_SECS="${arg#*=}" ;;
     -h|--help)
       sed -n '2,24p' "$0"; exit 0 ;;
   esac
 done
-# Clamp sample window to a sane range.
-if [[ "$SAMPLE_SECS" =~ ^[0-9]+$ ]]; then
-  [[ "$SAMPLE_SECS" -lt 3 ]] && SAMPLE_SECS=3
-  [[ "$SAMPLE_SECS" -gt 60 ]] && SAMPLE_SECS=60
-else
-  SAMPLE_SECS=10
+# Clamp sample window to a sane range — only when sampling was explicitly
+# requested. Plain --threads leaves SAMPLE_SECS at the 0 default so the
+# stuck-thread section is correctly skipped.
+if [[ "$WITH_THREAD_SAMPLE" -eq 1 ]]; then
+  if [[ "$SAMPLE_SECS" =~ ^[0-9]+$ ]]; then
+    [[ "$SAMPLE_SECS" -lt 3 ]] && SAMPLE_SECS=3
+    [[ "$SAMPLE_SECS" -gt 60 ]] && SAMPLE_SECS=60
+  else
+    SAMPLE_SECS=10
+  fi
 fi
 
 # ---------- helpers ----------------------------------------------------------
@@ -497,6 +502,9 @@ else
 print("WT_MAX="+s["maximum bytes configured"]);
 print("WT_USED="+s["bytes currently in the cache"]);'
   out=$("$mclient" --quiet "$url" --eval "$js" 2>&1 || true)
+  # Drivers sometimes echo the connection string in auth/parse errors; redact
+  # before any of this output reaches the diagnostics tarball.
+  safe_out=$(sed -E 's#(mongodb(\+srv)?://)[^@/]+@#\1***:***@#' <<<"$out")
   wt_max_bytes=$(grep -oE 'WT_MAX=[0-9]+' <<<"$out" | head -1 | cut -d= -f2)
   wt_used_bytes=$(grep -oE 'WT_USED=[0-9]+' <<<"$out" | head -1 | cut -d= -f2)
   if [[ -n "${wt_max_bytes:-}" ]]; then
@@ -508,7 +516,7 @@ print("WT_USED="+s["bytes currently in the cache"]);'
       echo "                (Still worth right-sizing on that host if it's > available RAM there.)"
     fi
   else
-    echo "  WT cache:   (probe failed) — $(head -3 <<<"$out" | tr '\n' ' ')"
+    echo "  WT cache:   (probe failed) — $(head -3 <<<"$safe_out" | tr '\n' ' ')"
     wt_max_bytes=0
   fi
 fi
