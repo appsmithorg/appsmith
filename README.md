@@ -45,6 +45,7 @@ There are two ways to start using Appsmith:
 
 For other deployment options, see the [Installation Guides](https://docs.appsmith.com/getting-started/setup/installation-guides?utm_source=github&utm_medium=organic&utm_campaign=readme) documentation.  
 
+- [Appsmith Tutorial](https://docs.appsmith.com/) - Comprehensive documentation and tutorials for building internal tools.
 ## Development
 To build and run Appsmith in your local dev environment, see [Setup for local development](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
 
