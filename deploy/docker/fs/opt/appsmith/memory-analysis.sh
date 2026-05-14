@@ -42,7 +42,7 @@ for arg in "$@"; do
 done
 # Clamp sample window to a sane range.
 if [[ "$SAMPLE_SECS" =~ ^[0-9]+$ ]]; then
-  [[ "$SAMPLE_SECS" -gt 0 && "$SAMPLE_SECS" -lt 3 ]] && SAMPLE_SECS=3
+  [[ "$SAMPLE_SECS" -lt 3 ]] && SAMPLE_SECS=3
   [[ "$SAMPLE_SECS" -gt 60 ]] && SAMPLE_SECS=60
 else
   SAMPLE_SECS=10
