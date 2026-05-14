@@ -470,8 +470,8 @@ public class FileUtilsCEImpl implements FileInterface {
         ModifiedResources modifiedResources = applicationGitReference.getModifiedResources();
 
         // Remove unwanted directories which was present in v1 of the git file format version
-        fileOperations.deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
-        fileOperations.deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY));
+        deleteDirectoryValidated(baseRepo.resolve(ACTION_DIRECTORY));
+        deleteDirectoryValidated(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY));
 
         // Save application
         saveResource(
@@ -517,7 +517,7 @@ public class FileUtilsCEImpl implements FileInterface {
                         pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgetToParentMap);
 
                 // Remove the canvas.json from the file system since the value is stored in the page.json
-                fileOperations.deleteFile(pageSpecificDirectory.resolve(CommonConstants.CANVAS + JSON_EXTENSION));
+                deleteFileValidated(pageSpecificDirectory.resolve(CommonConstants.CANVAS + JSON_EXTENSION));
             }
             validPages.add(pageName);
         }
@@ -589,7 +589,7 @@ public class FileUtilsCEImpl implements FileInterface {
                             queryName,
                             actionSpecificDirectory.resolve(queryName));
                     // Delete the resource from the old file structure v2
-                    fileOperations.deleteFile(
+                    deleteFileValidated(
                             pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + JSON_EXTENSION));
                 }
             }
@@ -629,7 +629,7 @@ public class FileUtilsCEImpl implements FileInterface {
                                     actionCollectionName,
                                     actionCollectionSpecificDirectory.resolve(actionCollectionName));
                             // Delete the resource from the old file structure v2
-                            fileOperations.deleteFile(
+                            deleteFileValidated(
                                     actionCollectionSpecificDirectory.resolve(actionCollectionName + JSON_EXTENSION));
                         }
                     }
@@ -662,22 +662,47 @@ public class FileUtilsCEImpl implements FileInterface {
     /**
      * Validates that the given target path, after normalization, is still contained within
      * the configured Git root directory. This is a defense-in-depth measure to prevent
-     * path traversal attacks where crafted resource names could cause file writes outside
+     * path traversal attacks where crafted resource names could cause file operations outside
      * the repository.
      *
-     * @param targetPath the resolved path intended for a file write
+     * @param targetPath the resolved path intended for a file operation
      * @throws AppsmithPluginException if the path escapes the Git root directory
      */
-    private void validatePathIsWithinGitRoot(Path targetPath) {
+    protected void validatePathIsWithinGitRoot(Path targetPath) {
         Path normalizedTarget = targetPath.toAbsolutePath().normalize();
         Path gitRoot =
                 Paths.get(gitServiceConfig.getGitRootPath()).toAbsolutePath().normalize();
         if (!normalizedTarget.startsWith(gitRoot)) {
-            String errorMessage = "SECURITY: Path traversal detected. Attempted to write to " + normalizedTarget
+            String errorMessage = "SECURITY: Path traversal detected. Attempted to access " + normalizedTarget
                     + " which is outside the Git root " + gitRoot;
             log.error(errorMessage);
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errorMessage);
         }
+    }
+
+    protected Object readFileValidated(Path filePath) {
+        validatePathIsWithinGitRoot(filePath);
+        return fileOperations.readFile(filePath);
+    }
+
+    protected Map<String, Object> readFilesValidated(Path directoryPath, String keySuffix) {
+        validatePathIsWithinGitRoot(directoryPath);
+        return fileOperations.readFiles(directoryPath, keySuffix);
+    }
+
+    protected String readFileAsStringValidated(Path filePath) {
+        validatePathIsWithinGitRoot(filePath);
+        return fileOperations.readFileAsString(filePath);
+    }
+
+    protected void deleteFileValidated(Path filePath) {
+        validatePathIsWithinGitRoot(filePath);
+        fileOperations.deleteFile(filePath);
+    }
+
+    protected void deleteDirectoryValidated(Path directory) {
+        validatePathIsWithinGitRoot(directory);
+        fileOperations.deleteDirectory(directory);
     }
 
     /**
@@ -921,9 +946,9 @@ public class FileUtilsCEImpl implements FileInterface {
                         directoryPath.resolve(resourceName).resolve(resourceName + CommonConstants.JS_EXTENSION);
                 String body = CommonConstants.EMPTY_STRING;
                 if (resourcePath.toFile().exists()) {
-                    body = fileOperations.readFileAsString(resourcePath);
+                    body = readFileAsStringValidated(resourcePath);
                 }
-                Object file = fileOperations.readFile(
+                Object file = readFileValidated(
                         directoryPath.resolve(resourceName).resolve(CommonConstants.METADATA + JSON_EXTENSION));
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);
@@ -950,9 +975,9 @@ public class FileUtilsCEImpl implements FileInterface {
                 Path queryPath =
                         directoryPath.resolve(resourceName).resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 if (queryPath.toFile().exists()) {
-                    body = fileOperations.readFileAsString(queryPath);
+                    body = readFileAsStringValidated(queryPath);
                 }
-                Object file = fileOperations.readFile(
+                Object file = readFileValidated(
                         directoryPath.resolve(resourceName).resolve(CommonConstants.METADATA + JSON_EXTENSION));
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);
@@ -962,13 +987,12 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private Object readPageMetadata(Path directoryPath) {
-        return fileOperations.readFile(
-                directoryPath.resolve(directoryPath.toFile().getName() + JSON_EXTENSION));
+        return readFileValidated(directoryPath.resolve(directoryPath.toFile().getName() + JSON_EXTENSION));
     }
 
     protected GitResourceMap fetchGitResourceMap(Path baseRepoPath) throws IOException {
         // Extract application metadata from the json
-        Object metadata = fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+        Object metadata = readFileValidated(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
         Integer fileFormatVersion = fileOperations.getFileFormatVersion(metadata);
         // Check if fileFormat of the saved files in repo is compatible
         if (!isFileFormatCompatible(fileFormatVersion)) {
@@ -1000,7 +1024,7 @@ public class FileUtilsCEImpl implements FileInterface {
         Object contents = null;
 
         if (filePath.endsWith(JSON_EXTENSION)) {
-            contents = fileOperations.readFile(path);
+            contents = readFileValidated(path);
         }
 
         if (!filePath.contains("/")) {
@@ -1021,21 +1045,21 @@ public class FileUtilsCEImpl implements FileInterface {
                     objectMapper.valueToTree(contents).get("gitSyncId").asText();
             identity = new GitResourceIdentity(GitResourceType.QUERY_CONFIG, gitSyncId, filePath);
         } else if (filePath.matches(PAGE_DIRECTORY + "/[^/]*/" + ACTION_DIRECTORY + "/.*\\.txt")) {
-            Object configContents = fileOperations.readFile(path.getParent().resolve("metadata.json"));
+            Object configContents = readFileValidated(path.getParent().resolve("metadata.json"));
             String gitSyncId =
                     objectMapper.valueToTree(configContents).get("gitSyncId").asText();
             identity = new GitResourceIdentity(GitResourceType.QUERY_DATA, gitSyncId, filePath);
-            contents = fileOperations.readFileAsString(path);
+            contents = readFileAsStringValidated(path);
         } else if (filePath.matches(PAGE_DIRECTORY + "/[^/]*/" + ACTION_COLLECTION_DIRECTORY + "/.*/metadata.json")) {
             String gitSyncId =
                     objectMapper.valueToTree(contents).get("gitSyncId").asText();
             identity = new GitResourceIdentity(GitResourceType.JSOBJECT_CONFIG, gitSyncId, filePath);
         } else if (filePath.matches(PAGE_DIRECTORY + "/[^/]*/" + ACTION_COLLECTION_DIRECTORY + "/.*\\.js")) {
-            Object configContents = fileOperations.readFile(path.getParent().resolve("metadata.json"));
+            Object configContents = readFileValidated(path.getParent().resolve("metadata.json"));
             String gitSyncId =
                     objectMapper.valueToTree(configContents).get("gitSyncId").asText();
             identity = new GitResourceIdentity(GitResourceType.JSOBJECT_DATA, gitSyncId, filePath);
-            contents = fileOperations.readFileAsString(path);
+            contents = readFileAsStringValidated(path);
         } else if (filePath.matches(PAGE_DIRECTORY + "/[^/]*/widgets/.*\\.json")) {
             Pattern pageDirPattern = Pattern.compile("(" + PAGE_DIRECTORY + "/([^/]*))/widgets/.*\\.json");
             Matcher matcher = pageDirPattern.matcher(filePath);
@@ -1043,7 +1067,7 @@ public class FileUtilsCEImpl implements FileInterface {
             String pageDirectory = matcher.group(1);
             String pageName = matcher.group(2) + ".json";
             Object configContents =
-                    fileOperations.readFile(baseRepoPath.resolve(pageDirectory).resolve(pageName));
+                    readFileValidated(baseRepoPath.resolve(pageDirectory).resolve(pageName));
             String gitSyncId =
                     objectMapper.valueToTree(configContents).get("gitSyncId").asText();
             String widgetId = objectMapper.valueToTree(contents).get("widgetId").asText();
@@ -1056,7 +1080,7 @@ public class FileUtilsCEImpl implements FileInterface {
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath) {
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         // Extract application metadata from the json
-        Object metadata = fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+        Object metadata = readFileValidated(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
         Integer fileFormatVersion = fileOperations.getFileFormatVersion(metadata);
         // Check if fileFormat of the saved files in repo is compatible
         if (!isFileFormatCompatible(fileFormatVersion)) {
@@ -1064,24 +1088,24 @@ public class FileUtilsCEImpl implements FileInterface {
         }
         // Extract application data from the json
         applicationGitReference.setApplication(
-                fileOperations.readFile(baseRepoPath.resolve(CommonConstants.APPLICATION + JSON_EXTENSION)));
+                readFileValidated(baseRepoPath.resolve(CommonConstants.APPLICATION + JSON_EXTENSION)));
         applicationGitReference.setTheme(
-                fileOperations.readFile(baseRepoPath.resolve(CommonConstants.THEME + JSON_EXTENSION)));
+                readFileValidated(baseRepoPath.resolve(CommonConstants.THEME + JSON_EXTENSION)));
         Path pageDirectory = baseRepoPath.resolve(PAGE_DIRECTORY);
         // Reconstruct application from given file format
         switch (fileFormatVersion) {
             case 1:
                 // Extract actions
                 applicationGitReference.setActions(
-                        fileOperations.readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), CommonConstants.EMPTY_STRING));
+                        readFilesValidated(baseRepoPath.resolve(ACTION_DIRECTORY), CommonConstants.EMPTY_STRING));
                 // Extract actionCollections
-                applicationGitReference.setActionCollections(fileOperations.readFiles(
+                applicationGitReference.setActionCollections(readFilesValidated(
                         baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), CommonConstants.EMPTY_STRING));
                 // Extract pages
-                applicationGitReference.setPages(fileOperations.readFiles(pageDirectory, CommonConstants.EMPTY_STRING));
+                applicationGitReference.setPages(readFilesValidated(pageDirectory, CommonConstants.EMPTY_STRING));
                 // Extract datasources
-                applicationGitReference.setDatasources(fileOperations.readFiles(
-                        baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
+                applicationGitReference.setDatasources(
+                        readFilesValidated(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
                 break;
 
             case 2:
@@ -1100,7 +1124,7 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setMetadata(metadata);
 
         Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
-        Map<String, Object> jsLibrariesMap = fileOperations.readFiles(jsLibDirectory, CommonConstants.EMPTY_STRING);
+        Map<String, Object> jsLibrariesMap = readFilesValidated(jsLibDirectory, CommonConstants.EMPTY_STRING);
         applicationGitReference.setJsLibraries(jsLibrariesMap);
 
         return applicationGitReference;
@@ -1125,13 +1149,13 @@ public class FileUtilsCEImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(
                         page.getName(),
-                        fileOperations.readFile(page.toPath().resolve(CommonConstants.CANVAS + JSON_EXTENSION)));
+                        readFileValidated(page.toPath().resolve(CommonConstants.CANVAS + JSON_EXTENSION)));
 
                 if (fileFormatVersion >= 4) {
                     actionMap.putAll(
                             readAction(page.toPath().resolve(ACTION_DIRECTORY), page.getName(), actionBodyMap));
                 } else {
-                    actionMap.putAll(fileOperations.readFiles(page.toPath().resolve(ACTION_DIRECTORY), page.getName()));
+                    actionMap.putAll(readFilesValidated(page.toPath().resolve(ACTION_DIRECTORY), page.getName()));
                 }
 
                 if (fileFormatVersion >= 3) {
@@ -1140,8 +1164,8 @@ public class FileUtilsCEImpl implements FileInterface {
                             page.getName(),
                             actionCollectionBodyMap));
                 } else {
-                    actionCollectionMap.putAll(fileOperations.readFiles(
-                            page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), page.getName()));
+                    actionCollectionMap.putAll(
+                            readFilesValidated(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), page.getName()));
                 }
             }
         }
@@ -1152,7 +1176,7 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setPages(pageMap);
         // Extract datasources
         applicationGitReference.setDatasources(
-                fileOperations.readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
+                readFilesValidated(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
     }
 
     public static boolean isFileFormatCompatible(int savedFileFormat) {
@@ -1207,7 +1231,7 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setPageDsl(pageDsl);
         // Extract datasources
         applicationGitReference.setDatasources(
-                fileOperations.readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
+                readFilesValidated(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
     }
 
     private Map<String, JSONObject> readWidgetsData(String directoryPath) {
@@ -1272,16 +1296,16 @@ public class FileUtilsCEImpl implements FileInterface {
             // The check here is to validate if the parent is correct or not
             if (!validWidgetToParentMap.containsKey(name)) {
                 if (file.isDirectory()) {
-                    fileOperations.deleteDirectory(file.toPath());
+                    deleteDirectoryValidated(file.toPath());
                 } else {
-                    fileOperations.deleteFile(file.toPath());
+                    deleteFileValidated(file.toPath());
                 }
             } else if (!file.getParentFile().getPath().equals(validWidgetToParentMap.get(name))
                     && !file.getPath().equals(validWidgetToParentMap.get(name))) {
                 if (file.isDirectory()) {
-                    fileOperations.deleteDirectory(file.toPath());
+                    deleteDirectoryValidated(file.toPath());
                 } else {
-                    fileOperations.deleteFile(file.toPath());
+                    deleteFileValidated(file.toPath());
                 }
             }
         }
@@ -1351,8 +1375,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
             metadataMono = gitResetMono.map(isSwitched -> {
                 Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                Object metadata =
-                        fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+                Object metadata = readFileValidated(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
                 return metadata;
             });
         } catch (GitAPIException | IOException exception) {
@@ -1372,7 +1395,7 @@ public class FileUtilsCEImpl implements FileInterface {
     public Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix) {
         Mono<Object> metadataMono = Mono.fromCallable(() -> {
             Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix);
-            return fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+            return readFileValidated(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
         });
 
         return metadataMono.subscribeOn(scheduler);
@@ -1402,7 +1425,7 @@ public class FileUtilsCEImpl implements FileInterface {
                         .resolve(baseRepoSuffixPath)
                         .resolve(pageSuffix);
 
-                Object pageObject = fileOperations.readFile(repoPath.resolve(pageName + JSON_EXTENSION));
+                Object pageObject = readFileValidated(repoPath.resolve(pageName + JSON_EXTENSION));
 
                 return pageObject;
             });

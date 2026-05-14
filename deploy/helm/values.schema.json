@@ -1,168 +1,744 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema#",
-  "title": "Appsmith Helm chart values",
-  "description": "Partial schema. Currently validates only mongodbCommunity.* and mongodbOperator.enabled; all other properties are passed through without schema validation. Broader coverage is tracked as a follow-on.",
-  "type": "object",
-  "properties": {
-    "image": {
-      "type": "object",
-      "description": "Appsmith container image configuration.",
-      "properties": {
-        "registry": {
-          "type": "string",
-          "description": "Container image registry.",
-          "default": "index.docker.io"
-        },
-        "repository": {
-          "type": "string",
-          "description": "Container image repository.",
-          "default": "appsmith/appsmith-ee"
-        },
-        "tag": {
-          "type": "string",
-          "description": "Container image tag. Defaults to \"latest\" when omitted.",
-          "default": "latest"
-        },
-        "pullPolicy": {
-          "type": "string",
-          "description": "Container image pull policy.",
-          "default": "IfNotPresent"
-        },
-        "pullSecrets": {
-          "type": "string",
-          "description": "Image pull secret name (single secret).",
-          "default": ""
-        }
-      }
-    },
-    "_image": {
-      "type": "object",
-      "deprecated": true,
-      "description": "DEPRECATED: use image instead. Kept for backwards compatibility; merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.",
-      "properties": {
-        "registry": {
-          "type": "string",
-          "description": "DEPRECATED. Container image registry override (merged into image).",
-          "default": ""
-        },
-        "repository": {
-          "type": "string",
-          "description": "DEPRECATED. Container image repository override (merged into image).",
-          "default": ""
-        },
-        "tag": {
-          "type": "string",
-          "description": "DEPRECATED. Container image tag override (merged into image).",
-          "default": ""
-        },
-        "pullPolicy": {
-          "type": "string",
-          "description": "DEPRECATED. Container image pull policy override (merged into image).",
-          "default": ""
-        },
-        "pullSecrets": {
-          "type": "string",
-          "description": "DEPRECATED. Image pull secret name override (merged into image).",
-          "default": ""
-        }
-      }
-    },
-    "mongodbOperator": {
-      "type": "object",
-      "description": "MongoDB Kubernetes Operator subchart. Other properties are passed through to the upstream mongodb-kubernetes chart and are not validated here.",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Install the MongoDB Kubernetes Operator subchart alongside this chart.",
-          "default": false
-        }
-      }
-    },
-    "mongodbCommunity": {
-      "type": "object",
-      "description": "MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator. PREVIEW (chart 3.7.0) — documented for fresh installs in this release; a documented migration path from an existing Bitnami-backed release is being prepared separately. See docs/install-mongodb-operator.md.",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Deploy a MongoDBCommunity custom resource.",
-          "default": false
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the MongoDBCommunity custom resource. When empty, defaults to '<release-fullname>-mongo'. Keep under 60 chars — derived resource names append suffixes like -password and -svc.",
-          "default": "",
-          "maxLength": 60,
-          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
-        },
-        "version": {
-          "type": "string",
-          "description": "MongoDB version to deploy.",
-          "default": "8.0.20"
-        },
-        "members": {
-          "type": "integer",
-          "description": "Number of replica set members. Defaults to 1 for low-footprint installs; set to 3 for production HA.",
-          "default": 1,
-          "minimum": 1
-        },
-        "auth": {
-          "type": "object",
-          "description": "Authentication configuration for the MongoDB user Appsmith connects as.",
-          "properties": {
-            "username": {
-              "type": "string",
-              "description": "MongoDB user for Appsmith.",
-              "default": "appsmith",
-              "minLength": 1
-            },
-            "database": {
-              "type": "string",
-              "description": "Authentication database (also used as the connection path).",
-              "default": "appsmith",
-              "minLength": 1
-            },
-            "passwordSecretName": {
-              "type": "string",
-              "description": "Name of an existing Secret containing the password (key: password). When empty, a pre-install Job generates a random password into a Secret named \"{name}-password\".",
-              "default": ""
-            }
-          }
-        },
-        "persistent": {
-          "type": "object",
-          "description": "Persistence configuration for MongoDB data volumes.",
-          "properties": {
-            "storageSize": {
-              "type": "string",
-              "description": "Storage size for each MongoDB replica PVC.",
-              "default": "10Gi"
-            },
-            "storageClass": {
-              "type": "string",
-              "description": "StorageClass for MongoDB PVCs. Empty uses the cluster default (or global.storageClass)."
-            }
-          }
-        },
-        "resources": {
-          "type": "object",
-          "description": "Resource requests/limits for MongoDB containers."
-        },
-        "nodeSelector": {
-          "type": "object",
-          "description": "Node selector for MongoDB pods."
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://helm.appsmith.com/values.schema.json",
+    "title": "Appsmith Helm chart values",
+    "type": "object",
+    "properties": {
+        "_image": {
+            "description": "DEPRECATED — use image instead. Kept for backwards compatibility, merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.",
+            "type": "object"
         },
         "affinity": {
-          "type": "object",
-          "description": "Affinity rules for MongoDB pods."
+            "description": "Affinity rules for Appsmith pods.",
+            "type": "object"
+        },
+        "annotations": {
+            "description": "Annotations to add to the Deployment/StatefulSet resource.",
+            "type": "object"
+        },
+        "applicationConfig": {
+            "description": "Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.",
+            "type": "object",
+            "additionalProperties": {
+                "type": [
+                    "string",
+                    "boolean",
+                    "integer",
+                    "number"
+                ]
+            }
+        },
+        "autoscaling": {
+            "description": "Horizontal Pod Autoscaler configuration.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable the HorizontalPodAutoscaler.",
+                    "type": "boolean"
+                },
+                "maxReplicas": {
+                    "description": "Maximum number of replicas for the HPA.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "minReplicas": {
+                    "description": "Minimum number of replicas for the HPA.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "targetCPUUtilizationPercentage": {
+                    "description": "Target average CPU utilization (percentage) across pods.",
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                }
+            }
+        },
+        "autoupdate": {
+            "description": "Auto-update configuration for the Helm-managed image.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable the auto-update CronJob.",
+                    "type": "boolean"
+                },
+                "scheduler": {
+                    "description": "CronJob schedule to check and update the Helm image. Must be a valid cron expression.",
+                    "type": "string"
+                }
+            }
+        },
+        "commonAnnotations": {
+            "description": "Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template.",
+            "type": "object"
+        },
+        "commonLabels": {
+            "description": "Labels to add to all deployed objects.",
+            "type": "object"
+        },
+        "containerName": {
+            "description": "Name of the running container in the pod.",
+            "type": "string"
+        },
+        "customCAcert": {
+            "description": "Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "externalSecrets": {
+            "description": "External Secrets Operator integration configuration.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable External Secrets integration to source secrets from a remote provider.",
+                    "type": "boolean"
+                },
+                "refreshInterval": {
+                    "description": "How often to refresh secrets from the remote provider (Go duration string).",
+                    "type": "string"
+                },
+                "remoteNameSecret": {
+                    "description": "Name of the secret in the external Secret provider.",
+                    "type": "string"
+                }
+            }
+        },
+        "extraVolumeMounts": {
+            "description": "Additional volume mounts to add to the Appsmith container.",
+            "type": "array"
+        },
+        "extraVolumes": {
+            "description": "Additional volumes to add to the pod.",
+            "type": "array"
+        },
+        "fullnameOverride": {
+            "description": "String to fully override the appsmith.fullname template.",
+            "type": "string"
+        },
+        "global": {
+            "description": "Global parameters that can override values across the chart and its dependencies.",
+            "type": "object",
+            "properties": {
+                "namespaceOverride": {
+                    "description": "Override the namespace for resources deployed by the chart (can be overridden by local namespaceOverride).",
+                    "type": "string"
+                },
+                "storageClass": {
+                    "description": "Global StorageClass for Persistent Volume(s).",
+                    "type": "string"
+                }
+            }
+        },
+        "image": {
+            "description": "Appsmith container image configuration.",
+            "type": "object",
+            "properties": {
+                "pullPolicy": {
+                    "description": "Container image pull policy.",
+                    "type": "string",
+                    "enum": [
+                        "Always",
+                        "IfNotPresent",
+                        "Never"
+                    ]
+                },
+                "pullSecrets": {
+                    "description": "Image pull secret name (single secret).",
+                    "type": "string"
+                },
+                "registry": {
+                    "description": "Container image registry.",
+                    "type": "string"
+                },
+                "repository": {
+                    "description": "Container image repository.",
+                    "type": "string"
+                },
+                "tag": {
+                    "description": "Container image tag (defaults to \"latest\" when omitted).",
+                    "type": "string"
+                }
+            }
+        },
+        "ingress": {
+            "description": "Ingress configuration for exposing Appsmith over HTTP(S).",
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Additional custom annotations for the Ingress record.",
+                    "type": "object"
+                },
+                "certManager": {
+                    "description": "Enable Ingress to use TLS certificates provided by cert-manager.",
+                    "type": "boolean"
+                },
+                "certManagerTls": {
+                    "description": "Specify TLS secrets created by cert-manager.",
+                    "type": "array"
+                },
+                "className": {
+                    "description": "IngressClass name to use for the Ingress resource.",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "Enable Ingress record generation for Appsmith.",
+                    "type": "boolean"
+                },
+                "hosts": {
+                    "description": "Hosts served by the Ingress (list of objects with at least a host field).",
+                    "type": "array"
+                },
+                "secrets": {
+                    "description": "Custom TLS certificates as secrets. 'key' and 'certificate' are expected in PEM format.",
+                    "type": "array"
+                },
+                "tls": {
+                    "description": "Enable TLS configuration for the host(s) defined at ingress.hosts.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "initContainer": {
+            "description": "Init container image overrides for bundled redis/mongodb/postgresql dependencies.",
+            "type": "object"
+        },
+        "keda": {
+            "description": "KEDA-based autoscaling configuration. Mutually exclusive with the autoscaling block.",
+            "type": "object",
+            "properties": {
+                "cooldownPeriod": {
+                    "description": "Cooldown period before scaling down, in seconds.",
+                    "type": "integer"
+                },
+                "enabled": {
+                    "description": "Enable KEDA ScaledObject for Appsmith.",
+                    "type": "boolean"
+                },
+                "fallback": {
+                    "description": "Fallback configuration when triggers fail to fetch metrics.",
+                    "type": "object",
+                    "properties": {
+                        "failureThreshold": {
+                            "description": "Number of consecutive trigger failures before falling back.",
+                            "type": "integer"
+                        },
+                        "replicas": {
+                            "description": "Replica count to fall back to.",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "maxReplicaCount": {
+                    "description": "Maximum number of replicas KEDA will scale to.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "minReplicaCount": {
+                    "description": "Minimum number of replicas KEDA will scale to.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "pollingInterval": {
+                    "description": "How often KEDA polls trigger sources, in seconds.",
+                    "type": "integer"
+                },
+                "triggers": {
+                    "description": "KEDA trigger definitions (passed through to the ScaledObject).",
+                    "type": "array"
+                }
+            }
+        },
+        "metrics": {
+            "description": "Metrics endpoint configuration.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable the Appsmith metrics endpoint.",
+                    "type": "boolean"
+                },
+                "port": {
+                    "description": "Port number to expose metrics on.",
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                }
+            }
+        },
+        "mongodb": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Deploy the bundled Bitnami mongodb subchart. Disable to use an external MongoDB via APPSMITH_DB_URL or to use mongodbCommunity instead.",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
+        },
+        "mongodbCommunity": {
+            "description": "MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator. PREVIEW (chart 3.7.0) — documented for fresh installs in this release. A documented migration path from an existing Bitnami-backed release is being prepared separately. See docs/install-mongodb-operator.md.",
+            "type": "object",
+            "properties": {
+                "affinity": {
+                    "type": "object"
+                },
+                "auth": {
+                    "type": "object",
+                    "properties": {
+                        "database": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "passwordSecretName": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "members": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string",
+                    "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+                    "maxLength": 60
+                },
+                "nodeSelector": {
+                    "type": "object"
+                },
+                "passwordInit": {
+                    "type": "object",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "pullPolicy": {
+                                    "type": "string"
+                                },
+                                "registry": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "persistent": {
+                    "type": "object",
+                    "properties": {
+                        "storageClass": {
+                            "type": "string"
+                        },
+                        "storageSize": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "resources": {
+                    "type": "object"
+                },
+                "tolerations": {
+                    "type": "array"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongodbOperator": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Install the MongoDB Kubernetes Operator subchart alongside this chart.",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
+        },
+        "nodeSelector": {
+            "description": "Node selector for Appsmith pods.",
+            "type": "object"
+        },
+        "persistence": {
+            "description": "Persistence configuration for Appsmith data volumes.",
+            "type": "object",
+            "properties": {
+                "accessModes": {
+                    "description": "PV access modes.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "ReadWriteOnce",
+                            "ReadOnlyMany",
+                            "ReadWriteMany",
+                            "ReadWriteOncePod"
+                        ]
+                    }
+                },
+                "annotations": {
+                    "description": "Additional custom annotations for the PVC.",
+                    "type": "object"
+                },
+                "efs": {
+                    "description": "AWS EFS CSI driver configuration when using an EFS-backed volume.",
+                    "type": "object",
+                    "properties": {
+                        "driver": {
+                            "description": "CSI driver name for the EFS volume.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "enabled": {
+                            "description": "Enable EFS-backed persistence.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "volumeHandle": {
+                            "description": "EFS filesystem volume handle (fs-xxxx[::access-point]).",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "enabled": {
+                    "description": "Enable data persistence using a PVC.",
+                    "type": "boolean"
+                },
+                "existingClaim": {
+                    "description": "Use an existing PVC instead of creating one.",
+                    "type": "object",
+                    "properties": {
+                        "claimName": {
+                            "description": "Explicit claimName to set on the pod's volume mount.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "enabled": {
+                            "description": "Set to true to mount an existing PVC instead of provisioning a new one.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "name": {
+                            "description": "Name used to look up the existing PVC.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "localCluster": {
+                    "description": "Local cluster configuration for local-storage scenarios.",
+                    "type": "object"
+                },
+                "localStorage": {
+                    "description": "Use local storage for the PVC.",
+                    "type": "boolean"
+                },
+                "pvNameOverride": {
+                    "description": "Override the PV name. Useful when deploying multiple releases across different namespaces with the same name since PersistentVolumes are cluster-scoped.",
+                    "type": "string"
+                },
+                "reclaimPolicy": {
+                    "description": "Reclaim policy for the PV.",
+                    "type": "string",
+                    "enum": [
+                        "Retain",
+                        "Delete",
+                        "Recycle"
+                    ]
+                },
+                "size": {
+                    "description": "PVC storage request size.",
+                    "type": "string"
+                },
+                "storageClass": {
+                    "description": "PVC StorageClass. Empty uses the cluster default (or global.storageClass).",
+                    "type": "string"
+                },
+                "storagePath": {
+                    "description": "Local storage path used when localStorage is true.",
+                    "type": "string"
+                },
+                "volumeClaimTemplates": {
+                    "description": "Fine-tuning options for the volumeClaimTemplate used by the StatefulSet.",
+                    "type": "object",
+                    "properties": {
+                        "dataSource": {
+                            "description": "Add a dataSource to the VolumeClaimTemplate.",
+                            "type": "object"
+                        },
+                        "requests": {
+                            "description": "Custom PVC requests attributes (some cloud providers use additional attributes for storage provisioning).",
+                            "type": "object"
+                        },
+                        "selector": {
+                            "description": "A label query over volumes to consider for binding (e.g. when using local volumes).",
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "podAnnotations": {
+            "description": "Annotations to add to Appsmith pods.",
+            "type": "object"
+        },
+        "podDisruptionBudgets": {
+            "description": "PodDisruptionBudget configuration for the Appsmith workload.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable a PodDisruptionBudget for Appsmith pods.",
+                    "type": "boolean"
+                },
+                "minAvailable": {
+                    "description": "Minimum number of pods that must remain available during voluntary disruptions.",
+                    "type": "integer"
+                }
+            }
+        },
+        "podLabels": {
+            "description": "Labels to add to Appsmith pods.",
+            "type": "object"
+        },
+        "podSecurityContext": {
+            "description": "Pod-level securityContext applied to Appsmith pods.",
+            "type": "object"
+        },
+        "postgresql": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Deploy the bundled Bitnami postgresql subchart (used by Keycloak). Disable to use an external PostgreSQL.",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
+        },
+        "prometheus": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Deploy the bundled prometheus subchart for metrics scraping.",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
+        },
+        "redis": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Deploy the bundled Bitnami redis subchart. Disable to point Appsmith at an external Redis via APPSMITH_REDIS_URL.",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
+        },
+        "replicas": {
+            "description": "Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.",
+            "type": "integer",
+            "minimum": 0
+        },
+        "resources": {
+            "description": "Resource requests/limits for the Appsmith container.",
+            "type": "object",
+            "properties": {
+                "limits": {
+                    "description": "Resource limits for the Appsmith container.",
+                    "type": "object"
+                },
+                "requests": {
+                    "description": "Resource requests for the Appsmith container.",
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "type": "string"
+                        },
+                        "memory": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "schedulerName": {
+            "description": "Name of the scheduler (other than default) to dispatch pods.",
+            "type": "string"
+        },
+        "secretName": {
+            "description": "Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.",
+            "type": "string"
+        },
+        "securityContext": {
+            "description": "Container-level securityContext applied to the Appsmith container.",
+            "type": "object"
+        },
+        "service": {
+            "description": "Kubernetes Service configuration for Appsmith.",
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Additional annotations for the Service.",
+                    "type": "object"
+                },
+                "clusterIP": {
+                    "description": "Service cluster IP. Set to None for a headless service.",
+                    "type": "string"
+                },
+                "loadBalancerIP": {
+                    "description": "loadBalancerIP for the Appsmith Service.",
+                    "type": "string"
+                },
+                "loadBalancerSourceRanges": {
+                    "description": "Address ranges allowed to access the Service when type is LoadBalancer.",
+                    "type": "array"
+                },
+                "nodePort": {
+                    "description": "Node port to expose if service type is LoadBalancer or NodePort.",
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                },
+                "port": {
+                    "description": "Service port.",
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                },
+                "portName": {
+                    "description": "Service port name.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Kubernetes Service type.",
+                    "type": "string",
+                    "enum": [
+                        "ClusterIP",
+                        "NodePort",
+                        "LoadBalancer",
+                        "ExternalName"
+                    ]
+                }
+            }
+        },
+        "serviceAccount": {
+            "description": "ServiceAccount configuration for Appsmith pods.",
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Additional ServiceAccount annotations.",
+                    "type": "object"
+                },
+                "create": {
+                    "description": "Enable creation of a ServiceAccount for Appsmith pods.",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "Name of the created ServiceAccount. If not set and create is true, a name is generated using the appsmith.fullname template.",
+                    "type": "string"
+                }
+            }
+        },
+        "storageClass": {
+            "description": "Optional StorageClass managed by this chart.",
+            "type": "object",
+            "properties": {
+                "allowVolumeExpansion": {
+                    "description": "Allow PVC expansion for volumes using this StorageClass.",
+                    "type": "boolean"
+                },
+                "annotations": {
+                    "description": "Annotations to add to the StorageClass.",
+                    "type": "object"
+                },
+                "bindingMode": {
+                    "description": "VolumeBindingMode for PVCs using this StorageClass.",
+                    "type": "string",
+                    "enum": [
+                        "Immediate",
+                        "WaitForFirstConsumer"
+                    ]
+                },
+                "defaultClass": {
+                    "description": "Mark this StorageClass as the cluster default.",
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "description": "Enable creation of a StorageClass by this chart.",
+                    "type": "boolean"
+                },
+                "mountOptions": {
+                    "description": "Mount options used by volumes created with this StorageClass.",
+                    "type": "object"
+                },
+                "parameters": {
+                    "description": "Provisioner-specific parameters for this StorageClass.",
+                    "type": "object"
+                },
+                "provisioner": {
+                    "description": "Provisioner name for this StorageClass.",
+                    "type": "string"
+                },
+                "reclaimPolicy": {
+                    "description": "Reclaim policy for PVs dynamically provisioned by this StorageClass.",
+                    "type": "string",
+                    "enum": [
+                        "Retain",
+                        "Delete"
+                    ]
+                }
+            }
+        },
+        "strategyType": {
+            "description": "StrategyType for the Appsmith workload. Typically RollingUpdate or Recreate.",
+            "type": "string"
         },
         "tolerations": {
-          "type": "array",
-          "description": "Tolerations for MongoDB pods.",
-          "items": {
-            "type": "object"
-          }
+            "description": "Tolerations for Appsmith pods.",
+            "type": "array"
+        },
+        "workload": {
+            "description": "Workload resource configuration.",
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).",
+                    "type": "string",
+                    "enum": [
+                        "Deployment",
+                        "StatefulSet"
+                    ]
+                }
+            }
         }
-      }
     }
-  }
 }

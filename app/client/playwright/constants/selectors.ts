@@ -4,10 +4,11 @@ export const SELECTORS = {
   widgetInDeployed: (type: string) => `.t--widget-${type.toLowerCase()}`,
   deployedPage: ".t--app-viewer-navigation-header",
   modal: ".t--modal-widget",
-  toast: ".t--toast-action",
+  toast: ".Toastify__toast",
   sliderThumb: '[data-testid="slider-thumb"]',
   tableCell: (row: number, col: number) =>
     `.tbody .td[data-rowindex="${row}"][data-colindex="${col}"]`,
   jsonFormInput: (label: string) =>
-    `//p[text()='${label}']/ancestor::div[@direction='column']//input`,
+    `//p[text()='${label}']/ancestor::div[contains(@class, 't--jsonformfield-')][1]//input`,
+  jsonFormSubmitBtn: ".t--jsonform-submit-btn",
 } as const;
