@@ -643,20 +643,15 @@ public class MssqlPlugin extends BasePlugin {
     private static void addSslOptionsToUrlBuilder(
             DatasourceConfiguration datasourceConfiguration, StringBuilder urlBuilder) throws AppsmithPluginException {
         /*
-         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         * - When SSL configuration is absent, default to disabling encryption so that
+         *   connections to servers that do not require encryption work out of the box.
          */
         if (datasourceConfiguration.getConnection() == null
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. "
-                            + "Please reach out to Appsmith customer support to resolve this.");
+            urlBuilder.append("encrypt=false;");
+            return;
         }
-
-        /*
-         * - By default, the driver configures SSL in the no verify mode.
-         */
         SSLDetails.AuthType sslAuthType =
                 datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
