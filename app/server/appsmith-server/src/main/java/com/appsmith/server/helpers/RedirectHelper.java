@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -157,7 +158,10 @@ public class RedirectHelper {
     /**
      * Checks whether a redirect URL is safe by verifying it is either:
      * - A relative path (no scheme), or
-     * - An absolute URL whose host matches the request's Origin header
+     * - An absolute URL whose host matches the request's Origin header, or
+     * - An absolute URL whose host matches the request's X-Forwarded-Host / Host
+     *   header (used as a fallback when Origin is absent — browsers do not send
+     *   Origin on top-level GET navigations such as SSO entry redirects).
      *
      * This prevents open redirect vulnerabilities where user-supplied URLs
      * could redirect authenticated users to attacker-controlled domains.
@@ -181,29 +185,36 @@ public class RedirectHelper {
             return false;
         }
 
-        // For absolute URLs, the host must match the request origin
-        String origin = httpHeaders.getOrigin();
-        if (StringUtils.isEmpty(origin)) {
-            // If there is no Origin header, we cannot validate — reject absolute URLs
-            // to be safe. Relative URLs were already allowed above.
+        final URI redirectUri;
+        try {
+            redirectUri = new URI(redirectUrl);
+        } catch (URISyntaxException e) {
             return false;
         }
 
-        try {
-            URI redirectUri = new URI(redirectUrl);
-            URI originUri = new URI(origin);
+        // Reject URLs with userinfo (e.g., https://evil.com@app.appsmith.com)
+        // Java's URI parser treats evil.com as userinfo and app.appsmith.com as host,
+        // but browser behavior varies — block these outright to be safe.
+        if (redirectUri.getUserInfo() != null) {
+            return false;
+        }
 
-            // Reject URLs with userinfo (e.g., https://evil.com@app.appsmith.com)
-            // Java's URI parser treats evil.com as userinfo and app.appsmith.com as host,
-            // but browser behavior varies — block these outright to be safe.
-            if (redirectUri.getUserInfo() != null) {
+        String redirectHost = redirectUri.getHost();
+        if (redirectHost == null) {
+            return false;
+        }
+
+        String origin = httpHeaders.getOrigin();
+        if (!StringUtils.isEmpty(origin)) {
+            // Origin-present path: full host + port + scheme-aware port normalization.
+            final URI originUri;
+            try {
+                originUri = new URI(origin);
+            } catch (URISyntaxException e) {
                 return false;
             }
-
-            String redirectHost = redirectUri.getHost();
             String originHost = originUri.getHost();
-
-            if (redirectHost == null || originHost == null) {
+            if (originHost == null) {
                 return false;
             }
 
@@ -224,9 +235,54 @@ public class RedirectHelper {
             }
 
             return redirectHost.equalsIgnoreCase(originHost) && portsMatch;
-        } catch (URISyntaxException e) {
+        }
+
+        // Origin-absent path: browsers omit Origin on top-level GET navigations
+        // (e.g. window.location.href = "/oauth2/authorization/..."). Fall back to
+        // X-Forwarded-Host / Host — these carry no scheme/port, so compare hostnames
+        // only. If neither header is present, reject to preserve strict behavior.
+        String requestHost = extractRequestHost(httpHeaders);
+        if (requestHost == null) {
             return false;
         }
+        // URI.getHost() returns IPv6 literals wrapped in brackets (e.g. "[::1]");
+        // strip them so the fallback host (which has no brackets) compares cleanly.
+        String normalizedRedirectHost = redirectHost;
+        if (normalizedRedirectHost.startsWith("[") && normalizedRedirectHost.endsWith("]")) {
+            normalizedRedirectHost = normalizedRedirectHost.substring(1, normalizedRedirectHost.length() - 1);
+        }
+        return normalizedRedirectHost.equalsIgnoreCase(requestHost);
+    }
+
+    /**
+     * Derives the request's host for same-origin comparison when the Origin header
+     * is absent. Prefers X-Forwarded-Host (handles proxied deployments and may carry
+     * a comma-separated list — the first entry is the outermost client-facing host),
+     * then falls back to the Host header. Returns null when neither is set.
+     */
+    private static String extractRequestHost(HttpHeaders headers) {
+        String xfh = headers.getFirst("X-Forwarded-Host");
+        if (xfh != null && !xfh.isBlank()) {
+            int comma = xfh.indexOf(',');
+            String first = (comma >= 0 ? xfh.substring(0, comma) : xfh).trim();
+            return stripPort(first);
+        }
+        InetSocketAddress hostAddr = headers.getHost();
+        if (hostAddr != null
+                && hostAddr.getHostString() != null
+                && !hostAddr.getHostString().isBlank()) {
+            return hostAddr.getHostString();
+        }
+        return null;
+    }
+
+    private static String stripPort(String hostMaybeWithPort) {
+        if (hostMaybeWithPort.startsWith("[")) { // IPv6 literal
+            int close = hostMaybeWithPort.indexOf(']');
+            return close > 0 ? hostMaybeWithPort.substring(1, close) : hostMaybeWithPort;
+        }
+        int colon = hostMaybeWithPort.indexOf(':');
+        return colon >= 0 ? hostMaybeWithPort.substring(0, colon) : hostMaybeWithPort;
     }
 
     /**
