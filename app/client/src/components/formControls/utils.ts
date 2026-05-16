@@ -286,7 +286,7 @@ export const caculateIsHidden = (
       case "NOT_IN":
         return Array.isArray(value) && !value.includes(valueAtPath);
       case "FEATURE_FLAG":
-        // FEATURE_FLAG comparision is used to hide previous configs,
+        // FEATURE_FLAG comparison is used to hide previous configs,
         // and show new configs if feature flag is enabled, if disabled/ not present,
         // previous config would be shown as is
         return !!featureFlags && featureFlags[flagValue] === value;
