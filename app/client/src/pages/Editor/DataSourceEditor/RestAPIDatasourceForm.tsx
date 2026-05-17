@@ -683,6 +683,21 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
+        {_.get(formData.authentication, "grantType") ===
+          GrantType.AuthorizationCode && (
+          <FormInputContainer
+            data-location-id={btoa("authentication.expiresIn")}
+          >
+            {this.renderInputTextControlViaFormControl({
+              configProperty: "authentication.expiresIn",
+              label: "Authorization expires in (seconds)",
+              placeholderText: "3600",
+              dataType: "NUMBER",
+              encrypted: false,
+              isRequired: false,
+            })}
+          </FormInputContainer>
+        )}
         <FormInputContainer
           data-location-id={btoa("authentication.isAuthorizationHeader")}
         >
@@ -869,16 +884,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
-        </FormInputContainer>
-        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.expiresIn",
-            label: "Authorization expires in (seconds)",
-            placeholderText: "3600",
-            dataType: "NUMBER",
-            encrypted: false,
-            isRequired: false,
-          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
