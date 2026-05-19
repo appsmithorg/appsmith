@@ -130,19 +130,13 @@ describe(
       agHelper.RenameQuery("intervalRecords");
       dataSources.RunQuery();
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq(
-          "0 years 11 mons 29 days 23 hours 0 mins 0.0 secs",
-        );
+        expect($cellData).to.eq("11 mons 29 days 23 hours");
       });
       dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-        expect($cellData).to.eq(
-          "0 years 1 mons 0 days 0 hours 0 mins 0.0 secs",
-        );
+        expect($cellData).to.eq("1 mons");
       });
       dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-        expect($cellData).to.eq(
-          "0 years 0 mons 1 days 0 hours 0 mins 0.0 secs",
-        );
+        expect($cellData).to.eq("1 days");
       });
       dataSources.ReadQueryTableResponse(3).then(($cellData) => {
         expect($cellData).to.eq("21");
@@ -186,9 +180,7 @@ describe(
         expect($cellData).to.eq("16:05:00"); //time format
       });
       table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq(
-          "6 years 5 mons 4 days 3 hours 2 mins 1.0 secs",
-        ); //Interval format!
+        expect($cellData).to.eq("6 years 5 mons 4 days 3 hours 2 mins 1 secs"); //Interval format!
       });
       table.ReadTableRowColumnData(0, 7).then(($cellData) => {
         expect($cellData).to.eq("19.01.1989");
@@ -228,9 +220,7 @@ describe(
         expect($cellData).to.eq("04:05:00");
       });
       table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq(
-          "0 years 0 mons 3 days 4 hours 5 mins 6.0 secs",
-        );
+        expect($cellData).to.eq("3 days 4 hours 5 mins 6 secs");
       });
       table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
         expect($cellData).to.eq("29.12.2045");
@@ -270,9 +260,7 @@ describe(
         expect($cellData).to.eq("04:05:06.789");
       });
       table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq(
-          "1 years 3 mons 2 days 6 hours 4 mins 5.0 secs",
-        );
+        expect($cellData).to.eq("1 years 3 mons 2 days 6 hours 4 mins 5 secs");
       });
       table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
         expect($cellData).to.eq("17.03.2014");
@@ -322,9 +310,7 @@ describe(
         expect($cellData).to.eq("18:14:16");
       });
       table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq(
-          "1 years 2 mons 0 days 0 hours 0 mins 0.0 secs",
-        );
+        expect($cellData).to.eq("1 years 2 mons");
       });
       table.ReadTableRowColumnData(1, 7, "v1", 200).then(($cellData) => {
         expect($cellData).to.eq("08.01.1999");
