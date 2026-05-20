@@ -97,8 +97,17 @@ public class GitUtils {
                 .matcher(remoteUrl);
         if (matcher.find()) {
             // To trim the postfix and prefix
-            return matcher.group(6).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
+            final String repoName = matcher.group(6).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
+            if (".".equals(repoName) || "..".equals(repoName)) {
+                throwInvalidGitConfigurationException();
+            }
+            return repoName;
         }
+        throwInvalidGitConfigurationException();
+        return null;
+    }
+
+    private static void throwInvalidGitConfigurationException() {
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
                 "Remote URL is incorrect. "
