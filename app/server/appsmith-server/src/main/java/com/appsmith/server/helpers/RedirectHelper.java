@@ -306,27 +306,27 @@ public class RedirectHelper {
     }
 
     /**
-     * Derives the request's client-facing port from HTTP headers, mirroring the
-     * source precedence of {@link #extractRequestHost(HttpHeaders)}. When
-     * {@code X-Forwarded-Host} governs the host, the port is read from
-     * {@code X-Forwarded-Port} (where proxies canonically place it) and then from a
-     * port embedded in the first {@code X-Forwarded-Host} entry; otherwise it is read
-     * from the {@code Host} header. Returns {@code -1} when no explicit port is present
-     * (the caller treats this as the scheme default).
+     * Derives the request's client-facing port from HTTP headers. Reads, in order:
+     * {@code X-Forwarded-Port} (where proxies canonically place the client-facing
+     * port — honored even when {@code X-Forwarded-Host} is absent, e.g. proxies that
+     * preserve {@code Host} but convey the port separately), then a port embedded in
+     * the first {@code X-Forwarded-Host} entry, then the {@code Host} header's port.
+     * Returns {@code -1} when no explicit port is present (the caller treats this as
+     * the scheme default).
      */
     private static int extractRequestPort(HttpHeaders headers) {
+        String xfp = headers.getFirst("X-Forwarded-Port");
+        if (xfp != null && !xfp.isBlank()) {
+            int comma = xfp.indexOf(',');
+            String first = (comma >= 0 ? xfp.substring(0, comma) : xfp).trim();
+            try {
+                return Integer.parseInt(first);
+            } catch (NumberFormatException ignored) {
+                // fall through to other sources
+            }
+        }
         String xfh = headers.getFirst("X-Forwarded-Host");
         if (xfh != null && !xfh.isBlank()) {
-            String xfp = headers.getFirst("X-Forwarded-Port");
-            if (xfp != null && !xfp.isBlank()) {
-                int comma = xfp.indexOf(',');
-                String first = (comma >= 0 ? xfp.substring(0, comma) : xfp).trim();
-                try {
-                    return Integer.parseInt(first);
-                } catch (NumberFormatException ignored) {
-                    // fall through to a port embedded in X-Forwarded-Host
-                }
-            }
             int comma = xfh.indexOf(',');
             String first = (comma >= 0 ? xfh.substring(0, comma) : xfh).trim();
             return portOf(first);

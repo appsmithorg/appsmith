@@ -168,6 +168,17 @@ class RedirectHelperOpenRedirectTest {
     }
 
     @Test
+    void testXForwardedPortHonoredWithoutXForwardedHost() {
+        // Proxy preserves Host (so the host comes from there) but conveys the
+        // client-facing port only via X-Forwarded-Port.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        headers.set("X-Forwarded-Port", "8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
     void testExplicitDefaultPortMatchesImplicitPortInFallbackPath() {
         // Request host carries no port (implicit 443); redirect to :443 must still match.
         HttpHeaders headers = new HttpHeaders();
