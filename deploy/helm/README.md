@@ -17,12 +17,43 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | redis.enabled | bool | `true` | Deploy the bundled Bitnami Redis subchart |
+| redis.auth.enabled | bool | `false` | Enable Redis authentication |
+| redis.master.nodeSelector | object | `{}` | Node selector for Redis master pods |
+| redis.master.disableCommands | list | `[]` | Commands to disable on Redis master |
+| redis.master.affinity | object | `{}` | Affinity rules for Redis master pods |
+| redis.master.tolerations | list | `[]` | Tolerations for Redis master pods |
+| redis.replica.replicaCount | int | `1` | Number of Redis replica pods |
+| redis.replica.nodeSelector | object | `{}` | Node selector for Redis replica pods |
+| redis.replica.disableCommands | list | `[]` | Commands to disable on Redis replicas |
+| redis.replica.affinity | object | `{}` | Affinity rules for Redis replica pods |
+| redis.replica.tolerations | list | `[]` | Tolerations for Redis replica pods |
+| redis.image.registry | string | `"docker.io"` | Redis image registry |
+| redis.image.repository | string | `"redis"` | Redis image repository |
+| redis.image.tag | string | `"7.4.9"` | Redis image tag |
 
 ### MongoDB (Bitnami subchart)
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | mongodb.enabled | bool | `true` | Deploy the bundled Bitnami MongoDB subchart |
+| mongodb.service.nameOverride | string | `"appsmith-mongodb"` | Service name override for the MongoDB subchart |
+| mongodb.auth.rootUser | string | `"root"` | MongoDB root username |
+| mongodb.auth.rootPassword | string | `"password"` | MongoDB root password |
+| mongodb.replicaCount | int | `2` | Number of MongoDB replica set members |
+| mongodb.architecture | string | `"replicaset"` | MongoDB architecture (standalone or replicaset) |
+| mongodb.replicaSetName | string | `"rs0"` | MongoDB replica set name |
+| mongodb.nodeSelector | object | `{}` | Node selector for MongoDB pods |
+| mongodb.affinity | object | `{}` | Affinity rules for MongoDB pods |
+| mongodb.tolerations | list | `[]` | Tolerations for MongoDB pods |
+| mongodb.image.registry | string | `"docker.io"` | MongoDB container image registry |
+| mongodb.image.repository | string | `"appsmith/mongodb"` | MongoDB container image repository |
+| mongodb.image.tag | string | `"6.0.27"` | MongoDB container image tag |
+| mongodb.arbiter.nodeSelector | object | `{}` | Node selector for MongoDB arbiter pods |
+| mongodb.arbiter.affinity | object | `{}` | Affinity rules for MongoDB arbiter pods |
+| mongodb.arbiter.tolerations | list | `[]` | Tolerations for MongoDB arbiter pods |
+| mongodb.hidden.nodeSelector | object | `{}` | Node selector for MongoDB hidden replica pods |
+| mongodb.hidden.affinity | object | `{}` | Affinity rules for MongoDB hidden replica pods |
+| mongodb.hidden.tolerations | list | `[]` | Tolerations for MongoDB hidden replica pods |
 
 ### MongoDB Community Operator
 
@@ -46,12 +77,26 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | mongodbCommunity.passwordInit.image.tag | string | `"latest"` | Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility. |
 | mongodbCommunity.passwordInit.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy for the Job |
 | mongodbOperator.enabled | bool | `false` | Install the MongoDB Kubernetes Operator subchart |
+| mongodbOperator.operator | object | `{"telemetry":{"enabled":false}}` | Enable the upstream operator's phone-home telemetry |
 
 ### PostgreSQL (Bitnami subchart)
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | postgresql.enabled | bool | `true` | Deploy the bundled Bitnami PostgreSQL subchart (used by Keycloak) |
+| postgresql.auth.username | string | `"root"` | PostgreSQL application username |
+| postgresql.auth.password | string | `"password"` | PostgreSQL application user password |
+| postgresql.auth.postgresPassword | string | `"password"` | PostgreSQL admin (postgres) password |
+| postgresql.auth.database | string | `"keycloak"` | PostgreSQL database name |
+| postgresql.image.registry | string | `"docker.io"` | PostgreSQL container image registry |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | PostgreSQL container image repository |
+| postgresql.image.tag | string | `"14.12.0"` | PostgreSQL container image tag |
+| postgresql.primary.affinity | object | `{}` | Affinity rules for PostgreSQL primary pods |
+| postgresql.primary.nodeSelector | object | `{}` | Node selector for PostgreSQL primary pods |
+| postgresql.primary.tolerations | list | `[]` | Tolerations for PostgreSQL primary pods |
+| postgresql.readReplicas.affinity | object | `{}` | Affinity rules for PostgreSQL read replica pods |
+| postgresql.readReplicas.nodeSelector | object | `{}` | Node selector for PostgreSQL read replica pods |
+| postgresql.readReplicas.tolerations | list | `[]` | Tolerations for PostgreSQL read replica pods |
 
 ### External Secrets
 
@@ -66,6 +111,7 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | prometheus.enabled | bool | `false` | Deploy the bundled Prometheus subchart |
+| prometheus.image.tag | string | `"v0.74.0"` | Prometheus container image tag |
 | metrics.enabled | bool | `false` | Enable the Appsmith metrics endpoint |
 | metrics.port | int | `2019` | Port number to expose metrics on |
 
@@ -106,20 +152,29 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | podLabels | object | `{}` | Labels to add to Appsmith pods |
 | podSecurityContext | object | `{}` | Pod-level securityContext for Appsmith pods |
 | securityContext | object | `{}` | Container-level securityContext for the Appsmith container |
+| extraVolumes | list | `[]` | Additional volumes to add to the pod |
+| extraVolumeMounts | list | `[]` | Additional volume mounts to add to the appsmith container |
 
 ### Networking
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | service.type | string | `"ClusterIP"` | Kubernetes Service type |
+| service.port | int | `80` | Service port |
+| service.nodePort | int | `8000` | Node port to expose if service type is "LoadBalancer" or "NodePort" |
 | service.portName | string | `"appsmith"` | Appsmith service port name |
+| service.clusterIP | string | `""` | Appsmith service cluster IP |
 | service.loadBalancerIP | string | `""` | loadBalancerIP for the Appsmith Service |
 | service.loadBalancerSourceRanges | list | `[]` | Address(es) that are allowed when service is LoadBalancer |
 | service.annotations | object | `{}` | Provide any additional annotations that may be required |
 | ingress.enabled | bool | `false` | Enable Ingress record generation for Appsmith |
 | ingress.annotations | object | `{}` | Additional custom annotations for the ingress record |
 | ingress.hosts | list | `[]` | Hosts served by the Ingress |
+| ingress.tls | bool | `false` | Enable TLS configuration for the host defined at `ingress.hosts` parameter |
+| ingress.secrets | list | `[]` | Custom TLS certificates as secrets |
 | ingress.certManager | bool | `false` | Enable ingress to use TLS certificates provided by Cert Manager |
+| ingress.certManagerTls | list | `[]` | Specify the TLS secret created by Cert Manager |
+| ingress.className | string | `"nginx"` | IngressClass name for the Ingress resource |
 
 ### Workload
 
@@ -128,6 +183,8 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | customCAcert | string | `nil` | Custom CA certificates to trust at runtime (map of filename to PEM content) |
 | resources.limits | object | `{}` | Resource limits for the Appsmith container |
 | resources.requests | object | `{"cpu":"500m","memory":"3000Mi"}` | Resource requests for the Appsmith container |
+| workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
+| replicas | int | `1` | Number of replicas when autoscaling is disabled |
 | autoscaling.enabled | bool | `false` | Enable the HorizontalPodAutoscaler |
 | autoscaling.minReplicas | int | `2` | Minimum number of replicas for the HPA |
 | autoscaling.maxReplicas | int | `2` | Maximum number of replicas for the HPA |
@@ -145,15 +202,19 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | persistence.annotations | object | `{}` | Additional custom annotations for the PVC |
 | persistence.localStorage | bool | `false` | Use local storage for PVC |
 | persistence.storagePath | string | `"/tmp/hostpath_pv"` | Local storage path |
+| persistence.localCluster | object | `{}` | Local cluster configuration for local-storage scenarios |
 | persistence.accessModes | list | `["ReadWriteMany"]` | PV Access Mode |
 | persistence.size | string | `"10Gi"` | PVC Storage Request |
 | persistence.reclaimPolicy | string | `"Retain"` | Reclaim policy for the PV |
+| persistence.pvNameOverride | string | `""` | Override the PV name |
 | persistence.existingClaim.enabled | string | `nil` | Use an existing PVC instead of creating one |
 | persistence.existingClaim.name | string | `nil` | Name used to look up the existing PVC |
 | persistence.existingClaim.claimName | string | `nil` | Explicit claimName to set on the volume mount |
 | persistence.efs.enabled | string | `nil` | Enable EFS-backed persistence |
 | persistence.efs.driver | string | `nil` | CSI driver name for the EFS volume |
 | persistence.efs.volumeHandle | string | `nil` | EFS filesystem volume handle (fs-xxxx[::access-point]) |
+| persistence.volumeClaimTemplates.selector | object | `{}` | A label query over volumes to consider for binding (e.g. when using local volumes) |
+| persistence.volumeClaimTemplates.requests | object | `{}` | Custom PVC requests attributes |
 | persistence.volumeClaimTemplates.dataSource | object | `{}` | Add dataSource to the VolumeClaimTemplate |
 | storageClass.enabled | bool | `false` | Enable a chart-managed StorageClass |
 | storageClass.bindingMode | string | `"Immediate"` | Binding mode for PVCs using this StorageClass |
@@ -188,72 +249,6 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 |-----|------|---------|-------------|
 | secretName | string | `""` | Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one) |
 | applicationConfig | object | `{"APPSMITH_CLIENT_LOG_LEVEL":"","APPSMITH_CUSTOM_DOMAIN":"","APPSMITH_DB_URL":"","APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX":"false","APPSMITH_DISABLE_TELEMETRY":"","APPSMITH_ENCRYPTION_PASSWORD":"","APPSMITH_ENCRYPTION_SALT":"","APPSMITH_FORM_LOGIN_DISABLED":"","APPSMITH_KEYCLOAK_DB_DRIVER":"","APPSMITH_KEYCLOAK_DB_PASSWORD":"","APPSMITH_KEYCLOAK_DB_URL":"","APPSMITH_KEYCLOAK_DB_USERNAME":"","APPSMITH_LICENSE_KEY":"","APPSMITH_MAIL_ENABLED":"","APPSMITH_MAIL_FROM":"","APPSMITH_MAIL_HOST":"","APPSMITH_MAIL_PASSWORD":"","APPSMITH_MAIL_PORT":"","APPSMITH_MAIL_SMTP_AUTH":"","APPSMITH_MAIL_SMTP_TLS_ENABLED":"","APPSMITH_MAIL_USERNAME":"","APPSMITH_OAUTH2_GITHUB_CLIENT_ID":"","APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_ID":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET":"","APPSMITH_RECAPTCHA_ENABLED":"","APPSMITH_RECAPTCHA_SECRET_KEY":"","APPSMITH_RECAPTCHA_SITE_KEY":"","APPSMITH_REDIS_URL":"","APPSMITH_REPLY_TO":"","APPSMITH_SIGNUP_DISABLED":""}` | Map of APPSMITH_* environment variables for the application container |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| redis.auth.enabled | bool | `false` |  |
-| redis.master.nodeSelector | object | `{}` |  |
-| redis.master.disableCommands | list | `[]` |  |
-| redis.master.affinity | object | `{}` |  |
-| redis.master.tolerations | list | `[]` |  |
-| redis.replica.replicaCount | int | `1` |  |
-| redis.replica.nodeSelector | object | `{}` |  |
-| redis.replica.disableCommands | list | `[]` |  |
-| redis.replica.affinity | object | `{}` |  |
-| redis.replica.tolerations | list | `[]` |  |
-| redis.image.registry | string | `"docker.io"` |  |
-| redis.image.repository | string | `"redis"` |  |
-| redis.image.tag | string | `"7.4.9"` |  |
-| mongodb.service.nameOverride | string | `"appsmith-mongodb"` |  |
-| mongodb.auth.rootUser | string | `"root"` |  |
-| mongodb.auth.rootPassword | string | `"password"` |  |
-| mongodb.replicaCount | int | `2` |  |
-| mongodb.architecture | string | `"replicaset"` |  |
-| mongodb.replicaSetName | string | `"rs0"` |  |
-| mongodb.nodeSelector | object | `{}` |  |
-| mongodb.affinity | object | `{}` |  |
-| mongodb.tolerations | list | `[]` |  |
-| mongodb.image.registry | string | `"docker.io"` |  |
-| mongodb.image.repository | string | `"appsmith/mongodb"` |  |
-| mongodb.image.tag | string | `"6.0.27"` |  |
-| mongodb.arbiter.nodeSelector | object | `{}` |  |
-| mongodb.arbiter.affinity | object | `{}` |  |
-| mongodb.arbiter.tolerations | list | `[]` |  |
-| mongodb.hidden.nodeSelector | object | `{}` |  |
-| mongodb.hidden.affinity | object | `{}` |  |
-| mongodb.hidden.tolerations | list | `[]` |  |
-| mongodbOperator.operator | object | `{"telemetry":{"enabled":false}}` | Enable the upstream operator's phone-home telemetry. |
-| postgresql.auth.username | string | `"root"` |  |
-| postgresql.auth.password | string | `"password"` |  |
-| postgresql.auth.postgresPassword | string | `"password"` |  |
-| postgresql.auth.database | string | `"keycloak"` |  |
-| postgresql.image.registry | string | `"docker.io"` |  |
-| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
-| postgresql.image.tag | string | `"14.12.0"` |  |
-| postgresql.primary.affinity | object | `{}` |  |
-| postgresql.primary.nodeSelector | object | `{}` |  |
-| postgresql.primary.tolerations | list | `[]` |  |
-| postgresql.readReplicas.affinity | object | `{}` |  |
-| postgresql.readReplicas.nodeSelector | object | `{}` |  |
-| postgresql.readReplicas.tolerations | list | `[]` |  |
-| prometheus.image.tag | string | `"v0.74.0"` |  |
-| extraVolumes | list | `[]` | Additional volumes to add to the pod |
-| extraVolumeMounts | list | `[]` | Additional volume mounts to add to the appsmith container |
-| service.port | int | `80` | service port |
-| service.nodePort | int | `8000` | Node port to expose if service type is "LoadBalancer" or "NodePort" |
-| service.clusterIP | string | `""` | Appsmith service cluster IP |
-| ingress.tls | bool | `false` | Enable TLS configuration for the host defined at `ingress.hosts` parameter |
-| ingress.secrets | list | `[]` | Custom TLS certificates as secrets |
-| ingress.certManagerTls | list | `[]` | Specify the TLS secret created by Cert Manager |
-| ingress.className | string | `"nginx"` | IngressClass name for the Ingress resource |
-| workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
-| replicas | int | `1` | Number of replicas when autoscaling is disabled |
-| persistence.localCluster | object | `{}` |  |
-| persistence.pvNameOverride | string | `""` | Override the PV name |
-| persistence.volumeClaimTemplates.selector | object | `{}` | A label query over volumes to consider for binding (e.g. when using local volumes) |
-| persistence.volumeClaimTemplates.requests | object | `{}` | Custom PVC requests attributes |
 
 ## MongoDB Community Operator
 

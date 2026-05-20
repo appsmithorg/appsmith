@@ -8,24 +8,50 @@ redis: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   auth:
+    # -- Enable Redis authentication
+    # @section -- Redis (Bitnami subchart)
     enabled: false
   # @schema hidden: true
   master:
+    # -- Node selector for Redis master pods
+    # @section -- Redis (Bitnami subchart)
     nodeSelector: {}
+    # -- Commands to disable on Redis master
+    # @section -- Redis (Bitnami subchart)
     disableCommands: []
+    # -- Affinity rules for Redis master pods
+    # @section -- Redis (Bitnami subchart)
     affinity: {}
+    # -- Tolerations for Redis master pods
+    # @section -- Redis (Bitnami subchart)
     tolerations: []
   # @schema hidden: true
   replica:
+    # -- Number of Redis replica pods
+    # @section -- Redis (Bitnami subchart)
     replicaCount: 1
+    # -- Node selector for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
     nodeSelector: {}
+    # -- Commands to disable on Redis replicas
+    # @section -- Redis (Bitnami subchart)
     disableCommands: []
+    # -- Affinity rules for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
     affinity: {}
+    # -- Tolerations for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
     tolerations: []
   # @schema hidden: true
   image:
+    # -- Redis image registry
+    # @section -- Redis (Bitnami subchart)
     registry: docker.io
+    # -- Redis image repository
+    # @section -- Redis (Bitnami subchart)
     repository: redis
+    # -- Redis image tag
+    # @section -- Redis (Bitnami subchart)
     tag: 7.4.9
 
 ## MongoDB parameters
@@ -38,37 +64,73 @@ mongodb: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   service:
+    # -- Service name override for the MongoDB subchart
+    # @section -- MongoDB (Bitnami subchart)
     nameOverride: appsmith-mongodb
   # @schema hidden: true
   auth:
+    # -- MongoDB root username
+    # @section -- MongoDB (Bitnami subchart)
     rootUser: root
+    # -- MongoDB root password
+    # @section -- MongoDB (Bitnami subchart)
     rootPassword: password
   # @schema hidden: true
+  # -- Number of MongoDB replica set members
+  # @section -- MongoDB (Bitnami subchart)
   replicaCount: 2
   # @schema hidden: true
+  # -- MongoDB architecture (standalone or replicaset)
+  # @section -- MongoDB (Bitnami subchart)
   architecture: "replicaset"
   # @schema hidden: true
+  # -- MongoDB replica set name
+  # @section -- MongoDB (Bitnami subchart)
   replicaSetName: rs0
   # @schema hidden: true
+  # -- Node selector for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
   nodeSelector: {}
   # @schema hidden: true
+  # -- Affinity rules for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
   affinity: {}
   # @schema hidden: true
+  # -- Tolerations for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
   tolerations: []
   # @schema hidden: true
   image:
+    # -- MongoDB container image registry
+    # @section -- MongoDB (Bitnami subchart)
     registry: docker.io
+    # -- MongoDB container image repository
+    # @section -- MongoDB (Bitnami subchart)
     repository: appsmith/mongodb
+    # -- MongoDB container image tag
+    # @section -- MongoDB (Bitnami subchart)
     tag: 6.0.27
   # @schema hidden: true
   arbiter:
+    # -- Node selector for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
     nodeSelector: {}
+    # -- Affinity rules for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
     affinity: {}
+    # -- Tolerations for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
     tolerations: []
   # @schema hidden: true
   hidden:
+    # -- Node selector for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
     nodeSelector: {}
+    # -- Affinity rules for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
     affinity: {}
+    # -- Tolerations for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
     tolerations: []
 
 ## MongoDBCommunity cluster parameters
@@ -186,7 +248,8 @@ mongodbOperator: # @schema additionalProperties: true
   ## collides if multiple Appsmith releases (each bundling their own operator) are installed in the
   ## same cluster. Safe to re-enable if you run a single operator cluster-wide.
   # @schema hidden: true
-  # -- Enable the upstream operator's phone-home telemetry.
+  # -- Enable the upstream operator's phone-home telemetry
+  # @section -- MongoDB Community Operator
   operator:
     telemetry:
       enabled: false
@@ -201,24 +264,50 @@ postgresql: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   auth:
+    # -- PostgreSQL application username
+    # @section -- PostgreSQL (Bitnami subchart)
     username: root
+    # -- PostgreSQL application user password
+    # @section -- PostgreSQL (Bitnami subchart)
     password: password
+    # -- PostgreSQL admin (postgres) password
+    # @section -- PostgreSQL (Bitnami subchart)
     postgresPassword: password
+    # -- PostgreSQL database name
+    # @section -- PostgreSQL (Bitnami subchart)
     database: keycloak
   # @schema hidden: true
   image:
+    # -- PostgreSQL container image registry
+    # @section -- PostgreSQL (Bitnami subchart)
     registry: docker.io
+    # -- PostgreSQL container image repository
+    # @section -- PostgreSQL (Bitnami subchart)
     repository: bitnamilegacy/postgresql
+    # -- PostgreSQL container image tag
+    # @section -- PostgreSQL (Bitnami subchart)
     tag: 14.12.0
   # @schema hidden: true
   primary:
+    # -- Affinity rules for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
     affinity: {}
+    # -- Node selector for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
     nodeSelector: {}
+    # -- Tolerations for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
     tolerations: []
   # @schema hidden: true
   readReplicas:
+    # -- Affinity rules for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
     affinity: {}
+    # -- Node selector for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
     nodeSelector: {}
+    # -- Tolerations for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
     tolerations: []
 
 ## external secrets parameters
@@ -250,6 +339,8 @@ prometheus: # @schema additionalProperties: true
   enabled: false
   # @schema hidden: true
   image:
+    # -- Prometheus container image tag
+    # @section -- Monitoring
     tag: v0.74.0
 
 
@@ -428,6 +519,7 @@ securityContext: {}
 ##
 # @schema description: Additional volumes to add to the pod.
 # -- Additional volumes to add to the pod
+# @section -- Pod configuration
 extraVolumes: []
 
 ## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
@@ -438,6 +530,7 @@ extraVolumes: []
 ##
 # @schema description: Additional volume mounts to add to the Appsmith container.
 # -- Additional volume mounts to add to the appsmith container
+# @section -- Pod configuration
 extraVolumeMounts: []
 
 # @schema description: Kubernetes Service configuration for Appsmith.
@@ -454,7 +547,8 @@ service:
   # @schema description: Service port.
   # @schema minimum: 1
   # @schema maximum: 65535
-  # -- service port
+  # -- Service port
+  # @section -- Networking
   port: 80
   ## @param service.nodePort Node port to expose if service type is "LoadBalancer" or "NodePort"
   ##
@@ -462,6 +556,7 @@ service:
   # @schema minimum: 1
   # @schema maximum: 65535
   # -- Node port to expose if service type is "LoadBalancer" or "NodePort"
+  # @section -- Networking
   nodePort: 8000
   ## @param service.portName Appsmith service port name
   ##
@@ -475,6 +570,7 @@ service:
   ##
   # @schema description: Service cluster IP. Set to None for a headless service.
   # -- Appsmith service cluster IP
+  # @section -- Networking
   clusterIP: ""
   ## @param service.loadBalancerIP loadBalancerIP for Appsmith&reg; Service
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
@@ -530,6 +626,7 @@ ingress:
   ##
   # @schema description: Enable TLS configuration for the host(s) defined at ingress.hosts.
   # -- Enable TLS configuration for the host defined at `ingress.hosts` parameter
+  # @section -- Networking
   tls: false
   ## @param ingress.secrets Custom TLS certificates as secrets
   ## NOTE: 'key' and 'certificate' are expected in PEM format
@@ -552,6 +649,7 @@ ingress:
   ##
   # @schema description: Custom TLS certificates as secrets. 'key' and 'certificate' are expected in PEM format.
   # -- Custom TLS certificates as secrets
+  # @section -- Networking
   secrets: []
   ## @param ingress.certManager Enable ingress to use TLS certificates provided by Cert Manager
   ##
@@ -567,6 +665,7 @@ ingress:
   ##     secretName: appsmith-tls
   # @schema description: Specify TLS secrets created by cert-manager.
   # -- Specify the TLS secret created by Cert Manager
+  # @section -- Networking
   certManagerTls: []
   ## @param ingress.className IngressClass name for the Ingress resource
   ## e.g:
@@ -574,6 +673,7 @@ ingress:
   ##
   # @schema description: IngressClass name to use for the Ingress resource.
   # -- IngressClass name for the Ingress resource
+  # @section -- Networking
   className: "nginx"
 
 ## @param customCAcert Custom CA certificates to trust at runtime (map of filename to PEM content)
@@ -618,6 +718,7 @@ resources:
 ##
 # @schema description: Workload resource configuration.
 # -- Select workload resource type: Deployment or StatefulSet
+# @section -- Workload
 workload:
   # @schema description: Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).
   # @schema enum: [Deployment, StatefulSet]
@@ -629,6 +730,7 @@ workload:
 # @schema description: Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.
 # @schema minimum: 0
 # -- Number of replicas when autoscaling is disabled
+# @section -- Workload
 replicas: 1
 
 # @schema description: Horizontal Pod Autoscaler configuration.
@@ -718,6 +820,8 @@ persistence:
   ## @param persistence.localCluster
   ##
   # @schema description: Local cluster configuration for local-storage scenarios.
+  # -- Local cluster configuration for local-storage scenarios
+  # @section -- Persistence
   localCluster: {}
   ## @param persistence.accessModes PV Access Mode
   ##
@@ -748,6 +852,7 @@ persistence:
   ##
   # @schema description: Override the PV name. Useful when deploying multiple releases across different namespaces with the same name since PersistentVolumes are cluster-scoped.
   # -- Override the PV name
+  # @section -- Persistence
   pvNameOverride: ""
 
   # @schema description: Use an existing PVC instead of creating one.
@@ -792,6 +897,7 @@ persistence:
     ##
     # @schema description: A label query over volumes to consider for binding (e.g. when using local volumes).
     # -- A label query over volumes to consider for binding (e.g. when using local volumes)
+    # @section -- Persistence
     selector: {}
     ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
     ## Sometime cloud providers use additional requests attributes to provision custom storage instance
@@ -799,6 +905,7 @@ persistence:
     ##
     # @schema description: Custom PVC requests attributes (some cloud providers use additional attributes for storage provisioning).
     # -- Custom PVC requests attributes
+    # @section -- Persistence
     requests: {}
     ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
     ##
