@@ -48,14 +48,19 @@ export class EnvFileLink implements Link {
 }
 
 export function removeSensitiveEnvData(content: string): string {
-  // Remove encryption and Mongodb data from docker.env
+  // Strip instance-specific secrets from the backed-up docker.env. Redis values
+  // are stripped (in addition to encryption / MongoDB / DB URL) so the source
+  // instance's Redis password does not overwrite the target's during restore.
+  // These values are re-injected from the restoring instance's environment.
   const output_lines = [];
 
   content.split(/\r?\n/).forEach((line) => {
     if (
       !line.startsWith("APPSMITH_ENCRYPTION") &&
       !line.startsWith("APPSMITH_MONGODB") &&
-      !line.startsWith("APPSMITH_DB_URL=")
+      !line.startsWith("APPSMITH_DB_URL=") &&
+      !line.startsWith("APPSMITH_REDIS_URL=") &&
+      !line.startsWith("APPSMITH_REDIS_PASSWORD=")
     ) {
       output_lines.push(line);
     }
