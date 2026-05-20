@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# Source the helper script
+# Source the helper scripts
 source pg-utils.sh
+source safe-env-loader.sh
 
 set -e
 
@@ -129,10 +130,10 @@ init_env_file() {
 
   tlog "Load environment configuration"
 
-  # Load the ones in `docker.env` in the stacks folder.
-  set -o allexport
-  . "$ENV_PATH"
-  set +o allexport
+  # Validate docker.env for shell metacharacters left by pre-v1.99 exploits,
+  # then load it safely without Bash source/eval (GHSA-h6hh-wqxc-5hw9).
+  validate_env_file "$ENV_PATH" || sanitize_env_file "$ENV_PATH"
+  safe_source_env "$ENV_PATH"
 
   if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
     export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
@@ -140,9 +141,7 @@ init_env_file() {
   fi
 
   # Load the ones set from outside, should take precedence, and so will overwrite anything from `docker.env` above.
-  set -o allexport
-  . "$TMP/pre-define.env"
-  set +o allexport
+  safe_source_env "$TMP/pre-define.env"
 }
 
 init_env_file

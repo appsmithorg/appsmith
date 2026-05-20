@@ -1,12 +1,13 @@
 #!/bin/bash
 
+source safe-env-loader.sh
+
 ENV_PATH="/appsmith-stacks/configuration/docker.env"
 PRE_DEFINED_ENV_PATH="$TMP/pre-define.env"
 tlog 'Load environment configuration'
-set -o allexport
-. "$ENV_PATH"
-. "$PRE_DEFINED_ENV_PATH"
-set +o allexport
+validate_env_file "$ENV_PATH" || sanitize_env_file "$ENV_PATH"
+safe_source_env "$ENV_PATH"
+safe_source_env "$PRE_DEFINED_ENV_PATH"
 
 if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then
   unset APPSMITH_MAIL_ENABLED # If this field is empty is might cause application crash
