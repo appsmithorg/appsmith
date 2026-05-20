@@ -25,6 +25,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -62,6 +63,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -268,43 +271,318 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps) {
+    public Mono<Tuple2<List<NewAction>, List<NewAction>>> validateActionsBeforeImport(
+            String artifactId, List<NewAction> freshActions, List<NewAction> existingActions) {
+        List<NewAction> safeFreshActions = freshActions == null ? List.of() : freshActions;
+        List<NewAction> safeExistingActions = existingActions == null ? List.of() : existingActions;
+        List<NewAction> actionsToValidate = new ArrayList<>(safeFreshActions.size() + safeExistingActions.size());
+        actionsToValidate.addAll(safeFreshActions);
+        actionsToValidate.addAll(safeExistingActions);
+
+        BulkActionValidationContext validationContext = new BulkActionValidationContext();
+        int freshActionCount = safeFreshActions.size();
+
+        return Flux.fromIterable(actionsToValidate)
+                .flatMapSequential(action -> validateActionBeforeImport(action, validationContext), 32)
+                .collectList()
+                .flatMap(validatedActions -> updateDatasourcePoliciesForPublicActions(validationContext)
+                        .thenReturn(Tuples.of(
+                                new ArrayList<>(validatedActions.subList(0, freshActionCount)),
+                                new ArrayList<>(validatedActions.subList(freshActionCount, validatedActions.size())))));
+    }
+
+    private Mono<NewAction> validateActionBeforeImport(
+            NewAction newAction, BulkActionValidationContext validationContext) {
         this.setGitSyncIdInNewAction(newAction);
+        ActionDTO editActionDTO = newAction.getUnpublishedAction();
+        setCommonFieldsFromNewActionIntoAction(newAction, editActionDTO);
 
-        ActionDTO action = newAction.getUnpublishedAction();
-
-        setCommonFieldsFromNewActionIntoAction(newAction, action);
-
-        // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
+        editActionDTO.setIsValid(true);
 
-        action.setIsValid(true);
-
-        if (action.getName() == null || action.getName().trim().isEmpty()) {
+        if (editActionDTO.getName() == null || editActionDTO.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        newActionHelper.validateCreatorId(action);
+        newActionHelper.validateCreatorId(editActionDTO);
 
-        if (!this.isValidActionName(action)) {
-            action.setIsValid(false);
+        if (!this.isValidActionName(editActionDTO)) {
+            editActionDTO.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
 
-        if (action.getActionConfiguration() == null) {
-            action.setIsValid(false);
+        if (editActionDTO.getActionConfiguration() == null) {
+            editActionDTO.setIsValid(false);
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
         }
 
-        if (action.getPluginType() == PluginType.JS
-                && action.getActionConfiguration() != null
-                && FALSE.equals(action.getActionConfiguration().getIsValid())) {
-            action.setIsValid(false);
+        if (editActionDTO.getPluginType() == PluginType.JS
+                && editActionDTO.getActionConfiguration() != null
+                && FALSE.equals(editActionDTO.getActionConfiguration().getIsValid())) {
+            editActionDTO.setIsValid(false);
+            invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
+        }
+
+        ActionConfiguration actionConfig = editActionDTO.getActionConfiguration();
+        if (actionConfig != null) {
+            validator.validate(actionConfig).stream().forEach(x -> invalids.add(x.getMessage()));
+        }
+
+        if (editActionDTO.getDatasource() == null) {
+            editActionDTO.autoGenerateDatasource();
+        }
+
+        Mono<NewAction> validatedActionMono = Mono.just(newAction);
+
+        if (editActionDTO.getDatasource().getIsAutoGenerated()) {
+            if (editActionDTO.getPluginType() != PluginType.JS) {
+                editActionDTO.setIsValid(false);
+                invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
+                editActionDTO.setInvalids(invalids);
+            }
+        } else {
+            Mono<Datasource> datasourceMono = Mono.just(editActionDTO.getDatasource());
+            if (editActionDTO.getPluginType() != PluginType.JS) {
+                if (editActionDTO.getDatasource().getId() == null) {
+                    datasourceMono = datasourceMono.flatMap(datasourceService::validateDatasource);
+                } else {
+                    datasourceMono = datasourceMono
+                            .map(datasource -> {
+                                newAction.setWorkspaceId(datasource.getWorkspaceId());
+                                return datasource;
+                            })
+                            .flatMap(datasource -> collectDatasourcePolicyUpdateForPublicAction(
+                                    newAction, datasource, validationContext));
+                }
+            }
+
+            datasourceMono = datasourceMono.cache();
+            Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
+                if (datasource.getPluginId() == null) {
+                    return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
+                }
+                return getPluginById(datasource.getPluginId(), validationContext)
+                        .switchIfEmpty(Mono.defer(() -> {
+                            editActionDTO.setIsValid(false);
+                            invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                    FieldName.PLUGIN, datasource.getPluginId()));
+                            return Mono.just(new Plugin());
+                        }));
+            });
+
+            validatedActionMono = pluginMono.zipWith(datasourceMono).map(tuple -> {
+                Plugin plugin = tuple.getT1();
+                Datasource datasource = tuple.getT2();
+                editActionDTO.setDatasource(datasource);
+                editActionDTO.setPluginName(plugin.getName());
+                return newAction;
+            });
+        }
+
+        return validatedActionMono
+                .map(newAction1 -> {
+                    editActionDTO.setInvalids(invalids);
+                    newAction1.setUnpublishedAction(editActionDTO);
+                    return newAction1;
+                })
+                .flatMap(action -> sanitizeActionBeforeImport(action, validationContext))
+                .flatMap(action -> extractAndSetJsonPathKeysBeforeImport(action, validationContext))
+                .map(this::replaceExternalDatasourceWithReference);
+    }
+
+    private Mono<Plugin> getPluginById(String pluginId, BulkActionValidationContext validationContext) {
+        return validationContext.pluginById.computeIfAbsent(
+                pluginId, id -> pluginService.findById(id).cache());
+    }
+
+    private Mono<Plugin> getPluginByPackageName(String packageName, BulkActionValidationContext validationContext) {
+        return validationContext.pluginByPackageName.computeIfAbsent(
+                packageName, name -> pluginService.findByPackageName(name).cache());
+    }
+
+    private Mono<Application> getApplicationById(String applicationId, BulkActionValidationContext validationContext) {
+        return validationContext.applicationById.computeIfAbsent(
+                applicationId, id -> applicationService.findById(id).cache());
+    }
+
+    private Mono<Datasource> collectDatasourcePolicyUpdateForPublicAction(
+            NewAction action, Datasource datasource, BulkActionValidationContext validationContext) {
+        if (!StringUtils.hasText(datasource.getId()) || !StringUtils.hasText(action.getApplicationId())) {
+            return Mono.just(datasource);
+        }
+
+        return validationContext.publicPermissionGroupMono.map(publicPermissionGroup -> {
+            String publicPermissionGroupId = publicPermissionGroup.getId();
+            boolean isPublicAction = permissionGroupService.isEntityAccessible(
+                    action, actionPermission.getExecutePermission().getValue(), publicPermissionGroupId);
+
+            if (!isPublicAction) {
+                return datasource;
+            }
+
+            boolean isPublicDatasource = permissionGroupService.isEntityAccessible(
+                    datasource, datasourcePermission.getExecutePermission().getValue(), publicPermissionGroupId);
+            if (isPublicDatasource) {
+                return datasource;
+            }
+
+            validationContext.datasourcesNeedingPublicExecute.putIfAbsent(
+                    datasource.getId(), new DatasourcePublicAccessUpdate(action.getApplicationId(), datasource));
+            return datasource;
+        });
+    }
+
+    private Mono<Void> updateDatasourcePoliciesForPublicActions(BulkActionValidationContext validationContext) {
+        return Flux.fromIterable(validationContext.datasourcesNeedingPublicExecute.values())
+                .flatMap(update -> validationContext.publicPermissionGroupMono.flatMap(publicPermissionGroup -> {
+                    String publicPermissionGroupId = publicPermissionGroup.getId();
+                    return getApplicationById(update.applicationId(), validationContext)
+                            .flatMap(application -> {
+                                if (!application.getIsPublic()) {
+                                    return Mono.error(
+                                            new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                                }
+
+                                Policy executePolicy = Policy.builder()
+                                        .permission(EXECUTE_DATASOURCES.getValue())
+                                        .permissionGroups(Set.of(publicPermissionGroupId))
+                                        .build();
+                                Map<String, Policy> datasourcePolicyMap =
+                                        Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
+
+                                Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(
+                                        datasourcePolicyMap, update.datasource());
+
+                                return datasourceService.save(updatedDatasource, false);
+                            });
+                }))
+                .then();
+    }
+
+    private Mono<NewAction> sanitizeActionBeforeImport(
+            NewAction action, BulkActionValidationContext validationContext) {
+        if (!isPluginTypeOrPluginIdMissing(action)) {
+            return Mono.just(action);
+        }
+
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        if (actionDTO == null) {
+            return Mono.just(action);
+        }
+
+        Datasource datasource = actionDTO.getDatasource();
+        if (actionDTO.getCollectionId() != null) {
+            action.setPluginType(JS_PLUGIN_TYPE);
+            return getPluginByPackageName(JS_PLUGIN_PACKAGE_NAME, validationContext)
+                    .map(plugin -> {
+                        action.setPluginId(plugin.getId());
+                        return action;
+                    });
+        } else if (datasource != null && datasource.getPluginId() != null) {
+            String pluginId = datasource.getPluginId();
+            action.setPluginId(pluginId);
+            return getPluginById(pluginId, validationContext).map(plugin -> {
+                action.setPluginType(plugin.getType());
+                return action;
+            });
+        }
+
+        return Mono.just(action);
+    }
+
+    private Mono<NewAction> extractAndSetJsonPathKeysBeforeImport(
+            NewAction newAction, BulkActionValidationContext validationContext) {
+        ActionDTO action = newAction.getUnpublishedAction();
+        Datasource datasource = action.getDatasource();
+
+        Mono<Set<MustacheBindingToken>> datasourceBindingsMono;
+        if (datasource != null && StringUtils.hasText(datasource.getId())) {
+            datasourceBindingsMono =
+                    validationContext.datasourceBindingsById.computeIfAbsent(datasource.getId(), id -> datasourceService
+                            .extractKeysFromDatasource(datasource)
+                            .cache());
+        } else {
+            datasourceBindingsMono = datasourceService.extractKeysFromDatasource(datasource);
+        }
+
+        return datasourceBindingsMono.map(datasourceBindings -> {
+            Set<String> actionKeys = extractKeysFromAction(action).stream()
+                    .map(MustacheBindingToken::getValue)
+                    .collect(Collectors.toSet());
+
+            Set<String> datasourceKeys = datasourceBindings.stream()
+                    .map(MustacheBindingToken::getValue)
+                    .collect(Collectors.toSet());
+            Set<String> keys = new HashSet<>();
+            keys.addAll(actionKeys);
+            keys.addAll(datasourceKeys);
+
+            action.setJsonPathKeys(keys);
+            return newAction;
+        });
+    }
+
+    private NewAction replaceExternalDatasourceWithReference(NewAction updatedAction) {
+        ActionDTO unpublishedAction = updatedAction.getUnpublishedAction();
+        if (unpublishedAction.getDatasource().getId() != null) {
+            Datasource datasource = new Datasource();
+            datasource.setId(unpublishedAction.getDatasource().getId());
+            datasource.setPluginId(updatedAction.getPluginId());
+            datasource.setName(unpublishedAction.getDatasource().getName());
+            unpublishedAction.setDatasource(datasource);
+            updatedAction.setUnpublishedAction(unpublishedAction);
+        }
+        return updatedAction;
+    }
+
+    private final class BulkActionValidationContext {
+        private final Map<String, Mono<Plugin>> pluginById = new ConcurrentHashMap<>();
+        private final Map<String, Mono<Plugin>> pluginByPackageName = new ConcurrentHashMap<>();
+        private final Map<String, Mono<Set<MustacheBindingToken>>> datasourceBindingsById = new ConcurrentHashMap<>();
+        private final Map<String, Mono<Application>> applicationById = new ConcurrentHashMap<>();
+        private final Map<String, DatasourcePublicAccessUpdate> datasourcesNeedingPublicExecute =
+                new ConcurrentHashMap<>();
+        private final Mono<PermissionGroup> publicPermissionGroupMono =
+                permissionGroupService.getPublicPermissionGroup().cache();
+    }
+
+    private record DatasourcePublicAccessUpdate(String applicationId, Datasource datasource) {}
+
+    @Override
+    public Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps) {
+        this.setGitSyncIdInNewAction(newAction);
+        ActionDTO editActionDTO = newAction.getUnpublishedAction();
+        setCommonFieldsFromNewActionIntoAction(newAction, editActionDTO);
+
+        // Default the validity to true and invalids to be an empty set.
+        Set<String> invalids = new HashSet<>();
+        editActionDTO.setIsValid(true);
+
+        if (editActionDTO.getName() == null || editActionDTO.getName().trim().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        newActionHelper.validateCreatorId(editActionDTO);
+
+        if (!this.isValidActionName(editActionDTO)) {
+            editActionDTO.setIsValid(false);
+            invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
+        }
+
+        if (editActionDTO.getActionConfiguration() == null) {
+            editActionDTO.setIsValid(false);
+            invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
+        }
+
+        if (editActionDTO.getPluginType() == PluginType.JS
+                && editActionDTO.getActionConfiguration() != null
+                && FALSE.equals(editActionDTO.getActionConfiguration().getIsValid())) {
+            editActionDTO.setIsValid(false);
             invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
         }
 
         // Validate actionConfiguration
-        ActionConfiguration actionConfig = action.getActionConfiguration();
+        ActionConfiguration actionConfig = editActionDTO.getActionConfiguration();
         if (actionConfig != null) {
             validator.validate(actionConfig).stream().forEach(x -> invalids.add(x.getMessage()));
         }
@@ -315,43 +593,44 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
          * a way to disable the auditing for nested objects.
          *
          */
-        if (action.getDatasource() == null) {
-            action.autoGenerateDatasource();
+        if (editActionDTO.getDatasource() == null) {
+            editActionDTO.autoGenerateDatasource();
         }
 
         Mono<NewAction> validatedActionMono = Mono.just(newAction);
 
-        if (action.getDatasource().getIsAutoGenerated()) {
-            if (action.getPluginType() != PluginType.JS) {
+        if (editActionDTO.getDatasource().getIsAutoGenerated()) {
+            if (editActionDTO.getPluginType() != PluginType.JS) {
                 // This action isn't of type JS functions which requires that the pluginType be set by the client.
                 // Hence, datasource is very much required for such an action.
-                action.setIsValid(false);
+                editActionDTO.setIsValid(false);
                 invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
-                action.setInvalids(invalids);
+                editActionDTO.setInvalids(invalids);
             }
         } else {
 
-            Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
-            if (action.getPluginType() != PluginType.JS) {
-                if (action.getDatasource().getId() == null) {
-                    datasourceMono = Mono.just(action.getDatasource()).flatMap(datasourceService::validateDatasource);
+            Mono<Datasource> datasourceMono = Mono.just(editActionDTO.getDatasource());
+            if (editActionDTO.getPluginType() != PluginType.JS) {
+                if (editActionDTO.getDatasource().getId() == null) {
+                    datasourceMono =
+                            Mono.just(editActionDTO.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
                     // TODO: check if datasource should be fetched with edit during action create or update.
                     // Data source already exists. Find the same.
 
                     if (isDryOps) {
-                        datasourceMono = Mono.just(action.getDatasource());
+                        datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
                         datasourceMono = datasourceService
-                                .findById(action.getDatasource().getId())
+                                .findById(editActionDTO.getDatasource().getId())
                                 .switchIfEmpty(Mono.defer(() -> {
                                     if (!isDryOps) {
-                                        action.setIsValid(false);
+                                        editActionDTO.setIsValid(false);
                                         invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
                                                 FieldName.DATASOURCE,
-                                                action.getDatasource().getId()));
+                                                editActionDTO.getDatasource().getId()));
                                     }
-                                    return Mono.just(action.getDatasource());
+                                    return Mono.just(editActionDTO.getDatasource());
                                 }));
                     }
                     datasourceMono = datasourceMono
@@ -370,7 +649,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
                 }
                 return pluginService.findById(datasource.getPluginId()).switchIfEmpty(Mono.defer(() -> {
-                    action.setIsValid(false);
+                    editActionDTO.setIsValid(false);
                     invalids.add(
                             AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PLUGIN, datasource.getPluginId()));
                     return Mono.just(new Plugin());
@@ -383,16 +662,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     .map(tuple -> {
                         Plugin plugin = tuple.getT1();
                         Datasource datasource = tuple.getT2();
-                        action.setDatasource(datasource);
-                        action.setPluginName(plugin.getName());
+                        editActionDTO.setDatasource(datasource);
+                        editActionDTO.setPluginName(plugin.getName());
                         return newAction;
                     });
         }
 
         return validatedActionMono
                 .map(newAction1 -> {
-                    action.setInvalids(invalids);
-                    newAction1.setUnpublishedAction(action);
+                    editActionDTO.setInvalids(invalids);
+                    newAction1.setUnpublishedAction(editActionDTO);
                     return newAction1;
                 })
                 .flatMap(this::sanitizeAction)
@@ -428,6 +707,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
                 .flatMap(repository::bulkUpdate);
+    }
+
+    @Override
+    public Mono<Void> bulkInsertActions(List<NewAction> newActionList) {
+        if (newActionList == null || newActionList.isEmpty()) {
+            return Mono.empty();
+        }
+
+        newActionList.stream().filter(action -> action.getGitSyncId() == null).forEach(this::setGitSyncIdInNewAction);
+
+        return repository.bulkInsert(newActionList);
     }
 
     /**

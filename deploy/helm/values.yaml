@@ -608,6 +608,7 @@ resources:
   # -- Resource requests for the Appsmith container
   # @section -- Workload
   requests:
+     # @schema type: [string, number]
      cpu: 500m
      memory: 3000Mi
 
