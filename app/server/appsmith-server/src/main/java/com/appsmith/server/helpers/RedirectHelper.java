@@ -189,6 +189,7 @@ public class RedirectHelper {
         try {
             redirectUri = new URI(redirectUrl);
         } catch (URISyntaxException e) {
+            log.warn("Blocked redirect with malformed URL: {}", sanitizeForLog(redirectUrl));
             return false;
         }
 
@@ -211,6 +212,7 @@ public class RedirectHelper {
             try {
                 originUri = new URI(origin);
             } catch (URISyntaxException e) {
+                log.warn("Failed to parse Origin header: {}", sanitizeForLog(origin));
                 return false;
             }
             String originHost = originUri.getHost();
@@ -255,12 +257,18 @@ public class RedirectHelper {
     }
 
     /**
-     * Derives the request's host for same-origin comparison when the Origin header
-     * is absent. Prefers X-Forwarded-Host (handles proxied deployments and may carry
-     * a comma-separated list — the first entry is the outermost client-facing host),
-     * then falls back to the Host header. Returns null when neither is set.
+     * Derives the request's client-facing hostname from HTTP headers. Prefers
+     * {@code X-Forwarded-Host} (handles proxied deployments and may carry a
+     * comma-separated list — the first entry is the outermost client-facing
+     * host), then falls back to the {@code Host} header. Returns {@code null}
+     * when neither is set.
+     *
+     * <p>Shared between {@link #isSafeRedirectUrl(String, HttpHeaders)} (origin-absent
+     * open-redirect guard) and {@code CustomServerOAuth2AuthorizationRequestResolverCE}
+     * (OAuth2 state-encoded host derivation), so both code paths stay aligned on
+     * what counts as the inbound request's host.
      */
-    private static String extractRequestHost(HttpHeaders headers) {
+    public static String extractRequestHost(HttpHeaders headers) {
         String xfh = headers.getFirst("X-Forwarded-Host");
         if (xfh != null && !xfh.isBlank()) {
             int comma = xfh.indexOf(',');
@@ -316,12 +324,21 @@ public class RedirectHelper {
         if (isSafeRedirectUrl(redirectUrl, httpHeaders)) {
             return redirectUrl;
         }
-        String sanitizedLog = redirectUrl.replaceAll("[\\r\\n]", "");
-        log.warn(
-                "Blocked open redirect attempt to: {}",
-                sanitizedLog.length() > 200 ? sanitizedLog.substring(0, 200) + "..." : sanitizedLog);
+        log.warn("Blocked open redirect attempt to: {}", sanitizeForLog(redirectUrl));
         String origin = httpHeaders.getOrigin();
         return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
+    }
+
+    /**
+     * Strips CR/LF (log-injection safety) and truncates over-long values so user-supplied
+     * URL / header content can be safely logged.
+     */
+    private static String sanitizeForLog(String value) {
+        if (value == null) {
+            return "";
+        }
+        String stripped = value.replaceAll("[\\r\\n]", "");
+        return stripped.length() > 200 ? stripped.substring(0, 200) + "..." : stripped;
     }
 
     /**
