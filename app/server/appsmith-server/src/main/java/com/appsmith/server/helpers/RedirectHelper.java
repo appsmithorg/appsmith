@@ -241,8 +241,8 @@ public class RedirectHelper {
 
         // Origin-absent path: browsers omit Origin on top-level GET navigations
         // (e.g. window.location.href = "/oauth2/authorization/..."). Fall back to
-        // X-Forwarded-Host / Host — these carry no scheme/port, so compare hostnames
-        // only. If neither header is present, reject to preserve strict behavior.
+        // X-Forwarded-Host / Host. If neither header is present, reject to preserve
+        // strict behavior.
         String requestHost = extractRequestHost(httpHeaders);
         if (requestHost == null) {
             return false;
@@ -253,7 +253,19 @@ public class RedirectHelper {
         if (normalizedRedirectHost.startsWith("[") && normalizedRedirectHost.endsWith("]")) {
             normalizedRedirectHost = normalizedRedirectHost.substring(1, normalizedRedirectHost.length() - 1);
         }
-        return normalizedRedirectHost.equalsIgnoreCase(requestHost);
+        if (!normalizedRedirectHost.equalsIgnoreCase(requestHost)) {
+            return false;
+        }
+
+        // Compare ports too — a same-host redirect to a different port points at a
+        // different service on that host and must be rejected. The request headers
+        // carry no scheme, so an implicit request port is normalized to the default
+        // for the redirect URL's scheme (the redirectUrl is the browser's own
+        // location in legit flows, so its scheme reflects how the user is connected).
+        int requestPort = extractRequestPort(httpHeaders);
+        int normalizedRedirectPort = normalizePort(redirectUri.getScheme(), redirectUri.getPort());
+        int normalizedRequestPort = normalizePort(redirectUri.getScheme(), requestPort);
+        return normalizedRedirectPort == normalizedRequestPort;
     }
 
     /**
@@ -291,6 +303,69 @@ public class RedirectHelper {
         }
         int colon = hostMaybeWithPort.indexOf(':');
         return colon >= 0 ? hostMaybeWithPort.substring(0, colon) : hostMaybeWithPort;
+    }
+
+    /**
+     * Derives the request's client-facing port from HTTP headers, mirroring the
+     * source precedence of {@link #extractRequestHost(HttpHeaders)}. When
+     * {@code X-Forwarded-Host} governs the host, the port is read from
+     * {@code X-Forwarded-Port} (where proxies canonically place it) and then from a
+     * port embedded in the first {@code X-Forwarded-Host} entry; otherwise it is read
+     * from the {@code Host} header. Returns {@code -1} when no explicit port is present
+     * (the caller treats this as the scheme default).
+     */
+    private static int extractRequestPort(HttpHeaders headers) {
+        String xfh = headers.getFirst("X-Forwarded-Host");
+        if (xfh != null && !xfh.isBlank()) {
+            String xfp = headers.getFirst("X-Forwarded-Port");
+            if (xfp != null && !xfp.isBlank()) {
+                int comma = xfp.indexOf(',');
+                String first = (comma >= 0 ? xfp.substring(0, comma) : xfp).trim();
+                try {
+                    return Integer.parseInt(first);
+                } catch (NumberFormatException ignored) {
+                    // fall through to a port embedded in X-Forwarded-Host
+                }
+            }
+            int comma = xfh.indexOf(',');
+            String first = (comma >= 0 ? xfh.substring(0, comma) : xfh).trim();
+            return portOf(first);
+        }
+        InetSocketAddress hostAddr = headers.getHost();
+        if (hostAddr != null) {
+            int port = hostAddr.getPort();
+            return port > 0 ? port : -1;
+        }
+        return -1;
+    }
+
+    /**
+     * Parses the port from a {@code host[:port]} value (handling IPv6 brackets),
+     * returning {@code -1} when no valid port is present.
+     */
+    private static int portOf(String hostMaybeWithPort) {
+        String afterHost;
+        if (hostMaybeWithPort.startsWith("[")) { // IPv6 literal
+            int close = hostMaybeWithPort.indexOf(']');
+            if (close < 0) {
+                return -1;
+            }
+            afterHost = hostMaybeWithPort.substring(close + 1);
+        } else {
+            int colon = hostMaybeWithPort.indexOf(':');
+            if (colon < 0) {
+                return -1;
+            }
+            afterHost = hostMaybeWithPort.substring(colon);
+        }
+        if (afterHost.startsWith(":") && afterHost.length() > 1) {
+            try {
+                return Integer.parseInt(afterHost.substring(1));
+            } catch (NumberFormatException ignored) {
+                return -1;
+            }
+        }
+        return -1;
     }
 
     /**

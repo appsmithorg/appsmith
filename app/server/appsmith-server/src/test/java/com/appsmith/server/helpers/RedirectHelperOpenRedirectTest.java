@@ -129,10 +129,50 @@ class RedirectHelperOpenRedirectTest {
     }
 
     @Test
-    void testXForwardedHostWithPortStripsPort() {
+    void testXForwardedHostWithPortIsMatched() {
+        // A port embedded in X-Forwarded-Host is honored: the redirect must target the
+        // same port, and a redirect to a different port on the same host is rejected.
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Forwarded-Host", "app.appsmith.com:8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testSameHostDifferentPortBlockedInFallbackPath() {
+        // Origin absent, request host has no explicit port (implicit 443 for https);
+        // a redirect to another port on the same host points at a different service.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
         assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+    }
+
+    @Test
+    void testHostHeaderWithExplicitPortIsMatched() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 8443));
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testXForwardedPortIsUsedForPortComparison() {
+        // Proxies typically place the client-facing port in X-Forwarded-Port rather than
+        // embedding it in X-Forwarded-Host.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        headers.set("X-Forwarded-Port", "8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testExplicitDefaultPortMatchesImplicitPortInFallbackPath() {
+        // Request host carries no port (implicit 443); redirect to :443 must still match.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:443/applications", headers));
     }
 
     @Test
