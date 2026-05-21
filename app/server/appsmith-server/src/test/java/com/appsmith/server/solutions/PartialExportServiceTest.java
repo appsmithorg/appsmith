@@ -435,15 +435,16 @@ public class PartialExportServiceTest {
         actionConfig.setHttpMethod(HttpMethod.GET);
         victimAction.setActionConfiguration(actionConfig);
         victimAction.setDatasource(datasourceMap.get("DS1"));
-        ActionDTO savedVictimAction =
-                layoutActionService.createSingleAction(victimAction, Boolean.FALSE).block();
+        ActionDTO savedVictimAction = layoutActionService
+                .createSingleAction(victimAction, Boolean.FALSE)
+                .block();
 
         // Attempt partial export: use App A's ID with App B's page ID (BOLA attack)
         PartialExportFileDTO partialExportFileDTO = new PartialExportFileDTO();
         partialExportFileDTO.setActionList(List.of(savedVictimAction.getId()));
 
-        Mono<ApplicationJson> result = partialExportService.getPartialExportResources(
-                appA.getId(), victimPage.getId(), partialExportFileDTO);
+        Mono<ApplicationJson> result =
+                partialExportService.getPartialExportResources(appA.getId(), victimPage.getId(), partialExportFileDTO);
 
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
