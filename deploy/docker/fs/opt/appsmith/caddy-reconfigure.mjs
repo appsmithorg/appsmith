@@ -144,11 +144,6 @@ parts.push(`
     import reverse_proxy 8091
   }
 
-  redir /supervisor /supervisor/
-  handle_path /supervisor/* {
-    import reverse_proxy 9001
-  }
-
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
       # This key is designed to work irrespective of any load balancers running on the Appsmith container.
