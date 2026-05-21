@@ -581,7 +581,10 @@
                     "type": "object",
                     "properties": {
                         "cpu": {
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "number"
+                            ]
                         },
                         "memory": {
                             "type": "string"

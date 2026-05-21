@@ -663,7 +663,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             updateResult = findRefPageId(refType, refName, pageId, AclPermission.MANAGE_PAGES)
                     .flatMap(refPageId -> repository.updateDependencyMap(refPageId, dependencyMap));
         } else {
-            updateResult = repository.updateDependencyMap(pageId, dependencyMap);
+            updateResult = findById(pageId, AclPermission.MANAGE_PAGES)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                    .flatMap(page -> repository.updateDependencyMap(pageId, dependencyMap));
         }
 
         return updateResult.flatMap(count -> {
