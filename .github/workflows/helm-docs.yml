@@ -1,4 +1,4 @@
-name: Helm Values Schema
+name: Helm Docs
 
 on:
   pull_request:
@@ -7,7 +7,9 @@ on:
     paths:
       - "deploy/helm/values.yaml"
       - "deploy/helm/values.schema.json"
-      - ".github/workflows/helm-schema.yml"
+      - "deploy/helm/README.md"
+      - "deploy/helm/README.md.gotmpl"
+      - ".github/workflows/helm-docs.yml"
   workflow_dispatch:
 
 jobs:
@@ -34,18 +36,34 @@ jobs:
         # (the plugin source doesn't ship verification metadata).
         run: helm plugin install --verify=false https://github.com/losisin/helm-values-schema-json.git
 
-      - name: Regenerate schema from values.yaml
+      - name: Install helm-docs
+        run: |
+          HELM_DOCS_VERSION=1.14.2
+          curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" \
+            | tar xz helm-docs
+          sudo mv helm-docs /usr/local/bin/
+
+      - name: Check values schema
         run: |
           helm schema \
             --schema-root.title "Appsmith Helm chart values" \
             --schema-root.id "https://helm.appsmith.com/values.schema.json" \
             -o values.schema.json.regenerated
 
-      - name: Fail if committed schema is out of date
-        run: |
           if ! diff -u values.schema.json values.schema.json.regenerated; then
             echo ""
             echo "::error::values.schema.json is out of date. Regenerate locally with:"
             echo "::error::  cd deploy/helm && helm schema --schema-root.title 'Appsmith Helm chart values' --schema-root.id 'https://helm.appsmith.com/values.schema.json' -o values.schema.json"
+            exit 1
+          fi
+
+      - name: Check README
+        run: |
+          helm-docs --sort-values-order file --dry-run > README.md.regenerated
+
+          if ! diff -u README.md README.md.regenerated; then
+            echo ""
+            echo "::error::README.md is out of date. Regenerate locally with:"
+            echo "::error::  cd deploy/helm && helm-docs --sort-values-order file"
             exit 1
           fi
