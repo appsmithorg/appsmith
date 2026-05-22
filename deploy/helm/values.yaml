@@ -1,3 +1,351 @@
+## @param secretName Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
+# @schema description: Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.
+# -- Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
+# @section -- Appsmith configuration
+secretName: ""
+
+## @param applicationConfig Map of APPSMITH_* environment variables for the application container
+# @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.
+# -- Map of APPSMITH_* environment variables for the application container
+# @section -- Appsmith configuration
+applicationConfig: # @schema additionalProperties: {type: [string, boolean, integer, number]}
+  # @schema hidden: true
+  APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
+  # @schema hidden: true
+  APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""
+  # @schema hidden: true
+  APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ""
+  # @schema hidden: true
+  APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ""
+  # @schema hidden: true
+  APPSMITH_FORM_LOGIN_DISABLED: ""
+  # @schema hidden: true
+  APPSMITH_SIGNUP_DISABLED: ""
+  # @schema hidden: true
+  APPSMITH_CLIENT_LOG_LEVEL: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_ENABLED: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_HOST: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_PORT: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_USERNAME: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_PASSWORD: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_FROM: ""
+  # @schema hidden: true
+  APPSMITH_REPLY_TO: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_SMTP_AUTH: ""
+  # @schema hidden: true
+  APPSMITH_MAIL_SMTP_TLS_ENABLED: ""
+  # @schema hidden: true
+  APPSMITH_DISABLE_TELEMETRY: ""
+  # @schema hidden: true
+  APPSMITH_RECAPTCHA_SITE_KEY: ""
+  # @schema hidden: true
+  APPSMITH_RECAPTCHA_SECRET_KEY: ""
+  # @schema hidden: true
+  APPSMITH_RECAPTCHA_ENABLED: ""
+  # @schema hidden: true
+  APPSMITH_DB_URL: ""
+  # @schema hidden: true
+  APPSMITH_REDIS_URL: ""
+  # @schema hidden: true
+  APPSMITH_ENCRYPTION_PASSWORD: ""
+  # @schema hidden: true
+  APPSMITH_ENCRYPTION_SALT: ""
+  # @schema hidden: true
+  APPSMITH_CUSTOM_DOMAIN: ""
+  # @schema hidden: true
+  APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+  # @schema hidden: true
+  APPSMITH_LICENSE_KEY: ""
+  # @schema hidden: true
+  APPSMITH_KEYCLOAK_DB_DRIVER: ""
+  # @schema hidden: true
+  APPSMITH_KEYCLOAK_DB_USERNAME: ""
+  # @schema hidden: true
+  APPSMITH_KEYCLOAK_DB_PASSWORD: ""
+  # @schema hidden: true
+  APPSMITH_KEYCLOAK_DB_URL: ""
+## @param image.registry Container image registry
+## @param image.repository Container image repository
+## @param image.tag Container image tag (defaults to "latest" when omitted)
+## @param image.pullPolicy Container image pull policy
+## @param image.pullSecrets Image pull secret name (single secret)
+# @schema description: Appsmith container image configuration.
+# -- Appsmith container image configuration
+# @section -- Appsmith configuration
+image:
+  # @schema description: Container image registry.
+  registry: index.docker.io
+  # @schema description: Container image repository.
+  repository: appsmith/appsmith-ee
+  # @schema description: Container image pull policy.
+  # @schema enum: [Always, IfNotPresent, Never]
+  pullPolicy: IfNotPresent
+  # @schema description: Image pull secret name (single secret).
+  pullSecrets: ""
+  # @schema description: Container image tag (defaults to "latest" when omitted).
+  tag: "latest"
+
+## DEPRECATED: use `image` instead.
+## `_image` is kept for backwards compatibility with older install guides / values files.
+## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
+## override fields like `repository` and `tag` without restating the full image.
+##
+## @param _image.registry DEPRECATED. Container image registry override (merged into image)
+## @param _image.repository DEPRECATED. Container image repository override (merged into image)
+## @param _image.tag DEPRECATED. Container image tag override (merged into image)
+## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
+## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
+# @schema description: DEPRECATED — use image instead. Kept for backwards compatibility, merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.
+# -- DEPRECATED: use image instead. Backwards-compatible override merged on top of image.
+# @section -- Appsmith configuration
+_image: {}
+
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+##
+
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
+##
+# @schema description: Global parameters that can override values across the chart and its dependencies.
+# -- Global parameters that override values across the chart and its dependencies
+# @section -- Global parameters
+global:
+  # @schema description: Global StorageClass for Persistent Volume(s).
+  storageClass: ""
+  # @schema description: Override the namespace for resources deployed by the chart (can be overridden by local namespaceOverride).
+  namespaceOverride: ""
+## @param fullnameOverride String to fully override appsmith.fullname template
+##
+# @schema description: String to fully override the appsmith.fullname template.
+# -- String to fully override appsmith.fullname template
+# @section -- Global parameters
+fullnameOverride: ""
+## @param containerName specify running container name in a pod
+##
+# @schema description: Name of the running container in the pod.
+# -- Name of the container running in Appsmith pods
+# @section -- Global parameters
+containerName: "appsmith"
+## @param commonLabels Labels to add to all deployed objects
+##
+# @schema description: Labels to add to all deployed objects.
+# -- Labels to add to all deployed objects
+# @section -- Global parameters
+commonLabels: {}
+## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
+##
+# @schema description: Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template.
+# -- Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
+# @section -- Global parameters
+commonAnnotations: {}
+## @param schedulerName Name of the scheduler (other than default) to dispatch pods
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+# @schema description: Name of the scheduler (other than default) to dispatch pods.
+# -- Name of the scheduler (other than default) to dispatch pods
+# @section -- Global parameters
+schedulerName: ""
+## @param strategyType StrategyType for Appsmith&reg; statefulset
+## It can be set to RollingUpdate or Recreate by default.
+##
+# @schema description: StrategyType for the Appsmith workload. Typically RollingUpdate or Recreate.
+# -- StrategyType for the Appsmith workload
+# @section -- Global parameters
+strategyType: RollingUpdate
+##
+## Init containers for redis & mongodb
+##
+## @param initContainer Init container image overrides for bundled dependencies
+# @schema description: Init container image overrides for bundled redis/mongodb/postgresql dependencies.
+# -- Init container image overrides for bundled dependencies
+# @section -- Global parameters
+initContainer: {}
+  # redis:
+  #   image: docker.io/redis:7.4.9
+  # mongodb:
+  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+  # postgresql:
+  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+
+## @param annotations Annotations to add to the Deployment/StatefulSet resource
+##
+# @schema description: Annotations to add to the Deployment/StatefulSet resource.
+# -- Annotations to add to the Deployment/StatefulSet resource
+# @section -- Workload configuration
+annotations: {}
+
+## @param podAnnotations Annotations to add to Appsmith pods
+# @schema description: Annotations to add to Appsmith pods.
+# -- Annotations to add to Appsmith pods
+# @section -- Workload configuration
+podAnnotations: {}
+
+## @param podLabels Labels to add to Appsmith pods
+# @schema description: Labels to add to Appsmith pods.
+# -- Labels to add to Appsmith pods
+# @section -- Workload configuration
+podLabels: {}
+
+## @param podSecurityContext Pod-level securityContext for Appsmith pods
+# @schema description: Pod-level securityContext applied to Appsmith pods.
+# -- Pod-level securityContext for Appsmith pods
+# @section -- Workload configuration
+podSecurityContext: {}
+# For non-root user
+#  fsGroup: 1001
+#  sysctls:
+#  - name: net.ipv4.ip_unprivileged_port_start
+#    value: "80"
+
+## @param securityContext Container-level securityContext for the Appsmith container
+# @schema description: Container-level securityContext applied to the Appsmith container.
+# -- Container-level securityContext for the Appsmith container
+# @section -- Workload configuration
+securityContext: {}
+  # For non-root user
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+## @param extraVolumes Additional volumes to add to the pod
+## e.g:
+## extraVolumes:
+##   - name: tmp-dir
+##     emptyDir: {}
+##
+# @schema description: Additional volumes to add to the pod.
+# -- Additional volumes to add to the pod
+# @section -- Workload configuration
+extraVolumes: []
+
+## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
+## e.g:
+## extraVolumeMounts:
+##   - name: tmp-dir
+##     mountPath: /tmp
+##
+# @schema description: Additional volume mounts to add to the Appsmith container.
+# -- Additional volume mounts to add to the appsmith container
+# @section -- Workload configuration
+extraVolumeMounts: []
+## @param customCAcert Custom CA certificates to trust at runtime (map of filename to PEM content)
+# @schema type: [object, "null"]; additionalProperties: {type: string}; description: Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).
+# -- Custom CA certificates to trust at runtime (map of filename to PEM content)
+# @section -- Workload configuration
+customCAcert:
+# cert1: |
+# paste-cert-1-contents-here
+# cert2: |
+# paste-cert-2-contents-here
+
+# @schema description: Resource requests/limits for the Appsmith container.
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  ## @param resources.limits Resource limits for the Appsmith container
+  # @schema description: Resource limits for the Appsmith container.
+  # -- Resource limits for the Appsmith container
+  # @section -- Workload configuration
+  limits: {}
+  ## @param resources.requests Resource requests for the Appsmith container
+  # @schema description: Resource requests for the Appsmith container.
+  # -- Resource requests for the Appsmith container
+  # @section -- Workload configuration
+  requests:
+     # @schema type: [string, number]
+     cpu: 500m
+     memory: 3000Mi
+
+## @param workload.kind Select workload resource type: Deployment or StatefulSet
+## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
+## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).
+##
+# @schema description: Workload resource configuration.
+# -- Select workload resource type: Deployment or StatefulSet
+# @section -- Workload configuration
+workload:
+  # @schema description: Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).
+  # @schema enum: [Deployment, StatefulSet]
+  kind: StatefulSet
+
+## @param replicas Number of replicas when autoscaling is disabled
+## Only used when workload.kind is Deployment and autoscaling.enabled is false
+##
+# @schema description: Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.
+# @schema minimum: 0
+# -- Number of replicas when autoscaling is disabled
+# @section -- Workload configuration
+replicas: 1
+
+# @schema description: Horizontal Pod Autoscaler configuration.
+autoscaling:
+  ## @param autoscaling.enabled Enable the HorizontalPodAutoscaler
+  # @schema description: Enable the HorizontalPodAutoscaler.
+  # -- Enable the HorizontalPodAutoscaler
+  # @section -- Workload configuration
+  enabled: false
+  ## @param autoscaling.minReplicas Minimum number of replicas for the HPA
+  # @schema description: Minimum number of replicas for the HPA.
+  # @schema minimum: 0
+  # -- Minimum number of replicas for the HPA
+  # @section -- Workload configuration
+  minReplicas: 2
+  ## @param autoscaling.maxReplicas Maximum number of replicas for the HPA
+  # @schema description: Maximum number of replicas for the HPA.
+  # @schema minimum: 0
+  # -- Maximum number of replicas for the HPA
+  # @section -- Workload configuration
+  maxReplicas: 2
+  ## @param autoscaling.targetCPUUtilizationPercentage Target average CPU utilization (percentage)
+  # @schema description: Target average CPU utilization (percentage) across pods.
+  # @schema minimum: 1
+  # @schema maximum: 100
+  # -- Target average CPU utilization (percentage)
+  # @section -- Workload configuration
+  targetCPUUtilizationPercentage: 5
+
+## @param nodeSelector Node selector for Appsmith pods
+# @schema description: Node selector for Appsmith pods.
+# -- Node selector for Appsmith pods
+# @section -- Workload configuration
+nodeSelector: {}
+
+#HTTPContainerPort: 8080
+
+## @param tolerations Tolerations for Appsmith pods
+# @schema description: Tolerations for Appsmith pods.
+# -- Tolerations for Appsmith pods
+# @section -- Workload configuration
+tolerations: []
+
+## @param affinity Affinity rules for Appsmith pods
+# @schema description: Affinity rules for Appsmith pods.
+# -- Affinity rules for Appsmith pods
+# @section -- Workload configuration
+affinity: {}
+
+#topologySpreadConstraints:
+#  - maxSkew: 1 # distribute pods in an absolute even manner
+#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
+#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
+
+
 ## Redis parameters
 ## Values are passed through to the Bitnami redis subchart; not validated by this schema.
 redis: # @schema additionalProperties: true
@@ -344,109 +692,6 @@ prometheus: # @schema additionalProperties: true
     tag: v0.74.0
 
 
-## Global Docker image parameters
-## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
-##
-
-## @param global.storageClass Global StorageClass for Persistent Volume(s)
-## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
-##
-# @schema description: Global parameters that can override values across the chart and its dependencies.
-# -- Global parameters that override values across the chart and its dependencies
-# @section -- Global parameters
-global:
-  # @schema description: Global StorageClass for Persistent Volume(s).
-  storageClass: ""
-  # @schema description: Override the namespace for resources deployed by the chart (can be overridden by local namespaceOverride).
-  namespaceOverride: ""
-## @param fullnameOverride String to fully override appsmith.fullname template
-##
-# @schema description: String to fully override the appsmith.fullname template.
-# -- String to fully override appsmith.fullname template
-# @section -- Global parameters
-fullnameOverride: ""
-## @param containerName specify running container name in a pod
-##
-# @schema description: Name of the running container in the pod.
-# -- Name of the container running in Appsmith pods
-# @section -- Global parameters
-containerName: "appsmith"
-## @param commonLabels Labels to add to all deployed objects
-##
-# @schema description: Labels to add to all deployed objects.
-# -- Labels to add to all deployed objects
-# @section -- Global parameters
-commonLabels: {}
-## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
-##
-# @schema description: Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template.
-# -- Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
-# @section -- Global parameters
-commonAnnotations: {}
-## @param schedulerName Name of the scheduler (other than default) to dispatch pods
-## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-##
-# @schema description: Name of the scheduler (other than default) to dispatch pods.
-# -- Name of the scheduler (other than default) to dispatch pods
-# @section -- Global parameters
-schedulerName: ""
-## @param strategyType StrategyType for Appsmith&reg; statefulset
-## It can be set to RollingUpdate or Recreate by default.
-##
-# @schema description: StrategyType for the Appsmith workload. Typically RollingUpdate or Recreate.
-# -- StrategyType for the Appsmith workload
-# @section -- Global parameters
-strategyType: RollingUpdate
-##
-## Init containers for redis & mongodb
-##
-## @param initContainer Init container image overrides for bundled dependencies
-# @schema description: Init container image overrides for bundled redis/mongodb/postgresql dependencies.
-# -- Init container image overrides for bundled dependencies
-# @section -- Global parameters
-initContainer: {}
-  # redis:
-  #   image: docker.io/redis:7.4.9
-  # mongodb:
-  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
-  # postgresql:
-  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
-## @param image.registry Container image registry
-## @param image.repository Container image repository
-## @param image.tag Container image tag (defaults to "latest" when omitted)
-## @param image.pullPolicy Container image pull policy
-## @param image.pullSecrets Image pull secret name (single secret)
-# @schema description: Appsmith container image configuration.
-# -- Appsmith container image configuration
-# @section -- Appsmith image
-image:
-  # @schema description: Container image registry.
-  registry: index.docker.io
-  # @schema description: Container image repository.
-  repository: appsmith/appsmith-ee
-  # @schema description: Container image pull policy.
-  # @schema enum: [Always, IfNotPresent, Never]
-  pullPolicy: IfNotPresent
-  # @schema description: Image pull secret name (single secret).
-  pullSecrets: ""
-  # @schema description: Container image tag (defaults to "latest" when omitted).
-  tag: "latest"
-
-## DEPRECATED: use `image` instead.
-## `_image` is kept for backwards compatibility with older install guides / values files.
-## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
-## override fields like `repository` and `tag` without restating the full image.
-##
-## @param _image.registry DEPRECATED. Container image registry override (merged into image)
-## @param _image.repository DEPRECATED. Container image repository override (merged into image)
-## @param _image.tag DEPRECATED. Container image tag override (merged into image)
-## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
-## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
-# @schema description: DEPRECATED — use image instead. Kept for backwards compatibility, merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.
-# -- DEPRECATED: use image instead. Backwards-compatible override merged on top of image.
-# @section -- Appsmith image
-_image: {}
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
@@ -472,66 +717,6 @@ serviceAccount:
   # @section -- Service account
   annotations: {}
 
-## @param annotations Annotations to add to the Deployment/StatefulSet resource
-##
-# @schema description: Annotations to add to the Deployment/StatefulSet resource.
-# -- Annotations to add to the Deployment/StatefulSet resource
-# @section -- Pod configuration
-annotations: {}
-
-## @param podAnnotations Annotations to add to Appsmith pods
-# @schema description: Annotations to add to Appsmith pods.
-# -- Annotations to add to Appsmith pods
-# @section -- Pod configuration
-podAnnotations: {}
-
-## @param podLabels Labels to add to Appsmith pods
-# @schema description: Labels to add to Appsmith pods.
-# -- Labels to add to Appsmith pods
-# @section -- Pod configuration
-podLabels: {}
-
-## @param podSecurityContext Pod-level securityContext for Appsmith pods
-# @schema description: Pod-level securityContext applied to Appsmith pods.
-# -- Pod-level securityContext for Appsmith pods
-# @section -- Pod configuration
-podSecurityContext: {}
-# For non-root user
-#  fsGroup: 1001
-#  sysctls:
-#  - name: net.ipv4.ip_unprivileged_port_start
-#    value: "80"
-
-## @param securityContext Container-level securityContext for the Appsmith container
-# @schema description: Container-level securityContext applied to the Appsmith container.
-# -- Container-level securityContext for the Appsmith container
-# @section -- Pod configuration
-securityContext: {}
-  # For non-root user
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-## @param extraVolumes Additional volumes to add to the pod
-## e.g:
-## extraVolumes:
-##   - name: tmp-dir
-##     emptyDir: {}
-##
-# @schema description: Additional volumes to add to the pod.
-# -- Additional volumes to add to the pod
-# @section -- Pod configuration
-extraVolumes: []
-
-## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
-## e.g:
-## extraVolumeMounts:
-##   - name: tmp-dir
-##     mountPath: /tmp
-##
-# @schema description: Additional volume mounts to add to the Appsmith container.
-# -- Additional volume mounts to add to the appsmith container
-# @section -- Pod configuration
-extraVolumeMounts: []
 
 # @schema description: Kubernetes Service configuration for Appsmith.
 service:
@@ -675,115 +860,6 @@ ingress:
   # -- IngressClass name for the Ingress resource
   # @section -- Networking
   className: "nginx"
-
-## @param customCAcert Custom CA certificates to trust at runtime (map of filename to PEM content)
-# @schema type: [object, "null"]; additionalProperties: {type: string}; description: Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).
-# -- Custom CA certificates to trust at runtime (map of filename to PEM content)
-# @section -- Workload
-customCAcert:
-# cert1: |
-# paste-cert-1-contents-here
-# cert2: |
-# paste-cert-2-contents-here
-
-# @schema description: Resource requests/limits for the Appsmith container.
-resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-  ## @param resources.limits Resource limits for the Appsmith container
-  # @schema description: Resource limits for the Appsmith container.
-  # -- Resource limits for the Appsmith container
-  # @section -- Workload
-  limits: {}
-  ## @param resources.requests Resource requests for the Appsmith container
-  # @schema description: Resource requests for the Appsmith container.
-  # -- Resource requests for the Appsmith container
-  # @section -- Workload
-  requests:
-     # @schema type: [string, number]
-     cpu: 500m
-     memory: 3000Mi
-
-## @param workload.kind Select workload resource type: Deployment or StatefulSet
-## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
-## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).
-##
-# @schema description: Workload resource configuration.
-# -- Select workload resource type: Deployment or StatefulSet
-# @section -- Workload
-workload:
-  # @schema description: Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).
-  # @schema enum: [Deployment, StatefulSet]
-  kind: StatefulSet
-
-## @param replicas Number of replicas when autoscaling is disabled
-## Only used when workload.kind is Deployment and autoscaling.enabled is false
-##
-# @schema description: Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.
-# @schema minimum: 0
-# -- Number of replicas when autoscaling is disabled
-# @section -- Workload
-replicas: 1
-
-# @schema description: Horizontal Pod Autoscaler configuration.
-autoscaling:
-  ## @param autoscaling.enabled Enable the HorizontalPodAutoscaler
-  # @schema description: Enable the HorizontalPodAutoscaler.
-  # -- Enable the HorizontalPodAutoscaler
-  # @section -- Workload
-  enabled: false
-  ## @param autoscaling.minReplicas Minimum number of replicas for the HPA
-  # @schema description: Minimum number of replicas for the HPA.
-  # @schema minimum: 0
-  # -- Minimum number of replicas for the HPA
-  # @section -- Workload
-  minReplicas: 2
-  ## @param autoscaling.maxReplicas Maximum number of replicas for the HPA
-  # @schema description: Maximum number of replicas for the HPA.
-  # @schema minimum: 0
-  # -- Maximum number of replicas for the HPA
-  # @section -- Workload
-  maxReplicas: 2
-  ## @param autoscaling.targetCPUUtilizationPercentage Target average CPU utilization (percentage)
-  # @schema description: Target average CPU utilization (percentage) across pods.
-  # @schema minimum: 1
-  # @schema maximum: 100
-  # -- Target average CPU utilization (percentage)
-  # @section -- Workload
-  targetCPUUtilizationPercentage: 5
-
-## @param nodeSelector Node selector for Appsmith pods
-# @schema description: Node selector for Appsmith pods.
-# -- Node selector for Appsmith pods
-# @section -- Workload
-nodeSelector: {}
-
-#HTTPContainerPort: 8080
-
-## @param tolerations Tolerations for Appsmith pods
-# @schema description: Tolerations for Appsmith pods.
-# -- Tolerations for Appsmith pods
-# @section -- Workload
-tolerations: []
-
-## @param affinity Affinity rules for Appsmith pods
-# @schema description: Affinity rules for Appsmith pods.
-# -- Affinity rules for Appsmith pods
-# @section -- Workload
-affinity: {}
-
-#topologySpreadConstraints:
-#  - maxSkew: 1 # distribute pods in an absolute even manner
-#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
-#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
 
 # @schema description: Persistence configuration for Appsmith data volumes.
 persistence:
@@ -979,12 +1055,12 @@ podDisruptionBudgets:
   ## @param podDisruptionBudgets.enabled Enable a PodDisruptionBudget for Appsmith pods
   # @schema description: Enable a PodDisruptionBudget for Appsmith pods.
   # -- Enable a PodDisruptionBudget for Appsmith pods
-  # @section -- Miscellaneous
+  # @section -- Workload configuration
   enabled: true
   ## @param podDisruptionBudgets.minAvailable Minimum available pods during voluntary disruptions
   # @schema description: Minimum number of pods that must remain available during voluntary disruptions.
   # -- Minimum available pods during voluntary disruptions
-  # @section -- Miscellaneous
+  # @section -- Workload configuration
   minAvailable: 1
 
 # @schema description: Metrics endpoint configuration.
@@ -1007,46 +1083,38 @@ keda:
   ## @param keda.enabled Enable KEDA ScaledObject for Appsmith
   # @schema description: Enable KEDA ScaledObject for Appsmith.
   # -- Enable KEDA ScaledObject for Appsmith
-  # @section -- Miscellaneous
   enabled: false
   ## @param keda.pollingInterval How often KEDA polls trigger sources (seconds)
   # @schema description: How often KEDA polls trigger sources, in seconds.
   # -- How often KEDA polls trigger sources (seconds)
-  # @section -- Miscellaneous
   pollingInterval: 30
   ## @param keda.cooldownPeriod Cooldown period before scaling down (seconds)
   # @schema description: Cooldown period before scaling down, in seconds.
   # -- Cooldown period before scaling down (seconds)
-  # @section -- Miscellaneous
   cooldownPeriod: 60
   ## @param keda.minReplicaCount Minimum replica count for KEDA
   # @schema description: Minimum number of replicas KEDA will scale to.
   # @schema minimum: 0
   # -- Minimum replica count for KEDA
-  # @section -- Miscellaneous
   minReplicaCount: 1
   ## @param keda.maxReplicaCount Maximum replica count for KEDA
   # @schema description: Maximum number of replicas KEDA will scale to.
   # @schema minimum: 0
   # -- Maximum replica count for KEDA
-  # @section -- Miscellaneous
   maxReplicaCount: 6
   # @schema description: Fallback configuration when triggers fail to fetch metrics.
   fallback:
     ## @param keda.fallback.failureThreshold Consecutive failures before fallback
     # @schema description: Number of consecutive trigger failures before falling back.
     # -- Consecutive failures before fallback
-    # @section -- Miscellaneous
     failureThreshold: 3
     ## @param keda.fallback.replicas Replica count to fall back to
     # @schema description: Replica count to fall back to.
     # -- Replica count to fall back to
-    # @section -- Miscellaneous
     replicas: 4
   ## @param keda.triggers KEDA trigger definitions (passed through to ScaledObject)
   # @schema description: KEDA trigger definitions (passed through to the ScaledObject).
   # -- KEDA trigger definitions (passed through to ScaledObject)
-  # @section -- Miscellaneous
   triggers: []
 
 # @schema description: Auto-update configuration for the Helm-managed image.
@@ -1055,85 +1123,9 @@ autoupdate:
   ##
   # @schema description: Enable the auto-update CronJob.
   # -- Enable the auto-update CronJob
-  # @section -- Miscellaneous
   enabled: false
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
   ##
   # @schema description: CronJob schedule to check and update the Helm image. Must be a valid cron expression.
   # -- CronJob schedule expression for auto-update
-  # @section -- Miscellaneous
   scheduler: "0 * * * *"
-
-## @param secretName Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
-# @schema description: Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.
-# -- Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
-# @section -- Application config
-secretName: ""
-
-## @param applicationConfig Map of APPSMITH_* environment variables for the application container
-# @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.
-# -- Map of APPSMITH_* environment variables for the application container
-# @section -- Application config
-applicationConfig: # @schema additionalProperties: {type: [string, boolean, integer, number]}
-  # @schema hidden: true
-  APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
-  # @schema hidden: true
-  APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""
-  # @schema hidden: true
-  APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ""
-  # @schema hidden: true
-  APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ""
-  # @schema hidden: true
-  APPSMITH_FORM_LOGIN_DISABLED: ""
-  # @schema hidden: true
-  APPSMITH_SIGNUP_DISABLED: ""
-  # @schema hidden: true
-  APPSMITH_CLIENT_LOG_LEVEL: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_ENABLED: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_HOST: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_PORT: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_USERNAME: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_PASSWORD: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_FROM: ""
-  # @schema hidden: true
-  APPSMITH_REPLY_TO: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_SMTP_AUTH: ""
-  # @schema hidden: true
-  APPSMITH_MAIL_SMTP_TLS_ENABLED: ""
-  # @schema hidden: true
-  APPSMITH_DISABLE_TELEMETRY: ""
-  # @schema hidden: true
-  APPSMITH_RECAPTCHA_SITE_KEY: ""
-  # @schema hidden: true
-  APPSMITH_RECAPTCHA_SECRET_KEY: ""
-  # @schema hidden: true
-  APPSMITH_RECAPTCHA_ENABLED: ""
-  # @schema hidden: true
-  APPSMITH_DB_URL: ""
-  # @schema hidden: true
-  APPSMITH_REDIS_URL: ""
-  # @schema hidden: true
-  APPSMITH_ENCRYPTION_PASSWORD: ""
-  # @schema hidden: true
-  APPSMITH_ENCRYPTION_SALT: ""
-  # @schema hidden: true
-  APPSMITH_CUSTOM_DOMAIN: ""
-  # @schema hidden: true
-  APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
-  # @schema hidden: true
-  APPSMITH_LICENSE_KEY: ""
-  # @schema hidden: true
-  APPSMITH_KEYCLOAK_DB_DRIVER: ""
-  # @schema hidden: true
-  APPSMITH_KEYCLOAK_DB_USERNAME: ""
-  # @schema hidden: true
-  APPSMITH_KEYCLOAK_DB_PASSWORD: ""
-  # @schema hidden: true
-  APPSMITH_KEYCLOAK_DB_URL: ""

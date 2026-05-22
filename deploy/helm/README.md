@@ -12,6 +12,54 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 
 ## Values
 
+### Appsmith configuration
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| secretName | string | `""` | Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one) |
+| applicationConfig | object | `{"APPSMITH_CLIENT_LOG_LEVEL":"","APPSMITH_CUSTOM_DOMAIN":"","APPSMITH_DB_URL":"","APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX":"false","APPSMITH_DISABLE_TELEMETRY":"","APPSMITH_ENCRYPTION_PASSWORD":"","APPSMITH_ENCRYPTION_SALT":"","APPSMITH_FORM_LOGIN_DISABLED":"","APPSMITH_KEYCLOAK_DB_DRIVER":"","APPSMITH_KEYCLOAK_DB_PASSWORD":"","APPSMITH_KEYCLOAK_DB_URL":"","APPSMITH_KEYCLOAK_DB_USERNAME":"","APPSMITH_LICENSE_KEY":"","APPSMITH_MAIL_ENABLED":"","APPSMITH_MAIL_FROM":"","APPSMITH_MAIL_HOST":"","APPSMITH_MAIL_PASSWORD":"","APPSMITH_MAIL_PORT":"","APPSMITH_MAIL_SMTP_AUTH":"","APPSMITH_MAIL_SMTP_TLS_ENABLED":"","APPSMITH_MAIL_USERNAME":"","APPSMITH_OAUTH2_GITHUB_CLIENT_ID":"","APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_ID":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET":"","APPSMITH_RECAPTCHA_ENABLED":"","APPSMITH_RECAPTCHA_SECRET_KEY":"","APPSMITH_RECAPTCHA_SITE_KEY":"","APPSMITH_REDIS_URL":"","APPSMITH_REPLY_TO":"","APPSMITH_SIGNUP_DISABLED":""}` | Map of APPSMITH_* environment variables for the application container |
+| image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":"","registry":"index.docker.io","repository":"appsmith/appsmith-ee","tag":"latest"}` | Appsmith container image configuration |
+| _image | object | `{}` | DEPRECATED: use image instead. Backwards-compatible override merged on top of image. |
+
+### Global parameters
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global | object | `{"namespaceOverride":"","storageClass":""}` | Global parameters that override values across the chart and its dependencies |
+| fullnameOverride | string | `""` | String to fully override appsmith.fullname template |
+| containerName | string | `"appsmith"` | Name of the container running in Appsmith pods |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| commonAnnotations | object | `{}` | Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template |
+| schedulerName | string | `""` | Name of the scheduler (other than default) to dispatch pods |
+| strategyType | string | `"RollingUpdate"` | StrategyType for the Appsmith workload |
+| initContainer | object | `{}` | Init container image overrides for bundled dependencies |
+
+### Workload configuration
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| annotations | object | `{}` | Annotations to add to the Deployment/StatefulSet resource |
+| podAnnotations | object | `{}` | Annotations to add to Appsmith pods |
+| podLabels | object | `{}` | Labels to add to Appsmith pods |
+| podSecurityContext | object | `{}` | Pod-level securityContext for Appsmith pods |
+| securityContext | object | `{}` | Container-level securityContext for the Appsmith container |
+| extraVolumes | list | `[]` | Additional volumes to add to the pod |
+| extraVolumeMounts | list | `[]` | Additional volume mounts to add to the appsmith container |
+| customCAcert | string | `nil` | Custom CA certificates to trust at runtime (map of filename to PEM content) |
+| resources.limits | object | `{}` | Resource limits for the Appsmith container |
+| resources.requests | object | `{"cpu":"500m","memory":"3000Mi"}` | Resource requests for the Appsmith container |
+| workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
+| replicas | int | `1` | Number of replicas when autoscaling is disabled |
+| autoscaling.enabled | bool | `false` | Enable the HorizontalPodAutoscaler |
+| autoscaling.minReplicas | int | `2` | Minimum number of replicas for the HPA |
+| autoscaling.maxReplicas | int | `2` | Maximum number of replicas for the HPA |
+| autoscaling.targetCPUUtilizationPercentage | int | `5` | Target average CPU utilization (percentage) |
+| nodeSelector | object | `{}` | Node selector for Appsmith pods |
+| tolerations | list | `[]` | Tolerations for Appsmith pods |
+| affinity | object | `{}` | Affinity rules for Appsmith pods |
+| podDisruptionBudgets.enabled | bool | `true` | Enable a PodDisruptionBudget for Appsmith pods |
+| podDisruptionBudgets.minAvailable | int | `1` | Minimum available pods during voluntary disruptions |
+
 ### Redis (Bitnami subchart)
 
 | Key | Type | Default | Description |
@@ -115,26 +163,6 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | metrics.enabled | bool | `false` | Enable the Appsmith metrics endpoint |
 | metrics.port | int | `2019` | Port number to expose metrics on |
 
-### Global parameters
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| global | object | `{"namespaceOverride":"","storageClass":""}` | Global parameters that override values across the chart and its dependencies |
-| fullnameOverride | string | `""` | String to fully override appsmith.fullname template |
-| containerName | string | `"appsmith"` | Name of the container running in Appsmith pods |
-| commonLabels | object | `{}` | Labels to add to all deployed objects |
-| commonAnnotations | object | `{}` | Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template |
-| schedulerName | string | `""` | Name of the scheduler (other than default) to dispatch pods |
-| strategyType | string | `"RollingUpdate"` | StrategyType for the Appsmith workload |
-| initContainer | object | `{}` | Init container image overrides for bundled dependencies |
-
-### Appsmith image
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":"","registry":"index.docker.io","repository":"appsmith/appsmith-ee","tag":"latest"}` | Appsmith container image configuration |
-| _image | object | `{}` | DEPRECATED: use image instead. Backwards-compatible override merged on top of image. |
-
 ### Service account
 
 | Key | Type | Default | Description |
@@ -142,18 +170,6 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | serviceAccount.create | bool | `true` | Enable creation of ServiceAccount for Appsmith pods |
 | serviceAccount.name | string | `""` | Name of the created serviceAccount |
 | serviceAccount.annotations | object | `{}` | Additional Service Account annotations |
-
-### Pod configuration
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| annotations | object | `{}` | Annotations to add to the Deployment/StatefulSet resource |
-| podAnnotations | object | `{}` | Annotations to add to Appsmith pods |
-| podLabels | object | `{}` | Labels to add to Appsmith pods |
-| podSecurityContext | object | `{}` | Pod-level securityContext for Appsmith pods |
-| securityContext | object | `{}` | Container-level securityContext for the Appsmith container |
-| extraVolumes | list | `[]` | Additional volumes to add to the pod |
-| extraVolumeMounts | list | `[]` | Additional volume mounts to add to the appsmith container |
 
 ### Networking
 
@@ -175,23 +191,6 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | ingress.certManager | bool | `false` | Enable ingress to use TLS certificates provided by Cert Manager |
 | ingress.certManagerTls | list | `[]` | Specify the TLS secret created by Cert Manager |
 | ingress.className | string | `"nginx"` | IngressClass name for the Ingress resource |
-
-### Workload
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| customCAcert | string | `nil` | Custom CA certificates to trust at runtime (map of filename to PEM content) |
-| resources.limits | object | `{}` | Resource limits for the Appsmith container |
-| resources.requests | object | `{"cpu":"500m","memory":"3000Mi"}` | Resource requests for the Appsmith container |
-| workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
-| replicas | int | `1` | Number of replicas when autoscaling is disabled |
-| autoscaling.enabled | bool | `false` | Enable the HorizontalPodAutoscaler |
-| autoscaling.minReplicas | int | `2` | Minimum number of replicas for the HPA |
-| autoscaling.maxReplicas | int | `2` | Maximum number of replicas for the HPA |
-| autoscaling.targetCPUUtilizationPercentage | int | `5` | Target average CPU utilization (percentage) |
-| nodeSelector | object | `{}` | Node selector for Appsmith pods |
-| tolerations | list | `[]` | Tolerations for Appsmith pods |
-| affinity | object | `{}` | Affinity rules for Appsmith pods |
 
 ### Persistence
 
@@ -226,12 +225,10 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | storageClass.mountOptions | object | `{}` | Mount options for volumes using this StorageClass |
 | storageClass.parameters | object | `{}` | Provisioner-specific parameters for this StorageClass |
 
-### Miscellaneous
+### Other Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| podDisruptionBudgets.enabled | bool | `true` | Enable a PodDisruptionBudget for Appsmith pods |
-| podDisruptionBudgets.minAvailable | int | `1` | Minimum available pods during voluntary disruptions |
 | keda.enabled | bool | `false` | Enable KEDA ScaledObject for Appsmith |
 | keda.pollingInterval | int | `30` | How often KEDA polls trigger sources (seconds) |
 | keda.cooldownPeriod | int | `60` | Cooldown period before scaling down (seconds) |
@@ -243,38 +240,18 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | autoupdate.enabled | bool | `false` | Enable the auto-update CronJob |
 | autoupdate.scheduler | string | `"0 * * * *"` | CronJob schedule expression for auto-update |
 
-### Application config
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| secretName | string | `""` | Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one) |
-| applicationConfig | object | `{"APPSMITH_CLIENT_LOG_LEVEL":"","APPSMITH_CUSTOM_DOMAIN":"","APPSMITH_DB_URL":"","APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX":"false","APPSMITH_DISABLE_TELEMETRY":"","APPSMITH_ENCRYPTION_PASSWORD":"","APPSMITH_ENCRYPTION_SALT":"","APPSMITH_FORM_LOGIN_DISABLED":"","APPSMITH_KEYCLOAK_DB_DRIVER":"","APPSMITH_KEYCLOAK_DB_PASSWORD":"","APPSMITH_KEYCLOAK_DB_URL":"","APPSMITH_KEYCLOAK_DB_USERNAME":"","APPSMITH_LICENSE_KEY":"","APPSMITH_MAIL_ENABLED":"","APPSMITH_MAIL_FROM":"","APPSMITH_MAIL_HOST":"","APPSMITH_MAIL_PASSWORD":"","APPSMITH_MAIL_PORT":"","APPSMITH_MAIL_SMTP_AUTH":"","APPSMITH_MAIL_SMTP_TLS_ENABLED":"","APPSMITH_MAIL_USERNAME":"","APPSMITH_OAUTH2_GITHUB_CLIENT_ID":"","APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_ID":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET":"","APPSMITH_RECAPTCHA_ENABLED":"","APPSMITH_RECAPTCHA_SECRET_KEY":"","APPSMITH_RECAPTCHA_SITE_KEY":"","APPSMITH_REDIS_URL":"","APPSMITH_REPLY_TO":"","APPSMITH_SIGNUP_DISABLED":""}` | Map of APPSMITH_* environment variables for the application container |
-
-## MongoDB Community Operator
-
-The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes)
-instead of the default Bitnami subchart. Set `mongodbOperator.enabled=true` and `mongodbCommunity.enabled=true`.
-
-See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide and known limitations.
-
-> **Preview feature** (chart 3.7.0) -- documented for fresh installs. A migration path from Bitnami-backed installs is being prepared separately.
-
 ## Testing
 
 The chart ships with helm-unittest tests in `tests/`. See [tests/README.md](tests/README.md) for details on running them.
-
-## Upgrades
-
-- **Appsmith version upgrades** -- see the [Appsmith upgrade documentation](https://docs.appsmith.com).
-- **Chart version upgrades** -- see the [chart upgrade guide](https://docs.appsmith.com) (coming soon).
 
 ## Documentation
 
 Full documentation is available at [docs.appsmith.com](https://docs.appsmith.com), including:
 
-- [Installation guides](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes) (EKS, GKE, Minikube, and more)
+- [Planning your Appsmith deployment](https://docs.appsmith.com/getting-started/setup/instance-configuration/helm-chart#planning-your-deployment)
+- [Installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+- [Appsmith version upgrades](https://docs.appsmith.com/getting-started/setup/instance-management/update-appsmith)
 - [Environment variable reference](https://docs.appsmith.com/getting-started/setup/environment-variables)
-- [TLS / HTTPS setup](Setup-https.md)
 
 ## Maintainers
 

@@ -12,31 +12,18 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 
 {{ template "chart.valuesSection" . }}
 
-## MongoDB Community Operator
-
-The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes)
-instead of the default Bitnami subchart. Set `mongodbOperator.enabled=true` and `mongodbCommunity.enabled=true`.
-
-See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide and known limitations.
-
-> **Preview feature** (chart 3.7.0) -- documented for fresh installs. A migration path from Bitnami-backed installs is being prepared separately.
-
 ## Testing
 
 The chart ships with helm-unittest tests in `tests/`. See [tests/README.md](tests/README.md) for details on running them.
-
-## Upgrades
-
-- **Appsmith version upgrades** -- see the [Appsmith upgrade documentation](https://docs.appsmith.com).
-- **Chart version upgrades** -- see the [chart upgrade guide](https://docs.appsmith.com) (coming soon).
 
 ## Documentation
 
 Full documentation is available at [docs.appsmith.com](https://docs.appsmith.com), including:
 
-- [Installation guides](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes) (EKS, GKE, Minikube, and more)
+- [Planning your Appsmith deployment](https://docs.appsmith.com/getting-started/setup/instance-configuration/helm-chart#planning-your-deployment)
+- [Installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+- [Appsmith version upgrades](https://docs.appsmith.com/getting-started/setup/instance-management/update-appsmith)
 - [Environment variable reference](https://docs.appsmith.com/getting-started/setup/environment-variables)
-- [TLS / HTTPS setup](Setup-https.md)
 
 {{ template "chart.maintainersSection" . }}
 
