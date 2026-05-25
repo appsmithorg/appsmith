@@ -450,6 +450,6 @@
     "fast-xml-parser": "4.5.4",
     "handlebars": "4.7.9",
     "canvas": "^3.0.0",
-    "protobufjs": "^7.5.5"
+    "protobufjs": "^7.6.1"
   }
 }
