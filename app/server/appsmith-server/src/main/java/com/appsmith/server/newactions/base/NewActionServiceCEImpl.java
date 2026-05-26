@@ -615,21 +615,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     datasourceMono =
                             Mono.just(editActionDTO.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
-                    // TODO: check if datasource should be fetched with edit during action create or update.
-                    // Data source already exists. Find the same.
-
                     if (isDryOps) {
                         datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
                         datasourceMono = datasourceService
-                                .findById(editActionDTO.getDatasource().getId())
+                                .findById(
+                                        editActionDTO.getDatasource().getId(),
+                                        datasourcePermission.getExecutePermission())
                                 .switchIfEmpty(Mono.defer(() -> {
-                                    if (!isDryOps) {
-                                        editActionDTO.setIsValid(false);
-                                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                                FieldName.DATASOURCE,
-                                                editActionDTO.getDatasource().getId()));
-                                    }
+                                    editActionDTO.setIsValid(false);
+                                    invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.DATASOURCE,
+                                            editActionDTO.getDatasource().getId()));
                                     return Mono.just(editActionDTO.getDatasource());
                                 }));
                     }
@@ -863,8 +860,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ActionDTO updatedActionDTO = zippedActions.getT1();
                     if (updatedActionDTO.getDatasource() != null
                             && updatedActionDTO.getDatasource().getId() != null) {
-                        return datasourceService.findById(
-                                updatedActionDTO.getDatasource().getId());
+                        return datasourceService
+                                .findById(
+                                        updatedActionDTO.getDatasource().getId(),
+                                        datasourcePermission.getExecutePermission())
+                                .onErrorResume(e -> Mono.justOrEmpty(updatedActionDTO.getDatasource()));
                     } else {
                         return Mono.justOrEmpty(updatedActionDTO.getDatasource());
                     }
@@ -1133,8 +1133,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         final ActionDTO action = toDelete.getUnpublishedAction();
                         if (action.getDatasource() != null
                                 && action.getDatasource().getId() != null) {
-                            return datasourceService.findById(
-                                    action.getDatasource().getId());
+                            return datasourceService
+                                    .findById(
+                                            action.getDatasource().getId(), datasourcePermission.getExecutePermission())
+                                    .onErrorResume(e -> Mono.justOrEmpty(action.getDatasource()));
                         } else {
                             return Mono.justOrEmpty(action.getDatasource());
                         }
@@ -1187,7 +1189,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             dsConfigMono = Mono.just(action.getDatasource().getDatasourceConfiguration());
         } else if (action.getDatasource().getId() != null) {
             dsConfigMono = datasourceService
-                    .findById(action.getDatasource().getId())
+                    .findById(action.getDatasource().getId(), datasourcePermission.getExecutePermission())
                     .flatMap(datasource -> {
                         if (datasource.getDatasourceConfiguration() == null) {
                             return Mono.just(new DatasourceConfiguration());
@@ -1581,7 +1583,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .zipWith(Mono.defer(() -> {
                     final ActionDTO action = toDelete.getUnpublishedAction();
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                        return datasourceService
+                                .findById(action.getDatasource().getId(), datasourcePermission.getExecutePermission())
+                                .onErrorResume(e -> Mono.justOrEmpty(action.getDatasource()));
                     } else {
                         return Mono.justOrEmpty(action.getDatasource());
                     }
@@ -1621,8 +1625,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
         if (datasource.getId() == null) {
-            // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
+        }
+
+        String actionWorkspaceId = action.getWorkspaceId();
+        if (actionWorkspaceId != null && !actionWorkspaceId.equals(datasource.getWorkspaceId())) {
+            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
         String applicationId = action.getApplicationId();
@@ -1644,23 +1652,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 return Mono.just(datasource);
             }
 
-            // Add the permission to datasource
-            return applicationService.findById(applicationId).flatMap(application -> {
-                if (!application.getIsPublic()) {
-                    return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
-                }
+            return applicationService
+                    .findById(applicationId, applicationPermission.getReadPermission())
+                    .flatMap(application -> {
+                        if (!application.getIsPublic()) {
+                            return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                        }
 
-                Policy executePolicy = Policy.builder()
-                        .permission(EXECUTE_DATASOURCES.getValue())
-                        .permissionGroups(Set.of(publicPermissionGroupId))
-                        .build();
-                Map<String, Policy> datasourcePolicyMap = Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
+                        Policy executePolicy = Policy.builder()
+                                .permission(EXECUTE_DATASOURCES.getValue())
+                                .permissionGroups(Set.of(publicPermissionGroupId))
+                                .build();
+                        Map<String, Policy> datasourcePolicyMap = Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
 
-                Datasource updatedDatasource =
-                        policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                        Datasource updatedDatasource =
+                                policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
-                return datasourceService.save(updatedDatasource, false);
-            });
+                        return datasourceService.save(updatedDatasource, false);
+                    });
         });
     }
 
