@@ -627,17 +627,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
                                             FieldName.DATASOURCE,
                                             editActionDTO.getDatasource().getId()));
-                                    return Mono.just(editActionDTO.getDatasource());
+                                    Datasource fallback = new Datasource();
+                                    fallback.setPluginId(
+                                            editActionDTO.getDatasource().getPluginId());
+                                    fallback.setName(
+                                            editActionDTO.getDatasource().getName());
+                                    return Mono.just(fallback);
                                 }));
                     }
-                    datasourceMono = datasourceMono
-                            .map(datasource -> {
-                                // datasource is found. Update the action.
-                                newAction.setWorkspaceId(datasource.getWorkspaceId());
-                                return datasource;
-                            })
-                            // If the action is publicly executable, update the datasource policy
-                            .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
+                    datasourceMono = datasourceMono.flatMap(datasource -> {
+                        String existingWorkspaceId = newAction.getWorkspaceId();
+                        if (existingWorkspaceId != null
+                                && datasource.getWorkspaceId() != null
+                                && !existingWorkspaceId.equals(datasource.getWorkspaceId())) {
+                            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                        }
+                        newAction.setWorkspaceId(datasource.getWorkspaceId());
+                        return updateDatasourcePolicyForPublicAction(newAction, datasource);
+                    });
                 }
             }
 
@@ -1197,10 +1204,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                         return Mono.just(datasource.getDatasourceConfiguration());
                     })
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND,
-                            FieldName.DATASOURCE,
-                            action.getDatasource().getId())));
+                    .switchIfEmpty(Mono.just(new DatasourceConfiguration()))
+                    .onErrorResume(e -> Mono.just(new DatasourceConfiguration()));
         } else {
             dsConfigMono = Mono.just(new DatasourceConfiguration());
         }
@@ -1626,11 +1631,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
         if (datasource.getId() == null) {
             return Mono.just(datasource);
-        }
-
-        String actionWorkspaceId = action.getWorkspaceId();
-        if (actionWorkspaceId != null && !actionWorkspaceId.equals(datasource.getWorkspaceId())) {
-            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
         String applicationId = action.getApplicationId();
