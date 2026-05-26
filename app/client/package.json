@@ -102,7 +102,7 @@
     "@types/babel__standalone": "^7.1.7",
     "@types/d3-geo": "^3.1.0",
     "@types/google.maps": "^3.51.0",
-    "@types/react-page-visibility": "^6.4.1",
+    "@types/react-page-visibility": "^6.4.4",
     "@types/react-window-infinite-loader": "^1.0.9",
     "@types/web": "^0.0.99",
     "@uppy/core": "^1.16.0",
