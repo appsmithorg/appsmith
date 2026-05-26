@@ -42,15 +42,21 @@ const parts = []
 
 parts.push(`
 {
-  admin 0.0.0.0:2019
+  # Local socket so control scripts can drive caddy reload; not reachable over TCP.
+  admin unix//tmp/appsmith/caddy.sock
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     protocols h1 h2 h3
     trusted_proxies static 0.0.0.0/0
-    metrics
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
+}
+
+# Prometheus metrics on the port the Helm chart targets. This is the only thing
+# exposed on :2019 — every path returns the metrics body.
+:2019 {
+  metrics
 }
 
 (file_server) {
