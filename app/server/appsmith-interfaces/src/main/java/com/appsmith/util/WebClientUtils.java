@@ -230,19 +230,8 @@ public class WebClientUtils {
         }
 
         for (InetAddress addr : resolved) {
-            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
-                return Optional.empty();
-            }
-            if (addr instanceof Inet6Address) {
-                byte firstByte = addr.getAddress()[0];
-                if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
-                    return Optional.empty();
-                }
-            }
-            if (addr.isLoopbackAddress()
-                    || addr.isLinkLocalAddress()
-                    || addr.isAnyLocalAddress()
-                    || addr.isMulticastAddress()) {
+            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))
+                    || matchesBlockedAddressClass(addr)) {
                 return Optional.empty();
             }
         }
@@ -290,22 +279,25 @@ public class WebClientUtils {
             return false;
         }
         try {
-            final InetAddress address = InetAddress.getByName(canonicalHost);
-            if (address.isLoopbackAddress()
-                    || address.isAnyLocalAddress()
-                    || address.isLinkLocalAddress()
-                    || address.isMulticastAddress()) {
-                return true;
-            }
-            if (address instanceof Inet6Address) {
-                // fc00::/7 — IPv6 Unique Local Addresses
-                byte firstByte = address.getAddress()[0];
-                return (firstByte & (byte) 0xFE) == (byte) 0xFC;
-            }
-            return false;
+            return matchesBlockedAddressClass(InetAddress.getByName(canonicalHost));
         } catch (UnknownHostException e) {
             return false;
         }
+    }
+
+    private static boolean matchesBlockedAddressClass(InetAddress address) {
+        if (address.isLoopbackAddress()
+                || address.isAnyLocalAddress()
+                || address.isLinkLocalAddress()
+                || address.isMulticastAddress()) {
+            return true;
+        }
+        if (address instanceof Inet6Address) {
+            // fc00::/7 — IPv6 Unique Local Addresses
+            byte firstByte = address.getAddress()[0];
+            return (firstByte & (byte) 0xFE) == (byte) 0xFC;
+        }
+        return false;
     }
 
     private static boolean isBlockedAddressClassInDocker(String canonicalHost) {
