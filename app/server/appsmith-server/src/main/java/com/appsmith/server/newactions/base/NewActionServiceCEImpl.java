@@ -635,16 +635,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     return Mono.just(fallback);
                                 }));
                     }
-                    datasourceMono = datasourceMono.flatMap(datasource -> {
-                        String existingWorkspaceId = newAction.getWorkspaceId();
-                        if (existingWorkspaceId != null
-                                && datasource.getWorkspaceId() != null
-                                && !existingWorkspaceId.equals(datasource.getWorkspaceId())) {
-                            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                        }
-                        newAction.setWorkspaceId(datasource.getWorkspaceId());
-                        return updateDatasourcePolicyForPublicAction(newAction, datasource);
-                    });
+                    datasourceMono = datasourceMono
+                            .map(datasource -> {
+                                newAction.setWorkspaceId(datasource.getWorkspaceId());
+                                return datasource;
+                            })
+                            .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
                 }
             }
 
@@ -1657,6 +1653,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     .flatMap(application -> {
                         if (!application.getIsPublic()) {
                             return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                        }
+
+                        if (application.getWorkspaceId() != null
+                                && datasource.getWorkspaceId() != null
+                                && !application.getWorkspaceId().equals(datasource.getWorkspaceId())) {
+                            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                         }
 
                         Policy executePolicy = Policy.builder()

@@ -9,6 +9,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -192,8 +193,9 @@ public class NewActionServiceSecurityTest {
 
     /**
      * Verifies that validateAction rejects cross-workspace datasource references
-     * with UNAUTHORIZED_ACCESS. An action in workspace A referencing a datasource
-     * in workspace B must fail, preventing cross-tenant datasource takeover.
+     * with UNAUTHORIZED_ACCESS when the application and datasource are in different
+     * workspaces. This prevents cross-tenant datasource takeover via public app
+     * policy mutation.
      *
      * GHSA-rqp9-r5fr-4cc8
      */
@@ -205,21 +207,46 @@ public class NewActionServiceSecurityTest {
         String attackerWorkspaceId = "ws-attacker-" + UUID.randomUUID();
         String victimWorkspaceId = "ws-victim-" + UUID.randomUUID();
         String applicationId = "app-" + UUID.randomUUID();
+        String publicPermissionGroupId = "public-pg-" + UUID.randomUUID();
 
         Datasource victimDatasource = createDatasource(victimDatasourceId, pluginId, victimWorkspaceId);
         Plugin plugin = createPlugin(pluginId);
+        PermissionGroup publicPermissionGroup = createPermissionGroup(publicPermissionGroupId);
+
+        Application attackerApp = new Application();
+        attackerApp.setId(applicationId);
+        attackerApp.setIsPublic(true);
+        attackerApp.setWorkspaceId(attackerWorkspaceId);
+
+        Set<Policy> publicActionPolicies =
+                Set.of(createPolicy(actionPermission.getExecutePermission(), publicPermissionGroupId));
 
         Mockito.doReturn(Mono.just(victimDatasource))
                 .when(datasourceService)
                 .findById(eq(victimDatasourceId), any(AclPermission.class));
         Mockito.doReturn(Mono.just(plugin)).when(pluginService).findById(pluginId);
+        Mockito.doReturn(Mono.just(publicPermissionGroup))
+                .when(permissionGroupService)
+                .getPublicPermissionGroup();
+        Mockito.doAnswer(invocation -> {
+                    Object entity = invocation.getArgument(0);
+                    if (entity instanceof NewAction) {
+                        return true;
+                    }
+                    return false;
+                })
+                .when(permissionGroupService)
+                .isEntityAccessible(any(), any(), any());
+        Mockito.doReturn(Mono.just(attackerApp))
+                .when(applicationService)
+                .findById(eq(applicationId), any(AclPermission.class));
         Mockito.doReturn(Mono.just(Set.of())).when(datasourceService).extractKeysFromDatasource(any(Datasource.class));
 
-        NewAction action = new NewAction();
-        action.setApplicationId(applicationId);
-        action.setWorkspaceId(attackerWorkspaceId);
-        action.setPolicies(Set.of());
-        action.setPluginType(PluginType.DB);
+        NewAction publicAction = new NewAction();
+        publicAction.setApplicationId(applicationId);
+        publicAction.setWorkspaceId(attackerWorkspaceId);
+        publicAction.setPolicies(publicActionPolicies);
+        publicAction.setPluginType(PluginType.DB);
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AttackerAction");
@@ -228,10 +255,10 @@ public class NewActionServiceSecurityTest {
         actionDTO.setDatasource(victimDatasource);
         actionDTO.setActionConfiguration(new ActionConfiguration());
 
-        action.setUnpublishedAction(actionDTO);
-        action.setPublishedAction(new ActionDTO());
+        publicAction.setUnpublishedAction(actionDTO);
+        publicAction.setPublishedAction(new ActionDTO());
 
-        StepVerifier.create(newActionService.validateAction(action))
+        StepVerifier.create(newActionService.validateAction(publicAction))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && ((AppsmithException) throwable).getError().equals(AppsmithError.UNAUTHORIZED_ACCESS))
                 .verify();
