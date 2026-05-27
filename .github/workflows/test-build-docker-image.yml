@@ -376,7 +376,6 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
             APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
-            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
@@ -466,7 +465,6 @@ jobs:
           platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.sha }}

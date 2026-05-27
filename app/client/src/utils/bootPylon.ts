@@ -93,6 +93,8 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
   const emailHash: string | undefined =
     user?.emailVerificationHash || existingEmailHash;
 
+  const sdkNotYetLoaded = !existingEmailHash && emailHash;
+
   // NOTE: account_external_id intentionally omitted. See bootPylon() above.
   window.pylon = {
     chat_settings: {
@@ -102,6 +104,10 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
       ...(emailHash ? { email_hash: emailHash } : {}),
     },
   };
+
+  if (sdkNotYetLoaded) {
+    injectPylonScriptOnce(pylonAppID);
+  }
 
   window.Pylon("setNewIssueCustomFields", {
     appsmith_version: `Appsmith ${

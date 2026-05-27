@@ -252,7 +252,6 @@ jobs:
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
             APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
-            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}
 
     outputs:
