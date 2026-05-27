@@ -225,7 +225,7 @@ function HelpButton() {
 
   useEffect(() => {
     bootPylon(user);
-  }, [user?.email]);
+  }, [user?.email, user?.emailVerificationHash, user?.name, user?.username]);
 
   return (
     <Menu

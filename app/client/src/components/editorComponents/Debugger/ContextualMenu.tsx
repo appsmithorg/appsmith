@@ -137,6 +137,10 @@ const ContextualMenu = ({
       (isPylonChatAvailable() && isPylonConsentSatisfied),
   );
 
+  if (!visibleOptions.length) {
+    return props.children;
+  }
+
   return (
     <Menu className="t--debugger-contextual-error-menu">
       <Tooltip
