@@ -101,22 +101,28 @@ describe("Backup Tests", () => {
     expect(res).toBe("v0.0.0-SNAPSHOT");
   });
 
-  test("If MONGODB and Encryption env values are being removed", () => {
+  test("If MONGODB, Encryption, and Redis env values are being removed", () => {
     expect(
-      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://:secret@127.0.0.1:6379\nAPPSMITH_REDIS_PASSWORD=secret\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `),
-    ).toMatch(
-      `APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
-    );
+    ).toMatch(`APPSMITH_INSTANCE_NAME=Appsmith\n`);
   });
 
-  test("If MONGODB and Encryption env values are being removed", () => {
+  test("If MONGODB, Encryption, and Redis env values are being removed (with encryption keys)", () => {
     expect(
-      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://:secret@127.0.0.1:6379\nAPPSMITH_REDIS_PASSWORD=secret\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `),
-    ).toMatch(
-      `APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
+    ).toMatch(`APPSMITH_INSTANCE_NAME=Appsmith\n`);
+  });
+
+  test("removeSensitiveEnvData does not leak the Redis password", () => {
+    const cleaned = removeSensitiveEnvData(
+      `APPSMITH_REDIS_URL=redis://:my-redis-pass@127.0.0.1:6379\nAPPSMITH_REDIS_PASSWORD=my-redis-pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
     );
+
+    expect(cleaned).not.toContain("my-redis-pass");
+    expect(cleaned).not.toContain("APPSMITH_REDIS_URL");
+    expect(cleaned).not.toContain("APPSMITH_REDIS_PASSWORD");
   });
 
   test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null", () => {

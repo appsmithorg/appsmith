@@ -5,10 +5,14 @@ is_client_change=$(git diff --cached --name-only | grep -c "app/client")
 
 is_merge_commit=$(git rev-parse -q --verify MERGE_HEAD)
 
-# Function to apply Spotless and only commit staged files
+# Function to apply Spotless and only commit staged files.
+# Runs mvn in a subshell so we don't pushd the script's cwd into app/server.
+# Staging from the worktree root with full paths avoids a worktree-only bug:
+# git invokes hooks with GIT_DIR set but GIT_WORK_TREE unset, so `git add` from
+# a subdirectory treats cwd as the worktree root and stages files at the wrong path.
 apply_spotless_and_commit_staged_files() {
-  staged_server_files=$(git diff --cached --name-only | grep "app/server"| sed 's|app/server/||')
-  mvn spotless:apply
+  staged_server_files=$(git diff --cached --name-only | grep "app/server")
+  (cd app/server && mvn spotless:apply)
    # Check if Spotless succeeded
   if [ $? -ne 0 ]; then
     echo "Spotless apply failed, Please run mvn spotless:apply"
@@ -23,9 +27,7 @@ if [ "$is_merge_commit" ]; then
 else
   if [ "$is_server_change" -ge 1 ]; then
     echo "Applying Spotless to server files..."
-    pushd app/server > /dev/null
     apply_spotless_and_commit_staged_files
-    popd > /dev/null
   else
     echo "Skipping server side check..."
   fi

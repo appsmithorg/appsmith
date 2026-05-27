@@ -17,7 +17,7 @@ import {
 } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
+import bootPylon from "utils/bootPylon";
 import type { Theme } from "constants/DefaultTheme";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";
@@ -85,7 +85,7 @@ function DebuggerLogs(props: Props) {
   const currentUser = useSelector(getCurrentUser);
 
   useEffect(() => {
-    bootIntercom(currentUser);
+    bootPylon(currentUser);
   }, [currentUser?.email]);
 
   const handleScroll = (e: Event) => {

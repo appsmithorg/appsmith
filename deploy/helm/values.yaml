@@ -475,6 +475,7 @@ resources:
   limits: {}
   # @schema description: Resource requests for the Appsmith container.
   requests:
+     # @schema type: [string, number]
      cpu: 500m
      memory: 3000Mi
 

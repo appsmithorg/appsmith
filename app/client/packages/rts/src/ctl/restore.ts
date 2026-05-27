@@ -224,6 +224,19 @@ async function restoreDockerEnvFile(
       process.env.APPSMITH_MONGODB_PASSWORD;
   }
 
+  // Preserve the restoring instance's Redis configuration. The backup strips
+  // these (see `removeSensitiveEnvData`) because the source instance's Redis
+  // password does not match the target's embedded Redis `requirepass`.
+  if (process.env.APPSMITH_REDIS_URL) {
+    dockerEnvContent +=
+      "\nAPPSMITH_REDIS_URL=" + process.env.APPSMITH_REDIS_URL;
+  }
+
+  if (process.env.APPSMITH_REDIS_PASSWORD) {
+    dockerEnvContent +=
+      "\nAPPSMITH_REDIS_PASSWORD=" + process.env.APPSMITH_REDIS_PASSWORD;
+  }
+
   await fsPromises.writeFile(dockerEnvFile, dockerEnvContent, "utf8");
 
   console.log("Restoring docker environment file completed");

@@ -509,6 +509,8 @@ public class FileUtilsCEImpl implements FileInterface {
 
                     Path path = Paths.get(
                             String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
+                    validatePathIsWithinGitRoot(path);
+                    validatePathIsWithinGitRoot(path.resolve(widgetName + CommonConstants.JSON_EXTENSION));
                     validWidgetToParentMap.put(widgetName, path.toFile().toString());
                     fileOperations.saveWidgets(jsonObject, widgetName, path);
                 });
