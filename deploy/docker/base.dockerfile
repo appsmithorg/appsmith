@@ -17,7 +17,10 @@ RUN go mod edit -require=golang.org/x/crypto@v0.52.0 \
     go mod tidy && \
     go mod vendor
 ENV GOROOT=/usr/local/go
-RUN ./make build -pkgs=mongodump,mongorestore,bsondump,mongoexport,mongofiles,mongoimport,mongostat,mongotop
+RUN ./make build -pkgs=mongodump,mongorestore,bsondump,mongoexport,mongofiles,mongoimport,mongostat,mongotop && \
+    for tool in mongodump mongorestore bsondump mongoexport mongofiles mongoimport mongostat mongotop; do \
+      test -f /tmp/mongo-tools/bin/$tool || (echo "Missing binary: $tool" && exit 1); \
+    done
 
 FROM ubuntu:24.04
 
