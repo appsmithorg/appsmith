@@ -88,6 +88,11 @@ public class PostgresPluginTest {
         public Mono<Integer> getMaxConnectionPoolSize() {
             return Mono.just(5);
         }
+
+        @Override
+        public Mono<Integer> getSocketTimeoutSeconds() {
+            return Mono.just(600);
+        }
     }
 
     PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(

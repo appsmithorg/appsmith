@@ -450,8 +450,8 @@ public class OracleDatasourceUtils {
         config.setKeepaliveTime(150_000);
 
         // Bound any single socket read so a half-open connection cannot wedge the pool's
-        // single-threaded connection-adder. Oracle JDBC takes oracle.net.READ_TIMEOUT in milliseconds.
-        config.addDataSourceProperty("oracle.net.READ_TIMEOUT", String.valueOf(socketTimeoutSeconds * 1000));
+        // single-threaded connection-adder. Oracle thin driver takes oracle.jdbc.ReadTimeout in milliseconds.
+        config.addDataSourceProperty("oracle.jdbc.ReadTimeout", String.valueOf(socketTimeoutSeconds * 1000));
 
         // Now create the connection pool from the configuration
         HikariDataSource datasource = null;

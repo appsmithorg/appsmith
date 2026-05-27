@@ -26,6 +26,10 @@ public class ConnectionPoolConfigCEImpl implements ConnectionPoolConfigCE {
 
     @Override
     public Mono<Integer> getSocketTimeoutSeconds() {
-        return Mono.just(socketTimeoutSeconds != null ? socketTimeoutSeconds : DEFAULT_SOCKET_TIMEOUT_SECONDS);
+        // Clamp non-positive overrides to the default. A value of 0 would re-introduce the
+        // infinite-read bug this config exists to prevent, and a negative value is meaningless
+        // to the JDBC drivers.
+        final int configured = socketTimeoutSeconds != null ? socketTimeoutSeconds : DEFAULT_SOCKET_TIMEOUT_SECONDS;
+        return Mono.just(configured > 0 ? configured : DEFAULT_SOCKET_TIMEOUT_SECONDS);
     }
 }
