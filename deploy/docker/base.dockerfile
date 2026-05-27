@@ -2,8 +2,20 @@ FROM redis:7.4.8 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
-RUN xcaddy build \
-  --with github.com/mholt/caddy-ratelimit
+# caddy:builder-alpine sets XCADDY_SETCAP=1, which calls setcap on the output
+# binary. Linux refuses to execve a file with file capabilities when the
+# calling process's bounding set has those caps dropped (e.g. Kubernetes
+# restricted profile with cap-drop ALL). The image binds low ports via
+# net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
+#
+# --replace pins mitigate x/crypto and x/net CVEs from the May 22, 2026
+# coordinated Go security disclosure. None are reachable in Caddy's HTTP
+# path (the x/crypto CVEs are all in the SSH subsystem), but scanners
+# flag the embedded library version regardless.
+RUN XCADDY_SETCAP=0 xcaddy build \
+  --with github.com/mholt/caddy-ratelimit \
+  --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
+  --replace golang.org/x/net=golang.org/x/net@v0.55.0
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
@@ -98,14 +110,8 @@ RUN <<END
   rm "$filename" SHASUMS256.txt
 END
 
-# Install Caddy
-RUN set -o xtrace \
-  && mkdir -p /opt/caddy \
-  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/caddyserver/caddy/releases/latest' | sed 's,.*/v,,')" \
-  && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
-    | tar -xz -C /opt/caddy && \
-  mv /opt/caddy/caddy /opt/caddy/caddy_vanilla
-
+# Install Caddy (built with rate-limit module via xcaddy; the module is inert unless configured)
+RUN mkdir -p /opt/caddy
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
 
 VOLUME [ "/appsmith-stacks" ]

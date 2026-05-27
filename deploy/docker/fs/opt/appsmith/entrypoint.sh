@@ -642,11 +642,7 @@ create_appsmith_pg_db() {
 }
 
 setup_caddy() {
-  if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
-    export _APPSMITH_CADDY="/opt/caddy/caddy_vanilla"
-  else
-    export _APPSMITH_CADDY="/opt/caddy/caddy"
-  fi
+  export _APPSMITH_CADDY="/opt/caddy/caddy"
 }
 
 init_loading_pages(){
