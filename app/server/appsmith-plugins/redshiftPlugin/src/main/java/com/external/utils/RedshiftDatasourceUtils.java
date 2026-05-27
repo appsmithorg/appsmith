@@ -31,7 +31,8 @@ public class RedshiftDatasourceUtils {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
     private static final String JDBC_PROTOCOL = "jdbc:redshift://";
 
-    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    public static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, Integer socketTimeoutSeconds)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
@@ -68,6 +69,14 @@ public class RedshiftDatasourceUtils {
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
         config.setConnectionTimeout(60 * 1000);
+
+        // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+        // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+        config.setKeepaliveTime(150_000);
+
+        // Bound any single socket read so a half-open connection cannot wedge the pool's
+        // single-threaded connection-adder. Redshift JDBC inherits socketTimeout in seconds from pgjdbc.
+        config.addDataSourceProperty("socketTimeout", String.valueOf(socketTimeoutSeconds));
 
         // Set read only mode if applicable
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();

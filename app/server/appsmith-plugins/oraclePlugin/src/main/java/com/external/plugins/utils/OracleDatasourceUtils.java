@@ -378,7 +378,8 @@ public class OracleDatasourceUtils {
         }
     }
 
-    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    public static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, Integer socketTimeoutSeconds)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
@@ -443,6 +444,14 @@ public class OracleDatasourceUtils {
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+        // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+        // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+        config.setKeepaliveTime(150_000);
+
+        // Bound any single socket read so a half-open connection cannot wedge the pool's
+        // single-threaded connection-adder. Oracle JDBC takes oracle.net.READ_TIMEOUT in milliseconds.
+        config.addDataSourceProperty("oracle.net.READ_TIMEOUT", String.valueOf(socketTimeoutSeconds * 1000));
 
         // Now create the connection pool from the configuration
         HikariDataSource datasource = null;
