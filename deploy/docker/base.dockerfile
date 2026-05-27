@@ -2,9 +2,11 @@ FROM redis:7.4.8 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
-# The base image sets XCADDY_SETCAP=1, which applies cap_net_bind_service to the
-# binary. That prevents exec when the container drops capabilities at runtime,
-# and we rely on net.ipv4.ip_unprivileged_port_start instead of file caps.
+# caddy:builder-alpine sets XCADDY_SETCAP=1, which calls setcap on the output
+# binary. Linux refuses to execve a file with file capabilities when the
+# calling process's bounding set has those caps dropped (e.g. Kubernetes
+# restricted profile with cap-drop ALL). The image binds low ports via
+# net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
 RUN XCADDY_SETCAP=0 xcaddy build \
   --with github.com/mholt/caddy-ratelimit
 
