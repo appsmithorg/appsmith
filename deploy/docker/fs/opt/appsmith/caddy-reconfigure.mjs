@@ -7,6 +7,7 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
+const CaddyAdminSocketPath = process.env.TMP + "/caddy.sock"
 const AppsmithCaddy = process.env._APPSMITH_CADDY
 
 // Rate limit environment.
@@ -42,15 +43,21 @@ const parts = []
 
 parts.push(`
 {
-  admin 0.0.0.0:2019
+  # Local socket so control scripts can drive caddy reload; not reachable over TCP.
+  admin unix/${CaddyAdminSocketPath}
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     protocols h1 h2 h3
     trusted_proxies static 0.0.0.0/0
-    metrics
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
+}
+
+# Prometheus metrics on the port the Helm chart targets. This is the only thing
+# exposed on :2019 — every path returns the metrics body.
+:2019 {
+  metrics
 }
 
 (file_server) {
@@ -142,11 +149,6 @@ parts.push(`
 
   handle /rts/* {
     import reverse_proxy 8091
-  }
-
-  redir /supervisor /supervisor/
-  handle_path /supervisor/* {
-    import reverse_proxy 9001
   }
 
   ${isRateLimitingEnabled ? `rate_limit {

@@ -98,16 +98,12 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    local generated_appsmith_supervisor_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
-    )
     local generated_appsmith_redis_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" "$generated_appsmith_redis_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" > "$ENV_PATH"
   else
     tlog "Configuration file already exists"
     # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
@@ -223,12 +219,6 @@ unset_unused_variables() {
     unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
     unset APPSMITH_RECAPTCHA_SECRET_KEY
     unset APPSMITH_RECAPTCHA_ENABLED
-  fi
-
-  export APPSMITH_SUPERVISOR_USER="${APPSMITH_SUPERVISOR_USER:-appsmith}"
-  if [[ -z "${APPSMITH_SUPERVISOR_PASSWORD-}" ]]; then
-    APPSMITH_SUPERVISOR_PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)"
-    export APPSMITH_SUPERVISOR_PASSWORD
   fi
 }
 
