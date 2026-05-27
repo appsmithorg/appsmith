@@ -34,7 +34,7 @@ export class DebuggerHelper {
     _debuggerFilter: "input[data-testid=t--debugger-search]",
     _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
     _helpButton: "[data-testid='t--help-button']",
-    _intercomOption: "#intercom-trigger",
+    _pylonChatOption: "#pylon-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
     _logsTab: "[data-testid='t--tab-LOGS_TAB']",
     _debuggerFilterClear:

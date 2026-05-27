@@ -32,6 +32,7 @@ import {
   REVOKE_ACCESS,
   REVOKE_EXISTING_REPOSITORIES,
 } from "ee/constants/messages";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import Link from "./components/Link";
 import {
   getCurrentApplication,
@@ -134,12 +135,13 @@ function RepoLimitExceededErrorModal() {
     }
   }, [isOpen]);
 
-  const openIntercom = () => {
-    if (window.Intercom) {
-      window.Intercom(
+  const openSupportChat = () => {
+    if (isPylonChatAvailable()) {
+      window.Pylon(
         "showNewMessage",
         createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, workspaceName),
       );
+      window.Pylon("show");
     }
   };
 
@@ -172,7 +174,7 @@ function RepoLimitExceededErrorModal() {
                   AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                     source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                   });
-                  openIntercom();
+                  openSupportChat();
                 },
                 children: createMessage(CONTACT_SUPPORT),
               },

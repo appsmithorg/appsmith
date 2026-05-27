@@ -18,11 +18,9 @@ import {
   GOOGLE_SHEETS_ASK_FOR_SUPPORT,
   DATASOURCE_INTERCOM_TEXT,
 } from "ee/constants/messages";
-import { getAppsmithConfigs } from "ee/configs";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import { DocsLink, openDoc } from "constants/DocumentationLinks";
 import type { Plugin } from "entities/Plugin";
-const { intercomAppID } = getAppsmithConfigs();
-
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
   width: fit-content;
   ${(props) =>
@@ -88,11 +86,12 @@ export default function AuthMessage(props: AuthMessageProps) {
             onClick: () => {
               // Triggering intercom here, to understand what exact
               // problem user is facing while creating google sheets datasource
-              if (intercomAppID && window.Intercom) {
-                window.Intercom(
+              if (isPylonChatAvailable()) {
+                window.Pylon(
                   "showNewMessage",
                   createMessage(DATASOURCE_INTERCOM_TEXT),
                 );
+                window.Pylon("show");
               }
             },
           },
