@@ -2,7 +2,10 @@ FROM redis:7.4.8 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
-RUN xcaddy build \
+# The base image sets XCADDY_SETCAP=1, which applies cap_net_bind_service to the
+# binary. That prevents exec when the container drops capabilities at runtime,
+# and we rely on net.ipv4.ip_unprivileged_port_start instead of file caps.
+RUN XCADDY_SETCAP=0 xcaddy build \
   --with github.com/mholt/caddy-ratelimit
 
 FROM ubuntu:24.04
