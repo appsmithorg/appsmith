@@ -7,8 +7,15 @@ FROM caddy:builder-alpine AS caddybuilder
 # calling process's bounding set has those caps dropped (e.g. Kubernetes
 # restricted profile with cap-drop ALL). The image binds low ports via
 # net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
+#
+# --replace pins mitigate x/crypto and x/net CVEs from the May 22, 2026
+# coordinated Go security disclosure. None are reachable in Caddy's HTTP
+# path (the x/crypto CVEs are all in the SSH subsystem), but scanners
+# flag the embedded library version regardless.
 RUN XCADDY_SETCAP=0 xcaddy build \
-  --with github.com/mholt/caddy-ratelimit
+  --with github.com/mholt/caddy-ratelimit \
+  --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
+  --replace golang.org/x/net=golang.org/x/net@v0.55.0
 
 FROM ubuntu:24.04
 
