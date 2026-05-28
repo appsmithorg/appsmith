@@ -443,6 +443,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                             new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
                                 }
 
+                                Datasource datasource = update.datasource();
+                                if (application.getWorkspaceId() != null
+                                        && datasource.getWorkspaceId() != null
+                                        && !application.getWorkspaceId().equals(datasource.getWorkspaceId())) {
+                                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                                }
+
                                 Policy executePolicy = Policy.builder()
                                         .permission(EXECUTE_DATASOURCES.getValue())
                                         .permissionGroups(Set.of(publicPermissionGroupId))
@@ -450,8 +457,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 Map<String, Policy> datasourcePolicyMap =
                                         Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
 
-                                Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(
-                                        datasourcePolicyMap, update.datasource());
+                                Datasource updatedDatasource =
+                                        policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
                                 return datasourceService.save(updatedDatasource, false);
                             });
@@ -637,7 +644,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     datasourceMono = datasourceMono
                             .map(datasource -> {
-                                newAction.setWorkspaceId(datasource.getWorkspaceId());
+                                if (datasource.getWorkspaceId() != null) {
+                                    newAction.setWorkspaceId(datasource.getWorkspaceId());
+                                }
                                 return datasource;
                             })
                             .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
