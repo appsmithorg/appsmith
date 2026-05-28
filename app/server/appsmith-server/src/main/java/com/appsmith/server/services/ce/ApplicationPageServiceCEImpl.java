@@ -39,6 +39,7 @@ import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.helpers.WidgetIdRegenerationResult;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -643,10 +644,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
                             // Regenerate widget ids so the cloned page does not collide with the
-                            // source page at application level. The helper preserves referential
-                            // integrity inside the DSL (e.g. parentId), and leaves the root
-                            // MainContainer id ("0") untouched.
-                            newLayout.setDsl(DslUtils.regenerateWidgetIds(layout.getDsl()));
+                            // source page at application level. The regenerator preserves
+                            // referential integrity inside the DSL (e.g. parentId) and leaves
+                            // the root MainContainer id ("0") untouched, and returns the
+                            // oldId -> newId mapping so downstream cloners can translate
+                            // widget id references they hold outside the DSL (e.g.
+                            // ModuleInstance.widgetId).
+                            WidgetIdRegenerationResult regeneration = DslUtils.regenerateWidgetIds(layout.getDsl());
+                            newLayout.setDsl(regeneration.dsl());
+                            clonePageMetaDTO.getOldToNewWidgetIds().putAll(regeneration.oldToNewWidgetIds());
                             return newLayout;
                         })
                         .collectList()

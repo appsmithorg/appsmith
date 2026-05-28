@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 class DslUtilsTest {
@@ -119,10 +120,18 @@ class DslUtilsTest {
     }
 
     @Test
-    void regenerateWidgetIds_withNullOrEmptyDsl_returnsInputAsIs() {
-        Assertions.assertThat(DslUtils.regenerateWidgetIds(null)).isNull();
+    void regenerateWidgetIds_withNullDsl_returnsNullDslAndEmptyMapping() {
+        WidgetIdRegenerationResult result = DslUtils.regenerateWidgetIds(null);
+        Assertions.assertThat(result.dsl()).isNull();
+        Assertions.assertThat(result.oldToNewWidgetIds()).isEmpty();
+    }
+
+    @Test
+    void regenerateWidgetIds_withEmptyDsl_returnsInputDslAndEmptyMapping() {
         JSONObject empty = new JSONObject();
-        Assertions.assertThat(DslUtils.regenerateWidgetIds(empty)).isSameAs(empty);
+        WidgetIdRegenerationResult result = DslUtils.regenerateWidgetIds(empty);
+        Assertions.assertThat(result.dsl()).isSameAs(empty);
+        Assertions.assertThat(result.oldToNewWidgetIds()).isEmpty();
     }
 
     @Test
@@ -140,7 +149,7 @@ class DslUtilsTest {
         dsl.put("widgetName", "MainContainer");
         dsl.put("children", children);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         // MainContainer id is preserved
         Assertions.assertThat(regenerated.get("widgetId")).isEqualTo("0");
@@ -185,7 +194,7 @@ class DslUtilsTest {
         dsl.put("widgetName", "MainContainer");
         dsl.put("children", rootChildren);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         JSONObject regeneratedContainer = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
         JSONObject regeneratedButton = (JSONObject) ((List<?>) regeneratedContainer.get("children")).get(0);
@@ -217,7 +226,7 @@ class DslUtilsTest {
         dsl.put("widgetName", "Canvas1");
         dsl.put("children", children);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         Assertions.assertThat(regenerated).isNotSameAs(dsl);
         // Source DSL widget ids are untouched.
@@ -244,7 +253,7 @@ class DslUtilsTest {
         }
         dsl.put("children", children);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         Set<String> ids = new HashSet<>();
         ids.add((String) regenerated.get("widgetId"));
@@ -284,7 +293,7 @@ class DslUtilsTest {
         dsl.put("widgetName", "MainContainer");
         dsl.put("children", children);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         JSONObject regeneratedChild = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
         String newWidgetId = (String) regeneratedChild.get("widgetId");
@@ -333,7 +342,7 @@ class DslUtilsTest {
         dsl.put("widgetName", "MainContainer");
         dsl.put("children", rootChildren);
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         JSONObject regeneratedList = (JSONObject) ((List<?>) regenerated.get("children")).get(0);
         JSONObject regeneratedTemplate = (JSONObject) regeneratedList.get("template");
@@ -359,11 +368,142 @@ class DslUtilsTest {
         dsl.put("widgetName", "Canvas1");
         dsl.put("children", new ArrayList<>());
 
-        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl);
+        JSONObject regenerated = DslUtils.regenerateWidgetIds(dsl).dsl();
 
         Assertions.assertThat(regenerated.get("widgetId"))
                 .isNotEqualTo("rootOldId")
                 .asString()
                 .matches("[0-9a-z]{10}");
+    }
+
+    // ---------------------------------------------------------------------
+    // Tests covering the oldId -> newId mapping that the regenerator returns.
+    // These exist because the mapping is the contract the regenerator now
+    // advertises to callers (e.g. sibling cloners that hold widget id
+    // references outside the DSL like ModuleInstance.widgetId), so it
+    // deserves its own test coverage independent of the DSL rewrite.
+    // ---------------------------------------------------------------------
+
+    @Test
+    void regenerateWidgetIds_returnsMappingFromEveryRegeneratedSourceIdToItsNewId() {
+        // Build: MainContainer -> Container -> Button.
+        JSONObject button = new JSONObject();
+        button.put("widgetId", "buttonOldId");
+        button.put("widgetName", "Button1");
+        button.put("parentId", "containerOldId");
+
+        JSONArray containerChildren = new JSONArray();
+        containerChildren.add(button);
+
+        JSONObject container = new JSONObject();
+        container.put("widgetId", "containerOldId");
+        container.put("widgetName", "Container1");
+        container.put("parentId", "0");
+        container.put("children", containerChildren);
+
+        JSONArray rootChildren = new JSONArray();
+        rootChildren.add(container);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", rootChildren);
+
+        WidgetIdRegenerationResult result = DslUtils.regenerateWidgetIds(dsl);
+
+        JSONObject regeneratedContainer = (JSONObject) ((List<?>) result.dsl().get("children")).get(0);
+        JSONObject regeneratedButton = (JSONObject) ((List<?>) regeneratedContainer.get("children")).get(0);
+
+        String newContainerId = (String) regeneratedContainer.get("widgetId");
+        String newButtonId = (String) regeneratedButton.get("widgetId");
+
+        // Every regenerated source widget id appears in the mapping, pointing at the new
+        // id the rewriter actually used inside the DSL. The MainContainer id ("0") is
+        // intentionally never remapped, so it must not appear in the mapping.
+        Assertions.assertThat(result.oldToNewWidgetIds())
+                .hasSize(2)
+                .containsEntry("containerOldId", newContainerId)
+                .containsEntry("buttonOldId", newButtonId)
+                .doesNotContainKey("0");
+    }
+
+    @Test
+    void regenerateWidgetIds_returnsEmptyMappingForDslWithOnlyMainContainer() {
+        // MainContainer is the only widget that is never remapped, so a DSL that contains
+        // nothing else should yield an empty mapping while still returning a regenerated
+        // (deep-copied) DSL.
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", new JSONArray());
+
+        WidgetIdRegenerationResult result = DslUtils.regenerateWidgetIds(dsl);
+
+        Assertions.assertThat(result.oldToNewWidgetIds()).isEmpty();
+        Assertions.assertThat(result.dsl().get("widgetId")).isEqualTo("0");
+    }
+
+    @Test
+    void regenerateWidgetIds_resultMappingIsImmutable() {
+        // The mapping is shared between the regenerator and any downstream cloner that
+        // reads it; preventing accidental mutation rules out a class of bugs where one
+        // consumer silently changes what another consumer sees.
+        JSONObject child = new JSONObject();
+        child.put("widgetId", "childOldId");
+        child.put("widgetName", "Button1");
+        child.put("parentId", "0");
+
+        JSONArray children = new JSONArray();
+        children.add(child);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "0");
+        dsl.put("widgetName", "MainContainer");
+        dsl.put("children", children);
+
+        WidgetIdRegenerationResult result = DslUtils.regenerateWidgetIds(dsl);
+
+        Assertions.assertThatThrownBy(() -> result.oldToNewWidgetIds().put("intruder", "value"))
+                .isInstanceOf(UnsupportedOperationException.class);
+        Assertions.assertThatThrownBy(() -> result.oldToNewWidgetIds().clear())
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void regenerateWidgetIds_callerCanAccumulateMappingsAcrossMultipleInvocations() {
+        // This documents the call-site pattern used by ApplicationPageServiceCEImpl when a
+        // page has multiple layouts: the caller maintains one mutable mapping and putAll-s
+        // each invocation's result into it. The result mapping itself is immutable per the
+        // previous test; the caller's accumulator is not.
+        Map<String, String> accumulated = new HashMap<>();
+
+        JSONObject layoutAChild = new JSONObject();
+        layoutAChild.put("widgetId", "layoutAOldId");
+        layoutAChild.put("widgetName", "Button1");
+        layoutAChild.put("parentId", "0");
+        JSONArray layoutAChildren = new JSONArray();
+        layoutAChildren.add(layoutAChild);
+        JSONObject layoutADsl = new JSONObject();
+        layoutADsl.put("widgetId", "0");
+        layoutADsl.put("widgetName", "MainContainer");
+        layoutADsl.put("children", layoutAChildren);
+
+        JSONObject layoutBChild = new JSONObject();
+        layoutBChild.put("widgetId", "layoutBOldId");
+        layoutBChild.put("widgetName", "Text1");
+        layoutBChild.put("parentId", "0");
+        JSONArray layoutBChildren = new JSONArray();
+        layoutBChildren.add(layoutBChild);
+        JSONObject layoutBDsl = new JSONObject();
+        layoutBDsl.put("widgetId", "0");
+        layoutBDsl.put("widgetName", "MainContainer");
+        layoutBDsl.put("children", layoutBChildren);
+
+        accumulated.putAll(DslUtils.regenerateWidgetIds(layoutADsl).oldToNewWidgetIds());
+        accumulated.putAll(DslUtils.regenerateWidgetIds(layoutBDsl).oldToNewWidgetIds());
+
+        Assertions.assertThat(accumulated).containsKeys("layoutAOldId", "layoutBOldId");
+        Assertions.assertThat(accumulated.get("layoutAOldId")).matches("[0-9a-z]{10}");
+        Assertions.assertThat(accumulated.get("layoutBOldId")).matches("[0-9a-z]{10}");
     }
 }

@@ -46,17 +46,27 @@ public class DslUtils {
 
     /**
      * Walks the given layout DSL tree and returns a deep copy with every widget id replaced by a
-     * freshly generated one. Every string occurrence of an old id (e.g. parentId, widget-specific
-     * id references) is rewritten to the new id, preserving the internal relationships of the DSL.
-     * The root MainContainer id ("0") is preserved so that children continue to reference their
-     * canvas correctly.
+     * freshly generated one, together with the {@code oldId -> newId} mapping the regenerator
+     * used. Every string occurrence of an old id inside the DSL (e.g. {@code parentId},
+     * widget-specific id references) is rewritten to the new id, preserving the internal
+     * relationships of the DSL. The root MainContainer id ("0") is preserved so that children
+     * continue to reference their canvas correctly.
+     *
+     * <p><strong>Why we also return the mapping.</strong> Widget ids are not values; they are
+     * identifiers used as references. They are referenced both from inside the DSL (handled by
+     * the rewrite step here) <em>and</em> from sibling domain entities stored elsewhere — for
+     * example {@code ModuleInstance.widgetId} on a separate Mongo collection. A caller that
+     * regenerates the DSL without also translating those external references will silently
+     * orphan them. Surfacing the mapping in the return value makes that cross-entity contract
+     * a property of the type system: a caller can no longer accidentally use the new DSL while
+     * ignoring the mapping, because the mapping is right there in the result.
      *
      * <p>The input DSL is not mutated; a new tree is returned. If the DSL is null or empty, the
-     * input is returned as-is.
+     * input is returned as-is and the mapping is empty.
      */
-    public static JSONObject regenerateWidgetIds(JSONObject sourceDsl) {
+    public static WidgetIdRegenerationResult regenerateWidgetIds(JSONObject sourceDsl) {
         if (sourceDsl == null || sourceDsl.isEmpty()) {
-            return sourceDsl;
+            return new WidgetIdRegenerationResult(sourceDsl, Map.of());
         }
 
         JSONObject dsl = deepCopy(sourceDsl);
@@ -64,11 +74,11 @@ public class DslUtils {
         collectWidgetIds(dsl, oldToNewWidgetIdMap);
 
         if (oldToNewWidgetIdMap.isEmpty()) {
-            return dsl;
+            return new WidgetIdRegenerationResult(dsl, Map.of());
         }
 
         rewriteWidgetIdReferences(dsl, oldToNewWidgetIdMap);
-        return dsl;
+        return new WidgetIdRegenerationResult(dsl, oldToNewWidgetIdMap);
     }
 
     @SuppressWarnings("unchecked")

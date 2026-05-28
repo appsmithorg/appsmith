@@ -19,4 +19,10 @@ public class ClonePageMetaDTO {
     RefType refType;
     String refName;
     Map<String, String> oldToNewCollectionIds = new HashMap<>();
+    // Populated by the page-clone DSL regeneration step (see DslUtils#regenerateWidgetIds and
+    // ApplicationPageServiceCEImpl#clonePageGivenApplicationId). Downstream cloners that hold
+    // widget id references outside the DSL (e.g. ModuleInstance.widgetId) translate their
+    // source-page widget ids through this map so the cloned references resolve to the
+    // freshly generated widgets on the cloned page. Sibling of oldToNewCollectionIds.
+    Map<String, String> oldToNewWidgetIds = new HashMap<>();
 }
