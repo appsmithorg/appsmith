@@ -652,7 +652,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             // ModuleInstance.widgetId).
                             WidgetIdRegenerationResult regeneration = DslUtils.regenerateWidgetIds(layout.getDsl());
                             newLayout.setDsl(regeneration.dsl());
-                            clonePageMetaDTO.getOldToNewWidgetIds().putAll(regeneration.oldToNewWidgetIds());
+                            // First-seen wins when the same source widgetId appears across
+                            // multiple layouts of one page: each layout's DSL is regenerated
+                            // independently, so the same old id maps to a different new id per
+                            // layout. The meta map carries one slot per source id, so picking
+                            // the first occurrence keeps downstream resolution deterministic
+                            // instead of letting iteration order pick the winner.
+                            regeneration
+                                    .oldToNewWidgetIds()
+                                    .forEach(clonePageMetaDTO.getOldToNewWidgetIds()::putIfAbsent);
                             return newLayout;
                         })
                         .collectList()
