@@ -39,6 +39,11 @@ public class UserProfileCE_DTO {
     @JsonProperty("isIntercomConsentGiven")
     boolean isIntercomConsentGiven = false;
 
+    // HMAC-SHA256 of the user's email, computed server-side using the Pylon identity
+    // secret. Used by the client to enable Pylon chat widget identity verification.
+    // Null when the secret is unconfigured (e.g. local dev or airgapped builds).
+    String emailVerificationHash;
+
     String photoId;
 
     String useCase;

@@ -23,10 +23,11 @@ import type { ThemeProp } from "WidgetProvider/types";
 import { toast } from "@appsmith/ads";
 import { DOCS_AI_BASE_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { cloudHosting } = getAppsmithConfigs();
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -172,11 +173,11 @@ export const useNavigationMenuData = ({
               text: "Chat with us",
               onClick: () => {
                 if (cloudHosting || isIntercomConsentGiven) {
-                  window.Intercom("show");
+                  window.Pylon("show");
                 }
               },
               type: MenuTypes.MENU,
-              isVisible: intercomAppID && window.Intercom,
+              isVisible: isPylonChatAvailable(),
             },
           ],
         },

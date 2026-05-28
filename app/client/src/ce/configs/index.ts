@@ -1,5 +1,23 @@
 import type { AppsmithUIConfigs } from "./types";
 
+declare global {
+  interface Window {
+    // Pylon chat widget (https://docs.usepylon.com/pylon-docs/chat-widget/javascript-api)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Pylon: any;
+    pylon?: {
+      chat_settings: {
+        app_id: string;
+        email?: string;
+        email_hash?: string;
+        name?: string;
+        avatar_url?: string;
+        account_external_id?: string;
+      };
+    };
+  }
+}
+
 export interface INJECTED_CONFIGS {
   sentry: {
     dsn: string;
@@ -36,7 +54,7 @@ export interface INJECTED_CONFIGS {
     releaseDate: string;
     edition: string;
   };
-  intercomAppID: string;
+  pylonAppID: string;
   mailEnabled: boolean;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
@@ -99,7 +117,10 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       releaseDate: "",
       edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
-    intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
+    pylonAppID:
+      process.env.REACT_APP_PYLON_APP_ID ||
+      process.env.REACT_APP_INTERCOM_APP_ID ||
+      "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
@@ -246,8 +267,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
         APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
         "",
     },
-    intercomAppID:
-      ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
+    pylonAppID:
+      ENV_CONFIG.pylonAppID || APPSMITH_FEATURE_CONFIGS?.pylonAppID || "",
     mailEnabled:
       ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS?.mailEnabled || false,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,

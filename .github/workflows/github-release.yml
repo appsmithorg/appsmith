@@ -80,7 +80,7 @@ jobs:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
           REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-          REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
+          REACT_APP_PYLON_APP_ID: "${{ secrets.APPSMITH_PYLON_APP_ID }}"
           REACT_APP_VERSION_EDITION: "Community"
         run: |
           yarn build || EXIT_CODE=$?
@@ -279,7 +279,6 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
             APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
-            APPSMITH_PYLON_IDENTITY_SECRET=${{ secrets.APPSMITH_PYLON_IDENTITY_SECRET }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ needs.prelude.outputs.docker_tags }}
