@@ -2,8 +2,37 @@ FROM redis:7.4.8 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
-RUN xcaddy build \
-  --with github.com/mholt/caddy-ratelimit
+# caddy:builder-alpine sets XCADDY_SETCAP=1, which calls setcap on the output
+# binary. Linux refuses to execve a file with file capabilities when the
+# calling process's bounding set has those caps dropped (e.g. Kubernetes
+# restricted profile with cap-drop ALL). The image binds low ports via
+# net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
+#
+# --replace pins mitigate x/crypto and x/net CVEs from the May 22, 2026
+# coordinated Go security disclosure. None are reachable in Caddy's HTTP
+# path (the x/crypto CVEs are all in the SSH subsystem), but scanners
+# flag the embedded library version regardless.
+RUN XCADDY_SETCAP=0 xcaddy build \
+  --with github.com/mholt/caddy-ratelimit \
+  --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
+  --replace golang.org/x/net=golang.org/x/net@v0.55.0
+
+# Build MongoDB database tools from source with pinned x/crypto and x/net
+# Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
+FROM golang:1.26.3-alpine AS mongotoolsbuilder
+
+RUN apk add --no-cache git make bash
+WORKDIR /tmp/mongo-tools
+RUN git clone --depth 1 --branch 100.17.0 https://github.com/mongodb/mongo-tools.git .
+RUN go mod edit -require=golang.org/x/crypto@v0.52.0 \
+               -require=golang.org/x/net@v0.55.0 && \
+    go mod tidy && \
+    go mod vendor
+ENV GOROOT=/usr/local/go
+RUN ./make build -pkgs=mongodump,mongorestore,bsondump,mongoexport,mongofiles,mongoimport,mongostat,mongotop && \
+    for tool in mongodump mongorestore bsondump mongoexport mongofiles mongoimport mongostat mongotop; do \
+      test -f /tmp/mongo-tools/bin/$tool || (echo "Missing binary: $tool" && exit 1); \
+    done
 
 FROM ubuntu:24.04
 
@@ -35,7 +64,7 @@ RUN set -o xtrace \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    mongodb-org \
+    mongodb-org-server mongodb-org-mongos mongodb-mongosh \
     postgresql-14 \
     git tar zstd openssh-client \
   && apt-get clean \
@@ -51,6 +80,10 @@ RUN set -o xtrace \
 # Install Redis from official image to avoid false positive CVE reports from dpkg-based scanners.
 COPY --from=redis-source /usr/local/bin/redis-server /usr/local/bin/redis-server
 COPY --from=redis-source /usr/local/bin/redis-cli /usr/local/bin/redis-cli
+
+# Install MongoDB database tools built from source with patched x/crypto and x/net
+COPY --from=mongotoolsbuilder /tmp/mongo-tools/bin/ /usr/bin/
+
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
@@ -77,14 +110,8 @@ RUN <<END
   rm "$filename" SHASUMS256.txt
 END
 
-# Install Caddy
-RUN set -o xtrace \
-  && mkdir -p /opt/caddy \
-  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/caddyserver/caddy/releases/latest' | sed 's,.*/v,,')" \
-  && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
-    | tar -xz -C /opt/caddy && \
-  mv /opt/caddy/caddy /opt/caddy/caddy_vanilla
-
+# Install Caddy (built with rate-limit module via xcaddy; the module is inert unless configured)
+RUN mkdir -p /opt/caddy
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
 
 VOLUME [ "/appsmith-stacks" ]

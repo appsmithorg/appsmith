@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.EmailNormalizer;
+import com.appsmith.server.helpers.PylonIdentityHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
@@ -804,6 +805,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
                     profile.setIsSuperUser(isSuperUser);
                     profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
+                    profile.setEmailVerificationHash(PylonIdentityHelper.computeEmailHash(
+                            commonConfig.getPylonIdentitySecret(), userFromDb.getEmail()));
                     return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
                 });
     }

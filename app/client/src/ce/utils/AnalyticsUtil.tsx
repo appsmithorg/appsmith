@@ -125,9 +125,11 @@ function reset() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const windowDoc: any = window;
 
-  if (windowDoc.Intercom) {
-    windowDoc.Intercom("shutdown");
+  if (typeof windowDoc.Pylon === "function") {
+    windowDoc.Pylon("hide");
   }
+
+  windowDoc.pylon = undefined;
 
   segmentAnalytics && segmentAnalytics.reset();
 }
