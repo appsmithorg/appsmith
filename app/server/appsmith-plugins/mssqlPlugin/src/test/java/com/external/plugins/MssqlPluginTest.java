@@ -773,4 +773,19 @@ public class MssqlPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testSslDefaultsToNoVerify_whenConnectionIsNull() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setConnection(null);
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                        assertNotNull(hikariDataSource);
+                        assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
+                })
+                .verifyComplete();
+        }
 }
