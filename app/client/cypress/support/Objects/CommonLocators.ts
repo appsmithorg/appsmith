@@ -361,3 +361,4 @@ export class CommonLocators {
   _homeIcon = "[data-testid='t--default-home-icon']";
   _widget = (widgetName: string) => `.t--widget-${widgetName}`;
 }
+
