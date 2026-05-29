@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WebClientUtilsTest {
@@ -92,6 +93,57 @@ public class WebClientUtilsTest {
         Optional<InetAddress> result = WebClientUtils.resolveIfAllowed("smtp.gmail.com");
         assertTrue(result.isPresent());
         assertTrue(result.get().getHostAddress().matches("\\d+\\.\\d+\\.\\d+\\.\\d+"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // Loopback
+                "127.0.0.1",
+                "127.0.0.2",
+                "127.0.0.254",
+                "127.1.2.3",
+                "127.255.255.255",
+                "::1",
+                // Any-local
+                "0.0.0.0",
+                "::",
+                // Link-local
+                "169.254.0.1",
+                "169.254.169.254",
+                "fe80::1",
+                // Multicast
+                "224.0.0.1",
+                "239.255.255.250",
+                "ff02::1",
+                // IPv6 ULA (fc00::/7)
+                "fc00::1",
+                "fd00::1",
+                "fdff::ffff",
+            })
+    public void isBlockedIpAddressClass_recognizesNonRoutableClasses(String host) {
+        assertTrue(
+                WebClientUtils.isBlockedIpAddressClass(host),
+                "Expected " + host + " to be recognized as a blocked address class");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "1.1.1.1",
+                "8.8.8.8",
+                // RFC 1918 site-local — intentionally allowed for internal REST API targets
+                "192.168.1.1",
+                "10.0.0.1",
+                "172.16.0.1",
+                // Non-literals
+                "smtp.gmail.com",
+                "localhost",
+            })
+    public void isBlockedIpAddressClass_doesNotMatchOtherHosts(String host) {
+        assertFalse(
+                WebClientUtils.isBlockedIpAddressClass(host),
+                "Did not expect " + host + " to be recognized as a blocked address class");
     }
 
     @SuppressWarnings("unchecked")
