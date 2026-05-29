@@ -26,7 +26,7 @@ jobs:
           body: |
             **Playwright tests triggered** — [Watch the run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             Arguments: `${{ github.event.client_payload.slash_command.args.unnamed.all || 'all' }}`
-            Appsmith image: `${{ needs.parse-and-run.outputs.appsmith_image }}`
+            Appsmith image: `${{ github.event.client_payload.slash_command.args.named.appsmith_image || '' }}`
 
       - name: Parse args
         id: parse
@@ -42,7 +42,26 @@ jobs:
 
           TIER=$(echo "$ARGS" | awk '{print $1}' | xargs)
           FEATURE=$(echo "$ARGS" | awk '{print $2}' | xargs)
+
+          # Validate appsmith_image named argument
           APPSMITH_IMAGE="${{ github.event.client_payload.slash_command.args.named.appsmith_image || '' }}"
+
+          if [[ -z "$APPSMITH_IMAGE" ]]; then
+            echo "appsmith_image is not set; tests will run against the image built from pr."
+          else
+            # Normalize optional Docker Hub registry prefix
+            ref="${APPSMITH_IMAGE#docker.io/}"
+            ref="${ref#registry-1.docker.io/}"
+            # Allow any tag or digest; repo must be one of the three Appsmith images
+            if [[ "$ref" =~ ^appsmith/appsmith-ce($|:|@) ]] || \
+               [[ "$ref" =~ ^appsmith/appsmith-ee($|:|@) ]] || \
+               [[ "$ref" =~ ^appsmith/appsmith-airgap($|:|@) ]]; then
+              echo "appsmith_image OK: $APPSMITH_IMAGE"
+            else
+              echo "::error::appsmith_image must reference appsmith/appsmith-ce, appsmith/appsmith-ee, or appsmith/appsmith-airgap (optional :tag or @digest; docker.io/ prefix allowed). Got: $APPSMITH_IMAGE"
+              exit 1
+            fi
+          fi
 
           # Validate tier
           case "$TIER" in
