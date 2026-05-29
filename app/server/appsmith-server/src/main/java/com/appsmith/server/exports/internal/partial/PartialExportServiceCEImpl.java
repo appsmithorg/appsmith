@@ -88,7 +88,22 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
                 .cache();
 
-        return applicationMono
+        Mono<String> validatedPageIdMono = applicationMono.flatMap(application -> newPageService
+                .findById(branchedPageId, null)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)))
+                .flatMap(page -> {
+                    if (!application.getId().equals(page.getApplicationId())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION,
+                                branchedPageId,
+                                branchedApplicationId));
+                    }
+                    return Mono.just(branchedPageId);
+                }));
+
+        return validatedPageIdMono
+                .then(applicationMono)
                 .flatMap(application -> {
                     applicationJson.setExportedApplication(application);
                     return pluginExportableService

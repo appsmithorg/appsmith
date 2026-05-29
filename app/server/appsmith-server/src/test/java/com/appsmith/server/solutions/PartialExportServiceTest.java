@@ -21,6 +21,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -399,5 +401,57 @@ public class PartialExportServiceTest {
                     assertThat(newAction.getId()).isEqualTo("Page 2_validAction");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetPartialExport_crossApplicationPageId_rejected() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
+
+        // Create Application A (the "attacker's" app)
+        Application appA = new Application();
+        appA.setName("GHSA-9xfc-appA-attacker");
+        appA.setWorkspaceId(workspaceId);
+        appA = applicationPageService.createApplication(appA, workspaceId).block();
+
+        // Create Application B (the "victim's" app)
+        Application appB = new Application();
+        appB.setName("GHSA-9xfc-appB-victim");
+        appB.setWorkspaceId(workspaceId);
+        appB = applicationPageService.createApplication(appB, workspaceId).block();
+
+        // Create a page in Application B
+        PageDTO victimPage = new PageDTO();
+        victimPage.setName("VictimPage");
+        victimPage.setApplicationId(appB.getId());
+        victimPage = applicationPageService.createPage(victimPage).block();
+
+        // Create an action in Application B's page
+        ActionDTO victimAction = new ActionDTO();
+        victimAction.setName("secretAction");
+        victimAction.setPageId(victimPage.getId());
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        victimAction.setActionConfiguration(actionConfig);
+        victimAction.setDatasource(datasourceMap.get("DS1"));
+        ActionDTO savedVictimAction = layoutActionService
+                .createSingleAction(victimAction, Boolean.FALSE)
+                .block();
+
+        // Attempt partial export: use App A's ID with App B's page ID (BOLA attack)
+        PartialExportFileDTO partialExportFileDTO = new PartialExportFileDTO();
+        partialExportFileDTO.setActionList(List.of(savedVictimAction.getId()));
+
+        Mono<ApplicationJson> result =
+                partialExportService.getPartialExportResources(appA.getId(), victimPage.getId(), partialExportFileDTO);
+
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode())
+                            .isEqualTo(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION.getAppErrorCode());
+                })
+                .verify();
     }
 }
