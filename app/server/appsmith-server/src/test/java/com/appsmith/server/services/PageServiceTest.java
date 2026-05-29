@@ -941,8 +941,21 @@ public class PageServiceTest {
                             .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
 
                     assertThat(unpublishedPage.getLayouts()).isNotEmpty();
-                    assertThat(unpublishedPage.getLayouts().get(0).getDsl().get("widgetName"))
-                            .isEqualTo("firstWidget");
+                    JSONObject clonedDsl = unpublishedPage.getLayouts().get(0).getDsl();
+                    assertThat(clonedDsl.get("widgetName")).isEqualTo("firstWidget");
+                    // Widget ids must be regenerated on clone so they do not collide with the
+                    // source page at application level.
+                    assertThat(clonedDsl.get("widgetId")).isNotEqualTo("firstWidget");
+                    Object clonedChildren = clonedDsl.get("children");
+                    assertThat(clonedChildren).isInstanceOf(List.class);
+                    // After persisting the cloned page and reading it back, nested DSL nodes
+                    // come back as LinkedHashMap rather than net.minidev.json.JSONObject, so we
+                    // assert against the generic Map contract instead of casting to JSONObject.
+                    Object firstChild = ((List<?>) clonedChildren).get(0);
+                    assertThat(firstChild).isInstanceOf(Map.class);
+                    Map<?, ?> clonedChild = (Map<?, ?>) firstChild;
+                    assertThat(clonedChild.get("widgetName")).isEqualTo("Table1");
+                    assertThat(clonedChild.get("widgetId")).isNotEqualTo("Table1");
                     assertThat(unpublishedPage.getLayouts().get(0).getWidgetNames())
                             .isNotEmpty();
                     assertThat(unpublishedPage.getLayouts().get(0).getMongoEscapedWidgetNames())

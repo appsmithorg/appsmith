@@ -35,9 +35,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
+import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.helpers.WidgetIdRegenerationResult;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -641,7 +643,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             String id = new ObjectId().toString();
                             newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
-                            newLayout.setDsl(layout.getDsl());
+                            // Regenerate widget ids so the cloned page does not collide with the
+                            // source page at application level. The regenerator preserves
+                            // referential integrity inside the DSL (e.g. parentId) and leaves
+                            // the root MainContainer id ("0") untouched, and returns the
+                            // oldId -> newId mapping so downstream cloners can translate
+                            // widget id references they hold outside the DSL (e.g.
+                            // ModuleInstance.widgetId).
+                            WidgetIdRegenerationResult regeneration = DslUtils.regenerateWidgetIds(layout.getDsl());
+                            newLayout.setDsl(regeneration.dsl());
+                            // First-seen wins when the same source widgetId appears across
+                            // multiple layouts of one page: each layout's DSL is regenerated
+                            // independently, so the same old id maps to a different new id per
+                            // layout. The meta map carries one slot per source id, so picking
+                            // the first occurrence keeps downstream resolution deterministic
+                            // instead of letting iteration order pick the winner.
+                            regeneration
+                                    .oldToNewWidgetIds()
+                                    .forEach(clonePageMetaDTO.getOldToNewWidgetIds()::putIfAbsent);
                             return newLayout;
                         })
                         .collectList()
