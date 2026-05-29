@@ -372,14 +372,14 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.");
-            return Mono.defer(
-                    () -> connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> {
-                        return Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
-                                    return createConnectionPool(datasourceConfiguration, maxPoolSize);
-                                })
-                                .subscribeOn(scheduler);
-                    }));
+            return Mono.defer(() -> Mono.zip(
+                            connectionPoolConfig.getMaxConnectionPoolSize(),
+                            connectionPoolConfig.getSocketTimeoutSeconds())
+                    .flatMap(tuple -> Mono.fromCallable(() -> {
+                                log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                                return createConnectionPool(datasourceConfiguration, tuple.getT1(), tuple.getT2());
+                            })
+                            .subscribeOn(scheduler)));
         }
 
         @Override
@@ -581,7 +581,8 @@ public class MssqlPlugin extends BasePlugin {
      * @return connection pool
      */
     private static HikariDataSource createConnectionPool(
-            DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize) throws AppsmithPluginException {
+            DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize, Integer socketTimeoutSeconds)
+            throws AppsmithPluginException {
 
         DBAuth authentication = null;
         StringBuilder urlBuilder = null;
@@ -599,6 +600,14 @@ public class MssqlPlugin extends BasePlugin {
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+        // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+        // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+        hikariConfig.setKeepaliveTime(150_000);
+
+        // Bound any single socket read so a half-open connection cannot wedge the pool's
+        // single-threaded connection-adder. mssql-jdbc takes socketTimeout in milliseconds.
+        hikariConfig.addDataSourceProperty("socketTimeout", String.valueOf(socketTimeoutSeconds * 1000));
 
         authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         if (authentication.getUsername() != null) {

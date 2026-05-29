@@ -529,6 +529,11 @@ public class SnowflakePlugin extends BasePlugin {
                     Integer.parseInt(properties.get("maximunPoolSize").toString()));
             config.setConnectionTimeout(
                     Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
+
+            // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+            // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+            config.setKeepaliveTime(150_000);
+
             return config;
         }
 
