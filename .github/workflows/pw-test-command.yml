@@ -11,6 +11,7 @@ jobs:
       project: ${{ steps.parse.outputs.project }}
       feature: ${{ steps.parse.outputs.feature }}
       flag_overrides: ${{ steps.parse.outputs.flag_overrides }}
+      appsmith_image: ${{ steps.parse.outputs.appsmith_image }}
     steps:
       - name: Acknowledge
         uses: peter-evans/create-or-update-comment@v4
@@ -23,8 +24,9 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            **Playwright tests triggered** — `${{ github.event.client_payload.slash_command.args.unnamed.all || 'all' }}`
-            [Watch the run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            **Playwright tests triggered** — [Watch the run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Arguments: `${{ github.event.client_payload.slash_command.args.unnamed.all || 'all' }}`
+            Appsmith image: `${{ needs.parse-and-run.outputs.appsmith_image }}`
 
       - name: Parse args
         id: parse
@@ -40,12 +42,11 @@ jobs:
 
           TIER=$(echo "$ARGS" | awk '{print $1}' | xargs)
           FEATURE=$(echo "$ARGS" | awk '{print $2}' | xargs)
-
-          if [ -z "$TIER" ]; then TIER="all"; fi
+          APPSMITH_IMAGE="${{ github.event.client_payload.slash_command.args.named.appsmith_image || '' }}"
 
           # Validate tier
           case "$TIER" in
-            smoke|sanity|regression|all) ;;
+            ""|smoke|sanity|regression|all) ;;
             *)
               echo "::error::Invalid tier: $TIER. Use: smoke, sanity, regression, or all"
               exit 1
@@ -53,11 +54,12 @@ jobs:
           esac
 
           # Map tier to Playwright project
+          PROJECT=""
           case "$TIER" in
             smoke)      PROJECT="smoke" ;;
             sanity)     PROJECT="sanity" ;;
             regression) PROJECT="regression" ;;
-            all)        PROJECT="chromium" ;;
+            all)        PROJECT="" ;;
           esac
 
           # Convert key=val,key=val to JSON
@@ -77,6 +79,7 @@ jobs:
           echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
           echo "feature=$FEATURE" >> "$GITHUB_OUTPUT"
           echo "flag_overrides=$FLAG_JSON" >> "$GITHUB_OUTPUT"
+          echo "appsmith_image=$APPSMITH_IMAGE" >> "$GITHUB_OUTPUT"
 
   run-tests:
     needs: parse-and-run
@@ -88,7 +91,7 @@ jobs:
       flag_overrides: ${{ needs.parse-and-run.outputs.flag_overrides }}
       pr: ${{ fromJSON(format('{0}', github.event.client_payload.pull_request.number)) }}
       branch: ""
-      docker_image_name: ""
+      docker_image_name: ${{ needs.parse-and-run.outputs.appsmith_image }}
 
   post-results:
     needs: [parse-and-run, run-tests]
