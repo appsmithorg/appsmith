@@ -1,0 +1,29 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.description" . }}
+
+Organizations build custom applications like dashboards, admin panels, customer 360, IT automation, and service management tools to help their teams work more efficiently and effectively. Appsmith is an open-source low-code platform that streamlines custom application development, deployment, and maintenance.
+
+## Installation
+
+See the [Kubernetes installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+for prerequisites, step-by-step setup, and platform-specific instructions (EKS, GKE, Minikube, etc.).
+
+{{ template "chart.valuesSection" . }}
+
+## Testing
+
+The chart ships with helm-unittest tests in `tests/`. See [tests/README.md](tests/README.md) for details on running them.
+
+## Documentation
+
+Full documentation is available at [docs.appsmith.com](https://docs.appsmith.com), including:
+
+- [Planning your Appsmith deployment](https://docs.appsmith.com/getting-started/setup/instance-configuration/helm-chart#planning-your-deployment)
+- [Installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+- [Appsmith version upgrades](https://docs.appsmith.com/getting-started/setup/instance-management/update-appsmith)
+- [Environment variable reference](https://docs.appsmith.com/getting-started/setup/environment-variables)
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}

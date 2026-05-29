@@ -1,288 +1,263 @@
-# Appsmith
-Appsmith is a JS-based internal tool development platform. Internal tools take a lot of time to build even though they involve the same UI components, data integrations, and user access management. Developers love Appsmith because it saves them hundreds of hours.
+# appsmith
 
-Build interactive web apps by using UI components like a table, form components, button, charts, rich text editor, map, tabs, modal, and many more.
+Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
 
-API Support: CURL importer for REST APIs Database Support: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server.
-## TL;DR
----
-```
-helm repo add stable-appsmith http://helm.appsmith.com
+Organizations build custom applications like dashboards, admin panels, customer 360, IT automation, and service management tools to help their teams work more efficiently and effectively. Appsmith is an open-source low-code platform that streamlines custom application development, deployment, and maintenance.
 
-helm repo update
+## Installation
 
-helm install stable-appsmith/appsmith --generate-name
-```
+See the [Kubernetes installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+for prerequisites, step-by-step setup, and platform-specific instructions (EKS, GKE, Minikube, etc.).
 
-## Introduction
----
-This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) deployment on a [Kubernetes](kubernetes.io) cluster using [Helm](https://helm.sh) package manager.
+## Values
 
-## Prerequisites
----
-* Install Helm package manager: [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/)
-* Ensure `kubectl` is installed and configured to connect to your cluster
-    * Install kubectl: [kubernetes.io/vi/docs/tasks/tools/install-kubectl/](https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/)
-    * Minikube: [Setup Kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/)
-    * Google Cloud Kubernetes: [Configuring cluster access for kubectl](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
-    * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+### Appsmith configuration
 
-    * Microk8s: [Working with kubectl](https://microk8s.io/docs/working-with-kubectl)
-* Ensure you have a default storage class running on your cluster. Please follow one of below guideline to enable your default storage class in case of no existing one
-  * Minikube: [Enable addon default-storageclass](https://kubernetes.io/docs/tutorials/hello-minikube/#enable-addons)
-  * Google Cloud Kubernetes: [Setting up default storage class on GKE](https://cloud.google.com/anthos/clusters/docs/on-prem/1.3/how-to/default-storage-class)
-  * AWS EKS: [Create default storage class](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)
-  * Microk8s: [Enable storage](https://microk8s.io/docs/command-reference#heading--microk8s-enable)
-* Kubernetes NGINX Ingress Controller should be enable on your cluster by default. Please make sure that you install the right version for your cluster
-    * Minikube: [Set up Ingress on Minikube with the NGINX Ingress Controller](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
-    * Google Cloud Kubernetes: [Ingress with NGINX controller on Google Kubernetes Engine](https://kubernetes.github.io/ingress-nginx/deploy/)
-    * AWS EKS: [Install NGINX Controller for AWS EKS](https://kubernetes.github.io/ingress-nginx/deploy/#network-load-balancer-nlb)
-    * Microk8s: [Add on: Ingress](https://microk8s.io/docs/addon-ingress)
-## Installing the Chart
----
-To install the chart with the release `appsmith`
-```
-helm install stable-appsmith/appsmith --generate-name
-```
-The command deploys Appsmith application on Kubernetes cluster in the default configuration. The [Parameters](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#paramters) section lists the parameters that can be configured during installation.
-## Uninstalling the Chart
----
-To uninstall the `appsmith` release:
-```
-helm list
-NAME                       NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-appsmith-1631069261        default         1               2021-09-09 11:24:40.152766 +0700 +07    deployed        appsmith-1.3.0  1.16.0
-
-helm uninstall appsmith-1631069261
-```
-The command uninstalls the release and removes all Kubernetes resources associated with the chart
-## Parameters
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| secretName | string | `""` | Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one) |
+| applicationConfig | object | `{"APPSMITH_CLIENT_LOG_LEVEL":"","APPSMITH_CUSTOM_DOMAIN":"","APPSMITH_DB_URL":"","APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX":"false","APPSMITH_DISABLE_TELEMETRY":"","APPSMITH_ENCRYPTION_PASSWORD":"","APPSMITH_ENCRYPTION_SALT":"","APPSMITH_FORM_LOGIN_DISABLED":"","APPSMITH_KEYCLOAK_DB_DRIVER":"","APPSMITH_KEYCLOAK_DB_PASSWORD":"","APPSMITH_KEYCLOAK_DB_URL":"","APPSMITH_KEYCLOAK_DB_USERNAME":"","APPSMITH_LICENSE_KEY":"","APPSMITH_MAIL_ENABLED":"","APPSMITH_MAIL_FROM":"","APPSMITH_MAIL_HOST":"","APPSMITH_MAIL_PASSWORD":"","APPSMITH_MAIL_PORT":"","APPSMITH_MAIL_SMTP_AUTH":"","APPSMITH_MAIL_SMTP_TLS_ENABLED":"","APPSMITH_MAIL_USERNAME":"","APPSMITH_OAUTH2_GITHUB_CLIENT_ID":"","APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_ID":"","APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET":"","APPSMITH_RECAPTCHA_ENABLED":"","APPSMITH_RECAPTCHA_SECRET_KEY":"","APPSMITH_RECAPTCHA_SITE_KEY":"","APPSMITH_REDIS_URL":"","APPSMITH_REPLY_TO":"","APPSMITH_SIGNUP_DISABLED":""}` | Map of APPSMITH_* environment variables for the application container |
+| image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":"","registry":"index.docker.io","repository":"appsmith/appsmith-ee","tag":"latest"}` | Appsmith container image configuration |
+| _image | object | `{}` | DEPRECATED: use image instead. Backwards-compatible override merged on top of image. |
 
 ### Global parameters
 
-| Name 											 | Description 																								| Value 	|
-| -------------------------- | ---------------------------------------------------------- | ------- |
-| `global.namespaceOverride` | Override the namespace for resource deployed by the chart	| `""`	 	|
-| `global.storageClass`			 | Global StorageClass for Persistent Volume(s)								| `""`  	|
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global | object | `{"namespaceOverride":"","storageClass":""}` | Global parameters that override values across the chart and its dependencies |
+| fullnameOverride | string | `""` | String to fully override appsmith.fullname template |
+| containerName | string | `"appsmith"` | Name of the container running in Appsmith pods |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| commonAnnotations | object | `{}` | Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template |
+| schedulerName | string | `""` | Name of the scheduler (other than default) to dispatch pods |
+| strategyType | string | `"RollingUpdate"` | StrategyType for the Appsmith workload |
+| initContainer | object | `{}` | Init container image overrides for bundled dependencies |
 
-### Common parameters
-| Name 								| Description 																			| Value 				|
-| ------------------- | ------------------------------------------------- | ------------- |
-| `fullnameOverride`  | String to fully override `appsmith.name` template | `""`	 				|
-| `containerName`			| Specify container's name running in the pods			| `"appsmith"` 	|
-| `commonLabels`      | Labels to add to all deployed objects							| `{}` 					|
-| `commonAnnotations`	| Annotations to add to all deployed objects 				| `{}` 					|
+### Workload configuration
 
-### Appsmith Image parameters
-| Name 								| Description 								| Value 											        |
-| -------------------	| --------------------------- |--------------------------|
-| `image.registry`		| Appsmith image registry			| `index.docker.io` 					  |
-| `image.repository`	| Appsmith image repository		| `appsmith/appsmith-ce` 	 |
-| `image.tag`					| Appsmith image tag					| `latest` 										      |
-| `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							   |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| annotations | object | `{}` | Annotations to add to the Deployment/StatefulSet resource |
+| podAnnotations | object | `{}` | Annotations to add to Appsmith pods |
+| podLabels | object | `{}` | Labels to add to Appsmith pods |
+| podSecurityContext | object | `{}` | Pod-level securityContext for Appsmith pods |
+| securityContext | object | `{}` | Container-level securityContext for the Appsmith container |
+| extraVolumes | list | `[]` | Additional volumes to add to the pod |
+| extraVolumeMounts | list | `[]` | Additional volume mounts to add to the appsmith container |
+| customCAcert | string | `nil` | Custom CA certificates to trust at runtime (map of filename to PEM content) |
+| resources.limits | object | `{}` | Resource limits for the Appsmith container |
+| resources.requests | object | `{"cpu":"500m","memory":"3000Mi"}` | Resource requests for the Appsmith container |
+| workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
+| replicas | int | `1` | Number of replicas when autoscaling is disabled |
+| autoscaling.enabled | bool | `false` | Enable the HorizontalPodAutoscaler |
+| autoscaling.minReplicas | int | `2` | Minimum number of replicas for the HPA |
+| autoscaling.maxReplicas | int | `2` | Maximum number of replicas for the HPA |
+| autoscaling.targetCPUUtilizationPercentage | int | `5` | Target average CPU utilization (percentage) |
+| nodeSelector | object | `{}` | Node selector for Appsmith pods |
+| tolerations | list | `[]` | Tolerations for Appsmith pods |
+| affinity | object | `{}` | Affinity rules for Appsmith pods |
+| podDisruptionBudgets.enabled | bool | `true` | Enable a PodDisruptionBudget for Appsmith pods |
+| podDisruptionBudgets.minAvailable | int | `1` | Minimum available pods during voluntary disruptions |
 
-### Appsmith deployment parameters
-| Name 											 	| Description 																				| Value 					|
-| --------------------------- | --------------------------------------------------- | --------------- |
-| `strategyType`							| Appsmith deployment strategy type										| `RollingUpdate` |
-| `schedulerName`							| Alternate scheduler																	| `""`						|
-| `annotations`								| Annotations to add to the Deployment/StatefulSet resource		| `{}`						|
-| `podAnnotations`						| Annotations for Appsmith pods												| `{}`						|
-| `podLabels`						| Labels for Appsmith pods												| `{}`						|
-| `podSecurityContext`				| Appsmith pods security context											| `{}`						|
-| `securityContext`						| Set security context																| `{}`						|
-| `resources.limit`						| The resources limits for the Appsmith container			| `{}`						|
-| `resources.requests`				| The requested resources for the Appsmith container	| `{}`						|
-| `nodeSelector`							| Node labels for pod assignment											| `{}`						|
-| `tolerations`								| Tolerations for pod assignment											| `[]`						|
-| `affinity`									| Affinity fod pod assignment													| `{}`						|
-| `extraVolumes`							| Additional volumes to add to the pod										| `[]`						|
-| `extraVolumeMounts`					| Additional volume mounts to add to the appsmith container				| `[]`						|
+### Redis (Bitnami subchart)
 
-#### Workload kind
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| redis.enabled | bool | `true` | Deploy the bundled Bitnami Redis subchart |
+| redis.auth.enabled | bool | `false` | Enable Redis authentication |
+| redis.master.nodeSelector | object | `{}` | Node selector for Redis master pods |
+| redis.master.disableCommands | list | `[]` | Commands to disable on Redis master |
+| redis.master.affinity | object | `{}` | Affinity rules for Redis master pods |
+| redis.master.tolerations | list | `[]` | Tolerations for Redis master pods |
+| redis.replica.replicaCount | int | `1` | Number of Redis replica pods |
+| redis.replica.nodeSelector | object | `{}` | Node selector for Redis replica pods |
+| redis.replica.disableCommands | list | `[]` | Commands to disable on Redis replicas |
+| redis.replica.affinity | object | `{}` | Affinity rules for Redis replica pods |
+| redis.replica.tolerations | list | `[]` | Tolerations for Redis replica pods |
+| redis.image.registry | string | `"docker.io"` | Redis image registry |
+| redis.image.repository | string | `"redis"` | Redis image repository |
+| redis.image.tag | string | `"7.4.9"` | Redis image tag |
 
-- `workload.kind`: Selects the workload resource to create. Allowed values: `Deployment`, `StatefulSet` (case-insensitive; default: `StatefulSet`).
-- Note: When `autoscaling.enabled` is `true`, `workload.kind` is ignored and a `Deployment` is used.
-- When using `Deployment` without autoscaling, control the number of replicas with `replicas`.
+### MongoDB (Bitnami subchart)
 
-### Appsmith service account parameters
-| Name 											 		| Description 																																				 												| Value 	|
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
-| `serviceAccount.create`    		| Enable creation of `ServiceAccount` for Appsmith pods															 													| `true` 	|
-| `serviceAccount.name`      		| Name of the created `ServiceAccount` . If not set, a name is generated using the appsmith.fullname template	| `""` 		|
-| `serviceAccount.annotations` 	| Additional service account annotations																						 													| `{}` 		|
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| mongodb.enabled | bool | `true` | Deploy the bundled Bitnami MongoDB subchart |
+| mongodb.service.nameOverride | string | `"appsmith-mongodb"` | Service name override for the MongoDB subchart |
+| mongodb.auth.rootUser | string | `"root"` | MongoDB root username |
+| mongodb.auth.rootPassword | string | `"password"` | MongoDB root password |
+| mongodb.replicaCount | int | `2` | Number of MongoDB replica set members |
+| mongodb.architecture | string | `"replicaset"` | MongoDB architecture (standalone or replicaset) |
+| mongodb.replicaSetName | string | `"rs0"` | MongoDB replica set name |
+| mongodb.nodeSelector | object | `{}` | Node selector for MongoDB pods |
+| mongodb.affinity | object | `{}` | Affinity rules for MongoDB pods |
+| mongodb.tolerations | list | `[]` | Tolerations for MongoDB pods |
+| mongodb.image.registry | string | `"docker.io"` | MongoDB container image registry |
+| mongodb.image.repository | string | `"appsmith/mongodb"` | MongoDB container image repository |
+| mongodb.image.tag | string | `"6.0.27"` | MongoDB container image tag |
+| mongodb.arbiter.nodeSelector | object | `{}` | Node selector for MongoDB arbiter pods |
+| mongodb.arbiter.affinity | object | `{}` | Affinity rules for MongoDB arbiter pods |
+| mongodb.arbiter.tolerations | list | `[]` | Tolerations for MongoDB arbiter pods |
+| mongodb.hidden.nodeSelector | object | `{}` | Node selector for MongoDB hidden replica pods |
+| mongodb.hidden.affinity | object | `{}` | Affinity rules for MongoDB hidden replica pods |
+| mongodb.hidden.tolerations | list | `[]` | Tolerations for MongoDB hidden replica pods |
 
-### Traffic Exposure Parameters
-| Name 											 					| Description 																																				 		| Value 			|
-| ----------------------------------- | --------------------------------------------------------------------------------------- | ----------- |
-| `service.type` 						 					| Appsmith service type																															 			| `ClusterIP` |
-| `service.port`						 					| Appsmith service port																															 			| `80` 				|
-| `service.portName` 				 					| Appsmith service port name																													 		| `appsmith` 	|
-| `service.nodePort` 				 					| Appsmith service node port to expose to expose                              				 		| `8000` 			|
-| `service.clusterIP`        					| Appsmith service Cluster																														 		| `""` 				|
-| `service.loadBalancerIP`   					| Appsmith service Load Balancer IP																									 			| `""` 				|
-| `service.loadBalancerSourceRanges`	| Appsmith service Load Balancer sources                                      						| `[]` 				|
-| `service.annotations` 		 					| Additional custom annotations for Appsmith service 																 			| `{}` 				|
-| `ingress.enabled` 				 					| Enable ingress record generation for Appsmith                                       		| `false` 		|
-|	`ingress.annotations`								|	Additional custom annotations for Ingress																								|	`{}`				|
-| `ingress.hosts`            					| An array of hosts to be covered with the ingress record                             		| `[]` 				|
-| `ingress.tls`              					| Enable TLS configuration for the hosts defined at `ingress.hosts` parameter         		| `false` 		|
-| `ingress.secrets`										| Custom TLS certificates as secrets																											| `[]`				|
-| `ingress.certManager`								| Enable ingress to use TLS certificates provided by Cert Manager													| `false` 		|
-| `ingress.certManagerTls`						| Specify TLS secret resources created by Cert Manager																		| `[]`				|
-| `ingress.className`						      | Configure Ingress class that being used in ingress resource															| `""`				|
+### MongoDB Community Operator
 
-### Persistence parameters
-| Name 											 					| Description 																													| Value 							|
-| ----------------------------------- | --------------------------------------------------------------------- | ------------------- |
-| `persistence.enabled`								| Enable persistence using Persistent Volume Claims											| `true`							|
-| `persistence.storageClass`					| Persistent Volume storage class																				| `""`								|
-| `persistence.annotations`					  | Additional custom annotations for the PVC															| `{}`								|
-| `persistence.localStorage`					| Enable persistent volume using local storage													| `false`							|
-| `persistence.storagePath`						| Local storage path																										| `/tmp/hostpath_pv`	|
-| `persistence.localCluster`					| Local running cluster to provide storage space												| `[minikube]` 				|
-| `persistence.accessModes`						| Persistent Volume access modes																				| `[ReadWriteOnce]`		|
-| `persistence.size`									| Persistent Volume size																								|	`10Gi`							|
-| `storageClass.enabled`							| Enable Storage Class configuration																		| `false`							|
-| `storageClass.defaultClass`					| Create default Storage Class																					| `false`							|
-| `storageClass.bindingMode`					| Binding mode for Persistent Volume Claims using Storage Class					| `Immediate`					|
-| `storageClass.allowVolumeExpansion` | Allow expansion of Persistent Volume Claims using Storage Class				| `true`							|
-| `storageClass.reclaimPolicy`				| Configure the retention of the dynamically created Persistent Volume	| `Delete`						|
-| `storageClass.provisioner`					| Storage Class provisioner																							| `""`								|
-| `storageClass.annotations`					| Additional storage class annotations																	| `{}`								|
-| `storageClass.mountOptions`					| Mount options used by Persistent Volumes															| `{}`								|
-| `storageClass.parameters`						| Storage Class parameters																							| `{}`								|
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| mongodbCommunity.enabled | bool | `false` | Deploy a MongoDBCommunity custom resource |
+| mongodbCommunity.name | string | `""` | Name of the MongoDBCommunity custom resource |
+| mongodbCommunity.version | string | `"8.0.20"` | MongoDB version to deploy |
+| mongodbCommunity.members | int | `1` | Number of replica set members |
+| mongodbCommunity.auth.username | string | `"appsmith"` | MongoDB user for Appsmith |
+| mongodbCommunity.auth.database | string | `"appsmith"` | Authentication database (also used as connection path) |
+| mongodbCommunity.auth.passwordSecretName | string | `""` | Name of an existing Secret containing the password (key: password) |
+| mongodbCommunity.persistent.storageSize | string | `"10Gi"` | Storage size for each MongoDB replica |
+| mongodbCommunity.persistent.storageClass | string | `""` | StorageClass for MongoDB PVCs (empty uses cluster default) |
+| mongodbCommunity.resources | object | `{}` | Resource requests/limits for MongoDB containers |
+| mongodbCommunity.nodeSelector | object | `{}` | Node selector for MongoDB pods |
+| mongodbCommunity.affinity | object | `{}` | Affinity rules for MongoDB pods |
+| mongodbCommunity.tolerations | list | `[]` | Tolerations for MongoDB pods |
+| mongodbCommunity.passwordInit.image.registry | string | `"docker.io"` | Registry for the kubectl image |
+| mongodbCommunity.passwordInit.image.repository | string | `"alpine/kubectl"` | Repository path for the kubectl image |
+| mongodbCommunity.passwordInit.image.tag | string | `"latest"` | Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility. |
+| mongodbCommunity.passwordInit.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy for the Job |
+| mongodbOperator.enabled | bool | `false` | Install the MongoDB Kubernetes Operator subchart |
+| mongodbOperator.operator | object | `{"telemetry":{"enabled":false}}` | Enable the upstream operator's phone-home telemetry |
 
-### MongoDB Community Operator parameters
+### PostgreSQL (Bitnami subchart)
 
-> **Preview feature in 3.7.0** — documented for fresh installs in this release. A documented migration path from an existing Bitnami-backed Appsmith release is being prepared separately. Pilot before relying on it for production data. See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for known limitations.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| postgresql.enabled | bool | `true` | Deploy the bundled Bitnami PostgreSQL subchart (used by Keycloak) |
+| postgresql.auth.username | string | `"root"` | PostgreSQL application username |
+| postgresql.auth.password | string | `"password"` | PostgreSQL application user password |
+| postgresql.auth.postgresPassword | string | `"password"` | PostgreSQL admin (postgres) password |
+| postgresql.auth.database | string | `"keycloak"` | PostgreSQL database name |
+| postgresql.image.registry | string | `"docker.io"` | PostgreSQL container image registry |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` | PostgreSQL container image repository |
+| postgresql.image.tag | string | `"14.12.0"` | PostgreSQL container image tag |
+| postgresql.primary.affinity | object | `{}` | Affinity rules for PostgreSQL primary pods |
+| postgresql.primary.nodeSelector | object | `{}` | Node selector for PostgreSQL primary pods |
+| postgresql.primary.tolerations | list | `[]` | Tolerations for PostgreSQL primary pods |
+| postgresql.readReplicas.affinity | object | `{}` | Affinity rules for PostgreSQL read replica pods |
+| postgresql.readReplicas.nodeSelector | object | `{}` | Node selector for PostgreSQL read replica pods |
+| postgresql.readReplicas.tolerations | list | `[]` | Tolerations for PostgreSQL read replica pods |
 
-The chart can deploy MongoDB via the [MongoDB Kubernetes Operator](https://github.com/mongodb/mongodb-kubernetes) instead of the default Bitnami MongoDB subchart. Set `mongodbOperator.enabled=true` to bundle the operator as a subchart.
+### External Secrets
 
-Quickstart for a fresh install:
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| externalSecrets.enabled | bool | `false` | Enable External Secrets Operator integration |
+| externalSecrets.refreshInterval | string | `"1m"` | How often to refresh secrets from the remote provider |
+| externalSecrets.remoteNameSecret | string | `""` | Name of the secret in the external provider |
 
-```bash
-kubectl create namespace appsmith
-helm install appsmith stable-appsmith/appsmith -n appsmith \
-  --set mongodb.enabled=false \
-  --set mongodbCommunity.enabled=true \
-  --set mongodbOperator.enabled=true
-```
+### Monitoring
 
-See [docs/install-mongodb-operator.md](docs/install-mongodb-operator.md) for the full guide.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| prometheus.enabled | bool | `false` | Deploy the bundled Prometheus subchart |
+| prometheus.image.tag | string | `"v0.74.0"` | Prometheus container image tag |
+| metrics.enabled | bool | `false` | Enable the Appsmith metrics endpoint |
+| metrics.port | int | `2019` | Port number to expose metrics on |
 
-When `mongodbCommunity.enabled=true` and `mongodbCommunity.auth.passwordSecretName` is empty, a pre-install Job generates a random password into a Secret whose name is derived from the resolved `mongodbCommunity.name` value with a `-password` suffix. The resolved name defaults to `<release-fullname>-mongo` when `mongodbCommunity.name` isn't explicitly set — so for a release named `appsmith` the Secret is `appsmith-mongo-password`. The Job is idempotent and compatible with ArgoCD.
+### Service account
 
-#### Subchart values (`mongodbOperator.*`)
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| serviceAccount.create | bool | `true` | Enable creation of ServiceAccount for Appsmith pods |
+| serviceAccount.name | string | `""` | Name of the created serviceAccount |
+| serviceAccount.annotations | object | `{}` | Additional Service Account annotations |
 
-| Name | Description | Value |
-|---|---|---|
-| `mongodbOperator.enabled` | Install the upstream MongoDB Kubernetes Operator subchart alongside this chart | `false` |
+### Networking
 
-Other `mongodbOperator.*` values pass through to the upstream [mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) chart. Common overrides include `mongodbOperator.operator.watchNamespace` and `mongodbOperator.registry.*` — see the upstream chart's values reference.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| service.type | string | `"ClusterIP"` | Kubernetes Service type |
+| service.port | int | `80` | Service port |
+| service.nodePort | int | `8000` | Node port to expose if service type is "LoadBalancer" or "NodePort" |
+| service.portName | string | `"appsmith"` | Appsmith service port name |
+| service.clusterIP | string | `""` | Appsmith service cluster IP |
+| service.loadBalancerIP | string | `""` | loadBalancerIP for the Appsmith Service |
+| service.loadBalancerSourceRanges | list | `[]` | Address(es) that are allowed when service is LoadBalancer |
+| service.annotations | object | `{}` | Provide any additional annotations that may be required |
+| ingress.enabled | bool | `false` | Enable Ingress record generation for Appsmith |
+| ingress.annotations | object | `{}` | Additional custom annotations for the ingress record |
+| ingress.hosts | list | `[]` | Hosts served by the Ingress |
+| ingress.tls | bool | `false` | Enable TLS configuration for the host defined at `ingress.hosts` parameter |
+| ingress.secrets | list | `[]` | Custom TLS certificates as secrets |
+| ingress.certManager | bool | `false` | Enable ingress to use TLS certificates provided by Cert Manager |
+| ingress.certManagerTls | list | `[]` | Specify the TLS secret created by Cert Manager |
+| ingress.className | string | `"nginx"` | IngressClass name for the Ingress resource |
 
-#### MongoDBCommunity CR values (`mongodbCommunity.*`)
+### Persistence
 
-| Name                                       | Description                                                                                                                    | Value              |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
-| `mongodbCommunity.enabled`                 | Deploy a `MongoDBCommunity` custom resource                                                                                    | `false`            |
-| `mongodbCommunity.name`                    | Name of the `MongoDBCommunity` custom resource. When empty, defaults to `<release-fullname>-mongo`.                            | `""`               |
-| `mongodbCommunity.version`                 | MongoDB version to deploy                                                                                                      | `8.0.20`           |
-| `mongodbCommunity.members`                 | Number of replica set members. `1` is a dev-friendly default; set to `3` for production HA.                                    | `1`                |
-| `mongodbCommunity.auth.username`           | MongoDB user for Appsmith                                                                                                      | `appsmith`         |
-| `mongodbCommunity.auth.database`           | Authentication database (also used as connection path)                                                                         | `appsmith`         |
-| `mongodbCommunity.auth.passwordSecretName` | Name of an existing Secret containing the password (key: `password`). When empty, a pre-install Job autogenerates the Secret. | `""`               |
-| `mongodbCommunity.persistent.storageSize`  | Storage size for each MongoDB replica PVC                                                                                      | `10Gi`             |
-| `mongodbCommunity.persistent.storageClass` | StorageClass for MongoDB PVCs. Empty uses cluster default (or `global.storageClass`).                                          | `""`               |
-| `mongodbCommunity.resources`               | Resource requests/limits for MongoDB containers                                                                                | `{}`               |
-| `mongodbCommunity.nodeSelector`            | Node selector for MongoDB pods                                                                                                 | `{}`               |
-| `mongodbCommunity.affinity`                | Affinity rules for MongoDB pods                                                                                                | `{}`               |
-| `mongodbCommunity.tolerations`             | Tolerations for MongoDB pods                                                                                                   | `[]`               |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| persistence.enabled | bool | `true` | Enable data persistence using PVC |
+| persistence.storageClass | string | `""` | PVC Storage Class |
+| persistence.annotations | object | `{}` | Additional custom annotations for the PVC |
+| persistence.localStorage | bool | `false` | Use local storage for PVC |
+| persistence.storagePath | string | `"/tmp/hostpath_pv"` | Local storage path |
+| persistence.localCluster | object | `{}` | Local cluster configuration for local-storage scenarios |
+| persistence.accessModes | list | `["ReadWriteMany"]` | PV Access Mode |
+| persistence.size | string | `"10Gi"` | PVC Storage Request |
+| persistence.reclaimPolicy | string | `"Retain"` | Reclaim policy for the PV |
+| persistence.pvNameOverride | string | `""` | Override the PV name |
+| persistence.existingClaim.enabled | string | `nil` | Use an existing PVC instead of creating one |
+| persistence.existingClaim.name | string | `nil` | Name used to look up the existing PVC |
+| persistence.existingClaim.claimName | string | `nil` | Explicit claimName to set on the volume mount |
+| persistence.efs.enabled | string | `nil` | Enable EFS-backed persistence |
+| persistence.efs.driver | string | `nil` | CSI driver name for the EFS volume |
+| persistence.efs.volumeHandle | string | `nil` | EFS filesystem volume handle (fs-xxxx[::access-point]) |
+| persistence.volumeClaimTemplates.selector | object | `{}` | A label query over volumes to consider for binding (e.g. when using local volumes) |
+| persistence.volumeClaimTemplates.requests | object | `{}` | Custom PVC requests attributes |
+| persistence.volumeClaimTemplates.dataSource | object | `{}` | Add dataSource to the VolumeClaimTemplate |
+| storageClass.enabled | bool | `false` | Enable a chart-managed StorageClass |
+| storageClass.bindingMode | string | `"Immediate"` | Binding mode for PVCs using this StorageClass |
+| storageClass.defaultClass | bool | `false` | Mark this StorageClass as the cluster default |
+| storageClass.allowVolumeExpansion | bool | `true` | Allow PVC expansion for this StorageClass |
+| storageClass.reclaimPolicy | string | `"Delete"` | Reclaim policy for dynamically provisioned PVs |
+| storageClass.provisioner | string | `""` | Provisioner name for this StorageClass |
+| storageClass.annotations | object | `{}` | Annotations for the StorageClass |
+| storageClass.mountOptions | object | `{}` | Mount options for volumes using this StorageClass |
+| storageClass.parameters | object | `{}` | Provisioner-specific parameters for this StorageClass |
 
-### Auto update chart's image
-| Name										| Description																		|	Value					|
-| -----------------------	|	--------------------------------------------- | -------------	|
-| `autoupdate.enabled`		| Enable auto update Helm chart's image					| `true`				|
-| `autoupdate.scheduler`	| Schedule time to run cron job to update image	| `"0 * * * *"`	|
+### Other Values
 
-Specify each parameter using `--set key=value[,key=value]` argument to helm install. For example:
-```
-helm install \
---set persistence.storageClass=appsmith-pv \
-  stable-appsmith/appsmith --generate-name
-```
-The above command deploys Appsmith application and configure application to use storage class name `appsmith-pv`
-
-Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example:
-```
-helm install -f values.yaml stable-appsmith/appsmith --generate-name
-```
-
-*Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
-
-### Appsmith configuration
-To change Appsmith configurations, you can use configuration UI in application or update value in values.yaml(The available configurations is listed below).
-|	Name																										|	Value									|
-|	----------------------------------------------------		|	---------------------	|
-| `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID`		| `""`									|
-| `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET`| `""`									|
-| `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_ID`		| `""`									|
-| `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`| `""`									|
-| `applicationConfig.APPSMITH_OAUTH2_OIDC_CLIENT_ID`      | `""`                  |
-| `applicationConfig.APPSMITH_OAUTH2_OIDC_CLIENT_SECRET`  | `""`                  |
-| `applicationConfig.APPSMITH_CLIENT_LOG_LEVEL`						| `""`									|
-| `applicationConfig.APPSMITH_MAIL_ENABLED`								| `""`									|
-| `applicationConfig.APPSMITH_MAIL_HOST`									| `""`									|
-| `applicationConfig.APPSMITH_MAIL_PORT`									| `""`									|
-| `applicationConfig.APPSMITH_MAIL_USERNAME`							| `""`									|
-| `applicationConfig.APPSMITH_MAIL_PASSWORD`							| `""`									|
-| `applicationConfig.APPSMITH_MAIL_FROM`									| `""`									|
-| `applicationConfig.APPSMITH_REPLY_TO`										| `""`									|
-| `applicationConfig.APPSMITH_MAIL_SMTP_AUTH`							| `""`									|
-| `applicationConfig.APPSMITH_MAIL_SMTP_TLS_ENABLED`			| `""`									|
-| `applicationConfig.APPSMITH_DISABLE_TELEMETRY`					| `""`									|
-| `applicationConfig.APPSMITH_RECAPTCHA_SITE_KEY`					| `""`									|
-| `applicationConfig.APPSMITH_RECAPTCHA_SECRET_KEY`				| `""`									|
-| `applicationConfig.APPSMITH_RECAPTCHA_ENABLED`					| `""`									|
-| `applicationConfig.APPSMITH_MONGODB_URI`								| `""`									|
-| `applicationConfig.APPSMITH_REDIS_URL`									| `""`									|
-| `applicationConfig.APPSMITH_ENCRYPTION_PASSWORD`				| `""`									|
-| `applicationConfig.APPSMITH_ENCRYPTION_SALT`						| `""`									|
-| `applicationConfig.APPSMITH_CUSTOM_DOMAIN`							| `""`									|
-| `applicationConfig.APPSMITH_FORM_LOGIN_DISABLED`        | `""`                  |
-| `applicationConfig.APPSMITH_SIGNUP_DISABLED`            | `""`                  |
-
-For example, to change the encryption salt configuration, you can run the following command:
-```
-helm install \
---set applicationConfig.APPSMITH_ENCRYPTION_SALT=123 \
-  stable-appsmith/appsmith --generate-name
-```
-
-## Expose Appsmith
-- If you wish to publish your Appsmith to the world through the Internet, you will need to setup the Ingress controller firstly. Please refer to the section **Kubernetes NGINX Ingress Controller** in the [Prerequisites](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#prerequisites)
-- In case of you have not install the Helm chart yet, you can run the below command to install it with exposing Appsmith
-```
-helm install stable-appsmith/appsmith --generate-name \
-  --set ingress.enabled=true \
-  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
-  --set service.type=ClusterIP
-```
-- If you have installed Appsmith Helm chart, please run the `helm upgrade` command to upgrade the existing installation
-```
-helm upgrade stable-appsmith/appsmith appsmith \
-  --set ingress.enabled=true \
-  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
-  --set service.type=ClusterIP
-
-# Or this command if you are using values.yaml file
-helm upgrade --values values.yaml stable-appsmith/appsmith appsmith
-```
-## Troubleshooting
-If at any time you encounter an error during the installation process, reach out to support@appsmith.com or join our Discord Server
-
-If you know the error and would like to reinstall Appsmith, simply delete the installation folder and the templates folder and execute the script again
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| keda.enabled | bool | `false` | Enable KEDA ScaledObject for Appsmith |
+| keda.pollingInterval | int | `30` | How often KEDA polls trigger sources (seconds) |
+| keda.cooldownPeriod | int | `60` | Cooldown period before scaling down (seconds) |
+| keda.minReplicaCount | int | `1` | Minimum replica count for KEDA |
+| keda.maxReplicaCount | int | `6` | Maximum replica count for KEDA |
+| keda.fallback.failureThreshold | int | `3` | Consecutive failures before fallback |
+| keda.fallback.replicas | int | `4` | Replica count to fall back to |
+| keda.triggers | list | `[]` | KEDA trigger definitions (passed through to ScaledObject) |
+| autoupdate.enabled | bool | `false` | Enable the auto-update CronJob |
+| autoupdate.scheduler | string | `"0 * * * *"` | CronJob schedule expression for auto-update |
 
 ## Testing
 
-Review tests/README.md for details on how the chart is tested.
+The chart ships with helm-unittest tests in `tests/`. See [tests/README.md](tests/README.md) for details on running them.
+
+## Documentation
+
+Full documentation is available at [docs.appsmith.com](https://docs.appsmith.com), including:
+
+- [Planning your Appsmith deployment](https://docs.appsmith.com/getting-started/setup/instance-configuration/helm-chart#planning-your-deployment)
+- [Installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
+- [Appsmith version upgrades](https://docs.appsmith.com/getting-started/setup/instance-management/update-appsmith)
+- [Environment variable reference](https://docs.appsmith.com/getting-started/setup/environment-variables)
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Appsmith | <tech@appsmith.com> |  |
+
+## Source Code
+
+* <https://github.com/appsmithorg/appsmith>
