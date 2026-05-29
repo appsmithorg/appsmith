@@ -38,9 +38,13 @@ public class GitUtils {
      * username can start with any small alphabet or a _ underscore
      * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
      * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
+     * Supports optional custom port in the form user@host:port/path.
+     * NOTE: A numeric first path segment (e.g. git@host:1234/repo) is interpreted
+     * as a custom port, not as a path component. This is a known limitation; such
+     * numeric namespaces are extremely rare in practice.
      */
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
-            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
+            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):(?:(?<port>\\d+)/(?<path>.+?)|/*(?<pathOnly>.+?))(\\.git)?$");
 
     /**
      * Sample repo urls :
@@ -67,7 +71,15 @@ public class GitUtils {
                     "Remote URL is incorrect. Please add a URL in standard format. Example: git@example.com:username/reponame.git");
         }
 
-        return "https://" + match.group("host") + "/" + match.group("path");
+        String port = match.group("port");
+        String path = match.group("path");
+        if (path == null) {
+            path = match.group("pathOnly");
+        }
+        String httpsUrl = (port != null && !port.isEmpty())
+                ? "https://" + match.group("host") + ":" + port + "/" + path
+                : "https://" + match.group("host") + "/" + path;
+        return httpsUrl;
     }
 
     /**
