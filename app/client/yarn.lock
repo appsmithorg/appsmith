@@ -11733,12 +11733,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-page-visibility@npm:^6.4.1":
-  version: 6.4.1
-  resolution: "@types/react-page-visibility@npm:6.4.1"
+"@types/react-page-visibility@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "@types/react-page-visibility@npm:6.4.4"
   dependencies:
     "@types/react": "*"
-  checksum: d0f37f42b76afc69ee26650268ce22f385525856c820b0116d829750aeeb6a469877c9cd281657e070e7765d808deb142f90569b81f743c0ec9982c0f38615c6
+  checksum: 64544854cdfa4b5a3a451d6272f6f23616546f1ab3502a735c07148b0bae159aecb9a82dc7428e2d2eddbe6be53a382de92ae02b2a9dab05b29a51196a751a65
   languageName: node
   linkType: hard
 
@@ -13732,7 +13732,7 @@ __metadata:
     "@types/react-google-recaptcha": ^2.1.1
     "@types/react-helmet": ^5.0.14
     "@types/react-modal": ^3.13.1
-    "@types/react-page-visibility": ^6.4.1
+    "@types/react-page-visibility": ^6.4.4
     "@types/react-redux": ^7.0.1
     "@types/react-router-dom": ^5.1.2
     "@types/react-table": ^7.0.13
