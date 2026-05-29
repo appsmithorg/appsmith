@@ -30,8 +30,10 @@ jobs:
 
       - name: Parse args
         id: parse
+        env:
+          APPSMITH_IMAGE: ${{ github.event.client_payload.slash_command.args.named.appsmith_image || '' }}
+          ARGS: ${{ github.event.client_payload.slash_command.args.unnamed.all }}
         run: |
-          ARGS="${{ github.event.client_payload.slash_command.args.unnamed.all }}"
 
           # Extract --flags if present (everything after --flags until next -- or end)
           FLAGS_RAW=""
@@ -44,8 +46,6 @@ jobs:
           FEATURE=$(echo "$ARGS" | awk '{print $2}' | xargs)
 
           # Validate appsmith_image named argument
-          APPSMITH_IMAGE="${{ github.event.client_payload.slash_command.args.named.appsmith_image || '' }}"
-
           if [[ -z "$APPSMITH_IMAGE" ]]; then
             echo "appsmith_image is not set; tests will run against the image built from pr."
           else
