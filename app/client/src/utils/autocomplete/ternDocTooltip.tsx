@@ -41,10 +41,7 @@ export function TernDocToolTip(props: {
           </Link>
         )}
       </div>
-      <pre
-        className="px-2 p-1 text-xs whitespace-normal"
-        dangerouslySetInnerHTML={{ __html: doc }}
-      />
+      <pre className="px-2 p-1 text-xs whitespace-normal">{doc}</pre>
       {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
       )}
