@@ -14,7 +14,10 @@ import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { fontSizeUtility, resolveWidgetColor } from "widgets/WidgetUtils";
 import { ColorModeContext } from "widgets/ColorModeContext";
-import { DARK_MODE_COLORS } from "constants/darkModeColors";
+import {
+  DARK_MODE_COLORS,
+  type ResolvedColorMode,
+} from "constants/darkModeColors";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
 
@@ -241,7 +244,6 @@ type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
   static contextType = ColorModeContext;
-  declare context: React.ContextType<typeof ColorModeContext>;
 
   state = {
     isTruncated: false,
@@ -322,7 +324,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       textColor,
       DEFAULT_TEXT_COLOR_LIGHT,
       DARK_MODE_COLORS.text,
-      this.context,
+      this.context as ResolvedColorMode,
     );
 
     return (
