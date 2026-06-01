@@ -42,7 +42,7 @@ appInitializer();
 
 function App() {
   return (
-    <FaroErrorBoundary fallback={<div>An error has occured</div>}>
+    <FaroErrorBoundary fallback={<div>An error has occurred</div>}>
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
           <ThemedAppWithProps />
