@@ -23,9 +23,13 @@ public class ApplicationDetailCE {
     @JsonView({Views.Public.class, Git.class})
     Application.ThemeSetting themeSetting;
 
+    @JsonView({Views.Public.class, Git.class})
+    Application.DarkModeSetting darkModeSetting;
+
     public ApplicationDetailCE() {
         this.appPositioning = null;
         this.navigationSetting = null;
         this.themeSetting = new Application.ThemeSetting();
+        this.darkModeSetting = null;
     }
 }

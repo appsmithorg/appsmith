@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
+import styled from "styled-components";
 import { Input, SegmentedControl, Switch, Text } from "@appsmith/ads";
 import equal from "fast-deep-equal";
 import type { DarkModeSetting } from "constants/AppConstants";
@@ -23,6 +24,15 @@ const MODE_OPTIONS = [
   { label: createMessage(DARK_MODE_SETTINGS.modeDark), value: "DARK" },
   { label: createMessage(DARK_MODE_SETTINGS.modeAuto), value: "AUTO" },
 ];
+
+// The ADS switch label sets `word-break: break-all`, which splits the label
+// mid-word in the narrow settings pane. Wrap at word boundaries instead.
+const SwitchRow = styled.div`
+  label {
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+`;
 
 function DarkModeSettings() {
   const dispatch = useDispatch();
@@ -98,18 +108,20 @@ function DarkModeSettings() {
         />
       </div>
 
-      <Switch
-        data-testid="t--dark-mode-allow-switch"
-        isSelected={setting.allowEndUserSwitch}
-        onChange={(isSelected: boolean) =>
-          updateSetting({ allowEndUserSwitch: isSelected })
-        }
-      >
-        <StyledPropertyHelpLabel
-          label={createMessage(DARK_MODE_SETTINGS.allowSwitchLabel)}
-          tooltip={createMessage(DARK_MODE_SETTINGS.allowSwitchTooltip)}
-        />
-      </Switch>
+      <SwitchRow>
+        <Switch
+          data-testid="t--dark-mode-allow-switch"
+          isSelected={setting.allowEndUserSwitch}
+          onChange={(isSelected: boolean) =>
+            updateSetting({ allowEndUserSwitch: isSelected })
+          }
+        >
+          <StyledPropertyHelpLabel
+            label={createMessage(DARK_MODE_SETTINGS.allowSwitchLabel)}
+            tooltip={createMessage(DARK_MODE_SETTINGS.allowSwitchTooltip)}
+          />
+        </Switch>
+      </SwitchRow>
 
       <div className="space-y-2">
         <StyledPropertyHelpLabel

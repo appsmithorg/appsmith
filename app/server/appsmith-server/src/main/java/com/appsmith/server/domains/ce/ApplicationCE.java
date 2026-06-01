@@ -519,6 +519,25 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     }
 
     /**
+     * DarkModeSetting stores the dark-mode configuration for classic
+     * (non-Anvil) published apps. defaultMode is one of LIGHT / DARK / AUTO
+     * (kept as a String to stay permissive across client versions).
+     */
+    @Data
+    @NoArgsConstructor
+    public static class DarkModeSettingCE {
+
+        @JsonView({Views.Public.class, Git.class})
+        private String defaultMode = "LIGHT";
+
+        @JsonView({Views.Public.class, Git.class})
+        private boolean allowEndUserSwitch = false;
+
+        @JsonView({Views.Public.class, Git.class})
+        private String customCss;
+    }
+
+    /**
      * StaticUrlSettings stores the static URL configuration for the application
      */
     @Data

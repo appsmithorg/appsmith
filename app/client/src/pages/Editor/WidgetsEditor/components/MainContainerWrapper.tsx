@@ -16,6 +16,11 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@appsmith/ads";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { DarkModeGlobalStyles } from "globalStyles/DarkModeGlobalStyles";
+import { ColorModeContext } from "widgets/ColorModeContext";
+import { getDarkModeSetting } from "selectors/darkModeSelectors";
+import { resolveColorMode } from "utils/colorModeResolution";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { useDispatch } from "react-redux";
 import {
   getAppThemeIsChanging,
@@ -136,6 +141,22 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
     useMainContainerResizer();
   const isAnvilLayout = useSelector(getIsAnvilLayout);
 
+  // Preview the developer's dark-mode default on the editor canvas (classic
+  // apps only) so they can see and fix dark styling without deploying. End-user
+  // switching is irrelevant here, so it's resolved from the default alone.
+  const darkModeSetting = useSelector(getDarkModeSetting);
+  const previewColorMode = resolveColorMode({
+    liveMode: null,
+    allowEndUserSwitch: false,
+    defaultMode: darkModeSetting.defaultMode,
+    osMode:
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches
+        ? "DARK"
+        : "LIGHT",
+  });
+  const isDarkPreview = !isAnvilLayout && previewColorMode === "DARK";
+
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -176,13 +197,15 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
       <Wrapper
         $enableMainCanvasResizer={enableMainContainerResizer}
         background={
-          isPreviewMode ||
-          isProtectedMode ||
-          isAppSettingsPaneWithNavigationTabOpen
-            ? isAnvilLayout
-              ? ""
-              : selectedTheme.properties.colors.backgroundColor
-            : "initial"
+          isDarkPreview
+            ? DARK_MODE_COLORS.pageBackground
+            : isPreviewMode ||
+                isProtectedMode ||
+                isAppSettingsPaneWithNavigationTabOpen
+              ? isAnvilLayout
+                ? ""
+                : selectedTheme.properties.colors.backgroundColor
+              : "initial"
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
@@ -200,6 +223,7 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
             !isAnvilLayout,
           "mt-24": shouldShowSnapShotBanner,
         })}
+        data-theme={isDarkPreview ? "dark" : undefined}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }
@@ -218,12 +242,17 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
             primaryColor={selectedTheme.properties.colors.primaryColor}
           />
         )}
+        {isDarkPreview && (
+          <DarkModeGlobalStyles customCss={darkModeSetting.customCss} />
+        )}
         {isAppThemeChanging && (
           <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
             <Spinner size="md" />
           </div>
         )}
-        {node}
+        <ColorModeContext.Provider value={previewColorMode}>
+          {node}
+        </ColorModeContext.Provider>
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}

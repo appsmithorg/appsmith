@@ -89,5 +89,13 @@ public class Application extends ApplicationCE implements Artifact {
         }
     }
 
+    /**
+     * DarkModeSetting stores the dark-mode configuration for classic apps
+     */
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    @NoArgsConstructor
+    public static class DarkModeSetting extends DarkModeSettingCE {}
+
     public static class Fields extends ApplicationCE.Fields {}
 }
