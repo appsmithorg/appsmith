@@ -1,7 +1,11 @@
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ApplicationVersion } from "ee/actions/applicationActions";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
-import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import type {
+  DarkModeSetting,
+  NavigationSetting,
+  ThemeSetting,
+} from "constants/AppConstants";
 import type { EvaluationVersion } from "constants/EvalConstants";
 import type {
   AppEmbedSetting,
@@ -38,6 +42,7 @@ export interface ApplicationPayload {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;
+    darkModeSetting?: DarkModeSetting;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;

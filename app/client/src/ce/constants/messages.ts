@@ -2010,6 +2010,23 @@ export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";
 export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
   "Set theme, color and font";
 
+export const DARK_MODE_SETTINGS = {
+  sectionTitle: () => "Dark mode",
+  modeLabel: () => "Default appearance",
+  modeTooltip: () =>
+    "The appearance the app opens with. Auto follows the viewer's system setting.",
+  allowSwitchLabel: () => "Let viewers switch appearance",
+  allowSwitchTooltip: () =>
+    "Show a light/dark toggle in the published app header so end users can choose.",
+  customCssLabel: () => "Custom dark mode CSS",
+  customCssTooltip: () =>
+    "CSS applied only in dark mode, scoped to your app's canvas. Use it to override the dark preset.",
+  customCssPlaceholder: () => ".tableWrap .td { color: #fff; }",
+  modeLight: () => "Light",
+  modeDark: () => "Dark",
+  modeAuto: () => "Auto",
+};
+
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
 export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "settings";
 export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page name";

@@ -11,6 +11,8 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
+import type { ResolvedColorMode } from "constants/AppConstants";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import {
   CANVAS_SELECTOR,
@@ -205,12 +207,19 @@ export const calculateHoverColor = (
 export const getCustomBackgroundColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
+  colorMode: ResolvedColorMode = "LIGHT",
 ) => {
-  return buttonVariant === ButtonVariantTypes.PRIMARY
-    ? backgroundColor
-      ? backgroundColor
-      : "#fff"
-    : "none";
+  if (buttonVariant !== ButtonVariantTypes.PRIMARY) {
+    return "none";
+  }
+
+  // A developer-set color always wins; only the unset "#fff" default flips dark.
+  return resolveWidgetColor(
+    backgroundColor,
+    "#fff",
+    DARK_MODE_COLORS.surface,
+    colorMode,
+  );
 };
 
 export const getCustomBorderColor = (
@@ -320,6 +329,34 @@ export const getRgbaColor = (color: string, opacity: number) => {
   const { b, g, r } = tinycolor(color).toRgb();
 
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
+/**
+ * Resolves a widget color for the active color mode without clobbering colors
+ * the developer intentionally set.
+ *
+ * The rule: a developer value that differs from the known light default is
+ * always preserved (in both light and dark). Only when the value is unset, or
+ * still equal to the light default, do we substitute the mode-appropriate
+ * default. This is what lets dark mode style the ~60% of classic widgets whose
+ * colors are literal defaults, while leaving customised widgets untouched.
+ *
+ * @param developerValue the per-widget color the developer configured (if any)
+ * @param lightDefault   the literal default the widget ships with in light mode
+ * @param darkDefault     the default to use in dark mode
+ * @param mode            the resolved color mode (defaults to LIGHT)
+ */
+export const resolveWidgetColor = (
+  developerValue: string | undefined,
+  lightDefault: string,
+  darkDefault: string,
+  mode: ResolvedColorMode = "LIGHT",
+): string => {
+  if (developerValue && developerValue !== lightDefault) {
+    return developerValue;
+  }
+
+  return mode === "DARK" ? darkDefault : lightDefault;
 };
 
 /**

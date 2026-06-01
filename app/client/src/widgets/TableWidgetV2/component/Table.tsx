@@ -18,6 +18,7 @@ import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import { useColorMode } from "widgets/ColorModeContext";
 import { ColumnTypes } from "../constants";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
 import type { ReactTableColumnProps, StickyType } from "./Constants";
@@ -88,6 +89,7 @@ export interface HeaderComponentProps {
 const emptyArr: any = [];
 
 export function Table(props: TableProps) {
+  const colorMode = useColorMode();
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
@@ -325,6 +327,7 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
+        colorMode={colorMode}
         evenRowColor={props.evenRowColor}
         headerRowColor={props.headerRowColor}
         headerTextColor={props.headerTextColor}

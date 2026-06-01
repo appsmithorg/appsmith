@@ -9,7 +9,12 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import type {
+  DarkModeSetting,
+  NavigationSetting,
+  ResolvedColorMode,
+  ThemeSetting,
+} from "constants/AppConstants";
 import type { IconNames } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 
@@ -147,6 +152,26 @@ export const updateApplicationThemeSettingAction = (theme: ThemeSetting) => {
     payload: theme,
   };
 };
+
+export const updateApplicationDarkModeSettingAction = (
+  darkModeSetting: DarkModeSetting,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_DARK_MODE_SETTING,
+    payload: darkModeSetting,
+  };
+};
+
+// Sets the live resolved color mode for a published app. Tagged with the appId
+// so a choice in one app can't bleed into another app in the same SPA session.
+// Used by the end-user toggle for instant re-render ahead of persistence.
+export const setResolvedColorModeAction = (
+  appId: string,
+  mode: ResolvedColorMode,
+) => ({
+  type: ReduxActionTypes.SET_RESOLVED_COLOR_MODE,
+  payload: { appId, mode },
+});
 
 export const updateApplicationNavigationLogoAction = (logo: string) => {
   return {

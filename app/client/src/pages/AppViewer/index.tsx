@@ -34,6 +34,11 @@ import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { DarkModeGlobalStyles } from "globalStyles/DarkModeGlobalStyles";
+import { ColorModeContext } from "widgets/ColorModeContext";
+import { useResolvedColorMode } from "utils/hooks/useResolvedColorMode";
+import { getDarkModeSetting } from "selectors/darkModeSelectors";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "entities/Application";
@@ -138,6 +143,12 @@ function AppViewer(props: Props) {
   );
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const renderPage = useSelector(getRenderPage);
+
+  // Dark mode applies only to classic (non-Anvil) apps; Anvil has its own
+  // WDS color mode handled by WDSThemeProviderWithTheme.
+  const darkModeSetting = useSelector(getDarkModeSetting);
+  const resolvedColorMode = useResolvedColorMode();
+  const isDarkMode = !isAnvilLayout && resolvedColorMode === "DARK";
 
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
@@ -261,23 +272,33 @@ function AppViewer(props: Props) {
             primaryColor={selectedTheme.properties.colors.primaryColor}
           />
         )}
+        {isDarkMode && (
+          <DarkModeGlobalStyles customCss={darkModeSetting.customCss} />
+        )}
         <HtmlTitle
           description={pageDescription}
           name={currentApplicationDetails?.name}
         />
         <AppViewerBodyContainer
           backgroundColor={
-            isAnvilLayout ? "" : selectedTheme.properties.colors.backgroundColor
+            isAnvilLayout
+              ? ""
+              : isDarkMode
+                ? DARK_MODE_COLORS.pageBackground
+                : selectedTheme.properties.colors.backgroundColor
           }
         >
           <AppViewerBody
             $contain={isAutoLayout ? "content" : "strict"}
             className={CANVAS_SELECTOR}
+            data-theme={isDarkMode ? "dark" : undefined}
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}
           >
-            {isInitialized && <AppViewerPageContainer />}
+            <ColorModeContext.Provider value={resolvedColorMode}>
+              {isInitialized && <AppViewerPageContainer />}
+            </ColorModeContext.Provider>
           </AppViewerBody>
           <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
             {!hideWatermark && (

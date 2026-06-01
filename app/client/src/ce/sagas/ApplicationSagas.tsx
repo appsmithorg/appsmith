@@ -53,6 +53,7 @@ import {
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
   updateApplicationThemeSettingAction,
+  updateApplicationDarkModeSettingAction,
   fetchAllApplicationsOfWorkspace,
   publishApplication,
 } from "ee/actions/applicationActions";
@@ -567,6 +568,15 @@ export function* updateApplicationSaga(
           yield put(
             updateApplicationThemeSettingAction(
               request.applicationDetail?.themeSetting,
+            ),
+          );
+        }
+
+        // TODO: refactor this once backend is ready
+        if (request.applicationDetail?.darkModeSetting) {
+          yield put(
+            updateApplicationDarkModeSettingAction(
+              request.applicationDetail?.darkModeSetting,
             ),
           );
         }

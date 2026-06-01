@@ -29,6 +29,7 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./components/EmbedSettings";
 import NavigationSettings from "./components/NavigationSettings";
+import DarkModeSettings from "./components/DarkModeSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Divider } from "@appsmith/ads";
@@ -243,7 +244,10 @@ function AppSettings() {
                   {isAnvilLayout ? (
                     <WDSThemePropertyPane />
                   ) : (
-                    <ThemePropertyPane />
+                    <>
+                      <ThemePropertyPane />
+                      <DarkModeSettings />
+                    </>
                   )}
                 </ThemeContentWrapper>
               );

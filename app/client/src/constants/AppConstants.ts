@@ -98,6 +98,27 @@ export interface ThemeSetting {
   appMaxWidth: AppMaxWidth;
 }
 
+// Dark mode for classic (fixed/auto-layout) apps. Stored on
+// Application.applicationDetail.darkModeSetting, alongside navigationSetting/themeSetting.
+export type DarkModeDefault = "LIGHT" | "DARK" | "AUTO";
+// The resolved mode actually applied at render time (AUTO is resolved away).
+export type ResolvedColorMode = "LIGHT" | "DARK";
+
+export interface DarkModeSetting {
+  // Developer-selected default. AUTO follows the end user's OS preference.
+  defaultMode: DarkModeDefault;
+  // When true, end users can toggle the mode themselves in the published app.
+  allowEndUserSwitch: boolean;
+  // Optional raw CSS the developer can use to override the dark preset.
+  customCss?: string;
+}
+
+export const defaultDarkModeSetting: DarkModeSetting = {
+  defaultMode: "LIGHT",
+  allowEndUserSwitch: false,
+  customCss: "",
+};
+
 export type StringsFromNavigationSetting = Omit<
   NavigationSetting,
   "showNavbar" | "showSignIn"

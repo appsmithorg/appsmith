@@ -3,6 +3,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import type { PropertyUpdates } from "WidgetProvider/types";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import {
   RenderModes,
   TextSizes,
@@ -32,6 +33,7 @@ import {
   getCustomTextColor,
   getCustomBackgroundColor,
   getCustomHoverColor,
+  resolveWidgetColor,
 } from "./WidgetUtils";
 
 const tableWidgetProps = {
@@ -110,6 +112,46 @@ describe("validate widget utils button style functions", () => {
     );
 
     expect(result).toStrictEqual(expected);
+  });
+
+  // validate resolveWidgetColor - dark mode clobber protection
+  it("resolveWidgetColor - keeps the light default in light mode", () => {
+    expect(resolveWidgetColor(undefined, "#fff", "#1a1a1a", "LIGHT")).toBe(
+      "#fff",
+    );
+    expect(resolveWidgetColor("#fff", "#fff", "#1a1a1a", "LIGHT")).toBe("#fff");
+  });
+
+  it("resolveWidgetColor - flips the unset/default value in dark mode", () => {
+    expect(resolveWidgetColor(undefined, "#fff", "#1a1a1a", "DARK")).toBe(
+      "#1a1a1a",
+    );
+    expect(resolveWidgetColor("#fff", "#fff", "#1a1a1a", "DARK")).toBe(
+      "#1a1a1a",
+    );
+  });
+
+  it("resolveWidgetColor - preserves a developer-set color in both modes", () => {
+    expect(resolveWidgetColor("#03b365", "#fff", "#1a1a1a", "LIGHT")).toBe(
+      "#03b365",
+    );
+    expect(resolveWidgetColor("#03b365", "#fff", "#1a1a1a", "DARK")).toBe(
+      "#03b365",
+    );
+  });
+
+  it("resolveWidgetColor - defaults to light mode when no mode is passed", () => {
+    expect(resolveWidgetColor(undefined, "#fff", "#1a1a1a")).toBe("#fff");
+  });
+
+  it("getCustomBackgroundColor - flips the unset primary default in dark mode", () => {
+    expect(
+      getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, undefined, "DARK"),
+    ).toBe(DARK_MODE_COLORS.surface);
+    // a developer-set color is preserved even in dark mode
+    expect(
+      getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, "#03b365", "DARK"),
+    ).toBe("#03b365");
   });
 
   // validate getCustomHoverColor function

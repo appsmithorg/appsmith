@@ -22,6 +22,8 @@ import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
+import type { ResolvedColorMode } from "constants/AppConstants";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import type { RowColorStyles, TableVariant } from "../constants";
@@ -31,9 +33,32 @@ import { Layers } from "constants/Layers";
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
+// Resolves a row background for dark mode without losing the developer's
+// alternating-row intent: a custom stripe color is darkened so it stays
+// legible, while the unset white default becomes the dark base surface.
+const resolveDarkRowBackground = (rowColor?: string) => {
+  if (rowColor && rowColor !== Colors.WHITE) {
+    return darkenColor(rowColor, 55);
+  }
+
+  return DARK_MODE_COLORS.rowSurface;
+};
+
+// Header labels default to OXFORD_BLUE (dark) on a header background that flips
+// to a dark surface in dark mode. Flip the unset default to light text so
+// headers stay legible; a developer-set header color is preserved.
+const resolveDarkHeaderText = (headerTextColor?: string) => {
+  if (headerTextColor && headerTextColor !== Colors.OXFORD_BLUE) {
+    return headerTextColor;
+  }
+
+  return DARK_MODE_COLORS.text;
+};
+
 export const TableWrapper = styled.div<
   RowColorStyles & {
     width: number;
+    colorMode?: ResolvedColorMode;
     height: number;
     tableSizes: TableSizes;
     accentColor: string;
@@ -104,7 +129,8 @@ export const TableWrapper = styled.div<
   }
   .table {
     border-spacing: 0;
-    color: ${Colors.THUNDER};
+    color: ${(props) =>
+      props.colorMode === "DARK" ? DARK_MODE_COLORS.text : Colors.THUNDER};
     position: relative;
     display: table;
     width: 100%;
@@ -115,20 +141,33 @@ export const TableWrapper = styled.div<
     }
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
-      background: ${Colors.WHITE};
+      background: ${(props) =>
+        props.colorMode === "DARK"
+          ? DARK_MODE_COLORS.rowSurface
+          : Colors.WHITE};
       &.odd-row {
-        background: ${(props) => props.oddRowColor || Colors.WHITE};
+        background: ${(props) =>
+          props.colorMode === "DARK"
+            ? resolveDarkRowBackground(props.oddRowColor)
+            : props.oddRowColor || Colors.WHITE};
       }
       &.even-row {
-        background: ${(props) => props.evenRowColor || Colors.WHITE};
+        background: ${(props) =>
+          props.colorMode === "DARK"
+            ? resolveDarkRowBackground(props.evenRowColor)
+            : props.evenRowColor || Colors.WHITE};
       }
       &.selected-row {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
+        background: ${({ accentColor, colorMode }) =>
+          colorMode === "DARK"
+            ? darkenColor(accentColor, 30)
+            : lightenColor(accentColor)} !important;
 
         &:hover {
-          background: ${({ accentColor }) =>
-            `${lightenColor(accentColor, "0.9")}`} !important;
+          background: ${({ accentColor, colorMode }) =>
+            colorMode === "DARK"
+              ? darkenColor(accentColor, 20)
+              : lightenColor(accentColor, "0.9")} !important;
         }
       }
 
@@ -288,7 +327,10 @@ export const TableWrapper = styled.div<
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
-    color: ${(props) => props.headerTextColor || Colors.OXFORD_BLUE};
+    color: ${(props) =>
+      props.colorMode === "DARK"
+        ? resolveDarkHeaderText(props.headerTextColor)
+        : props.headerTextColor || Colors.OXFORD_BLUE};
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;

@@ -17,8 +17,14 @@ import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { IconNames } from "@appsmith/ads";
-import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import type {
+  DarkModeSetting,
+  NavigationSetting,
+  ThemeSetting,
+} from "constants/AppConstants";
+import type { LiveColorMode } from "utils/colorModeResolution";
 import {
+  defaultDarkModeSetting,
   defaultNavigationSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
@@ -43,6 +49,7 @@ export const initialState: ApplicationsReduxState = {
   workspaceIdForImport: null,
   pageIdForImport: "",
   isAppSidebarPinned: true,
+  resolvedColorMode: null,
   isSavingNavigationSetting: false,
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
@@ -519,6 +526,31 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_DARK_MODE_SETTING]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<DarkModeSetting>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          darkModeSetting: {
+            ...defaultDarkModeSetting,
+            ...action.payload,
+          },
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.SET_RESOLVED_COLOR_MODE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<LiveColorMode>,
+  ) => ({
+    ...state,
+    resolvedColorMode: action.payload,
+  }),
   [ReduxActionTypes.SET_APP_SIDEBAR_PINNED]: (
     state: ApplicationsReduxState,
     action: ReduxAction<boolean>,
@@ -954,6 +986,8 @@ export interface ApplicationsReduxState {
   pageIdForImport: string;
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
+  // Live end-user color choice, tagged with its appId (null until a user picks).
+  resolvedColorMode: LiveColorMode | null;
   isSavingNavigationSetting: boolean;
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;

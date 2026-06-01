@@ -3,7 +3,11 @@ import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
-import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import type {
+  DarkModeSetting,
+  NavigationSetting,
+  ThemeSetting,
+} from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
 import type { IconNames } from "@appsmith/ads";
@@ -124,6 +128,7 @@ export interface UpdateApplicationPayload {
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;
+    darkModeSetting?: DarkModeSetting;
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
@@ -228,6 +233,7 @@ export interface UpdateApplicationResponse {
     navigationSetting?: NavigationSetting;
     appPositioning?: LayoutSystemTypeConfig;
     themeSetting?: ThemeSetting;
+    darkModeSetting?: DarkModeSetting;
   };
 }
 

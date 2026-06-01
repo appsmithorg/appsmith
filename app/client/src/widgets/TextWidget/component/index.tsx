@@ -12,9 +12,15 @@ import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
-import { fontSizeUtility } from "widgets/WidgetUtils";
+import { fontSizeUtility, resolveWidgetColor } from "widgets/WidgetUtils";
+import { ColorModeContext } from "widgets/ColorModeContext";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
+
+// The light-mode default text color the Text widget ships with. Used to detect
+// whether the developer has customised the color before flipping it for dark.
+const DEFAULT_TEXT_COLOR_LIGHT = "#231F20";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -234,6 +240,9 @@ interface State {
 type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
+  static contextType = ColorModeContext;
+  declare context: React.ContextType<typeof ColorModeContext>;
+
   state = {
     isTruncated: false,
     showModal: false,
@@ -307,6 +316,15 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       truncateButtonColor,
     } = this.props;
 
+    // Keep developer-set colors intact; only the unset light default flips to a
+    // readable light color when the app is rendered in dark mode.
+    const resolvedTextColor = resolveWidgetColor(
+      textColor,
+      DEFAULT_TEXT_COLOR_LIGHT,
+      DARK_MODE_COLORS.text,
+      this.context,
+    );
+
     return (
       <>
         <TextContainer
@@ -323,7 +341,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             overflow={overflow}
             ref={this.textRef}
             textAlign={textAlign}
-            textColor={textColor}
+            textColor={resolvedTextColor}
           >
             <Interweave
               content={text}
@@ -373,7 +391,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               fontSize={fontSize}
               fontStyle={fontStyle}
               textAlign={textAlign}
-              textColor={textColor}
+              textColor={resolvedTextColor}
             >
               <Interweave
                 content={text}

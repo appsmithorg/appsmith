@@ -11,7 +11,9 @@ import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import { scrollCSS } from "widgets/WidgetUtils";
+import { resolveWidgetColor, scrollCSS } from "widgets/WidgetUtils";
+import { useColorMode } from "widgets/ColorModeContext";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -62,6 +64,15 @@ function ContainerComponentWrapper(
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const layoutSystemType = useSelector(getLayoutSystemType);
+  const colorMode = useColorMode();
+  // Flip the unset/white default to a dark surface in dark mode; a developer's
+  // explicit background color is preserved. The hover shade derives from this.
+  const backgroundColor = resolveWidgetColor(
+    props.backgroundColor,
+    "#FFFFFF",
+    DARK_MODE_COLORS.surface,
+    colorMode,
+  );
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -125,7 +136,7 @@ function ContainerComponentWrapper(
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
       $noScroll={props.$noScroll}
-      backgroundColor={props.backgroundColor}
+      backgroundColor={backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar ${

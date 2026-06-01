@@ -11,6 +11,7 @@ import { getCurrentBasePageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
 import ApplicationName from "./ApplicationName";
 import ShareButton from "./ShareButton";
+import DarkModeToggle from "./DarkModeToggle";
 import HeaderRightItemContainer from "./HeaderRightItemContainer";
 import PrimaryCTA from "pages/AppViewer/PrimaryCTA";
 import type { User } from "constants/userConstants";
@@ -110,6 +111,8 @@ const TopHeader = (props: TopHeaderProps) => {
 
         {props.showUserSettings && (
           <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
+            <DarkModeToggle />
+
             {currentApplicationDetails && currentApplicationDetails?.id && (
               <div className="hidden space-x-1 md:flex">
                 <ShareButton

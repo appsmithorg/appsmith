@@ -45,6 +45,7 @@ import CollapseButton from "./components/CollapseButton";
 import MenuItem from "./components/MenuItem";
 import MenuItemContainer from "./components/MenuItemContainer";
 import ShareButton from "./components/ShareButton";
+import DarkModeToggle from "./components/DarkModeToggle";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 
 interface SidebarProps {
@@ -222,6 +223,8 @@ export function Sidebar(props: SidebarProps) {
         <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
           {currentApplicationDetails && (
             <StyledCtaContainer>
+              <DarkModeToggle />
+
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}
                 currentWorkspaceId={currentWorkspaceId}

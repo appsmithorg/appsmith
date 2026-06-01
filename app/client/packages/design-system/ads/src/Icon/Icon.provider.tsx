@@ -107,6 +107,12 @@ const DownArrowIcon = importRemixIcon(
 const ExpandLess = importRemixIcon(
   async () => import("remixicon-react/ArrowUpSLineIcon"),
 );
+const SunLineIcon = importRemixIcon(
+  async () => import("remixicon-react/SunLineIcon"),
+);
+const MoonLineIcon = importRemixIcon(
+  async () => import("remixicon-react/MoonLineIcon"),
+);
 const EyeOn = importRemixIcon(
   async () => import("remixicon-react/EyeLineIcon"),
 );
@@ -1463,6 +1469,8 @@ const ICON_LOOKUP = {
   "right-arrow-2": RightArrowIcon2,
   "search-eye-line": SearchEyeLineIcon,
   "search-line": SearchLineIcon,
+  "sun-line": SunLineIcon,
+  "moon-line": MoonLineIcon,
   "send-button": SendButton,
   "server-line": ServerLineIcon,
   "settings-2-line": Settings2LineIcon,

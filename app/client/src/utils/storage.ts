@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import type { ResolvedColorMode } from "constants/AppConstants";
 import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 
@@ -42,6 +43,7 @@ export const STORAGE_KEYS: {
   OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
   ACTION_TEST_PAYLOAD: "ACTION_TEST_PAYLOAD",
   LATEST_GIT_BRANCH: "LATEST_GIT_BRANCH",
+  APP_DARK_MODE_PREFERENCE: "APP_DARK_MODE_PREFERENCE",
 };
 
 const store = localforage.createInstance({
@@ -91,6 +93,50 @@ export const getBetaFlag = async (email: string, key: string) => {
   const userBetaFlagsObj = await getStoredUsersBetaFlags(email);
 
   return userBetaFlagsObj && userBetaFlagsObj[key];
+};
+
+// End-user dark-mode preference for published apps, keyed per application id.
+// Stored as a single map { [appId]: "LIGHT" | "DARK" } so a user's choice
+// persists independently for each app they open in this browser.
+type DarkModePreferenceMap = Record<string, ResolvedColorMode>;
+
+export const getDarkModePreference = async (
+  appId: string,
+): Promise<ResolvedColorMode | undefined> => {
+  try {
+    const prefs = await store.getItem<DarkModePreferenceMap>(
+      STORAGE_KEYS.APP_DARK_MODE_PREFERENCE,
+    );
+
+    return prefs ? prefs[appId] : undefined;
+  } catch (error) {
+    log.error("An error occurred when fetching dark mode preference: ", error);
+
+    return undefined;
+  }
+};
+
+export const setDarkModePreference = async (
+  appId: string,
+  mode: ResolvedColorMode,
+) => {
+  try {
+    const prefs =
+      (await store.getItem<DarkModePreferenceMap>(
+        STORAGE_KEYS.APP_DARK_MODE_PREFERENCE,
+      )) || {};
+
+    await store.setItem(STORAGE_KEYS.APP_DARK_MODE_PREFERENCE, {
+      ...prefs,
+      [appId]: mode,
+    });
+
+    return true;
+  } catch (error) {
+    log.error("An error occurred when storing dark mode preference: ", error);
+
+    return false;
+  }
 };
 
 export const getCopiedWidgets = async () => {
