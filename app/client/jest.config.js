@@ -111,7 +111,7 @@ module.exports = {
         sha: parseConfig("__APPSMITH_VERSION_SHA__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),
       },
-      intercomAppID: "APP_ID",
+      pylonAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",

@@ -230,19 +230,8 @@ public class WebClientUtils {
         }
 
         for (InetAddress addr : resolved) {
-            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))) {
-                return Optional.empty();
-            }
-            if (addr instanceof Inet6Address) {
-                byte firstByte = addr.getAddress()[0];
-                if ((firstByte & (byte) 0xFE) == (byte) 0xFC) {
-                    return Optional.empty();
-                }
-            }
-            if (addr.isLoopbackAddress()
-                    || addr.isLinkLocalAddress()
-                    || addr.isAnyLocalAddress()
-                    || addr.isMulticastAddress()) {
+            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))
+                    || matchesBlockedAddressClass(addr)) {
                 return Optional.empty();
             }
         }
@@ -251,7 +240,8 @@ public class WebClientUtils {
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
-        if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(host))) {
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost)) {
             log.warn("Host {} is disallowed. Failing the request.", host);
             if (promise != null) {
                 promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));
@@ -279,9 +269,39 @@ public class WebClientUtils {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "IP Address resolution is invalid"));
         }
 
-        return DISALLOWED_HOSTS.contains(canonicalHost)
+        return (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost))
                 ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
                 : Mono.just(request);
+    }
+
+    static boolean isBlockedIpAddressClass(String canonicalHost) {
+        if (!isValidIpAddress(canonicalHost)) {
+            return false;
+        }
+        try {
+            return matchesBlockedAddressClass(InetAddress.getByName(canonicalHost));
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    private static boolean matchesBlockedAddressClass(InetAddress address) {
+        if (address.isLoopbackAddress()
+                || address.isAnyLocalAddress()
+                || address.isLinkLocalAddress()
+                || address.isMulticastAddress()) {
+            return true;
+        }
+        if (address instanceof Inet6Address) {
+            // fc00::/7 — IPv6 Unique Local Addresses
+            byte firstByte = address.getAddress()[0];
+            return (firstByte & (byte) 0xFE) == (byte) 0xFC;
+        }
+        return false;
+    }
+
+    private static boolean isBlockedAddressClassInDocker(String canonicalHost) {
+        return "1".equals(System.getenv("IN_DOCKER")) && isBlockedIpAddressClass(canonicalHost);
     }
 
     private static boolean isValidIpAddress(String host) {
