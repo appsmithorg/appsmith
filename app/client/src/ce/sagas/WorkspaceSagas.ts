@@ -420,7 +420,7 @@ export function* uploadWorkspaceLogoSaga(
       }
     }
   } catch (error) {
-    log.error("Error occured while uploading the logo", error);
+    log.error("Error occurred while uploading the logo", error);
   }
 }
 
@@ -454,7 +454,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
       }
     }
   } catch (error) {
-    log.error("Error occured while removing the logo", error);
+    log.error("Error occurred while removing the logo", error);
   }
 }
 
