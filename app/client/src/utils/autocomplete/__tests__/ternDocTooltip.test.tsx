@@ -34,15 +34,37 @@ describe("TernDocToolTip", () => {
     );
   });
 
-  it("does NOT render XSS payload as executable HTML element", () => {
+  it("renders safe HTML tags like <code> as actual elements, not literal text", () => {
+    const docWithCode =
+      "Returns a number that can be used to clear the timeout with <code>clearTimeout()</code>.";
+    const { container } = render(
+      <TernDocToolTip completion={makeCompletion(docWithCode, "setTimeout")} />,
+    );
+
+    const codeElement = container.querySelector("code");
+
+    expect(codeElement).not.toBeNull();
+    expect(codeElement).toHaveTextContent("clearTimeout()");
+    expect(container.querySelector("pre")?.textContent).not.toContain("<code>");
+  });
+
+  it("does NOT render img elements with onerror handlers", () => {
     const xssPayload = '<img src=x onerror="alert(1)">';
     const { container } = render(
       <TernDocToolTip completion={makeCompletion(xssPayload)} />,
     );
 
-    const imgElements = container.querySelectorAll("img");
+    expect(container.querySelector("img[onerror]")).toBeNull();
+  });
 
-    expect(imgElements).toHaveLength(0);
+  it("does NOT render script tags", () => {
+    const xssPayload = '<script>alert("xss")</script>Safe text';
+    const { container } = render(
+      <TernDocToolTip completion={makeCompletion(xssPayload)} />,
+    );
+
+    expect(container.querySelectorAll("script")).toHaveLength(0);
+    expect(container.querySelector("pre")).toHaveTextContent("Safe text");
   });
 
   it("returns null when doc is empty", () => {
