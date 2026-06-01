@@ -1,6 +1,7 @@
 import localStorage from "utils/localStorage";
 import { GridDefaults } from "./WidgetConstants";
 import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
+import type { DarkModeDefault } from "./darkModeColors";
 
 export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
 export const CANVAS_DEFAULT_MIN_ROWS = Math.ceil(
@@ -100,9 +101,9 @@ export interface ThemeSetting {
 
 // Dark mode for classic (fixed/auto-layout) apps. Stored on
 // Application.applicationDetail.darkModeSetting, alongside navigationSetting/themeSetting.
-export type DarkModeDefault = "LIGHT" | "DARK" | "AUTO";
-// The resolved mode actually applied at render time (AUTO is resolved away).
-export type ResolvedColorMode = "LIGHT" | "DARK";
+// The color-mode types live in the dependency-free `darkModeColors` leaf to avoid
+// import cycles; re-exported here for existing consumers of AppConstants.
+export type { DarkModeDefault, ResolvedColorMode } from "./darkModeColors";
 
 export interface DarkModeSetting {
   // Developer-selected default. AUTO follows the end user's OS preference.

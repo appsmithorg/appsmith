@@ -1,7 +1,7 @@
 import type {
   DarkModeDefault,
   ResolvedColorMode,
-} from "constants/AppConstants";
+} from "constants/darkModeColors";
 
 /**
  * The live end-user color choice, tagged with the app it was made in, so a

@@ -11,8 +11,10 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { ResolvedColorMode } from "constants/AppConstants";
-import { DARK_MODE_COLORS } from "constants/darkModeColors";
+import {
+  DARK_MODE_COLORS,
+  type ResolvedColorMode,
+} from "constants/darkModeColors";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import {
   CANVAS_SELECTOR,

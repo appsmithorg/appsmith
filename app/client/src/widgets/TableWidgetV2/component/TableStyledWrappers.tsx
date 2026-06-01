@@ -22,8 +22,10 @@ import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
-import type { ResolvedColorMode } from "constants/AppConstants";
-import { DARK_MODE_COLORS } from "constants/darkModeColors";
+import {
+  DARK_MODE_COLORS,
+  type ResolvedColorMode,
+} from "constants/darkModeColors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import type { RowColorStyles, TableVariant } from "../constants";

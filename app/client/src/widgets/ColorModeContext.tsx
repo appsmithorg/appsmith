@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { ResolvedColorMode } from "constants/AppConstants";
+import type { ResolvedColorMode } from "constants/darkModeColors";
 
 /**
  * Carries the resolved color mode ("LIGHT" | "DARK") for the published app down

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { ResolvedColorMode } from "constants/AppConstants";
+import type { ResolvedColorMode } from "constants/darkModeColors";
 import {
   getDarkModeSetting,
   getResolvedColorMode,
