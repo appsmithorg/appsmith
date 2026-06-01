@@ -39,8 +39,11 @@ jobs:
       - name: Install helm-docs
         run: |
           HELM_DOCS_VERSION=1.14.2
-          curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" \
-            | tar xz helm-docs
+          BASE_URL="https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}"
+          curl -sSL "${BASE_URL}/helm-docs_${HELM_DOCS_VERSION}_checksums.txt" -o checksums.txt
+          curl -sSL "${BASE_URL}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" -o helm-docs.tar.gz
+          sha256sum --check --ignore-missing checksums.txt
+          tar xzf helm-docs.tar.gz helm-docs
           sudo mv helm-docs /usr/local/bin/
 
       - name: Check values schema
