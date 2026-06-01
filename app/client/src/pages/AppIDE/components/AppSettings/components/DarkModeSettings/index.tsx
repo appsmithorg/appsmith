@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Input, SegmentedControl, Switch, Text } from "@appsmith/ads";
@@ -24,23 +30,39 @@ function DarkModeSettings() {
   const savedSetting = useSelector(getDarkModeSetting);
   const [setting, setSetting] = useState<DarkModeSetting>(savedSetting);
 
+  // Latest saved values, read inside the debounced callback so it can be created
+  // once without closing over a stale snapshot or resetting its timer.
+  const savedSettingRef = useRef(savedSetting);
+  const applicationIdRef = useRef(applicationId);
+
   useEffect(() => {
     setSetting(savedSetting);
+    savedSettingRef.current = savedSetting;
   }, [savedSetting]);
 
-  const persist = useCallback(
-    debounce((next: DarkModeSetting) => {
-      if (equal(next, savedSetting)) return;
+  useEffect(() => {
+    applicationIdRef.current = applicationId;
+  }, [applicationId]);
 
-      const payload: UpdateApplicationPayload = {
-        currentApp: true,
-        applicationDetail: { darkModeSetting: next },
-      };
+  const persist = useMemo(
+    () =>
+      // Refs are read inside the debounced callback (at fire-time, not during
+      // render), so this access is safe despite the react-compiler heuristic.
+      // eslint-disable-next-line react-compiler/react-compiler
+      debounce((next: DarkModeSetting) => {
+        if (equal(next, savedSettingRef.current)) return;
 
-      dispatch(updateApplication(applicationId, payload));
-    }, 200),
-    [applicationId, savedSetting],
+        const payload: UpdateApplicationPayload = {
+          currentApp: true,
+          applicationDetail: { darkModeSetting: next },
+        };
+
+        dispatch(updateApplication(applicationIdRef.current, payload));
+      }, 200),
+    [dispatch],
   );
+
+  useEffect(() => () => persist.cancel(), [persist]);
 
   const updateSetting = useCallback(
     (partial: Partial<DarkModeSetting>) => {
