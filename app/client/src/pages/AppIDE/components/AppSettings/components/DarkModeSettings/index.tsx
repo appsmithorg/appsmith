@@ -187,6 +187,21 @@ function DarkModeSettings() {
         </Switch>
       </SwitchRow>
 
+      <SwitchRow>
+        <Switch
+          data-testid="t--dark-mode-override-css"
+          isSelected={setting.overrideCss ?? false}
+          onChange={(isSelected: boolean) =>
+            updateSetting({ overrideCss: isSelected })
+          }
+        >
+          <StyledPropertyHelpLabel
+            label={createMessage(DARK_MODE_SETTINGS.overrideCssLabel)}
+            tooltip={createMessage(DARK_MODE_SETTINGS.overrideCssTooltip)}
+          />
+        </Switch>
+      </SwitchRow>
+
       <div className="space-y-2">
         <CssLabelRow>
           <StyledPropertyHelpLabel
@@ -206,6 +221,7 @@ function DarkModeSettings() {
         <CssEditor>
           <Input
             data-testid="t--dark-mode-custom-css"
+            isDisabled={!setting.overrideCss}
             onChange={(value: string) => updateSetting({ customCss: value })}
             placeholder={createMessage(DARK_MODE_SETTINGS.customCssPlaceholder)}
             renderAs="textarea"

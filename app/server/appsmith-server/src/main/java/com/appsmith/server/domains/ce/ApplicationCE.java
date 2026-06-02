@@ -534,6 +534,9 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         private boolean allowEndUserSwitch = false;
 
         @JsonView({Views.Public.class, Git.class})
+        private boolean overrideCss = false;
+
+        @JsonView({Views.Public.class, Git.class})
         private String customCss;
     }
 

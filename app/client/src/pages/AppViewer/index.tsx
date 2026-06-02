@@ -273,7 +273,13 @@ function AppViewer(props: Props) {
           />
         )}
         {isDarkMode && (
-          <DarkModeGlobalStyles customCss={darkModeSetting.customCss} />
+          <DarkModeGlobalStyles
+            customCss={
+              darkModeSetting.overrideCss
+                ? darkModeSetting.customCss
+                : undefined
+            }
+          />
         )}
         <HtmlTitle
           description={pageDescription}

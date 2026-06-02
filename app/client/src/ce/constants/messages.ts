@@ -2021,6 +2021,9 @@ export const DARK_MODE_SETTINGS = {
   customCssLabel: () => "Custom dark mode CSS",
   customCssTooltip: () =>
     "CSS applied only in dark mode, scoped to your app's canvas. Use it to override the dark preset.",
+  overrideCssLabel: () => "Override preset with custom CSS",
+  overrideCssTooltip: () =>
+    "When on, the CSS below is applied (overriding the built-in dark preset). When off, the built-in preset is used and the editor is just a starting template.",
   customCssPlaceholder: () => ".tableWrap .td { color: #fff; }",
   expandCss: () => "Expand editor",
   save: () => "Save",

@@ -243,7 +243,13 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
           />
         )}
         {isDarkPreview && (
-          <DarkModeGlobalStyles customCss={darkModeSetting.customCss} />
+          <DarkModeGlobalStyles
+            customCss={
+              darkModeSetting.overrideCss
+                ? darkModeSetting.customCss
+                : undefined
+            }
+          />
         )}
         {isAppThemeChanging && (
           <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">

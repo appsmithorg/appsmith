@@ -162,13 +162,13 @@ export const TableWrapper = styled.div<
       &.selected-row {
         background: ${({ accentColor, colorMode }) =>
           colorMode === "DARK"
-            ? darkenColor(accentColor, 30)
+            ? DARK_MODE_COLORS.overlay
             : lightenColor(accentColor)} !important;
 
         &:hover {
           background: ${({ accentColor, colorMode }) =>
             colorMode === "DARK"
-              ? darkenColor(accentColor, 20)
+              ? "#363a52"
               : lightenColor(accentColor, "0.9")} !important;
         }
       }

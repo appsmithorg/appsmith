@@ -110,6 +110,9 @@ export interface DarkModeSetting {
   defaultMode: DarkModeDefault;
   // When true, end users can toggle the mode themselves in the published app.
   allowEndUserSwitch: boolean;
+  // When true, the customCss below is applied (overriding the dark preset).
+  // When false, the built-in dark preset is used and customCss is ignored.
+  overrideCss?: boolean;
   // Optional raw CSS the developer can use to override the dark preset.
   customCss?: string;
 }
@@ -117,6 +120,7 @@ export interface DarkModeSetting {
 export const defaultDarkModeSetting: DarkModeSetting = {
   defaultMode: "LIGHT",
   allowEndUserSwitch: false,
+  overrideCss: false,
   customCss: "",
 };
 
