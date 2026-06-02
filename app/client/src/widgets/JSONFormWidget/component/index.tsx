@@ -8,8 +8,7 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import { useColorMode } from "widgets/ColorModeContext";
-import { resolveWidgetColor } from "widgets/WidgetUtils";
-import { DARK_MODE_COLORS } from "constants/darkModeColors";
+import { DARK_MODE_COLORS, resolveWidgetColor } from "constants/darkModeColors";
 import type { Schema } from "../constants";
 import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import { FormContextProvider } from "../FormContext";

@@ -17,6 +17,29 @@ export type ResolvedColorMode = "LIGHT" | "DARK";
 // The developer-selected default; AUTO follows the end user's OS preference.
 export type DarkModeDefault = "LIGHT" | "DARK" | "AUTO";
 
+/**
+ * Resolves a widget color for the active color mode without clobbering colors
+ * the developer intentionally set: a value that differs from the known light
+ * default is always preserved; only the unset/default value flips to the dark
+ * default in dark mode.
+ *
+ * Lives in this dependency-free leaf (rather than widgets/WidgetUtils, which
+ * transitively imports widget/JSONForm modules) so any widget can use it
+ * without creating an import cycle.
+ */
+export const resolveWidgetColor = (
+  developerValue: string | undefined,
+  lightDefault: string,
+  darkDefault: string,
+  mode: ResolvedColorMode = "LIGHT",
+): string => {
+  if (developerValue && developerValue !== lightDefault) {
+    return developerValue;
+  }
+
+  return mode === "DARK" ? darkDefault : lightDefault;
+};
+
 export const DARK_MODE_COLORS = {
   // --- Surfaces (elevation layers; each a few lightness points up) ---
   pageBackground: "#11131a", // outermost page canvas

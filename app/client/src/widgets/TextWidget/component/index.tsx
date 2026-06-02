@@ -12,10 +12,11 @@ import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
-import { fontSizeUtility, resolveWidgetColor } from "widgets/WidgetUtils";
+import { fontSizeUtility } from "widgets/WidgetUtils";
 import { ColorModeContext } from "widgets/ColorModeContext";
 import {
   DARK_MODE_COLORS,
+  resolveWidgetColor,
   type ResolvedColorMode,
 } from "constants/darkModeColors";
 import { OverflowTypes } from "../constants";

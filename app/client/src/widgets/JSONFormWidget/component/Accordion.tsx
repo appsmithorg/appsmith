@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { Collapse, Icon } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { useColorMode } from "widgets/ColorModeContext";
-import { resolveWidgetColor } from "widgets/WidgetUtils";
-import { DARK_MODE_COLORS } from "constants/darkModeColors";
+import { DARK_MODE_COLORS, resolveWidgetColor } from "constants/darkModeColors";
 
 type AccordionProps = React.PropsWithChildren<{
   backgroundColor?: string;

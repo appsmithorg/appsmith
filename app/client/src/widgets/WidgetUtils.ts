@@ -13,6 +13,7 @@ import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Theme } from "constants/DefaultTheme";
 import {
   DARK_MODE_COLORS,
+  resolveWidgetColor,
   type ResolvedColorMode,
 } from "constants/darkModeColors";
 import type { PropertyUpdates } from "WidgetProvider/types";
@@ -333,33 +334,9 @@ export const getRgbaColor = (color: string, opacity: number) => {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 };
 
-/**
- * Resolves a widget color for the active color mode without clobbering colors
- * the developer intentionally set.
- *
- * The rule: a developer value that differs from the known light default is
- * always preserved (in both light and dark). Only when the value is unset, or
- * still equal to the light default, do we substitute the mode-appropriate
- * default. This is what lets dark mode style the ~60% of classic widgets whose
- * colors are literal defaults, while leaving customised widgets untouched.
- *
- * @param developerValue the per-widget color the developer configured (if any)
- * @param lightDefault   the literal default the widget ships with in light mode
- * @param darkDefault     the default to use in dark mode
- * @param mode            the resolved color mode (defaults to LIGHT)
- */
-export const resolveWidgetColor = (
-  developerValue: string | undefined,
-  lightDefault: string,
-  darkDefault: string,
-  mode: ResolvedColorMode = "LIGHT",
-): string => {
-  if (developerValue && developerValue !== lightDefault) {
-    return developerValue;
-  }
-
-  return mode === "DARK" ? darkDefault : lightDefault;
-};
+// resolveWidgetColor lives in the dependency-free constants/darkModeColors leaf
+// to avoid import cycles; re-exported here for existing widget consumers.
+export { resolveWidgetColor };
 
 /**
  * checks if color is dark or not
