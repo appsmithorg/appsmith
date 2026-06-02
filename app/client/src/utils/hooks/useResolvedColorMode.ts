@@ -8,21 +8,11 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { setResolvedColorModeAction } from "ee/actions/applicationActions";
 import { getDarkModePreference } from "utils/storage";
-import { resolveColorMode } from "utils/colorModeResolution";
-
-const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
-
-const getOsColorMode = (): ResolvedColorMode => {
-  if (
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia(DARK_MEDIA_QUERY).matches
-  ) {
-    return "DARK";
-  }
-
-  return "LIGHT";
-};
+import {
+  DARK_MEDIA_QUERY,
+  getOsColorMode,
+  resolveColorMode,
+} from "utils/colorModeResolution";
 
 /**
  * Resolves the color mode to apply in the published app, in priority order:

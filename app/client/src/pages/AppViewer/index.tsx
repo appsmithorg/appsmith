@@ -37,7 +37,10 @@ import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { DarkModeGlobalStyles } from "globalStyles/DarkModeGlobalStyles";
 import { ColorModeContext } from "widgets/ColorModeContext";
 import { useResolvedColorMode } from "utils/hooks/useResolvedColorMode";
-import { getDarkModeSetting } from "selectors/darkModeSelectors";
+import {
+  getDarkModeSetting,
+  getEffectiveDarkCustomCss,
+} from "selectors/darkModeSelectors";
 import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
@@ -274,11 +277,7 @@ function AppViewer(props: Props) {
         )}
         {isDarkMode && (
           <DarkModeGlobalStyles
-            customCss={
-              darkModeSetting.overrideCss
-                ? darkModeSetting.customCss
-                : undefined
-            }
+            customCss={getEffectiveDarkCustomCss(darkModeSetting)}
           />
         )}
         <HtmlTitle

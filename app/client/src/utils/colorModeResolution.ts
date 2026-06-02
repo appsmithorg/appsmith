@@ -12,6 +12,21 @@ export interface LiveColorMode {
   mode: ResolvedColorMode;
 }
 
+export const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
+
+/** The OS-level color preference (LIGHT outside the browser / when unsupported). */
+export const getOsColorMode = (): ResolvedColorMode => {
+  if (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(DARK_MEDIA_QUERY).matches
+  ) {
+    return "DARK";
+  }
+
+  return "LIGHT";
+};
+
 /**
  * Pure resolution of the effective color mode for a published app, in order:
  *   1. The live end-user toggle — but only when switching is allowed AND the

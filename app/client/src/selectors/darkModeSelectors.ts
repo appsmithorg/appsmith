@@ -31,3 +31,11 @@ export const getDarkModeSetting = (state: DefaultRootState): DarkModeSetting =>
 export const getResolvedColorMode = (
   state: DefaultRootState,
 ): LiveColorMode | null => state.ui.applications.resolvedColorMode;
+
+/**
+ * The custom CSS to actually apply: the developer's only when they've opted to
+ * override the preset, otherwise none. Shared by the viewer and editor preview.
+ */
+export const getEffectiveDarkCustomCss = (
+  setting: DarkModeSetting,
+): string | undefined => (setting.overrideCss ? setting.customCss : undefined);

@@ -18,8 +18,11 @@ import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { DarkModeGlobalStyles } from "globalStyles/DarkModeGlobalStyles";
 import { ColorModeContext } from "widgets/ColorModeContext";
-import { getDarkModeSetting } from "selectors/darkModeSelectors";
-import { resolveColorMode } from "utils/colorModeResolution";
+import {
+  getDarkModeSetting,
+  getEffectiveDarkCustomCss,
+} from "selectors/darkModeSelectors";
+import { getOsColorMode, resolveColorMode } from "utils/colorModeResolution";
 import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { useDispatch } from "react-redux";
 import {
@@ -149,11 +152,7 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
     liveMode: null,
     allowEndUserSwitch: false,
     defaultMode: darkModeSetting.defaultMode,
-    osMode:
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-color-scheme: dark)").matches
-        ? "DARK"
-        : "LIGHT",
+    osMode: getOsColorMode(),
   });
   const isDarkPreview = !isAnvilLayout && previewColorMode === "DARK";
 
@@ -244,11 +243,7 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
         )}
         {isDarkPreview && (
           <DarkModeGlobalStyles
-            customCss={
-              darkModeSetting.overrideCss
-                ? darkModeSetting.customCss
-                : undefined
-            }
+            customCss={getEffectiveDarkCustomCss(darkModeSetting)}
           />
         )}
         {isAppThemeChanging && (
