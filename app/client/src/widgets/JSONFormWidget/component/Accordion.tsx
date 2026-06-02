@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Icon } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import { useColorMode } from "widgets/ColorModeContext";
+import { resolveWidgetColor } from "widgets/WidgetUtils";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 
 type AccordionProps = React.PropsWithChildren<{
   backgroundColor?: string;
@@ -81,6 +84,7 @@ function Accordion({
   title,
 }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const colorMode = useColorMode();
 
   useEffect(() => {
     if (!isCollapsible && !isOpen) {
@@ -90,10 +94,24 @@ function Accordion({
 
   const toggleIsOpen = () => setIsOpen((prevState) => !prevState);
 
+  // Flip the unset light defaults to dark surfaces; developer-set colors win.
+  const resolvedBackgroundColor = resolveWidgetColor(
+    backgroundColor,
+    DEFAULT_BACKGROUND_COLOR,
+    DARK_MODE_COLORS.panel,
+    colorMode,
+  );
+  const resolvedBorderColor = resolveWidgetColor(
+    borderColor,
+    DEFAULT_BORDER_COLOR,
+    DARK_MODE_COLORS.borderSubtle,
+    colorMode,
+  );
+
   return (
     <StyledWrapper
-      backgroundColor={backgroundColor}
-      borderColor={borderColor}
+      backgroundColor={resolvedBackgroundColor}
+      borderColor={resolvedBorderColor}
       borderRadius={borderRadius}
       borderWidth={borderWidth}
       boxShadow={boxShadow}
@@ -109,7 +127,12 @@ function Accordion({
           <Icon
             icon={"chevron-right"}
             iconSize={16}
-            style={{ color: "#2E3D49" }}
+            style={{
+              color:
+                colorMode === "DARK"
+                  ? DARK_MODE_COLORS.textSecondary
+                  : "#2E3D49",
+            }}
           />
           <StyledToggleHeaderText>{title}</StyledToggleHeaderText>
         </StyledToggleHeader>

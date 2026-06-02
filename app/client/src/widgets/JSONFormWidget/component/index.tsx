@@ -7,6 +7,9 @@ import Form from "./Form";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
+import { useColorMode } from "widgets/ColorModeContext";
+import { resolveWidgetColor } from "widgets/WidgetUtils";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import type { Schema } from "../constants";
 import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import { FormContextProvider } from "../FormContext";
@@ -145,6 +148,15 @@ function JSONFormComponent<TValues>(
     | React.MutableRefObject<HTMLDivElement | null>
     | null,
 ) {
+  const colorMode = useColorMode();
+  // Flip the unset light default (#fff) to the dark panel surface; a
+  // developer-set background color is preserved.
+  const resolvedBackgroundColor = resolveWidgetColor(
+    backgroundColor,
+    "#fff",
+    DARK_MODE_COLORS.panel,
+    colorMode,
+  );
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
     "borderColor",
@@ -210,9 +222,12 @@ function JSONFormComponent<TValues>(
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
-      <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
+      <StyledContainer
+        backgroundColor={resolvedBackgroundColor}
+        {...styleProps}
+      >
         <Form
-          backgroundColor={backgroundColor}
+          backgroundColor={resolvedBackgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
           getFormData={getFormData}

@@ -147,7 +147,7 @@ describe("validate widget utils button style functions", () => {
   it("getCustomBackgroundColor - flips the unset primary default in dark mode", () => {
     expect(
       getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, undefined, "DARK"),
-    ).toBe(DARK_MODE_COLORS.surface);
+    ).toBe(DARK_MODE_COLORS.control);
     // a developer-set color is preserved even in dark mode
     expect(
       getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, "#03b365", "DARK"),

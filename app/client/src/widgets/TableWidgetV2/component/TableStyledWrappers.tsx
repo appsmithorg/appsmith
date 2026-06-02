@@ -43,7 +43,7 @@ const resolveDarkRowBackground = (rowColor?: string) => {
     return darkenColor(rowColor, 55);
   }
 
-  return DARK_MODE_COLORS.rowSurface;
+  return DARK_MODE_COLORS.surface;
 };
 
 // Header labels default to OXFORD_BLUE (dark) on a header background that flips
@@ -79,7 +79,8 @@ export const TableWrapper = styled.div<
 >`
   width: 100%;
   height: 100%;
-  background: white;
+  background: ${(props) =>
+    props.colorMode === "DARK" ? DARK_MODE_COLORS.surface : "white"};
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
   border-color: ${({ borderColor }) => borderColor};
@@ -144,9 +145,7 @@ export const TableWrapper = styled.div<
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${(props) =>
-        props.colorMode === "DARK"
-          ? DARK_MODE_COLORS.rowSurface
-          : Colors.WHITE};
+        props.colorMode === "DARK" ? DARK_MODE_COLORS.surface : Colors.WHITE};
       &.odd-row {
         background: ${(props) =>
           props.colorMode === "DARK"
@@ -162,13 +161,13 @@ export const TableWrapper = styled.div<
       &.selected-row {
         background: ${({ accentColor, colorMode }) =>
           colorMode === "DARK"
-            ? DARK_MODE_COLORS.overlay
+            ? DARK_MODE_COLORS.selected
             : lightenColor(accentColor)} !important;
 
         &:hover {
           background: ${({ accentColor, colorMode }) =>
             colorMode === "DARK"
-              ? "#363a52"
+              ? DARK_MODE_COLORS.controlHover
               : lightenColor(accentColor, "0.9")} !important;
         }
       }

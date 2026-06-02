@@ -10,6 +10,9 @@ import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { useColorMode } from "widgets/ColorModeContext";
+import type { ResolvedColorMode } from "constants/darkModeColors";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
@@ -54,6 +57,7 @@ interface StyledFormBodyProps {
 interface StyledFooterProps {
   fixedFooter: boolean;
   backgroundColor?: string;
+  colorMode?: ResolvedColorMode;
 }
 
 const BUTTON_WIDTH = 110;
@@ -77,8 +81,12 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   width: 100%;
 
   &.${FOOTER_SCROLL_ACTIVE_CLASS_NAME} {
-    box-shadow: 0px -10px 10px -10px ${Colors.GREY_3};
-    border-top: 1px solid ${Colors.GREY_3};
+    box-shadow: 0px -10px 10px -10px
+      ${({ colorMode }) =>
+        colorMode === "DARK" ? DARK_MODE_COLORS.borderSubtle : Colors.GREY_3};
+    border-top: 1px solid
+      ${({ colorMode }) =>
+        colorMode === "DARK" ? DARK_MODE_COLORS.borderSubtle : Colors.GREY_3};
   }
 
   && > button,
@@ -150,6 +158,7 @@ function Form<TValues = any>(
     | React.MutableRefObject<HTMLDivElement | null>
     | null,
 ) {
+  const colorMode = useColorMode();
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
@@ -291,6 +300,7 @@ function Form<TValues = any>(
           <StyledFormFooter
             backgroundColor={backgroundColor}
             className="t--jsonform-footer"
+            colorMode={colorMode}
             fixedFooter={fixedFooter}
             ref={footerRef}
           >

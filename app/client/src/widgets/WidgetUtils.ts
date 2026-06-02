@@ -219,7 +219,7 @@ export const getCustomBackgroundColor = (
   return resolveWidgetColor(
     backgroundColor,
     "#fff",
-    DARK_MODE_COLORS.surface,
+    DARK_MODE_COLORS.control,
     colorMode,
   );
 };

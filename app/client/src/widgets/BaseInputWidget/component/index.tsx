@@ -84,11 +84,13 @@ const InputComponentWrapper = styled((props) => (
     display: flex;
     pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
     background: ${(props) =>
-      props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
+      props.disabled ? "var(--wds-color-bg-disabled)" : "var(--wds-color-bg)"};
 
     span, input, textarea {
       background: ${(props) =>
-        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        props.disabled
+          ? "var(--wds-color-bg-disabled)"
+          : "var(--wds-color-bg)"};
         color: ${(props) =>
           props.disabled
             ? "var(--wds-color-text-disabled)"
@@ -213,12 +215,14 @@ const InputComponentWrapper = styled((props) => (
     .country-type-filter .bp3-popover-open button {
       border: 0px solid !important;
       box-shadow: none !important;
-      background: ${Colors.GREY_3};
+      background: var(--wds-color-bg-hover);
     }
 
     textarea {
       background: ${(props) =>
-        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        props.disabled
+          ? "var(--wds-color-bg-disabled)"
+          : "var(--wds-color-bg)"};
         color: ${(props) =>
           props.disabled
             ? "var(--wds-color-text-disabled)"
@@ -323,16 +327,16 @@ const InputComponentWrapper = styled((props) => (
 const StyledNumericInput = styled(NumericInput)`
   &&&& .bp3-button-group.bp3-vertical {
     button {
-      background: ${Colors.WHITE};
+      background: var(--wds-color-bg);
       box-shadow: none;
       min-width: 24px;
       width: 24px;
       border-radius: 0;
       &:hover,
       &:focus {
-        background: ${Colors.GREY_2};
+        background: var(--wds-color-bg-hover);
         span {
-          color: ${Colors.GREY_10};
+          color: var(--wds-color-icon-hover);
         }
       }
       span {

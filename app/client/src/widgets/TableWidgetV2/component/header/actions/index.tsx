@@ -5,6 +5,9 @@ import { Colors } from "constants/Colors";
 import React from "react";
 import styled from "styled-components";
 import { lightenColor } from "widgets/WidgetUtils";
+import { useColorMode } from "widgets/ColorModeContext";
+import type { ResolvedColorMode } from "constants/darkModeColors";
+import { DARK_MODE_COLORS } from "constants/darkModeColors";
 import type { ReactTableColumnProps } from "../../Constants";
 import { useAppsmithTable } from "../../TableContext";
 import {
@@ -22,6 +25,7 @@ const SearchComponentWrapper = styled.div<{
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  colorMode?: ResolvedColorMode;
 }>`
   margin: 6px 8px;
   padding: 0 8px;
@@ -29,6 +33,22 @@ const SearchComponentWrapper = styled.div<{
   border: 1px solid var(--wds-color-border);
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   overflow: hidden;
+  background: ${({ colorMode }) =>
+    colorMode === "DARK" ? DARK_MODE_COLORS.control : "transparent"};
+
+  /* The search input ships a literal white background; make it dark-aware. */
+  & input,
+  & .${Classes.INPUT} {
+    ${({ colorMode }) =>
+      colorMode === "DARK"
+        ? `background: ${DARK_MODE_COLORS.control} !important;
+           color: ${DARK_MODE_COLORS.text} !important;`
+        : ""}
+  }
+  & input::placeholder {
+    ${({ colorMode }) =>
+      colorMode === "DARK" ? `color: ${DARK_MODE_COLORS.textSecondary};` : ""}
+  }
 
   &:hover {
     border-color: var(--wds-color-border-hover);
@@ -122,6 +142,7 @@ function Actions() {
     widgetId,
     widgetName,
   } = useAppsmithTable();
+  const colorMode = useColorMode();
 
   const headerColumns = React.useMemo(
     () =>
@@ -138,6 +159,7 @@ function Actions() {
           accentColor={accentColor}
           borderRadius={borderRadius}
           boxShadow={boxShadow}
+          colorMode={colorMode}
         >
           <SearchComponent
             onSearch={searchTableData}

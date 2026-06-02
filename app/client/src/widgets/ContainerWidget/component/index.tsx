@@ -70,7 +70,7 @@ function ContainerComponentWrapper(
   const backgroundColor = resolveWidgetColor(
     props.backgroundColor,
     "#FFFFFF",
-    DARK_MODE_COLORS.surface,
+    DARK_MODE_COLORS.panel,
     colorMode,
   );
 
