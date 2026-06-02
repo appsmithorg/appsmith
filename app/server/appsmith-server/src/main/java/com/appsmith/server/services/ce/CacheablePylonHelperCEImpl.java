@@ -53,7 +53,9 @@ public class CacheablePylonHelperCEImpl implements CacheablePylonHelperCE {
     @Cache(cacheName = "pylonEmailHash", key = "{#user.id}")
     @Override
     public Mono<String> getEmailHash(User user) {
-        if (!StringUtils.hasText(user.getEmail())) {
+        // Anonymous users still carry a non-empty placeholder email (e.g. "anonymousUser"), so the email
+        // check alone would let them through and trigger a pointless CS round-trip on every profile load.
+        if (user.isAnonymous() || !StringUtils.hasText(user.getEmail())) {
             return Mono.empty();
         }
 
@@ -83,7 +85,10 @@ public class CacheablePylonHelperCEImpl implements CacheablePylonHelperCE {
                                     return clientResponse.createError();
                                 }
                             })
-                            .map(ResponseDTO::getData)
+                            // mapNotNull (rather than map) so a CS response with a null `data` or null
+                            // `emailHash` completes empty instead of NPE-ing inside the reactor pipeline
+                            // and falling through to the noisy onErrorResume warn log below.
+                            .mapNotNull(ResponseDTO::getData)
                             .mapNotNull(PylonEmailHashResponseDTO::getEmailHash)
                             .timeout(WebClientUtils.CLOUD_SERVICES_API_TIMEOUT);
                 })
