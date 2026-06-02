@@ -47,7 +47,8 @@ if [[ -n "${RECREATE-}" ]]; then
   # execute this db.dropDatabase() from the k8s cluster because there's network restrictions on Atlas cluster.
   # The \$ is used to escape the $ character in the APPSMITH_DB_URL environment variable so it's interpolated inside the kubectl exec command.
   kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "mongosh \$APPSMITH_DB_URL --eval 'db.dropDatabase()'"
-  kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "supervisorctl stop all && rm -rf /appsmith-stacks/*"
+  # supervisord itself keeps running and holds files in logs/supervisor open, so exclude it from the wipe.
+  kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "supervisorctl stop all && find /appsmith-stacks -mindepth 1 -maxdepth 1 ! -name logs -exec rm -rf {} + && find /appsmith-stacks/logs -mindepth 1 -maxdepth 1 ! -name supervisor -exec rm -rf {} +"
   kubectl delete ns "$NAMESPACE" || true
   kubectl patch pv "$NAMESPACE-appsmith" -p '{"metadata":{"finalizers":null}}' || true
   kubectl delete pv "$NAMESPACE-appsmith" --grace-period=0 --force || true
