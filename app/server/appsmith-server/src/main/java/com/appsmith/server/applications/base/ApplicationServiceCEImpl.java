@@ -467,6 +467,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             if (requestThemeSettings != null) {
                 presetApplicationDetail.setThemeSetting(requestThemeSettings);
             }
+            Application.DarkModeSetting requestDarkModeSetting =
+                    application.getUnpublishedApplicationDetail().getDarkModeSetting();
+            if (requestDarkModeSetting != null) {
+                presetApplicationDetail.setDarkModeSetting(requestDarkModeSetting);
+            }
             application.setUnpublishedApplicationDetail(presetApplicationDetail);
         }
         return this.update(branchedApplication.getId(), application);
