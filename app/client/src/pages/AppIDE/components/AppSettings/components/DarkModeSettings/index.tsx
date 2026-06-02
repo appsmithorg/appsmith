@@ -14,6 +14,7 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   SegmentedControl,
   Switch,
@@ -45,18 +46,25 @@ const SwitchRow = styled.div`
   }
 `;
 
-// Monospace, taller textarea for the inline CSS editor.
+// Monospace, scrollable textarea for the inline CSS editor.
 const CssEditor = styled.div`
   textarea {
     min-height: 96px;
+    max-height: 200px;
+    overflow: auto;
+    resize: vertical;
+    white-space: pre;
     font-family: var(--ads-v2-font-family-code, monospace);
   }
 `;
 
-// Full-height monospace editor inside the pop-out modal.
+// Tall, scrollable monospace editor inside the pop-out modal.
 const ModalCssEditor = styled.div`
   textarea {
-    min-height: 60vh;
+    height: 60vh;
+    overflow: auto;
+    resize: none;
+    white-space: pre;
     font-family: var(--ads-v2-font-family-code, monospace);
   }
 `;
@@ -83,6 +91,8 @@ function DarkModeSettings() {
     withCssTemplate(savedSetting),
   );
   const [isCssModalOpen, setIsCssModalOpen] = useState(false);
+  // Draft edited inside the pop-out modal; only applied on Save, discarded on Cancel.
+  const [cssDraft, setCssDraft] = useState("");
 
   // Latest saved values, read inside the debounced callback so it can be created
   // once without closing over a stale snapshot or resetting its timer.
@@ -127,6 +137,16 @@ function DarkModeSettings() {
     },
     [setting, persist],
   );
+
+  const openCssModal = useCallback(() => {
+    setCssDraft(setting.customCss ?? "");
+    setIsCssModalOpen(true);
+  }, [setting.customCss]);
+
+  const saveCssModal = useCallback(() => {
+    updateSetting({ customCss: cssDraft });
+    setIsCssModalOpen(false);
+  }, [cssDraft, updateSetting]);
 
   return (
     <div className="px-4 pt-4 space-y-4">
@@ -178,7 +198,7 @@ function DarkModeSettings() {
             data-testid="t--dark-mode-css-expand"
             isIconButton
             kind="tertiary"
-            onClick={() => setIsCssModalOpen(true)}
+            onClick={openCssModal}
             size="sm"
             startIcon="fullscreen-line"
           />
@@ -204,18 +224,28 @@ function DarkModeSettings() {
             <ModalCssEditor>
               <Input
                 data-testid="t--dark-mode-custom-css-modal"
-                onChange={(value: string) =>
-                  updateSetting({ customCss: value })
-                }
+                onChange={(value: string) => setCssDraft(value)}
                 placeholder={createMessage(
                   DARK_MODE_SETTINGS.customCssPlaceholder,
                 )}
                 renderAs="textarea"
                 size="md"
-                value={setting.customCss ?? ""}
+                value={cssDraft}
               />
             </ModalCssEditor>
           </ModalBody>
+          <ModalFooter>
+            <Button
+              kind="secondary"
+              onClick={() => setIsCssModalOpen(false)}
+              size="md"
+            >
+              {createMessage(DARK_MODE_SETTINGS.cancel)}
+            </Button>
+            <Button kind="primary" onClick={saveCssModal} size="md">
+              {createMessage(DARK_MODE_SETTINGS.save)}
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>
