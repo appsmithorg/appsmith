@@ -113,6 +113,9 @@ const SunLineIcon = importRemixIcon(
 const MoonLineIcon = importRemixIcon(
   async () => import("remixicon-react/MoonLineIcon"),
 );
+const FullscreenLineIcon = importRemixIcon(
+  async () => import("remixicon-react/FullscreenLineIcon"),
+);
 const EyeOn = importRemixIcon(
   async () => import("remixicon-react/EyeLineIcon"),
 );
@@ -1471,6 +1474,7 @@ const ICON_LOOKUP = {
   "search-line": SearchLineIcon,
   "sun-line": SunLineIcon,
   "moon-line": MoonLineIcon,
+  "fullscreen-line": FullscreenLineIcon,
   "send-button": SendButton,
   "server-line": ServerLineIcon,
   "settings-2-line": Settings2LineIcon,

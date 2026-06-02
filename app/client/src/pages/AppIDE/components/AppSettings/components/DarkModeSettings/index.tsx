@@ -8,10 +8,21 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 import styled from "styled-components";
-import { Input, SegmentedControl, Switch, Text } from "@appsmith/ads";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  SegmentedControl,
+  Switch,
+  Text,
+} from "@appsmith/ads";
 import equal from "fast-deep-equal";
 import type { DarkModeSetting } from "constants/AppConstants";
 import { defaultDarkModeSetting } from "constants/AppConstants";
+import { DARK_MODE_PRESET_CSS } from "constants/darkModeColors";
 import { getDarkModeSetting } from "selectors/darkModeSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "ee/actions/applicationActions";
@@ -34,11 +45,44 @@ const SwitchRow = styled.div`
   }
 `;
 
+// Monospace, taller textarea for the inline CSS editor.
+const CssEditor = styled.div`
+  textarea {
+    min-height: 96px;
+    font-family: var(--ads-v2-font-family-code, monospace);
+  }
+`;
+
+// Full-height monospace editor inside the pop-out modal.
+const ModalCssEditor = styled.div`
+  textarea {
+    min-height: 60vh;
+    font-family: var(--ads-v2-font-family-code, monospace);
+  }
+`;
+
+const CssLabelRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+// Seed the custom-CSS editor with the dark preset when the developer hasn't
+// saved their own, so they start from the actual applied styles rather than a
+// blank box and can tweak the values.
+const withCssTemplate = (s: DarkModeSetting): DarkModeSetting => ({
+  ...s,
+  customCss: s.customCss || DARK_MODE_PRESET_CSS,
+});
+
 function DarkModeSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const savedSetting = useSelector(getDarkModeSetting);
-  const [setting, setSetting] = useState<DarkModeSetting>(savedSetting);
+  const [setting, setSetting] = useState<DarkModeSetting>(() =>
+    withCssTemplate(savedSetting),
+  );
+  const [isCssModalOpen, setIsCssModalOpen] = useState(false);
 
   // Latest saved values, read inside the debounced callback so it can be created
   // once without closing over a stale snapshot or resetting its timer.
@@ -46,7 +90,7 @@ function DarkModeSettings() {
   const applicationIdRef = useRef(applicationId);
 
   useEffect(() => {
-    setSetting(savedSetting);
+    setSetting(withCssTemplate(savedSetting));
     savedSettingRef.current = savedSetting;
   }, [savedSetting]);
 
@@ -124,19 +168,56 @@ function DarkModeSettings() {
       </SwitchRow>
 
       <div className="space-y-2">
-        <StyledPropertyHelpLabel
-          label={createMessage(DARK_MODE_SETTINGS.customCssLabel)}
-          tooltip={createMessage(DARK_MODE_SETTINGS.customCssTooltip)}
-        />
-        <Input
-          data-testid="t--dark-mode-custom-css"
-          onChange={(value: string) => updateSetting({ customCss: value })}
-          placeholder={createMessage(DARK_MODE_SETTINGS.customCssPlaceholder)}
-          renderAs="textarea"
-          size="md"
-          value={setting.customCss ?? ""}
-        />
+        <CssLabelRow>
+          <StyledPropertyHelpLabel
+            label={createMessage(DARK_MODE_SETTINGS.customCssLabel)}
+            tooltip={createMessage(DARK_MODE_SETTINGS.customCssTooltip)}
+          />
+          <Button
+            aria-label={createMessage(DARK_MODE_SETTINGS.expandCss)}
+            data-testid="t--dark-mode-css-expand"
+            isIconButton
+            kind="tertiary"
+            onClick={() => setIsCssModalOpen(true)}
+            size="sm"
+            startIcon="fullscreen-line"
+          />
+        </CssLabelRow>
+        <CssEditor>
+          <Input
+            data-testid="t--dark-mode-custom-css"
+            onChange={(value: string) => updateSetting({ customCss: value })}
+            placeholder={createMessage(DARK_MODE_SETTINGS.customCssPlaceholder)}
+            renderAs="textarea"
+            size="md"
+            value={setting.customCss ?? ""}
+          />
+        </CssEditor>
       </div>
+
+      <Modal onOpenChange={setIsCssModalOpen} open={isCssModalOpen}>
+        <ModalContent style={{ width: "900px", maxWidth: "90vw" }}>
+          <ModalHeader>
+            {createMessage(DARK_MODE_SETTINGS.customCssLabel)}
+          </ModalHeader>
+          <ModalBody>
+            <ModalCssEditor>
+              <Input
+                data-testid="t--dark-mode-custom-css-modal"
+                onChange={(value: string) =>
+                  updateSetting({ customCss: value })
+                }
+                placeholder={createMessage(
+                  DARK_MODE_SETTINGS.customCssPlaceholder,
+                )}
+                renderAs="textarea"
+                size="md"
+                value={setting.customCss ?? ""}
+              />
+            </ModalCssEditor>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
