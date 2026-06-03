@@ -126,7 +126,7 @@ __metadata:
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
     colorjs.io: ^0.5.2
-    lodash: ">=4.17.21"
+    lodash: ^4.18.1
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -169,7 +169,7 @@ __metadata:
     browserslist: ^4.24.4
     clsx: ^2.0.0
     eslint-plugin-storybook: ^0.11.3
-    lodash: ">=4.17.21"
+    lodash: ^4.18.1
     postcss-import: ^16.1.0
     react-aria-components: ^1.7.1
     react-markdown: ^9.0.1
@@ -13893,8 +13893,8 @@ __metadata:
     linkedom: ^0.14.20
     lint-staged: ^14.0.1
     localforage: ^1.7.3
-    lodash: ">=4.17.21"
-    lodash-es: 4.17.21
+    lodash: ^4.18.1
+    lodash-es: ^4.18.1
     loglevel: ^1.7.1
     lottie-web: ^5.7.4
     mammoth: ^1.5.1
