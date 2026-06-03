@@ -1,0 +1,51 @@
+name: Helm Values Schema
+
+on:
+  pull_request:
+    branches:
+      - release
+    paths:
+      - "deploy/helm/values.yaml"
+      - "deploy/helm/values.schema.json"
+      - ".github/workflows/helm-schema.yml"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: deploy/helm
+        shell: bash
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          # Helm 4 — pinned so we don't silently track future major bumps.
+          version: v4.1.4
+
+      - name: Install helm-values-schema-json plugin
+        # --verify=false is required by Helm 4's stricter plugin install path
+        # (the plugin source doesn't ship verification metadata).
+        run: helm plugin install --verify=false https://github.com/losisin/helm-values-schema-json.git
+
+      - name: Regenerate schema from values.yaml
+        run: |
+          helm schema \
+            --schema-root.title "Appsmith Helm chart values" \
+            --schema-root.id "https://helm.appsmith.com/values.schema.json" \
+            -o values.schema.json.regenerated
+
+      - name: Fail if committed schema is out of date
+        run: |
+          if ! diff -u values.schema.json values.schema.json.regenerated; then
+            echo ""
+            echo "::error::values.schema.json is out of date. Regenerate locally with:"
+            echo "::error::  cd deploy/helm && helm schema --schema-root.title 'Appsmith Helm chart values' --schema-root.id 'https://helm.appsmith.com/values.schema.json' -o values.schema.json"
+            exit 1
+          fi

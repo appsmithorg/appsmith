@@ -96,6 +96,20 @@ substitute for identifying what "page ready" actually means for your test.
 - Test data (assertion values like `"Bangladesh"`) stays inline.
 - Rule: if the string changes because the **app** changed, it's a constant. If it changes because the **test data** changed, it's inline.
 
+## API calls in specs and setup (mandatory verification)
+
+Before merging any `request.get` / `request.post` / `page.request` usage (especially **query parameters** and request bodies), **confirm the contract on the server**. Do not infer parameters from similar UI flows, other endpoints, or naming symmetry (e.g. `applicationId` vs `workspaceId`).
+
+**Do this every time:**
+
+1. **Find the controller** — e.g. `@GetMapping` on `*ControllerCE` for the path under `app/server/appsmith-server/`.
+2. **Trace to the service** — read the method that handles `MultiValueMap` / `@RequestParam` / `@RequestBody` and note **exact** parameter names and required vs optional fields.
+3. **Match the test** — query string keys and JSON fields must match what the server reads (often `FieldName` / `*.Fields.*` constants on the domain). Wrong names often return **400** with little help in CI.
+
+**Anti-pattern:** Guessing `?applicationId=` because the test has an `appId` in hand, when the list API only accepts `workspaceId` (real incident: `GET /api/v1/datasources` → `DatasourceServiceCEImpl.getAllWithStorages`).
+
+**Prefer:** If unsure, grep the server for the path or service method name before writing the spec.
+
 ## File Naming
 
 - Specs: `kebab-case.spec.ts`
@@ -280,6 +294,7 @@ After writing **each** spec file, verify:
    (`SELECTORS.widgetInDeployed("text")`, not `".t--widget-textwidget"`)
 4. **No unused imports** — if a POM or constant was imported speculatively, remove it before moving on
 5. **Run ESLint** — `npx eslint <file> --ext .ts` catches `networkidle`, hard waits, and non-retrying assertions
+6. **API query/body matches server** — for each new `request` call, verify controller + service param names (see **API calls in specs and setup** above); no guessed `applicationId` / `workspaceId` / etc.
 
 The agent's default instinct during batch generation is to reach for the "easiest" pattern (`networkidle`,
 inline strings, speculative imports). This checklist exists because that instinct directly violates the

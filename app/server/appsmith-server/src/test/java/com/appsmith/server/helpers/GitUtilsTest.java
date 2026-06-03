@@ -187,7 +187,11 @@ public class GitUtilsTest {
             "host.xz:/path/to/repo.git/",
             "host.xz:~user/path/to/repo.git/",
             "host.xz:path/to/repo.git",
-            "rsync://host.xz/path/to/repo.git/"
+            "rsync://host.xz/path/to/repo.git/",
+            "git@example.com:test/.",
+            "git@example.com:test/..",
+            "git@example.com:test/..git",
+            "git@example.com:test/...git"
         };
 
         for (String url : invalidUrls) {

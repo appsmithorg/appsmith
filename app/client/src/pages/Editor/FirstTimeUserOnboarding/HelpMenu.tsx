@@ -9,7 +9,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { IntercomConsent } from "../HelpButton";
 import classNames from "classnames";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
+import { isPylonChatAvailable } from "utils/bootPylon";
+const { appVersion, cloudHosting } = getAppsmithConfigs();
 
 interface HelpItem {
   label: string;
@@ -30,11 +31,11 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   },
 ];
 
-if (intercomAppID && window.Intercom) {
+if (isPylonChatAvailable()) {
   HELP_MENU_ITEMS.push({
     icon: "chat-help",
     label: "Chat with us",
-    id: "intercom-trigger",
+    id: "pylon-trigger",
   });
 }
 
@@ -85,12 +86,12 @@ function HelpMenu(props: {
                       window.open(item.link, "_blank");
                     }
 
-                    if (item.id === "intercom-trigger") {
+                    if (item.id === "pylon-trigger") {
                       e?.preventDefault();
 
-                      if (intercomAppID && window.Intercom) {
+                      if (isPylonChatAvailable()) {
                         if (user?.isIntercomConsentGiven || cloudHosting) {
-                          window.Intercom("show");
+                          window.Pylon("show");
                         } else {
                           props.setShowIntercomConsent(true);
                         }

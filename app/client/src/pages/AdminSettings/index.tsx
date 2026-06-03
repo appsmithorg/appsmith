@@ -8,7 +8,7 @@ import LeftPane from "pages/AdminSettings/LeftPane";
 import Main from "pages/AdminSettings/Main";
 import WithSuperUserHOC from "ee/pages/AdminSettings/WithSuperUserHoc";
 import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
+import bootPylon from "utils/bootPylon";
 import { LoaderContainer } from "pages/AdminSettings/components";
 import { useParams } from "react-router";
 import AdminConfig from "ee/pages/AdminSettings/config";
@@ -51,7 +51,7 @@ function Settings() {
   }, []);
 
   useEffect(() => {
-    bootIntercom(user);
+    bootPylon(user);
   }, [user?.email]);
 
   return (

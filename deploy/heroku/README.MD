@@ -37,7 +37,7 @@ Quickly set up Appsmith to explore product functionality using Heroku.
       - `APPSMITH_RECAPTCHA_SECRET_KEY`: Google reCAPTCHA v3 verification secret key, it is required if you wish to enable spam protection in your backend server.
       - `APPSMITH_RECAPTCHA_ENABLED`: Boolean config to enable or disable Google reCAPTCHA v3 verification feature. If set to true, both site key and secret key should be provided.
     - Intercom:
-      - `APPSMITH_DISABLE_INTERCOM`: Set this value to true to disable intercom (value should be `true/false` only)
+      - `APPSMITH_DISABLE_PYLON`: Set this value to true to disable the Pylon chat widget (value should be `true/false` only)
 
     After Heroku finishes setting up the app, click “View” and your Appsmith should be up and running. You will be taken to the account creation page, where you can enter credentials to create an account and get started.
 

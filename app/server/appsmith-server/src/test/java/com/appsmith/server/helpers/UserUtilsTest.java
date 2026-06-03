@@ -111,15 +111,13 @@ class UserUtilsTest {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
 
-                    // Verify user is still assigned exactly once
+                    // Verify user is still assigned exactly once (no duplicates)
                     assertThat(instanceAdminPG.getAssignedToUserIds())
-                            .contains(user1.getId())
-                            .hasSize(1)
+                            .containsOnlyOnce(user1.getId())
                             .as("User should be assigned exactly once to instance admin group");
 
                     assertThat(organizationAdminPG.getAssignedToUserIds())
-                            .contains(user1.getId())
-                            .hasSize(1)
+                            .containsOnlyOnce(user1.getId())
                             .as("User should be assigned exactly once to organization admin group");
                 })
                 .verifyComplete();

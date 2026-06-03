@@ -47,6 +47,9 @@ cp /tmp/appsmith/infra.json "$tmpdir/infra-info.json"
 # gather the healthcheck
 /opt/appsmith/healthcheck.sh > "$tmpdir/healthcheck.txt"
 
+# gather the memory-analysis report (sizing + live usage + verdict)
+/opt/appsmith/memory-analysis.sh --threads > "$tmpdir/memory-analysis.txt" 2>&1 || true
+
 #
 # Java info
 #

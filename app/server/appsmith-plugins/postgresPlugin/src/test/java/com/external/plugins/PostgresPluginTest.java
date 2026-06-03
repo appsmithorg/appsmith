@@ -695,9 +695,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals(
                             "2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
-                    assertEquals(
-                            "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
-                            node.get("interval1").asText());
+                    assertEquals("1 years 5 mons 2 hours", node.get("interval1").asText());
                     Assertions.assertThat(node.get("spouse_dob")).isEqualTo(NullNode.getInstance());
 
                     // Check the order of the columns.
@@ -1070,9 +1068,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals(
                             "2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
-                    assertEquals(
-                            "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
-                            node.get("interval1").asText());
+                    assertEquals("1 years 5 mons 2 hours", node.get("interval1").asText());
                     assertTrue(node.get("spouse_dob").isNull());
                     assertEquals(1.0, node.get("rating").asDouble(), 0.0);
 
@@ -1149,9 +1145,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals(
                             "2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
-                    assertEquals(
-                            "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
-                            node.get("interval1").asText());
+                    assertEquals("1 years 5 mons 2 hours", node.get("interval1").asText());
                     assertTrue(node.get("spouse_dob").isNull());
 
                     // Check the order of the columns.
@@ -1239,9 +1233,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals(
                             "2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
-                    assertEquals(
-                            "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
-                            node.get("interval1").asText());
+                    assertEquals("1 years 5 mons 2 hours", node.get("interval1").asText());
                     assertTrue(node.get("spouse_dob").isNull());
 
                     // Check the order of the columns.

@@ -1,0 +1,53 @@
+---
+description: Regenerate the Helm chart's values.schema.json after editing deploy/helm/values.yaml or when the Helm Values Schema CI check is failing.
+globs: deploy/helm/values.yaml,deploy/helm/values.schema.json
+alwaysApply: false
+---
+# Regenerate the Helm chart values schema
+
+The Helm chart's `values.schema.json` is auto-generated from `values.yaml` via inline `# @schema` annotations. The CI workflow `.github/workflows/helm-schema.yml` regenerates it on PR and fails if the committed copy drifts.
+
+## When this rule applies
+
+- After editing `deploy/helm/values.yaml` (annotations or default values)
+- When the `Helm Values Schema` GitHub check is failing on a PR
+- When asked to regenerate, update, or refresh the chart's values schema
+
+## Prerequisites
+
+Install the [helm-values-schema-json](https://github.com/losisin/helm-values-schema-json) plugin once:
+
+```bash
+helm plugin list | grep -q '^schema' || \
+  helm plugin install https://github.com/losisin/helm-values-schema-json.git
+```
+
+## Regenerate
+
+From the repo root:
+
+```bash
+cd deploy/helm && helm schema \
+  --schema-root.title "Appsmith Helm chart values" \
+  --schema-root.id "https://helm.appsmith.com/values.schema.json" \
+  -o values.schema.json
+```
+
+The flags must match `.github/workflows/helm-schema.yml` exactly or CI will report drift.
+
+## After regenerating
+
+1. `git diff deploy/helm/values.schema.json` — review the diff
+2. If it reflects only the intended `values.yaml` edits, commit it alongside them
+3. If unexpected fields changed, double-check the annotations you added — likely a typo
+
+## Annotation gotchas
+
+- Descriptions cannot contain `;` — it's the annotation separator inside `# @schema`. Rephrase.
+- Item-level enums for arrays use `item: <type>; itemEnum: [...]`, **not** the nested `item: {enum: [...]}` form.
+- Dependency pass-throughs (`redis`, `mongodb`, `postgresql`, `prometheus`, `mongodbOperator`) use the pattern: `# @schema additionalProperties: true` on the parent + `# @schema hidden: true` on each child the chart doesn't own. Each chart-owned `enabled` flag is left typed (boolean) since `Chart.yaml` uses it as a `condition`.
+
+## Reference
+
+- Plugin docs: https://github.com/losisin/helm-values-schema-json
+- Annotation reference (after plugin install): `$(helm env HELM_PLUGINS)/helm-values-schema-json.git/docs/README.md` — `helm env HELM_PLUGINS` resolves to the platform-specific location (macOS: `~/Library/helm/plugins`, Linux: `~/.local/share/helm/plugins`, Windows: `%APPDATA%\helm\plugins`).

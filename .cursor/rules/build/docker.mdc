@@ -1,0 +1,184 @@
+---
+description: Docker image optimization — minimal base images, layer caching, multi-stage builds, and size reduction
+globs:
+  - "**/Dockerfile*"
+  - "**/.dockerignore"
+  - "**/docker-compose*.yml"
+alwaysApply: false
+---
+
+# Docker Image Optimization
+
+Docker images often become unnecessarily large because they include extra operating system packages, build tools, source files, caches, and temporary artifacts. Large images take longer to build, transfer, and deploy.
+
+This lesson covers practical ways to reduce Docker image size and improve build performance.
+
+## Summary
+
+To optimize Docker images:
+
+1. Start with smaller base images
+2. Structure Dockerfiles for layer caching
+3. Exclude unnecessary files with `.dockerignore`
+4. Combine related `RUN` commands
+5. Use multi-stage builds
+
+## 1. Choose Minimal Base Images
+
+Many Dockerfiles start with large base images that contain tools you may not need.
+
+Example:
+
+```dockerfile
+FROM node:20
+```
+
+A full Node.js image may include package managers, debugging tools, documentation, and other OS utilities.
+
+A smaller alternative is Alpine:
+
+```dockerfile
+FROM node:20-alpine
+```
+
+You can go even further with distroless images, which remove the shell, package manager, and most operating system utilities.
+
+```dockerfile
+FROM gcr.io/distroless/nodejs20
+```
+
+Use distroless images for production when you only need the runtime environment.
+
+## 2. Use Layer Caching Effectively
+
+Docker builds images layer by layer. If a layer has not changed, Docker can reuse the cached version.
+
+The order of instructions in a Dockerfile matters.
+
+Less efficient:
+
+```dockerfile
+COPY . .
+RUN npm install
+```
+
+If any source file changes, Docker must reinstall dependencies.
+
+More efficient:
+
+```dockerfile
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . .
+```
+
+In this version, Docker only reruns `npm install` when the dependency files change.
+
+## 3. Use .dockerignore
+
+Docker sends the current directory as the build context. Unnecessary files can slow down builds and accidentally expose sensitive data.
+
+Create a `.dockerignore` file:
+
+```text
+node_modules
+.git
+.env
+coverage
+dist
+Dockerfile
+README.md
+```
+
+This reduces the amount of data sent during the build and keeps unnecessary files out of the image.
+
+## 4. Consolidate RUN Commands
+
+Each `RUN` instruction creates a new immutable image layer.
+
+This is inefficient:
+
+```dockerfile
+RUN apt-get update
+RUN apt-get install -y curl
+RUN rm -rf /var/lib/apt/lists/*
+```
+
+Even though the cache files are deleted later, they still exist in previous layers.
+
+A better approach is:
+
+```dockerfile
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+```
+
+This ensures temporary files never become part of an earlier committed layer.
+
+## 5. Use Multi-Stage Builds
+
+Multi-stage builds separate the build environment from the final runtime environment.
+
+Example:
+
+```dockerfile
+# Build stage
+FROM node:20 AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+
+RUN npm install --omit=dev
+
+CMD ["node", "dist/index.js"]
+```
+
+The final image only contains the compiled application and production dependencies.
+
+This avoids shipping:
+
+* Source files
+* Build tools
+* Development dependencies
+* Test assets
+
+## 6. Use Optimization Tools
+
+External tools can help analyze and shrink Docker images.
+
+### Dive
+
+`Dive` helps inspect image layers and identify wasted space.
+
+Example:
+
+```bash
+dive my-image:latest
+```
+
+Use it to understand which layers are adding the most size.
+
+### SlimToolkit
+
+`SlimToolkit` can automatically minify container images and remove unused content.
+
+Example:
+
+```bash
+slim build my-image:latest
+```
+
+It can also help with debugging and security analysis.

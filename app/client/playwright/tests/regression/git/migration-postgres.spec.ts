@@ -1,5 +1,7 @@
 import { test, expect } from "../../../fixtures";
-import { loadMigrationState } from "../../../helpers/migration-state";
+import { loadMigrationState, getPage } from "../../../helpers/migration-state";
+import type { MigrationPage } from "../../../fixtures/migration.setup";
+import { viewUrl } from "../../../helpers/url";
 import { API } from "../../../constants/api-routes";
 import { SELECTORS } from "../../../constants/selectors";
 import { TableComponent } from "../../../page-objects/components/table.component";
@@ -7,16 +9,29 @@ import { DeployPage } from "../../../page-objects/deploy.page";
 
 test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
   let appSlug: string;
+  let branchName: string;
+  let astronautsPage: MigrationPage;
 
   test.beforeAll(() => {
     const state = loadMigrationState();
     appSlug = state.appSlug;
+    branchName = state.branchName;
+    astronautsPage = getPage(state, "public-astronauts");
   });
 
   test("table renders with astronauts data", async ({ page }) => {
-    await page.goto(`/app/${appSlug}/public-astronauts-*`);
+    await page.goto(
+      viewUrl({
+        pageId: astronautsPage.baseId,
+        pageSlug: astronautsPage.slug,
+        appSlug,
+        branch: branchName,
+      }),
+    );
 
-    const heading = page.locator(SELECTORS.widgetInDeployed("text")).first();
+    const heading = page
+      .locator(SELECTORS.widgetInDeployed("textwidget"))
+      .first();
     await expect(heading).toContainText("public_astronauts Data");
 
     const table = new TableComponent(page, "data_table");
@@ -25,7 +40,14 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
   });
 
   test("filter by id=196 returns Ulf Merbold", async ({ page }) => {
-    await page.goto(`/app/${appSlug}/public-astronauts-*`);
+    await page.goto(
+      viewUrl({
+        pageId: astronautsPage.baseId,
+        pageSlug: astronautsPage.slug,
+        appSlug,
+        branch: branchName,
+      }),
+    );
 
     const table = new TableComponent(page, "data_table");
     await table.waitUntilLoaded();
@@ -36,7 +58,14 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
   });
 
   test("update astronaut status via JSON form", async ({ page }) => {
-    await page.goto(`/app/${appSlug}/public-astronauts-*`);
+    await page.goto(
+      viewUrl({
+        pageId: astronautsPage.baseId,
+        pageSlug: astronautsPage.slug,
+        appSlug,
+        branch: branchName,
+      }),
+    );
 
     const deploy = new DeployPage(page);
     const table = new TableComponent(page, "data_table");
@@ -48,7 +77,7 @@ test.describe("Migration v1.9.24 — PostgreSQL CRUD (astronauts)", () => {
     const updateResponse = page.waitForResponse(
       (r) => r.url().includes(API.actionsExecute) && r.ok(),
     );
-    await deploy.clickButton("Update").click();
+    await page.locator(SELECTORS.jsonFormSubmitBtn).click({ force: true });
     await updateResponse;
 
     await table.waitUntilLoaded();

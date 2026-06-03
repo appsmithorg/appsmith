@@ -20,8 +20,10 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <!-- Overriding version to get fix for CVE-2024-1597. Remove once spring-boot is at least at 3.1.9 or 3.2.3 -->
-            <version>42.6.1</version>
+            <!-- Overriding Spring Boot's managed version (42.7.10) to pull in the fix for CVE-2026-42198
+                 (SCRAM-SHA-256 PBKDF2 client-side DoS via malicious PostgreSQL servers).
+                 Remove once Spring Boot manages org.postgresql:postgresql >= 42.7.11. -->
+            <version>42.7.11</version>
         </dependency>
 
         <dependency>

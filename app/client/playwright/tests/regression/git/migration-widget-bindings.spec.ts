@@ -1,35 +1,48 @@
 import { test, expect } from "../../../fixtures";
-import { loadMigrationState } from "../../../helpers/migration-state";
+import { loadMigrationState, getPage } from "../../../helpers/migration-state";
+import type { MigrationPage } from "../../../fixtures/migration.setup";
+import { viewUrl } from "../../../helpers/url";
 import { SELECTORS } from "../../../constants/selectors";
 import { TableComponent } from "../../../page-objects/components/table.component";
 
 test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
   let appSlug: string;
+  let branchName: string;
+  let widgetsPage: MigrationPage;
 
   test.beforeAll(() => {
     const state = loadMigrationState();
     appSlug = state.appSlug;
+    branchName = state.branchName;
+    widgetsPage = getPage(state, "widgets");
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(`/app/${appSlug}/widgets-*`);
+    await page.goto(
+      viewUrl({
+        pageId: widgetsPage.baseId,
+        pageSlug: widgetsPage.slug,
+        appSlug,
+        branch: branchName,
+      }),
+    );
     await expect(
-      page.locator(SELECTORS.widgetInDeployed("audio")),
+      page.locator(SELECTORS.widgetInDeployed("checkboxgroupwidget")),
     ).toBeVisible();
   });
 
   test("media and chart widgets are visible", async ({ page }) => {
     await expect(
-      page.locator(SELECTORS.widgetInDeployed("audio")),
+      page.locator(SELECTORS.widgetInDeployed("audiowidget")),
     ).toBeVisible();
     await expect(
-      page.locator(SELECTORS.widgetInDeployed("audiorecorder")),
+      page.locator(SELECTORS.widgetInDeployed("audiorecorderwidget")),
     ).toBeVisible();
     await expect(
-      page.locator(SELECTORS.widgetInDeployed("document_viewer")),
+      page.locator(SELECTORS.widgetInDeployed("documentviewerwidget")),
     ).toBeVisible();
     await expect(
-      page.locator(SELECTORS.widgetInDeployed("chart")),
+      page.locator(SELECTORS.widgetInDeployed("chartwidget")),
     ).toBeVisible();
   });
 
@@ -37,7 +50,7 @@ test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
     page,
   }) => {
     const checkboxGroup = page.locator(
-      SELECTORS.widgetInDeployed("checkboxgroup"),
+      SELECTORS.widgetInDeployed("checkboxgroupwidget"),
     );
     await expect(checkboxGroup).toBeVisible();
     await expect(checkboxGroup).toContainText("Select Astronaut");
@@ -47,14 +60,13 @@ test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
     await expect(checkboxGroup).toContainText("Thomas Reiter");
     await expect(checkboxGroup).toContainText("Anil Menon");
 
-    const ulfCheckbox = page.locator(
-      'input[type="checkbox"][value="Ulf Merbold"]',
-    );
+    const ulfCheckbox = page.getByRole("checkbox", { name: "Ulf Merbold" });
     await expect(ulfCheckbox).toBeChecked();
 
-    const anilCheckbox = page.getByRole("checkbox", { name: "Anil Menon" });
-    await anilCheckbox.check();
-    await expect(anilCheckbox).toBeChecked();
+    await checkboxGroup.getByText("Anil Menon").click();
+    await expect(
+      page.getByRole("checkbox", { name: "Anil Menon" }),
+    ).toBeChecked();
   });
 
   test("slider interaction fires toast", async ({ page }) => {
@@ -72,7 +84,7 @@ test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
     page,
   }) => {
     const currencyInput = page
-      .locator(SELECTORS.widgetInDeployed("currencyinput"))
+      .locator(SELECTORS.widgetInDeployed("currencyinputwidget"))
       .locator("input");
     await currencyInput.fill("10");
 
@@ -85,7 +97,7 @@ test.describe("Migration v1.9.24 — Widget bindings (Widgets page)", () => {
       .locator("input");
     await searchInput.fill("144");
 
-    const table = new TableComponent(page);
+    const table = new TableComponent(page, "Table1");
     await table.waitUntilLoaded();
     await expect(table.cell(0, 3)).toContainText("Christina");
   });

@@ -1,6 +1,10 @@
 import type { Page, Locator } from "@playwright/test";
 import { SELECTORS } from "../constants/selectors";
 
+// JSON form debounces formData updates by 200ms (Form.tsx DEBOUNCE_TIMEOUT).
+// Without this wait, submit actions read stale widget meta values.
+const JSON_FORM_DEBOUNCE_MS = 250;
+
 export class DeployPage {
   private readonly page: Page;
 
@@ -8,9 +12,8 @@ export class DeployPage {
     this.page = page;
   }
 
-  async openDeployPreview() {
-    await this.page.getByTestId("t--top-bar-deploy-btn").click();
-    await this.page.waitForURL((url) => url.pathname.includes("/app/"));
+  async publish() {
+    await this.page.locator(".t--application-publish-btn").click();
   }
 
   async navigateToDeployUrl(appSlug: string, pageSlug: string) {
@@ -32,16 +35,12 @@ export class DeployPage {
   }
 
   async fillJsonInput(label: string, value: string) {
-    const field = this.page
-      .getByText(label)
-      .locator("..")
-      .locator("input, textarea")
-      .first();
-    await field.clear();
+    const field = this.page.locator(SELECTORS.jsonFormInput(label));
     await field.fill(value);
+    await this.page.waitForTimeout(JSON_FORM_DEBOUNCE_MS);
   }
 
-  clickButton(name: string, nth = 0): Locator {
+  button(name: string, nth = 0): Locator {
     return this.page.getByRole("button", { name }).nth(nth);
   }
 

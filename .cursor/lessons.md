@@ -76,3 +76,35 @@ When generating multiple files in a batch, the agent drifted from agreed convent
 3. Used inline `.t--widget-textwidget` instead of `SELECTORS.widgetInDeployed("text")` from `constants/selectors.ts`.
 
 **Lesson:** After generating multiple files, audit every file against the established rules — especially wait strategies and constant usage. The `networkidle` shortcut and string literals are the path of least resistance during generation; they're the first things to check. Run ESLint before declaring done: `npx eslint playwright/tests/ --ext .ts`.
+
+## Playwright API setup: verify query params against the server
+**Date:** 2026-04-08
+**Context:** `migration.setup.ts` listed datasources with `?applicationId=`; server only accepts `workspaceId`
+
+`GET /api/v1/datasources` is implemented as `DatasourceServiceCEImpl.getAllWithStorages`, which reads **only** `workspaceId` from query params. Any other query (or none) yields **400** `INVALID_PARAMETER` for workspace id. The agent assumed `applicationId` was valid because the setup had just imported an app.
+
+**Fix:** Use `?workspaceId=${workspace.id}` (same workspace as Git import).
+
+**Lesson:** Never guess REST query parameters from context ("we have an app id, so list by app"). Always open the Java controller → service for that path and copy the exact param names. Add this to the Playwright rule checklist before shipping request-based setup or specs.
+
+## Appsmith Editor URL Format
+**Date:** 2026-04-09
+**Context:** Migration test `page.goto()` used `/applications/${appId}/pages/${pageId}` — not a valid Appsmith frontend route
+
+Appsmith has two valid editor URL formats:
+1. **Literal fallback:** `/app/application/page-{pageId}/edit?branch={branchName}` — "application" and "page-" are literal strings
+2. **Slug-based:** `/app/{appSlug}/{pageSlug}-{pageId}/edit?branch={branchName}` — uses actual app and page slugs
+
+For non-git apps, omit `?branch=...`. The agent incorrectly assumed "application" in format 1 was a placeholder for the app slug, producing a hybrid URL that matched neither format.
+
+**Lesson:** When the user provides an exact URL pattern, treat every segment as literal unless explicitly told otherwise. Don't silently interpret fixed strings as dynamic placeholders — ask if unsure. Created `helpers/url.ts` with `editorUrl()` wrapper that uses format 2 when slugs are available, falls back to format 1.
+
+## Appsmith Widget CSS Classes Include the "widget" Suffix
+**Date:** 2026-04-09
+**Context:** Playwright `SELECTORS.widgetInDeployed("text")` generated `.t--widget-text` — element not found in DOM
+
+Appsmith widget type identifiers in CSS classes include a `widget` suffix. The Cypress `WIDGET` constants in `cypress/locators/WidgetLocators.ts` define the canonical names: `TEXT = "textwidget"`, `AUDIO = "audiowidget"`, `CHART = "chartwidget"`, etc. The deployed-mode selector is `.t--widget-{widgetType}`, so the full class is `.t--widget-textwidget`, not `.t--widget-text`.
+
+The exception is widgets that already include a version suffix: `INPUT_V2 = "inputwidgetv2"`, `TABLE = "tablewidgetv2"`.
+
+**Lesson:** Always cross-reference Cypress `WidgetLocators.ts` when writing Playwright selectors for Appsmith widgets. The type string passed to `widgetInDeployed()` must match the Cypress `WIDGET.*` constant exactly — don't strip suffixes or guess shortened names.

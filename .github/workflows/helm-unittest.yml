@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  unittest:
     runs-on: ubuntu-latest
 
     defaults:
