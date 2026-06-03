@@ -17,7 +17,7 @@
   "dependencies": {
     "@llamaindex/readers": "2.0.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.54.2",
-    "@opentelemetry/instrumentation": "^0.54.2",
+    "@opentelemetry/instrumentation": "^0.218.0",
     "@opentelemetry/instrumentation-http": "^0.54.2",
     "@opentelemetry/resources": "^1.27.0",
     "@opentelemetry/sdk-trace-node": "^1.27.0",
