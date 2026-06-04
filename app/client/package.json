@@ -158,7 +158,7 @@
     "lodash-es": "4.17.21",
     "loglevel": "^1.7.1",
     "lottie-web": "^5.7.4",
-    "mammoth": "^1.5.1",
+    "mammoth": "^1.11.0",
     "memoize-one": "^6.0.0",
     "micro-memoize": "^4.0.10",
     "microdiff": "^1.4.0",
@@ -459,6 +459,22 @@
     "immutable": "4.3.8",
     "js-cookie": "3.0.7",
     "simple-git": "3.36.0",
-    "@protobufjs/utf8": "1.1.1"
+    "@protobufjs/utf8": "1.1.1",
+    "tar": "7.5.11",
+    "vite": "6.4.2",
+    "js-yaml": "3.14.2",
+    "mdast-util-to-hast": "13.2.1",
+    "ajv@^6.12.2": "6.14.0",
+    "ajv@^6.12.4": "6.14.0",
+    "ajv@^6.12.5": "6.14.0",
+    "@babel/plugin-transform-modules-systemjs": "7.29.4",
+    "rollup@^4.34.8": "4.59.0",
+    "rollup@^4.34.9": "4.59.0",
+    "yaml@^1.10.0": "1.10.3",
+    "yaml@^2.3.4": "2.8.3",
+    "yaml@2.3.1": "2.8.3",
+    "glob@^10.3.10": "10.5.0",
+    "glob@^10.3.7": "10.5.0",
+    "glob@^11.0.0": "11.1.0"
   }
 }
