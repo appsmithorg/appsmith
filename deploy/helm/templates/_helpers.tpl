@@ -230,6 +230,33 @@ Uses existing secret if provided, otherwise derives from the CR name
 {{- end -}}
 
 {{/*
+Redis: password secret name
+Uses existing secret if provided, otherwise derives "{release}-redis-secret"
+*/}}
+{{- define "appsmith.redisSecretName" -}}
+{{- .Values.redis.auth.existingSecret | default (printf "%s-redis-secret" .Release.Name) -}}
+{{- end -}}
+
+{{/*
+Redis: master service hostname (FQDN inside the cluster).
+Derived from the release name to stay uniform with the chart's other components.
+Assumes the release name does not contain "redis" (otherwise the Bitnami subchart
+collapses its fullname to just the release name and this host would not match).
+*/}}
+{{- define "appsmith.redisMasterHost" -}}
+{{- printf "%s-redis-master.%s.svc.cluster.local" .Release.Name (include "appsmith.namespace" .) -}}
+{{- end -}}
+
+{{/*
+Redis: kubectl image used by the password-init Job.
+Kept independent from the MongoDB equivalent so the two bootstraps don't share config.
+*/}}
+{{- define "appsmith.redisPasswordInitImage" -}}
+{{- $img := .Values.redisAuth.passwordInit.image -}}
+{{- printf "%s/%s:%s" $img.registry $img.repository $img.tag -}}
+{{- end -}}
+
+{{/*
 Renders a value that contains template.
 */}}
 {{- define "tplvalues.render" -}}

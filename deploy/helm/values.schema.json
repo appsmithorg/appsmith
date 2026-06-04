@@ -563,6 +563,33 @@
             },
             "additionalProperties": true
         },
+        "redisAuth": {
+            "type": "object",
+            "properties": {
+                "passwordInit": {
+                    "type": "object",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "pullPolicy": {
+                                    "type": "string"
+                                },
+                                "registry": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "replicas": {
             "description": "Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.",
             "type": "integer",

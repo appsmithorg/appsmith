@@ -5,7 +5,9 @@ redis: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   auth:
-    enabled: false
+    enabled: true
+    existingSecret: appsmith-redis-secret
+    existingSecretPasswordKey: redis-password
   # @schema hidden: true
   master:
     nodeSelector: {}
@@ -24,6 +26,27 @@ redis: # @schema additionalProperties: true
     registry: docker.io
     repository: redis
     tag: 7.4.9
+
+## Redis auth bootstrap (Appsmith-managed, not passed to the subchart)
+## A pre-install/pre-upgrade Job generates the Redis password Secret referenced by
+## redis.auth.existingSecret when it does not already exist, keeping the password
+## stable across upgrades and ArgoCD re-syncs. Kept separate from `redis` so it is
+## never forwarded to the Bitnami subchart.
+redisAuth:
+  ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the Redis password Secret).
+  ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
+  ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
+  ## version if you need byte-level reproducibility.
+  passwordInit:
+    image:
+      ## @param redisAuth.passwordInit.image.registry Registry for the kubectl image
+      registry: docker.io
+      ## @param redisAuth.passwordInit.image.repository Repository path for the kubectl image
+      repository: alpine/kubectl
+      ## @param redisAuth.passwordInit.image.tag Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      tag: latest
+      ## @param redisAuth.passwordInit.image.pullPolicy Image pull policy for the Job
+      pullPolicy: IfNotPresent
 
 ## MongoDB parameters
 ## Values are passed through to the Bitnami mongodb subchart; not validated by this schema.
