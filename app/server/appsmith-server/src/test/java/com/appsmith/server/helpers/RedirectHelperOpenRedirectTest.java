@@ -5,6 +5,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.http.HttpHeaders;
 
+import java.net.InetSocketAddress;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -79,8 +81,8 @@ class RedirectHelperOpenRedirectTest {
     }
 
     @Test
-    void testAbsoluteUrlWithNoOriginHeaderIsBlocked() {
-        HttpHeaders headers = new HttpHeaders(); // no Origin header
+    void testAbsoluteUrlWithNoOriginAndNoHostIsBlocked() {
+        HttpHeaders headers = new HttpHeaders(); // no Origin, no Host, no X-Forwarded-Host
         assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com/phish", headers));
         assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
     }
@@ -90,6 +92,126 @@ class RedirectHelperOpenRedirectTest {
         HttpHeaders headers = new HttpHeaders(); // no Origin header
         assertTrue(RedirectHelper.isSafeRedirectUrl("/applications", headers));
         assertTrue(RedirectHelper.isSafeRedirectUrl("/applications/123/pages/456/edit", headers));
+    }
+
+    // --- Origin-absent fallback path (top-level GET navigations omit Origin) ---
+
+    @Test
+    void testSameHostViaHostHeaderIsSafe() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/app/abc/page-id", headers));
+    }
+
+    @Test
+    void testSameHostViaXForwardedHostIsSafe() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/app/abc/page-id", headers));
+    }
+
+    @Test
+    void testXForwardedHostWinsOverHost() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("internal.lb", 0));
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+        // The Host value must not be honored when X-Forwarded-Host disagrees.
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://internal.lb/applications", headers));
+    }
+
+    @Test
+    void testXForwardedHostCommaSeparatedTakesFirst() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com, internal.lb");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://internal.lb/applications", headers));
+    }
+
+    @Test
+    void testXForwardedHostWithPortIsMatched() {
+        // A port embedded in X-Forwarded-Host is honored: the redirect must target the
+        // same port, and a redirect to a different port on the same host is rejected.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com:8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testSameHostDifferentPortBlockedInFallbackPath() {
+        // Origin absent, request host has no explicit port (implicit 443 for https);
+        // a redirect to another port on the same host points at a different service.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+    }
+
+    @Test
+    void testHostHeaderWithExplicitPortIsMatched() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 8443));
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testXForwardedPortIsUsedForPortComparison() {
+        // Proxies typically place the client-facing port in X-Forwarded-Port rather than
+        // embedding it in X-Forwarded-Host.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        headers.set("X-Forwarded-Port", "8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testXForwardedPortHonoredWithoutXForwardedHost() {
+        // Proxy preserves Host (so the host comes from there) but conveys the
+        // client-facing port only via X-Forwarded-Port.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        headers.set("X-Forwarded-Port", "8443");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:8443/applications", headers));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers));
+    }
+
+    @Test
+    void testExplicitDefaultPortMatchesImplicitPortInFallbackPath() {
+        // Request host carries no port (implicit 443); redirect to :443 must still match.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com:443/applications", headers));
+    }
+
+    @Test
+    void testDifferentHostBlockedViaHostFallback() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com/phish", headers));
+    }
+
+    @Test
+    void testUserInfoBlockedInFallbackPath() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("https://evil.com@app.appsmith.com/", headers));
+    }
+
+    @Test
+    void testProtocolRelativeBlockedInFallbackPath() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+        assertFalse(RedirectHelper.isSafeRedirectUrl("//evil.com/path", headers));
+    }
+
+    @Test
+    void testIPv6HostInXForwardedHostStripsBrackets() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Forwarded-Host", "[::1]:8080");
+        assertTrue(RedirectHelper.isSafeRedirectUrl("http://[::1]:8080/applications", headers));
     }
 
     @Test
