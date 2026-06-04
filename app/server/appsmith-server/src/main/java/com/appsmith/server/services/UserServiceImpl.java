@@ -46,7 +46,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
             InstanceVariablesHelper instanceVariablesHelper,
-            SecureBaseUrlResolver secureBaseUrlResolver) {
+            SecureBaseUrlResolver secureBaseUrlResolver,
+            CacheablePylonHelper cacheablePylonHelper) {
         super(
                 validator,
                 repository,
@@ -65,6 +66,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 pacConfigurationService,
                 userServiceHelper,
                 instanceVariablesHelper,
-                secureBaseUrlResolver);
+                secureBaseUrlResolver,
+                cacheablePylonHelper);
     }
 }
