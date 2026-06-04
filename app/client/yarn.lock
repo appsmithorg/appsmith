@@ -11617,12 +11617,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/nodemailer@npm:^6.4.17":
-  version: 6.4.17
-  resolution: "@types/nodemailer@npm:6.4.17"
+"@types/nodemailer@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@types/nodemailer@npm:8.0.0"
   dependencies:
     "@types/node": "*"
-  checksum: 498b702575111494a42cf9cdd3d399f0308c3b3b0244e7f53008924327955a16b39ba0bf99a5ccf17af9fd2bc50a61a76ae7e8a75498a426ea2f828a05202eab
+  checksum: 9d3e762737c54df69538b9ecb14730499131c3573c6dd64dee3057553303b507dc3072489ce55ecda863c13b5ca9f713540885ae113f015e2a241bdc6e8a7ff3
   languageName: node
   linkType: hard
 
@@ -13652,7 +13652,7 @@ __metadata:
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
     "@types/node": "*"
-    "@types/nodemailer": ^6.4.17
+    "@types/nodemailer": ^8.0.0
     "@types/readline-sync": ^1.4.8
     axios: ^1.15.0
     dotenv: 10.0.0
@@ -13663,7 +13663,7 @@ __metadata:
     llamaindex: 0.9.0
     loglevel: ^1.8.1
     mongodb: ^5.8.0
-    nodemailer: 6.9.9
+    nodemailer: 8.0.10
     readline-sync: 1.4.10
     simple-git: ^3.32.3
     supertest: ^6.3.3
@@ -26502,10 +26502,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:6.9.9":
-  version: 6.9.9
-  resolution: "nodemailer@npm:6.9.9"
-  checksum: 9af862b497273796ad6ba7ca9eac23a7d69737554f6dd51cfd3557f60902c56344158192672f1208daf00340a47a9e1805bd809965edc191011b35dd98a74be1
+"nodemailer@npm:8.0.10":
+  version: 8.0.10
+  resolution: "nodemailer@npm:8.0.10"
+  checksum: 491b14ca67a60b90006af953518d2ccaf352ae9ef086c3bf01cf1d7bd7dba5b5fdc8ef46a008244cef0cc233f82dde56508e01c6797b4589bf5cfca1239b79c8
   languageName: node
   linkType: hard
 
