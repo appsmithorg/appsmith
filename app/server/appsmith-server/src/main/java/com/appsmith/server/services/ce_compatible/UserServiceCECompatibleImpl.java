@@ -10,6 +10,7 @@ import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.CacheablePylonHelper;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -41,7 +42,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
             InstanceVariablesHelper instanceVariablesHelper,
-            SecureBaseUrlResolver secureBaseUrlResolver) {
+            SecureBaseUrlResolver secureBaseUrlResolver,
+            CacheablePylonHelper cacheablePylonHelper) {
         super(
                 validator,
                 repository,
@@ -60,6 +62,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 pacConfigurationService,
                 userServiceHelper,
                 instanceVariablesHelper,
-                secureBaseUrlResolver);
+                secureBaseUrlResolver,
+                cacheablePylonHelper);
     }
 }
