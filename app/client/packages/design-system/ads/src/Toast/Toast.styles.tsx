@@ -58,6 +58,7 @@ export const ToastBody = styled(Text)`
   color: var(--ads-v2-colors-response-label-default-fg);
   gap: var(--ads-v2-spaces-3);
   word-break: break-word;
+  white-space: pre-line;
 `;
 
 export const StyledButton = styled(Button)`
