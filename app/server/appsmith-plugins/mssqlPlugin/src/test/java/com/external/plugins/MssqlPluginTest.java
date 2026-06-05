@@ -773,6 +773,7 @@ public class MssqlPluginTest {
                 })
                 .verifyComplete();
     }
+
     @Test
     public void testSslDefaultsToDisable_whenAuthTypeIsNull() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
@@ -782,9 +783,9 @@ public class MssqlPluginTest {
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(hikariDataSource -> {
-                        assertNotNull(hikariDataSource);
-                        assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
+                    assertNotNull(hikariDataSource);
+                    assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
                 })
                 .verifyComplete();
-        }
+    }
 }
