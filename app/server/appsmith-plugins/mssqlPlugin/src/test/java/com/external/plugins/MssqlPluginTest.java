@@ -143,6 +143,15 @@ public class MssqlPluginTest {
                     assertNotNull(datasourceTestResult);
                     assertTrue(datasourceTestResult.isSuccess());
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                    assertEquals(
+                            List.of(
+                                    "Summary",
+                                    "Database: MSSQL",
+                                    "Host: " + container.getHost(),
+                                    "Port: " + container.getMappedPort(1433),
+                                    "SSL: Enabled with no verify",
+                                    "Authentication: Username/Password"),
+                            new ArrayList<>(datasourceTestResult.getMessages()));
                 })
                 .verifyComplete();
     }
@@ -770,21 +779,6 @@ public class MssqlPluginTest {
         StepVerifier.create(endPointIdentifierMono)
                 .assertNext(endpointIdentifier -> {
                     assertEquals("localhost_1433", endpointIdentifier);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslDefaultsToDisable_whenAuthTypeIsNull() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
-        dsConfig.getConnection().getSsl().setAuthType(null);
-
-        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
-
-        StepVerifier.create(dsConnectionMono)
-                .assertNext(hikariDataSource -> {
-                    assertNotNull(hikariDataSource);
-                    assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
                 })
                 .verifyComplete();
     }

@@ -962,12 +962,6 @@ export function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
       if (responseData.messages && responseData.messages.length) {
         messages = responseData.messages;
-
-        if (responseData.success) {
-          toast.show(createMessage(DATASOURCE_VALID, payload.name), {
-            kind: "success",
-          });
-        }
       }
 
       if (responseData.invalids && responseData.invalids.length) {
@@ -1010,7 +1004,12 @@ export function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           environmentName: currentEnvDetails.name,
           pluginName: plugin?.name,
         });
-        toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+        const successMessage = [
+          createMessage(DATASOURCE_VALID, payload.name),
+          ...messages,
+        ].join("\n");
+
+        toast.show(successMessage, {
           kind: "success",
         });
         yield put({

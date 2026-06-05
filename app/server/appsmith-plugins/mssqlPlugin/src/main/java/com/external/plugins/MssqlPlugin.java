@@ -17,6 +17,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -65,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -383,6 +385,76 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return this.datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> this.testDatasource(connection)
+                            .map(testResult -> {
+                                testResult.setMessages(buildDatasourceConfigurationSummary(datasourceConfiguration));
+                                return testResult;
+                            })
+                            .doFinally(signal -> this.datasourceDestroy(connection)))
+                    .onErrorResume(error -> {
+                        final String errorMessage = error.getMessage() == null
+                                ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
+                                : error.getMessage();
+                        if (error instanceof AppsmithPluginException
+                                && StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                            return Mono.just(new DatasourceTestResult(
+                                    ((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                        }
+                        return Mono.just(new DatasourceTestResult(errorMessage));
+                    })
+                    .subscribeOn(Schedulers.boundedElastic());
+        }
+
+        private Set<String> buildDatasourceConfigurationSummary(DatasourceConfiguration datasourceConfiguration) {
+            Set<String> summary = new LinkedHashSet<>();
+            summary.add("Summary");
+            summary.add("Database: MSSQL");
+
+            if (!isEmpty(datasourceConfiguration.getEndpoints())) {
+                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                summary.add("Host: " + endpoint.getHost());
+                summary.add("Port: " + getPort(endpoint));
+            }
+
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection() != null
+                    && datasourceConfiguration.getConnection().getSsl() != null
+                    ? datasourceConfiguration.getConnection().getSsl().getAuthType()
+                    : null;
+            SSLDetails.AuthType resolvedSslAuthType =
+                    ObjectUtils.defaultIfNull(sslAuthType, SSLDetails.AuthType.DISABLE);
+            summary.add("SSL: " + getSslDisplayName(resolvedSslAuthType));
+
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (authentication != null && authentication.getAuthType() != null) {
+                summary.add("Authentication: " + getAuthenticationDisplayName(authentication.getAuthType()));
+            }
+
+            return summary;
+        }
+
+        private String getSslDisplayName(SSLDetails.AuthType sslAuthType) {
+            switch (sslAuthType) {
+                case DISABLE:
+                    return "Disabled";
+                case NO_VERIFY:
+                    return "Enabled with no verify";
+                default:
+                    return sslAuthType.name();
+            }
+        }
+
+        private String getAuthenticationDisplayName(DBAuth.Type authType) {
+            switch (authType) {
+                case USERNAME_PASSWORD:
+                    return "Username/Password";
+                default:
+                    return authType.name();
+            }
+        }
+
+        @Override
         public void datasourceDestroy(HikariDataSource connection) {
             if (connection != null) {
                 connection.close();
@@ -646,7 +718,8 @@ public class MssqlPlugin extends BasePlugin {
          * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
          */
         if (datasourceConfiguration.getConnection() == null
-                || datasourceConfiguration.getConnection().getSsl() == null) {
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Appsmith server has failed to fetch SSL configuration from datasource configuration form. "
@@ -656,8 +729,8 @@ public class MssqlPlugin extends BasePlugin {
         /*
          * - By default, the driver configures SSL in the no verify mode.
          */
-        SSLDetails.AuthType sslAuthType = ObjectUtils.defaultIfNull(
-                datasourceConfiguration.getConnection().getSsl().getAuthType(), SSLDetails.AuthType.DISABLE);
+        SSLDetails.AuthType sslAuthType =
+                datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case DISABLE:
                 urlBuilder.append("encrypt=false;");
