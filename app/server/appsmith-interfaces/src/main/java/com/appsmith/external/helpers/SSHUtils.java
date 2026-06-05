@@ -6,6 +6,8 @@ import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.UploadedFile;
 import lombok.NoArgsConstructor;
+import net.schmizz.keepalive.KeepAliveProvider;
+import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Parameters;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -43,6 +45,19 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @NoArgsConstructor
 public class SSHUtils {
     public static final Long DEFAULT_SSH_PORT = 22L;
+
+    /**
+     * Interval, in seconds, at which keep-alive probes are sent over an established SSH tunnel.
+     * <p>
+     * Without keep-alive, a tunnel that sits idle for a long time (no queries for hours) is silently dropped by
+     * NATs / firewalls / the SSH server. sshj does not observe the drop, so {@link #isSSHTunnelConnected} keeps
+     * reporting the tunnel as connected, the dead tunnel is reused, and queries fail until the datasource is
+     * re-saved. Sending probes well below common idle-timeout windows keeps the tunnel warm and, when the peer is
+     * genuinely gone, lets sshj tear the transport down so the connection is correctly classified as stale and
+     * recreated automatically.
+     */
+    public static final int SSH_KEEP_ALIVE_INTERVAL_SECONDS = 30;
+
     static Object monitor = new Object(); // monitor object to be used for synchronization lock
     public static final int RANDOM_FREE_PORT_NUM = 0; // using port 0 indicates `bind` method to acquire random free
     // port
@@ -66,7 +81,15 @@ public class SSHUtils {
             String sshHost, int sshPort, String sshUsername, UploadedFile key, String dbHost, int dbPort)
             throws IOException {
 
-        final SSHClient client = new SSHClient();
+        /**
+         * Build the client with a keep-alive aware config so that idle tunnels do not get silently dropped and dead
+         * tunnels are detected. See {@link #SSH_KEEP_ALIVE_INTERVAL_SECONDS}. KeepAliveProvider.KEEP_ALIVE sends
+         * `keepalive@openssh.com` probes and tears the transport down once enough probes go unanswered, which makes
+         * `isConnected()` flip to false for a genuinely dead tunnel.
+         */
+        final DefaultConfig config = new DefaultConfig();
+        config.setKeepAliveProvider(KeepAliveProvider.KEEP_ALIVE);
+        final SSHClient client = new SSHClient(config);
 
         /**
          * Usually SSH client tries to verify remote host public key with the public key available in known_hosts
@@ -125,6 +148,12 @@ public class SSHUtils {
 
         // Authenticate using the detected key format
         client.auth(sshUsername, new AuthPublickey(keyFile));
+
+        /**
+         * Now that the transport is authenticated and ready, start the keep-alive probes. A positive interval
+         * activates the keep-alive thread created by KeepAliveProvider.KEEP_ALIVE.
+         */
+        client.getConnection().getKeepAlive().setKeepAliveInterval(SSH_KEEP_ALIVE_INTERVAL_SECONDS);
 
         final ServerSocket serverSocket = new ServerSocket();
         final Parameters params = new Parameters(LOCALHOST, RANDOM_FREE_PORT_NUM, dbHost, dbPort);

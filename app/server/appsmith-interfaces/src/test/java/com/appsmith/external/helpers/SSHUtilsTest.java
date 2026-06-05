@@ -18,6 +18,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.external.helpers.SSHUtils.SSH_KEEP_ALIVE_INTERVAL_SECONDS;
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SSHUtils.getDBPortFromConfigOrDefault;
 import static com.appsmith.external.helpers.SSHUtils.getSSHPortFromConfigOrDefault;
@@ -167,5 +168,19 @@ public class SSHUtilsTest {
         datasourceConfiguration.setEndpoints(List.of(new Endpoint()));
 
         assertEquals(getDBPortFromConfigOrDefault(datasourceConfiguration, 1234L), 1234L);
+    }
+
+    /**
+     * Guards the keep-alive interval used when creating SSH tunnels. It must be a positive value, and comfortably
+     * below common NAT / firewall / SSH-server idle timeouts (often as low as ~300s), so that an idle tunnel is kept
+     * warm instead of being silently dropped - which is the root cause of MySQL-over-SSH datasources going dead after
+     * a period of inactivity.
+     */
+    @Test
+    public void testSSHKeepAliveIntervalIsSaneAndEnabled() {
+        assertTrue(SSH_KEEP_ALIVE_INTERVAL_SECONDS > 0, "SSH keep-alive must be enabled (interval > 0)");
+        assertTrue(
+                SSH_KEEP_ALIVE_INTERVAL_SECONDS < 300,
+                "SSH keep-alive interval must stay well below common idle-timeout windows");
     }
 }

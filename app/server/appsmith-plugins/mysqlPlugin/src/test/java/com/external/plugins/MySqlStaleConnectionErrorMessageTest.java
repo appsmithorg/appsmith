@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ConnectionContext;
@@ -12,6 +13,7 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.ValidationDepth;
+import net.schmizz.sshj.SSHClient;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.pool.PoolShutdownException;
@@ -127,6 +129,74 @@ public class MySqlStaleConnectionErrorMessageTest {
         when(mockConnection.close()).thenReturn(Mono.empty());
         ConnectionContext<ConnectionPool> connectionContext =
                 new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+        StepVerifier.create(actionExecutionResultMono)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof StaleConnectionException);
+                    assertEquals(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG, error.getMessage());
+                })
+                .verify();
+    }
+
+    /**
+     * Simulates an SSH tunnel that has been dropped after a period of inactivity (e.g. an idle timeout or a forced
+     * disconnect). The pooled DB connection still validates locally, but the underlying tunnel is dead. This must be
+     * classified as a stale connection so that {@code DatasourceContextService.retryOnce} tears down and recreates the
+     * SSH-backed context automatically, instead of the failure surfacing as an ordinary failed query result that would
+     * force the user to re-save the datasource.
+     */
+    @Test
+    public void testStaleConnectionExceptionWhenSSHTunnelIsDisconnected() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select 1;");
+
+        ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnectionPool.create()).thenReturn(Mono.just(mockConnection));
+        // The local pooled connection still reports itself valid - the staleness is in the tunnel, not the pool.
+        when(mockConnection.validate(ValidationDepth.LOCAL)).thenReturn(Mono.just(true));
+        when(mockConnection.close()).thenReturn(Mono.empty());
+
+        // Tunnel is dead: the SSH client is no longer connected.
+        SSHClient mockSSHClient = mock(SSHClient.class);
+        when(mockSSHClient.isConnected()).thenReturn(false);
+        SSHTunnelContext sshTunnelContext = new SSHTunnelContext(null, null, mockSSHClient);
+
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, sshTunnelContext);
+        Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+        StepVerifier.create(actionExecutionResultMono)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof StaleConnectionException);
+                    assertEquals(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG, error.getMessage());
+                })
+                .verify();
+    }
+
+    /**
+     * Simulates an SSH tunnel whose transport is still up but whose authenticated session has been lost. This is also
+     * a dead tunnel and must be classified as stale rather than reused.
+     */
+    @Test
+    public void testStaleConnectionExceptionWhenSSHTunnelAuthenticationLost() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select 1;");
+
+        ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnectionPool.create()).thenReturn(Mono.just(mockConnection));
+        when(mockConnection.validate(ValidationDepth.LOCAL)).thenReturn(Mono.just(true));
+        when(mockConnection.close()).thenReturn(Mono.empty());
+
+        SSHClient mockSSHClient = mock(SSHClient.class);
+        when(mockSSHClient.isConnected()).thenReturn(true);
+        when(mockSSHClient.isAuthenticated()).thenReturn(false);
+        SSHTunnelContext sshTunnelContext = new SSHTunnelContext(null, null, mockSSHClient);
+
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, sshTunnelContext);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
