@@ -14051,7 +14051,7 @@ __metadata:
     tern: ^0.21.0
     terser-webpack-plugin: ^5.2.5
     tinycolor2: ^1.4.2
-    tinymce: 6.8.5
+    tinymce: 7.9.3
     toposort: ^2.0.2
     ts-jest: ^29.1.0
     ts-jest-mock-import-meta: ^0.12.0
@@ -33766,10 +33766,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinymce@npm:6.8.5":
-  version: 6.8.5
-  resolution: "tinymce@npm:6.8.5"
-  checksum: 7f7ad8dd2b117b8a671f97e41fc094935cfe4d4b525c90e97c6fdb480b19514e334f4360d89f34c04915a928e0cf5264fc1a60559554770452d6fce17b884940
+"tinymce@npm:7.9.3":
+  version: 7.9.3
+  resolution: "tinymce@npm:7.9.3"
+  checksum: bf09cb4bfd4eae5588db39d976c81b735800bd04dd855f8e8bb6ecfa023f82fe08c0ba38a7727dce7588a9c4c24dfbf520f29d651bee041e75751c74db0a53e6
   languageName: node
   linkType: hard
 
