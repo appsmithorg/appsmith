@@ -422,8 +422,8 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
+          licenseKey="gpl"
           init={{
-            license_key: "gpl",
             height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
             toolbar_mode: "sliding",
