@@ -422,7 +422,6 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
-          licenseKey="gpl"
           init={{
             height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
@@ -497,6 +496,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             },
           }}
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
+          licenseKey="gpl"
           onEditorChange={handleEditorChange}
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
