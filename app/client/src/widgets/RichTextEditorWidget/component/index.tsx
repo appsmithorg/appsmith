@@ -350,7 +350,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | blocks | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons | code | help";
+    "insertfile undo redo | blocks | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | preview media | emoticons | code | help";
 
   const handleEditorChange = useCallback(
     // TODO: Fix this the next time the file is edited
@@ -423,6 +423,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
           init={{
+            license_key: "gpl",
             height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
             toolbar_mode: "sliding",
@@ -431,6 +432,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             resize: false,
             browser_spellcheck: true,
             convert_unsafe_embeds: true,
+            sandbox_iframes: true,
             content_style: `
               ${cssVariables}
               ${
