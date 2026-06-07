@@ -1,4 +1,5 @@
 import { getAppsmithConfigs } from "ee/configs";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import {
   ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,
@@ -45,7 +46,7 @@ import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
 import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
 
-const { betterbugs, cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { betterbugs, cloudHosting } = getAppsmithConfigs();
 
 export const VersionData = styled.div`
   display: flex;
@@ -156,11 +157,11 @@ const HomepageHeaderAction = ({
                     {createMessage(SEND_SUPPORT_INFO)}
                   </MenuItem>
                 )}
-                {intercomAppID && window.Intercom && !isAirgapped() && (
+                {isPylonChatAvailable() && (
                   <MenuItem
                     onSelect={(e) => {
                       if (user?.isIntercomConsentGiven || cloudHosting) {
-                        window.Intercom("show");
+                        window.Pylon("show");
                       } else {
                         e?.preventDefault();
                         setShowIntercomConsent(true);

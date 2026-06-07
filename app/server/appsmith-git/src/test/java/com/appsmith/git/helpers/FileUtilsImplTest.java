@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
@@ -11,6 +12,8 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -199,6 +203,134 @@ public class FileUtilsImplTest {
         Object result =
                 fileUtils.reconstructMetadataFromGitRepository(validRepoSuffix).block();
         Assertions.assertNotNull(result);
+    }
+
+    /**
+     * GHSA-r553-q33m-v7pf: Path traversal via malicious widgetName during Git serialization.
+     * A widget with a name containing path traversal sequences (e.g., "../../../../tmp/evil")
+     * must be rejected by validatePathIsWithinGitRoot before any file write occurs.
+     */
+    @Test
+    public void saveApplicationRef_pathTraversalInWidgetName_throwsSecurityException_GHSA_r553()
+            throws GitAPIException, IOException {
+
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(true));
+
+        Files.createDirectories(localTestDirectoryPath);
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.putResource("pageList", "TestPage");
+
+        String maliciousWidgetName = "../../../../tmp/ghsa-r553-traversal-test";
+
+        JSONObject maliciousWidget = new JSONObject();
+        maliciousWidget.put("widgetName", maliciousWidgetName);
+        maliciousWidget.put("type", "BUTTON_WIDGET");
+        maliciousWidget.put("widgetId", "exploit123");
+
+        JSONObject canvasWidget = new JSONObject();
+        canvasWidget.put("widgetName", "Canvas1");
+        canvasWidget.put("type", "CANVAS_WIDGET");
+        canvasWidget.put("children", new JSONArray().put(maliciousWidget));
+
+        JSONObject mainContainer = new JSONObject();
+        mainContainer.put("widgetName", "MainContainer");
+        mainContainer.put("type", "CANVAS_WIDGET");
+        mainContainer.put("widgetId", "0");
+        mainContainer.put("children", new JSONArray().put(canvasWidget));
+
+        ApplicationGitReference appRef = new ApplicationGitReference();
+        appRef.setApplication(new Object());
+        appRef.setTheme(new Object());
+        appRef.setMetadata(new Object());
+        appRef.setModifiedResources(modifiedResources);
+
+        Map<String, Object> pages = new HashMap<>();
+        pages.put("TestPage", new Object());
+        appRef.setPages(pages);
+
+        Map<String, String> pageDsl = new HashMap<>();
+        pageDsl.put("TestPage", mainContainer.toString());
+        appRef.setPageDsl(pageDsl);
+
+        appRef.setActions(new HashMap<>());
+        appRef.setActionCollections(new HashMap<>());
+        appRef.setDatasources(new HashMap<>());
+        appRef.setJsLibraries(new HashMap<>());
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            fileUtils
+                    .saveApplicationToGitRepo(Path.of(""), appRef, "branch", false)
+                    .block();
+        });
+
+        Assertions.assertFalse(
+                Files.exists(Path.of("/tmp/ghsa-r553-traversal-test.json")),
+                "Path traversal: file was created outside git root");
+    }
+
+    /**
+     * GHSA-r553-q33m-v7pf: Verify that legitimate widget names still serialize correctly.
+     */
+    @Test
+    public void saveApplicationRef_legitimateWidgetName_doesNotThrow_GHSA_r553() throws GitAPIException, IOException {
+
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(true));
+
+        Files.createDirectories(localTestDirectoryPath);
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.putResource("pageList", "TestPage");
+
+        JSONObject safeWidget = new JSONObject();
+        safeWidget.put("widgetName", "Button1");
+        safeWidget.put("type", "BUTTON_WIDGET");
+        safeWidget.put("widgetId", "safe123");
+
+        JSONObject canvasWidget = new JSONObject();
+        canvasWidget.put("widgetName", "Canvas1");
+        canvasWidget.put("type", "CANVAS_WIDGET");
+        canvasWidget.put("children", new JSONArray().put(safeWidget));
+
+        JSONObject mainContainer = new JSONObject();
+        mainContainer.put("widgetName", "MainContainer");
+        mainContainer.put("type", "CANVAS_WIDGET");
+        mainContainer.put("widgetId", "0");
+        mainContainer.put("children", new JSONArray().put(canvasWidget));
+
+        ApplicationGitReference appRef = new ApplicationGitReference();
+        appRef.setApplication(new Object());
+        appRef.setTheme(new Object());
+        appRef.setMetadata(new Object());
+        appRef.setModifiedResources(modifiedResources);
+
+        Map<String, Object> pages = new HashMap<>();
+        pages.put("TestPage", new Object());
+        appRef.setPages(pages);
+
+        Map<String, String> pageDsl = new HashMap<>();
+        pageDsl.put("TestPage", mainContainer.toString());
+        appRef.setPageDsl(pageDsl);
+
+        appRef.setActions(new HashMap<>());
+        appRef.setActionCollections(new HashMap<>());
+        appRef.setDatasources(new HashMap<>());
+        appRef.setJsLibraries(new HashMap<>());
+
+        Assertions.assertDoesNotThrow(() -> {
+            fileUtils
+                    .saveApplicationToGitRepo(Path.of(""), appRef, "branch", false)
+                    .block();
+        });
+
+        Path widgetFile = localTestDirectoryPath
+                .resolve(PAGE_DIRECTORY)
+                .resolve("TestPage")
+                .resolve("widgets")
+                .resolve("Button1.json");
+        Assertions.assertTrue(Files.exists(widgetFile), "Legitimate widget file should exist");
     }
 
     /**

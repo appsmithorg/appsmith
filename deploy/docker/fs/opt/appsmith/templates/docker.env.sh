@@ -5,8 +5,7 @@ MONGO_USER="$1"
 DB_PASSWORD="$2"
 ENCRYPTION_PASSWORD="$3"
 ENCRYPTION_SALT="$4"
-SUPERVISOR_PASSWORD="$5"
-REDIS_PASSWORD="${6:-}"
+REDIS_PASSWORD="${5:-}"
 
 cat <<EOF
 # Sentry
@@ -78,9 +77,6 @@ APPSMITH_JAVA_ARGS=
 # APPSMITH_PLUGIN_MAX_RESPONSE_SIZE_MB=5
 # MAX PAYLOAD SIZE
 # APPSMITH_CODEC_SIZE=
-
-APPSMITH_SUPERVISOR_USER=appsmith
-APPSMITH_SUPERVISOR_PASSWORD=$SUPERVISOR_PASSWORD
 
 # Set this to a space separated list of addresses that should be allowed to load Appsmith in a frame.
 # Example: "https://mydomain.com https://another-trusted-domain.com" will allow embedding on those two domains.
