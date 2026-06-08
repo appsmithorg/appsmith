@@ -15,6 +15,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -772,5 +773,116 @@ public class MssqlPluginTest {
                     assertEquals("localhost_1433", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testSslDefaultsToDisable_whenConnectionIsNull() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setConnection(null);
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                    assertNotNull(hikariDataSource);
+                    assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDefaultsToDisable_whenSslDetailsAreNull() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().setSsl(null);
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                    assertNotNull(hikariDataSource);
+                    assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDefaultsToDisable_whenAuthTypeIsNull() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().getSsl().setAuthType(null);
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                    assertNotNull(hikariDataSource);
+                    assertTrue(hikariDataSource.getJdbcUrl().contains("encrypt=false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectionTimeout_defaultAppliedWhenNoPropertySet() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        // No properties set — default timeout should be used
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                    assertNotNull(hikariDataSource);
+                    String jdbcUrl = hikariDataSource.getJdbcUrl();
+                    assertTrue(
+                            jdbcUrl.contains("loginTimeout=60"),
+                            "JDBC URL should contain default loginTimeout=60 but was: " + jdbcUrl);
+                    assertEquals(
+                            60000L,
+                            hikariDataSource.getConnectionTimeout(),
+                            "HikariCP connectionTimeout should be 60000ms");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectionTimeout_customValueApplied() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setProperties(List.of(new Property("connectionTimeout", "30")));
+
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(hikariDataSource -> {
+                    assertNotNull(hikariDataSource);
+                    String jdbcUrl = hikariDataSource.getJdbcUrl();
+                    assertTrue(
+                            jdbcUrl.contains("loginTimeout=30"),
+                            "JDBC URL should contain loginTimeout=30 but was: " + jdbcUrl);
+                    assertEquals(
+                            30000L,
+                            hikariDataSource.getConnectionTimeout(),
+                            "HikariCP connectionTimeout should be 30000ms");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectionTimeout_negativeValueFailsValidation() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setProperties(List.of(new Property("connectionTimeout", "-5")));
+
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                invalids.contains(MssqlErrorMessages.DS_INVALID_CONNECTION_TIMEOUT_ERROR_MSG),
+                "Validation should reject negative timeout values");
+    }
+
+    @Test
+    public void testConnectionTimeout_zeroValuePassesValidation() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setProperties(List.of(new Property("connectionTimeout", "0")));
+
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(
+                !invalids.contains(MssqlErrorMessages.DS_INVALID_CONNECTION_TIMEOUT_ERROR_MSG),
+                "Validation should accept zero timeout (meaning no timeout)");
     }
 }

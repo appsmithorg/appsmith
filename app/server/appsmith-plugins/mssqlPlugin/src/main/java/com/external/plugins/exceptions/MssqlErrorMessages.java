@@ -34,4 +34,7 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
 
     public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Missing password for authentication.";
+
+    public static final String DS_INVALID_CONNECTION_TIMEOUT_ERROR_MSG =
+            "Connection timeout must be a non-negative number (in seconds).";
 }

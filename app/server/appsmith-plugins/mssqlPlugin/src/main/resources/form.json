@@ -47,6 +47,21 @@
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
           "initialValue": "admin"
+        },
+        {
+          "label": "Connection timeout (seconds)",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "initialValue": "connectionTimeout",
+          "hidden": true,
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Connection timeout (seconds)",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "dataType": "NUMBER",
+          "initialValue": "60",
+          "placeholderText": "60"
         }
       ]
     },

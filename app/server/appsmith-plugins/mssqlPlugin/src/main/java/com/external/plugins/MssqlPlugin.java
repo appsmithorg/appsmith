@@ -102,6 +102,8 @@ public class MssqlPlugin extends BasePlugin {
 
     private static final long MS_SQL_DEFAULT_PORT = 1433L;
 
+    private static final int DEFAULT_CONNECTION_TIMEOUT_SECONDS = 60;
+
     public static final MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 
     public MssqlPlugin(PluginWrapper wrapper) {
@@ -417,6 +419,11 @@ public class MssqlPlugin extends BasePlugin {
                 }
             }
 
+            int connectionTimeout = getConnectionTimeoutSeconds(datasourceConfiguration);
+            if (connectionTimeout < 0) {
+                invalids.add(MssqlErrorMessages.DS_INVALID_CONNECTION_TIMEOUT_ERROR_MSG);
+            }
+
             return invalids;
         }
 
@@ -626,6 +633,10 @@ public class MssqlPlugin extends BasePlugin {
 
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
+        int timeoutSeconds = getConnectionTimeoutSeconds(datasourceConfiguration);
+        urlBuilder.append("loginTimeout=").append(timeoutSeconds).append(";");
+        hikariConfig.setConnectionTimeout(timeoutSeconds * 1000L);
+
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 
         try {
@@ -638,6 +649,26 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         return hikariDatasource;
+    }
+
+    /**
+     * Extracts the connection timeout (in seconds) from the datasource properties.
+     * Returns the default timeout if no value is configured or the value is not a valid number.
+     */
+    static int getConnectionTimeoutSeconds(DatasourceConfiguration datasourceConfiguration) {
+        List<Property> properties = datasourceConfiguration.getProperties();
+        if (properties != null && !properties.isEmpty()) {
+            Property timeoutProperty = properties.get(0);
+            if (timeoutProperty != null && timeoutProperty.getValue() != null) {
+                try {
+                    return Integer.parseInt(
+                            String.valueOf(timeoutProperty.getValue()).trim());
+                } catch (NumberFormatException e) {
+                    // fall through to default
+                }
+            }
+        }
+        return DEFAULT_CONNECTION_TIMEOUT_SECONDS;
     }
 
     private static void addSslOptionsToUrlBuilder(
