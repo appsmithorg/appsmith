@@ -320,7 +320,8 @@ export class CommonLocators {
   _richText_Label_Text = ".tox-tbtn__select-label";
   _richText_Text_Color = (color: string) =>
     `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
-  _richText_color = (value: string) => `[aria-label="${value}"]`;
+  _richText_color = (value: string) =>
+    `.tox-swatch[aria-label="${value}"], .tox-collection__item[aria-label="${value}"], [data-mce-tooltip="${value}"]`;
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
