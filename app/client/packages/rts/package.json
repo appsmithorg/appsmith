@@ -31,7 +31,7 @@
     "llamaindex": "0.9.0",
     "loglevel": "^1.8.1",
     "mongodb": "^5.8.0",
-    "nodemailer": "6.9.9",
+    "nodemailer": "8.0.10",
     "readline-sync": "1.4.10",
     "simple-git": "^3.32.3"
   },
@@ -39,7 +39,7 @@
     "@types/express": "^4.17.14",
     "@types/jest": "^29.2.3",
     "@types/node": "*",
-    "@types/nodemailer": "^6.4.17",
+    "@types/nodemailer": "^8.0.0",
     "@types/readline-sync": "^1.4.8",
     "jest": "^29.3.1",
     "supertest": "^6.3.3",
