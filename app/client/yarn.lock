@@ -10937,19 +10937,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tinymce/tinymce-react@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "@tinymce/tinymce-react@npm:6.0.0"
+"@tinymce/tinymce-react@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "@tinymce/tinymce-react@npm:6.3.0"
   dependencies:
     prop-types: ^15.6.2
   peerDependencies:
-    react: ^18.0.0 || ^17.0.1 || ^16.7.0
-    react-dom: ^18.0.0 || ^17.0.1 || ^16.7.0
-    tinymce: ^7.0.0 || ^6.0.0 || ^5.5.1
+    react: ^19.0.0 || ^18.0.0 || ^17.0.1 || ^16.7.0
+    react-dom: ^19.0.0 || ^18.0.0 || ^17.0.1 || ^16.7.0
+    tinymce: ^8.0.0 || ^7.0.0 || ^6.0.0 || ^5.5.1
   peerDependenciesMeta:
     tinymce:
       optional: true
-  checksum: 84c03515f59ad046a89522b3ece353a50f223b571f3034d06e87c9161cc2ba1c6205b9a427eb563d3bff053bebec43428fa1942181db15da51bd19d8cf4c0417
+  checksum: 685e8b8ea77b47b7deaad7c8e5eec3a1a5a63f84630ea8490d5b36d23efb08a91da9ae30148949814b23146a1051d79baa37b10cd015e64811900976c9e632e2
   languageName: node
   linkType: hard
 
@@ -13785,7 +13785,7 @@ __metadata:
     "@testing-library/react": 12.1.2
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
-    "@tinymce/tinymce-react": ^6.0.0
+    "@tinymce/tinymce-react": ^6.3.0
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
     "@types/d3-geo": ^3.1.0
@@ -14051,7 +14051,7 @@ __metadata:
     tern: ^0.21.0
     terser-webpack-plugin: ^5.2.5
     tinycolor2: ^1.4.2
-    tinymce: 6.8.5
+    tinymce: 7.9.3
     toposort: ^2.0.2
     ts-jest: ^29.1.0
     ts-jest-mock-import-meta: ^0.12.0
@@ -33766,10 +33766,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinymce@npm:6.8.5":
-  version: 6.8.5
-  resolution: "tinymce@npm:6.8.5"
-  checksum: 7f7ad8dd2b117b8a671f97e41fc094935cfe4d4b525c90e97c6fdb480b19514e334f4360d89f34c04915a928e0cf5264fc1a60559554770452d6fce17b884940
+"tinymce@npm:7.9.3":
+  version: 7.9.3
+  resolution: "tinymce@npm:7.9.3"
+  checksum: bf09cb4bfd4eae5588db39d976c81b735800bd04dd855f8e8bb6ecfa023f82fe08c0ba38a7727dce7588a9c4c24dfbf520f29d651bee041e75751c74db0a53e6
   languageName: node
   linkType: hard
 
