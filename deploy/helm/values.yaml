@@ -356,12 +356,15 @@ redis: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   auth:
+    ## @param redis.auth.enabled Enable Redis authentication
     # -- Enable Redis authentication
     # @section -- Redis (Bitnami subchart)
     enabled: true
+    ## @param redis.auth.existingSecret Name of the Secret holding the Redis password. Bootstrapped by the redisAuth.passwordInit Job when absent (see redisAuth below)
     # -- Name of the Secret holding the Redis password. Bootstrapped by the redisAuth.passwordInit Job when absent (see redisAuth below)
     # @section -- Redis (Bitnami subchart)
     existingSecret: appsmith-redis-secret
+    ## @param redis.auth.existingSecretPasswordKey Key within existingSecret that holds the Redis password
     # -- Key within existingSecret that holds the Redis password
     # @section -- Redis (Bitnami subchart)
     existingSecretPasswordKey: redis-password
