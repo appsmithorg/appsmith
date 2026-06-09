@@ -268,9 +268,9 @@ resources:
   # -- Resource requests for the Appsmith container
   # @section -- Workload configuration
   requests:
-    # @schema type: [string, number]
-    cpu: 500m
-    memory: 3000Mi
+     # @schema type: [string, number]
+     cpu: 500m
+     memory: 3000Mi
 
 ## @param workload.kind Select workload resource type: Deployment or StatefulSet
 ## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
@@ -344,6 +344,7 @@ affinity: {}
 #  - maxSkew: 1 # distribute pods in an absolute even manner
 #    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
 #    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
+
 
 ## Redis parameters
 ## Values are passed through to the Bitnami redis subchart; not validated by this schema.
@@ -710,6 +711,7 @@ externalSecrets:
   # @section -- External Secrets
   remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
 
+
 ## prometheus paramaters
 ## Values are passed through to the prometheus subchart; not validated by this schema.
 prometheus: # @schema additionalProperties: true
@@ -723,6 +725,7 @@ prometheus: # @schema additionalProperties: true
     # -- Prometheus container image tag
     # @section -- Monitoring
     tag: v0.74.0
+
 
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -748,6 +751,7 @@ serviceAccount:
   # -- Additional Service Account annotations
   # @section -- Service account
   annotations: {}
+
 
 # @schema description: Kubernetes Service configuration for Appsmith.
 service:
