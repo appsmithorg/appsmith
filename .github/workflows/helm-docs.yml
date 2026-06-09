@@ -41,7 +41,7 @@ jobs:
           HELM_DOCS_VERSION=1.14.2
           BASE_URL="https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}"
           TARBALL="helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz"
-          curl -sSL "${BASE_URL}/helm-docs_${HELM_DOCS_VERSION}_checksums.txt" -o checksums.txt
+          curl -sSL "${BASE_URL}/checksums.txt" -o checksums.txt
           curl -sSL "${BASE_URL}/${TARBALL}" -o "${TARBALL}"
           sha256sum --check --ignore-missing checksums.txt
           tar xzf "${TARBALL}" helm-docs
