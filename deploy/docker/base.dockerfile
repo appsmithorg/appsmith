@@ -1,4 +1,4 @@
-FROM redis:7.4.8 AS redis-source
+FROM redis:8.8.0 AS redis-source
 
 FROM caddy:builder-alpine AS caddybuilder
 
