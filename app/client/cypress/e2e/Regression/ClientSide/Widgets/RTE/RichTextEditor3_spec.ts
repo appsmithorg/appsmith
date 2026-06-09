@@ -73,13 +73,13 @@ describe(
           agHelper.AssertAttribute(
             $span,
             "style",
-            "color: #e03e2d;",
+            "color: rgb(224, 62, 45);",
             0,
           );
           agHelper.AssertAttribute(
             $span,
             "style",
-            "color: #e03e2d;",
+            "color: rgb(224, 62, 45);",
             1,
           );
         });
