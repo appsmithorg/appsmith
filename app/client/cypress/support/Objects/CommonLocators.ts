@@ -316,7 +316,7 @@ export class CommonLocators {
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
   _richText_TitleBlock = "[aria-label='Block Paragraph']";
-  _richText_Heading = "[aria-label='Heading 1']";
+  _richText_Heading = "[data-collection-item-value='h1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
   _richText_Text_Color = (color: string) =>
     `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
