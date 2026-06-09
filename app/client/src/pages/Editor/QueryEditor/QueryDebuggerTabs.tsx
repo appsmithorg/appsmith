@@ -26,6 +26,7 @@ import { DatasourceComponentTypes } from "entities/Plugin";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
 import {
+  getActionExecutionHistory,
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
@@ -34,6 +35,9 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ActionExecutionHistoryTab } from "PluginActionEditor/components/PluginActionResponse/components/ActionExecutionHistoryTab";
+
+const ACTION_EXECUTION_HISTORY_TAB = "ACTION_EXECUTION_HISTORY_TAB";
 
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
@@ -60,6 +64,9 @@ function QueryDebuggerTabs({
 
   const { open, responseTabHeight, selectedTab } = useSelector(
     getPluginActionDebuggerState,
+  );
+  const actionExecutionHistory = useSelector(
+    getActionExecutionHistory(currentActionConfig?.id || ""),
   );
 
   const { responseDisplayFormat } =
@@ -210,6 +217,15 @@ function QueryDebuggerTabs({
           responseTabHeight={responseTabHeight}
           theme={EditorTheme.LIGHT}
         />
+      ),
+    });
+
+    responseTabs.push({
+      key: ACTION_EXECUTION_HISTORY_TAB,
+      title: "History",
+      count: actionExecutionHistory.length,
+      panelComponent: (
+        <ActionExecutionHistoryTab history={actionExecutionHistory} />
       ),
     });
   }

@@ -41,6 +41,14 @@ export const getPluginActionConfigSelectedTab = (state: DefaultRootState) =>
 export const getPluginActionDebuggerState = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.debugger;
 
+const getActionExecutionHistoryState = (state: DefaultRootState) =>
+  state.ui.pluginActionEditor.actionExecutionHistory;
+
+export const getActionExecutionHistory = (id: string) =>
+  createSelector([getActionExecutionHistoryState], (historyMap) => {
+    return historyMap[id] || [];
+  });
+
 export const isPluginActionCreating = (state: DefaultRootState) =>
   state.ui.pluginActionEditor.isCreating;
 

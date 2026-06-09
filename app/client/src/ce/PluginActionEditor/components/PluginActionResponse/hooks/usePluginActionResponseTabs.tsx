@@ -21,6 +21,7 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import {
+  getActionExecutionHistory,
   getPluginActionDebuggerState,
   isActionRunning,
 } from "PluginActionEditor/store";
@@ -37,6 +38,9 @@ import { Response } from "PluginActionEditor/components/PluginActionResponse/com
 import { StateInspector } from "components/editorComponents/Debugger/StateInspector";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { ActionExecutionHistoryTab } from "PluginActionEditor/components/PluginActionResponse/components/ActionExecutionHistoryTab";
+
+const ACTION_EXECUTION_HISTORY_TAB = "ACTION_EXECUTION_HISTORY_TAB";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -47,6 +51,9 @@ function usePluginActionResponseTabs() {
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
+  const actionExecutionHistory = useSelector(
+    getActionExecutionHistory(action.id),
+  );
 
   const showSchema = useShowSchema(plugin.id) && pluginRequireDatasource;
 
@@ -92,6 +99,14 @@ function usePluginActionResponseTabs() {
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
           />
+        ),
+      },
+      {
+        key: ACTION_EXECUTION_HISTORY_TAB,
+        title: "History",
+        count: actionExecutionHistory.length,
+        panelComponent: (
+          <ActionExecutionHistoryTab history={actionExecutionHistory} />
         ),
       },
       {
@@ -147,6 +162,15 @@ function usePluginActionResponseTabs() {
           responseTabHeight={responseTabHeight}
           theme={EditorTheme.LIGHT}
         />
+      ),
+    });
+
+    tabs.push({
+      key: ACTION_EXECUTION_HISTORY_TAB,
+      title: "History",
+      count: actionExecutionHistory.length,
+      panelComponent: (
+        <ActionExecutionHistoryTab history={actionExecutionHistory} />
       ),
     });
   }

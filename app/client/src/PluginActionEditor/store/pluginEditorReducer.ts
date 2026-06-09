@@ -12,10 +12,23 @@ import { omit, set } from "lodash";
 import { objectKeys } from "@appsmith/utils";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 
+const ACTION_EXECUTION_HISTORY_LIMIT = 20;
+
 export interface PluginEditorDebuggerState {
   open: boolean;
   responseTabHeight: number;
   selectedTab?: string;
+}
+
+export interface ActionExecutionHistoryEntry {
+  id: string;
+  actionId: string;
+  status: "SUCCESS" | "FAILURE" | "CANCELLED";
+  duration: string;
+  environmentName?: string;
+  requestPreview?: string;
+  responsePreview?: string;
+  createdAt: number;
 }
 
 export interface PluginActionEditorState {
@@ -26,6 +39,7 @@ export interface PluginActionEditorState {
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
+  actionExecutionHistory: Record<string, ActionExecutionHistoryEntry[]>;
   selectedConfigTab?: string;
   debugger: PluginEditorDebuggerState;
   settingsOpen?: boolean;
@@ -39,6 +53,7 @@ const initialState: PluginActionEditorState = {
   isDeleting: {},
   isDirty: {},
   runErrorMessage: {},
+  actionExecutionHistory: {},
   debugger: {
     open: false,
     responseTabHeight: ActionExecutionResizerHeight,
@@ -123,6 +138,22 @@ export const handlers = {
     action: ReduxAction<{ id: string }>,
   ) => {
     set(state, ["isRunning", action.payload.id], false);
+  },
+  [ReduxActionTypes.ADD_ACTION_EXECUTION_HISTORY_ENTRY]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<ActionExecutionHistoryEntry>,
+  ) => {
+    const { actionId } = action.payload;
+    const existingHistory = state.actionExecutionHistory[actionId] || [];
+
+    set(
+      state,
+      ["actionExecutionHistory", actionId],
+      [action.payload, ...existingHistory].slice(
+        0,
+        ACTION_EXECUTION_HISTORY_LIMIT,
+      ),
+    );
   },
 
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (

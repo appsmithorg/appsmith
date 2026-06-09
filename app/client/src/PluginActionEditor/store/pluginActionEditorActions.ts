@@ -1,4 +1,7 @@
-import type { PluginEditorDebuggerState } from "./pluginEditorReducer";
+import type {
+  ActionExecutionHistoryEntry,
+  PluginEditorDebuggerState,
+} from "./pluginEditorReducer";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { type ReduxAction } from "actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
@@ -22,6 +25,13 @@ export const openPluginActionSettings = (payload: boolean) => ({
   payload: {
     settingsOpen: payload,
   },
+});
+
+export const addActionExecutionHistoryEntry = (
+  payload: ActionExecutionHistoryEntry,
+) => ({
+  type: ReduxActionTypes.ADD_ACTION_EXECUTION_HISTORY_ENTRY,
+  payload,
 });
 
 export const changeApi = (

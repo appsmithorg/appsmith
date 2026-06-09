@@ -159,6 +159,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import {
+  addActionExecutionHistoryEntry,
   changeQuery,
   isActionDirty,
   isActionSaving,
@@ -731,6 +732,26 @@ interface RunActionError {
   clientDefinedError?: boolean;
 }
 
+const ACTION_EXECUTION_HISTORY_PREVIEW_LIMIT = 1000;
+
+function getActionExecutionHistoryPreview(value: unknown) {
+  if (isNil(value)) return "";
+
+  let preview = "";
+
+  try {
+    preview = isString(value) ? value : JSON.stringify(value, null, 2);
+  } catch (e) {
+    preview = String(value);
+  }
+
+  if (!preview) return String(value);
+
+  if (preview.length <= ACTION_EXECUTION_HISTORY_PREVIEW_LIMIT) return preview;
+
+  return `${preview.slice(0, ACTION_EXECUTION_HISTORY_PREVIEW_LIMIT)}...`;
+}
+
 export function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -808,6 +829,20 @@ export function* runActionSaga(
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
+      yield put(
+        addActionExecutionHistoryEntry({
+          id: `${actionId}-cancelled-${Date.now()}`,
+          actionId,
+          status: "CANCELLED",
+          duration: "0",
+          environmentName: currentEnvDetails.name,
+          responsePreview: createMessage(
+            ACTION_EXECUTION_CANCELLED,
+            pluginActionNameToDisplay,
+          ),
+          createdAt: Date.now(),
+        }),
+      );
       // cancel action but do not throw any error.
       yield put({
         type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
@@ -907,6 +942,23 @@ export function* runActionSaga(
       transportError ||
       defaultError;
 
+    yield put(
+      addActionExecutionHistoryEntry({
+        id: `${actionId}-failure-${Date.now()}`,
+        actionId,
+        status: "FAILURE",
+        duration: payload.duration,
+        environmentName: currentEnvDetails.name,
+        requestPreview: getActionExecutionHistoryPreview(payload.request),
+        responsePreview: getActionExecutionHistoryPreview(
+          payload.pluginErrorDetails?.downstreamErrorMessage ||
+            error.message ||
+            payload.body,
+        ),
+        createdAt: Date.now(),
+      }),
+    );
+
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
     // since the readableError may be malformed for certain errors.
@@ -997,6 +1049,19 @@ export function* runActionSaga(
     type: ReduxActionTypes.RUN_ACTION_SUCCESS,
     payload: { [actionId]: payload },
   });
+
+  yield put(
+    addActionExecutionHistoryEntry({
+      id: `${actionId}-success-${Date.now()}`,
+      actionId,
+      status: "SUCCESS",
+      duration: payload.duration,
+      environmentName: currentEnvDetails.name,
+      requestPreview: getActionExecutionHistoryPreview(payload.request),
+      responsePreview: getActionExecutionHistoryPreview(payload.body),
+      createdAt: Date.now(),
+    }),
+  );
 
   if (payload.isExecutionSuccess) {
     AppsmithConsole.info({
