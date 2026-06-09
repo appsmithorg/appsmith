@@ -181,13 +181,12 @@ export function main() {
       const el = document.querySelector("[data-appsmith-theme]");
 
       if (el) {
-        el.innerHTML = event.cssTokens;
+        el.textContent = event.cssTokens;
       } else {
-        // Use appendChild instead of innerHTML to add the style element
         const styleElement = document.createElement("style");
 
         styleElement.setAttribute("data-appsmith-theme", "");
-        styleElement.innerHTML = event.cssTokens;
+        styleElement.textContent = event.cssTokens;
         document.head.appendChild(styleElement);
       }
     }
@@ -308,5 +307,5 @@ export const generateAppsmithCssVariables = (provider) => (source) => {
     }
   }, "");
 
-  cssTokens.innerHTML = `:root {${cssTokensContent}}`;
+  cssTokens.textContent = `:root {${cssTokensContent}}`;
 };
