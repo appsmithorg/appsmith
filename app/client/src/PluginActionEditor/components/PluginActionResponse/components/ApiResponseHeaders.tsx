@@ -1,11 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
+import copy from "copy-to-clipboard";
+import styled from "styled-components";
+
 import type { ActionResponse } from "api/ActionAPI";
-import { Callout, Flex } from "@appsmith/ads";
+import { Button, Callout, Flex, toast } from "@appsmith/ads";
 import { CHECK_REQUEST_BODY, createMessage } from "ee/constants/messages";
 import { isArray, isEmpty } from "lodash";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { hasFailed } from "../utils";
-import styled from "styled-components";
 import { NoResponse } from "./NoResponse";
 
 const ResponseDataContainer = styled.div`
@@ -17,6 +19,18 @@ const ResponseDataContainer = styled.div`
   & .CodeEditorTarget {
     overflow: hidden;
   }
+`;
+
+const HeadersToolbar = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--ads-v2-spaces-2);
+  border-bottom: 1px solid var(--ads-v2-color-border);
+`;
+
+const HeadersEditorWrapper = styled.div`
+  flex: 1;
+  min-height: 0;
 `;
 
 const headersTransformer = (headers: Record<string, string[]> = {}) => {
@@ -63,6 +77,13 @@ export function ApiResponseHeaders(props: {
     };
   }, [responseHeaders]);
 
+  const copyResponseHeaders = useCallback(() => {
+    copy(headersInput.value);
+    toast.show("Response headers copied to clipboard", {
+      kind: "success",
+    });
+  }, [headersInput.value]);
+
   if (!props.actionResponse) {
     return (
       <Flex className="t--headers-tab" h="100%" w="100%">
@@ -91,7 +112,22 @@ export function ApiResponseHeaders(props: {
               onRunClick={props.onRunClick}
             />
           ) : (
-            <ReadOnlyEditor folding height={"100%"} input={headersInput} />
+            <>
+              <HeadersToolbar>
+                <Button
+                  isDisabled={isEmpty(headersInput.value)}
+                  kind="tertiary"
+                  onClick={copyResponseHeaders}
+                  size="sm"
+                  startIcon="copy-control"
+                >
+                  Copy headers
+                </Button>
+              </HeadersToolbar>
+              <HeadersEditorWrapper>
+                <ReadOnlyEditor folding height={"100%"} input={headersInput} />
+              </HeadersEditorWrapper>
+            </>
           )}
         </ResponseDataContainer>
       )}
