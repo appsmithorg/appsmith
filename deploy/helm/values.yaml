@@ -1,712 +1,13 @@
-## Redis parameters
-## Values are passed through to the Bitnami redis subchart; not validated by this schema.
-redis: # @schema additionalProperties: true
-  # @schema description: Deploy the bundled Bitnami redis subchart. Disable to point Appsmith at an external Redis via APPSMITH_REDIS_URL.
-  enabled: true
-  # @schema hidden: true
-  auth:
-    enabled: false
-  # @schema hidden: true
-  master:
-    nodeSelector: {}
-    disableCommands: []
-    affinity: {}
-    tolerations: []
-  # @schema hidden: true
-  replica:
-    replicaCount: 1
-    nodeSelector: {}
-    disableCommands: []
-    affinity: {}
-    tolerations: []
-  # @schema hidden: true
-  image:
-    registry: docker.io
-    repository: redis
-    tag: 7.4.9
-
-## MongoDB parameters
-## Values are passed through to the Bitnami mongodb subchart; not validated by this schema.
-mongodb: # @schema additionalProperties: true
-  # @schema description: Deploy the bundled Bitnami mongodb subchart. Disable to use an external MongoDB via APPSMITH_DB_URL or to use mongodbCommunity instead.
-  enabled: true
-  # @schema hidden: true
-  service:
-    nameOverride: appsmith-mongodb
-  # @schema hidden: true
-  auth:
-    rootUser: root
-    rootPassword: password
-  # @schema hidden: true
-  replicaCount: 2
-  # @schema hidden: true
-  architecture: "replicaset"
-  # @schema hidden: true
-  replicaSetName: rs0
-  # @schema hidden: true
-  nodeSelector: {}
-  # @schema hidden: true
-  affinity: {}
-  # @schema hidden: true
-  tolerations: []
-  # @schema hidden: true
-  image:
-    registry: docker.io
-    repository: appsmith/mongodb
-    tag: 6.0.27
-  # @schema hidden: true
-  arbiter:
-    nodeSelector: {}
-    affinity: {}
-    tolerations: []
-  # @schema hidden: true
-  hidden:
-    nodeSelector: {}
-    affinity: {}
-    tolerations: []
-
-## MongoDBCommunity cluster parameters
-## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
-## See templates/mongodb-community.yaml for the CR definition and docs/install-mongodb-operator.md
-## for the install guide. Pair with mongodbOperator.enabled=true below to bundle the operator.
-##
-## PREVIEW (chart 3.7.0): documented for fresh installs in this release. A documented
-## migration path from an existing Bitnami-backed Appsmith release is being prepared
-## separately — if you have an existing install, watch for that documentation before
-## changing mongodbCommunity.enabled on a release with production data.
-# @schema description: MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator. PREVIEW (chart 3.7.0) — documented for fresh installs in this release. A documented migration path from an existing Bitnami-backed release is being prepared separately. See docs/install-mongodb-operator.md.
-mongodbCommunity:
-  ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
-  enabled: false
-  ## @param mongodbCommunity.name Name of the MongoDBCommunity custom resource
-  ## When empty (default), the chart computes "<release-fullname>-mongo". The "-mongo" suffix
-  ## (vs Bitnami's "-mongodb") keeps operator-managed resources from colliding with Bitnami
-  ## StatefulSet names during the Mode B transition window. Override to pin a specific name.
-  name: "" # @schema maxLength: 60; pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-  ## @param mongodbCommunity.version MongoDB version to deploy
-  version: "8.0.20"
-  ## @param mongodbCommunity.members Number of replica set members
-  ## Defaults to 1 to minimize footprint for evaluation and dev installs. For production
-  ## HA, set to 3 (odd number recommended for replica set quorum). The operator handles
-  ## scaling between these online — it's just a value change on upgrade.
-  members: 1 # @schema minimum: 1
-  auth:
-    ## @param mongodbCommunity.auth.username MongoDB user for Appsmith
-    username: "appsmith" # @schema minLength: 1
-    ## @param mongodbCommunity.auth.database Authentication database (also used as connection path)
-    database: "appsmith" # @schema minLength: 1
-    ## @param mongodbCommunity.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
-    ## If empty, a pre-install Job generates a random password into a Secret named "{name}-password"
-    passwordSecretName: ""
-  persistent:
-    ## @param mongodbCommunity.persistent.storageSize Storage size for each MongoDB replica
-    storageSize: "10Gi"
-    ## @param mongodbCommunity.persistent.storageClass StorageClass for MongoDB PVCs (empty uses cluster default)
-    storageClass: ""
-  ## @param mongodbCommunity.resources Resource requests/limits for MongoDB containers
-  resources: {}
-  ## @param mongodbCommunity.nodeSelector Node selector for MongoDB pods
-  nodeSelector: {}
-  ## @param mongodbCommunity.affinity Affinity rules for MongoDB pods
-  affinity: {}
-  ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
-  tolerations: []
-  ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the MongoDB user password Secret).
-  ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
-  ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
-  ## version if you need byte-level reproducibility.
-  passwordInit:
-    image:
-      ## @param mongodbCommunity.passwordInit.image.registry Registry for the kubectl image
-      registry: docker.io
-      ## @param mongodbCommunity.passwordInit.image.repository Repository path for the kubectl image
-      repository: alpine/kubectl
-      ## @param mongodbCommunity.passwordInit.image.tag Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
-      tag: latest
-      ## @param mongodbCommunity.passwordInit.image.pullPolicy Image pull policy for the Job
-      pullPolicy: IfNotPresent
-
-## MongoDB Kubernetes Operator subchart
-## Values under this key are passed through to the upstream mongodb-kubernetes chart (aliased to mongodbOperator).
-## Set mongodbOperator.enabled=true to bundle the operator with this release — it installs in the same namespace
-## and reconciles the MongoDBCommunity CR defined above. Leave it false only if you're managing the operator
-## separately and accept responsibility for its RBAC in this namespace.
-##
-## Ref: https://github.com/mongodb/mongodb-kubernetes/tree/main/helm_chart
-## Values are passed through to the upstream mongodb-kubernetes subchart; not validated by this schema.
-mongodbOperator: # @schema additionalProperties: true
-  ## @param mongodbOperator.enabled Install the MongoDB Kubernetes Operator subchart
-  # @schema description: Install the MongoDB Kubernetes Operator subchart alongside this chart.
-  enabled: false
-  ## @param mongodbOperator.operator.telemetry.enabled Enable the upstream operator's phone-home telemetry.
-  ## Disabled by default. When enabled, the upstream chart installs a ClusterRole named
-  ## "{operator.name}-cluster-telemetry" whose name does not include the operator's namespace, so it
-  ## collides if multiple Appsmith releases (each bundling their own operator) are installed in the
-  ## same cluster. Safe to re-enable if you run a single operator cluster-wide.
-  # @schema hidden: true
-  operator:
-    telemetry:
-      enabled: false
-
-## postgresql parameters
-## Values are passed through to the Bitnami postgresql subchart; not validated by this schema.
-postgresql: # @schema additionalProperties: true
-  # @schema description: Deploy the bundled Bitnami postgresql subchart (used by Keycloak). Disable to use an external PostgreSQL.
-  enabled: true
-  # @schema hidden: true
-  auth:
-    username: root
-    password: password
-    postgresPassword: password
-    database: keycloak
-  # @schema hidden: true
-  image:
-    registry: docker.io
-    repository: bitnamilegacy/postgresql
-    tag: 14.12.0
-  # @schema hidden: true
-  primary:
-    affinity: {}
-    nodeSelector: {}
-    tolerations: []
-  # @schema hidden: true
-  readReplicas:
-    affinity: {}
-    nodeSelector: {}
-    tolerations: []
-
-## external secrets parameters
-# @schema description: External Secrets Operator integration configuration.
-externalSecrets:
-  # @schema description: Enable External Secrets integration to source secrets from a remote provider.
-  enabled: false
-  # @schema description: How often to refresh secrets from the remote provider (Go duration string).
-  refreshInterval: 1m
-  remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
-
-
-## prometheus paramaters
-## Values are passed through to the prometheus subchart; not validated by this schema.
-prometheus: # @schema additionalProperties: true
-  # @schema description: Deploy the bundled prometheus subchart for metrics scraping.
-  enabled: false
-  # @schema hidden: true
-  image:
-    tag: v0.74.0
-
-
-## @section Global parameters
-## Global Docker image parameters
-## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
-##
-
-## @param global.storageClass Global StorageClass for Persistent Volume(s)
-## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
-##
-# @schema description: Global parameters that can override values across the chart and its dependencies.
-global:
-  # @schema description: Global StorageClass for Persistent Volume(s).
-  storageClass: ""
-  # @schema description: Override the namespace for resources deployed by the chart (can be overridden by local namespaceOverride).
-  namespaceOverride: ""
-## @param fullnameOverride String to fully override appsmith.fullname template
-##
-# @schema description: String to fully override the appsmith.fullname template.
-fullnameOverride: ""
-## @param containerName specify running container name in a pod
-##
-# @schema description: Name of the running container in the pod.
-containerName: "appsmith"
-## @param commonLabels Labels to add to all deployed objects
-##
-# @schema description: Labels to add to all deployed objects.
-commonLabels: {}
-## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
-##
-# @schema description: Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template.
-commonAnnotations: {}
-## @param schedulerName Name of the scheduler (other than default) to dispatch pods
-## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-##
-# @schema description: Name of the scheduler (other than default) to dispatch pods.
-schedulerName: ""
-## @param strategyType StrategyType for Appsmith&reg; statefulset
-## It can be set to RollingUpdate or Recreate by default.
-##
-# @schema description: StrategyType for the Appsmith workload. Typically RollingUpdate or Recreate.
-strategyType: RollingUpdate
-##
-## Init containers for redis & mongodb
-##
-# @schema description: Init container image overrides for bundled redis/mongodb/postgresql dependencies.
-initContainer: {}
-  # redis:
-  #   image: docker.io/redis:7.4.9
-  # mongodb:
-  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
-  # postgresql:
-  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
-## Image
-##
-## @param image.registry Container image registry
-## @param image.repository Container image repository
-## @param image.tag Container image tag (defaults to "latest" when omitted)
-## @param image.pullPolicy Container image pull policy
-## @param image.pullSecrets Image pull secret name (single secret)
-# @schema description: Appsmith container image configuration.
-image:
-  # @schema description: Container image registry.
-  registry: index.docker.io
-  # @schema description: Container image repository.
-  repository: appsmith/appsmith-ee
-  # @schema description: Container image pull policy.
-  # @schema enum: [Always, IfNotPresent, Never]
-  pullPolicy: IfNotPresent
-  # @schema description: Image pull secret name (single secret).
-  pullSecrets: ""
-  # @schema description: Container image tag (defaults to "latest" when omitted).
-  tag: "latest"
-
-## DEPRECATED: use `image` instead.
-## `_image` is kept for backwards compatibility with older install guides / values files.
-## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
-## override fields like `repository` and `tag` without restating the full image.
-##
-## @param _image.registry DEPRECATED. Container image registry override (merged into image)
-## @param _image.repository DEPRECATED. Container image repository override (merged into image)
-## @param _image.tag DEPRECATED. Container image tag override (merged into image)
-## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
-## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
-# @schema description: DEPRECATED — use image instead. Kept for backwards compatibility, merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.
-_image: {}
-## ServiceAccount
-## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-##
-# @schema description: ServiceAccount configuration for Appsmith pods.
-serviceAccount:
-  ## @param serviceAccount.create Enable creation of ServiceAccount for Appsmith; pods
-  ##
-  # @schema description: Enable creation of a ServiceAccount for Appsmith pods.
-  create: true
-  ## @param serviceAccount.name Name of the created serviceAccount
-  ## If not set and create is true, a name is generated using the appsmith.fullname template
-  ##
-  # @schema description: Name of the created ServiceAccount. If not set and create is true, a name is generated using the appsmith.fullname template.
-  name: ""
-  ## @param serviceAccount.annotations Additional Service Account annotations
-  ##
-  # @schema description: Additional ServiceAccount annotations.
-  annotations: {}
-
-## @param annotations Annotations to add to the Deployment/StatefulSet resource
-##
-# @schema description: Annotations to add to the Deployment/StatefulSet resource.
-annotations: {}
-
-# @schema description: Annotations to add to Appsmith pods.
-podAnnotations: {}
-
-# @schema description: Labels to add to Appsmith pods.
-podLabels: {}
-
-# @schema description: Pod-level securityContext applied to Appsmith pods.
-podSecurityContext: {}
-# For non-root user
-#  fsGroup: 1001
-#  sysctls:
-#  - name: net.ipv4.ip_unprivileged_port_start
-#    value: "80"
-
-# @schema description: Container-level securityContext applied to the Appsmith container.
-securityContext: {}
-  # For non-root user
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-## @param extraVolumes Additional volumes to add to the pod
-## e.g:
-## extraVolumes:
-##   - name: tmp-dir
-##     emptyDir: {}
-##
-# @schema description: Additional volumes to add to the pod.
-extraVolumes: []
-
-## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
-## e.g:
-## extraVolumeMounts:
-##   - name: tmp-dir
-##     mountPath: /tmp
-##
-# @schema description: Additional volume mounts to add to the Appsmith container.
-extraVolumeMounts: []
-
-# @schema description: Kubernetes Service configuration for Appsmith.
-service:
-  ## @param service.type Kubernetes Service type
-  ##
-  # @schema description: Kubernetes Service type.
-  # @schema enum: [ClusterIP, NodePort, LoadBalancer, ExternalName]
-  type: ClusterIP
-  ## @param service.port service port
-  ##
-  # @schema description: Service port.
-  # @schema minimum: 1
-  # @schema maximum: 65535
-  port: 80
-  ## @param service.nodePort Node port to expose if service type is "LoadBalancer" or "NodePort"
-  ##
-  # @schema description: Node port to expose if service type is LoadBalancer or NodePort.
-  # @schema minimum: 1
-  # @schema maximum: 65535
-  nodePort: 8000
-  ## @param service.portName Appsmith service port name
-  ##
-  # @schema description: Service port name.
-  portName: appsmith
-  ## @param service.clusterIP Appsmith service cluster IP
-  ## e.g:
-  ## clusterIP: None
-  ##
-  # @schema description: Service cluster IP. Set to None for a headless service.
-  clusterIP: ""
-  ## @param service.loadBalancerIP loadBalancerIP for Appsmith&reg; Service
-  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
-  ##
-  # @schema description: loadBalancerIP for the Appsmith Service.
-  loadBalancerIP: ""
-  ## @param service.loadBalancerSourceRanges Address(es) that are allowed when service is LoadBalancer
-  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
-  ##
-  # @schema description: Address ranges allowed to access the Service when type is LoadBalancer.
-  loadBalancerSourceRanges: []
-  ## @param service.annotations Provide any additional annotations that may be required
-  ##
-  # @schema description: Additional annotations for the Service.
-  annotations: {}
-
-# @schema description: Ingress configuration for exposing Appsmith over HTTP(S).
-ingress:
-  ## @param ingress.enabled Enable ingress record generation for Ghost
-  ##
-  # @schema description: Enable Ingress record generation for Appsmith.
-  enabled: false
-  ## @param ingress.annotations Additional custom annotations for the ingress record
-  ## NOTE: If `ingress.certManager=true`, annotation `kubernetes.io/tls-acme: "true"` will automatically be added
-  ##
-  # @schema description: Additional custom annotations for the Ingress record.
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  # @schema description: Hosts served by the Ingress (list of objects with at least a host field).
-  hosts: []
-    # - host: appsmith-domain.me
-  ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
-  ## You can:
-  ##   - Use the `ingress.secrets` parameter to create this TLS secret
-  ##   - Relay on cert-manager to create it by setting `ingress.certManager=true`
-  ##   - Relay on Helm to create self-signed certificates by setting `ingress.selfSigned=true`
-  ##
-  # @schema description: Enable TLS configuration for the host(s) defined at ingress.hosts.
-  tls: false
-  ## @param ingress.secrets Custom TLS certificates as secrets
-  ## NOTE: 'key' and 'certificate' are expected in PEM format
-  ## NOTE: 'name' should line up with a 'secretName' set further up
-  ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
-  ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
-  ## It is also possible to create and manage the certificates outside of this helm chart
-  ## Please see README.md for more information
-  ## e.g:
-  ## secrets:
-  ##   - host: chart-example.local
-  ##     key: |-
-  ##       -----BEGIN RSA PRIVATE KEY-----
-  ##       ...
-  ##       -----END RSA PRIVATE KEY-----
-  ##     certificate: |-
-  ##       -----BEGIN CERTIFICATE-----
-  ##       ...
-  ##       -----END CERTIFICATE-----
-  ##
-  # @schema description: Custom TLS certificates as secrets. 'key' and 'certificate' are expected in PEM format.
-  secrets: []
-  ## @param ingress.certManager Enable ingress to use TLS certificates provided by Cert Manager
-  ##
-  # @schema description: Enable Ingress to use TLS certificates provided by cert-manager.
-  certManager: false
-  ## @param ingress.certManagerTls Specify the TLS secret created by Cert Manager
-  ## e.g:
-  ## certManagerTls:
-  ##   - hosts:
-  ##       - appsmith-domain.me
-  ##     secretName: appsmith-tls
-  # @schema description: Specify TLS secrets created by cert-manager.
-  certManagerTls: []
-  ## @parm ingress.className Configure Ingress class that being used in ingress resource
-  ## e.g:
-  ## className: "nginx"
-  ##
-  # @schema description: IngressClass name to use for the Ingress resource.
-  className: "nginx"
-
-# @schema type: [object, "null"]; additionalProperties: {type: string}; description: Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).
-customCAcert:
-# cert1: |
-# paste-cert-1-contents-here
-# cert2: |
-# paste-cert-2-contents-here
-
-# @schema description: Resource requests/limits for the Appsmith container.
-resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # @schema description: Resource limits for the Appsmith container.
-  limits: {}
-  # @schema description: Resource requests for the Appsmith container.
-  requests:
-     # @schema type: [string, number]
-     cpu: 500m
-     memory: 3000Mi
-
-## @param workload.kind Select workload resource type: Deployment or StatefulSet
-## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
-## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).
-##
-# @schema description: Workload resource configuration.
-workload:
-  # @schema description: Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).
-  # @schema enum: [Deployment, StatefulSet]
-  kind: StatefulSet
-
-## @param replicas Number of replicas when autoscaling is disabled
-## Only used when workload.kind is Deployment and autoscaling.enabled is false
-##
-# @schema description: Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.
-# @schema minimum: 0
-replicas: 1
-
-# @schema description: Horizontal Pod Autoscaler configuration.
-autoscaling:
-  # @schema description: Enable the HorizontalPodAutoscaler.
-  enabled: false
-  # @schema description: Minimum number of replicas for the HPA.
-  # @schema minimum: 0
-  minReplicas: 2
-  # @schema description: Maximum number of replicas for the HPA.
-  # @schema minimum: 0
-  maxReplicas: 2
-  # @schema description: Target average CPU utilization (percentage) across pods.
-  # @schema minimum: 1
-  # @schema maximum: 100
-  targetCPUUtilizationPercentage: 5
-
-# @schema description: Node selector for Appsmith pods.
-nodeSelector: {}
-
-#HTTPContainerPort: 8080
-
-# @schema description: Tolerations for Appsmith pods.
-tolerations: []
-
-# @schema description: Affinity rules for Appsmith pods.
-affinity: {}
-
-#topologySpreadConstraints:
-#  - maxSkew: 1 # distribute pods in an absolute even manner
-#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
-#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
-
-# @schema description: Persistence configuration for Appsmith data volumes.
-persistence:
-  ## @param persistence.enabled - Enable data persistence using PVC
-  ##
-  # @schema description: Enable data persistence using a PVC.
-  enabled: true
-  ## @param persistence.storageClass PVC Storage Class
-  ##
-  # @schema description: PVC StorageClass. Empty uses the cluster default (or global.storageClass).
-  storageClass: ""
-  ## @param persistence.annotations Additional custom annotations for the PVC
-  ##
-  # @schema description: Additional custom annotations for the PVC.
-  annotations: {}
-  ## @param persistence.localStorage - Use local storage for PVC
-  ##
-  # @schema description: Use local storage for the PVC.
-  localStorage: false
-  ## @param persistence.storagePath - local storage path
-  ##
-  # @schema description: Local storage path used when localStorage is true.
-  storagePath: /tmp/hostpath_pv
-  ## @param persistence.localCluster
-  ##
-  # @schema description: Local cluster configuration for local-storage scenarios.
-  localCluster: {}
-  ## @param persistence.accessModes PV Access Mode
-  ##
-  # @schema description: PV access modes.
-  # @schema item: string; itemEnum: ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod"]
-  accessModes:
-    - ReadWriteMany
-  ## @param persistence.size PVC Storage Request
-  ##
-  # @schema description: PVC storage request size.
-  size: 10Gi
-  ## Fine tuning for volumeClaimTemplates
-  ##
-  # @schema description: Reclaim policy for the PV.
-  # @schema enum: [Retain, Delete, Recycle]
-  reclaimPolicy: Retain
-
-  ## @param persistence.pvNameOverride Override the PV name
-  ## Useful when deploying multiple releases across different namespaces with the same name
-  ## since PersistentVolumes are cluster-scoped resources
-  ##
-  # @schema description: Override the PV name. Useful when deploying multiple releases across different namespaces with the same name since PersistentVolumes are cluster-scoped.
-  pvNameOverride: ""
-
-  # @schema description: Use an existing PVC instead of creating one.
-  existingClaim:
-    # @schema type: [boolean, "null"]; description: Set to true to mount an existing PVC instead of provisioning a new one.
-    enabled:
-    # @schema type: [string, "null"]; description: Name used to look up the existing PVC.
-    name:
-    # @schema type: [string, "null"]; description: Explicit claimName to set on the pod's volume mount.
-    claimName:
-  # @schema description: AWS EFS CSI driver configuration when using an EFS-backed volume.
-  efs:
-    # @schema type: [boolean, "null"]; description: Enable EFS-backed persistence.
-    enabled:
-    # @schema type: [string, "null"]; description: CSI driver name for the EFS volume.
-    driver:
-    # @schema type: [string, "null"]; description: EFS filesystem volume handle (fs-xxxx[::access-point]).
-    volumeHandle:
-  # @schema description: Fine-tuning options for the volumeClaimTemplate used by the StatefulSet.
-  volumeClaimTemplates:
-    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
-    ## A label query over volumes to consider for binding (e.g. when using local volumes)
-    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
-    ##
-    # @schema description: A label query over volumes to consider for binding (e.g. when using local volumes).
-    selector: {}
-    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
-    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
-    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
-    ##
-    # @schema description: Custom PVC requests attributes (some cloud providers use additional attributes for storage provisioning).
-    requests: {}
-    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
-    ##
-    # @schema description: Add a dataSource to the VolumeClaimTemplate.
-    dataSource: {}
-# tags:
-#   install-ingress-nginx: true
-# @schema description: Optional StorageClass managed by this chart.
-storageClass:
-  ## @param storageClass.enabled - Enable config storage class
-  ##
-  # @schema description: Enable creation of a StorageClass by this chart.
-  enabled: false
-  ## @param storageClass.bindingMode - the binding mode for PVCs using this storage class
-  ##
-  # @schema description: VolumeBindingMode for PVCs using this StorageClass.
-  # @schema enum: [Immediate, WaitForFirstConsumer]
-  bindingMode: Immediate
-  ## @param storageClass.defaultClass - boolean to set annotation designating this object as the default storage class
-  ##
-  # @schema description: Mark this StorageClass as the cluster default.
-  defaultClass: false
-  ## @param storageClass.allowVolumeExpansion - allow expansion of PVCs using this storage class
-  ##
-  # @schema description: Allow PVC expansion for volumes using this StorageClass.
-  allowVolumeExpansion: true
-  ## @param storageClass.reclaimPolicy - configures the retention of the PV when dynamically created using this class
-  ##
-  # @schema description: Reclaim policy for PVs dynamically provisioned by this StorageClass.
-  # @schema enum: [Retain, Delete]
-  reclaimPolicy: Delete
-  ## @param storageClass.provisioner - storage class parameters used for volumes created with this storage class
-  ##
-  # @schema description: Provisioner name for this StorageClass.
-  provisioner: ""
-  ## @param storageClass.annotations - annotations in yaml map format to be added to the object
-  ##
-  # @schema description: Annotations to add to the StorageClass.
-  annotations: {}
-  ## @param storageClass.mountOptions - options used by volumes created by this storage class
-  ##
-  # @schema description: Mount options used by volumes created with this StorageClass.
-  mountOptions: {}
-  ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
-  ##
-  # @schema description: Provisioner-specific parameters for this StorageClass.
-  parameters: {}
-
-# @schema description: PodDisruptionBudget configuration for the Appsmith workload.
-podDisruptionBudgets:
-  # @schema description: Enable a PodDisruptionBudget for Appsmith pods.
-  enabled: true
-  # @schema description: Minimum number of pods that must remain available during voluntary disruptions.
-  minAvailable: 1
-
-# @schema description: Metrics endpoint configuration.
-metrics:
-  # @schema description: Enable the Appsmith metrics endpoint.
-  enabled: false
-  # @schema description: Port number to expose metrics on.
-  # @schema minimum: 1
-  # @schema maximum: 65535
-  port: 2019
-
-# @schema description: KEDA-based autoscaling configuration. Mutually exclusive with the autoscaling block.
-keda:
-  # @schema description: Enable KEDA ScaledObject for Appsmith.
-  enabled: false
-  # @schema description: How often KEDA polls trigger sources, in seconds.
-  pollingInterval: 30
-  # @schema description: Cooldown period before scaling down, in seconds.
-  cooldownPeriod: 60
-  # @schema description: Minimum number of replicas KEDA will scale to.
-  # @schema minimum: 0
-  minReplicaCount: 1
-  # @schema description: Maximum number of replicas KEDA will scale to.
-  # @schema minimum: 0
-  maxReplicaCount: 6
-  # @schema description: Fallback configuration when triggers fail to fetch metrics.
-  fallback:
-    # @schema description: Number of consecutive trigger failures before falling back.
-    failureThreshold: 3
-    # @schema description: Replica count to fall back to.
-    replicas: 4
-  # @schema description: KEDA trigger definitions (passed through to the ScaledObject).
-  triggers: []
-
-# @schema description: Auto-update configuration for the Helm-managed image.
-autoupdate:
-  ## @param autoupdate.enabled - Enable config autoupdate
-  ##
-  # @schema description: Enable the auto-update CronJob.
-  enabled: false
-  ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
-  ##
-  # @schema description: CronJob schedule to check and update the Helm image. Must be a valid cron expression.
-  scheduler: "0 * * * *"
-
+## @param secretName Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
 # @schema description: Name of an existing Secret to mount as APPSMITH_* environment variables. When empty, the chart creates one from applicationConfig.
+# -- Name of an existing Secret for APPSMITH_* env vars (empty = chart creates one)
+# @section -- Appsmith configuration
 secretName: ""
 
+## @param applicationConfig Map of APPSMITH_* environment variables for the application container
 # @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.
+# -- Map of APPSMITH_* environment variables for the application container
+# @section -- Appsmith configuration
 applicationConfig: # @schema additionalProperties: {type: [string, boolean, integer, number]}
   # @schema hidden: true
   APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
@@ -770,3 +71,1061 @@ applicationConfig: # @schema additionalProperties: {type: [string, boolean, inte
   APPSMITH_KEYCLOAK_DB_PASSWORD: ""
   # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_URL: ""
+## @param image.registry Container image registry
+## @param image.repository Container image repository
+## @param image.tag Container image tag (defaults to "latest" when omitted)
+## @param image.pullPolicy Container image pull policy
+## @param image.pullSecrets Image pull secret name (single secret)
+# @schema description: Appsmith container image configuration.
+# -- Appsmith container image configuration
+# @section -- Appsmith configuration
+image:
+  # @schema description: Container image registry.
+  registry: index.docker.io
+  # @schema description: Container image repository.
+  repository: appsmith/appsmith-ee
+  # @schema description: Container image pull policy.
+  # @schema enum: [Always, IfNotPresent, Never]
+  pullPolicy: IfNotPresent
+  # @schema description: Image pull secret name (single secret).
+  pullSecrets: ""
+  # @schema description: Container image tag (defaults to "latest" when omitted).
+  tag: "latest"
+
+## DEPRECATED: use `image` instead.
+## `_image` is kept for backwards compatibility with older install guides / values files.
+## When set, `_image` is merged on top of `image` (higher precedence) so you can partially
+## override fields like `repository` and `tag` without restating the full image.
+##
+## @param _image.registry DEPRECATED. Container image registry override (merged into image)
+## @param _image.repository DEPRECATED. Container image repository override (merged into image)
+## @param _image.tag DEPRECATED. Container image tag override (merged into image)
+## @param _image.pullPolicy DEPRECATED. Container image pull policy override (merged into image)
+## @param _image.pullSecrets DEPRECATED. Image pull secret name override (merged into image)
+# @schema description: DEPRECATED — use image instead. Kept for backwards compatibility, merged on top of image (higher precedence) so you can partially override fields like repository/tag without restating the full image.
+# -- DEPRECATED: use image instead. Backwards-compatible override merged on top of image.
+# @section -- Appsmith configuration
+_image: {}
+
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+##
+
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
+##
+# @schema description: Global parameters that can override values across the chart and its dependencies.
+# -- Global parameters that override values across the chart and its dependencies
+# @section -- Global parameters
+global:
+  # @schema description: Global StorageClass for Persistent Volume(s).
+  storageClass: ""
+  # @schema description: Override the namespace for resources deployed by the chart (can be overridden by local namespaceOverride).
+  namespaceOverride: ""
+## @param fullnameOverride String to fully override appsmith.fullname template
+##
+# @schema description: String to fully override the appsmith.fullname template.
+# -- String to fully override appsmith.fullname template
+# @section -- Global parameters
+fullnameOverride: ""
+## @param containerName specify running container name in a pod
+##
+# @schema description: Name of the running container in the pod.
+# -- Name of the container running in Appsmith pods
+# @section -- Global parameters
+containerName: "appsmith"
+## @param commonLabels Labels to add to all deployed objects
+##
+# @schema description: Labels to add to all deployed objects.
+# -- Labels to add to all deployed objects
+# @section -- Global parameters
+commonLabels: {}
+## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
+##
+# @schema description: Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template.
+# -- Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
+# @section -- Global parameters
+commonAnnotations: {}
+## @param schedulerName Name of the scheduler (other than default) to dispatch pods
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+# @schema description: Name of the scheduler (other than default) to dispatch pods.
+# -- Name of the scheduler (other than default) to dispatch pods
+# @section -- Global parameters
+schedulerName: ""
+## @param strategyType StrategyType for Appsmith&reg; statefulset
+## It can be set to RollingUpdate or Recreate by default.
+##
+# @schema description: StrategyType for the Appsmith workload. Typically RollingUpdate or Recreate.
+# -- StrategyType for the Appsmith workload
+# @section -- Global parameters
+strategyType: RollingUpdate
+##
+## Init containers for redis & mongodb
+##
+## @param initContainer Init container image overrides for bundled dependencies
+# @schema description: Init container image overrides for bundled redis/mongodb/postgresql dependencies.
+# -- Init container image overrides for bundled dependencies
+# @section -- Global parameters
+initContainer: {}
+  # redis:
+  #   image: docker.io/redis:7.4.9
+  # mongodb:
+  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+  # postgresql:
+  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+
+## @param annotations Annotations to add to the Deployment/StatefulSet resource
+##
+# @schema description: Annotations to add to the Deployment/StatefulSet resource.
+# -- Annotations to add to the Deployment/StatefulSet resource
+# @section -- Workload configuration
+annotations: {}
+
+## @param podAnnotations Annotations to add to Appsmith pods
+# @schema description: Annotations to add to Appsmith pods.
+# -- Annotations to add to Appsmith pods
+# @section -- Workload configuration
+podAnnotations: {}
+
+## @param podLabels Labels to add to Appsmith pods
+# @schema description: Labels to add to Appsmith pods.
+# -- Labels to add to Appsmith pods
+# @section -- Workload configuration
+podLabels: {}
+
+## @param podSecurityContext Pod-level securityContext for Appsmith pods
+# @schema description: Pod-level securityContext applied to Appsmith pods.
+# -- Pod-level securityContext for Appsmith pods
+# @section -- Workload configuration
+podSecurityContext: {}
+# For non-root user
+#  fsGroup: 1001
+#  sysctls:
+#  - name: net.ipv4.ip_unprivileged_port_start
+#    value: "80"
+
+## @param securityContext Container-level securityContext for the Appsmith container
+# @schema description: Container-level securityContext applied to the Appsmith container.
+# -- Container-level securityContext for the Appsmith container
+# @section -- Workload configuration
+securityContext: {}
+  # For non-root user
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+## @param extraVolumes Additional volumes to add to the pod
+## e.g:
+## extraVolumes:
+##   - name: tmp-dir
+##     emptyDir: {}
+##
+# @schema description: Additional volumes to add to the pod.
+# -- Additional volumes to add to the pod
+# @section -- Workload configuration
+extraVolumes: []
+
+## @param extraVolumeMounts Additional volume mounts to add to the appsmith container
+## e.g:
+## extraVolumeMounts:
+##   - name: tmp-dir
+##     mountPath: /tmp
+##
+# @schema description: Additional volume mounts to add to the Appsmith container.
+# -- Additional volume mounts to add to the appsmith container
+# @section -- Workload configuration
+extraVolumeMounts: []
+## @param customCAcert Custom CA certificates to trust at runtime (map of filename to PEM content)
+# @schema type: [object, "null"]; additionalProperties: {type: string}; description: Custom CA certificates to trust at runtime. Map of filename to PEM-encoded certificate contents. Defaults to null (no custom CAs).
+# -- Custom CA certificates to trust at runtime (map of filename to PEM content)
+# @section -- Workload configuration
+customCAcert:
+# cert1: |
+# paste-cert-1-contents-here
+# cert2: |
+# paste-cert-2-contents-here
+
+# @schema description: Resource requests/limits for the Appsmith container.
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  ## @param resources.limits Resource limits for the Appsmith container
+  # @schema description: Resource limits for the Appsmith container.
+  # -- Resource limits for the Appsmith container
+  # @section -- Workload configuration
+  limits: {}
+  ## @param resources.requests Resource requests for the Appsmith container
+  # @schema description: Resource requests for the Appsmith container.
+  # -- Resource requests for the Appsmith container
+  # @section -- Workload configuration
+  requests:
+     # @schema type: [string, number]
+     cpu: 500m
+     memory: 3000Mi
+
+## @param workload.kind Select workload resource type: Deployment or StatefulSet
+## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
+## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).
+##
+# @schema description: Workload resource configuration.
+# -- Select workload resource type: Deployment or StatefulSet
+# @section -- Workload configuration
+workload:
+  # @schema description: Workload resource type. Ignored when autoscaling.enabled is true (Deployment is used).
+  # @schema enum: [Deployment, StatefulSet]
+  kind: StatefulSet
+
+## @param replicas Number of replicas when autoscaling is disabled
+## Only used when workload.kind is Deployment and autoscaling.enabled is false
+##
+# @schema description: Number of replicas when autoscaling is disabled. Only used when workload.kind is Deployment and autoscaling.enabled is false.
+# @schema minimum: 0
+# -- Number of replicas when autoscaling is disabled
+# @section -- Workload configuration
+replicas: 1
+
+# @schema description: Horizontal Pod Autoscaler configuration.
+autoscaling:
+  ## @param autoscaling.enabled Enable the HorizontalPodAutoscaler
+  # @schema description: Enable the HorizontalPodAutoscaler.
+  # -- Enable the HorizontalPodAutoscaler
+  # @section -- Workload configuration
+  enabled: false
+  ## @param autoscaling.minReplicas Minimum number of replicas for the HPA
+  # @schema description: Minimum number of replicas for the HPA.
+  # @schema minimum: 0
+  # -- Minimum number of replicas for the HPA
+  # @section -- Workload configuration
+  minReplicas: 2
+  ## @param autoscaling.maxReplicas Maximum number of replicas for the HPA
+  # @schema description: Maximum number of replicas for the HPA.
+  # @schema minimum: 0
+  # -- Maximum number of replicas for the HPA
+  # @section -- Workload configuration
+  maxReplicas: 2
+  ## @param autoscaling.targetCPUUtilizationPercentage Target average CPU utilization (percentage)
+  # @schema description: Target average CPU utilization (percentage) across pods.
+  # @schema minimum: 1
+  # @schema maximum: 100
+  # -- Target average CPU utilization (percentage)
+  # @section -- Workload configuration
+  targetCPUUtilizationPercentage: 5
+
+## @param nodeSelector Node selector for Appsmith pods
+# @schema description: Node selector for Appsmith pods.
+# -- Node selector for Appsmith pods
+# @section -- Workload configuration
+nodeSelector: {}
+
+#HTTPContainerPort: 8080
+
+## @param tolerations Tolerations for Appsmith pods
+# @schema description: Tolerations for Appsmith pods.
+# -- Tolerations for Appsmith pods
+# @section -- Workload configuration
+tolerations: []
+
+## @param affinity Affinity rules for Appsmith pods
+# @schema description: Affinity rules for Appsmith pods.
+# -- Affinity rules for Appsmith pods
+# @section -- Workload configuration
+affinity: {}
+
+#topologySpreadConstraints:
+#  - maxSkew: 1 # distribute pods in an absolute even manner
+#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
+#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
+
+
+## Redis parameters
+## Values are passed through to the Bitnami redis subchart; not validated by this schema.
+redis: # @schema additionalProperties: true
+  ## @param redis.enabled Deploy the bundled Bitnami Redis subchart
+  # @schema description: Deploy the bundled Bitnami redis subchart. Disable to point Appsmith at an external Redis via APPSMITH_REDIS_URL.
+  # -- Deploy the bundled Bitnami Redis subchart
+  # @section -- Redis (Bitnami subchart)
+  enabled: true
+  # @schema hidden: true
+  auth:
+    # -- Enable Redis authentication
+    # @section -- Redis (Bitnami subchart)
+    enabled: false
+  # @schema hidden: true
+  master:
+    # -- Node selector for Redis master pods
+    # @section -- Redis (Bitnami subchart)
+    nodeSelector: {}
+    # -- Commands to disable on Redis master
+    # @section -- Redis (Bitnami subchart)
+    disableCommands: []
+    # -- Affinity rules for Redis master pods
+    # @section -- Redis (Bitnami subchart)
+    affinity: {}
+    # -- Tolerations for Redis master pods
+    # @section -- Redis (Bitnami subchart)
+    tolerations: []
+  # @schema hidden: true
+  replica:
+    # -- Number of Redis replica pods
+    # @section -- Redis (Bitnami subchart)
+    replicaCount: 1
+    # -- Node selector for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
+    nodeSelector: {}
+    # -- Commands to disable on Redis replicas
+    # @section -- Redis (Bitnami subchart)
+    disableCommands: []
+    # -- Affinity rules for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
+    affinity: {}
+    # -- Tolerations for Redis replica pods
+    # @section -- Redis (Bitnami subchart)
+    tolerations: []
+  # @schema hidden: true
+  image:
+    # -- Redis image registry
+    # @section -- Redis (Bitnami subchart)
+    registry: docker.io
+    # -- Redis image repository
+    # @section -- Redis (Bitnami subchart)
+    repository: redis
+    # -- Redis image tag
+    # @section -- Redis (Bitnami subchart)
+    tag: 7.4.9
+
+## MongoDB parameters
+## Values are passed through to the Bitnami mongodb subchart; not validated by this schema.
+mongodb: # @schema additionalProperties: true
+  ## @param mongodb.enabled Deploy the bundled Bitnami MongoDB subchart
+  # @schema description: Deploy the bundled Bitnami mongodb subchart. Disable to use an external MongoDB via APPSMITH_DB_URL or to use mongodbCommunity instead.
+  # -- Deploy the bundled Bitnami MongoDB subchart
+  # @section -- MongoDB (Bitnami subchart)
+  enabled: true
+  # @schema hidden: true
+  service:
+    # -- Service name override for the MongoDB subchart
+    # @section -- MongoDB (Bitnami subchart)
+    nameOverride: appsmith-mongodb
+  # @schema hidden: true
+  auth:
+    # -- MongoDB root username
+    # @section -- MongoDB (Bitnami subchart)
+    rootUser: root
+    # -- MongoDB root password
+    # @section -- MongoDB (Bitnami subchart)
+    rootPassword: password
+  # @schema hidden: true
+  # -- Number of MongoDB replica set members
+  # @section -- MongoDB (Bitnami subchart)
+  replicaCount: 2
+  # @schema hidden: true
+  # -- MongoDB architecture (standalone or replicaset)
+  # @section -- MongoDB (Bitnami subchart)
+  architecture: "replicaset"
+  # @schema hidden: true
+  # -- MongoDB replica set name
+  # @section -- MongoDB (Bitnami subchart)
+  replicaSetName: rs0
+  # @schema hidden: true
+  # -- Node selector for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
+  nodeSelector: {}
+  # @schema hidden: true
+  # -- Affinity rules for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
+  affinity: {}
+  # @schema hidden: true
+  # -- Tolerations for MongoDB pods
+  # @section -- MongoDB (Bitnami subchart)
+  tolerations: []
+  # @schema hidden: true
+  image:
+    # -- MongoDB container image registry
+    # @section -- MongoDB (Bitnami subchart)
+    registry: docker.io
+    # -- MongoDB container image repository
+    # @section -- MongoDB (Bitnami subchart)
+    repository: appsmith/mongodb
+    # -- MongoDB container image tag
+    # @section -- MongoDB (Bitnami subchart)
+    tag: 6.0.27
+  # @schema hidden: true
+  arbiter:
+    # -- Node selector for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
+    nodeSelector: {}
+    # -- Affinity rules for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
+    affinity: {}
+    # -- Tolerations for MongoDB arbiter pods
+    # @section -- MongoDB (Bitnami subchart)
+    tolerations: []
+  # @schema hidden: true
+  hidden:
+    # -- Node selector for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
+    nodeSelector: {}
+    # -- Affinity rules for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
+    affinity: {}
+    # -- Tolerations for MongoDB hidden replica pods
+    # @section -- MongoDB (Bitnami subchart)
+    tolerations: []
+
+## MongoDBCommunity cluster parameters
+## Settings for the MongoDB replica set deployed via the MongoDBCommunity custom resource.
+## See templates/mongodb-community.yaml for the CR definition and docs/install-mongodb-operator.md
+## for the install guide. Pair with mongodbOperator.enabled=true below to bundle the operator.
+##
+## PREVIEW (chart 3.7.0): documented for fresh installs in this release. A documented
+## migration path from an existing Bitnami-backed Appsmith release is being prepared
+## separately — if you have an existing install, watch for that documentation before
+## changing mongodbCommunity.enabled on a release with production data.
+# @schema description: MongoDBCommunity cluster configuration. Pair with mongodbOperator.enabled=true to bundle the operator. PREVIEW (chart 3.7.0) — documented for fresh installs in this release. A documented migration path from an existing Bitnami-backed release is being prepared separately. See docs/install-mongodb-operator.md.
+mongodbCommunity:
+  ## @param mongodbCommunity.enabled Deploy a MongoDBCommunity custom resource
+  # -- Deploy a MongoDBCommunity custom resource
+  # @section -- MongoDB Community Operator
+  enabled: false
+  ## @param mongodbCommunity.name Name of the MongoDBCommunity custom resource
+  ## When empty (default), the chart computes "<release-fullname>-mongo". The "-mongo" suffix
+  ## (vs Bitnami's "-mongodb") keeps operator-managed resources from colliding with Bitnami
+  ## StatefulSet names during the Mode B transition window. Override to pin a specific name.
+  # -- Name of the MongoDBCommunity custom resource
+  # @section -- MongoDB Community Operator
+  name: "" # @schema maxLength: 60; pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+  ## @param mongodbCommunity.version MongoDB version to deploy
+  # -- MongoDB version to deploy
+  # @section -- MongoDB Community Operator
+  version: "8.0.20"
+  ## @param mongodbCommunity.members Number of replica set members
+  ## Defaults to 1 to minimize footprint for evaluation and dev installs. For production
+  ## HA, set to 3 (odd number recommended for replica set quorum). The operator handles
+  ## scaling between these online — it's just a value change on upgrade.
+  # -- Number of replica set members
+  # @section -- MongoDB Community Operator
+  members: 1 # @schema minimum: 1
+  auth:
+    ## @param mongodbCommunity.auth.username MongoDB user for Appsmith
+    # -- MongoDB user for Appsmith
+    # @section -- MongoDB Community Operator
+    username: "appsmith" # @schema minLength: 1
+    ## @param mongodbCommunity.auth.database Authentication database (also used as connection path)
+    # -- Authentication database (also used as connection path)
+    # @section -- MongoDB Community Operator
+    database: "appsmith" # @schema minLength: 1
+    ## @param mongodbCommunity.auth.passwordSecretName Name of an existing Secret containing the password (key: password)
+    ## If empty, a pre-install Job generates a random password into a Secret named "{name}-password"
+    # -- Name of an existing Secret containing the password (key: password)
+    # @section -- MongoDB Community Operator
+    passwordSecretName: ""
+  persistent:
+    ## @param mongodbCommunity.persistent.storageSize Storage size for each MongoDB replica
+    # -- Storage size for each MongoDB replica
+    # @section -- MongoDB Community Operator
+    storageSize: "10Gi"
+    ## @param mongodbCommunity.persistent.storageClass StorageClass for MongoDB PVCs (empty uses cluster default)
+    # -- StorageClass for MongoDB PVCs (empty uses cluster default)
+    # @section -- MongoDB Community Operator
+    storageClass: ""
+  ## @param mongodbCommunity.resources Resource requests/limits for MongoDB containers
+  # -- Resource requests/limits for MongoDB containers
+  # @section -- MongoDB Community Operator
+  resources: {}
+  ## @param mongodbCommunity.nodeSelector Node selector for MongoDB pods
+  # -- Node selector for MongoDB pods
+  # @section -- MongoDB Community Operator
+  nodeSelector: {}
+  ## @param mongodbCommunity.affinity Affinity rules for MongoDB pods
+  # -- Affinity rules for MongoDB pods
+  # @section -- MongoDB Community Operator
+  affinity: {}
+  ## @param mongodbCommunity.tolerations Tolerations for MongoDB pods
+  # -- Tolerations for MongoDB pods
+  # @section -- MongoDB Community Operator
+  tolerations: []
+  ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the MongoDB user password Secret).
+  ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
+  ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
+  ## version if you need byte-level reproducibility.
+  passwordInit:
+    image:
+      ## @param mongodbCommunity.passwordInit.image.registry Registry for the kubectl image
+      # -- Registry for the kubectl image
+      # @section -- MongoDB Community Operator
+      registry: docker.io
+      ## @param mongodbCommunity.passwordInit.image.repository Repository path for the kubectl image
+      # -- Repository path for the kubectl image
+      # @section -- MongoDB Community Operator
+      repository: alpine/kubectl
+      ## @param mongodbCommunity.passwordInit.image.tag Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      # -- Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      # @section -- MongoDB Community Operator
+      tag: latest
+      ## @param mongodbCommunity.passwordInit.image.pullPolicy Image pull policy for the Job
+      # -- Image pull policy for the Job
+      # @section -- MongoDB Community Operator
+      pullPolicy: IfNotPresent
+
+## MongoDB Kubernetes Operator subchart
+## Values under this key are passed through to the upstream mongodb-kubernetes chart (aliased to mongodbOperator).
+## Set mongodbOperator.enabled=true to bundle the operator with this release — it installs in the same namespace
+## and reconciles the MongoDBCommunity CR defined above. Leave it false only if you're managing the operator
+## separately and accept responsibility for its RBAC in this namespace.
+##
+## Ref: https://github.com/mongodb/mongodb-kubernetes/tree/main/helm_chart
+## Values are passed through to the upstream mongodb-kubernetes subchart; not validated by this schema.
+mongodbOperator: # @schema additionalProperties: true
+  ## @param mongodbOperator.enabled Install the MongoDB Kubernetes Operator subchart
+  # @schema description: Install the MongoDB Kubernetes Operator subchart alongside this chart.
+  # -- Install the MongoDB Kubernetes Operator subchart
+  # @section -- MongoDB Community Operator
+  enabled: false
+  ## @param mongodbOperator.operator.telemetry.enabled Enable the upstream operator's phone-home telemetry.
+  ## Disabled by default. When enabled, the upstream chart installs a ClusterRole named
+  ## "{operator.name}-cluster-telemetry" whose name does not include the operator's namespace, so it
+  ## collides if multiple Appsmith releases (each bundling their own operator) are installed in the
+  ## same cluster. Safe to re-enable if you run a single operator cluster-wide.
+  # @schema hidden: true
+  # -- Enable the upstream operator's phone-home telemetry
+  # @section -- MongoDB Community Operator
+  operator:
+    telemetry:
+      enabled: false
+
+## postgresql parameters
+## Values are passed through to the Bitnami postgresql subchart; not validated by this schema.
+postgresql: # @schema additionalProperties: true
+  ## @param postgresql.enabled Deploy the bundled Bitnami PostgreSQL subchart (used by Keycloak)
+  # @schema description: Deploy the bundled Bitnami postgresql subchart (used by Keycloak). Disable to use an external PostgreSQL.
+  # -- Deploy the bundled Bitnami PostgreSQL subchart (used by Keycloak)
+  # @section -- PostgreSQL (Bitnami subchart)
+  enabled: true
+  # @schema hidden: true
+  auth:
+    # -- PostgreSQL application username
+    # @section -- PostgreSQL (Bitnami subchart)
+    username: root
+    # -- PostgreSQL application user password
+    # @section -- PostgreSQL (Bitnami subchart)
+    password: password
+    # -- PostgreSQL admin (postgres) password
+    # @section -- PostgreSQL (Bitnami subchart)
+    postgresPassword: password
+    # -- PostgreSQL database name
+    # @section -- PostgreSQL (Bitnami subchart)
+    database: keycloak
+  # @schema hidden: true
+  image:
+    # -- PostgreSQL container image registry
+    # @section -- PostgreSQL (Bitnami subchart)
+    registry: docker.io
+    # -- PostgreSQL container image repository
+    # @section -- PostgreSQL (Bitnami subchart)
+    repository: bitnamilegacy/postgresql
+    # -- PostgreSQL container image tag
+    # @section -- PostgreSQL (Bitnami subchart)
+    tag: 14.12.0
+  # @schema hidden: true
+  primary:
+    # -- Affinity rules for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    affinity: {}
+    # -- Node selector for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    nodeSelector: {}
+    # -- Tolerations for PostgreSQL primary pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    tolerations: []
+  # @schema hidden: true
+  readReplicas:
+    # -- Affinity rules for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    affinity: {}
+    # -- Node selector for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    nodeSelector: {}
+    # -- Tolerations for PostgreSQL read replica pods
+    # @section -- PostgreSQL (Bitnami subchart)
+    tolerations: []
+
+## external secrets parameters
+# @schema description: External Secrets Operator integration configuration.
+externalSecrets:
+  ## @param externalSecrets.enabled Enable External Secrets Operator integration
+  # @schema description: Enable External Secrets integration to source secrets from a remote provider.
+  # -- Enable External Secrets Operator integration
+  # @section -- External Secrets
+  enabled: false
+  ## @param externalSecrets.refreshInterval How often to refresh secrets from the remote provider
+  # @schema description: How often to refresh secrets from the remote provider (Go duration string).
+  # -- How often to refresh secrets from the remote provider
+  # @section -- External Secrets
+  refreshInterval: 1m
+  ## @param externalSecrets.remoteNameSecret Name of the secret in the external provider
+  # -- Name of the secret in the external provider
+  # @section -- External Secrets
+  remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
+
+
+## prometheus paramaters
+## Values are passed through to the prometheus subchart; not validated by this schema.
+prometheus: # @schema additionalProperties: true
+  ## @param prometheus.enabled Deploy the bundled Prometheus subchart
+  # @schema description: Deploy the bundled prometheus subchart for metrics scraping.
+  # -- Deploy the bundled Prometheus subchart
+  # @section -- Monitoring
+  enabled: false
+  # @schema hidden: true
+  image:
+    # -- Prometheus container image tag
+    # @section -- Monitoring
+    tag: v0.74.0
+
+
+## ServiceAccount
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+##
+# @schema description: ServiceAccount configuration for Appsmith pods.
+serviceAccount:
+  ## @param serviceAccount.create Enable creation of ServiceAccount for Appsmith; pods
+  ##
+  # @schema description: Enable creation of a ServiceAccount for Appsmith pods.
+  # -- Enable creation of ServiceAccount for Appsmith pods
+  # @section -- Service account
+  create: true
+  ## @param serviceAccount.name Name of the created serviceAccount
+  ## If not set and create is true, a name is generated using the appsmith.fullname template
+  ##
+  # @schema description: Name of the created ServiceAccount. If not set and create is true, a name is generated using the appsmith.fullname template.
+  # -- Name of the created serviceAccount
+  # @section -- Service account
+  name: ""
+  ## @param serviceAccount.annotations Additional Service Account annotations
+  ##
+  # @schema description: Additional ServiceAccount annotations.
+  # -- Additional Service Account annotations
+  # @section -- Service account
+  annotations: {}
+
+
+# @schema description: Kubernetes Service configuration for Appsmith.
+service:
+  ## @param service.type Kubernetes Service type
+  ##
+  # @schema description: Kubernetes Service type.
+  # @schema enum: [ClusterIP, NodePort, LoadBalancer, ExternalName]
+  # -- Kubernetes Service type
+  # @section -- Networking
+  type: ClusterIP
+  ## @param service.port service port
+  ##
+  # @schema description: Service port.
+  # @schema minimum: 1
+  # @schema maximum: 65535
+  # -- Service port
+  # @section -- Networking
+  port: 80
+  ## @param service.nodePort Node port to expose if service type is "LoadBalancer" or "NodePort"
+  ##
+  # @schema description: Node port to expose if service type is LoadBalancer or NodePort.
+  # @schema minimum: 1
+  # @schema maximum: 65535
+  # -- Node port to expose if service type is "LoadBalancer" or "NodePort"
+  # @section -- Networking
+  nodePort: 8000
+  ## @param service.portName Appsmith service port name
+  ##
+  # @schema description: Service port name.
+  # -- Appsmith service port name
+  # @section -- Networking
+  portName: appsmith
+  ## @param service.clusterIP Appsmith service cluster IP
+  ## e.g:
+  ## clusterIP: None
+  ##
+  # @schema description: Service cluster IP. Set to None for a headless service.
+  # -- Appsmith service cluster IP
+  # @section -- Networking
+  clusterIP: ""
+  ## @param service.loadBalancerIP loadBalancerIP for Appsmith&reg; Service
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
+  ##
+  # @schema description: loadBalancerIP for the Appsmith Service.
+  # -- loadBalancerIP for the Appsmith Service
+  # @section -- Networking
+  loadBalancerIP: ""
+  ## @param service.loadBalancerSourceRanges Address(es) that are allowed when service is LoadBalancer
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ##
+  # @schema description: Address ranges allowed to access the Service when type is LoadBalancer.
+  # -- Address(es) that are allowed when service is LoadBalancer
+  # @section -- Networking
+  loadBalancerSourceRanges: []
+  ## @param service.annotations Provide any additional annotations that may be required
+  ##
+  # @schema description: Additional annotations for the Service.
+  # -- Provide any additional annotations that may be required
+  # @section -- Networking
+  annotations: {}
+
+# @schema description: Ingress configuration for exposing Appsmith over HTTP(S).
+ingress:
+  ## @param ingress.enabled Enable Ingress record generation for Appsmith
+  ##
+  # @schema description: Enable Ingress record generation for Appsmith.
+  # -- Enable Ingress record generation for Appsmith
+  # @section -- Networking
+  enabled: false
+  ## @param ingress.annotations Additional custom annotations for the ingress record
+  ## NOTE: If `ingress.certManager=true`, annotation `kubernetes.io/tls-acme: "true"` will automatically be added
+  ##
+  # @schema description: Additional custom annotations for the Ingress record.
+  # -- Additional custom annotations for the ingress record
+  # @section -- Networking
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  ## @param ingress.hosts Hosts served by the Ingress
+  # @schema description: Hosts served by the Ingress (list of objects with at least a host field).
+  # -- Hosts served by the Ingress
+  # @section -- Networking
+  hosts: []
+    # - host: appsmith-domain.me
+  ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
+  ## You can:
+  ##   - Use the `ingress.secrets` parameter to create this TLS secret
+  ##   - Relay on cert-manager to create it by setting `ingress.certManager=true`
+  ##   - Relay on Helm to create self-signed certificates by setting `ingress.selfSigned=true`
+  ##
+  # @schema description: Enable TLS configuration for the host(s) defined at ingress.hosts.
+  # -- Enable TLS configuration for the host defined at `ingress.hosts` parameter
+  # @section -- Networking
+  tls: false
+  ## @param ingress.secrets Custom TLS certificates as secrets
+  ## NOTE: 'key' and 'certificate' are expected in PEM format
+  ## NOTE: 'name' should line up with a 'secretName' set further up
+  ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+  ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ## e.g:
+  ## secrets:
+  ##   - host: chart-example.local
+  ##     key: |-
+  ##       -----BEGIN RSA PRIVATE KEY-----
+  ##       ...
+  ##       -----END RSA PRIVATE KEY-----
+  ##     certificate: |-
+  ##       -----BEGIN CERTIFICATE-----
+  ##       ...
+  ##       -----END CERTIFICATE-----
+  ##
+  # @schema description: Custom TLS certificates as secrets. 'key' and 'certificate' are expected in PEM format.
+  # -- Custom TLS certificates as secrets
+  # @section -- Networking
+  secrets: []
+  ## @param ingress.certManager Enable ingress to use TLS certificates provided by Cert Manager
+  ##
+  # @schema description: Enable Ingress to use TLS certificates provided by cert-manager.
+  # -- Enable ingress to use TLS certificates provided by Cert Manager
+  # @section -- Networking
+  certManager: false
+  ## @param ingress.certManagerTls Specify the TLS secret created by Cert Manager
+  ## e.g:
+  ## certManagerTls:
+  ##   - hosts:
+  ##       - appsmith-domain.me
+  ##     secretName: appsmith-tls
+  # @schema description: Specify TLS secrets created by cert-manager.
+  # -- Specify the TLS secret created by Cert Manager
+  # @section -- Networking
+  certManagerTls: []
+  ## @param ingress.className IngressClass name for the Ingress resource
+  ## e.g:
+  ## className: "nginx"
+  ##
+  # @schema description: IngressClass name to use for the Ingress resource.
+  # -- IngressClass name for the Ingress resource
+  # @section -- Networking
+  className: "nginx"
+
+# @schema description: Persistence configuration for Appsmith data volumes.
+persistence:
+  ## @param persistence.enabled - Enable data persistence using PVC
+  ##
+  # @schema description: Enable data persistence using a PVC.
+  # -- Enable data persistence using PVC
+  # @section -- Persistence
+  enabled: true
+  ## @param persistence.storageClass PVC Storage Class
+  ##
+  # @schema description: PVC StorageClass. Empty uses the cluster default (or global.storageClass).
+  # -- PVC Storage Class
+  # @section -- Persistence
+  storageClass: ""
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  ##
+  # @schema description: Additional custom annotations for the PVC.
+  # -- Additional custom annotations for the PVC
+  # @section -- Persistence
+  annotations: {}
+  ## @param persistence.localStorage - Use local storage for PVC
+  ##
+  # @schema description: Use local storage for the PVC.
+  # -- Use local storage for PVC
+  # @section -- Persistence
+  localStorage: false
+  ## @param persistence.storagePath - local storage path
+  ##
+  # @schema description: Local storage path used when localStorage is true.
+  # -- Local storage path
+  # @section -- Persistence
+  storagePath: /tmp/hostpath_pv
+  ## @param persistence.localCluster
+  ##
+  # @schema description: Local cluster configuration for local-storage scenarios.
+  # -- Local cluster configuration for local-storage scenarios
+  # @section -- Persistence
+  localCluster: {}
+  ## @param persistence.accessModes PV Access Mode
+  ##
+  # @schema description: PV access modes.
+  # @schema item: string; itemEnum: ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod"]
+  # -- PV Access Mode
+  # @section -- Persistence
+  accessModes:
+    - ReadWriteMany
+  ## @param persistence.size PVC Storage Request
+  ##
+  # @schema description: PVC storage request size.
+  # -- PVC Storage Request
+  # @section -- Persistence
+  size: 10Gi
+  ## Fine tuning for volumeClaimTemplates
+  ##
+  ## @param persistence.reclaimPolicy Reclaim policy for the PV
+  # @schema description: Reclaim policy for the PV.
+  # @schema enum: [Retain, Delete, Recycle]
+  # -- Reclaim policy for the PV
+  # @section -- Persistence
+  reclaimPolicy: Retain
+
+  ## @param persistence.pvNameOverride Override the PV name
+  ## Useful when deploying multiple releases across different namespaces with the same name
+  ## since PersistentVolumes are cluster-scoped resources
+  ##
+  # @schema description: Override the PV name. Useful when deploying multiple releases across different namespaces with the same name since PersistentVolumes are cluster-scoped.
+  # -- Override the PV name
+  # @section -- Persistence
+  pvNameOverride: ""
+
+  # @schema description: Use an existing PVC instead of creating one.
+  existingClaim:
+    ## @param persistence.existingClaim.enabled Use an existing PVC instead of creating one
+    # @schema type: [boolean, "null"]; description: Set to true to mount an existing PVC instead of provisioning a new one.
+    # -- Use an existing PVC instead of creating one
+    # @section -- Persistence
+    enabled:
+    ## @param persistence.existingClaim.name Name used to look up the existing PVC
+    # @schema type: [string, "null"]; description: Name used to look up the existing PVC.
+    # -- Name used to look up the existing PVC
+    # @section -- Persistence
+    name:
+    ## @param persistence.existingClaim.claimName Explicit claimName to set on the volume mount
+    # @schema type: [string, "null"]; description: Explicit claimName to set on the pod's volume mount.
+    # -- Explicit claimName to set on the volume mount
+    # @section -- Persistence
+    claimName:
+  # @schema description: AWS EFS CSI driver configuration when using an EFS-backed volume.
+  efs:
+    ## @param persistence.efs.enabled Enable EFS-backed persistence
+    # @schema type: [boolean, "null"]; description: Enable EFS-backed persistence.
+    # -- Enable EFS-backed persistence
+    # @section -- Persistence
+    enabled:
+    ## @param persistence.efs.driver CSI driver name for the EFS volume
+    # @schema type: [string, "null"]; description: CSI driver name for the EFS volume.
+    # -- CSI driver name for the EFS volume
+    # @section -- Persistence
+    driver:
+    ## @param persistence.efs.volumeHandle EFS filesystem volume handle (fs-xxxx[::access-point])
+    # @schema type: [string, "null"]; description: EFS filesystem volume handle (fs-xxxx[::access-point]).
+    # -- EFS filesystem volume handle (fs-xxxx[::access-point])
+    # @section -- Persistence
+    volumeHandle:
+  # @schema description: Fine-tuning options for the volumeClaimTemplate used by the StatefulSet.
+  volumeClaimTemplates:
+    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
+    ##
+    # @schema description: A label query over volumes to consider for binding (e.g. when using local volumes).
+    # -- A label query over volumes to consider for binding (e.g. when using local volumes)
+    # @section -- Persistence
+    selector: {}
+    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
+    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
+    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
+    ##
+    # @schema description: Custom PVC requests attributes (some cloud providers use additional attributes for storage provisioning).
+    # -- Custom PVC requests attributes
+    # @section -- Persistence
+    requests: {}
+    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
+    ##
+    # @schema description: Add a dataSource to the VolumeClaimTemplate.
+    # -- Add dataSource to the VolumeClaimTemplate
+    # @section -- Persistence
+    dataSource: {}
+# tags:
+#   install-ingress-nginx: true
+# @schema description: Optional StorageClass managed by this chart.
+storageClass:
+  ## @param storageClass.enabled - Enable config storage class
+  ##
+  # @schema description: Enable creation of a StorageClass by this chart.
+  # -- Enable a chart-managed StorageClass
+  # @section -- Persistence
+  enabled: false
+  ## @param storageClass.bindingMode - the binding mode for PVCs using this storage class
+  ##
+  # @schema description: VolumeBindingMode for PVCs using this StorageClass.
+  # @schema enum: [Immediate, WaitForFirstConsumer]
+  # -- Binding mode for PVCs using this StorageClass
+  # @section -- Persistence
+  bindingMode: Immediate
+  ## @param storageClass.defaultClass - boolean to set annotation designating this object as the default storage class
+  ##
+  # @schema description: Mark this StorageClass as the cluster default.
+  # -- Mark this StorageClass as the cluster default
+  # @section -- Persistence
+  defaultClass: false
+  ## @param storageClass.allowVolumeExpansion - allow expansion of PVCs using this storage class
+  ##
+  # @schema description: Allow PVC expansion for volumes using this StorageClass.
+  # -- Allow PVC expansion for this StorageClass
+  # @section -- Persistence
+  allowVolumeExpansion: true
+  ## @param storageClass.reclaimPolicy - configures the retention of the PV when dynamically created using this class
+  ##
+  # @schema description: Reclaim policy for PVs dynamically provisioned by this StorageClass.
+  # @schema enum: [Retain, Delete]
+  # -- Reclaim policy for dynamically provisioned PVs
+  # @section -- Persistence
+  reclaimPolicy: Delete
+  ## @param storageClass.provisioner - storage class parameters used for volumes created with this storage class
+  ##
+  # @schema description: Provisioner name for this StorageClass.
+  # -- Provisioner name for this StorageClass
+  # @section -- Persistence
+  provisioner: ""
+  ## @param storageClass.annotations - annotations in yaml map format to be added to the object
+  ##
+  # @schema description: Annotations to add to the StorageClass.
+  # -- Annotations for the StorageClass
+  # @section -- Persistence
+  annotations: {}
+  ## @param storageClass.mountOptions - options used by volumes created by this storage class
+  ##
+  # @schema description: Mount options used by volumes created with this StorageClass.
+  # -- Mount options for volumes using this StorageClass
+  # @section -- Persistence
+  mountOptions: {}
+  ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
+  ##
+  # @schema description: Provisioner-specific parameters for this StorageClass.
+  # -- Provisioner-specific parameters for this StorageClass
+  # @section -- Persistence
+  parameters: {}
+
+# @schema description: PodDisruptionBudget configuration for the Appsmith workload.
+podDisruptionBudgets:
+  ## @param podDisruptionBudgets.enabled Enable a PodDisruptionBudget for Appsmith pods
+  # @schema description: Enable a PodDisruptionBudget for Appsmith pods.
+  # -- Enable a PodDisruptionBudget for Appsmith pods
+  # @section -- Workload configuration
+  enabled: true
+  ## @param podDisruptionBudgets.minAvailable Minimum available pods during voluntary disruptions
+  # @schema description: Minimum number of pods that must remain available during voluntary disruptions.
+  # -- Minimum available pods during voluntary disruptions
+  # @section -- Workload configuration
+  minAvailable: 1
+
+# @schema description: Metrics endpoint configuration.
+metrics:
+  ## @param metrics.enabled Enable the Appsmith metrics endpoint
+  # @schema description: Enable the Appsmith metrics endpoint.
+  # -- Enable the Appsmith metrics endpoint
+  # @section -- Monitoring
+  enabled: false
+  ## @param metrics.port Port number to expose metrics on
+  # @schema description: Port number to expose metrics on.
+  # @schema minimum: 1
+  # @schema maximum: 65535
+  # -- Port number to expose metrics on
+  # @section -- Monitoring
+  port: 2019
+
+# @schema description: KEDA-based autoscaling configuration. Mutually exclusive with the autoscaling block.
+keda:
+  ## @param keda.enabled Enable KEDA ScaledObject for Appsmith
+  # @schema description: Enable KEDA ScaledObject for Appsmith.
+  # -- Enable KEDA ScaledObject for Appsmith
+  enabled: false
+  ## @param keda.pollingInterval How often KEDA polls trigger sources (seconds)
+  # @schema description: How often KEDA polls trigger sources, in seconds.
+  # -- How often KEDA polls trigger sources (seconds)
+  pollingInterval: 30
+  ## @param keda.cooldownPeriod Cooldown period before scaling down (seconds)
+  # @schema description: Cooldown period before scaling down, in seconds.
+  # -- Cooldown period before scaling down (seconds)
+  cooldownPeriod: 60
+  ## @param keda.minReplicaCount Minimum replica count for KEDA
+  # @schema description: Minimum number of replicas KEDA will scale to.
+  # @schema minimum: 0
+  # -- Minimum replica count for KEDA
+  minReplicaCount: 1
+  ## @param keda.maxReplicaCount Maximum replica count for KEDA
+  # @schema description: Maximum number of replicas KEDA will scale to.
+  # @schema minimum: 0
+  # -- Maximum replica count for KEDA
+  maxReplicaCount: 6
+  # @schema description: Fallback configuration when triggers fail to fetch metrics.
+  fallback:
+    ## @param keda.fallback.failureThreshold Consecutive failures before fallback
+    # @schema description: Number of consecutive trigger failures before falling back.
+    # -- Consecutive failures before fallback
+    failureThreshold: 3
+    ## @param keda.fallback.replicas Replica count to fall back to
+    # @schema description: Replica count to fall back to.
+    # -- Replica count to fall back to
+    replicas: 4
+  ## @param keda.triggers KEDA trigger definitions (passed through to ScaledObject)
+  # @schema description: KEDA trigger definitions (passed through to the ScaledObject).
+  # -- KEDA trigger definitions (passed through to ScaledObject)
+  triggers: []
+
+# @schema description: Auto-update configuration for the Helm-managed image.
+autoupdate:
+  ## @param autoupdate.enabled - Enable config autoupdate
+  ##
+  # @schema description: Enable the auto-update CronJob.
+  # -- Enable the auto-update CronJob
+  enabled: false
+  ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
+  ##
+  # @schema description: CronJob schedule to check and update the Helm image. Must be a valid cron expression.
+  # -- CronJob schedule expression for auto-update
+  scheduler: "0 * * * *"

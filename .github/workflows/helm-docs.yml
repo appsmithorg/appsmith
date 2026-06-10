@@ -1,4 +1,4 @@
-name: Helm Values Schema
+name: Helm Docs
 
 on:
   pull_request:
@@ -7,7 +7,9 @@ on:
     paths:
       - "deploy/helm/values.yaml"
       - "deploy/helm/values.schema.json"
-      - ".github/workflows/helm-schema.yml"
+      - "deploy/helm/README.md"
+      - "deploy/helm/README.md.gotmpl"
+      - ".github/workflows/helm-docs.yml"
   workflow_dispatch:
 
 jobs:
@@ -21,10 +23,10 @@ jobs:
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # Helm 4 — pinned so we don't silently track future major bumps.
           version: v4.1.4
@@ -34,18 +36,38 @@ jobs:
         # (the plugin source doesn't ship verification metadata).
         run: helm plugin install --verify=false https://github.com/losisin/helm-values-schema-json.git
 
-      - name: Regenerate schema from values.yaml
+      - name: Install helm-docs
+        run: |
+          HELM_DOCS_VERSION=1.14.2
+          BASE_URL="https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}"
+          TARBALL="helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz"
+          curl -sSL "${BASE_URL}/checksums.txt" -o checksums.txt
+          curl -sSL "${BASE_URL}/${TARBALL}" -o "${TARBALL}"
+          sha256sum --check --ignore-missing checksums.txt
+          tar xzf "${TARBALL}" helm-docs
+          sudo mv helm-docs /usr/local/bin/
+
+      - name: Check values schema
         run: |
           helm schema \
             --schema-root.title "Appsmith Helm chart values" \
             --schema-root.id "https://helm.appsmith.com/values.schema.json" \
             -o values.schema.json.regenerated
 
-      - name: Fail if committed schema is out of date
-        run: |
           if ! diff -u values.schema.json values.schema.json.regenerated; then
             echo ""
             echo "::error::values.schema.json is out of date. Regenerate locally with:"
             echo "::error::  cd deploy/helm && helm schema --schema-root.title 'Appsmith Helm chart values' --schema-root.id 'https://helm.appsmith.com/values.schema.json' -o values.schema.json"
+            exit 1
+          fi
+
+      - name: Check README
+        run: |
+          helm-docs --sort-values-order file --dry-run > README.md.regenerated
+
+          if ! diff -u README.md README.md.regenerated; then
+            echo ""
+            echo "::error::README.md is out of date. Regenerate locally with:"
+            echo "::error::  cd deploy/helm && helm-docs --sort-values-order file"
             exit 1
           fi

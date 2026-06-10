@@ -4,9 +4,6 @@ updates:
     directory: "/app/client"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "tinymce"
-        versions: ["6.8.3"]
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
