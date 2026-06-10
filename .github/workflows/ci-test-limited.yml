@@ -125,7 +125,7 @@ jobs:
             image_run_id='${{ github.run_id }}'
           fi
           ghcr_image="ghcr.io/${{ github.repository }}-citest:run-$image_run_id"
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           docker pull "$ghcr_image"
           docker tag "$ghcr_image" cicontainer
 
