@@ -2025,10 +2025,10 @@ export class AggregateHelper {
 
   public waitForEmail({
     pollInterval,
+    requireHtml = false,
     targetEmail,
     targetSubject,
     timeout,
-    requireHtml = false,
   }: {
     pollInterval: number;
     timeout: number;
