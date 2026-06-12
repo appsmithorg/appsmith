@@ -23,7 +23,6 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.EmailNormalizer;
-import com.appsmith.server.helpers.PylonIdentityHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
@@ -35,6 +34,7 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.CacheablePylonHelper;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -112,6 +112,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserServiceHelper userPoliciesComputeHelper;
     private final InstanceVariablesHelper instanceVariablesHelper;
     private final SecureBaseUrlResolver secureBaseUrlResolver;
+    private final CacheablePylonHelper cacheablePylonHelper;
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -144,7 +145,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
             InstanceVariablesHelper instanceVariablesHelper,
-            SecureBaseUrlResolver secureBaseUrlResolver) {
+            SecureBaseUrlResolver secureBaseUrlResolver,
+            CacheablePylonHelper cacheablePylonHelper) {
 
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -162,6 +164,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.pacConfigurationService = pacConfigurationService;
         this.instanceVariablesHelper = instanceVariablesHelper;
         this.secureBaseUrlResolver = secureBaseUrlResolver;
+        this.cacheablePylonHelper = cacheablePylonHelper;
     }
 
     @Override
@@ -805,9 +808,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
                     profile.setIsSuperUser(isSuperUser);
                     profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    profile.setEmailVerificationHash(PylonIdentityHelper.computeEmailHash(
-                            commonConfig.getPylonIdentitySecret(), userFromDb.getEmail()));
-                    return pacConfigurationService.setRolesAndGroups(profile, userFromDb, true);
+                    // The Pylon chat identity-verification hash is computed by Cloud Services (which holds the
+                    // secret) and cached per user. If it is unavailable the profile is still returned, just without
+                    // a verified chat session.
+                    return cacheablePylonHelper
+                            .getEmailHash(userFromDb)
+                            .doOnNext(profile::setEmailVerificationHash)
+                            .then(Mono.defer(
+                                    () -> pacConfigurationService.setRolesAndGroups(profile, userFromDb, true)));
                 });
     }
 

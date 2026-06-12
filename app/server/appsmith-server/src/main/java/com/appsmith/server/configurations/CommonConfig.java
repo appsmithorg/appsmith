@@ -61,12 +61,6 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    // Secret used to derive HMAC-SHA256 email hashes for Pylon chat identity verification.
-    // Stored as a hex string and decoded to bytes before use. When empty, identity
-    // verification is skipped and the chat widget runs in unverified mode.
-    @Value("${appsmith.pylon.identity-secret:}")
-    private String pylonIdentitySecret;
-
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
