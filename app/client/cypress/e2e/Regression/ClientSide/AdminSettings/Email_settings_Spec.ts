@@ -202,6 +202,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: resetPassSubject,
             targetEmail: emailOne,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -209,7 +210,7 @@ describe(
               expect(email.headers.subject).to.equal(resetPassSubject);
               expect(email.headers.to).to.equal(emailOne);
 
-              const emailHtml = email.html || ""; // Store the email HTML content
+              const emailHtml = email.html; // Store the email HTML content
               const resetPasswordLinkMatch = emailHtml.match(
                 /href="([^"]*resetPassword[^"]*)"/,
               );
@@ -282,6 +283,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailTwo,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -289,7 +291,7 @@ describe(
               expect(email.headers.subject).to.include(inviteEmailSubject);
               expect(email.headers.to).to.equal(emailTwo);
 
-              const emailHtml = email.html || ""; // Store the email HTML content
+              const emailHtml = email.html; // Store the email HTML content
               const inviteLinkMatch = emailHtml.match(
                 /href="([^"]*applications[^"]*)"/,
               ); // Extract the link using regex
@@ -362,6 +364,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailThree,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -370,7 +373,7 @@ describe(
               expect(email.headers.subject).to.include(inviteEmailSubject);
               expect(email.headers.to).to.include(emailThree);
 
-              const emailHtml = email.html || ""; // Store the email HTML content
+              const emailHtml = email.html; // Store the email HTML content
 
               // Match all href links inside the <body>
               const bodyMatch = emailHtml.match(
@@ -464,6 +467,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailFour,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -480,7 +484,7 @@ describe(
                 console.log("Recipient does not match expected email.");
               }
 
-              const emailHtml = email.html || "";
+              const emailHtml = email.html;
 
               const bodyMatch = emailHtml.match(
                 /<body[^>]*>([\s\S]*?)<\/body>/i,
