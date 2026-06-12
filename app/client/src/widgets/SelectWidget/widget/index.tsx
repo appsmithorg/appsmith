@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -596,6 +597,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               );
             },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

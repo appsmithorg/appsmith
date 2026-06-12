@@ -1,4 +1,5 @@
 import type Dashboard from "@uppy/dashboard";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import type { Uppy } from "@uppy/core";
 import type { UppyFile } from "@uppy/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -346,6 +347,7 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
 

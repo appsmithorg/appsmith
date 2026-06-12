@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import type { IconName } from "@blueprintjs/icons";
 import type {
   ButtonPlacement,
@@ -220,6 +221,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

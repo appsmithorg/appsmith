@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
@@ -414,6 +415,7 @@ class CheckboxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

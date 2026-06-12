@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { LabelPosition } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -332,6 +333,7 @@ class RichTextEditorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
 

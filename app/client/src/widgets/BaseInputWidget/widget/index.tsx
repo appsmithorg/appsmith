@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import type { IconName } from "@blueprintjs/icons";
 import { LabelPosition } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
@@ -321,6 +322,7 @@ class BaseInputWidget<
             },
           },
           ...generalProperties,
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

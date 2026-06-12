@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -435,6 +436,7 @@ export const contentConfig = [
         },
         placeholderText: "1-200",
       },
+      TAB_ORDER_PROPERTY_CONFIG,
     ],
     expandedByDefault: false,
   },

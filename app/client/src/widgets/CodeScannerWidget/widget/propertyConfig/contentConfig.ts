@@ -1,4 +1,5 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
@@ -130,6 +131,7 @@ export default [
           },
         },
       },
+      TAB_ORDER_PROPERTY_CONFIG,
     ],
   },
 

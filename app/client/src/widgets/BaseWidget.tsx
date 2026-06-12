@@ -552,6 +552,7 @@ export interface WidgetDisplayProps {
   isVisible?: boolean;
   isLoading: boolean;
   isDisabled?: boolean;
+  tabOrder?: number;
   backgroundColor?: string;
   animateLoading?: boolean;
   deferRender?: boolean;

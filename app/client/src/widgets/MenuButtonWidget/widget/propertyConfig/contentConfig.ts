@@ -1,4 +1,5 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "constants/EvaluationConstants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -146,6 +147,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      TAB_ORDER_PROPERTY_CONFIG,
     ],
   },
 ] as PropertyPaneConfig[];

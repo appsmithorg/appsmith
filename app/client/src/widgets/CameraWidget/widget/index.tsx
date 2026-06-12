@@ -1,4 +1,5 @@
 import React from "react";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -195,6 +196,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
               },
             },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

@@ -1,4 +1,5 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import type { TextSize } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -473,6 +474,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
       {

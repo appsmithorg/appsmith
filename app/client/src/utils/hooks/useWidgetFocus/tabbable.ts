@@ -18,6 +18,110 @@ export const FOCUS_SELECTOR =
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
 
 /**
+ * returns the explicit tab order of a widget set via the "Tab order"
+ * property (rendered as a data-taborder attribute), or null if unset/invalid
+ *
+ * @param element
+ * @returns
+ */
+function getExplicitTabOrder(element: HTMLElement): number | null {
+  const value = Number(element.dataset.taborder);
+
+  return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
+function hasAnyExplicitTabOrder(elements: HTMLElement[]): boolean {
+  return elements.some((element) => getExplicitTabOrder(element) !== null);
+}
+
+function comparePosition(a: HTMLElement, b: HTMLElement) {
+  const rectA = a.getBoundingClientRect();
+  const rectB = b.getBoundingClientRect();
+
+  return rectA.top - rectB.top || rectA.left - rectB.left;
+}
+
+/**
+ * builds the total tab order of the given widgets following HTML tabindex
+ * semantics: widgets with an explicit tab order come first (ascending,
+ * ties broken by position), followed by the rest in position order
+ *
+ * @param elements
+ * @returns
+ */
+export function buildTabSequence(elements: HTMLElement[]): HTMLElement[] {
+  const explicit = elements
+    .filter((element) => getExplicitTabOrder(element) !== null)
+    .sort(
+      (a, b) =>
+        (getExplicitTabOrder(a) as number) -
+          (getExplicitTabOrder(b) as number) || comparePosition(a, b),
+    );
+  const implicit = elements
+    .filter((element) => getExplicitTabOrder(element) === null)
+    .sort(comparePosition);
+
+  return [...explicit, ...implicit];
+}
+
+/**
+ * returns candidates in traversal order when focus enters a scope
+ * (canvas, modal or container) from its corner
+ *
+ * falls back to the legacy position-based sorting when no candidate
+ * has an explicit tab order
+ *
+ * @param anchor
+ * @param candidates
+ * @param shiftKey
+ * @returns
+ */
+export function getEntryTabbables(
+  anchor: { top: number; left: number },
+  candidates: HTMLElement[],
+  shiftKey = false,
+): HTMLElement[] {
+  if (!hasAnyExplicitTabOrder(candidates)) {
+    return sortWidgetsByPosition(anchor, candidates, shiftKey);
+  }
+
+  const sequence = buildTabSequence(candidates);
+
+  return shiftKey ? sequence.slice().reverse() : sequence;
+}
+
+/**
+ * returns the sibling widgets that come after (or before, for shift+tab)
+ * the active widget in the tab order
+ *
+ * falls back to the legacy position-based sorting when neither the active
+ * widget nor any sibling has an explicit tab order
+ *
+ * @param activeWidget
+ * @param siblings
+ * @param shiftKey
+ * @returns
+ */
+export function getSiblingTabbables(
+  activeWidget: HTMLElement,
+  siblings: HTMLElement[],
+  shiftKey = false,
+): HTMLElement[] {
+  if (!hasAnyExplicitTabOrder([activeWidget, ...siblings])) {
+    const { left, top } = activeWidget.getBoundingClientRect();
+
+    return sortWidgetsByPosition({ top, left }, siblings, shiftKey);
+  }
+
+  const sequence = buildTabSequence([activeWidget, ...siblings]);
+  const currentIndex = sequence.indexOf(activeWidget);
+
+  return shiftKey
+    ? sequence.slice(0, currentIndex).reverse()
+    : sequence.slice(currentIndex + 1);
+}
+
+/**
  * returns the tabbable descendants of the current node
  *
  * @param currentNode
@@ -41,7 +145,7 @@ export function getTabbableDescendants(
 
       const domRect = modal.getBoundingClientRect();
 
-      const sortedTabbableDescendants = sortWidgetsByPosition(
+      const sortedTabbableDescendants = getEntryTabbables(
         {
           top: shiftKey ? domRect.bottom : domRect.top,
           left: shiftKey ? domRect.right : domRect.left,
@@ -61,7 +165,7 @@ export function getTabbableDescendants(
 
       const domRect = currentNode.getBoundingClientRect();
 
-      const sortedTabbableDescendants = sortWidgetsByPosition(
+      const sortedTabbableDescendants = getEntryTabbables(
         {
           top: shiftKey ? domRect.bottom : domRect.top,
           left: shiftKey ? domRect.right : domRect.left,
@@ -75,16 +179,8 @@ export function getTabbableDescendants(
   }
 
   const siblings = getWidgetSiblingsOfNode(activeWidget);
-  const domRect = activeWidget.getBoundingClientRect();
 
-  const sortedSiblings = sortWidgetsByPosition(
-    {
-      top: domRect.top,
-      left: domRect.left,
-    },
-    siblings,
-    shiftKey,
-  );
+  const sortedSiblings = getSiblingTabbables(activeWidget, siblings, shiftKey);
 
   if (sortedSiblings.length) return sortedSiblings;
 
@@ -127,7 +223,7 @@ export function getNextTabbableDescendant(
     const { bottom, left, right, top } =
       nextTabbableDescendant.getBoundingClientRect();
 
-    const sortedTabbableDescendants = sortWidgetsByPosition(
+    const sortedTabbableDescendants = getEntryTabbables(
       {
         top: shiftKey ? bottom : top,
         left: shiftKey ? right : left,

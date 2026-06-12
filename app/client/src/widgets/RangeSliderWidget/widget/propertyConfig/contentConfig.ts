@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -317,6 +318,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      TAB_ORDER_PROPERTY_CONFIG,
     ],
   },
   {

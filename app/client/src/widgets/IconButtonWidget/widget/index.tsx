@@ -1,4 +1,5 @@
 import type { IconName } from "@blueprintjs/icons";
+import { TAB_ORDER_PROPERTY_CONFIG } from "widgets/sharedPropertyPaneConfig";
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -187,6 +188,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          TAB_ORDER_PROPERTY_CONFIG,
         ],
       },
     ];

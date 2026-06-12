@@ -50,6 +50,7 @@ export interface PositionedContainerProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   widgetName: string;
+  tabOrder?: number;
 }
 
 export function PositionedContainer(
@@ -170,6 +171,11 @@ export function PositionedContainer(
     <PositionedWidget
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
+      data-taborder={
+        typeof props.tabOrder === "number" && props.tabOrder >= 1
+          ? props.tabOrder
+          : undefined
+      }
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
