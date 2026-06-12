@@ -45,6 +45,8 @@ import ButtonControl from "./ButtonControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import type { NumericInputControlProps } from "./NumericInputControl";
 import NumericInputControl from "./NumericInputControl";
+import type { TabOrderControlProps } from "./TabOrderControl";
+import TabOrderControl from "./TabOrderControl";
 import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
 import type { SelectDefaultValueControlProps } from "./SelectDefaultValueControl";
 import SelectDefaultValueControl from "./SelectDefaultValueControl";
@@ -118,6 +120,7 @@ export const PropertyControls = {
   ButtonControl,
   LabelAlignmentOptionsControl,
   NumericInputControl,
+  TabOrderControl,
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
   SelectDefaultValueControl,
@@ -152,6 +155,7 @@ export type PropertyControlPropsType =
   | ComputeTablePropertyControlProps
   | PrimaryColumnDropdownControlProps
   | NumericInputControlProps
+  | TabOrderControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
   | MenuButtonDynamicItemsControlProps

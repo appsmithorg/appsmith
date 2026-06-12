@@ -24,6 +24,7 @@ import {
   getDefaultOnCanvasUIConfig,
   PropertyPaneConfigTypes,
 } from "./helpers";
+import { addTabOrderToPropertyPaneConfig } from "./tabOrderPropertyConfig";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type BaseWidget from "widgets/BaseWidget";
 import { flow } from "lodash";
@@ -326,7 +327,10 @@ export class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
       ]);
-      const enhancedPropertyPaneConfig = enhance(propertyPaneConfig, features);
+      const enhancedPropertyPaneConfig = enhance(
+        addTabOrderToPropertyPaneConfig(type, propertyPaneConfig),
+        features,
+      );
 
       return enhancedPropertyPaneConfig;
     }
@@ -377,7 +381,7 @@ export class WidgetFactory {
       ]);
 
       const enhancedPropertyPaneContentConfig = enhance(
-        propertyPaneContentConfig,
+        addTabOrderToPropertyPaneConfig(type, propertyPaneContentConfig),
         features,
         PropertyPaneConfigTypes.CONTENT,
         type,
