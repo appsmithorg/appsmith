@@ -40,7 +40,7 @@ export function createTabOrderPropertyPaneSection() {
         propertyName: TAB_ORDER_PROPERTY_NAME,
         label: "Tab order",
         helpText:
-          "Optional. Lower numbers receive focus first. Leave blank to use automatic order.",
+          "Optional. Lower numbers receive keyboard focus first, among widgets in the same container. Leave blank for automatic order. Fields inside a form follow the form's own order.",
         controlType: "TAB_ORDER_INPUT",
         placeholderText: "Auto",
         isJSConvertible: false,

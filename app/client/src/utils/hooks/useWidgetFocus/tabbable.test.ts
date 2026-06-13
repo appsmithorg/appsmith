@@ -575,3 +575,32 @@ describe("handleTab", () => {
     expect(document.activeElement).toBe(inputOf(next));
   });
 });
+
+// Regression guard for the end-to-end seam: with three widgets whose explicit
+// tab order disagrees with their visual position, the tab sequence must follow
+// tabOrder, not position. Two widgets cannot catch this — a 2-cycle ping-pongs
+// the same either way — so the discriminating case needs three. Mirrors the
+// behavior verified live on a deployed app: orders 1 -> 2 -> 3 mapped onto
+// top/mid/bottom widgets, the keyboard sequence walked top -> bottom -> mid.
+describe("getTabbableDescendants: explicit order overrides position (3 widgets)", () => {
+  it("walks tabOrder, not visual position, forward and in reverse", () => {
+    const canvas = createCanvas();
+    // visual order top -> bottom: top, mid, bottom
+    // explicit tab order:          top=1, mid=3, bottom=2
+    // => full sequence is top -> bottom -> mid
+    const top = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+    const mid = createWidget(canvas, { top: 110, left: 10 }, { tabOrder: "3" });
+    const bottom = createWidget(
+      canvas,
+      { top: 210, left: 10 },
+      { tabOrder: "2" },
+    );
+
+    // from top (order 1): next is bottom (order 2) — NOT mid, the next by position
+    expect(getTabbableDescendants(inputOf(top))).toEqual([bottom, mid]);
+    // from bottom (order 2): next is mid (order 3)
+    expect(getTabbableDescendants(inputOf(bottom))).toEqual([mid]);
+    // Shift+Tab from mid (last): predecessors in reverse — bottom, then top
+    expect(getTabbableDescendants(inputOf(mid), true)).toEqual([bottom, top]);
+  });
+});
