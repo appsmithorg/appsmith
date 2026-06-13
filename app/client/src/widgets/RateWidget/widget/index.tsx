@@ -475,7 +475,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    const safeMaxCount = Math.min(this.props.maxCount || 0, 100);
+    const safeMaxCount = Math.min(this.props.maxCount || 5, 100);
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
