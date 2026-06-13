@@ -246,7 +246,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { natural: true },
+              params: { natural: true, max: 100 },
             },
           },
           {
@@ -475,6 +475,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
+    const safeMaxCount = Math.min(this.props.maxCount || 0, 100);
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
@@ -484,7 +485,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           isDisabled={this.props.isDisabled}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          maxCount={this.props.maxCount}
+          maxCount={safeMaxCount}
           minHeight={this.props.minHeight}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
