@@ -7,6 +7,9 @@ import type { PositionedContainerProps } from "./PositionedContainer";
 
 jest.mock("react-redux", () => ({
   useSelector: jest.fn(() => undefined),
+  // redux-form (pulled in transitively via the reflow selectors) calls
+  // connect() at import time; provide a passthrough HOC so the suite loads.
+  connect: () => (component: unknown) => component,
 }));
 
 jest.mock("utils/hooks/useClickToSelectWidget", () => ({

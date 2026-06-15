@@ -39,7 +39,7 @@ function collectTabOrderControls(
 function assertSharedTabOrderControl(control: PropertyPaneControlConfig) {
   expect(control.label).toBe("Tab order");
   expect(control.helpText).toBe(
-    "Optional. Lower numbers receive focus first. Leave blank to use automatic order.",
+    "Optional. Lower numbers receive keyboard focus first, among widgets in the same container. Leave blank for automatic order. Fields inside a form follow the form's own order.",
   );
   expect(control.controlType).toBe("TAB_ORDER_INPUT");
   // TODO: Fix this the next time the file is edited
