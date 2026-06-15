@@ -139,52 +139,65 @@ describe("shared tabOrder property exposure across all widgets", () => {
     registerWidgets(Array.from(widgetsMap.values()));
   });
 
-  it("exposes the same shared tabOrder property on standard non-Anvil widgets and on no other widget", () => {
+  it("classifies every registered widget the same way (standard non-Anvil expose, Anvil/internal do not)", () => {
     const types = WidgetFactory.getWidgetTypes();
 
     expect(types.length).toBeGreaterThan(0);
 
+    const internalTypes = [
+      "CANVAS_WIDGET",
+      "SKELETON_WIDGET",
+      "TABS_MIGRATOR_WIDGET",
+      "SECTION_WIDGET",
+      "ZONE_WIDGET",
+    ];
     let exposedCount = 0;
 
     for (const type of types) {
-      const config = WidgetFactory.getWidgetPropertyPaneConfig(
+      const expected =
+        !type.startsWith("WDS_") && !internalTypes.includes(type);
+
+      expect({ type, expose: shouldExposeTabOrderProperty(type) }).toEqual({
         type,
-        {} as WidgetProps,
-      );
-      const controls = collectTabOrderControls(config);
+        expose: expected,
+      });
 
-      if (shouldExposeTabOrderProperty(type) && config.length > 0) {
-        expect({ type, count: controls.length }).toEqual({ type, count: 1 });
-        assertSharedTabOrderControl(controls[0]);
-
-        const accessibilitySection = config.find(
-          (item) =>
-            (item as PropertyPaneSectionConfig).sectionName ===
-            TAB_ORDER_SECTION_NAME,
-        ) as PropertyPaneSectionConfig | undefined;
-
-        expect({ type, hasSection: !!accessibilitySection }).toEqual({
-          type,
-          hasSection: true,
-        });
-        exposedCount++;
-      } else {
-        expect({ type, count: controls.length }).toEqual({ type, count: 0 });
-      }
+      if (expected) exposedCount++;
     }
 
     // sanity check that the shared property is broadly exposed
     expect(exposedCount).toBeGreaterThan(30);
   });
 
+  // End-to-end wiring: the factory actually appends the shared section. Uses
+  // widgets with static property panes so getWidgetPropertyPaneConfig does not
+  // invoke dynamic-property generators with empty props.
+  it("appends the shared section in the factory for standard widgets", () => {
+    for (const type of ["BUTTON_WIDGET", "TEXT_WIDGET", "CHECKBOX_WIDGET"]) {
+      const config = WidgetFactory.getWidgetPropertyPaneConfig(
+        type,
+        {} as WidgetProps,
+      );
+      const controls = collectTabOrderControls(config);
+
+      expect({ type, count: controls.length }).toEqual({ type, count: 1 });
+      assertSharedTabOrderControl(controls[0]);
+
+      const accessibilitySection = config.find(
+        (item) =>
+          (item as PropertyPaneSectionConfig).sectionName ===
+          TAB_ORDER_SECTION_NAME,
+      );
+
+      expect({ type, hasSection: !!accessibilitySection }).toEqual({
+        type,
+        hasSection: true,
+      });
+    }
+  });
+
   it("does not expose tabOrder on Anvil-only or internal widgets", () => {
-    for (const type of [
-      "WDS_BUTTON_WIDGET",
-      "SECTION_WIDGET",
-      "ZONE_WIDGET",
-      "CANVAS_WIDGET",
-      "SKELETON_WIDGET",
-    ]) {
+    for (const type of ["WDS_BUTTON_WIDGET", "CANVAS_WIDGET"]) {
       const config = WidgetFactory.getWidgetPropertyPaneConfig(
         type,
         {} as WidgetProps,

@@ -2,7 +2,9 @@ import React from "react";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { PositionedContainer } from "./PositionedContainer";
+// Default export is the forwardRef-wrapped component; the raw named function
+// receives legacy context (frozen) as its 2nd arg and mishandles the ref.
+import PositionedContainer from "./PositionedContainer";
 import type { PositionedContainerProps } from "./PositionedContainer";
 
 jest.mock("react-redux", () => ({
