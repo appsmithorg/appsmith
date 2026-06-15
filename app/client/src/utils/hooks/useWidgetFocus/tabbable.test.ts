@@ -1,3 +1,4 @@
+import { TAB_ORDER_ATTRIBUTE } from "utils/widgetTabOrder";
 import {
   getExplicitTabOrder,
   getNextTabbableDescendant,
@@ -63,7 +64,7 @@ function createWidget(
   mockRect(widget, rect);
 
   if (tabOrder !== undefined) {
-    widget.setAttribute("data-tab-order", tabOrder);
+    widget.setAttribute(TAB_ORDER_ATTRIBUTE, tabOrder);
   }
 
   if (withInput) {
@@ -95,10 +96,10 @@ describe("getExplicitTabOrder", () => {
   it("reads valid explicit values, including 0", () => {
     const widget = createWidget(document.body, { top: 10, left: 10 });
 
-    widget.setAttribute("data-tab-order", "0");
+    widget.setAttribute(TAB_ORDER_ATTRIBUTE, "0");
     expect(getExplicitTabOrder(widget)).toBe(0);
 
-    widget.setAttribute("data-tab-order", "3");
+    widget.setAttribute(TAB_ORDER_ATTRIBUTE, "3");
     expect(getExplicitTabOrder(widget)).toBe(3);
   });
 
@@ -108,7 +109,7 @@ describe("getExplicitTabOrder", () => {
     expect(getExplicitTabOrder(widget)).toBeUndefined();
 
     for (const value of ["", "  ", "-1", "1.5", "abc", "NaN", "Infinity"]) {
-      widget.setAttribute("data-tab-order", value);
+      widget.setAttribute(TAB_ORDER_ATTRIBUTE, value);
       expect(getExplicitTabOrder(widget)).toBeUndefined();
     }
   });
