@@ -14,7 +14,7 @@ import {
   shouldExposeTabOrderProperty,
   TAB_ORDER_PROPERTY_NAME,
   TAB_ORDER_SECTION_NAME,
-} from "./tabOrderPropertyConfig";
+} from "./helpers";
 
 function collectTabOrderControls(
   config: readonly PropertyPaneConfig[],

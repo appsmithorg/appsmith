@@ -18,13 +18,13 @@ import type {
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
+  addTabOrderToPropertyPaneConfig,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
   getDefaultOnCanvasUIConfig,
   PropertyPaneConfigTypes,
 } from "./helpers";
-import { addTabOrderToPropertyPaneConfig } from "./tabOrderPropertyConfig";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type BaseWidget from "widgets/BaseWidget";
 import { flow } from "lodash";

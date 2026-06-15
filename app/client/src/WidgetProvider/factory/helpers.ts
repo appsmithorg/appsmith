@@ -17,7 +17,10 @@ import {
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
 import { generateReactKey } from "utils/generators";
-import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/wds/constants";
+import {
+  anvilWidgets,
+  DEFAULT_WIDGET_ON_CANVAS_UI,
+} from "widgets/wds/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 export enum PropertyPaneConfigTypes {
@@ -337,4 +340,83 @@ export function getDefaultOnCanvasUIConfig(config: WidgetDefaultProps) {
     ...DEFAULT_WIDGET_ON_CANVAS_UI,
     disableParentSelection: !!config.detachFromLayout,
   };
+}
+
+/* Shared platform-level `tabOrder` property pane plumbing.
+
+   This lives here (rather than in a standalone module) so the WidgetFactory can
+   compose it without introducing a new circular dependency: helpers.ts already
+   imports PropertyControlConstants, WidgetValidation, ./types and
+   widgets/wds/constants, so reusing them adds no new import edges.
+*/
+
+export const TAB_ORDER_PROPERTY_NAME = "tabOrder";
+export const TAB_ORDER_SECTION_NAME = "Accessibility";
+
+/**
+ * Widget types that must not expose the shared `tabOrder` property:
+ * internal wrappers and Anvil-only layout widgets. All WDS_* (Anvil) widgets
+ * are excluded by prefix in shouldExposeTabOrderProperty.
+ */
+const TAB_ORDER_EXCLUDED_WIDGET_TYPES: string[] = [
+  "CANVAS_WIDGET",
+  "SKELETON_WIDGET",
+  "TABS_MIGRATOR_WIDGET",
+  anvilWidgets.SECTION_WIDGET,
+  anvilWidgets.ZONE_WIDGET,
+];
+
+export function shouldExposeTabOrderProperty(type: WidgetType): boolean {
+  if (!type) return false;
+
+  if (type.startsWith("WDS_")) return false;
+
+  return !TAB_ORDER_EXCLUDED_WIDGET_TYPES.includes(type);
+}
+
+/**
+ * Returns a fresh copy of the shared Accessibility section so that the
+ * id-generation and enhancement steps in WidgetFactory never mutate an
+ * object shared across widget types.
+ */
+export function createTabOrderPropertyPaneSection() {
+  return {
+    sectionName: TAB_ORDER_SECTION_NAME,
+    children: [
+      {
+        propertyName: TAB_ORDER_PROPERTY_NAME,
+        label: "Tab order",
+        helpText:
+          "Optional. Lower numbers receive keyboard focus first, among widgets in the same container. Leave blank for automatic order. Fields inside a form follow the form's own order.",
+        controlType: "TAB_ORDER_INPUT",
+        placeholderText: "Auto",
+        isJSConvertible: false,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 0,
+            natural: true,
+          },
+        },
+      },
+    ],
+  };
+}
+
+/**
+ * Appends the shared Accessibility > Tab order section to a widget's property
+ * pane configuration. Widgets without a property pane and excluded widget
+ * types are left untouched.
+ */
+export function addTabOrderToPropertyPaneConfig(
+  type: WidgetType,
+  config: PropertyPaneConfig[],
+): PropertyPaneConfig[] {
+  if (!shouldExposeTabOrderProperty(type)) return config;
+
+  if (!Array.isArray(config) || config.length === 0) return config;
+
+  return [...config, createTabOrderPropertyPaneSection()];
 }
