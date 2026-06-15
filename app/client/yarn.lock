@@ -13940,7 +13940,7 @@ __metadata:
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
     jest: ^29.6.1
-    jest-canvas-mock: ^2.3.1
+    jest-canvas-mock: ^2.5.2
     jest-environment-jsdom: ^29.6.1
     jest-resolve: ^27.4.2
     jest-styled-components: ^7.0.8
@@ -23030,13 +23030,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-canvas-mock@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "jest-canvas-mock@npm:2.3.1"
+"jest-canvas-mock@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "jest-canvas-mock@npm:2.5.2"
   dependencies:
     cssfontparser: ^1.2.1
     moo-color: ^1.0.2
-  checksum: 82606d348cf4f671af098dcebac19c98643fc5896c6e1af24b572b8e477e7bee18e4c65e0aee8d72d3af88511eba265e12001c6fb72c319d7efe15a6ba23b58b
+  checksum: a3004d2e96473049045e49dcf98e5ea6011494048ab42b5422b3089d9ff406aaca8353e79587055d840fa145541668eb8f78613765f252ad5901a8217e91ea5d
   languageName: node
   linkType: hard
 

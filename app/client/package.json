@@ -361,7 +361,7 @@
     "husky": "^8.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.6.1",
-    "jest-canvas-mock": "^2.3.1",
+    "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.6.1",
     "jest-resolve": "^27.4.2",
     "jest-styled-components": "^7.0.8",
