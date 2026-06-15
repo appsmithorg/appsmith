@@ -374,7 +374,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.17.1</version>
+            <version>1.22.0</version>
         </dependency>
 
         <dependency>
