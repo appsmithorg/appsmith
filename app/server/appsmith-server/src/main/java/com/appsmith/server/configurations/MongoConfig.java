@@ -174,7 +174,8 @@ public class MongoConfig {
             ApplicationContext springContext,
             MongoClient mongoClient,
             MongoProperties mongoProperties,
-            EnterpriseDowngradeGuard enterpriseDowngradeGuard) {
+            EnterpriseDowngradeGuard enterpriseDowngradeGuard,
+            DeploymentProperties deploymentProperties) {
         MongoReactiveDriver driver =
                 MongoReactiveDriver.withDefaultLock(mongoClient, mongoProperties.getMongoClientDatabase());
         driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
@@ -188,8 +189,13 @@ public class MongoConfig {
 
         checkForbiddenIds(runnerBuilder);
 
-        // Hard-stop CE startup before any migration runs if this database was previously used by EE.
-        enterpriseDowngradeGuard.assertNotEnterpriseDatabase(mongoClient, mongoProperties.getMongoClientDatabase());
+        // Only a CE build must refuse to start on an EE database. An EE build legitimately runs
+        // against EE data, and DeploymentProperties#getEdition() already returns "EE" there, so the
+        // guard is skipped for EE. This keeps the check entirely in CE with no EE-side override.
+        if (DeploymentPropertiesCE.EDITION_CE.equals(deploymentProperties.getEdition())) {
+            // Runs before any migration: hard-stop if this database was previously used by EE.
+            enterpriseDowngradeGuard.assertNotEnterpriseDatabase(mongoClient, mongoProperties.getMongoClientDatabase());
+        }
 
         return runnerBuilder.buildInitializingBeanRunner();
     }
