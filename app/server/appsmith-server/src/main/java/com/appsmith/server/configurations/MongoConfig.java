@@ -5,6 +5,7 @@ import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
+import com.appsmith.server.helpers.EnterpriseDowngradeGuard;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -170,7 +171,10 @@ public class MongoConfig {
     */
     @Bean
     public MongockInitializingBeanRunner mongockInitializingBeanRunner(
-            ApplicationContext springContext, MongoClient mongoClient, MongoProperties mongoProperties) {
+            ApplicationContext springContext,
+            MongoClient mongoClient,
+            MongoProperties mongoProperties,
+            EnterpriseDowngradeGuard enterpriseDowngradeGuard) {
         MongoReactiveDriver driver =
                 MongoReactiveDriver.withDefaultLock(mongoClient, mongoProperties.getMongoClientDatabase());
         driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
@@ -183,6 +187,9 @@ public class MongoConfig {
                 .setSpringContext(springContext);
 
         checkForbiddenIds(runnerBuilder);
+
+        // Hard-stop CE startup before any migration runs if this database was previously used by EE.
+        enterpriseDowngradeGuard.assertNotEnterpriseDatabase(mongoClient, mongoProperties.getMongoClientDatabase());
 
         return runnerBuilder.buildInitializingBeanRunner();
     }
