@@ -82,16 +82,31 @@ public class EnterpriseDowngradeGuardCEImplTest {
         return changeLog(changeId, changeLogClass).append("state", state);
     }
 
-    // Case 1: An EE-package changeLogClass present -> guard throws EnterpriseDowngradeException.
+    // Case 1: A real EE migration record present (EE class in the parent migrations.db package)
+    // -> guard throws EnterpriseDowngradeException. Class name matches the actual appsmith-ee
+    // convention "...migrations.db.MigrationNNNEEnn...".
     @Test
     public void assertNotEnterpriseDatabase_whenEeMigrationRecordPresent_throws() {
-        seed(List.of(changeLog("ee-migration-001", "com.appsmith.server.migrations.db.ee.Migration001", "EXECUTED")));
+        seed(List.of(changeLog(
+                "add-delete-user-policy",
+                "com.appsmith.server.migrations.db.Migration003EE01AddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant",
+                "EXECUTED")));
 
         assertThatThrownBy(this::runGuard)
                 .isInstanceOf(EnterpriseDowngradeGuardCEImpl.EnterpriseDowngradeException.class);
     }
 
-    // Case 2: Only CE migration classes (incl. legacy DatabaseChangelog0) -> does NOT throw.
+    // Case 1b: The legacy EE changelog class "...migrations.DatabaseChangelogEE" -> guard throws.
+    @Test
+    public void assertNotEnterpriseDatabase_whenLegacyEeChangelogPresent_throws() {
+        seed(List.of(changeLog("ee-legacy", "com.appsmith.server.migrations.DatabaseChangelogEE", "EXECUTED")));
+
+        assertThatThrownBy(this::runGuard)
+                .isInstanceOf(EnterpriseDowngradeGuardCEImpl.EnterpriseDowngradeException.class);
+    }
+
+    // Case 2: Only CE migration classes (db.ce subpackage + legacy DatabaseChangelog0/1/2)
+    // -> does NOT throw. These are exactly the classes a CE-only database contains.
     @Test
     public void assertNotEnterpriseDatabase_whenOnlyCeMigrationRecordsPresent_doesNotThrow() {
         seed(List.of(
@@ -99,7 +114,8 @@ public class EnterpriseDowngradeGuardCEImplTest {
                         "ce-migration-003",
                         "com.appsmith.server.migrations.db.ce.Migration003AddInstanceNameToTenantConfiguration",
                         "EXECUTED"),
-                changeLog("legacy-changelog-0", "com.appsmith.server.migrations.DatabaseChangelog0", "EXECUTED")));
+                changeLog("legacy-changelog-0", "com.appsmith.server.migrations.DatabaseChangelog0", "EXECUTED"),
+                changeLog("legacy-changelog-2", "com.appsmith.server.migrations.DatabaseChangelog2", "EXECUTED")));
 
         assertThatCode(this::runGuard).doesNotThrowAnyException();
     }
@@ -127,22 +143,44 @@ public class EnterpriseDowngradeGuardCEImplTest {
     // Case 5: EE record with state "FAILED" -> still throws (detection is state-agnostic).
     @Test
     public void assertNotEnterpriseDatabase_whenEeMigrationFailed_stillThrows() {
-        seed(List.of(changeLog("ee-migration-001", "com.appsmith.server.migrations.db.ee.Migration001", "FAILED")));
+        seed(List.of(changeLog(
+                "ee-failed", "com.appsmith.server.migrations.db.Migration042EE01AddWorkflowPlugin", "FAILED")));
 
         assertThatThrownBy(this::runGuard)
                 .isInstanceOf(EnterpriseDowngradeGuardCEImpl.EnterpriseDowngradeException.class);
     }
 
-    // Case 6: Anchored-prefix near misses -> does NOT throw.
-    //   - "...db.cee.X"     would match a naive unanchored/substring search for "db.ce" but is not CE.
-    //   - "...db.ce.EeThing" contains "Ee" but lives under the CE package, so must not trip EE detection.
-    // Both prove the guard anchors on the exact "com.appsmith.server.migrations.db.ee." prefix.
+    // Case 6: CE-package near misses -> does NOT throw. These must NOT be mistaken for EE:
+    //   - "...db.ce.EeThing"  lives under the CE package and contains "Ee" in its name.
+    //   - "...db.ce.Migration075..." is a normal CE migration in the db.ce subpackage.
+    // Proves detection excludes the db.ce subpackage rather than naively matching "db." or "EE".
     @Test
-    public void assertNotEnterpriseDatabase_whenAnchoredPrefixNearMisses_doesNotThrow() {
+    public void assertNotEnterpriseDatabase_whenCePackageNearMisses_doesNotThrow() {
         seed(List.of(
-                changeLog("near-miss-cee", "com.appsmith.server.migrations.db.cee.X", "EXECUTED"),
-                changeLog("near-miss-ce-eething", "com.appsmith.server.migrations.db.ce.EeThing", "EXECUTED")));
+                changeLog("ce-eething", "com.appsmith.server.migrations.db.ce.EeThing", "EXECUTED"),
+                changeLog(
+                        "ce-migration-075",
+                        "com.appsmith.server.migrations.db.ce.Migration075SeedSuperUserSetupLock",
+                        "EXECUTED")));
 
         assertThatCode(this::runGuard).doesNotThrowAnyException();
+    }
+
+    // Case 7: A mixed CE + EE database (the real downgrade scenario) -> throws. An EE record alongside
+    // many CE records must still trip the guard.
+    @Test
+    public void assertNotEnterpriseDatabase_whenCeAndEeRecordsMixed_throws() {
+        seed(List.of(
+                changeLog(
+                        "ce-migration-003",
+                        "com.appsmith.server.migrations.db.ce.Migration003AddInstanceNameToTenantConfiguration",
+                        "EXECUTED"),
+                changeLog(
+                        "ee-add-workflow-plugin",
+                        "com.appsmith.server.migrations.db.Migration042EE01AddWorkflowPlugin",
+                        "EXECUTED")));
+
+        assertThatThrownBy(this::runGuard)
+                .isInstanceOf(EnterpriseDowngradeGuardCEImpl.EnterpriseDowngradeException.class);
     }
 }

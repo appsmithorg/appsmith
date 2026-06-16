@@ -12,9 +12,19 @@ import java.util.regex.Pattern;
 @Slf4j
 public class EnterpriseDowngradeGuardCEImpl implements EnterpriseDowngradeGuardCE {
 
-    // EE migrations live under this package. The detection signal depends on every EE migration
-    // FQCN starting with this prefix (verified against the EE repo / enforced by an EE-side CI check).
-    static final String EE_MIGRATION_PACKAGE_PREFIX = "com.appsmith.server.migrations.db.ee.";
+    // How EE migrations are distinguished from CE migrations in the Mongock audit log:
+    //   - CE migrations live in the "...migrations.db.ce." subpackage
+    //     (e.g. com.appsmith.server.migrations.db.ce.Migration003...).
+    //   - EE migrations live in the PARENT "...migrations.db." package and carry an "EE" token in
+    //     their class name (e.g. com.appsmith.server.migrations.db.Migration003EE01...).
+    //   - The legacy EE changelog class "...migrations.DatabaseChangelogEE" predates the db package.
+    // So a changeLogClass under "...migrations.db." that is NOT under "...migrations.db.ce." was
+    // written by EE. Verified against the appsmith-ee repo: 69 EE @ChangeUnit classes, all directly
+    // in the parent package; CE has zero classes directly in that package (all CE ones are in db.ce).
+    // (The earlier ".db.ee." prefix was wrong — EE has no such package — so the guard never fired.)
+    static final String MIGRATIONS_DB_PACKAGE_PREFIX = "com.appsmith.server.migrations.db.";
+    static final String CE_MIGRATIONS_DB_PACKAGE_PREFIX = "com.appsmith.server.migrations.db.ce.";
+    static final String LEGACY_EE_CHANGELOG_CLASS = "com.appsmith.server.migrations.DatabaseChangelogEE";
 
     /**
      * Thrown to abort CE startup when the connected database was previously used by Appsmith
@@ -34,7 +44,18 @@ public class EnterpriseDowngradeGuardCEImpl implements EnterpriseDowngradeGuardC
         // with the EE migration package proves EE ran against this database.
         Document eeChangeLog;
         try {
-            final Bson filter = Filters.regex("changeLogClass", "^" + Pattern.quote(EE_MIGRATION_PACKAGE_PREFIX));
+            // EE = a migration recorded in the parent "...migrations.db." package but NOT in the CE
+            // "...migrations.db.ce." subpackage, OR the legacy EE changelog class. Prefixes are
+            // anchored and escaped via Pattern.quote so only exact package segments match.
+            // Note: $not(regex) also matches docs where changeLogClass is absent/non-string, but it is
+            // AND-ed with the positive parent-package regex (which requires a present, matching string),
+            // so the negation only ever excludes the db.ce subset. Do not split these two clauses.
+            final Bson filter = Filters.or(
+                    Filters.and(
+                            Filters.regex("changeLogClass", "^" + Pattern.quote(MIGRATIONS_DB_PACKAGE_PREFIX)),
+                            Filters.not(Filters.regex(
+                                    "changeLogClass", "^" + Pattern.quote(CE_MIGRATIONS_DB_PACKAGE_PREFIX)))),
+                    Filters.eq("changeLogClass", LEGACY_EE_CHANGELOG_CLASS));
             // No "state" filter: a FAILED/partial EE migration still proves EE ran against this DB.
             // Blocking is acceptable here: this is one-time startup config code and Mongock's own
             // initialization (which runs immediately after) already blocks at this point.
