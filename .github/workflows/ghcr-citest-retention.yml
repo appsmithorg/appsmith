@@ -1,0 +1,51 @@
+name: GHCR citest image retention
+
+# The build-docker-image workflow pushes a ~2 GB SUT image to GHCR tagged
+# run-<run_id> on every run. Test jobs only pull images from the current run,
+# or (for /ci-test-limit reruns) from a recent previous run, so anything older
+# than the retention window is dead weight. This prunes those versions daily.
+
+on:
+  schedule:
+    - cron: "47 3 * * *"
+  workflow_dispatch:
+    inputs:
+      older-than-days:
+        description: "Delete run-* versions older than this many days"
+        required: false
+        type: string
+        default: "7"
+      dry-run:
+        description: "Only log what would be deleted"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  packages: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete citest package versions past the retention window
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OLDER_THAN_DAYS: ${{ inputs.older-than-days || '7' }}
+          DRY_RUN: ${{ inputs.dry-run && 'true' || 'false' }}
+        run: |
+          set -o errexit -o nounset -o pipefail
+          PACKAGE_PATH="/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${GITHUB_REPOSITORY#*/}-citest"
+          cutoff=$(( $(date +%s) - OLDER_THAN_DAYS * 86400 ))
+          deleted=0
+          while IFS=$'\t' read -r id created tags; do
+            echo "Deleting version $id (created $created, tags: $tags)"
+            if [[ "$DRY_RUN" != 'true' ]]; then
+              gh api --method DELETE "$PACKAGE_PATH/versions/$id"
+            fi
+            deleted=$((deleted + 1))
+          done < <(
+            gh api --paginate "$PACKAGE_PATH/versions?per_page=100" \
+              --jq ".[] | select((.created_at | fromdateiso8601) < $cutoff) | [.id, .created_at, (.metadata.container.tags | join(\",\"))] | @tsv"
+          )
+          echo "Deleted $deleted version(s) older than $OLDER_THAN_DAYS day(s) (dry-run: $DRY_RUN)"
