@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import org.bson.Document;
@@ -123,9 +124,11 @@ public class EnterpriseDowngradeGuardCEImplTest {
     // Case 3: Empty mongockChangeLog collection -> does NOT throw.
     @Test
     public void assertNotEnterpriseDatabase_whenChangeLogEmpty_doesNotThrow() {
-        // Ensure the collection exists but is empty.
+        // Ensure the collection exists but is empty. Ignore only the "collection already exists"
+        // error (NamespaceExists, code 48); any other failure indicates broken setup and must surface.
         Mono.from(mongoClient.getDatabase(databaseName).createCollection(MONGOCK_CHANGE_LOG))
-                .onErrorResume(e -> Mono.empty())
+                .onErrorResume(
+                        e -> e instanceof MongoCommandException mce && mce.getErrorCode() == 48, e -> Mono.empty())
                 .block();
         clearChangeLog();
 
