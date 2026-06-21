@@ -6,17 +6,22 @@ describe('Protected endpoints reject unauthenticated requests', () => {
   let app: express.Application;
 
   beforeAll(() => {
+    process.env.APPSMITH_RTS_SECRET = 'test-secret';
     app = express();
     app.use(express.json());
     app.use('/git', gitRoutes);
   });
 
+  afterAll(() => {
+    delete process.env.APPSMITH_RTS_SECRET;
+  });
+
   const payloads = [
     { name: 'missing_auth_header', headers: {}, expectedStatus: 401 },
-    { name: 'invalid_token', headers: { authorization: 'Bearer invalid_token_xyz' }, expectedStatus: 401 },
-    { name: 'expired_token', headers: { authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDAwMDAwMDB9.invalid' }, expectedStatus: 401 },
-    { name: 'malformed_auth', headers: { authorization: 'InvalidScheme token123' }, expectedStatus: 401 },
-    { name: 'empty_token', headers: { authorization: 'Bearer ' }, expectedStatus: 401 },
+    { name: 'invalid_token', headers: { 'x-rts-secret': 'invalid_token_xyz' }, expectedStatus: 401 },
+    { name: 'expired_token', headers: { 'x-rts-secret': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDAwMDAwMDB9.invalid' }, expectedStatus: 401 },
+    { name: 'malformed_auth', headers: { 'x-rts-secret': 'InvalidScheme token123' }, expectedStatus: 401 },
+    { name: 'empty_token', headers: { 'x-rts-secret': '' }, expectedStatus: 401 },
   ];
 
   test.each(payloads)(
@@ -25,9 +30,9 @@ describe('Protected endpoints reject unauthenticated requests', () => {
       const response = await request(app)
         .post('/git/reset')
         .set(headers)
-        .send({ repositoryId: 'test-repo' });
+        .send({ repoPath: 'test-repo' });
 
-      expect([401, 403]).toContain(response.status);
+      expect(response.status).toBe(expectedStatus);
     }
   );
 });
