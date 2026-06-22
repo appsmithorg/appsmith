@@ -41,7 +41,7 @@ function assertSharedTabOrderControl(control: PropertyPaneControlConfig) {
   expect(control.helpText).toBe(
     "Optional. Lower numbers receive keyboard focus first, among widgets in the same container. Leave blank for automatic order. Fields inside a form follow the form's own order.",
   );
-  expect(control.controlType).toBe("TAB_ORDER_INPUT");
+  expect(control.controlType).toBe("CLEARABLE_NUMERIC_INPUT");
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect((control as any).placeholderText).toBe("Auto");

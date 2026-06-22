@@ -3,40 +3,37 @@ import { NumberInput } from "@appsmith/ads";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { sanitizeTabOrder } from "utils/widgetTabOrder";
 
-export interface TabOrderControlProps extends ControlProps {
+export interface ClearableNumericInputControlProps extends ControlProps {
   propertyValue?: number | string;
+  min?: number;
+  max?: number;
   placeholderText?: string;
 }
 
 /**
- * Numeric input for the shared `tabOrder` property.
+ * Numeric input that treats an empty field as "unset": clearing the field
+ * removes the property from the DSL instead of persisting a blank value, so a
+ * blank field means the property is not set.
  *
- * Unlike NUMERIC_INPUT, this control:
- * - persists valid values as numbers (non-negative integers only)
- * - removes the property from the DSL when the field is cleared, so a blank
- *   field always means "Auto"
- * - never persists invalid placeholder strings
+ * It is intentionally generic — non-numeric input is rejected by the underlying
+ * NumberInput, and range/format validation of the entered value is left to the
+ * property's own `validation` config (e.g. `{ min, natural }`).
  */
-class TabOrderControl extends BaseControl<TabOrderControlProps> {
-  inputElement: HTMLInputElement | null;
-
-  constructor(props: TabOrderControlProps) {
-    super(props);
-    this.inputElement = null;
-  }
+class ClearableNumericInputControl extends BaseControl<ClearableNumericInputControlProps> {
+  inputElement: HTMLInputElement | null = null;
 
   static getControlType() {
-    return "TAB_ORDER_INPUT";
+    return "CLEARABLE_NUMERIC_INPUT";
   }
 
   public render() {
-    const { placeholderText, propertyValue } = this.props;
+    const { max, min, placeholderText, propertyValue } = this.props;
 
     return (
       <NumberInput
-        min={0}
+        max={max}
+        min={min}
         onChange={this.handleValueChange}
         placeholder={placeholderText}
         ref={(element: HTMLInputElement) => {
@@ -54,15 +51,19 @@ class TabOrderControl extends BaseControl<TabOrderControlProps> {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    return sanitizeTabOrder(value) !== undefined;
+    return (
+      value !== "" &&
+      value !== null &&
+      value !== undefined &&
+      !isNaN(Number(value))
+    );
   }
 
   private handleValueChange = (value: string | undefined) => {
     const { propertyName, propertyValue } = this.props;
 
     if (value === undefined || value.trim() === "") {
-      // Clearing the field returns the widget to "Auto" by removing the
-      // property from the DSL instead of persisting an empty string
+      // Clearing the field unsets the property instead of persisting a blank
       if (propertyValue !== undefined && propertyValue !== null) {
         this.deleteProperties([propertyName]);
       }
@@ -70,17 +71,16 @@ class TabOrderControl extends BaseControl<TabOrderControlProps> {
       return;
     }
 
-    const sanitized = sanitizeTabOrder(value);
+    const parsed = Number(value);
 
-    // invalid values (decimals, non-numeric input) are never persisted
-    if (sanitized === undefined) return;
+    if (isNaN(parsed)) return;
 
     this.updateProperty(
       propertyName,
-      sanitized,
+      parsed,
       document.activeElement === this.inputElement,
     );
   };
 }
 
-export default TabOrderControl;
+export default ClearableNumericInputControl;

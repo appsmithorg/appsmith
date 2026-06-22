@@ -2,10 +2,10 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import TabOrderControl from "./TabOrderControl";
-import type { TabOrderControlProps } from "./TabOrderControl";
+import ClearableNumericInputControl from "./ClearableNumericInputControl";
+import type { ClearableNumericInputControlProps } from "./ClearableNumericInputControl";
 
-function renderControl(props: Partial<TabOrderControlProps> = {}) {
+function renderControl(props: Partial<ClearableNumericInputControlProps> = {}) {
   const onPropertyChange = jest.fn();
   const deleteProperties = jest.fn();
 
@@ -15,12 +15,13 @@ function renderControl(props: Partial<TabOrderControlProps> = {}) {
     parentPropertyName: "",
     parentPropertyValue: undefined,
     additionalDynamicData: {},
-    label: "Tab order",
-    propertyName: "tabOrder",
-    controlType: "TAB_ORDER_INPUT",
+    label: "Numeric",
+    propertyName: "numericProp",
+    controlType: "CLEARABLE_NUMERIC_INPUT",
     isBindProperty: false,
     isTriggerProperty: false,
     placeholderText: "Auto",
+    min: 0,
     onPropertyChange,
     deleteProperties,
     openNextPanel: jest.fn(),
@@ -28,9 +29,9 @@ function renderControl(props: Partial<TabOrderControlProps> = {}) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     theme: "LIGHT" as any,
     ...props,
-  } as TabOrderControlProps;
+  } as ClearableNumericInputControlProps;
 
-  const utils = render(<TabOrderControl {...controlProps} />);
+  const utils = render(<ClearableNumericInputControl {...controlProps} />);
 
   return { ...utils, onPropertyChange, deleteProperties };
 }
@@ -39,26 +40,26 @@ function getInput() {
   return screen.getByRole("textbox") as HTMLInputElement;
 }
 
-describe("TabOrderControl", () => {
-  it("persists a valid non-negative integer as a number", () => {
+describe("ClearableNumericInputControl", () => {
+  it("persists a numeric value as a number", () => {
     const { onPropertyChange } = renderControl();
 
     fireEvent.change(getInput(), { target: { value: "5" } });
 
     expect(onPropertyChange).toHaveBeenCalledWith(
-      "tabOrder",
+      "numericProp",
       5,
       expect.anything(),
     );
   });
 
-  it("persists 0 as a valid value", () => {
+  it("persists 0", () => {
     const { onPropertyChange } = renderControl();
 
     fireEvent.change(getInput(), { target: { value: "0" } });
 
     expect(onPropertyChange).toHaveBeenCalledWith(
-      "tabOrder",
+      "numericProp",
       0,
       expect.anything(),
     );
@@ -71,11 +72,11 @@ describe("TabOrderControl", () => {
 
     fireEvent.change(getInput(), { target: { value: "" } });
 
-    expect(deleteProperties).toHaveBeenCalledWith(["tabOrder"]);
+    expect(deleteProperties).toHaveBeenCalledWith(["numericProp"]);
     expect(onPropertyChange).not.toHaveBeenCalled();
   });
 
-  it("does not dispatch a delete when clearing an already-Auto field", () => {
+  it("does not dispatch a delete when clearing an already-unset field", () => {
     const { deleteProperties, onPropertyChange } = renderControl();
 
     fireEvent.change(getInput(), { target: { value: "" } });
@@ -84,31 +85,32 @@ describe("TabOrderControl", () => {
     expect(onPropertyChange).not.toHaveBeenCalled();
   });
 
-  it("never persists decimals", () => {
-    const { deleteProperties, onPropertyChange } = renderControl({
-      propertyValue: 2,
-    });
+  it("persists the entered value as-is, leaving range/format checks to the property validation", () => {
+    const { onPropertyChange } = renderControl();
 
     fireEvent.change(getInput(), { target: { value: "1.5" } });
 
-    expect(onPropertyChange).not.toHaveBeenCalled();
-    expect(deleteProperties).not.toHaveBeenCalled();
+    expect(onPropertyChange).toHaveBeenCalledWith(
+      "numericProp",
+      1.5,
+      expect.anything(),
+    );
   });
 
-  it("clamps negative input to the minimum instead of persisting a negative value", () => {
-    const { onPropertyChange } = renderControl();
+  it("clamps to the configured minimum instead of persisting a smaller value", () => {
+    const { onPropertyChange } = renderControl({ min: 0 });
 
     fireEvent.change(getInput(), { target: { value: "-3" } });
 
     // the NumberInput clamps to min=0, so a negative value is never persisted
     expect(onPropertyChange).toHaveBeenCalledWith(
-      "tabOrder",
+      "numericProp",
       0,
       expect.anything(),
     );
   });
 
-  it("shows the placeholder when the value is Auto", () => {
+  it("shows the placeholder when the value is unset", () => {
     renderControl();
 
     expect(getInput().placeholder).toBe("Auto");
@@ -129,13 +131,22 @@ describe("TabOrderControl", () => {
       isTriggerProperty: false,
     };
 
-    it("returns true only for valid non-negative integers", () => {
-      expect(TabOrderControl.canDisplayValueInUI(config, "0")).toBe(true);
-      expect(TabOrderControl.canDisplayValueInUI(config, 3)).toBe(true);
-      expect(TabOrderControl.canDisplayValueInUI(config, "-1")).toBe(false);
-      expect(TabOrderControl.canDisplayValueInUI(config, "1.5")).toBe(false);
-      expect(TabOrderControl.canDisplayValueInUI(config, "abc")).toBe(false);
-      expect(TabOrderControl.canDisplayValueInUI(config, "")).toBe(false);
+    it("returns true for numeric values and false for blank/non-numeric", () => {
+      expect(
+        ClearableNumericInputControl.canDisplayValueInUI(config, "0"),
+      ).toBe(true);
+      expect(ClearableNumericInputControl.canDisplayValueInUI(config, 3)).toBe(
+        true,
+      );
+      expect(
+        ClearableNumericInputControl.canDisplayValueInUI(config, "1.5"),
+      ).toBe(true);
+      expect(
+        ClearableNumericInputControl.canDisplayValueInUI(config, "abc"),
+      ).toBe(false);
+      expect(ClearableNumericInputControl.canDisplayValueInUI(config, "")).toBe(
+        false,
+      );
     });
   });
 });
