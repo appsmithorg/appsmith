@@ -204,7 +204,7 @@
     "react-refresh": "^0.11.0",
     "react-responsive": "^9.0.0-beta.3",
     "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^7.18.0",
     "react-spring": "^9.4.0",
     "react-table": "^7.0.0",
     "react-table-sticky": "^1.1.3",
