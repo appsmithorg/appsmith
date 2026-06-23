@@ -140,4 +140,12 @@ class ImportExportUtilsTest {
         String huge = "Q" + "9".repeat(20);
         Assertions.assertEquals(huge + "1", ImportExportUtils.generateUniqueNameForImport(huge, Set.of(huge)));
     }
+
+    @Test
+    void generateUniqueNameForImport_maxLongSuffix_fallsBackToAppendingOne() {
+        // Suffix == Long.MAX_VALUE parses fine but suffix++ would overflow to a negative value;
+        // it must fall back to appending 1 to the whole name rather than producing "Q-9223372036854775808".
+        String maxLong = "Q" + Long.MAX_VALUE;
+        Assertions.assertEquals(maxLong + "1", ImportExportUtils.generateUniqueNameForImport(maxLong, Set.of(maxLong)));
+    }
 }

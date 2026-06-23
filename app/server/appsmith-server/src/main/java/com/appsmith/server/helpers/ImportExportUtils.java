@@ -43,17 +43,21 @@ public class ImportExportUtils {
         }
 
         Matcher matcher = TRAILING_NUMBER_PATTERN.matcher(name);
+        // Default to appending a fresh suffix to the whole name. This is also the fallback
+        // when the trailing number cannot be incremented safely (too large to parse, or at
+        // Long.MAX_VALUE where suffix++ would overflow into a negative value).
         String base = name;
         long suffix = 0;
 
         if (matcher.matches()) {
-            base = matcher.group(1);
             try {
-                suffix = Long.parseLong(matcher.group(2));
+                long parsedSuffix = Long.parseLong(matcher.group(2));
+                if (parsedSuffix < Long.MAX_VALUE) {
+                    base = matcher.group(1);
+                    suffix = parsedSuffix;
+                }
             } catch (NumberFormatException e) {
-                // Suffix too large to parse — fall back to treating the whole name as the base.
-                base = name;
-                suffix = 0;
+                // Suffix too large to parse — keep the whole-name fallback above.
             }
         }
 
