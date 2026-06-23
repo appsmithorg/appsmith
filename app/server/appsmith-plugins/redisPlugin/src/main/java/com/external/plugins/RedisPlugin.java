@@ -26,11 +26,16 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSocketFactory;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisException;
+import redis.clients.jedis.util.JedisURIHelper;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.net.URI;
@@ -259,18 +264,39 @@ public class RedisPlugin extends BasePlugin {
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
-                        // Single SSRF enforcement point — see assertHostAllowed below. validateDatasource
-                        // intentionally does not duplicate this check (its contract is format-only;
-                        // host-policy belongs on the connection path). testDatasource builds its pool
-                        // via this same path, so the user sees "Host not allowed." immediately on
-                        // "Test Datasource". See GHSA-qhfj-g87x-m39w.
+                        // SSRF enforcement is layered (GHSA-qhfj-g87x-m39w):
+                        //  1. assertHostAllowed below is an early, create-time pre-check so the user
+                        //     sees "Host not allowed." immediately on Save/Test for an obviously
+                        //     denylisted host. validateDatasource intentionally does not duplicate it
+                        //     (its contract is format-only; host-policy belongs on the connection path).
+                        //  2. The real, TOCTOU-proof guarantee is RestrictedHostJedisSocketFactory
+                        //     (wired below), which re-validates with a SINGLE DNS resolution at the
+                        //     moment the pool opens a socket and connects to the validated IP — so a
+                        //     DNS-rebinding resolver cannot slip a different IP past the pre-check.
                         assertHostAllowed(datasourceConfiguration);
                         final JedisPoolConfig poolConfig = buildPoolConfig();
                         boolean isTlsEnabled = isTlsEnabled(datasourceConfiguration);
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration, isTlsEnabled);
-                        JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
+
+                        // Derive the client config exactly as Jedis's own URI constructor does (user,
+                        // password, db index, ssl scheme — see JedisFactory(URI, ...)), then route
+                        // socket creation through RestrictedHostJedisSocketFactory. This preserves all
+                        // existing URI parsing semantics while pinning the connection to a single
+                        // SSRF-validated DNS resolution.
+                        HostAndPort hostAndPort = new HostAndPort(uri.getHost(), uri.getPort());
+                        JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
+                                .connectionTimeoutMillis(timeout)
+                                .socketTimeoutMillis(timeout)
+                                .user(JedisURIHelper.getUser(uri))
+                                .password(JedisURIHelper.getPassword(uri))
+                                .database(JedisURIHelper.getDBIndex(uri))
+                                .ssl(JedisURIHelper.isRedisSSLScheme(uri))
+                                .build();
+                        JedisSocketFactory socketFactory =
+                                new RestrictedHostJedisSocketFactory(hostAndPort, clientConfig);
+                        JedisPool jedisPool = new JedisPool(poolConfig, socketFactory, clientConfig);
                         log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
                         return jedisPool;
                     })
@@ -283,14 +309,11 @@ public class RedisPlugin extends BasePlugin {
                 return;
             }
             final String host = datasourceConfiguration.getEndpoints().get(0).getHost();
-            // Deliberate TOCTOU: isHostBlocked resolves the hostname here, but Jedis will
-            // re-resolve it independently when the pool opens its first socket. A hostile
-            // DNS server could in theory flip the answer between the two resolutions and
-            // bypass the filter. We accept this gap because the actual threat this PR
-            // closes — a user typing the internal Redis hostname / IP literally — doesn't
-            // rely on rebinding, and closing the gap would mean swapping Jedis's connection
-            // factory for one that takes a pre-resolved IP (a meaningful maintenance burden
-            // for a hypothetical attack). See GHSA-qhfj-g87x-m39w discussion.
+            // Create-time pre-check for fast, clear UX on Save/Test. This resolution and the one
+            // Jedis performs at connect time are technically distinct, so this check alone is
+            // subject to DNS rebinding — but it is no longer the security boundary:
+            // RestrictedHostJedisSocketFactory re-validates with a single resolution at connect
+            // time and is what actually closes the rebinding TOCTOU. See GHSA-qhfj-g87x-m39w.
             if (RestrictedHostFilter.isHostBlocked(host)) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);

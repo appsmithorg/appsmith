@@ -27,7 +27,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -160,6 +164,29 @@ public class RedisPluginTest {
                                 "Expected '" + RestrictedHostFilter.HOST_NOT_ALLOWED + "', got: " + error.getMessage());
                     })
                     .verify();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    public void socketFactory_blockedHost_failsAtConnectTime() {
+        // The connect-time guarantee that closes the DNS-rebinding TOCTOU (GHSA-qhfj-g87x-m39w):
+        // RestrictedHostJedisSocketFactory re-validates with a single DNS resolution at the moment
+        // it opens the socket, so even if the datasourceCreate pre-check were bypassed by a flipping
+        // resolver, the factory still refuses to connect to a denylisted address. Surefire bypasses
+        // the filter JVM-wide (see root pom); flip it back on for this body.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            JedisClientConfig clientConfig = DefaultJedisClientConfig.builder().build();
+            RestrictedHostJedisSocketFactory factory =
+                    new RestrictedHostJedisSocketFactory(new HostAndPort("169.254.169.254", 6379), clientConfig);
+
+            JedisConnectionException ex =
+                    Assertions.assertThrows(JedisConnectionException.class, factory::createSocket);
+            assertTrue(
+                    ex.getMessage().contains(RestrictedHostFilter.HOST_NOT_ALLOWED),
+                    "Expected '" + RestrictedHostFilter.HOST_NOT_ALLOWED + "', got: " + ex.getMessage());
         } finally {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
         }

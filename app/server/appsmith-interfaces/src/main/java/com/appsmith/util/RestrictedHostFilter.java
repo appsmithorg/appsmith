@@ -361,6 +361,59 @@ public final class RestrictedHostFilter {
     }
 
     /**
+     * Connection-time policy check for the Redis plugin's socket factory. Given a host and the
+     * addresses it has ALREADY been resolved to (by the caller, in a single DNS lookup), returns
+     * the first address that is safe to connect to, or empty if any resolved address is blocked —
+     * static denylist (cloud-metadata literals), non-routable address class (loopback, any-local,
+     * link-local, multicast, IPv6 ULA), a literal match against an internal Appsmith Redis
+     * hostname, or overlap with the IPs an internal Redis hostname currently resolves to.
+     *
+     * <p>This is the half of the fix that closes the DNS-rebinding TOCTOU. {@link
+     * #isHostBlocked(String)} resolves at datasource-create time, but Jedis would resolve the
+     * hostname again when it opens the socket. {@code RestrictedHostJedisSocketFactory} (in the
+     * redisPlugin module) resolves exactly once at connect time and passes those addresses here,
+     * then connects directly to the returned {@link InetAddress} — so the check and the connect
+     * share one resolution and the driver never re-resolves the hostname.
+     *
+     * <p>The caller owns DNS resolution deliberately: passing addresses in (rather than resolving
+     * here) lets the caller distinguish an unresolvable host (a genuine connection error) from a
+     * policy block (this method returning empty), and guarantees the validated address is the one
+     * connected to. Honors the {@code APPSMITH_DISABLE_SSRF_FILTER} kill-switch and the test
+     * allowlist, in which case the first resolved address is returned without policy checks.
+     */
+    public static Optional<InetAddress> firstAllowedRedisAddress(String host, InetAddress[] resolvedAddresses) {
+        if (resolvedAddresses == null || resolvedAddresses.length == 0) {
+            return Optional.empty();
+        }
+
+        if (ssrfFilterDisabled || isExplicitlyAllowedForTesting(host)) {
+            return Optional.of(resolvedAddresses[0]);
+        }
+
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedIpAddressClass(canonicalHost)) {
+            return Optional.empty();
+        }
+
+        final Set<String> redisHosts = internalRedisHosts;
+        if (redisHosts.contains(canonicalHost)) {
+            return Optional.empty();
+        }
+
+        final Set<String> internalRedisIps = resolveInternalRedisIps(redisHosts);
+        for (InetAddress addr : resolvedAddresses) {
+            final String addrString = normalizeHostForComparisonQuietly(addr.getHostAddress());
+            if (DISALLOWED_HOSTS.contains(addrString)
+                    || matchesBlockedAddressClass(addr)
+                    || internalRedisIps.contains(addrString)) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.of(resolvedAddresses[0]);
+    }
+
+    /**
      * Literal/canonical-only block check — no DNS, no network I/O. Catches the static denylist
      * (cloud-metadata IPs), literal non-routable IP-class addresses, and a literal match
      * against any configured internal Redis hostname (session store + git Redis).
