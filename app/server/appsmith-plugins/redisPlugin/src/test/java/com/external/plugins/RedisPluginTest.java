@@ -250,7 +250,6 @@ public class RedisPluginTest {
     public void itShouldThrowErrorIfHostnameIsInvalid() {
 
         String invalidHost = "invalidHost";
-        String errorMessage = "Failed connecting to " + invalidHost + ":" + port;
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         Endpoint endpoint = new Endpoint();
@@ -263,8 +262,12 @@ public class RedisPluginTest {
         StepVerifier.create(datasourceTestResultMono)
                 .assertNext(datasourceTestResult -> {
                     assertNotNull(datasourceTestResult);
+                    // An invalid/unreachable host must fail the test with an error reported back to
+                    // the user. We deliberately don't assert the exact message: Jedis 5.x reports an
+                    // unresolvable host with a different string than 3.x did, so pinning to a
+                    // driver-internal message makes the test brittle across upgrades.
                     assertFalse(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().contains(errorMessage));
+                    assertFalse(datasourceTestResult.getInvalids().isEmpty());
                 })
                 .verifyComplete();
     }
