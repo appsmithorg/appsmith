@@ -283,6 +283,14 @@ public class RedisPlugin extends BasePlugin {
                 return;
             }
             final String host = datasourceConfiguration.getEndpoints().get(0).getHost();
+            // Deliberate TOCTOU: isHostBlocked resolves the hostname here, but Jedis will
+            // re-resolve it independently when the pool opens its first socket. A hostile
+            // DNS server could in theory flip the answer between the two resolutions and
+            // bypass the filter. We accept this gap because the actual threat this PR
+            // closes — a user typing the internal Redis hostname / IP literally — doesn't
+            // rely on rebinding, and closing the gap would mean swapping Jedis's connection
+            // factory for one that takes a pre-resolved IP (a meaningful maintenance burden
+            // for a hypothetical attack). See GHSA-qhfj-g87x-m39w discussion.
             if (RestrictedHostFilter.isHostBlocked(host)) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);

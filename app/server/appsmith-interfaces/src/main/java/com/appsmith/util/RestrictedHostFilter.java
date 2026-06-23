@@ -178,7 +178,12 @@ public final class RestrictedHostFilter {
             final URI uri = URI.create(url.trim());
             final String host = uri.getHost();
             if (StringUtils.hasText(host)) {
-                hosts.add(host.trim().toLowerCase(Locale.ROOT));
+                // Normalize through the same canonicalization that isHostBlocked /
+                // isLiteralBlocked use for the compare side — strips IPv6 brackets, lowercases,
+                // collapses IPv4-compat / IPv4-mapped IPv6 to the embedded IPv4. Without this,
+                // a redis://[::1] env var stores "[::1]" but lookups canonicalize to "0.0.0.1"
+                // and silently miss.
+                hosts.add(normalizeHostForComparisonQuietly(host));
             }
         } catch (IllegalArgumentException e) {
             log.warn("Could not parse {} as a URI; that internal Redis host won't be filtered.", envVar);
@@ -194,7 +199,8 @@ public final class RestrictedHostFilter {
         final Set<String> normalized = new HashSet<>(hosts.length);
         for (String host : hosts) {
             if (StringUtils.hasText(host)) {
-                normalized.add(host.trim().toLowerCase(Locale.ROOT));
+                // Same canonicalization as the compare side — see addInternalRedisHostFromEnv.
+                normalized.add(normalizeHostForComparisonQuietly(host));
             }
         }
         internalRedisHosts = normalized.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(normalized);

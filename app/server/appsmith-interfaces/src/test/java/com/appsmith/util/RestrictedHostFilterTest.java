@@ -103,9 +103,12 @@ public class RestrictedHostFilterTest {
 
     @Test
     public void resolveIfAllowed_returnsResolvedAddress() {
-        Optional<InetAddress> result = RestrictedHostFilter.resolveIfAllowed("smtp.gmail.com");
+        // Use a literal IP rather than a public hostname — avoids a DNS lookup in CI and
+        // dodges IPv6-preferred resolvers that would have failed the old IPv4-only regex
+        // assertion on the resolved address.
+        Optional<InetAddress> result = RestrictedHostFilter.resolveIfAllowed("1.1.1.1");
         assertTrue(result.isPresent());
-        assertTrue(result.get().getHostAddress().matches("\\d+\\.\\d+\\.\\d+\\.\\d+"));
+        assertEquals("1.1.1.1", result.get().getHostAddress());
     }
 
     // ---------- isBlockedIpAddressClass: literal-only IP-class check ----------

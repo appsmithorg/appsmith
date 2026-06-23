@@ -1987,17 +1987,30 @@ public class RestApiPluginTest {
 
     @Test
     public void testDenyInstanceMetadataGcp() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(
+                                result.getPluginErrorDetails()
+                                        .getDownstreamErrorMessage()
+                                        .contains("Host not allowed."),
+                                "Expected the SSRF filter to block, got: "
+                                        + result.getPluginErrorDetails().getDownstreamErrorMessage());
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
@@ -2008,16 +2021,19 @@ public class RestApiPluginTest {
         // to "0.0.0.1", matching whatever form the Netty resolver hands the filter on IPv6 hosts.
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
         RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1", "localhost", "::1");
+        // Use a local server rather than reassigning the @BeforeEach `mockEndpoint` field —
+        // overwriting that field would orphan the original (tearDown only shuts down the
+        // current value of the field) and leak server threads/sockets across the suite.
+        MockWebServer redirectMockServer = new MockWebServer();
         try {
             // Generate a mock response which redirects to the invalid host
-            mockEndpoint = new MockWebServer();
             MockResponse mockRedirectResponse = new MockResponse()
                     .setResponseCode(301)
                     .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
-            mockEndpoint.enqueue(mockRedirectResponse);
-            mockEndpoint.start();
+            redirectMockServer.enqueue(mockRedirectResponse);
+            redirectMockServer.start();
 
-            HttpUrl mockHttpUrl = mockEndpoint.url("/mock/redirect");
+            HttpUrl mockHttpUrl = redirectMockServer.url("/mock/redirect");
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
             dsConfig.setUrl(mockHttpUrl.toString());
 
@@ -2037,6 +2053,7 @@ public class RestApiPluginTest {
         } finally {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
             RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+            redirectMockServer.shutdown();
         }
     }
 

@@ -537,8 +537,8 @@ public class ElasticSearchPluginTest {
     public void itShouldRejectGetToMetadataAwsWithDnsResolutionAndRedirect() throws IOException {
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
         RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1", "localhost", "::1");
+        MockWebServer mockWebServer = new MockWebServer();
         try {
-            MockWebServer mockWebServer = new MockWebServer();
             MockResponse mockRedirectResponse = new MockResponse()
                     .setResponseCode(301)
                     .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
@@ -571,6 +571,7 @@ public class ElasticSearchPluginTest {
         } finally {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
             RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+            mockWebServer.shutdown();
         }
     }
 
@@ -610,8 +611,8 @@ public class ElasticSearchPluginTest {
     public void itShouldRejectGetToMetadataGcpAndRedirect() throws IOException {
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
         RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1", "localhost", "::1");
+        MockWebServer mockWebServer = new MockWebServer();
         try {
-            MockWebServer mockWebServer = new MockWebServer();
             MockResponse mockRedirectResponse =
                     new MockResponse().setResponseCode(301).addHeader("Location", "http://metadata.google.internal");
             mockWebServer.enqueue(mockRedirectResponse);
@@ -643,6 +644,7 @@ public class ElasticSearchPluginTest {
         } finally {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
             RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+            mockWebServer.shutdown();
         }
     }
 
