@@ -310,12 +310,7 @@ public final class RestrictedHostFilter {
 
         final String canonicalHost = normalizeHostForComparisonQuietly(host);
 
-        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedIpAddressClass(canonicalHost)) {
-            return true;
-        }
-
-        final Set<String> redisHosts = internalRedisHosts;
-        if (redisHosts.contains(canonicalHost)) {
+        if (isCanonicalHostBlocked(canonicalHost)) {
             return true;
         }
 
@@ -328,8 +323,31 @@ public final class RestrictedHostFilter {
             return false;
         }
 
-        final Set<String> internalRedisIps = resolveInternalRedisIps(redisHosts);
-        for (InetAddress addr : userAddresses) {
+        return isAnyResolvedAddressBlocked(userAddresses);
+    }
+
+    /**
+     * Shared deny-logic (1 of 2): is the canonical host string itself blocked, without any DNS?
+     * Covers the static denylist (cloud-metadata literals, loopback), a non-routable IP-class
+     * literal, and a literal match against an internal Appsmith Redis hostname. Extracted so
+     * {@link #isHostBlocked(String)} and {@link #firstAllowedRedisAddress(String, InetAddress[])}
+     * evaluate the deny list identically and cannot drift into an SSRF gap.
+     */
+    private static boolean isCanonicalHostBlocked(String canonicalHost) {
+        return DISALLOWED_HOSTS.contains(canonicalHost)
+                || isBlockedIpAddressClass(canonicalHost)
+                || internalRedisHosts.contains(canonicalHost);
+    }
+
+    /**
+     * Shared deny-logic (2 of 2): does any already-resolved address fall in the denylist, a
+     * blocked address class, or overlap with the IPs an internal Appsmith Redis hostname currently
+     * resolves to? Extracted alongside {@link #isCanonicalHostBlocked(String)} so both callers
+     * share one address-level deny evaluation.
+     */
+    private static boolean isAnyResolvedAddressBlocked(InetAddress[] resolvedAddresses) {
+        final Set<String> internalRedisIps = resolveInternalRedisIps(internalRedisHosts);
+        for (InetAddress addr : resolvedAddresses) {
             final String addrString = normalizeHostForComparisonQuietly(addr.getHostAddress());
             if (DISALLOWED_HOSTS.contains(addrString)
                     || matchesBlockedAddressClass(addr)
@@ -337,7 +355,6 @@ public final class RestrictedHostFilter {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -391,23 +408,8 @@ public final class RestrictedHostFilter {
         }
 
         final String canonicalHost = normalizeHostForComparisonQuietly(host);
-        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedIpAddressClass(canonicalHost)) {
+        if (isCanonicalHostBlocked(canonicalHost) || isAnyResolvedAddressBlocked(resolvedAddresses)) {
             return Optional.empty();
-        }
-
-        final Set<String> redisHosts = internalRedisHosts;
-        if (redisHosts.contains(canonicalHost)) {
-            return Optional.empty();
-        }
-
-        final Set<String> internalRedisIps = resolveInternalRedisIps(redisHosts);
-        for (InetAddress addr : resolvedAddresses) {
-            final String addrString = normalizeHostForComparisonQuietly(addr.getHostAddress());
-            if (DISALLOWED_HOSTS.contains(addrString)
-                    || matchesBlockedAddressClass(addr)
-                    || internalRedisIps.contains(addrString)) {
-                return Optional.empty();
-            }
         }
 
         return Optional.of(resolvedAddresses[0]);
