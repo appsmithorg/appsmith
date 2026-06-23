@@ -27,3 +27,8 @@ export const fetchAppsForCopyTarget = (workspaceId: string) => ({
   type: ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT,
   payload: { workspaceId },
 });
+
+export const fetchPagesForCopyTarget = (applicationId: string) => ({
+  type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+  payload: { applicationId },
+});

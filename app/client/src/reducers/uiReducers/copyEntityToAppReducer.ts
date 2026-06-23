@@ -5,6 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPagePayload } from "ee/api/ApplicationApi";
 import type { CopyToAppModalEntity } from "pages/Editor/Explorer/CopyToApp/types";
 
 export interface CopyEntityToAppReduxState {
@@ -12,6 +13,8 @@ export interface CopyEntityToAppReduxState {
   entity: CopyToAppModalEntity | null;
   targetApplications: ApplicationPayload[];
   isFetchingApplications: boolean;
+  targetPages: ApplicationPagePayload[];
+  isFetchingPages: boolean;
   isCopying: boolean;
 }
 
@@ -20,6 +23,8 @@ const initialState: CopyEntityToAppReduxState = {
   entity: null,
   targetApplications: [],
   isFetchingApplications: false,
+  targetPages: [],
+  isFetchingPages: false,
   isCopying: false,
 };
 
@@ -32,6 +37,7 @@ const copyEntityToAppReducer = createReducer(initialState, {
     isModalOpen: true,
     entity: action.payload,
     targetApplications: [],
+    targetPages: [],
   }),
   [ReduxActionTypes.CLOSE_COPY_ENTITY_TO_APP_MODAL]: (
     state: CopyEntityToAppReduxState,
@@ -39,6 +45,28 @@ const copyEntityToAppReducer = createReducer(initialState, {
     ...state,
     isModalOpen: false,
     entity: null,
+  }),
+  [ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT]: (
+    state: CopyEntityToAppReduxState,
+  ) => ({
+    ...state,
+    isFetchingPages: true,
+    targetPages: [],
+  }),
+  [ReduxActionTypes.FETCH_COPY_TARGET_PAGES_SUCCESS]: (
+    state: CopyEntityToAppReduxState,
+    action: ReduxAction<{ pages: ApplicationPagePayload[] }>,
+  ) => ({
+    ...state,
+    isFetchingPages: false,
+    targetPages: action.payload.pages,
+  }),
+  [ReduxActionErrorTypes.FETCH_COPY_TARGET_PAGES_ERROR]: (
+    state: CopyEntityToAppReduxState,
+  ) => ({
+    ...state,
+    isFetchingPages: false,
+    targetPages: [],
   }),
   [ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT]: (
     state: CopyEntityToAppReduxState,

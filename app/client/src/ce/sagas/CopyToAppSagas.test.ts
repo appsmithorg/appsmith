@@ -10,7 +10,10 @@ import {
   copyActionToAppSaga,
   copyJSActionToAppSaga,
   fetchAppsForCopyTargetSaga,
+  fetchPagesForCopyTargetSaga,
 } from "ee/sagas/CopyToAppSagas";
+import PageApi from "api/PageApi";
+import { APP_MODE } from "entities/App";
 import { validateResponse } from "sagas/ErrorSagas";
 import { CopyToAppEntityType } from "pages/Editor/Explorer/CopyToApp/types";
 
@@ -287,6 +290,38 @@ describe("fetchAppsForCopyTargetSaga", () => {
       put({
         type: ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_SUCCESS,
         payload: { applications: [{ id: "app-1" }] },
+      }),
+    );
+
+    expect(gen.next().done).toBe(true);
+  });
+});
+
+describe("fetchPagesForCopyTargetSaga", () => {
+  it("fetches named pages for the target app and stores them in the slice", () => {
+    const gen: Generator = fetchPagesForCopyTargetSaga({
+      type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+      payload: { applicationId: "app-9" },
+    });
+
+    expect(gen.next().value).toEqual(
+      call(PageApi.fetchAppAndPages, {
+        applicationId: "app-9",
+        mode: APP_MODE.EDIT,
+      }),
+    );
+
+    const response = {
+      data: { pages: [{ id: "pg-1", name: "Page1" }] },
+      responseMeta: {},
+    };
+
+    expect(gen.next(response).value).toEqual(call(validateResponse, response));
+
+    expect(gen.next(true).value).toEqual(
+      put({
+        type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_SUCCESS,
+        payload: { pages: [{ id: "pg-1", name: "Page1" }] },
       }),
     );
 

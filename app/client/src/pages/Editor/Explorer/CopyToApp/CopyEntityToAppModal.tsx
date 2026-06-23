@@ -18,6 +18,7 @@ import {
 } from "ee/utils/permissionHelpers";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   CANCEL,
   COPY_ENTITY_TO_APP_APPLICATION_LABEL,
@@ -39,13 +40,16 @@ import {
   copyActionToApp,
   copyJSActionToApp,
   fetchAppsForCopyTarget,
+  fetchPagesForCopyTarget,
 } from "actions/copyToAppActions";
 import {
   getCopyTargetApplications,
+  getCopyTargetPages,
   getCopyToAppModalEntity,
   getIsCopyingEntityToApp,
   getIsCopyToAppModalOpen,
   getIsFetchingCopyTargetApplications,
+  getIsFetchingCopyTargetPages,
 } from "selectors/copyToAppSelectors";
 import { CopyToAppEntityType } from "./types";
 
@@ -74,11 +78,14 @@ function CopyEntityToAppModal() {
   const [applicationId, setApplicationId] = useState("");
   const [pageId, setPageId] = useState("");
 
+  const currentApplicationId = useSelector(getCurrentApplicationId);
   const workspaces = useSelector(getFetchedWorkspaces);
   const applications = useSelector(getCopyTargetApplications);
+  const pages = useSelector(getCopyTargetPages);
   const isFetchingApplications = useSelector(
     getIsFetchingCopyTargetApplications,
   );
+  const isFetchingPages = useSelector(getIsFetchingCopyTargetPages);
   const isCopying = useSelector(getIsCopyingEntityToApp);
 
   const workspaceOptions = useMemo(
@@ -91,13 +98,16 @@ function CopyEntityToAppModal() {
 
   const applicationOptions = useMemo(
     () =>
-      applications.filter((application) =>
-        isPermitted(
-          application.userPermissions ?? [],
-          PERMISSION_TYPE.MANAGE_APPLICATION,
-        ),
+      applications.filter(
+        (application) =>
+          // The source application cannot be a copy target.
+          application.id !== currentApplicationId &&
+          isPermitted(
+            application.userPermissions ?? [],
+            PERMISSION_TYPE.MANAGE_APPLICATION,
+          ),
       ),
-    [applications],
+    [applications, currentApplicationId],
   );
 
   const selectedApplication = useMemo(
@@ -110,10 +120,10 @@ function CopyEntityToAppModal() {
 
   const pageOptions = useMemo(
     () =>
-      (selectedApplication?.pages ?? []).filter((page) =>
+      pages.filter((page) =>
         hasManagePagePermission(page.userPermissions ?? []),
       ),
-    [selectedApplication],
+    [pages],
   );
 
   const selectedPage = useMemo(
@@ -153,6 +163,7 @@ function CopyEntityToAppModal() {
   const handleApplicationSelect = (value: string) => {
     setApplicationId(value);
     setPageId("");
+    dispatch(fetchPagesForCopyTarget(value));
   };
 
   const handleClose = () => {
@@ -252,21 +263,21 @@ function CopyEntityToAppModal() {
 
         {!!applicationId && (
           <FieldWrapper label={createMessage(COPY_ENTITY_TO_APP_PAGE_LABEL)}>
-            {pageOptions.length ? (
-              <Select
-                aria-label={createMessage(COPY_ENTITY_TO_APP_PAGE_LABEL)}
-                dropdownMatchSelectWidth
-                onSelect={(value: string) => setPageId(value)}
-                placeholder={createMessage(COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER)}
-                value={pageId}
-              >
-                {pageOptions.map((page) => (
-                  <Option key={page.id} value={page.id}>
-                    {page.name}
-                  </Option>
-                ))}
-              </Select>
-            ) : (
+            <Select
+              aria-label={createMessage(COPY_ENTITY_TO_APP_PAGE_LABEL)}
+              dropdownMatchSelectWidth
+              isLoading={isFetchingPages}
+              onSelect={(value: string) => setPageId(value)}
+              placeholder={createMessage(COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER)}
+              value={pageId}
+            >
+              {pageOptions.map((page) => (
+                <Option key={page.id} value={page.id}>
+                  {page.name}
+                </Option>
+              ))}
+            </Select>
+            {!isFetchingPages && !pageOptions.length && (
               <Text kind="body-s">
                 {createMessage(COPY_ENTITY_TO_APP_NO_PAGES)}
               </Text>

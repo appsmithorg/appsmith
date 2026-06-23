@@ -1,6 +1,9 @@
 import ApplicationApi, {
   type exportApplicationRequest,
+  type FetchApplicationResponse,
 } from "ee/api/ApplicationApi";
+import PageApi from "api/PageApi";
+import { APP_MODE } from "entities/App";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
@@ -53,6 +56,36 @@ export function* fetchAppsForCopyTargetSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_COPY_TARGET_APPLICATIONS_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+/**
+ * Fetches the named pages of a target application for the copy-to-app picker.
+ *
+ * The `/applications/home` payload only carries page ids/slugs (no names), so
+ * page names are fetched separately via the same endpoint the editor uses.
+ */
+export function* fetchPagesForCopyTargetSaga(
+  action: ReduxAction<{ applicationId: string }>,
+) {
+  try {
+    const response: FetchApplicationResponse = yield call(
+      PageApi.fetchAppAndPages,
+      { applicationId: action.payload.applicationId, mode: APP_MODE.EDIT },
+    );
+    const isValidResponse: boolean = yield call(validateResponse, response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_SUCCESS,
+        payload: { pages: response.data?.pages || [] },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_COPY_TARGET_PAGES_ERROR,
       payload: { error },
     });
   }
@@ -193,6 +226,10 @@ export default function* copyToAppSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT,
       fetchAppsForCopyTargetSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+      fetchPagesForCopyTargetSaga,
     ),
     takeLatest(ReduxActionTypes.COPY_ACTION_TO_APP_INIT, copyActionToAppSaga),
     takeLatest(

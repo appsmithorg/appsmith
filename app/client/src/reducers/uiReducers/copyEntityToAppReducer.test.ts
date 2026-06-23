@@ -4,12 +4,15 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import reducer from "reducers/uiReducers/copyEntityToAppReducer";
 import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPagePayload } from "ee/api/ApplicationApi";
 
 const initialState = {
   isModalOpen: false,
   entity: null,
   targetApplications: [],
   isFetchingApplications: false,
+  targetPages: [],
+  isFetchingPages: false,
   isCopying: false,
 };
 
@@ -68,6 +71,28 @@ describe("copyEntityToAppReducer", () => {
 
     expect(state.isFetchingApplications).toBe(false);
     expect(state.targetApplications).toEqual(sampleApps);
+  });
+
+  it("stores the fetched pages on page fetch success", () => {
+    const samplePages = [
+      { id: "pg-1", name: "Page1" },
+    ] as unknown as ApplicationPagePayload[];
+
+    const fetching = reducer(initialState, {
+      type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+      payload: { applicationId: "app-1" },
+    });
+
+    expect(fetching.isFetchingPages).toBe(true);
+    expect(fetching.targetPages).toEqual([]);
+
+    const done = reducer(fetching, {
+      type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_SUCCESS,
+      payload: { pages: samplePages },
+    });
+
+    expect(done.isFetchingPages).toBe(false);
+    expect(done.targetPages).toEqual(samplePages);
   });
 
   it("resets fetching state on fetch error", () => {
