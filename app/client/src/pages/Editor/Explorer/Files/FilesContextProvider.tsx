@@ -6,6 +6,7 @@ export enum ActionEntityContextMenuItemsEnum {
   SHOW_BINDING = "Show Bindings",
   CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
   COPY = "Copy",
+  COPY_TO_APP = "Copy to application",
   MOVE = "Move",
   DELETE = "Delete",
 }
@@ -15,6 +16,7 @@ export const defaultMenuItems = [
   ActionEntityContextMenuItemsEnum.DELETE,
   ActionEntityContextMenuItemsEnum.SHOW_BINDING,
   ActionEntityContextMenuItemsEnum.COPY,
+  ActionEntityContextMenuItemsEnum.COPY_TO_APP,
   ActionEntityContextMenuItemsEnum.MOVE,
   ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
 ];

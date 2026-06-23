@@ -11,6 +11,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   CONTEXT_COPY,
+  CONTEXT_COPY_TO_APP,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_RENAME,
@@ -27,6 +28,9 @@ import {
   ActionEntityContextMenuItemsEnum,
   FilesContext,
 } from "../Files/FilesContextProvider";
+import CopyEntityToAppModal from "pages/Editor/Explorer/CopyToApp/CopyEntityToAppModal";
+import { CopyToAppEntityType } from "pages/Editor/Explorer/CopyToApp/types";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
 interface EntityContextMenuProps {
   id: string;
@@ -40,10 +44,11 @@ interface EntityContextMenuProps {
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);
-  const { menuItems, parentEntityId } = context;
+  const { menuItems, parentEntityId, parentEntityType } = context;
 
   const { canDelete, canManage } = props;
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showCopyToAppModal, setShowCopyToAppModal] = useState(false);
   const dispatch = useDispatch();
 
   const showBinding = useCallback(
@@ -121,6 +126,13 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
           };
         }),
       },
+    menuItems.includes(ActionEntityContextMenuItemsEnum.COPY_TO_APP) &&
+      canManage &&
+      parentEntityType === ActionParentEntityType.PAGE && {
+        value: "copyToApp",
+        onSelect: () => setShowCopyToAppModal(true),
+        label: createMessage(CONTEXT_COPY_TO_APP),
+      },
     menuItems.includes(ActionEntityContextMenuItemsEnum.MOVE) &&
       canManage && {
         value: "move",
@@ -163,11 +175,23 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   ].filter(Boolean);
 
   return !props.hideMenuItems && optionsTree.length > 0 ? (
-    <ContextMenu
-      className={props.className}
-      optionTree={optionsTree as TreeDropdownOption[]}
-      setConfirmDelete={setConfirmDelete}
-    />
+    <>
+      <ContextMenu
+        className={props.className}
+        optionTree={optionsTree as TreeDropdownOption[]}
+        setConfirmDelete={setConfirmDelete}
+      />
+      {showCopyToAppModal && (
+        <CopyEntityToAppModal
+          entityId={props.id}
+          entityName={props.name}
+          entityType={CopyToAppEntityType.JS_OBJECT}
+          isOpen={showCopyToAppModal}
+          onClose={() => setShowCopyToAppModal(false)}
+          sourcePageId={parentEntityId}
+        />
+      )}
+    </>
   ) : null;
 }
 
