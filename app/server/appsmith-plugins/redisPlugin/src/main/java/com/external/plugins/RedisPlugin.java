@@ -13,6 +13,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.external.utils.RedisURIUtils;
@@ -258,6 +259,12 @@ public class RedisPlugin extends BasePlugin {
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
+                        // Single SSRF enforcement point — see assertHostAllowed below. validateDatasource
+                        // intentionally does not duplicate this check (its contract is format-only;
+                        // host-policy belongs on the connection path). testDatasource builds its pool
+                        // via this same path, so the user sees "Host not allowed." immediately on
+                        // "Test Datasource". See GHSA-qhfj-g87x-m39w.
+                        assertHostAllowed(datasourceConfiguration);
                         final JedisPoolConfig poolConfig = buildPoolConfig();
                         boolean isTlsEnabled = isTlsEnabled(datasourceConfiguration);
                         int timeout =
@@ -268,6 +275,18 @@ public class RedisPlugin extends BasePlugin {
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void assertHostAllowed(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
+                // Let the existing missing-host validation surface the error.
+                return;
+            }
+            final String host = datasourceConfiguration.getEndpoints().get(0).getHost();
+            if (RestrictedHostFilter.isHostBlocked(host)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);
+            }
         }
 
         private boolean isTlsEnabled(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -318,6 +337,14 @@ public class RedisPlugin extends BasePlugin {
             if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
                 invalids.add(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
             }
+            // SSRF host-allowed enforcement intentionally lives in datasourceCreate (which goes
+            // through assertHostAllowed → RestrictedHostFilter.isHostBlocked on the
+            // bounded-elastic scheduler) rather than here. PluginExecutor#validateDatasource is
+            // documented as "mandatory fields and format only — does NOT check validity of
+            // those fields; use testDatasource for that". Host-on-denylist is a policy/validity
+            // check, not a format check, so it belongs on the connection path. testDatasource
+            // calls datasourceCreate to build the pool and surfaces "Host not allowed."
+            // immediately when the user clicks Test. See GHSA-qhfj-g87x-m39w.
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {

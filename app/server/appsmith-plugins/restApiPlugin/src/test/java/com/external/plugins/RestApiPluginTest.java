@@ -19,6 +19,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.RestApiPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -1879,85 +1880,109 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    // The testDenyInstanceMetadata* tests below all explicitly verify the SSRF filter's blocking
+    // behavior. Surefire bypasses the filter JVM-wide (see root pom) for the benefit of tests
+    // that use MockWebServer on loopback, so each of these methods flips it back on for its body.
+
     @Test
     public void testDenyInstanceMetadataAws() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(
-                            result.getPluginErrorDetails()
-                                    .getDownstreamErrorMessage()
-                                    .contains("Host not allowed."),
-                            "Unexpected error message. Did this fail for a different reason?");
-                })
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(
+                                result.getPluginErrorDetails()
+                                        .getDownstreamErrorMessage()
+                                        .contains("Host not allowed."),
+                                "Unexpected error message. Did this fail for a different reason?");
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
     public void testDenyInstanceMetadataAwsViaCname() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertThat(result.getPluginErrorDetails().getDownstreamErrorMessage())
-                            .endsWith("Host not allowed.");
-                })
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertThat(result.getPluginErrorDetails().getDownstreamErrorMessage())
+                                .endsWith("Host not allowed.");
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
     public void testDenyInstanceMetadataAwsViaCnameIpv6() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://0--a9fe-a9fe.sslip.io/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl("http://0--a9fe-a9fe.sslip.io/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails()
-                            .getDownstreamErrorMessage()
-                            .contains("Host not allowed."));
-                })
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(result.getPluginErrorDetails()
+                                .getDownstreamErrorMessage()
+                                .contains("Host not allowed."));
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
     public void testDenyInstanceMetadataAwsViaCompatibleIpv6Address() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://[::169.254.169.254]/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl("http://[::169.254.169.254]/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails()
-                            .getDownstreamErrorMessage()
-                            .contains("Host not allowed."));
-                })
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(result.getPluginErrorDetails()
+                                .getDownstreamErrorMessage()
+                                .contains("Host not allowed."));
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
@@ -1977,31 +2002,42 @@ public class RestApiPluginTest {
 
     @Test
     public void testDenyInstanceMetadataAwsWithRedirect() throws IOException {
-        // Generate a mock response which redirects to the invalid host
-        mockEndpoint = new MockWebServer();
-        MockResponse mockRedirectResponse = new MockResponse()
-                .setResponseCode(301)
-                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
-        mockEndpoint.enqueue(mockRedirectResponse);
-        mockEndpoint.start();
+        // Combined fix: re-enable the filter so the redirect target (169.254.169.254) is blocked,
+        // but allowlist loopback so the initial MockWebServer call (which serves the 301) goes
+        // through. "::1" is in the allowlist because the IPv4-compat normalizer canonicalizes it
+        // to "0.0.0.1", matching whatever form the Netty resolver hands the filter on IPv6 hosts.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1", "localhost", "::1");
+        try {
+            // Generate a mock response which redirects to the invalid host
+            mockEndpoint = new MockWebServer();
+            MockResponse mockRedirectResponse = new MockResponse()
+                    .setResponseCode(301)
+                    .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+            mockEndpoint.enqueue(mockRedirectResponse);
+            mockEndpoint.start();
 
-        HttpUrl mockHttpUrl = mockEndpoint.url("/mock/redirect");
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl(mockHttpUrl.toString());
+            HttpUrl mockHttpUrl = mockEndpoint.url("/mock/redirect");
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setUrl(mockHttpUrl.toString());
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails()
-                            .getDownstreamErrorMessage()
-                            .contains("Host not allowed."));
-                })
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(result.getPluginErrorDetails()
+                                .getDownstreamErrorMessage()
+                                .contains("Host not allowed."));
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+            RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+        }
     }
 
     @Test

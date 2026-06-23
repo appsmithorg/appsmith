@@ -11,11 +11,13 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -56,6 +58,15 @@ public class RedisPluginTest {
     public static void setup() {
         host = redis.getContainerIpAddress();
         port = redis.getFirstMappedPort();
+        // Testcontainers exposes Redis on loopback, which the production isHostBlocked filter
+        // rejects (GHSA-qhfj-g87x-m39w). Allow this specific host for the duration of the test
+        // class so the integration tests can drive the real Redis. Cleared in @AfterAll.
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting(host);
+    }
+
+    @AfterAll
+    public static void teardown() {
+        RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -123,6 +134,35 @@ public class RedisPluginTest {
                     assertTrue(error.getMessage().contains("unexpected SSL option"));
                 })
                 .verify();
+    }
+
+    @Test
+    public void datasourceCreate_blockedHost_failsWithHostNotAllowed() {
+        // End-to-end check that the Redis plugin actually wires through to the SSRF filter
+        // (GHSA-qhfj-g87x-m39w): a config pointing at a denylist host fails datasourceCreate
+        // with HOST_NOT_ALLOWED, never opening a Jedis pool. Surefire bypasses the filter
+        // JVM-wide (see root pom) so the rest of this class can talk to Testcontainers Redis
+        // on loopback via the @BeforeAll allowlist; this test flips the filter back on for
+        // its body so the deny path is exercised.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration blockedConfig = new DatasourceConfiguration();
+            Endpoint endpoint = new Endpoint();
+            endpoint.setHost("169.254.169.254"); // AWS instance metadata
+            endpoint.setPort(6379L);
+            blockedConfig.setEndpoints(Collections.singletonList(endpoint));
+
+            StepVerifier.create(pluginExecutor.datasourceCreate(blockedConfig))
+                    .expectErrorSatisfies(error -> {
+                        assertTrue(error instanceof AppsmithPluginException);
+                        assertTrue(
+                                error.getMessage().contains(RestrictedHostFilter.HOST_NOT_ALLOWED),
+                                "Expected '" + RestrictedHostFilter.HOST_NOT_ALLOWED + "', got: " + error.getMessage());
+                    })
+                    .verify();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
