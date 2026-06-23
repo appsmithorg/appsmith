@@ -4,6 +4,7 @@ import { Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import type { Action } from "entities/Action";
 import { CopyToApp } from "./CopyToApp";
 import { openCopyToAppModal } from "actions/copyToAppActions";
+import { CopyToAppEntityType } from "pages/Editor/Explorer/CopyToApp/types";
 
 const mockDispatch = jest.fn();
 
@@ -34,7 +35,7 @@ describe("CopyToApp query menu item", () => {
 
     expect(mockDispatch).toHaveBeenCalledWith(
       openCopyToAppModal({
-        entityType: "ACTION",
+        entityType: CopyToAppEntityType.ACTION,
         entityId: "action-1",
         entityName: "Query1",
         sourcePageId: "page-1",
