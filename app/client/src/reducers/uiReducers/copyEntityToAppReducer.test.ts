@@ -6,6 +6,8 @@ import reducer from "reducers/uiReducers/copyEntityToAppReducer";
 import type { ApplicationPayload } from "entities/Application";
 
 const initialState = {
+  isModalOpen: false,
+  entity: null,
   targetApplications: [],
   isFetchingApplications: false,
   isCopying: false,
@@ -13,7 +15,35 @@ const initialState = {
 
 const sampleApps = [{ id: "app-1" }] as unknown as ApplicationPayload[];
 
+const sampleEntity = {
+  entityType: "ACTION",
+  entityId: "entity-1",
+  entityName: "Query1",
+  sourcePageId: "page-1",
+};
+
 describe("copyEntityToAppReducer", () => {
+  it("opens the modal and stores the entity on open", () => {
+    const state = reducer(initialState, {
+      type: ReduxActionTypes.OPEN_COPY_ENTITY_TO_APP_MODAL,
+      payload: sampleEntity,
+    });
+
+    expect(state.isModalOpen).toBe(true);
+    expect(state.entity).toEqual(sampleEntity);
+    expect(state.targetApplications).toEqual([]);
+  });
+
+  it("closes the modal and clears the entity on close", () => {
+    const state = reducer(
+      { ...initialState, isModalOpen: true, entity: sampleEntity },
+      { type: ReduxActionTypes.CLOSE_COPY_ENTITY_TO_APP_MODAL, payload: {} },
+    );
+
+    expect(state.isModalOpen).toBe(false);
+    expect(state.entity).toBeNull();
+  });
+
   it("sets isFetchingApplications and clears the list on fetch init", () => {
     const state = reducer(
       { ...initialState, targetApplications: sampleApps },

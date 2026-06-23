@@ -5,20 +5,41 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { ApplicationPayload } from "entities/Application";
+import type { CopyToAppModalEntity } from "pages/Editor/Explorer/CopyToApp/types";
 
 export interface CopyEntityToAppReduxState {
+  isModalOpen: boolean;
+  entity: CopyToAppModalEntity | null;
   targetApplications: ApplicationPayload[];
   isFetchingApplications: boolean;
   isCopying: boolean;
 }
 
 const initialState: CopyEntityToAppReduxState = {
+  isModalOpen: false,
+  entity: null,
   targetApplications: [],
   isFetchingApplications: false,
   isCopying: false,
 };
 
 const copyEntityToAppReducer = createReducer(initialState, {
+  [ReduxActionTypes.OPEN_COPY_ENTITY_TO_APP_MODAL]: (
+    state: CopyEntityToAppReduxState,
+    action: ReduxAction<CopyToAppModalEntity>,
+  ) => ({
+    ...state,
+    isModalOpen: true,
+    entity: action.payload,
+    targetApplications: [],
+  }),
+  [ReduxActionTypes.CLOSE_COPY_ENTITY_TO_APP_MODAL]: (
+    state: CopyEntityToAppReduxState,
+  ) => ({
+    ...state,
+    isModalOpen: false,
+    entity: null,
+  }),
   [ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT]: (
     state: CopyEntityToAppReduxState,
   ) => ({

@@ -1,5 +1,13 @@
 import type { DefaultRootState } from "react-redux";
 import type { ApplicationPayload } from "entities/Application";
+import type { CopyToAppModalEntity } from "pages/Editor/Explorer/CopyToApp/types";
+
+export const getIsCopyToAppModalOpen = (state: DefaultRootState): boolean =>
+  state.ui.copyEntityToApp.isModalOpen;
+
+export const getCopyToAppModalEntity = (
+  state: DefaultRootState,
+): CopyToAppModalEntity | null => state.ui.copyEntityToApp.entity;
 
 export const getCopyTargetApplications = (
   state: DefaultRootState,

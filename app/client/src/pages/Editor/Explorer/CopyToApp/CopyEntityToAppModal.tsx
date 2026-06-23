@@ -35,25 +35,19 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import {
+  closeCopyToAppModal,
   copyActionToApp,
   copyJSActionToApp,
   fetchAppsForCopyTarget,
 } from "actions/copyToAppActions";
 import {
   getCopyTargetApplications,
+  getCopyToAppModalEntity,
   getIsCopyingEntityToApp,
+  getIsCopyToAppModalOpen,
   getIsFetchingCopyTargetApplications,
 } from "selectors/copyToAppSelectors";
 import { CopyToAppEntityType } from "./types";
-
-interface CopyEntityToAppModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  entityType: CopyToAppEntityType;
-  entityId: string;
-  entityName: string;
-  sourcePageId: string;
-}
 
 const FieldWrapper = ({
   children,
@@ -70,10 +64,11 @@ const FieldWrapper = ({
   </div>
 );
 
-function CopyEntityToAppModal(props: CopyEntityToAppModalProps) {
-  const { entityId, entityName, entityType, isOpen, onClose, sourcePageId } =
-    props;
+function CopyEntityToAppModal() {
   const dispatch = useDispatch();
+
+  const isOpen = useSelector(getIsCopyToAppModalOpen);
+  const entity = useSelector(getCopyToAppModalEntity);
 
   const [workspaceId, setWorkspaceId] = useState("");
   const [applicationId, setApplicationId] = useState("");
@@ -126,10 +121,13 @@ function CopyEntityToAppModal(props: CopyEntityToAppModalProps) {
     [pageOptions, pageId],
   );
 
-  // Fetch the list of workspaces when the modal is opened.
+  // Reset the cascading selections and fetch workspaces when the modal opens.
   useEffect(
-    function fetchWorkspacesOnOpen() {
+    function onModalOpen() {
       if (isOpen) {
+        setWorkspaceId("");
+        setApplicationId("");
+        setPageId("");
         dispatch(fetchAllWorkspaces({ fetchEntities: false }));
       }
     },
@@ -158,19 +156,16 @@ function CopyEntityToAppModal(props: CopyEntityToAppModalProps) {
   };
 
   const handleClose = () => {
-    setWorkspaceId("");
-    setApplicationId("");
-    setPageId("");
-    onClose();
+    dispatch(closeCopyToAppModal());
   };
 
   const handleCopy = () => {
-    if (!selectedApplication || !selectedPage) return;
+    if (!entity || !selectedApplication || !selectedPage) return;
 
     const payload = {
-      entityId,
-      entityName,
-      sourcePageId,
+      entityId: entity.entityId,
+      entityName: entity.entityName,
+      sourcePageId: entity.sourcePageId,
       targetWorkspaceId: workspaceId,
       targetApplicationId: applicationId,
       targetApplicationName: selectedApplication.name,
@@ -180,7 +175,7 @@ function CopyEntityToAppModal(props: CopyEntityToAppModalProps) {
     };
 
     dispatch(
-      entityType === CopyToAppEntityType.JS_OBJECT
+      entity.entityType === CopyToAppEntityType.JS_OBJECT
         ? copyJSActionToApp(payload)
         : copyActionToApp(payload),
     );

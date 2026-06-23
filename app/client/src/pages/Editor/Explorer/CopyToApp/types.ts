@@ -3,6 +3,14 @@ export enum CopyToAppEntityType {
   JS_OBJECT = "JS_OBJECT",
 }
 
+// Identifies the source entity to be copied; used to open the modal.
+export interface CopyToAppModalEntity {
+  entityType: CopyToAppEntityType;
+  entityId: string;
+  entityName: string;
+  sourcePageId: string;
+}
+
 export interface CopyEntityToAppPayload {
   entityId: string;
   entityName: string;
