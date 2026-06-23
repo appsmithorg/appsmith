@@ -366,12 +366,35 @@ const TAB_ORDER_EXCLUDED_WIDGET_TYPES: string[] = [
   anvilWidgets.ZONE_WIDGET,
 ];
 
+/**
+ * Display-only widgets that have no focusable element. The platform's custom
+ * Tab handler skips them at runtime, so the `tabOrder` property would be a
+ * no-op — hide it to avoid confusing the builder.
+ */
+const TAB_ORDER_NON_FOCUSABLE_WIDGET_TYPES: string[] = [
+  // both are already excluded from tabbing at runtime via NON_FOCUSABLE_WIDGET_CLASS
+  "TEXT_WIDGET",
+  "RATE_WIDGET",
+  "IMAGE_WIDGET",
+  "CHART_WIDGET",
+  "MAP_CHART_WIDGET",
+  "DIVIDER_WIDGET",
+  "STATBOX_WIDGET",
+  "DOCUMENT_VIEWER_WIDGET",
+  "ICON_WIDGET",
+  "PROGRESSBAR_WIDGET",
+  "PROGRESS_WIDGET",
+  "CIRCULAR_PROGRESS_WIDGET",
+];
+
 export function shouldExposeTabOrderProperty(type: WidgetType): boolean {
   if (!type) return false;
 
   if (type.startsWith("WDS_")) return false;
 
-  return !TAB_ORDER_EXCLUDED_WIDGET_TYPES.includes(type);
+  if (TAB_ORDER_EXCLUDED_WIDGET_TYPES.includes(type)) return false;
+
+  return !TAB_ORDER_NON_FOCUSABLE_WIDGET_TYPES.includes(type);
 }
 
 /**

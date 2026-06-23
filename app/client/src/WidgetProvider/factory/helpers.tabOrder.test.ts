@@ -55,7 +55,7 @@ function assertSharedTabOrderControl(control: PropertyPaneControlConfig) {
 }
 
 describe("shouldExposeTabOrderProperty", () => {
-  it("includes standard non-Anvil widgets", () => {
+  it("includes focusable / interactive standard non-Anvil widgets", () => {
     for (const type of [
       "BUTTON_WIDGET",
       "INPUT_WIDGET_V2",
@@ -64,6 +64,9 @@ describe("shouldExposeTabOrderProperty", () => {
       "MODAL_WIDGET",
       "JSON_FORM_WIDGET",
       "CHECKBOX_GROUP_WIDGET",
+      // native <audio>/<video> controls are focusable
+      "AUDIO_WIDGET",
+      "VIDEO_WIDGET",
     ]) {
       expect(shouldExposeTabOrderProperty(type)).toBe(true);
     }
@@ -79,6 +82,25 @@ describe("shouldExposeTabOrderProperty", () => {
       "CANVAS_WIDGET",
       "SKELETON_WIDGET",
       "TABS_MIGRATOR_WIDGET",
+    ]) {
+      expect(shouldExposeTabOrderProperty(type)).toBe(false);
+    }
+  });
+
+  it("excludes display-only widgets that have nothing focusable", () => {
+    for (const type of [
+      "TEXT_WIDGET",
+      "RATE_WIDGET",
+      "IMAGE_WIDGET",
+      "CHART_WIDGET",
+      "MAP_CHART_WIDGET",
+      "DIVIDER_WIDGET",
+      "STATBOX_WIDGET",
+      "DOCUMENT_VIEWER_WIDGET",
+      "ICON_WIDGET",
+      "PROGRESSBAR_WIDGET",
+      "PROGRESS_WIDGET",
+      "CIRCULAR_PROGRESS_WIDGET",
     ]) {
       expect(shouldExposeTabOrderProperty(type)).toBe(false);
     }
@@ -144,18 +166,32 @@ describe("shared tabOrder property exposure across all widgets", () => {
 
     expect(types.length).toBeGreaterThan(0);
 
-    const internalTypes = [
+    const excludedTypes = [
+      // Anvil-only / internal
       "CANVAS_WIDGET",
       "SKELETON_WIDGET",
       "TABS_MIGRATOR_WIDGET",
       "SECTION_WIDGET",
       "ZONE_WIDGET",
+      // display-only / non-focusable
+      "TEXT_WIDGET",
+      "RATE_WIDGET",
+      "IMAGE_WIDGET",
+      "CHART_WIDGET",
+      "MAP_CHART_WIDGET",
+      "DIVIDER_WIDGET",
+      "STATBOX_WIDGET",
+      "DOCUMENT_VIEWER_WIDGET",
+      "ICON_WIDGET",
+      "PROGRESSBAR_WIDGET",
+      "PROGRESS_WIDGET",
+      "CIRCULAR_PROGRESS_WIDGET",
     ];
     let exposedCount = 0;
 
     for (const type of types) {
       const expected =
-        !type.startsWith("WDS_") && !internalTypes.includes(type);
+        !type.startsWith("WDS_") && !excludedTypes.includes(type);
 
       expect({ type, expose: shouldExposeTabOrderProperty(type) }).toEqual({
         type,
@@ -173,7 +209,7 @@ describe("shared tabOrder property exposure across all widgets", () => {
   // widgets with static property panes so getWidgetPropertyPaneConfig does not
   // invoke dynamic-property generators with empty props.
   it("appends the shared section in the factory for standard widgets", () => {
-    for (const type of ["BUTTON_WIDGET", "TEXT_WIDGET", "CHECKBOX_WIDGET"]) {
+    for (const type of ["BUTTON_WIDGET", "SWITCH_WIDGET", "CHECKBOX_WIDGET"]) {
       const config = WidgetFactory.getWidgetPropertyPaneConfig(
         type,
         {} as WidgetProps,
@@ -196,8 +232,12 @@ describe("shared tabOrder property exposure across all widgets", () => {
     }
   });
 
-  it("does not expose tabOrder on Anvil-only or internal widgets", () => {
-    for (const type of ["WDS_BUTTON_WIDGET", "CANVAS_WIDGET"]) {
+  it("does not expose tabOrder on Anvil-only, internal, or display-only widgets", () => {
+    for (const type of [
+      "WDS_BUTTON_WIDGET",
+      "CANVAS_WIDGET",
+      "DIVIDER_WIDGET",
+    ]) {
       const config = WidgetFactory.getWidgetPropertyPaneConfig(
         type,
         {} as WidgetProps,
