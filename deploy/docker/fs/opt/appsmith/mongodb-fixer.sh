@@ -24,10 +24,10 @@ MONGO_FCV_MIN_MARKER="/appsmith-stacks/data/mongodb/.appsmith-mongo-fcv-min"
 # forward-prep applied by the block below, not a startup requirement yet — the
 # pre-flight check in entrypoint.sh is intentionally left at the 6.0 mongod floor.
 #
-# Tradeoff: raising FCV to 7.0 forfeits the ability to roll back to a 6.x Appsmith
-# release (which shipped MongoDB 6.x) without first deleting the Mongo data files.
-# Instances on this release are well past the 6.x line, so this is an accepted
-# one-way step.
+# Tradeoff: raising FCV to 7.0 forfeits the ability to roll back to an Appsmith
+# release that bundles MongoDB 6.x (1.99 and earlier) without first deleting the
+# Mongo data files. Instances on this release are well past that line, so this is
+# an accepted one-way step.
 FCV_MIN="7.0"
 
 write_fcv_marker() {
