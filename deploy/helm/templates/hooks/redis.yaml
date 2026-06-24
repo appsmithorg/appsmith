@@ -14,7 +14,16 @@ secret (or a user who pre-created their own) is left untouched.
 The resulting Secret has no Helm release labels/annotations and no
 ownerReferences, so ArgoCD does not track or diff it.
 */}}
-{{- if and .Values.redis.enabled .Values.redis.auth.enabled }}
+{{/*
+Skip the bootstrap entirely when redis.auth.password is set: on that path the
+operator self-manages the credential (Bitnami uses redis.auth.password directly)
+and there is no chart secret to create. Safe ONLY because appsmith.validateRedisAuth
+(see _helpers.tpl, invoked from configMap.yaml) rejects every redis.auth.password
+configuration except the self-managed one (existingSecret: "" + a matching
+APPSMITH_REDIS_URL) — so this can no longer leave a non-empty existingSecret
+pointing at a secret the hook never creates.
+*/}}
+{{- if and .Values.redis.enabled .Values.redis.auth.enabled (not .Values.redis.auth.password) }}
 {{- $secretName := include "appsmith.redisSecretName" . -}}
 {{- $passwordKey := .Values.redis.auth.existingSecretPasswordKey -}}
 {{- $jobName := printf "%s-redis-password-init" (include "appsmith.fullname" .) | trunc 63 | trimSuffix "-" -}}
