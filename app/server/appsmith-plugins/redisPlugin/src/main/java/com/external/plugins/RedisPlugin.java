@@ -459,8 +459,15 @@ public class RedisPlugin extends BasePlugin {
             return Mono.just(connectionPool)
                     .flatMap(c -> verifyPing(connectionPool))
                     .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error ->
-                            Mono.just(new DatasourceTestResult(error.getCause().getMessage())));
+                    .onErrorResume(error -> {
+                        // Prefer the cause's message (driver wraps connection failures with an
+                        // IOException cause), but fall back to the error itself so a causeless
+                        // exception doesn't NPE here. The connection-time SSRF rejection throws a
+                        // causeless JedisConnectionException whose message is "Host not allowed.";
+                        // without this fallback it surfaced as a generic connection error.
+                        final Throwable reported = error.getCause() != null ? error.getCause() : error;
+                        return Mono.just(new DatasourceTestResult(reported.getMessage()));
+                    });
         }
     }
 }

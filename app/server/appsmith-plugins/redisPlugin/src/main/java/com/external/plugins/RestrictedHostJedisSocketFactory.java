@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.util.RestrictedHostFilter;
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisSocketFactory;
@@ -41,6 +42,7 @@ import java.util.Optional;
  * in place of the stock {@code InetAddress.getAllByName(...)} + connect, and the enforced
  * endpoint identification.
  */
+@Slf4j
 public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
 
     private final String host;
@@ -78,6 +80,10 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
         // re-resolves, so a rebinding resolver cannot swap in a different (internal) IP.
         final Optional<InetAddress> pinned = RestrictedHostFilter.firstAllowedRedisAddress(host, resolved);
         if (!pinned.isPresent()) {
+            // Connection-time SSRF rejection (incl. the DNS-rebinding case where the resolved
+            // address differs from the create-time pre-check). Log it — this is the only place the
+            // block is observable server-side, since the pre-check rejection happens elsewhere.
+            log.warn("Refusing Redis connection: host '{}' resolved to a disallowed address.", host);
             throw new JedisConnectionException(RestrictedHostFilter.HOST_NOT_ALLOWED);
         }
         final InetAddress pinnedAddress = pinned.get();
