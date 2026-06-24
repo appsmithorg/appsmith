@@ -315,6 +315,12 @@ public class RedisPlugin extends BasePlugin {
             // RestrictedHostJedisSocketFactory re-validates with a single resolution at connect
             // time and is what actually closes the rebinding TOCTOU. See GHSA-qhfj-g87x-m39w.
             if (RestrictedHostFilter.isHostBlocked(host)) {
+                // Most blocks land here (a user pointing a datasource at a disallowed host), so log
+                // it as the primary observability signal — the log framework tags this with the
+                // requesting userEmail / orgId / traceId, which makes a spike a useful recon flag.
+                // The connect-time sibling (RestrictedHostJedisSocketFactory) logs the rarer
+                // rebinding case.
+                log.warn("Blocked a Redis datasource pointed at disallowed host '{}' (SSRF filter).", host);
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);
             }
