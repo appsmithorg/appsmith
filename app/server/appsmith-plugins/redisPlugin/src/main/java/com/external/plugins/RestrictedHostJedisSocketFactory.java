@@ -32,11 +32,14 @@ import java.util.Optional;
  * socket directly to the returned {@link InetAddress} — the driver never re-resolves the hostname.
  *
  * <p>For TLS ({@code rediss://}) the plaintext socket connects to the pinned IP, but the original
- * hostname is handed to the {@link SSLSocketFactory} and hostname verifier, so SNI and certificate
- * verification run against the hostname the user configured, not the IP. The connect and TLS
- * handshake logic mirrors {@code DefaultJedisSocketFactory} (socket options, {@link
- * SSLSocketWrapper}) to avoid behavioral drift; the only deviation is the single-resolution
- * SSRF check in place of the stock {@code InetAddress.getAllByName(...)} + connect.
+ * hostname is handed to the {@link SSLSocketFactory}, so SNI and certificate verification run
+ * against the hostname the user configured, not the IP. Unlike stock Jedis 5.2.0 — which leaves
+ * hostname verification off by default — this factory enforces it by setting the endpoint
+ * identification algorithm to {@code HTTPS}, so a CA-trusted-but-mismatched cert on the pinned IP
+ * is rejected. The connect and TLS handshake logic otherwise mirrors {@code DefaultJedisSocketFactory}
+ * (socket options, {@link SSLSocketWrapper}); the deviations are the single-resolution SSRF check
+ * in place of the stock {@code InetAddress.getAllByName(...)} + connect, and the enforced
+ * endpoint identification.
  */
 public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
 
@@ -99,10 +102,22 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
                 // Hand the original hostname (not the pinned IP) to the TLS layer so SNI and
                 // certificate hostname verification run against the configured hostname.
                 socket = factory.createSocket(plainSocket, host, port, true);
-                if (sslParameters != null) {
-                    ((SSLSocket) socket).setSSLParameters(sslParameters);
+
+                final SSLSocket sslSocket = (SSLSocket) socket;
+                // Enforce TLS certificate hostname verification (RFC 2818): the cert's SAN/CN must
+                // match the configured hostname. Jedis 5.2.0 leaves this off by default, which would
+                // let a MITM present any CA-trusted-but-mismatched cert on the pinned IP. Verification
+                // runs against `host` (passed to createSocket above), not the IP we connected to.
+                // Only default to HTTPS when a caller hasn't deliberately set its own endpoint-
+                // identification policy.
+                final SSLParameters params = sslParameters != null ? sslParameters : sslSocket.getSSLParameters();
+                final String endpointIdAlgorithm = params.getEndpointIdentificationAlgorithm();
+                if (endpointIdAlgorithm == null || endpointIdAlgorithm.isEmpty()) {
+                    params.setEndpointIdentificationAlgorithm("HTTPS");
                 }
-                socket = new SSLSocketWrapper((SSLSocket) socket, plainSocket);
+                sslSocket.setSSLParameters(params);
+
+                socket = new SSLSocketWrapper(sslSocket, plainSocket);
                 if (hostnameVerifier != null && !hostnameVerifier.verify(host, ((SSLSocket) socket).getSession())) {
                     throw new JedisConnectionException(
                             String.format("The connection to '%s' failed ssl/tls hostname verification.", host));
