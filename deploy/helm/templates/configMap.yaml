@@ -6,6 +6,7 @@
 {{- $postgresqlPassword := .Values.postgresql.auth.password -}}
 {{- $postgresqlDatabase := .Values.postgresql.auth.database -}}
 {{- $releaseName := .Release.Name -}}
+{{- include "appsmith.validateRedisAuth" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

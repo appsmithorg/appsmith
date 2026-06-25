@@ -238,6 +238,27 @@ Uses existing secret if provided, otherwise derives "{release}-redis-secret"
 {{- end -}}
 
 {{/*
+Redis: validate the redis.auth.password configuration.
+
+redis.auth.password is a Bitnami subchart passthrough that the Appsmith
+templates never read on their own. There is exactly ONE supported way to use
+it: the fully self-managed path, where the operator also disables the chart's
+bootstrap secret (existingSecret: "") and hands the app a matching connection
+string via applicationConfig.APPSMITH_REDIS_URL. Any other use silently splits
+the password between Redis and the app, so we fail fast instead.
+
+Invoked from a template that always renders (configMap.yaml) so it evaluates on
+every `helm template`/install/upgrade.
+*/}}
+{{- define "appsmith.validateRedisAuth" -}}
+{{- if .Values.redis.auth.password -}}
+{{- if or .Values.redis.auth.existingSecret (not .Values.applicationConfig.APPSMITH_REDIS_URL) -}}
+{{ fail (printf "redis.auth.password is set, which is only supported on the self-managed path. Choose one of:\n  1. Leave redis.auth.password unset and let the chart bootstrap a password (default), or supply your own secret via redis.auth.existingSecret / redis.auth.existingSecretPasswordKey.\n  2. Self-manage the password: set redis.auth.password, set redis.auth.existingSecret: \"\", and set applicationConfig.APPSMITH_REDIS_URL=redis://:<password>@%s-redis-master:6379 so the app uses the same credential." .Release.Name) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Redis: master service hostname (FQDN inside the cluster).
 Derived from the release name to stay uniform with the chart's other components.
 Assumes the release name does not contain "redis" (otherwise the Bitnami subchart
