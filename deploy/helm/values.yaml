@@ -62,6 +62,8 @@ applicationConfig: # @schema additionalProperties: {type: [string, boolean, inte
   # @schema hidden: true
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
   # @schema hidden: true
+  APPSMITH_HIDE_HELP_BUTTON: "false"
+  # @schema hidden: true
   APPSMITH_LICENSE_KEY: ""
   # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_DRIVER: ""

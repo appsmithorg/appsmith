@@ -58,6 +58,7 @@ export interface AppsmithUIConfigs {
   };
   appsmithSupportEmail: string;
   disableIframeWidgetSandbox: boolean;
+  hideHelpButton: boolean;
   pricingUrl: string;
   customerPortalUrl: string;
 }

@@ -14,6 +14,7 @@
       APPSMITH_DB_URL: |
         mongodb+srv://root:password@appsmith-mongodb.NAMESPACE.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
       APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+      APPSMITH_HIDE_HELP_BUTTON: "false"
       APPSMITH_KEYCLOAK_DB_DRIVER: postgresql
       APPSMITH_KEYCLOAK_DB_PASSWORD: password
       APPSMITH_KEYCLOAK_DB_URL: RELEASE-NAME-postgresql.NAMESPACE.svc.cluster.local:5432/keycloak

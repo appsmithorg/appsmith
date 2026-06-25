@@ -86,4 +86,8 @@ APPSMITH_ALLOWED_FRAME_ANCESTORS="'self' *"
 
 APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
+# Set this to true to hide the help/support button (the "?" menu with documentation,
+# chat and support options) on the home page and in the app editor.
+APPSMITH_HIDE_HELP_BUTTON=false
+
 EOF

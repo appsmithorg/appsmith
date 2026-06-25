@@ -116,6 +116,7 @@ module.exports = {
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
       ),
+      hideHelpButton: parseConfig("__APPSMITH_HIDE_HELP_BUTTON__"),
     },
   },
 };

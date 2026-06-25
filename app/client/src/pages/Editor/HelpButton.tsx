@@ -46,7 +46,8 @@ import BetterbugsUtil from "utils/Analytics/betterbugs";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
 
-const { appVersion, betterbugs, cloudHosting } = getAppsmithConfigs();
+const { appVersion, betterbugs, cloudHosting, hideHelpButton } =
+  getAppsmithConfigs();
 
 const HelpFooter = styled.div`
   display: flex;
@@ -226,6 +227,8 @@ function HelpButton() {
   useEffect(() => {
     bootPylon(user);
   }, [user?.email, user?.emailVerificationHash, user?.name, user?.username]);
+
+  if (hideHelpButton) return null;
 
   return (
     <Menu
