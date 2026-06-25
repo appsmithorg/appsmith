@@ -170,7 +170,10 @@ public final class RestrictedHostFilter {
     }
 
     private static void addInternalRedisHostFromEnv(Set<String> hosts, String envVar) {
-        final String url = System.getenv(envVar);
+        addInternalRedisHostFromUrl(hosts, System.getenv(envVar), envVar);
+    }
+
+    private static void addInternalRedisHostFromUrl(Set<String> hosts, String url, String sourceLabel) {
         if (!StringUtils.hasText(url)) {
             return;
         }
@@ -186,8 +189,34 @@ public final class RestrictedHostFilter {
                 hosts.add(normalizeHostForComparisonQuietly(host));
             }
         } catch (IllegalArgumentException e) {
-            log.warn("Could not parse {} as a URI; that internal Redis host won't be filtered.", envVar);
+            log.warn("Could not parse {} as a Redis URI; that internal Redis host won't be filtered.", sourceLabel);
         }
+    }
+
+    /**
+     * Registers internal Appsmith Redis hosts from their connection URLs as resolved by the
+     * application (Spring), not the process environment. The static initializer seeds
+     * {@link #internalRedisHosts} from the {@code APPSMITH_REDIS_URL} / {@code APPSMITH_REDIS_GIT_URL}
+     * environment variables, but the app actually binds {@code appsmith.redis.url} via Spring — which
+     * can also come from {@code application.properties}, a {@code -D} system property, or a profile.
+     * An operator who configures Redis through one of those (without the env var) would otherwise
+     * leave this set empty, and the internal-Redis block fails open (loopback / cloud-metadata
+     * literals are still blocked, but an in-cluster Redis on an RFC1918 address or service hostname
+     * would be reachable). The server calls this at startup with the resolved property values so the
+     * filter reflects the Redis the app truly uses, regardless of how it was configured.
+     *
+     * <p>Unions with — does not replace — the env-seeded set, so configuring Redis through both
+     * channels blocks both. Safe to call before/after the static seed; null/blank URLs are ignored.
+     */
+    public static void registerInternalRedisHosts(String... redisUrls) {
+        if (redisUrls == null || redisUrls.length == 0) {
+            return;
+        }
+        final Set<String> merged = new HashSet<>(internalRedisHosts);
+        for (String url : redisUrls) {
+            addInternalRedisHostFromUrl(merged, url, "configured Redis URL");
+        }
+        internalRedisHosts = merged.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(merged);
     }
 
     /** Visible for testing only. Production code never mutates the internal Redis hosts set. */

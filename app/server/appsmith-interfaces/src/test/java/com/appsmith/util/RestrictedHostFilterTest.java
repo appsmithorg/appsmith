@@ -256,6 +256,32 @@ public class RestrictedHostFilterTest {
         assertFalse(RestrictedHostFilter.isHostBlocked("redis.example.com"));
     }
 
+    @Test
+    public void registerInternalRedisHosts_blocksHostFromSpringResolvedUrl() {
+        // Mirrors the server's startup path (RedisConfig#registerInternalRedisHostsWithSsrfFilter):
+        // the app binds appsmith.redis.url via Spring, which the env-only static seed misses when
+        // Redis is configured via application.properties / -D. Hosts registered from the resolved
+        // URLs must be blocked, closing the fail-open gap. See GHSA-qhfj-g87x-m39w.
+        RestrictedHostFilter.setInternalRedisHostsForTesting(); // start empty (no env var set)
+        RestrictedHostFilter.registerInternalRedisHosts(
+                "redis://session-redis.svc.cluster.local:6379", "rediss://git-redis.svc.cluster.local:6380");
+        assertTrue(RestrictedHostFilter.isHostBlocked("session-redis.svc.cluster.local"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("git-redis.svc.cluster.local"));
+        // Null / blank URLs are ignored and unrelated hosts stay allowed.
+        RestrictedHostFilter.registerInternalRedisHosts((String) null, "", "   ");
+        assertFalse(RestrictedHostFilter.isHostBlocked("redis.example.com"));
+    }
+
+    @Test
+    public void registerInternalRedisHosts_unionsWithExistingHosts() {
+        // Registration must not clobber the env-seeded set: configuring Redis through both the env
+        // var and a property must block both.
+        RestrictedHostFilter.setInternalRedisHostsForTesting("env-seeded-redis.svc.cluster.local");
+        RestrictedHostFilter.registerInternalRedisHosts("redis://property-redis.svc.cluster.local:6379");
+        assertTrue(RestrictedHostFilter.isHostBlocked("env-seeded-redis.svc.cluster.local"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("property-redis.svc.cluster.local"));
+    }
+
     // ---------- alwaysAllowedHostsForTesting: opt-in test escape hatch ----------
 
     @Test
