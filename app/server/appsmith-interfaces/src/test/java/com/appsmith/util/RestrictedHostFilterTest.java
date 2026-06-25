@@ -282,6 +282,14 @@ public class RestrictedHostFilterTest {
         assertTrue(RestrictedHostFilter.isHostBlocked("property-redis.svc.cluster.local"));
     }
 
+    @Test
+    public void describeResolvedAddresses_reportsResolvedIpOrUnresolved() {
+        // Log-only annotation for the SSRF block lines. An IP literal resolves to itself; the
+        // reserved .invalid TLD never resolves (RFC 2606) so it reports "unresolved".
+        assertEquals("127.0.0.1", RestrictedHostFilter.describeResolvedAddresses("127.0.0.1"));
+        assertEquals("unresolved", RestrictedHostFilter.describeResolvedAddresses("definitely-not-a-host.invalid"));
+    }
+
     // ---------- alwaysAllowedHostsForTesting: opt-in test escape hatch ----------
 
     @Test

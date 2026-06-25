@@ -320,7 +320,10 @@ public class RedisPlugin extends BasePlugin {
                 // requesting userEmail / orgId / traceId, which makes a spike a useful recon flag.
                 // The connect-time sibling (RestrictedHostJedisSocketFactory) logs the rarer
                 // rebinding case.
-                log.warn("Blocked a Redis datasource pointed at disallowed host '{}' (SSRF filter).", host);
+                log.warn(
+                        "Blocked a Redis datasource pointed at disallowed host '{}' (resolves to [{}]) — SSRF filter.",
+                        host,
+                        RestrictedHostFilter.describeResolvedAddresses(host));
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);
             }

@@ -16,6 +16,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 /**
  * A Jedis {@link JedisSocketFactory} that enforces Appsmith's SSRF host policy at the exact
@@ -82,7 +83,14 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
             // Connection-time SSRF rejection (incl. the DNS-rebinding case where the resolved
             // address differs from the create-time pre-check). Log it — this is the only place the
             // block is observable server-side, since the pre-check rejection happens elsewhere.
-            log.warn("Refusing Redis connection: host '{}' resolved to a disallowed address.", host);
+            log.warn(
+                    "Refusing Redis connection: host '{}' resolved to a disallowed address [{}].",
+                    host,
+                    String.join(
+                            ", ",
+                            Arrays.stream(resolved)
+                                    .map(InetAddress::getHostAddress)
+                                    .toList()));
             throw new JedisConnectionException(RestrictedHostFilter.HOST_NOT_ALLOWED);
         }
 

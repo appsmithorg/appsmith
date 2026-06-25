@@ -445,6 +445,27 @@ public final class RestrictedHostFilter {
     }
 
     /**
+     * Best-effort, log-only description of the addresses {@code host} currently resolves to, for
+     * annotating SSRF block log lines. Does its own lookup and is NOT a security decision — it only
+     * explains a block, e.g. distinguishing a host typed as an internal IP literally from a hostname
+     * that resolved to loopback / cloud-metadata. Returns {@code "unresolved"} when it can't be
+     * resolved (the block may have fired on a literal/denylist hostname). Because it re-resolves, a
+     * hostile flipping resolver could in theory report a different address than the one that
+     * triggered the block; the annotation is point-in-time and diagnostic only.
+     */
+    public static String describeResolvedAddresses(String host) {
+        try {
+            return String.join(
+                    ", ",
+                    Arrays.stream(InetAddress.getAllByName(host))
+                            .map(InetAddress::getHostAddress)
+                            .toList());
+        } catch (UnknownHostException e) {
+            return "unresolved";
+        }
+    }
+
+    /**
      * Literal/canonical-only block check — no DNS, no network I/O. Catches the static denylist
      * (cloud-metadata IPs), literal non-routable IP-class addresses, and a literal match
      * against any configured internal Redis hostname (session store + git Redis).
