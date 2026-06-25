@@ -16,7 +16,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Optional;
 
 /**
  * A Jedis {@link JedisSocketFactory} that enforces Appsmith's SSRF host policy at the exact
@@ -76,29 +75,24 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
             throw new JedisConnectionException("Failed to resolve Redis host '" + host + "'.", e);
         }
 
-        // Validate the addresses we just resolved and connect to one of them — the driver never
-        // re-resolves, so a rebinding resolver cannot swap in a different (internal) IP.
-        final Optional<InetAddress> pinned = RestrictedHostFilter.firstAllowedRedisAddress(host, resolved);
-        if (!pinned.isPresent()) {
+        // Gate: firstAllowedRedisAddress returns present only when EVERY resolved address passed the
+        // filter, so a present result means all of `resolved` are safe to connect to. The driver
+        // never re-resolves, so a rebinding resolver cannot swap in a different (internal) IP.
+        if (RestrictedHostFilter.firstAllowedRedisAddress(host, resolved).isEmpty()) {
             // Connection-time SSRF rejection (incl. the DNS-rebinding case where the resolved
             // address differs from the create-time pre-check). Log it — this is the only place the
             // block is observable server-side, since the pre-check rejection happens elsewhere.
             log.warn("Refusing Redis connection: host '{}' resolved to a disallowed address.", host);
             throw new JedisConnectionException(RestrictedHostFilter.HOST_NOT_ALLOWED);
         }
-        final InetAddress pinnedAddress = pinned.get();
 
         Socket socket = null;
         try {
-            socket = new Socket();
-            // Socket options mirror DefaultJedisSocketFactory.
-            socket.setReuseAddress(true);
-            socket.setKeepAlive(true);
-            socket.setTcpNoDelay(true);
-            socket.setSoLinger(true, 0);
-
-            // Connect to the validated IP literal — no second DNS lookup happens here.
-            socket.connect(new InetSocketAddress(pinnedAddress, port), connectionTimeout);
+            // Connect to the first reachable validated address. Trying all of them (not just the
+            // first) means a dual-stack host whose leading record is an unreachable IPv6 still falls
+            // back to its IPv4, matching DefaultJedisSocketFactory. Every candidate was validated
+            // above, so the failover does not widen the SSRF surface. No second DNS lookup happens.
+            socket = connectToFirstReachable(resolved);
             socket.setSoTimeout(socketTimeout);
 
             if (ssl) {
@@ -138,6 +132,39 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
             closeQuietly(socket);
             throw new JedisConnectionException("Failed to create socket.", e);
         }
+    }
+
+    /**
+     * Opens a plain TCP socket to the first reachable address, trying each in order (mirrors
+     * {@code DefaultJedisSocketFactory#connectToFirstSuccessfulHost}). All addresses passed here
+     * have already cleared the SSRF filter, so iterating only adds connection resilience — e.g. a
+     * dual-stack host whose first record is an unreachable IPv6 still connects via its IPv4. Throws
+     * once every candidate has failed, with each failure attached as a suppressed exception.
+     */
+    private Socket connectToFirstReachable(InetAddress[] addresses) throws JedisConnectionException {
+        JedisConnectionException failure = null;
+        for (InetAddress address : addresses) {
+            Socket candidate = null;
+            try {
+                candidate = new Socket();
+                // Socket options mirror DefaultJedisSocketFactory.
+                candidate.setReuseAddress(true);
+                candidate.setKeepAlive(true);
+                candidate.setTcpNoDelay(true);
+                candidate.setSoLinger(true, 0);
+                candidate.connect(new InetSocketAddress(address, port), connectionTimeout);
+                return candidate;
+            } catch (Exception e) {
+                closeQuietly(candidate);
+                if (failure == null) {
+                    failure = new JedisConnectionException("Failed to connect to Redis host '" + host + "'.");
+                }
+                failure.addSuppressed(e);
+            }
+        }
+        throw failure != null
+                ? failure
+                : new JedisConnectionException("Failed to connect to Redis host '" + host + "'.");
     }
 
     private static void closeQuietly(Socket socket) {
