@@ -260,23 +260,15 @@ every `helm template`/install/upgrade.
 
 {{/*
 Redis: master service hostname (FQDN inside the cluster).
-Mirrors the Bitnami subchart's own `common.names.fullname` algorithm so the host
-always matches the master Service it renders — including the edge cases where the
+Reuses the bundled `common.names.fullname` helper (the one the subchart's master
+Service uses), evaluated in the redis subchart's context (.Subcharts.redis), so the
+host always matches the Service it renders — including the edge cases where the
 release name contains "redis" (the subchart collapses its fullname to just the
 release name) or redis.nameOverride / redis.fullnameOverride is set.
-
-Re-implemented here rather than calling `common.names.fullname` directly: that
-template is only registered when the redis subchart is built into charts/, which
-is not the case under `helm unittest` (it renders the parent chart without
-dependencies). Logic is pinned to redis-16.11.2's common library; revisit if the
-subchart is bumped.
+Only valid when redis.enabled (the subchart context exists); all callers gate on it.
 */}}
-{{- define "appsmith.redisFullname" -}}
-{{- $name := default "redis" .Values.redis.nameOverride -}}
-{{- .Values.redis.fullnameOverride | default (ternary .Release.Name (printf "%s-%s" .Release.Name $name) (contains $name .Release.Name)) | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 {{- define "appsmith.redisMasterHost" -}}
-{{- printf "%s-master.%s.svc.cluster.local" (include "appsmith.redisFullname" .) (include "appsmith.namespace" .) -}}
+{{- printf "%s-master.%s.svc.cluster.local" (include "common.names.fullname" .Subcharts.redis) (include "appsmith.namespace" .) -}}
 {{- end -}}
 
 {{/*
