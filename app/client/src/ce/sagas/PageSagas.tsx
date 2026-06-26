@@ -959,13 +959,23 @@ export function* clonePageSaga(
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(
-        fetchAllPageEntityCompletion([
-          executePageLoadActions(ActionExecutionContext.CLONE_PAGE),
-        ]),
-      );
 
-      // TODO: Update URL params here.
+      // Note: We intentionally do NOT dispatch executePageLoadActions here.
+      //
+      // state.ui.editor.pageActions (the slice executePageLoadActionsSaga reads via
+      // getLayoutOnLoadActions) is only updated by INIT_CANVAS_LAYOUT, which fires
+      // for the cloned page later, from handleFetchedPage during the post-clone
+      // navigation. Dispatching it here would race against the source page's
+      // pageActions slice and execute the WRONG page's onPageLoad actions
+      // (the source page's, not the cloned page's). The downstream side effect was
+      // that the cloned page's bound widgets (e.g. a Table reading {{Query1.data}})
+      // would observe a transient empty data tree slot from the cancelled source
+      // saga and remain stuck in a loading state until a manual browser refresh.
+      //
+      // The post-navigation handleFetchedPage path (PageSagas.tsx -> if (!isFirstLoad))
+      // already triggers executePageLoadActions() against the freshly-loaded cloned
+      // page state, so removing this dispatch keeps the legitimate onPageLoad run
+      // and eliminates the racy duplicate.
 
       if (!clonePageAction.payload.blockNavigation) {
         history.push(
