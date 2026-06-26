@@ -49,6 +49,7 @@ export interface TreeSelectProps
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  isRequired?: boolean;
   onDropdownOpen?: () => void;
   onDropdownClose?: () => void;
   labelStyle?: string;
@@ -121,6 +122,7 @@ function SingleSelectTreeComponent({
   filterText,
   isDynamicHeightEnabled,
   isFilterable,
+  isRequired,
   isValid,
   labelAlignment,
   labelPosition,
@@ -272,6 +274,7 @@ function SingleSelectTreeComponent({
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           helpText={labelTooltip}
+          isRequired={isRequired}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}

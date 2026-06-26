@@ -51,6 +51,7 @@ export interface MultiSelectProps
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isRequired?: boolean;
   compactMode: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
@@ -73,6 +74,7 @@ function MultiSelectComponent({
   dropDownWidth,
   isDynamicHeightEnabled,
   isValid,
+  isRequired,
   labelAlignment,
   labelPosition,
   labelStyle,
@@ -202,6 +204,7 @@ function MultiSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isRequired={isRequired}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
