@@ -2130,4 +2130,77 @@ public class PostgresPluginTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Regression test for GHSA-vf2m-c985-hgmh: SQL Injection when prepared statements are disabled.
+     * When a query contains mustache bindings and prepared statements are disabled, the plugin
+     * must automatically upgrade to prepared statement mode to prevent SQL injection.
+     */
+    @Test
+    public void testSqlInjectionPreventedWhenPreparedStatementDisabledWithBindings() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Query with mustache binding - simulates a user input widget
+        actionConfiguration.setBody("SELECT * FROM users WHERE username = '{{binding1}}'");
+
+        // Explicitly disable prepared statements
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        // SQL injection payload: would return all rows if not properly parameterized
+        param.setValue("' OR '1'='1");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    // If SQL injection were possible, this would return all rows (2+).
+                    // With proper parameterization, no rows match the literal string
+                    ArrayNode body = (ArrayNode) result.getBody();
+                    assertEquals(0, body.size(), "SQL injection payload should not bypass the WHERE clause");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Verify that static queries (no mustache bindings) still work with prepared statements disabled.
+     * This ensures backward compatibility: DDL and admin commands without bindings should still execute.
+     */
+    @Test
+    public void testStaticQueryWithPreparedStatementDisabledStillWorks() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<ConnectionContext<HikariDataSource>> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Static query with no bindings - should execute normally as a raw statement
+        actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayNode body = (ArrayNode) result.getBody();
+                    assertEquals(1, body.size(), "Static query should return exactly 1 row");
+                    assertEquals("Jack", body.get(0).get("username").asText());
+                })
+                .verifyComplete();
+    }
 }
