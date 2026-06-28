@@ -281,17 +281,21 @@ public class PostgresPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            // In case of non-prepared statement, simply do bind replacement and execute
-            if (FALSE.equals(isPreparedStatement)) {
+            // First extract all the bindings in order
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+
+            // In case of non-prepared statement AND no mustache bindings, execute as raw statement.
+            // If mustache bindings are present, we must upgrade to prepared statement mode to prevent
+            // SQL injection (GHSA-vf2m-c985-hgmh). String-interpolating user inputs into raw SQL
+            // allows attackers to inject arbitrary SQL via widget inputs.
+            if (FALSE.equals(isPreparedStatement) && mustacheKeysInOrder.isEmpty()) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(
                         connectionContext, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
             }
 
-            // Prepared statement
+            // Prepared statement (either explicitly enabled, or auto-upgraded because bindings are present)
 
-            // First extract all the bindings in order
-            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
