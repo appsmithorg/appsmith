@@ -26,10 +26,14 @@ on:
       - release
     paths:
       - "deploy/helm/**"
+      # Docs-only markdown changes shouldn't trigger the publish/version-bump check.
+      - "!deploy/helm/**.md"
 
   pull_request:
     paths:
       - "deploy/helm/**"
+      # Docs-only markdown changes shouldn't trigger the publish/version-bump check.
+      - "!deploy/helm/**.md"
 
 jobs:
   publish:
