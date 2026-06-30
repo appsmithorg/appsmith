@@ -52,6 +52,15 @@ export function* fetchAppsForCopyTargetSaga(
         type: ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_SUCCESS,
         payload: { applications: response.data || [] },
       });
+    } else {
+      // validateResponse returned false (e.g. connection aborted) without
+      // throwing; dispatch the error action so `isFetchingApplications` is
+      // reset and the picker does not stay stuck loading. `show: false`
+      // avoids a duplicate toast.
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_APPLICATIONS_ERROR,
+        payload: { show: false },
+      });
     }
   } catch (error) {
     yield put({
@@ -81,6 +90,14 @@ export function* fetchPagesForCopyTargetSaga(
       yield put({
         type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_SUCCESS,
         payload: { pages: response.data?.pages || [] },
+      });
+    } else {
+      // Same as the applications fetch: reset `isFetchingPages` via the error
+      // action when validateResponse returns false without throwing.
+      // `show: false` avoids a duplicate toast.
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_PAGES_ERROR,
+        payload: { show: false },
       });
     }
   } catch (error) {
@@ -122,7 +139,15 @@ function* copyEntityToAppSaga(
     );
     const isExportValid: boolean = yield call(validateResponse, exportResponse);
 
-    if (!isExportValid) return;
+    if (!isExportValid) {
+      // validateResponse already surfaced the failure (or the connection was
+      // aborted); dispatch the error action so `isCopying` is reset and the
+      // picker does not stay stuck in a loading state. `show: false` avoids a
+      // duplicate toast.
+      yield put({ type: errorType, payload: { show: false } });
+
+      return;
+    }
 
     const applicationFile = new File(
       [JSON.stringify(exportResponse.data)],
@@ -141,7 +166,13 @@ function* copyEntityToAppSaga(
     );
     const isImportValid: boolean = yield call(validateResponse, importResponse);
 
-    if (!isImportValid) return;
+    if (!isImportValid) {
+      // Same as the export path: reset `isCopying` via the error action instead
+      // of returning silently. `show: false` avoids a duplicate toast.
+      yield put({ type: errorType, payload: { show: false } });
+
+      return;
+    }
 
     AnalyticsUtil.logEvent("COPY_ENTITY_TO_APP", {
       entityType,

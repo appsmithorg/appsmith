@@ -1949,7 +1949,7 @@ export const COPY_ENTITY_TO_APP_SUCCESS = (
 export const COPY_ENTITY_TO_APP_ERROR = () =>
   "Failed to copy to the selected application";
 export const COPY_ENTITY_TO_APP_NOTE = () =>
-  "Datasources and any referenced queries aren't copied — you may need to reconfigure them in the target application.";
+  "Datasource credentials and any referenced queries aren't copied. Datasources are set up during import, but you may need to re-enter credentials and recreate any referenced queries before the copied item will work in the target application.";
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",

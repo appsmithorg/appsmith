@@ -38,6 +38,11 @@ const copyEntityToAppReducer = createReducer(initialState, {
     entity: action.payload,
     targetApplications: [],
     targetPages: [],
+    // Clear any transient flags so a stale spinner/disabled CTA from a previous
+    // session does not persist when the modal is reopened.
+    isFetchingApplications: false,
+    isFetchingPages: false,
+    isCopying: false,
   }),
   [ReduxActionTypes.CLOSE_COPY_ENTITY_TO_APP_MODAL]: (
     state: CopyEntityToAppReduxState,
@@ -45,6 +50,11 @@ const copyEntityToAppReducer = createReducer(initialState, {
     ...state,
     isModalOpen: false,
     entity: null,
+    // Same as open: drop any in-flight flags so they cannot leak into the next
+    // session.
+    isFetchingApplications: false,
+    isFetchingPages: false,
+    isCopying: false,
   }),
   [ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT]: (
     state: CopyEntityToAppReduxState,

@@ -203,7 +203,7 @@ describe("copyEntityToApp end-to-end orchestration", () => {
     expect(gen.next().done).toBe(true);
   });
 
-  it("stops without importing when the export response is invalid", () => {
+  it("dispatches the error action (resetting isCopying) when the export response is invalid", () => {
     const gen = runOrchestration();
 
     gen.next(); // select workspace id
@@ -211,13 +211,20 @@ describe("copyEntityToApp end-to-end orchestration", () => {
     gen.next("source-app-1"); // export call
     gen.next({ data: null, responseMeta: {} }); // validateResponse call
 
-    // invalid export -> generator returns early, no further effects
-    expect(gen.next(false).done).toBe(true);
+    // invalid export -> dispatch the error action (which resets isCopying) and
+    // stop, without importing or toasting. `show: false` avoids a duplicate toast.
+    expect(gen.next(false).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.COPY_ACTION_TO_APP_ERROR,
+        payload: { show: false },
+      }),
+    );
+    expect(gen.next().done).toBe(true);
     expect(toastShow).not.toHaveBeenCalled();
     expect(logEvent).not.toHaveBeenCalled();
   });
 
-  it("stops after import without toasting when the import response is invalid", () => {
+  it("dispatches the error action (resetting isCopying) when the import response is invalid", () => {
     const gen = runOrchestration();
 
     gen.next(); // select workspace id
@@ -227,9 +234,17 @@ describe("copyEntityToApp end-to-end orchestration", () => {
     gen.next(true); // import call
     gen.next({ data: {}, responseMeta: {} }); // validateResponse(import)
 
-    // invalid import -> generator returns early before toast/success
-    expect(gen.next(false).done).toBe(true);
+    // invalid import -> dispatch the error action (which resets isCopying) and
+    // stop before toast/success. `show: false` avoids a duplicate toast.
+    expect(gen.next(false).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.COPY_ACTION_TO_APP_ERROR,
+        payload: { show: false },
+      }),
+    );
+    expect(gen.next().done).toBe(true);
     expect(toastShow).not.toHaveBeenCalled();
+    expect(logEvent).not.toHaveBeenCalled();
     expect(basePayload.onSuccess).not.toHaveBeenCalled();
   });
 
@@ -295,6 +310,46 @@ describe("fetchAppsForCopyTargetSaga", () => {
 
     expect(gen.next().done).toBe(true);
   });
+
+  it("dispatches the error action (clearing the loading state) when the response is invalid", () => {
+    const gen: Generator = fetchAppsForCopyTargetSaga({
+      type: ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT,
+      payload: { workspaceId: "ws-9" },
+    });
+
+    gen.next(); // fetch call
+    gen.next({ data: null, responseMeta: {} }); // validateResponse call
+
+    // invalid response (validateResponse returned false) -> dispatch the error
+    // action so isFetchingApplications is reset. show: false avoids a duplicate toast.
+    expect(gen.next(false).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_APPLICATIONS_ERROR,
+        payload: { show: false },
+      }),
+    );
+    expect(gen.next().done).toBe(true);
+  });
+
+  it("dispatches the error action with the thrown error when the fetch throws", () => {
+    const gen: Generator = fetchAppsForCopyTargetSaga({
+      type: ReduxActionTypes.FETCH_COPY_TARGET_APPLICATIONS_INIT,
+      payload: { workspaceId: "ws-9" },
+    });
+
+    gen.next(); // fetch call
+    const error = new Error("network down");
+
+    // thrown failure (validateResponse throws or fetch rejects) -> caught and
+    // surfaced via the error action with the error payload (toast shown).
+    expect(gen.throw(error).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_APPLICATIONS_ERROR,
+        payload: { error },
+      }),
+    );
+    expect(gen.next().done).toBe(true);
+  });
 });
 
 describe("fetchPagesForCopyTargetSaga", () => {
@@ -325,6 +380,45 @@ describe("fetchPagesForCopyTargetSaga", () => {
       }),
     );
 
+    expect(gen.next().done).toBe(true);
+  });
+
+  it("dispatches the error action (clearing the loading state) when the response is invalid", () => {
+    const gen: Generator = fetchPagesForCopyTargetSaga({
+      type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+      payload: { applicationId: "app-9" },
+    });
+
+    gen.next(); // fetch call
+    gen.next({ data: null, responseMeta: {} }); // validateResponse call
+
+    // invalid response (validateResponse returned false) -> dispatch the error
+    // action so isFetchingPages is reset. show: false avoids a duplicate toast.
+    expect(gen.next(false).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_PAGES_ERROR,
+        payload: { show: false },
+      }),
+    );
+    expect(gen.next().done).toBe(true);
+  });
+
+  it("dispatches the error action with the thrown error when the fetch throws", () => {
+    const gen: Generator = fetchPagesForCopyTargetSaga({
+      type: ReduxActionTypes.FETCH_COPY_TARGET_PAGES_INIT,
+      payload: { applicationId: "app-9" },
+    });
+
+    gen.next(); // fetch call
+    const error = new Error("network down");
+
+    // thrown failure -> caught and surfaced via the error action (toast shown).
+    expect(gen.throw(error).value).toEqual(
+      put({
+        type: ReduxActionErrorTypes.FETCH_COPY_TARGET_PAGES_ERROR,
+        payload: { error },
+      }),
+    );
     expect(gen.next().done).toBe(true);
   });
 });
