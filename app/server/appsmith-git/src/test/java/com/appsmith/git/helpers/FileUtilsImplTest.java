@@ -334,6 +334,58 @@ public class FileUtilsImplTest {
     }
 
     /**
+     * GHSA-fqwc-g9wm-5895: Symlink path traversal in Git import.
+     * A file inside the git root whose lexical path is contained in the git root, but which is a
+     * symbolic link pointing OUTSIDE the git root, must be rejected by validatePathIsWithinGitRoot.
+     * The lexical Path.normalize() guard does NOT resolve symlinks, so before the fix the read
+     * follows the symlink and leaks the target file's content. After the fix the real-path
+     * containment check detects the escape and throws.
+     */
+    @Test
+    public void reconstructMetadata_symlinkEscapesGitRoot_throwsSecurityException_GHSA_fqwc() throws IOException {
+        // A "secret" file located OUTSIDE the git root.
+        Path externalDir = Files.createTempDirectory("ghsa-fqwc-external");
+        try {
+            Path secretFile = externalDir.resolve("secret.json");
+            Files.writeString(secretFile, "{\"fileFormatVersion\": 99, \"leaked\": \"top-secret\"}");
+
+            // Set up a repo directory inside the git root, then replace metadata.json with a symlink
+            // pointing to the external secret. The symlink's own path is lexically inside the git root.
+            Path repoSuffix = Path.of("workspace-symlink", "app", "repo");
+            Path fullRepoPath = localTestDirectoryPath.resolve(repoSuffix);
+            Files.createDirectories(fullRepoPath);
+            Path metadataPath = fullRepoPath.resolve("metadata.json");
+            Files.createSymbolicLink(metadataPath, secretFile);
+
+            // Sanity: the symlink lexically resolves inside the git root (this is what fools the
+            // old lexical guard), but its real target is outside.
+            Assertions.assertTrue(Files.isSymbolicLink(metadataPath));
+
+            Assertions.assertThrows(RuntimeException.class, () -> {
+                fileUtils.reconstructMetadataFromGitRepository(repoSuffix).block();
+            });
+        } finally {
+            FileUtils.deleteDirectory(externalDir.toFile());
+        }
+    }
+
+    /**
+     * GHSA-fqwc-g9wm-5895: A legitimate (non-symlink) file inside the git root must still be readable.
+     * Regression guard ensuring the symlink-aware check does not break normal reads.
+     */
+    @Test
+    public void reconstructMetadata_regularFileWithinGitRoot_doesNotThrow_GHSA_fqwc() throws IOException {
+        Path repoSuffix = Path.of("workspace-regular", "app", "repo");
+        Path fullRepoPath = localTestDirectoryPath.resolve(repoSuffix);
+        Files.createDirectories(fullRepoPath);
+        Files.writeString(fullRepoPath.resolve("metadata.json"), "{\"fileFormatVersion\": 5}");
+
+        Object result =
+                fileUtils.reconstructMetadataFromGitRepository(repoSuffix).block();
+        Assertions.assertNotNull(result);
+    }
+
+    /**
      * This will delete localTestDirectory and its contents after the test is executed.
      */
     private void deleteLocalTestDirectoryPath() {

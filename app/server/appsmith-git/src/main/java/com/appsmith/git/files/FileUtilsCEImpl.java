@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -671,15 +672,63 @@ public class FileUtilsCEImpl implements FileInterface {
      * @throws AppsmithPluginException if the path escapes the Git root directory
      */
     protected void validatePathIsWithinGitRoot(Path targetPath) {
-        Path normalizedTarget = targetPath.toAbsolutePath().normalize();
         Path gitRoot =
                 Paths.get(gitServiceConfig.getGitRootPath()).toAbsolutePath().normalize();
+
+        // 1. Lexical containment check — blocks "../" traversal in crafted resource names.
+        Path normalizedTarget = targetPath.toAbsolutePath().normalize();
         if (!normalizedTarget.startsWith(gitRoot)) {
-            String errorMessage = "SECURITY: Path traversal detected. Attempted to access " + normalizedTarget
-                    + " which is outside the Git root " + gitRoot;
-            log.error(errorMessage);
+            throwPathTraversal(normalizedTarget, gitRoot);
+        }
+
+        // 2. Symlink-aware containment check (GHSA-fqwc-g9wm-5895) — blocks symbolic links committed
+        // inside a repository that point outside the Git root. Path.normalize() above is purely
+        // lexical and does NOT resolve symlinks, whereas every downstream file I/O sink follows
+        // them. Resolve the real (symlink-free) path before comparing. Fails closed on I/O error.
+        try {
+            Path realGitRoot = toRealPathResolvingExistingPrefix(gitRoot);
+            Path realTarget = toRealPathResolvingExistingPrefix(normalizedTarget);
+            if (!realTarget.startsWith(realGitRoot)) {
+                throwPathTraversal(realTarget, realGitRoot);
+            }
+        } catch (IOException e) {
+            String errorMessage = "SECURITY: Unable to resolve real path for " + normalizedTarget
+                    + " while validating Git root containment";
+            log.error(errorMessage, e);
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errorMessage);
         }
+    }
+
+    private void throwPathTraversal(Path attemptedPath, Path gitRoot) {
+        String errorMessage = "SECURITY: Path traversal detected. Attempted to access " + attemptedPath
+                + " which is outside the Git root " + gitRoot;
+        log.error(errorMessage);
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errorMessage);
+    }
+
+    /**
+     * Resolves symbolic links in the longest existing prefix of {@code path} and re-appends the
+     * remaining (not-yet-created) path segments lexically. {@link Path#toRealPath} cannot be used
+     * directly because it requires the whole path to exist, while file writes legitimately target
+     * paths that do not exist yet. By resolving the deepest existing ancestor we still detect any
+     * symlink along the existing portion (including when {@code path} itself is a symlink) while
+     * supporting yet-to-be-created files.
+     */
+    private Path toRealPathResolvingExistingPrefix(Path path) throws IOException {
+        Path absolute = path.toAbsolutePath().normalize();
+        Path existing = absolute;
+        while (existing != null && !Files.exists(existing, LinkOption.NOFOLLOW_LINKS)) {
+            existing = existing.getParent();
+        }
+        if (existing == null) {
+            // No component of the path exists; no symlink can be involved.
+            return absolute;
+        }
+        Path realExisting = existing.toRealPath();
+        if (existing.equals(absolute)) {
+            return realExisting;
+        }
+        return realExisting.resolve(existing.relativize(absolute)).normalize();
     }
 
     protected Object readFileValidated(Path filePath) {
@@ -818,6 +867,10 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private void writeStringToFile(String sourceEntity, Path path) throws IOException {
+        // Validate the concrete file path (not just its parent directory) so that a symlink at this
+        // path pointing outside the Git root is rejected before any write follows it
+        // (GHSA-fqwc-g9wm-5895).
+        validatePathIsWithinGitRoot(path);
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fileWriter.write(sourceEntity);
         }
