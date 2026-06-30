@@ -328,5 +328,5 @@ export const generateAppsmithCssVariables = (provider) => (source) => {
     }
   }, "");
 
-  cssTokens.innerHTML = `:root {${cssTokensContent}}`;
+  cssTokens.textContent = `:root {${cssTokensContent}}`;
 };

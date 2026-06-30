@@ -286,27 +286,20 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     }
 
     /**
-     * Extracts host from request using fallback chain: X-Forwarded-Host -> URI host -> Host header
+     * Extracts host from request. Delegates the header-based derivation to
+     * {@link RedirectHelper#extractRequestHost(org.springframework.http.HttpHeaders)}
+     * (which prefers {@code X-Forwarded-Host} and falls back to {@code Host}), and
+     * keeps the request URI host as a last-resort fallback for cases where neither
+     * header is set.
      */
     private String extractHostFromRequest(ServerHttpRequest request) {
-        // Prefer X-Forwarded-Host header (for proxy environments)
-        String xfHost = request.getHeaders().getFirst("X-Forwarded-Host");
-        if (xfHost != null && !xfHost.isBlank()) {
-            // If comma-separated, take the first
-            int comma = xfHost.indexOf(',');
-            return (comma >= 0 ? xfHost.substring(0, comma) : xfHost).trim();
+        String host = RedirectHelper.extractRequestHost(request.getHeaders());
+        if (host != null) {
+            return host;
         }
-
-        // Fallback to request URI host
         if (request.getURI() != null && request.getURI().getHost() != null) {
             return request.getURI().getHost();
         }
-
-        // Final fallback to Host header
-        if (request.getHeaders().getHost() != null) {
-            return request.getHeaders().getHost().getHostString();
-        }
-
         return null;
     }
 

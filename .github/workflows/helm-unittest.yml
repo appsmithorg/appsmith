@@ -21,6 +21,13 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v4
 
+      # Subchart .tgz files are gitignored, so a fresh checkout has no charts/.
+      # Pull dependencies first so tests that render subchart templates (e.g.
+      # deriving the redis master host from the redis subchart fullname) pass.
+      - name: Build chart dependencies
+        run: |
+          docker run --rm -v $(pwd):/apps --entrypoint helm helmunittest/helm-unittest dependency update .
+
       - name: Unittest
         run: |
           docker run --rm -v $(pwd):/apps helmunittest/helm-unittest .

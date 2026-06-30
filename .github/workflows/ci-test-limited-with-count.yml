@@ -204,26 +204,19 @@ jobs:
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
           
 
-      # In case of run-id provided download the artifact from the previous run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ inputs.previous-workflow-run-id }}
-
-      # In case of run-id is 0 download the artifact from the current run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id == 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{github.run_id}}
-
-      - name: Load Docker image from tar file
+      # The build job pushed the SUT image to GHCR tagged with its run id;
+      # when previous-workflow-run-id is set, reuse the image built by that
+      # earlier run instead.
+      - name: Load Docker image
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          image_run_id='${{ inputs.previous-workflow-run-id }}'
+          if [[ "$image_run_id" == '0' ]]; then
+            image_run_id='${{ github.run_id }}'
+          fi
+          ghcr_image="ghcr.io/${{ github.repository }}-citest:run-$image_run_id"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker pull "$ghcr_image"
+          docker tag "$ghcr_image" cicontainer
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'

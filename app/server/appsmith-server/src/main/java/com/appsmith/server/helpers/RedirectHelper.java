@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -157,7 +158,10 @@ public class RedirectHelper {
     /**
      * Checks whether a redirect URL is safe by verifying it is either:
      * - A relative path (no scheme), or
-     * - An absolute URL whose host matches the request's Origin header
+     * - An absolute URL whose host matches the request's Origin header, or
+     * - An absolute URL whose host matches the request's X-Forwarded-Host / Host
+     *   header (used as a fallback when Origin is absent — browsers do not send
+     *   Origin on top-level GET navigations such as SSO entry redirects).
      *
      * This prevents open redirect vulnerabilities where user-supplied URLs
      * could redirect authenticated users to attacker-controlled domains.
@@ -181,29 +185,38 @@ public class RedirectHelper {
             return false;
         }
 
-        // For absolute URLs, the host must match the request origin
-        String origin = httpHeaders.getOrigin();
-        if (StringUtils.isEmpty(origin)) {
-            // If there is no Origin header, we cannot validate — reject absolute URLs
-            // to be safe. Relative URLs were already allowed above.
+        final URI redirectUri;
+        try {
+            redirectUri = new URI(redirectUrl);
+        } catch (URISyntaxException e) {
+            log.warn("Blocked redirect with malformed URL: {}", sanitizeForLog(redirectUrl));
             return false;
         }
 
-        try {
-            URI redirectUri = new URI(redirectUrl);
-            URI originUri = new URI(origin);
+        // Reject URLs with userinfo (e.g., https://evil.com@app.appsmith.com)
+        // Java's URI parser treats evil.com as userinfo and app.appsmith.com as host,
+        // but browser behavior varies — block these outright to be safe.
+        if (redirectUri.getUserInfo() != null) {
+            return false;
+        }
 
-            // Reject URLs with userinfo (e.g., https://evil.com@app.appsmith.com)
-            // Java's URI parser treats evil.com as userinfo and app.appsmith.com as host,
-            // but browser behavior varies — block these outright to be safe.
-            if (redirectUri.getUserInfo() != null) {
+        String redirectHost = redirectUri.getHost();
+        if (redirectHost == null) {
+            return false;
+        }
+
+        String origin = httpHeaders.getOrigin();
+        if (!StringUtils.isEmpty(origin)) {
+            // Origin-present path: full host + port + scheme-aware port normalization.
+            final URI originUri;
+            try {
+                originUri = new URI(origin);
+            } catch (URISyntaxException e) {
+                log.warn("Failed to parse Origin header: {}", sanitizeForLog(origin));
                 return false;
             }
-
-            String redirectHost = redirectUri.getHost();
             String originHost = originUri.getHost();
-
-            if (redirectHost == null || originHost == null) {
+            if (originHost == null) {
                 return false;
             }
 
@@ -224,9 +237,135 @@ public class RedirectHelper {
             }
 
             return redirectHost.equalsIgnoreCase(originHost) && portsMatch;
-        } catch (URISyntaxException e) {
+        }
+
+        // Origin-absent path: browsers omit Origin on top-level GET navigations
+        // (e.g. window.location.href = "/oauth2/authorization/..."). Fall back to
+        // X-Forwarded-Host / Host. If neither header is present, reject to preserve
+        // strict behavior.
+        String requestHost = extractRequestHost(httpHeaders);
+        if (requestHost == null) {
             return false;
         }
+        // URI.getHost() returns IPv6 literals wrapped in brackets (e.g. "[::1]");
+        // strip them so the fallback host (which has no brackets) compares cleanly.
+        String normalizedRedirectHost = redirectHost;
+        if (normalizedRedirectHost.startsWith("[") && normalizedRedirectHost.endsWith("]")) {
+            normalizedRedirectHost = normalizedRedirectHost.substring(1, normalizedRedirectHost.length() - 1);
+        }
+        if (!normalizedRedirectHost.equalsIgnoreCase(requestHost)) {
+            return false;
+        }
+
+        // Compare ports too — a same-host redirect to a different port points at a
+        // different service on that host and must be rejected. The request headers
+        // carry no scheme, so an implicit request port is normalized to the default
+        // for the redirect URL's scheme (the redirectUrl is the browser's own
+        // location in legit flows, so its scheme reflects how the user is connected).
+        int requestPort = extractRequestPort(httpHeaders);
+        int normalizedRedirectPort = normalizePort(redirectUri.getScheme(), redirectUri.getPort());
+        int normalizedRequestPort = normalizePort(redirectUri.getScheme(), requestPort);
+        return normalizedRedirectPort == normalizedRequestPort;
+    }
+
+    /**
+     * Derives the request's client-facing hostname from HTTP headers. Prefers
+     * {@code X-Forwarded-Host} (handles proxied deployments and may carry a
+     * comma-separated list — the first entry is the outermost client-facing
+     * host), then falls back to the {@code Host} header. Returns {@code null}
+     * when neither is set.
+     *
+     * <p>Shared between {@link #isSafeRedirectUrl(String, HttpHeaders)} (origin-absent
+     * open-redirect guard) and {@code CustomServerOAuth2AuthorizationRequestResolverCE}
+     * (OAuth2 state-encoded host derivation), so both code paths stay aligned on
+     * what counts as the inbound request's host.
+     */
+    public static String extractRequestHost(HttpHeaders headers) {
+        String xfh = headers.getFirst("X-Forwarded-Host");
+        if (xfh != null && !xfh.isBlank()) {
+            int comma = xfh.indexOf(',');
+            String first = (comma >= 0 ? xfh.substring(0, comma) : xfh).trim();
+            return stripPort(first);
+        }
+        InetSocketAddress hostAddr = headers.getHost();
+        if (hostAddr != null
+                && hostAddr.getHostString() != null
+                && !hostAddr.getHostString().isBlank()) {
+            return hostAddr.getHostString();
+        }
+        return null;
+    }
+
+    private static String stripPort(String hostMaybeWithPort) {
+        if (hostMaybeWithPort.startsWith("[")) { // IPv6 literal
+            int close = hostMaybeWithPort.indexOf(']');
+            return close > 0 ? hostMaybeWithPort.substring(1, close) : hostMaybeWithPort;
+        }
+        int colon = hostMaybeWithPort.indexOf(':');
+        return colon >= 0 ? hostMaybeWithPort.substring(0, colon) : hostMaybeWithPort;
+    }
+
+    /**
+     * Derives the request's client-facing port from HTTP headers. Reads, in order:
+     * {@code X-Forwarded-Port} (where proxies canonically place the client-facing
+     * port — honored even when {@code X-Forwarded-Host} is absent, e.g. proxies that
+     * preserve {@code Host} but convey the port separately), then a port embedded in
+     * the first {@code X-Forwarded-Host} entry, then the {@code Host} header's port.
+     * Returns {@code -1} when no explicit port is present (the caller treats this as
+     * the scheme default).
+     */
+    private static int extractRequestPort(HttpHeaders headers) {
+        String xfp = headers.getFirst("X-Forwarded-Port");
+        if (xfp != null && !xfp.isBlank()) {
+            int comma = xfp.indexOf(',');
+            String first = (comma >= 0 ? xfp.substring(0, comma) : xfp).trim();
+            try {
+                return Integer.parseInt(first);
+            } catch (NumberFormatException ignored) {
+                // fall through to other sources
+            }
+        }
+        String xfh = headers.getFirst("X-Forwarded-Host");
+        if (xfh != null && !xfh.isBlank()) {
+            int comma = xfh.indexOf(',');
+            String first = (comma >= 0 ? xfh.substring(0, comma) : xfh).trim();
+            return portOf(first);
+        }
+        InetSocketAddress hostAddr = headers.getHost();
+        if (hostAddr != null) {
+            int port = hostAddr.getPort();
+            return port > 0 ? port : -1;
+        }
+        return -1;
+    }
+
+    /**
+     * Parses the port from a {@code host[:port]} value (handling IPv6 brackets),
+     * returning {@code -1} when no valid port is present.
+     */
+    private static int portOf(String hostMaybeWithPort) {
+        String afterHost;
+        if (hostMaybeWithPort.startsWith("[")) { // IPv6 literal
+            int close = hostMaybeWithPort.indexOf(']');
+            if (close < 0) {
+                return -1;
+            }
+            afterHost = hostMaybeWithPort.substring(close + 1);
+        } else {
+            int colon = hostMaybeWithPort.indexOf(':');
+            if (colon < 0) {
+                return -1;
+            }
+            afterHost = hostMaybeWithPort.substring(colon);
+        }
+        if (afterHost.startsWith(":") && afterHost.length() > 1) {
+            try {
+                return Integer.parseInt(afterHost.substring(1));
+            } catch (NumberFormatException ignored) {
+                return -1;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -260,12 +399,21 @@ public class RedirectHelper {
         if (isSafeRedirectUrl(redirectUrl, httpHeaders)) {
             return redirectUrl;
         }
-        String sanitizedLog = redirectUrl.replaceAll("[\\r\\n]", "");
-        log.warn(
-                "Blocked open redirect attempt to: {}",
-                sanitizedLog.length() > 200 ? sanitizedLog.substring(0, 200) + "..." : sanitizedLog);
+        log.warn("Blocked open redirect attempt to: {}", sanitizeForLog(redirectUrl));
         String origin = httpHeaders.getOrigin();
         return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
+    }
+
+    /**
+     * Strips CR/LF (log-injection safety) and truncates over-long values so user-supplied
+     * URL / header content can be safely logged.
+     */
+    private static String sanitizeForLog(String value) {
+        if (value == null) {
+            return "";
+        }
+        String stripped = value.replaceAll("[\\r\\n]", "");
+        return stripped.length() > 200 ? stripped.substring(0, 200) + "..." : stripped;
     }
 
     /**
