@@ -4,8 +4,10 @@ import gitRoutes from '../../../src/routes/git_routes';
 
 describe('Protected endpoints reject unauthenticated requests', () => {
   let app: express.Application;
+  let originalSecret: string | undefined;
 
   beforeAll(() => {
+    originalSecret = process.env.APPSMITH_RTS_SECRET;
     process.env.APPSMITH_RTS_SECRET = 'test-secret';
     app = express();
     app.use(express.json());
@@ -13,7 +15,11 @@ describe('Protected endpoints reject unauthenticated requests', () => {
   });
 
   afterAll(() => {
-    delete process.env.APPSMITH_RTS_SECRET;
+    if (originalSecret === undefined) {
+      delete process.env.APPSMITH_RTS_SECRET;
+    } else {
+      process.env.APPSMITH_RTS_SECRET = originalSecret;
+    }
   });
 
   const payloads = [
