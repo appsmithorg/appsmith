@@ -21,12 +21,19 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v4
 
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.1.4
+
       # Subchart .tgz files are gitignored, so a fresh checkout has no charts/.
-      # Pull dependencies first so tests that render subchart templates (e.g.
+      # Build dependencies first so tests that render subchart templates (e.g.
       # deriving the redis master host from the redis subchart fullname) pass.
+      # Run natively on the runner (not in the unittest container): the
+      # container user can't write charts/ into the bind-mounted workdir, which
+      # fails with "mkdir charts: permission denied".
       - name: Build chart dependencies
-        run: |
-          docker run --rm -v $(pwd):/apps --entrypoint helm helmunittest/helm-unittest dependency update .
+        run: helm dependency build
 
       - name: Unittest
         run: |
