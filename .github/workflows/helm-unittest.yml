@@ -26,13 +26,8 @@ jobs:
         with:
           version: v4.1.4
 
-      # Subchart .tgz files are gitignored, so a fresh checkout has no charts/.
-      # Build dependencies so any test that renders a subchart template can
-      # resolve it, and so CI resolves dependencies the same way the publish
-      # job (helm-release.yml, which also runs `helm dep build`) does.
-      # Run natively on the runner, not in the unittest container: the
-      # container's non-root user can't write charts/ into the bind-mounted
-      # workdir, which fails with "mkdir charts: permission denied".
+      # charts/ is gitignored, so pull subcharts before running the tests.
+      # Done here, not in the container, which can't write to the mounted dir.
       - name: Build chart dependencies
         run: helm dependency build
 
