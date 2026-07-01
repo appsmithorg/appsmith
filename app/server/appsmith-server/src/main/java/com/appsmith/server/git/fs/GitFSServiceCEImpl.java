@@ -157,11 +157,15 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
      * JGit throws a TransportException with message "Remote branch ''HEAD'' not found in upstream origin"
      * when the remote repo has no checkout-able default branch. That is not an SSH problem, so we detect it
      * here to avoid the misleading "SSH key misconfiguration" error.
+     * <p>
+     * We match specifically on the {@code HEAD} ref rather than the broader "not found in upstream" phrasing,
+     * which JGit also emits for a genuinely missing named branch/SHA (e.g. "Remote branch 'foo' not found in
+     * upstream origin"). This keeps the helper safe to reuse from branch-specific fetch/checkout paths.
      */
     static boolean isRemoteDefaultBranchMissing(Throwable error) {
         for (Throwable t = error; t != null; t = t.getCause()) {
             String msg = t.getMessage();
-            if (msg != null && msg.toLowerCase().contains("not found in upstream")) {
+            if (msg != null && msg.toLowerCase().contains("branch 'head' not found in upstream")) {
                 log.debug("Remote clone failed: repository has no default branch. JGit message: {}", msg);
                 return true;
             }

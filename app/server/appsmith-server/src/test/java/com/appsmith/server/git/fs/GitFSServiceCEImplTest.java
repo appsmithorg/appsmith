@@ -43,4 +43,10 @@ class GitFSServiceCEImplTest {
         Throwable error = new TransportException("Repository not found");
         assertThat(GitFSServiceCEImpl.isRemoteDefaultBranchMissing(error)).isFalse();
     }
+
+    @Test
+    void isRemoteDefaultBranchMissing_returnsFalse_forMissingNamedBranch() {
+        Throwable error = new TransportException("Remote branch 'feature-x' not found in upstream origin");
+        assertThat(GitFSServiceCEImpl.isRemoteDefaultBranchMissing(error)).isFalse();
+    }
 }
