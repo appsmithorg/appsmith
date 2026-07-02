@@ -54,6 +54,7 @@ const STATIC_URL_DOCS_URL =
 import {
   getCurrentApplication,
   getIsSavingAppName,
+  getIsSavingHtmlLang,
   getIsPersistingAppSlug,
   getIsValidatingAppSlug,
   getIsApplicationSlugValid,
@@ -117,6 +118,7 @@ function GeneralSettings() {
   const pages = useSelector(getPageList);
   const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
+  const isSavingHtmlLang = useSelector(getIsSavingHtmlLang);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
   const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
   const isFetchingAppSlugSuggestion = useSelector(
@@ -512,7 +514,8 @@ function GeneralSettings() {
         />
       </IconSelectorWrapper>
 
-      <div className="pt-2 pb-2">
+      <div className="pt-2 pb-2 relative">
+        {isSavingHtmlLang && <TextLoaderIcon />}
         <Input
           errorMessage={
             isHtmlLangValid
