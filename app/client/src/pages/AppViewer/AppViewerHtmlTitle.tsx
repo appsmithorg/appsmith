@@ -8,10 +8,9 @@ interface Props {
   lang?: string;
 }
 
-const { defaultHtmlLang } = getAppsmithConfigs();
-
 function AppViewerHtmlTitle(props: Props) {
   const { description, lang, name } = props;
+  const { defaultHtmlLang } = getAppsmithConfigs();
 
   if (!name) return null;
 

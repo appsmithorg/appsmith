@@ -12,6 +12,7 @@ import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP,
+  GENERAL_SETTINGS_APP_LANGUAGE_INVALID,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
   GENERAL_SETTINGS_APP_URL_LABEL,
@@ -97,6 +98,18 @@ const IconSelectorWrapper = styled.div`
   }
 `;
 
+// Loose BCP 47 shape check: primary subtag + optional subtags. Case-insensitive
+// because saveHtmlLang lowercases before persisting; empty is allowed (falls back
+// to the instance/default lang). Keep in sync with HTML_LANG_PATTERN in the server
+// ApplicationDetailCE.setHtmlLang.
+const BCP47_REGEX = /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]+)*$/;
+
+export function isHtmlLangInputValid(value: string) {
+  const trimmed = value.trim();
+
+  return trimmed === "" || BCP47_REGEX.test(trimmed);
+}
+
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -120,6 +133,7 @@ function GeneralSettings() {
   const [htmlLang, setHtmlLang] = useState(
     application?.applicationDetail?.htmlLang || "",
   );
+  const [isHtmlLangValid, setIsHtmlLangValid] = useState(true);
   const [applicationSlug, setApplicationSlug] = useState(
     application?.staticUrlSettings?.uniqueSlug || "",
   );
@@ -145,12 +159,15 @@ function GeneralSettings() {
   useEffect(
     function syncHtmlLang() {
       setHtmlLang(application?.applicationDetail?.htmlLang || "");
+      setIsHtmlLangValid(true);
     },
     [application?.applicationDetail?.htmlLang],
   );
 
   const saveHtmlLang = useCallback(
     (value: string) => {
+      if (!isHtmlLangInputValid(value)) return;
+
       const trimmed = value.trim().toLowerCase();
       const current = application?.applicationDetail?.htmlLang || "";
 
@@ -497,10 +514,19 @@ function GeneralSettings() {
 
       <div className="pt-2 pb-2">
         <Input
+          errorMessage={
+            isHtmlLangValid
+              ? undefined
+              : createMessage(GENERAL_SETTINGS_APP_LANGUAGE_INVALID)
+          }
           id="t--general-settings-app-language"
+          isValid={isHtmlLangValid}
           label={createMessage(GENERAL_SETTINGS_APP_LANGUAGE_LABEL)}
           onBlur={() => saveHtmlLang(htmlLang)}
-          onChange={(value: string) => setHtmlLang(value)}
+          onChange={(value: string) => {
+            setHtmlLang(value);
+            setIsHtmlLangValid(isHtmlLangInputValid(value));
+          }}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveHtmlLang(htmlLang);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='{{env "APPSMITH_DEFAULT_HTML_LANG"}}' translate="no">
+<html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
     <meta name="google" content="notranslate" />
@@ -263,7 +263,7 @@
           '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
         ),
         defaultHtmlLang:
-          parseConfig('{{env "APPSMITH_DEFAULT_HTML_LANG"}}') || "",
+          parseConfig('{{env "APPSMITH_DEFAULT_HTML_LANG"}}') || "en",
         customerPortalUrl:
           parseConfig('{{env "APPSMITH_CUSTOMER_PORTAL_URL"}}') ||
           "https://customer.appsmith.com",
