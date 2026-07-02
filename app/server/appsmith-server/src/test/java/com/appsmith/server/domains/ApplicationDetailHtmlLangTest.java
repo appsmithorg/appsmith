@@ -25,16 +25,19 @@ public class ApplicationDetailHtmlLangTest {
 
     @Test
     public void setHtmlLang_dropsInvalidValues() {
+        // Invalid non-empty values are treated as absent (null) so they can't clobber
+        // a previously-saved tag on update.
         assertThat(normalized("not a language")).isNull();
         assertThat(normalized("en_US")).isNull();
         assertThat(normalized("english!")).isNull();
     }
 
     @Test
-    public void setHtmlLang_dropsBlankAndNull() {
+    public void setHtmlLang_keepsNullAbsentButTreatsBlankAsCleared() {
+        // null = absent (untouched on update); "" = explicit clear (revert to default).
         assertThat(normalized(null)).isNull();
-        assertThat(normalized("")).isNull();
-        assertThat(normalized("   ")).isNull();
+        assertThat(normalized("")).isEqualTo("");
+        assertThat(normalized("   ")).isEqualTo("");
     }
 
     @Test

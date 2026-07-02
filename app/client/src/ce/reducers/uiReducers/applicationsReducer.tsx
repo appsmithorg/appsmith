@@ -328,11 +328,14 @@ export const handlers = {
       isErrorSavingAppName: false,
       isSavingNavigationSetting,
       isErrorSavingNavigationSetting: false,
-      ...(action.payload.applicationDetail
+      ...(action.payload.applicationDetail && state.currentApplication
         ? {
-            applicationDetail: {
-              ...state.currentApplication?.applicationDetail,
-              ...action.payload.applicationDetail,
+            currentApplication: {
+              ...state.currentApplication,
+              applicationDetail: {
+                ...state.currentApplication?.applicationDetail,
+                ...action.payload.applicationDetail,
+              },
             },
           }
         : {}),

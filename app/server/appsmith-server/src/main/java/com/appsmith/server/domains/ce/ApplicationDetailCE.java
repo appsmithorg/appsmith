@@ -39,12 +39,19 @@ public class ApplicationDetailCE {
         this.themeSetting = new Application.ThemeSetting();
     }
 
-    // Trim, lowercase, length-cap, and drop values that aren't plausible BCP 47 tags
-    // (returns null). Applied on both write and read so that values reaching the field
-    // through setter-bypassing paths — Git import (Gson field reflection) and Mongo
-    // hydration (field access) — are still normalized before they are served into
-    // <html lang>. The setter keeps the stored value clean on the REST/Jackson path;
-    // the getter guarantees callers never see an un-normalized value regardless of path.
+    // Trim, lowercase, length-cap, and drop values that aren't plausible BCP 47 tags.
+    // Applied on both write and read so that values reaching the field through
+    // setter-bypassing paths — Git import (Gson field reflection) and Mongo hydration
+    // (field access) — are still normalized before they are served into <html lang>.
+    // The setter keeps the stored value clean on the REST/Jackson path; the getter
+    // guarantees callers never see an un-normalized value regardless of path.
+    //
+    // Return contract distinguishes three cases so an update can tell them apart:
+    //   null  -> absent (leave any existing value untouched on update)
+    //   ""    -> explicitly cleared (revert to the instance/default lang)
+    //   <tag> -> a normalized, well-formed tag
+    // An invalid non-empty value is treated as absent (null) so it can't clobber a
+    // previously-saved tag.
     private static String normalizeHtmlLang(String value) {
         if (value == null) {
             return null;
@@ -52,8 +59,11 @@ public class ApplicationDetailCE {
 
         String normalized = value.trim().toLowerCase();
 
-        if (normalized.isEmpty()
-                || normalized.length() > HTML_LANG_MAX_LENGTH
+        if (normalized.isEmpty()) {
+            return "";
+        }
+
+        if (normalized.length() > HTML_LANG_MAX_LENGTH
                 || !HTML_LANG_PATTERN.matcher(normalized).matches()) {
             return null;
         }
