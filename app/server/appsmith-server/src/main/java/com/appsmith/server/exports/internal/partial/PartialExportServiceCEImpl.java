@@ -88,7 +88,25 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
                 .cache();
 
-        return applicationMono
+        // Single page lookup: validates ownership and extracts the page name for resource mapping
+        Mono<String> validatedPageNameMono = applicationMono
+                .flatMap(application -> newPageService
+                        .findById(branchedPageId, null)
+                        .switchIfEmpty(Mono.error(
+                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)))
+                        .flatMap(page -> {
+                            if (!application.getId().equals(page.getApplicationId())) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION,
+                                        branchedPageId,
+                                        branchedApplicationId));
+                            }
+                            return Mono.just(page.getUnpublishedPage().getName());
+                        }))
+                .cache();
+
+        return validatedPageNameMono
+                .then(applicationMono)
                 .flatMap(application -> {
                     applicationJson.setExportedApplication(application);
                     return pluginExportableService
@@ -116,8 +134,12 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                         return Mono.just(branchedPageId);
                     }
                 })
-                // update page name in meta and exportable DTO for resource to name mapping
-                .flatMap(branchedPageId1 -> updatePageNameInResourceMapDTO(branchedPageId, mappedResourcesDTO))
+                // Populate page name in resource map using the already-fetched page
+                .flatMap(branchedPageId1 -> validatedPageNameMono.map(pageName -> {
+                    mappedResourcesDTO.getContextIdToNameMap().put(branchedPageId + EDIT, pageName);
+                    mappedResourcesDTO.getContextIdToNameMap().put(branchedPageId + VIEW, pageName);
+                    return branchedPageId;
+                }))
                 // export actions
                 // export js objects
                 .flatMap(branchedPageId1 -> {
@@ -251,14 +273,5 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                     applicationJson.setActionCollectionList(updatedActionCollectionList);
                     return Mono.just(applicationJson);
                 });
-    }
-
-    private Mono<String> updatePageNameInResourceMapDTO(
-            String pageId, MappedExportableResourcesDTO mappedResourcesDTO) {
-        return newPageService.getNameByPageId(pageId, false).flatMap(pageName -> {
-            mappedResourcesDTO.getContextIdToNameMap().put(pageId + EDIT, pageName);
-            mappedResourcesDTO.getContextIdToNameMap().put(pageId + VIEW, pageName);
-            return Mono.just(pageId);
-        });
     }
 }

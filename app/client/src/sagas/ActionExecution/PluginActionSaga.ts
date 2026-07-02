@@ -113,6 +113,7 @@ import { FileDataTypes } from "WidgetProvider/types";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import {
   ActionValidationError,
+  extractExecutionErrorMessage,
   getErrorAsString,
   PluginActionExecutionError,
   PluginTriggerFailureError,
@@ -873,6 +874,18 @@ export function* runActionSaga(
       }
     : undefined;
 
+  // When the server response was lost (network/timeout/parse failure), the
+  // caught PluginActionExecutionError carries the specific transport message
+  // from extractExecutionErrorMessage. Surface it instead of the generic
+  // fallback so users and the debugger console see what actually went wrong.
+  const transportError =
+    error.message && error.message !== "An unexpected error occurred"
+      ? {
+          name: "PluginExecutionError",
+          message: error.message,
+        }
+      : undefined;
+
   const defaultError = {
     name: "PluginExecutionError",
     message: "An unexpected error occurred",
@@ -888,7 +901,11 @@ export function* runActionSaga(
 
   if (isError) {
     error =
-      readableError || payloadBodyError || clientDefinedError || defaultError;
+      readableError ||
+      payloadBodyError ||
+      clientDefinedError ||
+      transportError ||
+      defaultError;
 
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
@@ -1551,7 +1568,10 @@ function* executePluginActionSaga(
       );
     }
 
-    throw new PluginActionExecutionError("Response not valid", false);
+    throw new PluginActionExecutionError(
+      extractExecutionErrorMessage(e),
+      false,
+    );
   }
 }
 

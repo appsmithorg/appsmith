@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -42,7 +43,8 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            ObservationHelper observationHelper) {
+            ObservationHelper observationHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
         super(
                 sessionUserService,
                 userService,
@@ -62,6 +64,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 mockDataService,
                 observationRegistry,
                 cacheableRepositoryHelper,
-                observationHelper);
+                observationHelper,
+                secureBaseUrlResolver);
     }
 }

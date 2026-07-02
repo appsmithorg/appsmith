@@ -36,9 +36,14 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps);
 
+    Mono<Tuple2<List<NewAction>, List<NewAction>>> validateActionsBeforeImport(
+            String artifactId, List<NewAction> freshActions, List<NewAction> existingActions);
+
     Mono<Void> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList);
 
     Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList);
+
+    Mono<Void> bulkInsertActions(List<NewAction> newActionList);
 
     /**
      * General purpose bulk update method that directly saves actions to the database without validation.

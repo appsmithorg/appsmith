@@ -120,3 +120,43 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
 export const getErrorAsString = (error: unknown): string => {
   return isString(error) ? error : JSON.stringify(error);
 };
+
+const AXIOS_TIMEOUT_REGEX = /timeout of \d+ms exceeded/;
+
+/**
+ * Extracts a meaningful, user-facing error message from the caught exception
+ * in the action execution path. Categorises Axios transport errors, server
+ * envelope errors (from validateResponse), and falls back gracefully.
+ *
+ * Security: only surfaces our own server messages or Axios transport strings —
+ * never raw upstream API bodies or credentials.
+ */
+export function extractExecutionErrorMessage(e: unknown): string {
+  if (!(e instanceof Error)) {
+    return "Response not valid";
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const axiosLike = e as any;
+
+  if (axiosLike.isAxiosError || axiosLike.code === "ECONNABORTED") {
+    if (
+      axiosLike.code === "ECONNABORTED" &&
+      AXIOS_TIMEOUT_REGEX.test(axiosLike.message)
+    ) {
+      return "Action execution timed out. Try increasing the timeout in the action settings.";
+    }
+
+    if (axiosLike.message === "Network Error") {
+      return "Network error: could not reach the Appsmith server. Check your connection.";
+    }
+
+    return `Request failed: ${axiosLike.message || "unknown transport error"}`;
+  }
+
+  if (e.message) {
+    return e.message;
+  }
+
+  return "Response not valid";
+}

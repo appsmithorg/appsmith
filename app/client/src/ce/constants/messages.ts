@@ -1015,6 +1015,12 @@ export const READ_DOCUMENTATION = () => "Read documentation";
 export const LEARN_MORE = () => "Learn more";
 
 export const I_UNDERSTAND = () => "I understand";
+
+// Admin warning banner — shown when APPSMITH_BASE_URL is unset and the resolver is in
+// fail-closed mode for token-bearing email flows. See GHSA-j9gf-vw2f-9hrw.
+export const BASE_URL_MISSING_BANNER_BODY = () =>
+  "Email delivery is disabled — forgot-password, email-verification and invite emails will not be sent until APPSMITH_BASE_URL is configured.";
+export const BASE_URL_MISSING_BANNER_CTA = () => "Configure APPSMITH_BASE_URL";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";

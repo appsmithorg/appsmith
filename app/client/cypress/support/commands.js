@@ -98,11 +98,15 @@ export const addIndexedDBKey = (key, value) => {
 };
 
 Cypress.Commands.add("stubPostHeaderReq", () => {
+  // GHSA-j9gf-vw2f-9hrw: server-side strict-mode now requires Origin to match
+  // APPSMITH_BASE_URL. Use the live Cypress baseUrl so the intercept produces a
+  // valid Origin (the literal string "Cypress" used to live here as a synthetic-
+  // traffic flag and no longer parses as a URL).
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
-    req.headers["origin"] = "Cypress";
+    req.headers["origin"] = Cypress.config("baseUrl");
   }).as("mockPostInvite");
   cy.intercept("POST", "/api/v1/applications/invite", (req) => {
-    req.headers["origin"] = "Cypress";
+    req.headers["origin"] = Cypress.config("baseUrl");
   }).as("mockPostAppInvite");
 });
 
@@ -752,7 +756,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       hostname: window.location.host,
     },
     (req) => {
-      req.headers["origin"] = "Cypress";
+      // GHSA-j9gf-vw2f-9hrw: send a real Origin matching APPSMITH_BASE_URL.
+      req.headers["origin"] = Cypress.config("baseUrl");
     },
   ).as("connectGitLocalRepo");
 
@@ -766,13 +771,17 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   });
 
   cy.intercept("PUT", "/api/v1/admin/env", (req) => {
-    req.headers["origin"] = "Cypress";
+    // GHSA-j9gf-vw2f-9hrw: server-side strict-mode now requires Origin to match
+    // APPSMITH_BASE_URL. Use the live Cypress baseUrl instead of the legacy
+    // synthetic-traffic flag "Cypress" (which no longer parses as a URL).
+    req.headers["origin"] = Cypress.config("baseUrl");
   }).as("postEnv");
 
   cy.intercept("GET", "/settings/general").as("getGeneral");
   cy.intercept("GET", "/api/v1/tenants/current").as("signUpLogin");
   cy.intercept("PUT", "/api/v1/tenants", (req) => {
-    req.headers["origin"] = "Cypress";
+    // GHSA-j9gf-vw2f-9hrw: see note above.
+    req.headers["origin"] = Cypress.config("baseUrl");
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/applications/*/discard").as(
     "discardChanges",

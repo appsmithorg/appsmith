@@ -19,6 +19,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -51,6 +52,7 @@ import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTUAL_API_C
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+@Slf4j
 @NoArgsConstructor
 public class RestAPIActivateUtils {
 
@@ -146,7 +148,8 @@ public class RestAPIActivateUtils {
                                 result.setBody(objectMapper.readTree(jsonBody));
                                 responseDataType = ResponseDataType.JSON;
                             } catch (IOException e) {
-                                System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                log.debug(
+                                        "Response declared Content-Type application/json but body is not valid JSON. Falling back to string representation.");
                                 String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
 

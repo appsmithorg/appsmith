@@ -23,6 +23,7 @@ import {
   REVOKE_EXISTING_REPOSITORIES,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isPylonChatAvailable } from "utils/bootPylon";
 import { noop } from "lodash";
 import type {
   GitApplicationArtifact,
@@ -120,11 +121,12 @@ function RepoLimitErrorModalView({
             source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
           });
 
-          if (window.Intercom) {
-            window.Intercom(
+          if (isPylonChatAvailable()) {
+            window.Pylon(
               "showNewMessage",
               createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, workspaceName),
             );
+            window.Pylon("show");
           }
         },
         children: createMessage(CONTACT_SUPPORT),

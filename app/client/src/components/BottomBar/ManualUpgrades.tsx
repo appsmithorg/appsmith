@@ -27,6 +27,7 @@ import { createMessage, CLEAN_URL_UPDATE } from "ee/constants/messages";
 import { useLocation } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import classNames from "classnames";
+import Interweave from "interweave";
 
 function escapeHtml(str: string): string {
   return str
@@ -68,7 +69,7 @@ const Title = styled(Text)`
   font-size: 16px;
 `;
 
-function UpdatesModal({
+export function UpdatesModal({
   applicationVersion,
   closeModal,
   latestVersion,
@@ -110,13 +111,15 @@ function UpdatesModal({
               </div>
               <StyledList>
                 {update.description.map((desc, idx) => (
-                  <li dangerouslySetInnerHTML={{ __html: desc }} key={idx} />
+                  <li key={idx}>
+                    <Interweave content={desc} />
+                  </li>
                 ))}
               </StyledList>
               <Callout kind="warning">
-                <div
-                  dangerouslySetInnerHTML={{ __html: update.disclaimer.desc }}
-                />
+                <div>
+                  <Interweave content={update.disclaimer.desc} />
+                </div>
               </Callout>
             </div>
           ))}

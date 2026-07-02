@@ -15,6 +15,7 @@ import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { APPSMITH_BASE_URL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -44,6 +45,8 @@ export const APPSMITH_BASE_URL: Setting = {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Appsmith Base URL",
+  helpText: "Learn more about configuring Appsmith Base URL.",
+  helpTextLink: APPSMITH_BASE_URL_SETUP_DOC,
   subText:
     "* The base URL where Appsmith is accessible. This is required for password reset and email verification links to work correctly.",
   placeholder: "https://appsmith.example.com",

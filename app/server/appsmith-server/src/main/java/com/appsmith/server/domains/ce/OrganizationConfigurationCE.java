@@ -63,6 +63,18 @@ public class OrganizationConfigurationCE implements Serializable {
 
     private Boolean isAtomicPushAllowed = false;
 
+    /**
+     * Health signal driving the admin warning banner introduced for
+     * <a href="https://github.com/appsmithorg/appsmith/security/advisories/GHSA-j9gf-vw2f-9hrw">GHSA-j9gf-vw2f-9hrw</a>.
+     * Set at runtime by {@code OrganizationServiceCEImpl#getClientPertinentOrganization} from
+     * {@code SecureBaseUrlResolverCE#isBaseUrlConfigurationHealthy()} — this field is NOT
+     * persisted to the DB, so it does not appear in {@link #copyNonSensitiveValues}. False on
+     * a CE / single-org-EE deployment with {@code APPSMITH_BASE_URL} unset; always true on
+     * multi-org-EE because each organization derives its own canonical base URL.
+     */
+    @Transient
+    private Boolean instanceBaseUrlConfigurationHealthy;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();

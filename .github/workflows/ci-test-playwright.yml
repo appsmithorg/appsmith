@@ -38,7 +38,7 @@ on:
         description: "test-event-driver image tag"
         required: false
         type: string
-        default: "latest"
+        default: "upgrade-ted"
 
 jobs:
   playwright-test:
@@ -91,27 +91,28 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Get Docker image id
+        env:
+          DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
         run: |
-          if [[ '${{ inputs.docker_image_name }}' != '' ]]; then
-            echo 'docker_container_name=${{ inputs.docker_image_name }}' >> "$GITHUB_ENV"
+          if [[ -n "$DOCKER_IMAGE_NAME" ]]; then
+            echo "docker_container_name=$DOCKER_IMAGE_NAME" >> "$GITHUB_ENV"
           else
             echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
           fi
 
-      - name: Restore Docker image cache
-        if: inputs.docker_image_name == ''
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ github.run_id }}
-
+      # The build job pushed the SUT image to GHCR tagged with this run's id;
+      # pull it from there (layer-parallel, no single-blob cache bottleneck).
       - name: Load Docker image
+        env:
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
+          DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
         run: |
-          if [[ '${{ inputs.docker_image_name }}' == '' ]]; then
-            gunzip cicontainer.tar.gz
-            docker load -i cicontainer.tar
+          if [[ -z "$DOCKER_IMAGE_NAME" ]]; then
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+            docker pull "$GHCR_IMAGE"
+            docker tag "$GHCR_IMAGE" cicontainer
           else
-            docker pull ${{ env.docker_container_name }}
+            docker pull "$DOCKER_IMAGE_NAME"
           fi
 
       - name: Create Appsmith stacks folder
@@ -135,7 +136,7 @@ jobs:
           ted_tag="${{ inputs.ted_tag }}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-            "appsmith/test-event-driver:${ted_tag:-latest}"
+            "appsmith/test-event-driver:${ted_tag:-upgrade-ted}"
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e KEYGEN_API_URL=http://host.docker.internal:5001 \
@@ -174,6 +175,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             -e APPSMITH_RATE_LIMIT=1000 \
+            -e APPSMITH_BASE_URL=http://localhost \
             -e APPSMITH_CARBON_API_BASE_PATH=https://carbon.appsmith.com \
             -e APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY" \
             -e APPSMITH_AI_SERVER_MANAGED_HOSTING=true \
@@ -220,6 +222,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ hashFiles('app/client/yarn.lock') }}
 
+      # continue-on-error: failed run keeps outcome=failure but conclusion=success — rerun must use outcome.
       - name: Run Playwright tests (attempt 1)
         id: attempt1
         continue-on-error: true
@@ -240,6 +243,7 @@ jobs:
           npx playwright test $ARGS --reporter=blob
 
       - name: Run Playwright tests (rerun failures)
+        id: attempt2
         if: steps.attempt1.outcome == 'failure'
         working-directory: app/client
         env:
@@ -247,7 +251,13 @@ jobs:
           USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           PW_FLAG_OVERRIDES: ${{ inputs.flag_overrides }}
-        run: npx playwright test --last-failed --reporter=blob
+        run: |
+          ARGS=""
+          if [[ -n "${{ inputs.project }}" ]]; then
+            ARGS="--project=${{ inputs.project }}"
+          fi
+          # --last-failed reads blob-report from attempt 1; do not repeat path globs (avoids 0 tests detected)
+          npx playwright test $ARGS --last-failed --reporter=blob
 
       - name: Merge reports
         if: always()
@@ -262,12 +272,5 @@ jobs:
           path: |
             app/client/playwright-report/
             app/client/playwright/results/
-          retention-days: 14
-
-      - name: Upload traces on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces-${{ github.run_id }}
-          path: app/client/playwright/results/**/*.zip
+            app/client/playwright/.state/
           retention-days: 7

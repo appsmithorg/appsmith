@@ -4,7 +4,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.EmailServiceHelper;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.notifications.EmailSender;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -23,13 +26,23 @@ public class EmailServiceCEImpl implements EmailServiceCE {
 
     private final EmailServiceHelper emailServiceHelper;
 
-    public EmailServiceCEImpl(EmailSender emailSender, EmailServiceHelper emailServiceHelper) {
+    private final SecureBaseUrlResolver secureBaseUrlResolver;
+
+    public EmailServiceCEImpl(
+            EmailSender emailSender,
+            EmailServiceHelper emailServiceHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
         this.emailSender = emailSender;
         this.emailServiceHelper = emailServiceHelper;
+        this.secureBaseUrlResolver = secureBaseUrlResolver;
     }
 
     @Override
     public Mono<Boolean> sendForgotPasswordEmail(String email, String resetUrl, String originHeader) {
+        // The reset URL has already been built with the trusted base URL by UserServiceCEImpl
+        // (which routes through SecureBaseUrlResolver). The originHeader passed here is used
+        // only for cosmetic branding lookups; this method is a no-op when not invoked through
+        // that resolved path.
         Map<String, String> params = new HashMap<>();
         params.put(RESET_URL, resetUrl);
         return emailServiceHelper
@@ -54,30 +67,42 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             PermissionGroup assignedPermissionGroup,
             String originHeader,
             boolean isNewUser) {
-        String inviteUrl = isNewUser
-                ? String.format(
-                        INVITE_USER_CLIENT_URL_FORMAT,
-                        originHeader,
-                        URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
-                : originHeader;
-        Mono<String> emailSubjectMono = emailServiceHelper.getSubjectJoinWorkspace(workspaceInvitedTo.getName());
-        Mono<String> workspaceInviteTemplateMono = emailServiceHelper.getWorkspaceInviteTemplate(isNewUser);
-        Map<String, String> params = getInviteToWorkspaceEmailParams(
-                workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
-        return emailServiceHelper
-                .enrichWithBrandParams(params, originHeader)
-                .zipWith(Mono.zip(emailSubjectMono, workspaceInviteTemplateMono))
-                .flatMap(objects -> {
-                    Map<String, String> updatedParams = objects.getT1();
-                    String emailSubject = objects.getT2().getT1();
-                    String workspaceInviteTemplate = objects.getT2().getT2();
-                    return emailSender.sendMail(
-                            invitedUser.getEmail(), emailSubject, workspaceInviteTemplate, updatedParams);
+        // Resolve the trusted base URL through the canonical resolver. The invite flow is
+        // authenticated, so a missing APPSMITH_BASE_URL must surface as an explicit
+        // configuration error to the admin caller (rather than the silent-success behavior
+        // used by anti-enumeration flows). See GHSA-j9gf-vw2f-9hrw.
+        return secureBaseUrlResolver
+                .resolveSecureBaseUrl(originHeader)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.MISCONFIGURED_INSTANCE_BASE_URL)))
+                .flatMap(trustedBaseUrl -> {
+                    String inviteUrl = isNewUser
+                            ? String.format(
+                                    INVITE_USER_CLIENT_URL_FORMAT,
+                                    trustedBaseUrl,
+                                    URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
+                            : trustedBaseUrl;
+                    Mono<String> emailSubjectMono =
+                            emailServiceHelper.getSubjectJoinWorkspace(workspaceInvitedTo.getName());
+                    Mono<String> workspaceInviteTemplateMono = emailServiceHelper.getWorkspaceInviteTemplate(isNewUser);
+                    Map<String, String> params = getInviteToWorkspaceEmailParams(
+                            workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
+                    return emailServiceHelper
+                            .enrichWithBrandParams(params, trustedBaseUrl)
+                            .zipWith(Mono.zip(emailSubjectMono, workspaceInviteTemplateMono))
+                            .flatMap(objects -> {
+                                Map<String, String> updatedParams = objects.getT1();
+                                String emailSubject = objects.getT2().getT1();
+                                String workspaceInviteTemplate = objects.getT2().getT2();
+                                return emailSender.sendMail(
+                                        invitedUser.getEmail(), emailSubject, workspaceInviteTemplate, updatedParams);
+                            });
                 });
     }
 
     @Override
     public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL, String originHeader) {
+        // The verification URL has already been built with the trusted base URL by
+        // UserServiceCEImpl. The originHeader is used only for branding lookups.
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
         return emailServiceHelper
@@ -97,36 +122,44 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     @Override
     public Mono<Boolean> sendInstanceAdminInviteEmail(
             User invitedUser, User invitingUser, String originHeader, boolean isNewUser) {
-        Map<String, String> params = new HashMap<>();
-        String inviteUrl = isNewUser
-                ? String.format(
-                        INVITE_USER_CLIENT_URL_FORMAT,
-                        originHeader,
-                        URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
-                : originHeader;
-        params.put(PRIMARY_LINK_URL, inviteUrl);
+        // Auth-gated admin invite flow: resolve the trusted base URL or surface a
+        // configuration error. See GHSA-j9gf-vw2f-9hrw.
+        return secureBaseUrlResolver
+                .resolveSecureBaseUrl(originHeader)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.MISCONFIGURED_INSTANCE_BASE_URL)))
+                .flatMap(trustedBaseUrl -> {
+                    Map<String, String> params = new HashMap<>();
+                    String inviteUrl = isNewUser
+                            ? String.format(
+                                    INVITE_USER_CLIENT_URL_FORMAT,
+                                    trustedBaseUrl,
+                                    URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
+                            : trustedBaseUrl;
+                    params.put(PRIMARY_LINK_URL, inviteUrl);
 
-        Mono<String> primaryLinkTextMono = emailServiceHelper.getJoinInstanceCtaPrimaryText();
+                    Mono<String> primaryLinkTextMono = emailServiceHelper.getJoinInstanceCtaPrimaryText();
 
-        if (invitingUser != null) {
-            params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
-        }
-        return primaryLinkTextMono
-                .flatMap(primaryLinkText -> {
-                    params.put(PRIMARY_LINK_TEXT, primaryLinkText);
-                    return emailServiceHelper.enrichWithBrandParams(params, originHeader);
-                })
-                .zipWhen(updatedParams -> {
-                    return Mono.zip(
-                            emailServiceHelper.getSubjectJoinInstanceAsAdmin(updatedParams.get(INSTANCE_NAME)),
-                            emailServiceHelper.getAdminInstanceInviteTemplate());
-                })
-                .flatMap(objects -> {
-                    Map<String, String> updatedParams = objects.getT1();
-                    String subject = objects.getT2().getT1();
-                    String adminInstanceInviteTemplate = objects.getT2().getT2();
-                    return emailSender.sendMail(
-                            invitedUser.getEmail(), subject, adminInstanceInviteTemplate, updatedParams);
+                    if (invitingUser != null) {
+                        params.put(
+                                INVITER_FIRST_NAME,
+                                StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
+                    }
+                    return primaryLinkTextMono
+                            .flatMap(primaryLinkText -> {
+                                params.put(PRIMARY_LINK_TEXT, primaryLinkText);
+                                return emailServiceHelper.enrichWithBrandParams(params, trustedBaseUrl);
+                            })
+                            .zipWhen(updatedParams -> Mono.zip(
+                                    emailServiceHelper.getSubjectJoinInstanceAsAdmin(updatedParams.get(INSTANCE_NAME)),
+                                    emailServiceHelper.getAdminInstanceInviteTemplate()))
+                            .flatMap(objects -> {
+                                Map<String, String> updatedParams = objects.getT1();
+                                String subject = objects.getT2().getT1();
+                                String adminInstanceInviteTemplate =
+                                        objects.getT2().getT2();
+                                return emailSender.sendMail(
+                                        invitedUser.getEmail(), subject, adminInstanceInviteTemplate, updatedParams);
+                            });
                 });
     }
 

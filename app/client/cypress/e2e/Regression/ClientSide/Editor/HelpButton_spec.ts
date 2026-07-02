@@ -4,7 +4,7 @@ describe(
   "Help Button on editor",
   { tags: ["@tag.excludeForAirgap"] },
   function () {
-    it("1. Chat with us and Intercom consent should be visible on Help Menu", () => {
+    it("1. Chat with us and Chat support consent should be visible on Help Menu", () => {
       _.agHelper.GetNClick(
         _.debuggerHelper.locators._helpButton,
         0,
@@ -12,7 +12,7 @@ describe(
         1000,
       );
       _.agHelper.GetNClick(
-        _.debuggerHelper.locators._intercomOption,
+        _.debuggerHelper.locators._pylonChatOption,
         0,
         true,
         1000,

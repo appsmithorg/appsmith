@@ -2,6 +2,9 @@ name: Playwright E2E
 
 # Orchestrates client/server/rts build, Docker image, TED + cloud-services + Appsmith, then Playwright.
 # Manual: workflow_dispatch. PR comment /test-pw: pw-test-command.yml → workflow_call.
+#
+# Reusable workflows declare pr as type: number — forward with fromJSON(format(...)) so validators
+# receive a numeric JSON value (raw ${{ inputs.pr }} is often treated as string).
 
 permissions:
   contents: read
@@ -22,7 +25,7 @@ on:
         type: string
         default: ""
       docker_image_name:
-        description: "If set, skip all builds and docker pull this image instead."
+        description: "If set, skip all builds and docker pull this image. Must be docker.io/appsmith/appsmith-ce, appsmith/appsmith-ee, or appsmith/appsmith-airgap (any tag)."
         required: false
         type: string
         default: ""
@@ -69,7 +72,31 @@ on:
         default: ""
 
 jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate docker_image_name
+        run: |
+          img="${{ inputs.docker_image_name }}"
+          if [[ -z "$img" ]]; then
+            echo "docker_image_name not set; builds will produce cicontainer in-run."
+            exit 0
+          fi
+          # Normalize optional Docker Hub registry prefix
+          ref="${img#docker.io/}"
+          ref="${ref#registry-1.docker.io/}"
+          # Allow any tag or digest; repo must be one of the three Appsmith images
+          if [[ "$ref" =~ ^appsmith/appsmith-ce($|:|@) ]] || \
+             [[ "$ref" =~ ^appsmith/appsmith-ee($|:|@) ]] || \
+             [[ "$ref" =~ ^appsmith/appsmith-airgap($|:|@) ]]; then
+            echo "docker_image_name OK: $img"
+            exit 0
+          fi
+          echo "::error::docker_image_name must reference appsmith/appsmith-ce, appsmith/appsmith-ee, or appsmith/appsmith-airgap (optional :tag or @digest; docker.io/ prefix allowed). Got: $img"
+          exit 1
+
   path-filter:
+    needs: validate-inputs
     runs-on: ubuntu-latest
     outputs:
       not-ci: ${{ steps.filter.outputs.not-ci }}
@@ -92,7 +119,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       branch: ${{ inputs.branch }}
 
   server-build:
@@ -101,7 +128,7 @@ jobs:
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       skip-tests: "true"
       branch: ${{ inputs.branch }}
 
@@ -111,7 +138,7 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       branch: ${{ inputs.branch }}
 
   build-docker-image:
@@ -120,7 +147,7 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       branch: ${{ inputs.branch }}
 
   playwright-e2e:
@@ -136,7 +163,7 @@ jobs:
     uses: ./.github/workflows/ci-test-playwright.yml
     secrets: inherit
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       branch: ${{ inputs.branch }}
       docker_image_name: ${{ inputs.docker_image_name }}
       project: ${{ inputs.project }}

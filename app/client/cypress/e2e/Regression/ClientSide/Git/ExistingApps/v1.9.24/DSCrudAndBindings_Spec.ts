@@ -70,7 +70,7 @@ describe.skip(
       gitSync.CloseOpsModal();
     });
 
-    it("1. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
+    it("1. Deploy the app, validate CRUD pages, widgets & bindings", () => {
       //Mongo CRUD page validation
       //Assert table data
       cy.latestDeployPreview();
@@ -92,7 +92,6 @@ describe.skip(
 
       //MySql CRUD page validation
       agHelper.GetNClickByContains(locators._deployedPage, "CountryFlags");
-      //Assert table data
       agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.TEXT),
         "text",
@@ -142,9 +141,8 @@ describe.skip(
       table.ReadTableRowColumnData(0, 4).then(($cellData) => {
         expect($cellData).to.eq("Active");
       });
-    });
 
-    it("2. Validate widgets & bindings", () => {
+      // --- Widgets & bindings validation (same deployed session) ---
       agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.AUDIO),
@@ -196,7 +194,9 @@ describe.skip(
       //Slider
       agHelper
         .ScrollIntoView(locators._sliderThumb)
+        .should("be.visible")
         .focus()
+        .should("be.focused")
         .type("{rightArrow}");
 
       agHelper.WaitUntilToastDisappear("Category Value Changed!");
@@ -243,6 +243,7 @@ describe.skip(
       gitSync.DeleteDeployKey(appRepoName, keyId);
       agHelper.WaitUntilAllToastsDisappear();
       deployMode.NavigateToHomeDirectly();
+      homePage.SelectWorkspace(workspaceName);
       homePage.DeleteApplication(appName);
       homePage.DeleteWorkspace(workspaceName);
     });

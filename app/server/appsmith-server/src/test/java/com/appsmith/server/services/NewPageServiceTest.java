@@ -488,6 +488,43 @@ public class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
+    public void updateDependencyMap_WithoutBranchAndNoManagePermission_ShouldFail_GHSA_q4p7_j55w_5mjm() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("app_" + randomId);
+
+        NewPage savedPage = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(app -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("page_" + randomId);
+                    pageDTO.setApplicationId(app.getId());
+                    return applicationPageService.createPage(pageDTO);
+                })
+                .flatMap(pageDTO -> newPageRepository.findById(pageDTO.getId()))
+                .block();
+
+        savedPage.setPolicies(Set.of());
+        newPageRepository.save(savedPage).block();
+
+        String pageId = savedPage.getId();
+
+        Map<String, List<String>> attackPayload = new HashMap<>();
+        attackPayload.put("maliciousNode", List.of("Text1.text"));
+
+        Mono<String> updateResult = newPageService.updateDependencyMap(pageId, attackPayload, RefType.branch, null);
+
+        StepVerifier.create(updateResult)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode())
+                            .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getAppErrorCode());
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
     public void updateDependencyMap_nullValue_shouldUpdateDependencyMap() {
         String randomId = UUID.randomUUID().toString();
         Application application = new Application();

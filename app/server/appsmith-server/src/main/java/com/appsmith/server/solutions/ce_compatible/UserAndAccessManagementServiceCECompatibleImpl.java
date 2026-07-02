@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,7 +30,8 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
             EmailService emailService,
             CommonConfig commonConfig,
             UserOrganizationHelper userOrganizationHelper,
-            CaptchaService captchaService) {
+            CaptchaService captchaService,
+            SecureBaseUrlResolver secureBaseUrlResolver) {
         super(
                 sessionUserService,
                 permissionGroupService,
@@ -41,6 +43,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
                 emailService,
                 commonConfig,
                 userOrganizationHelper,
-                captchaService);
+                captchaService,
+                secureBaseUrlResolver);
     }
 }

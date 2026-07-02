@@ -115,6 +115,7 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY" \
   --set applicationConfig.APPSMITH_PYLON_APP_ID="$APPSMITH_PYLON_APP_ID" \
   --set applicationConfig.IN_DOCKER="$IN_DOCKER" \
+  --set applicationConfig.APPSMITH_BASE_URL="https://$DOMAINNAME" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key=instance_name \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator=In \

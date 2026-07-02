@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.SecureBaseUrlResolver;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
@@ -9,6 +10,7 @@ import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.CacheablePylonHelper;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -39,7 +41,9 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper,
-            InstanceVariablesHelper instanceVariablesHelper) {
+            InstanceVariablesHelper instanceVariablesHelper,
+            SecureBaseUrlResolver secureBaseUrlResolver,
+            CacheablePylonHelper cacheablePylonHelper) {
         super(
                 validator,
                 repository,
@@ -57,6 +61,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 rateLimitService,
                 pacConfigurationService,
                 userServiceHelper,
-                instanceVariablesHelper);
+                instanceVariablesHelper,
+                secureBaseUrlResolver,
+                cacheablePylonHelper);
     }
 }

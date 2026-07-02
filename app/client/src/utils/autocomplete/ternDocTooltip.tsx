@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Interweave from "interweave";
 import { ternDocsInfo } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
@@ -41,10 +42,9 @@ export function TernDocToolTip(props: {
           </Link>
         )}
       </div>
-      <pre
-        className="px-2 p-1 text-xs whitespace-normal"
-        dangerouslySetInnerHTML={{ __html: doc }}
-      />
+      <pre className="px-2 p-1 text-xs whitespace-normal">
+        <Interweave content={doc} />
+      </pre>
       {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
       )}

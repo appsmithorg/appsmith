@@ -69,7 +69,7 @@ On your development machine, please ensure that:
   - This error occurs because the node version is not compatible with the app environment. In this case, Node version manager can be used, allowing multiple node versions in different projects.
   - Check below for installation and usage details:
   1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-  2. Run from `app/client`: `nvm use 20.11.1` or `fnm use 20.11.1`.
+  2. Run from `app/client`: `nvm use 24.14.1` or `fnm use 24.14.1`.
 
 ### Running Tests on Client
 
