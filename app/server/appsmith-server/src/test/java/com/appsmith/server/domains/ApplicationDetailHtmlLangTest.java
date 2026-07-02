@@ -1,6 +1,9 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.domains.ce.ApplicationDetailCE;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,5 +41,22 @@ public class ApplicationDetailHtmlLangTest {
     public void setHtmlLang_dropsOverlyLongValues() {
         String tooLong = "en-" + "x".repeat(40);
         assertThat(normalized(tooLong)).isNull();
+    }
+
+    // Git import (Gson) and Mongo hydration write the field directly, bypassing the
+    // setter. The getter must still normalize, so simulate that with reflection.
+    @Test
+    public void getHtmlLang_normalizesValuesWrittenDirectlyToField() throws Exception {
+        assertThat(rawFieldThenGet("en-US")).isEqualTo("en-us");
+        assertThat(rawFieldThenGet("  DE  ")).isEqualTo("de");
+        assertThat(rawFieldThenGet("not a language")).isNull();
+    }
+
+    private String rawFieldThenGet(String rawValue) throws Exception {
+        ApplicationDetail detail = new ApplicationDetail();
+        Field field = ApplicationDetailCE.class.getDeclaredField("htmlLang");
+        field.setAccessible(true);
+        field.set(detail, rawValue);
+        return detail.getHtmlLang();
     }
 }
