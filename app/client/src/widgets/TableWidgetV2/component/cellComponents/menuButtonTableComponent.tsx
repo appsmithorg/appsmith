@@ -88,6 +88,8 @@ interface BaseStyleProps {
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
+  box-sizing: border-box;
+  width: 100%;
   height: 100%;
   background-image: none !important;
   font-weight: 400;
