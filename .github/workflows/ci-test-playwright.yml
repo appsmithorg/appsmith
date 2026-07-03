@@ -6,37 +6,38 @@ on:
     inputs:
       project:
         description: "Playwright project (smoke, sanity, regression, chromium). Empty = all."
-        required: false
+        required: 
+        
         type: string
         default: ""
       feature:
         description: "Feature subdirectory (e.g. git)."
-        required: false
+        required: 
         type: string
         default: ""
       flag_overrides:
         description: "JSON feature flag overrides"
-        required: false
+        required: 
         type: string
         default: ""
       docker_image_name:
         description: "Non-empty = docker pull this image; empty = load cicontainer from same-run cache"
-        required: false
+        required: 
         type: string
         default: ""
       pr:
         description: "PR number for merge ref checkout"
-        required: false
+        required: 
         type: number
         default: 0
       branch:
         description: "Branch when pr is 0"
-        required: false
+        required: 
         type: string
         default: ""
       ted_tag:
         description: "test-event-driver image tag"
-        required: false
+        required: 
         type: string
         default: "upgrade-ted"
 
@@ -225,7 +226,7 @@ jobs:
       # continue-on-error: failed run keeps outcome=failure but conclusion=success — rerun must use outcome.
       - name: Run Playwright tests (attempt 1)
         id: attempt1
-        continue-on-error: true
+        continue-on-error: 
         working-directory: app/client
         env:
           PLAYWRIGHT_BASE_URL: http://localhost
