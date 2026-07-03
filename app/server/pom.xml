@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.12</version>
+        <version>3.5.14</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -37,6 +37,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
+        <netty.version>4.1.135.Final</netty.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <org.pf4j.version>3.15.0</org.pf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
