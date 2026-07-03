@@ -219,6 +219,10 @@ export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no AI Agents in this workspace.`;
+export const ANVIL_APPLICATIONS = () => `Anvil apps`;
+export const ANVIL_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no Anvil apps in this workspace yet.`;
+export const NEW_ANVIL_APP = () => `Anvil app`;
 export const AI_AGENT_AUTH_SUBTITLE = () =>
   `Sign up with any Google account.\n Support for email will be available soon.`;
 
@@ -1841,6 +1845,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_COPY_TO_APP = () => "Copy to application";
 export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
@@ -1923,6 +1928,32 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `Fork`;
+
+export const COPY_ENTITY_TO_APP_MODAL_TITLE = () => "Copy to application";
+export const COPY_ENTITY_TO_APP_WORKSPACE_LABEL = () => "Workspace";
+export const COPY_ENTITY_TO_APP_APPLICATION_LABEL = () => "Application";
+export const COPY_ENTITY_TO_APP_PAGE_LABEL = () => "Page";
+export const COPY_ENTITY_TO_APP_WORKSPACE_PLACEHOLDER = () =>
+  "Select a workspace";
+export const COPY_ENTITY_TO_APP_APPLICATION_PLACEHOLDER = () =>
+  "Select an application";
+export const COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER = () => "Select a page";
+export const COPY_ENTITY_TO_APP_CONFIRM = () => "Copy";
+export const COPY_ENTITY_TO_APP_NO_WORKSPACES = () =>
+  "No workspaces available to copy to";
+export const COPY_ENTITY_TO_APP_NO_APPS = () =>
+  "No applications available in this workspace";
+export const COPY_ENTITY_TO_APP_NO_PAGES = () =>
+  "No pages available in this application";
+export const COPY_ENTITY_TO_APP_SUCCESS = (
+  entityName: string,
+  appName: string,
+  pageName: string,
+) => `Copied ${entityName} to ${appName} / ${pageName}`;
+export const COPY_ENTITY_TO_APP_ERROR = () =>
+  "Failed to copy to the selected application";
+export const COPY_ENTITY_TO_APP_NOTE = () =>
+  "Datasource credentials and any referenced queries aren't copied. Datasources are set up during import, but you may need to re-enter credentials and recreate any referenced queries before the copied item will work in the target application.";
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
