@@ -219,6 +219,10 @@ export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no AI Agents in this workspace.`;
+export const ANVIL_APPLICATIONS = () => `Anvil apps`;
+export const ANVIL_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no Anvil apps in this workspace yet.`;
+export const NEW_ANVIL_APP = () => `Anvil app`;
 export const AI_AGENT_AUTH_SUBTITLE = () =>
   `Sign up with any Google account.\n Support for email will be available soon.`;
 
