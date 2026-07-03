@@ -6,12 +6,14 @@ const assertMenuButtonFitsCell = (rowIndex, colIndex) => {
   cy.get(cellSelector).then(($cell) => {
     const cellRect = $cell[0].getBoundingClientRect();
 
-    cy.get(`${cellSelector} .bp3-button`).then(($button) => {
-      const buttonRect = $button[0].getBoundingClientRect();
+    cy.get(`${cellSelector} [data-testid='t--table-menu-button']`).then(
+      ($button) => {
+        const buttonRect = $button[0].getBoundingClientRect();
 
-      expect(buttonRect.left).to.be.at.least(cellRect.left - 1);
-      expect(buttonRect.right).to.be.at.most(cellRect.right + 1);
-    });
+        expect(buttonRect.left).to.be.at.least(cellRect.left - 1);
+        expect(buttonRect.right).to.be.at.most(cellRect.right + 1);
+      },
+    );
   });
 };
 
