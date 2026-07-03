@@ -1,5 +1,20 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
+const assertMenuButtonFitsCell = (rowIndex, colIndex) => {
+  const cellSelector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex='${rowIndex}'][data-colindex='${colIndex}']`;
+
+  cy.get(cellSelector).then(($cell) => {
+    const cellRect = $cell[0].getBoundingClientRect();
+
+    cy.get(`${cellSelector} .bp3-button`).then(($button) => {
+      const buttonRect = $button[0].getBoundingClientRect();
+
+      expect(buttonRect.left).to.be.at.least(cellRect.left - 1);
+      expect(buttonRect.right).to.be.at.most(cellRect.right + 1);
+    });
+  });
+};
+
 describe(
   "Custom column alias functionality",
   { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
@@ -162,6 +177,12 @@ describe(
         force: true,
       });
       cy.get(".table-menu-button-popover li a").should("not.exist");
+    });
+
+    it("5. should render menu buttons within the table cell in published mode", () => {
+      _.deployMode.DeployApp();
+
+      assertMenuButtonFitsCell(0, 1);
     });
   },
 );
