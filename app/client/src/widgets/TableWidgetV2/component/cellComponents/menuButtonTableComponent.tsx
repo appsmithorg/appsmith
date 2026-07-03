@@ -313,6 +313,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       compactMode={compactMode}
+      data-testid="t--table-menu-button"
       disabled={isDisabled}
       fill
       icon={iconAlign !== Alignment.RIGHT ? iconName : undefined}
