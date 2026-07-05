@@ -28,7 +28,7 @@ version-resolver:
       - "Patch"
   default: minor
 
-template: |
+template: 
   ## What's new?
 
   $CHANGES
