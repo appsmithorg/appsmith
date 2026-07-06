@@ -144,7 +144,7 @@ __metadata:
     "@react-stately/list": ^3.10.8
     "@react-types/actiongroup": ^3.4.6
     "@react-types/shared": ^3.23.1
-    "@rollup/plugin-babel": ^6.0.4
+    "@rollup/plugin-babel": ^7.1.0
     "@rollup/plugin-commonjs": ^28.0.2
     "@rollup/plugin-image": ^3.0.3
     "@rollup/plugin-node-resolve": ^16.0.0
@@ -8712,22 +8712,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-babel@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "@rollup/plugin-babel@npm:6.0.4"
+"@rollup/plugin-babel@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@rollup/plugin-babel@npm:7.1.0"
   dependencies:
     "@babel/helper-module-imports": ^7.18.6
     "@rollup/pluginutils": ^5.0.1
+    workerpool: ^9.0.0
   peerDependencies:
     "@babel/core": ^7.0.0
     "@types/babel__core": ^7.1.9
-    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    rollup: ^2.0.0||^3.0.0||^4.0.0
   peerDependenciesMeta:
     "@types/babel__core":
       optional: true
     rollup:
       optional: true
-  checksum: c035fd7814ad75b9b584727fe31c86611697be88abd2a4ac836c17fa42a241de46f698c225d9c4e65336374fb19e48a1e9a22cc374a0cc0b867c3970eb62b2f2
+  checksum: 307127d1d7f2595114e4d9598b344761ae275cac652cdc57ec46c836d6ade1b5f672fa575820c260800ecb42dd10912e2c63ca45ad36d40756e85f513cccd814
   languageName: node
   linkType: hard
 
@@ -36144,6 +36145,13 @@ __metadata:
     "@types/trusted-types": ^2.0.2
     workbox-core: 7.3.0
   checksum: 8387955cc227d2bed24366d98e4e3d161d5b273096cec8b46d09000d3939bd92bdff9f5737a6920b548a7ff459e32e54f9802e315495b14885e83a53141763da
+  languageName: node
+  linkType: hard
+
+"workerpool@npm:^9.0.0":
+  version: 9.3.4
+  resolution: "workerpool@npm:9.3.4"
+  checksum: 309c08c10fed93623a2d8954b10277a35b3ffba2f7f33fe4be48fae5d00c9502809ef09ddc67fc8ae2cc19a2abe7d7233bfb2b23801bd010dc2b49842f5ea0de
   languageName: node
   linkType: hard
 
