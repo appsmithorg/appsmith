@@ -17,6 +17,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import type { Workspace } from "ee/constants/workspaceConstants";
+import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsCreatingApplicationByWorkspaceId } from "ee/selectors/applicationSelectors";
 import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
@@ -27,7 +28,10 @@ export interface WorkspaceActionProps {
   isMobile: boolean;
   enableImportExport: boolean;
   workspaceId: string;
-  onCreateNewApplication: (workspaceId: string) => void;
+  onCreateNewApplication: (
+    workspaceId: string,
+    layoutSystemType?: LayoutSystemTypes,
+  ) => void;
   onStartFromTemplate: (workspaceId: string) => void;
   setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
 }

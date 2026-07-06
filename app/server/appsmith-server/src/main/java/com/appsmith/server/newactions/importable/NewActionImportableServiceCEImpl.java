@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.ImportExportUtils.generateUniqueNameForImport;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
 import static java.lang.Boolean.TRUE;
 
@@ -527,12 +528,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
         for (NewAction newAction : importedNewActionList) {
-            String oldNameAction = newAction.getUnpublishedAction().getName(),
-                    newNameAction = newAction.getUnpublishedAction().getName();
-            int i = 1;
-            while (refactoringNames.contains(newNameAction)) {
-                newNameAction = oldNameAction + i++;
-            }
+            String oldNameAction = newAction.getUnpublishedAction().getName();
+            String newNameAction = generateUniqueNameForImport(oldNameAction, refactoringNames);
             String oldId = newAction.getId().split("_")[1];
             newAction.setId(newNameAction + "_" + oldId);
 

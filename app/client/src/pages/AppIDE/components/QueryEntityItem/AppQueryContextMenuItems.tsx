@@ -9,6 +9,7 @@ import {
 import {
   ConvertToModule,
   Copy,
+  CopyToApp,
   Delete,
   Move,
   Rename,
@@ -44,6 +45,7 @@ export function AppQueryContextMenuItems(props: Props) {
       <ConvertToModule action={action} />
       <Copy action={action} disabled={!canManageAction} />
       <Move action={action} disabled={!canManageAction} />
+      <CopyToApp action={action} disabled={!canManageAction} />
       <MenuSeparator />
       <ShowBindings action={action} />
       <InspectStateMenuItem entityId={action.id} />

@@ -35,8 +35,9 @@ export interface LogObject {
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
-  // Everything, irrespective of what the user should see or not
-  // DEBUG = "debug",
+  // Verbose diagnostic detail; only surfaced when debug logging is enabled.
+  // Revived for Anvil level-based logging (REC-12); additive, opt-in.
+  DEBUG = "debug",
   // Something the dev user should probably know about
   INFO = "info",
   // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour

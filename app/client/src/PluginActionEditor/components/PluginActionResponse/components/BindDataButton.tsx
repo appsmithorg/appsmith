@@ -160,8 +160,9 @@ function getWidgetProps(
         parentRowSpace: 10,
       };
     case "TABLE_WIDGET_V2":
+    case "WDS_TABLE_WIDGET":
       return {
-        type: "TABLE_WIDGET_V2",
+        type: suggestedWidget.type,
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
@@ -276,11 +277,16 @@ function BindDataButton(props: BindDataButtonProps) {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   // The purpose of this filter is to make sure that if Anvil is enabled
   // only those widgets which have an alternative in Anvil are listed
-  // for selection for adding a new suggested widget
+  // for selection for adding a new suggested widget. A suggestion survives
+  // the filter if it is a legacy type with a WDS counterpart (a map key,
+  // e.g. TABLE_WIDGET_V2) or already a WDS type (a map value, e.g.
+  // WDS_TABLE_WIDGET).
   const filteredSuggestedWidgets =
     isAnvilLayout && suggestedWidgets
-      ? suggestedWidgets.filter((each) =>
-          Object.keys(WDS_V2_WIDGET_MAP).includes(each.type),
+      ? suggestedWidgets.filter(
+          (each) =>
+            Object.keys(WDS_V2_WIDGET_MAP).includes(each.type) ||
+            Object.values(WDS_V2_WIDGET_MAP).includes(each.type),
         )
       : suggestedWidgets;
 

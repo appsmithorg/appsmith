@@ -10,6 +10,8 @@ import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   AI_AGENTS_APPLICATIONS,
   AI_APPLICATION_CARD_LIST_ZERO_STATE,
+  ANVIL_APPLICATIONS,
+  ANVIL_APPLICATION_CARD_LIST_ZERO_STATE,
   APPLICATIONS,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
@@ -22,6 +24,7 @@ import {
   getIsAiAgentFlowEnabled,
   getIsAiAgentInstanceEnabled,
 } from "ee/selectors/aiAgentSelectors";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
@@ -709,6 +712,7 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -832,6 +836,7 @@ export function ApplicationsSection(props: any) {
   const createNewApplication = (
     applicationName: string,
     workspaceId: string,
+    layoutSystemType?: LayoutSystemTypes,
   ) => {
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
@@ -844,6 +849,7 @@ export function ApplicationsSection(props: any) {
         workspaceId,
         icon,
         color,
+        layoutSystemType,
       },
     });
   };
@@ -918,7 +924,10 @@ export function ApplicationsSection(props: any) {
       isManageEnvironmentEnabled &&
       hasManageWorkspaceEnvironmentPermission(activeWorkspace.userPermissions);
 
-    const onClickAddNewAppButton = (workspaceId: string) => {
+    const onClickAddNewAppButton = (
+      workspaceId: string,
+      layoutSystemType?: LayoutSystemTypes,
+    ) => {
       if (
         Object.entries(creatingApplicationMap).length === 0 ||
         (creatingApplicationMap && !creatingApplicationMap[workspaceId])
@@ -931,6 +940,7 @@ export function ApplicationsSection(props: any) {
             applications.map((el: any) => el.name),
           ),
           workspaceId,
+          layoutSystemType,
         );
       }
     };
@@ -1073,7 +1083,7 @@ export function ApplicationsSection(props: any) {
                   workspaceId={activeWorkspace.id}
                 />
               )}
-              {isAiAgentFlowEnabled && (
+              {(isAiAgentFlowEnabled || isAnvilEnabled) && (
                 <ApplicationCardList
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -1081,7 +1091,7 @@ export function ApplicationsSection(props: any) {
                   emptyStateMessage={
                     isAiAgentFlowEnabled
                       ? createMessage(AI_APPLICATION_CARD_LIST_ZERO_STATE)
-                      : undefined
+                      : createMessage(ANVIL_APPLICATION_CARD_LIST_ZERO_STATE)
                   }
                   enableImportExport={enableImportExport}
                   hasCreateNewApplicationPermission={
@@ -1090,7 +1100,11 @@ export function ApplicationsSection(props: any) {
                   hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
-                  title={createMessage(AI_AGENTS_APPLICATIONS)}
+                  title={createMessage(
+                    isAiAgentFlowEnabled
+                      ? AI_AGENTS_APPLICATIONS
+                      : ANVIL_APPLICATIONS,
+                  )}
                   titleTag={PreviewTag}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
