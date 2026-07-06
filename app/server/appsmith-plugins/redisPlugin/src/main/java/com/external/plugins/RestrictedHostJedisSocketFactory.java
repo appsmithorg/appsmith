@@ -116,13 +116,8 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
                 // match the configured hostname. Jedis 5.2.0 leaves this off by default, which would
                 // let a MITM present any CA-trusted-but-mismatched cert on the pinned IP. Verification
                 // runs against `host` (passed to createSocket above), not the IP we connected to.
-                // Only default to HTTPS when a caller hasn't deliberately set its own endpoint-
-                // identification policy.
                 final SSLParameters params = sslParameters != null ? sslParameters : sslSocket.getSSLParameters();
-                final String endpointIdAlgorithm = params.getEndpointIdentificationAlgorithm();
-                if (endpointIdAlgorithm == null || endpointIdAlgorithm.isEmpty()) {
-                    params.setEndpointIdentificationAlgorithm("HTTPS");
-                }
+                enforceEndpointIdentification(params);
                 sslSocket.setSSLParameters(params);
 
                 socket = new SSLSocketWrapper(sslSocket, plainSocket);
@@ -139,6 +134,19 @@ public class RestrictedHostJedisSocketFactory implements JedisSocketFactory {
         } catch (Exception e) {
             closeQuietly(socket);
             throw new JedisConnectionException("Failed to create socket.", e);
+        }
+    }
+
+    /**
+     * Default the SSL endpoint identification algorithm to {@code "HTTPS"} (the JDK's registered
+     * name for RFC 2818 hostname verification — cert SAN/CN must match the hostname the client
+     * asked to connect to) unless a caller has deliberately set an algorithm. Package-private so
+     * unit tests can exercise the security-critical branch without opening a socket.
+     */
+    static void enforceEndpointIdentification(SSLParameters params) {
+        final String algo = params.getEndpointIdentificationAlgorithm();
+        if (algo == null || algo.isEmpty()) {
+            params.setEndpointIdentificationAlgorithm("HTTPS");
         }
     }
 
