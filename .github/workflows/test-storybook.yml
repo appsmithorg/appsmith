@@ -44,6 +44,11 @@ jobs:
 
       - name: Storybook Tests
         working-directory: ./app/client/packages/storybook
+        env:
+          # The Storybook test-runner (Jest + Playwright over every story) exceeds
+          # Node's ~2GB default old-space heap on the runner and OOMs (exit 129).
+          # Raise the limit; the runner has ample RAM.
+          NODE_OPTIONS: --max-old-space-size=8192
         run: |
           yarn build-storybook
           yarn test-storybook:ci

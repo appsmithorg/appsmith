@@ -8,6 +8,7 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import {
   Copy,
+  CopyToApp,
   Delete,
   Move,
   Rename,
@@ -42,6 +43,7 @@ export function AppJSContextMenuItems(props: Props) {
       <MenuSeparator />
       <Copy disabled={!canManageJSAction} jsAction={jsAction} />
       <Move disabled={!canManageJSAction} jsAction={jsAction} />
+      <CopyToApp disabled={!canManageJSAction} jsAction={jsAction} />
       <MenuSeparator />
       <ShowBindings jsAction={jsAction} />
       <InspectStateMenuItem entityId={jsAction.id} />

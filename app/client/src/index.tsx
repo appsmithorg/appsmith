@@ -2,6 +2,10 @@
 import "./preload-route-chunks";
 // Initialise eval worker instance
 import "utils/workerInstances";
+// Populate the widget loader registry (side effect of importing the barrel).
+// Consumers (EvaluationsSaga, EditorUtils) read loaders from `widgets/registry`,
+// so this import is what registers them on the main thread.
+import "widgets";
 
 import React from "react";
 import "./wdyr";
