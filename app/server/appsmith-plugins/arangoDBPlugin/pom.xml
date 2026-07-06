@@ -55,7 +55,7 @@
         </dependency>
 
         <!--
-            Netty 4.1.131 is shipped by the appsmith-server runtime via reactor-netty-http. arangodb-java-driver 7.x
+            Netty is shipped by the appsmith-server runtime via reactor-netty-http. arangodb-java-driver 7.x
             transitively pulls the same netty version through Vert.x WebClient. Declare these as 'provided' for the
             same reason as jackson above: avoid PluginClassLoader/parent-classloader collisions for io.netty.* classes.
         -->

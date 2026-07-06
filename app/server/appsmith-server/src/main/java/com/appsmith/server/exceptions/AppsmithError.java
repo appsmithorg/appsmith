@@ -370,6 +370,15 @@ public enum AppsmithError {
             "SSH key not configured",
             ErrorType.GIT_CONFIGURATION_ERROR,
             ErrorReferenceDocUrl.GIT_DEPLOY_KEY.getDocUrl()),
+    GIT_DEFAULT_BRANCH_NOT_FOUND(
+            400,
+            AppsmithErrorCode.GIT_DEFAULT_BRANCH_NOT_FOUND.getCode(),
+            "Couldn''t find a default branch in the remote repository. Set a default branch (for example main or master) "
+                    + "in your Git provider''s repository settings, then try again.",
+            AppsmithErrorAction.DEFAULT,
+            "No default branch found",
+            ErrorType.GIT_CONFIGURATION_ERROR,
+            null),
     INVALID_GIT_REPO(
             400,
             AppsmithErrorCode.INVALID_GIT_REPO.getCode(),

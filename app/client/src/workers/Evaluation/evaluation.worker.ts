@@ -1,5 +1,9 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
+// Populate the widget loader registry inside the worker. `registerAllWidgets`
+// (via EditorUtils) reads loaders from `widgets/registry`, which is only
+// populated as a side effect of importing the widget barrel.
+import "widgets";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import {
   syncHandlerMap,
