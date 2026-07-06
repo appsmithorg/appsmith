@@ -32,6 +32,17 @@ export function ContainerComponent(props: ContainerComponentProps) {
       data-no-padding={props.noPadding}
       elevatedBackground={props.elevatedBackground}
       elevation={props.elevation}
+      style={
+        props.backgroundCSS || props.borderCSS
+          ? {
+              ...(props.backgroundCSS
+                ? { background: props.backgroundCSS }
+                : {}),
+              ...(props.borderCSS ? { border: props.borderCSS } : {}),
+              borderRadius: "inherit",
+            }
+          : undefined
+      }
     >
       {props.children}
     </StyledContainerComponent>
@@ -44,4 +55,8 @@ export interface ContainerComponentProps {
   elevation: Elevations;
   elevatedBackground: boolean;
   noPadding?: boolean;
+  /** Custom CSS background (color or gradient) — issue #17147. */
+  backgroundCSS?: string;
+  /** Custom CSS border shorthand (e.g. "2px solid #86efac"). */
+  borderCSS?: string;
 }

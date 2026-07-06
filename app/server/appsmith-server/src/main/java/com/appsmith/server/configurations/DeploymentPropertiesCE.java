@@ -14,6 +14,10 @@ import java.nio.file.Paths;
 @Slf4j
 public class DeploymentPropertiesCE {
 
+    // The edition reported by a Community Edition build. EE overrides getEdition() to return "EE".
+    // Shared so callers that branch on edition (e.g. MongoConfig's EE-downgrade guard) cannot drift.
+    public static final String EDITION_CE = "CE";
+
     private final String INFO_JSON_PATH = "/tmp/appsmith/infra.json";
     private String cloudProvider;
     private String tool;
@@ -22,7 +26,7 @@ public class DeploymentPropertiesCE {
     private String deployedAt;
 
     public String getEdition() {
-        return "CE";
+        return EDITION_CE;
     }
 
     public DeploymentPropertiesCE(ObjectMapper objectMapper) {

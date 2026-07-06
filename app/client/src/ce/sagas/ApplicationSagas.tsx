@@ -648,6 +648,7 @@ export function* createApplicationSaga(
     icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
+    layoutSystemType?: LayoutSystemTypes;
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: any;
@@ -656,7 +657,14 @@ export function* createApplicationSaga(
     reject: any;
   }>,
 ) {
-  const { applicationName, color, icon, reject, workspaceId } = action.payload;
+  const {
+    applicationName,
+    color,
+    icon,
+    layoutSystemType,
+    reject,
+    workspaceId,
+  } = action.payload;
 
   try {
     const applications: Workspace[] = yield select(getApplicationsOfWorkspace);
@@ -683,7 +691,8 @@ export function* createApplicationSaga(
         icon: icon,
         color: color,
         workspaceId,
-        layoutSystemType: LayoutSystemTypes.FIXED, // Note: This may be provided as an action payload in the future
+        // Defaults to FIXED; callers (e.g. the Anvil create option) may request ANVIL.
+        layoutSystemType: layoutSystemType ?? LayoutSystemTypes.FIXED,
       };
 
       const response: CreateApplicationResponse = yield call(

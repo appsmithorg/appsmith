@@ -14,11 +14,62 @@ import org.springframework.transaction.TransactionException;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class ImportExportUtils {
+
+    private static final Pattern TRAILING_NUMBER_PATTERN = Pattern.compile("^(.*?)(\\d+)$");
+
+    /**
+     * Generates a unique name for an entity being imported into a context that already contains
+     * {@code existingNames}, following Appsmith's entity-naming convention.
+     * <p>
+     * When the incoming name already ends in a number it increments from there
+     * (e.g. {@code JSObject1 -> JSObject2}); otherwise it appends an incrementing suffix
+     * (e.g. {@code Query -> Query1}). If the name does not clash it is returned unchanged.
+     *
+     * @param name          the incoming entity name
+     * @param existingNames the names already present in the destination context
+     * @return a name not present in {@code existingNames}
+     */
+    public static String generateUniqueNameForImport(String name, Set<String> existingNames) {
+        if (name == null || existingNames == null || !existingNames.contains(name)) {
+            return name;
+        }
+
+        Matcher matcher = TRAILING_NUMBER_PATTERN.matcher(name);
+        // Default to appending a fresh suffix to the whole name. This is also the fallback
+        // when the trailing number cannot be incremented safely (too large to parse, or at
+        // Long.MAX_VALUE where suffix++ would overflow into a negative value).
+        String base = name;
+        long suffix = 0;
+
+        if (matcher.matches()) {
+            try {
+                long parsedSuffix = Long.parseLong(matcher.group(2));
+                if (parsedSuffix < Long.MAX_VALUE) {
+                    base = matcher.group(1);
+                    suffix = parsedSuffix;
+                }
+            } catch (NumberFormatException e) {
+                // Suffix too large to parse — keep the whole-name fallback above.
+            }
+        }
+
+        String candidate;
+
+        do {
+            suffix++;
+            candidate = base + suffix;
+        } while (existingNames.contains(candidate));
+
+        return candidate;
+    }
 
     /**
      * Method to provide non-cryptic and user-friendly error message with actionable input for Import-Export flows
