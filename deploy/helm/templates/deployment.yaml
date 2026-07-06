@@ -79,7 +79,21 @@ spec:
       {{- else }}
         image: "{{ .Values.redis.image.registry }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
       {{- end }}
-        command: ['sh', '-c', "until redis-cli -h {{.Release.Name}}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done"]
+        command: ['sh', '-c', "until redis-cli -h {{ include "appsmith.redisMasterHost" . }} ping ; do echo waiting for redis; sleep 2; done"]
+        {{- if and .Values.redis.auth.enabled (not .Values.applicationConfig.APPSMITH_REDIS_URL) }}
+        # Pull the password from the chart-managed Secret so the readiness ping can
+        # authenticate. Skipped when the operator supplies their own APPSMITH_REDIS_URL
+        # (the self-managed redis.auth.password path), because then no chart Secret exists
+        # to reference and an unresolvable secretKeyRef would wedge the pod in
+        # CreateContainerConfigError. The wait still works unauthenticated: `redis-cli ping`
+        # against an auth-required server replies NOAUTH but exits 0, satisfying the loop.
+        env:
+          - name: REDISCLI_AUTH
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "appsmith.redisSecretName" . }}
+                key: {{ .Values.redis.auth.existingSecretPasswordKey }}
+        {{- end }}
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container
@@ -174,6 +188,21 @@ spec:
                 secretKeyRef:
                   name: {{ include "appsmith.mongoOperatorSecretName" . }}
                   key: connectionString.standardSrv
+            {{- end }}
+            {{- if and .Values.redis.enabled .Values.redis.auth.enabled (not .Values.applicationConfig.APPSMITH_REDIS_URL) }}
+            # Assemble the authenticated Redis URL for the bundled subchart. Skipped when the
+            # user supplied applicationConfig.APPSMITH_REDIS_URL (which is honored via the
+            # ConfigMap) — an explicit env entry here would otherwise take precedence over
+            # envFrom and silently override it. The password is pulled from the Secret and
+            # injected by reference, so the cleartext never lands in the ConfigMap; order
+            # matters — the password var must precede the URL that references it via $(VAR).
+            - name: APPSMITH_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "appsmith.redisSecretName" . }}
+                  key: {{ .Values.redis.auth.existingSecretPasswordKey }}
+            - name: APPSMITH_REDIS_URL
+              value: "redis://:$(APPSMITH_REDIS_PASSWORD)@{{ include "appsmith.redisMasterHost" . }}:6379"
             {{- end }}
           envFrom:
             - configMapRef:
