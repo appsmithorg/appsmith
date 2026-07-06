@@ -27,8 +27,9 @@
 
     <properties>
         <deploy.disabled>true</deploy.disabled>
-        <jackson-bom.version>2.17.0</jackson-bom.version>
-        <jackson.version>2.17.0</jackson.version>
+        <!-- Pinned to 2.18.8 for CVE-2026-54512 / CVE-2026-54513 -->
+        <jackson-bom.version>2.18.8</jackson-bom.version>
+        <jackson.version>2.18.8</jackson.version>
         <java.version>25</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <!-- Pin Lombok to 1.18.42 to avoid breaking @FieldNameConstants inner class constructor change in 1.18.44 -->
@@ -37,6 +38,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
+        <!-- Pinned above the Spring Boot BOM default for CVE-2026-42583/42579/42584/42587/33870/33871/44249/45416/50010/45674/47691 -->
         <netty.version>4.1.135.Final</netty.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <org.pf4j.version>3.15.0</org.pf4j.version>
@@ -55,6 +57,25 @@
         <spotless.version>3.0.0</spotless.version>
         <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Force patched versions onto transitive dependencies bundled into plugin jars. -->
+            <dependency>
+                <!-- CVE-2024-47554: databricks-sdk-java pulls 2.13.0 -->
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.20.0</version>
+            </dependency>
+            <dependency>
+                <!-- CVE-2025-67030: transitive 3.2.0 in appsmith-server -->
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <resources>
             <resource>
