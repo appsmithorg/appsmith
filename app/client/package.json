@@ -163,7 +163,7 @@
     "micro-memoize": "^4.0.10",
     "microdiff": "^1.4.0",
     "mixpanel-browser": "^2.55.1",
-    "moment": "2.29.4",
+    "moment": "2.30.1",
     "moment-timezone": "^0.5.35",
     "mutative": "^1.1.0",
     "nanoid": "3.3.11",
