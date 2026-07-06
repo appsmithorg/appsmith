@@ -85,6 +85,14 @@ describe("ClearableNumericInputControl", () => {
     expect(onPropertyChange).not.toHaveBeenCalled();
   });
 
+  it("removes a stale null value when the field is cleared", () => {
+    const { deleteProperties } = renderControl({ propertyValue: null });
+
+    fireEvent.change(getInput(), { target: { value: "" } });
+
+    expect(deleteProperties).toHaveBeenCalledWith(["numericProp"]);
+  });
+
   it("persists the entered value as-is, leaving range/format checks to the property validation", () => {
     const { onPropertyChange } = renderControl();
 
@@ -147,6 +155,10 @@ describe("ClearableNumericInputControl", () => {
       expect(ClearableNumericInputControl.canDisplayValueInUI(config, "")).toBe(
         false,
       );
+      // whitespace-only is blank, consistent with clear semantics
+      expect(
+        ClearableNumericInputControl.canDisplayValueInUI(config, "   "),
+      ).toBe(false);
     });
   });
 });

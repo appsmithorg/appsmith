@@ -5,7 +5,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 
 export interface ClearableNumericInputControlProps extends ControlProps {
-  propertyValue?: number | string;
+  propertyValue?: number | string | null;
   min?: number;
   max?: number;
   placeholderText?: string;
@@ -51,20 +51,25 @@ class ClearableNumericInputControl extends BaseControl<ClearableNumericInputCont
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    return (
-      value !== "" &&
-      value !== null &&
-      value !== undefined &&
-      !isNaN(Number(value))
-    );
+    if (value === null || value === undefined) return false;
+
+    // trim strings so whitespace-only input is treated as blank, matching the
+    // clear semantics in handleValueChange
+    const normalized = typeof value === "string" ? value.trim() : value;
+
+    if (normalized === "") return false;
+
+    return !isNaN(Number(normalized));
   }
 
   private handleValueChange = (value: string | undefined) => {
     const { propertyName, propertyValue } = this.props;
 
     if (value === undefined || value.trim() === "") {
-      // Clearing the field unsets the property instead of persisting a blank
-      if (propertyValue !== undefined && propertyValue !== null) {
+      // Clearing the field unsets the property instead of persisting a blank.
+      // Delete any existing value (including a stale null), but skip when the
+      // property is already absent.
+      if (propertyValue !== undefined) {
         this.deleteProperties([propertyName]);
       }
 
