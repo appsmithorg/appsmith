@@ -86,8 +86,11 @@ describe("ClearableNumericInputControl", () => {
   });
 
   it("removes a stale null value when the field is cleared", () => {
+    // propertyValue is null (renders empty); type a value then clear it so the
+    // clear branch runs while the prop is still null
     const { deleteProperties } = renderControl({ propertyValue: null });
 
+    fireEvent.change(getInput(), { target: { value: "5" } });
     fireEvent.change(getInput(), { target: { value: "" } });
 
     expect(deleteProperties).toHaveBeenCalledWith(["numericProp"]);
