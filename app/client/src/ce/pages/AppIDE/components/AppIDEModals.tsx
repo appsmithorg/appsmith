@@ -8,6 +8,7 @@ import { PartialExportModal } from "components/editorComponents/PartialImportExp
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import GeneratePageModal from "pages/Editor/GeneratePage";
+import CopyEntityToAppModal from "pages/Editor/Explorer/CopyToApp/CopyEntityToAppModal";
 
 export function AppIDEModals() {
   return (
@@ -21,6 +22,7 @@ export function AppIDEModals() {
       <PartialImportModal />
       <AppCURLImportModal />
       <GeneratePageModal />
+      <CopyEntityToAppModal />
     </>
   );
 }

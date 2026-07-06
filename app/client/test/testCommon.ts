@@ -1,3 +1,11 @@
+// Populate the widget loader/builder registry for canvas-rendering tests.
+// Production bootstraps this via `import "widgets"` in src/index.tsx (and the
+// eval worker); the SCC-free registry (widgets/registry.ts) is otherwise empty
+// in jest, so editorInitializer/loadAllWidgets registers no builders and widgets
+// don't render ("Widget Builder not registered for widget type ..."). Scoped to
+// this canvas test helper rather than global setup so it doesn't pull widget
+// side effects into unrelated unit tests (e.g. analytics singletons).
+import "widgets";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { initEditorAction } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";

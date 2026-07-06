@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.ImportExportUtils.generateUniqueNameForImport;
 
 @Slf4j
 @Service
@@ -362,15 +363,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
         for (ActionCollection actionCollection : importedNewActionCollectionList) {
-            String
-                    oldNameActionCollection =
-                            actionCollection.getUnpublishedCollection().getName(),
-                    newNameActionCollection =
-                            actionCollection.getUnpublishedCollection().getName();
-            int i = 1;
-            while (refactoringNameSet.contains(newNameActionCollection)) {
-                newNameActionCollection = oldNameActionCollection + i++;
-            }
+            String oldNameActionCollection =
+                    actionCollection.getUnpublishedCollection().getName();
+            String newNameActionCollection = generateUniqueNameForImport(oldNameActionCollection, refactoringNameSet);
             String oldId = actionCollection.getId().split("_")[1];
             actionCollection.setId(newNameActionCollection + "_" + oldId);
             actionCollection.getUnpublishedCollection().setName(newNameActionCollection);

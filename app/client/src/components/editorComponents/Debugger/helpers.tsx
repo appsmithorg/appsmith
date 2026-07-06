@@ -52,6 +52,7 @@ export function BlankState(props: {
 }
 
 export const SeverityIcon: Record<Severity, string> = {
+  [Severity.DEBUG]: "bug-line",
   [Severity.INFO]: "success",
   [Severity.ERROR]: "close-circle",
   [Severity.WARNING]: "warning",

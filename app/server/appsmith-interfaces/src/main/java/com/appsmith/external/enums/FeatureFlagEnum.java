@@ -48,4 +48,12 @@ public enum FeatureFlagEnum {
     release_alphabetical_ordering_enabled,
 
     // Add EE flags below this line, to avoid conflicts.
+
+    /**
+     * Feature flag to detect if Anvil is licensed for the organization. This is the sole gate for both
+     * accessing and creating Anvil apps: when OFF, Anvil apps in the organization become inaccessible and
+     * the Anvil samples workspace is hidden. Computed from the license entitlement by cloud-services, so a
+     * license lapse/downgrade-to-FREE automatically flips this OFF and revokes access.
+     */
+    license_anvil_enabled,
 }
