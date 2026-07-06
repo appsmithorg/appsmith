@@ -14141,7 +14141,7 @@ __metadata:
     react-refresh: ^0.11.0
     react-responsive: ^9.0.0-beta.3
     react-router: ^5.1.2
-    react-router-dom: ^5.1.2
+    react-router-dom: ^7.18.1
     react-spring: ^9.4.0
     react-table: ^7.0.0
     react-table-sticky: ^1.1.3
@@ -30499,24 +30499,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^5.1.2":
-  version: 5.2.0
-  resolution: "react-router-dom@npm:5.2.0"
+"react-router-dom@npm:^7.18.1":
+  version: 7.18.1
+  resolution: "react-router-dom@npm:7.18.1"
   dependencies:
-    "@babel/runtime": ^7.1.2
-    history: ^4.9.0
-    loose-envify: ^1.3.1
-    prop-types: ^15.6.2
-    react-router: 5.2.0
-    tiny-invariant: ^1.0.2
-    tiny-warning: ^1.0.0
+    react-router: 7.18.1
   peerDependencies:
-    react: ">=15"
-  checksum: 98d2d35f9540ac4a3c14dc023623fc8411a6a6338e95d726370e07b27c3bc6e854516537c8e3f9ad2483c4bbd579ba28cce9aff843a19fe8ebff663318886335
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: af8d1a9fa477ffd2dbe20a6deba6d551a4263cff05a789cff217cc8c926a4760f251c4458238530ff9c778974275d223a90392a91c53bbc64a989a2f8ee3aaa7
   languageName: node
   linkType: hard
 
-"react-router@npm:5.2.0, react-router@npm:^5.1.2":
+"react-router@npm:7.18.1":
+  version: 7.18.1
+  resolution: "react-router@npm:7.18.1"
+  dependencies:
+    cookie: ^1.0.1
+    set-cookie-parser: ^2.6.0
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 797a6f873439d2c2a0887281b408e53ceb57ddf49aacac95a8f0db2d9b4c7d9345cf14d7716b6b91830409ac27af5f8065407ea1cf0371ec0b1041d0aef2d230
+  languageName: node
+  linkType: hard
+
+"react-router@npm:^5.1.2":
   version: 5.2.0
   resolution: "react-router@npm:5.2.0"
   dependencies:
@@ -32223,10 +32234,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"set-cookie-parser@npm:^2.4.6":
-  version: 2.4.8
-  resolution: "set-cookie-parser@npm:2.4.8"
-  checksum: e15b5df9a56ab06d4895286033a6aff7b318ad024310df058b5821b3539cc06f716ef529618cac0dd78df40e37830de715f388c0f97f84062dd9be2326efcd0c
+"set-cookie-parser@npm:^2.4.6, set-cookie-parser@npm:^2.6.0":
+  version: 2.7.2
+  resolution: "set-cookie-parser@npm:2.7.2"
+  checksum: 9e1b09e7184079c81f9ba4d2db3222854adf4e6e4fe73982388367649386a93e7f9b979333ddeba22610706def93c2478f34c3324fe223528cb2c4c879a2c2d3
   languageName: node
   linkType: hard
 
