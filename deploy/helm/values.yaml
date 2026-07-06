@@ -542,6 +542,11 @@ mongodbCommunity:
   # @section -- MongoDB Community Operator
   name: "" # @schema maxLength: 60; pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
   ## @param mongodbCommunity.version MongoDB version to deploy
+  ## On a private registry that only mirrors "-ubi8" tags, set this to
+  ## "8.0.20-ubi8": the operator consumes the CR spec.version verbatim, and the
+  ## init-container helper trims the duplicate suffix, so no
+  ## initContainer.mongodb.image override is needed. Leave it bare ("8.0.20")
+  ## for the official registry, where the operator auto-appends "-ubi8".
   # -- MongoDB version to deploy
   # @section -- MongoDB Community Operator
   version: "8.0.20"

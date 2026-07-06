@@ -172,13 +172,24 @@ Resolution order:
   The image name ("mongodb-community-server") and suffix ("-ubi8") are pinned
   because the operator hardcodes those for MongoDBCommunity resources regardless
   of the chart's other mongodb.* values.
+
+  An existing "-ubi8" suffix on mongodbCommunity.version is trimmed before the
+  suffix is re-appended, so the append is idempotent. The suffix is defined once
+  ($suffix) and used for both the trim and the append, so they can't drift if it
+  ever needs to change. This lets private-registry
+  users (whose mirror only carries "-ubi8" tags, and whose operator consumes the
+  CR spec.version verbatim) set mongodbCommunity.version: "8.0.20-ubi8" once and
+  drive both the CR and this init image from that single value — no separate
+  initContainer.mongodb.image override needed.
 */}}
 {{- define "appsmith.mongoInitContainerImage" -}}
 {{- if ((.Values.initContainer).mongodb).image -}}
 {{- .Values.initContainer.mongodb.image -}}
 {{- else -}}
 {{- $repo := ((.Values.mongodbOperator).mongodb).repo | default "quay.io/mongodb" -}}
-{{- printf "%s/mongodb-community-server:%s-ubi8" $repo .Values.mongodbCommunity.version -}}
+{{- $suffix := "-ubi8" -}}
+{{- $ver := .Values.mongodbCommunity.version | toString | trimSuffix $suffix -}}
+{{- printf "%s/mongodb-community-server:%s%s" $repo $ver $suffix -}}
 {{- end -}}
 {{- end -}}
 
