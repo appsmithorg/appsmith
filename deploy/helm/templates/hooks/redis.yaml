@@ -1,0 +1,139 @@
+{{/*
+Creates the Redis password secret via a pre-install/pre-upgrade Job when the
+bundled redis subchart is enabled with auth on.
+
+The Job is idempotent: if the secret already exists, it exits without change.
+This keeps the password stable across Helm upgrades and ArgoCD re-syncs —
+unlike a template-based `randAlphaNum` approach, which changes on every render
+and would either lock clients out or force an ArgoCD ignoreDifferences rule.
+
+The runtime "secret already exists -> exit 0" check is also the migration and
+bring-your-own-secret guard: an upgrade of an install that already has the
+secret (or a user who pre-created their own) is left untouched.
+
+The resulting Secret has no Helm release labels/annotations and no
+ownerReferences, so ArgoCD does not track or diff it.
+*/}}
+{{/*
+Skip the bootstrap entirely when redis.auth.password is set: on that path the
+operator self-manages the credential (Bitnami uses redis.auth.password directly)
+and there is no chart secret to create. Safe ONLY because appsmith.validateRedisAuth
+(see _helpers.tpl, invoked from configMap.yaml) rejects every redis.auth.password
+configuration except the self-managed one (existingSecret: "" + a matching
+APPSMITH_REDIS_URL) — so this can no longer leave a non-empty existingSecret
+pointing at a secret the hook never creates.
+*/}}
+{{- if and .Values.redis.enabled .Values.redis.auth.enabled (not .Values.redis.auth.password) }}
+{{- $secretName := include "appsmith.redisSecretName" . -}}
+{{- $passwordKey := .Values.redis.auth.existingSecretPasswordKey -}}
+{{- $jobName := printf "%s-redis-password-init" (include "appsmith.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- $namespace := include "appsmith.namespace" . -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+rules:
+  # Check whether the password secret already exists (scoped to one name).
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ $secretName | quote }}]
+    verbs: ["get"]
+  # Create it if it doesn't. resourceNames can't scope `create` (the name
+  # is in the request body, not the URL), so this is namespace-scoped.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: {{ $jobName }}
+    namespace: {{ $namespace }}
+roleRef:
+  kind: Role
+  name: {{ $jobName }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 60
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "appsmith.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ $jobName }}
+      restartPolicy: Never
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
+      containers:
+        - name: create-password
+          image: {{ include "appsmith.redisPasswordInitImage" . | quote }}
+          imagePullPolicy: {{ .Values.redisAuth.passwordInit.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              SECRET_NAME={{ $secretName | quote }}
+              NAMESPACE={{ $namespace | quote }}
+              PASSWORD_KEY={{ $passwordKey | quote }}
+              if kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" >/dev/null 2>&1; then
+                echo "Secret $SECRET_NAME already exists; leaving it untouched."
+                exit 0
+              fi
+              PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)
+              kubectl -n "$NAMESPACE" create secret generic "$SECRET_NAME" \
+                --from-literal="$PASSWORD_KEY"="$PASSWORD"
+              echo "Created secret $SECRET_NAME."
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+{{- end }}

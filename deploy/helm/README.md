@@ -64,7 +64,9 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | redis.enabled | bool | `true` | Deploy the bundled Bitnami Redis subchart |
-| redis.auth.enabled | bool | `false` | Enable Redis authentication |
+| redis.auth.enabled | bool | `true` | Enable Redis authentication |
+| redis.auth.existingSecret | string | `"appsmith-redis-secret"` | Name of the Secret holding the Redis password. Bootstrapped by the redisAuth.passwordInit Job when absent (see redisAuth below) |
+| redis.auth.existingSecretPasswordKey | string | `"redis-password"` | Key within existingSecret that holds the Redis password |
 | redis.master.nodeSelector | object | `{}` | Node selector for Redis master pods |
 | redis.master.disableCommands | list | `[]` | Commands to disable on Redis master |
 | redis.master.affinity | object | `{}` | Affinity rules for Redis master pods |
@@ -77,6 +79,15 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | redis.image.registry | string | `"docker.io"` | Redis image registry |
 | redis.image.repository | string | `"redis"` | Redis image repository |
 | redis.image.tag | string | `"7.4.9"` | Redis image tag |
+
+### Redis Auth
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| redisAuth.passwordInit.image.registry | string | `"docker.io"` | Registry for the kubectl image |
+| redisAuth.passwordInit.image.repository | string | `"alpine/kubectl"` | Repository path for the kubectl image |
+| redisAuth.passwordInit.image.tag | string | `"latest"` | Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility. |
+| redisAuth.passwordInit.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy for the Job |
 
 ### MongoDB (Bitnami subchart)
 
