@@ -410,7 +410,7 @@ export function createTabOrderPropertyPaneSection() {
         propertyName: TAB_ORDER_PROPERTY_NAME,
         label: "Tab order",
         helpText:
-          "Optional. By default, widgets are focused top to bottom, then left to right. Set a number to override this: numbered widgets come first (lowest first), then the rest in the default order. Leave blank to keep the default.",
+          "Optional. By default, widgets are focused top to bottom, then left to right. Set a number to override this: numbered widgets come first (lowest first), then the rest in the default order. Widgets sharing the same number keep the default order between them. Leave blank to keep the default.",
         controlType: "CLEARABLE_NUMERIC_INPUT",
         placeholderText: "Auto",
         min: 0,

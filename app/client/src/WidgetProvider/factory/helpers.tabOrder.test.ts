@@ -39,7 +39,7 @@ function collectTabOrderControls(
 function assertSharedTabOrderControl(control: PropertyPaneControlConfig) {
   expect(control.label).toBe("Tab order");
   expect(control.helpText).toBe(
-    "Optional. By default, widgets are focused top to bottom, then left to right. Set a number to override this: numbered widgets come first (lowest first), then the rest in the default order. Leave blank to keep the default.",
+    "Optional. By default, widgets are focused top to bottom, then left to right. Set a number to override this: numbered widgets come first (lowest first), then the rest in the default order. Widgets sharing the same number keep the default order between them. Leave blank to keep the default.",
   );
   expect(control.controlType).toBe("CLEARABLE_NUMERIC_INPUT");
   // TODO: Fix this the next time the file is edited
