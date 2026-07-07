@@ -171,11 +171,7 @@ export function AutoToolTipComponent(props: Props) {
   switch (props.columnType) {
     case ColumnTypes.BUTTON:
     case ColumnTypes.MENU_BUTTON:
-      if (props.title) {
-        return content;
-      }
-
-      break;
+      return content;
     case ColumnTypes.URL:
       contentToRender = (
         <>

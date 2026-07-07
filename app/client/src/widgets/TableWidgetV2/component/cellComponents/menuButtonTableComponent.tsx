@@ -171,9 +171,13 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       overflow: hidden;
       white-space: nowrap;
       line-height: normal;
+      color: ${
+        buttonVariant === ButtonVariantTypes.PRIMARY
+          ? getComplementaryGrayscaleColor(buttonColor)
+          : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+      } !important;
     }
 
-    & > span.${BlueprintClasses.BUTTON_TEXT},
     & > span.${BlueprintClasses.ICON} {
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
