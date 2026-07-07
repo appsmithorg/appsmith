@@ -54,14 +54,14 @@ public class SmtpPluginTest {
     private static Long port = 25L;
 
     @Container
-    public static final GenericContainer smtp = new GenericContainer(DockerImageName.parse("maildev/maildev"))
+    public static final GenericContainer smtp = new GenericContainer(DockerImageName.parse("maildev/maildev:2.2.1"))
             .withExposedPorts(25)
             .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass "
                     + password + " -s 25");
 
     @Container
     public static final GenericContainer smtpWithoutAuth = new GenericContainer(
-                    DockerImageName.parse("maildev/maildev"))
+                    DockerImageName.parse("maildev/maildev:2.2.1"))
             .withExposedPorts(1025)
             .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
 

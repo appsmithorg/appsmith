@@ -1,0 +1,282 @@
+# Tests for the Redis auth changes:
+#   - the pre-install/pre-upgrade password-generation hook (hooks/redis.yaml)
+#   - the client wiring in deployment.yaml (app URL + init container REDISCLI_AUTH)
+#   - the ConfigMap passwordless-URL suppression (configMap.yaml)
+#
+# Defaults: redis.enabled=true, redis.auth.enabled=true,
+#           existingSecret=appsmith-redis-secret, existingSecretPasswordKey=redis-password.
+
+suite: Redis auth - secret-generation hook
+templates:
+  - hooks/redis.yaml
+tests:
+  - name: renders SA + Role + RoleBinding + Job by default (redis + auth enabled)
+    asserts:
+      - hasDocuments:
+          count: 4
+
+  - name: Job is named per release and uses the kubectl image
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-appsmith-redis-password-init
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.io/alpine/kubectl:latest"
+
+  - name: hook annotations make it a pre-install/pre-upgrade hook (ordering + ArgoCD-safe)
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+
+  - name: RBAC get is scoped to exactly the redis secret (least privilege)
+    documentSelector:
+      path: kind
+      value: Role
+    asserts:
+      - contains:
+          path: rules[0].resourceNames
+          content: appsmith-redis-secret
+
+  - name: Job script creates the default secret with the redis-password key
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].command[2]
+          pattern: 'SECRET_NAME="appsmith-redis-secret"'
+      - matchRegex:
+          path: spec.template.spec.containers[0].command[2]
+          pattern: 'PASSWORD_KEY="redis-password"'
+
+  # ---- edge cases ----
+  - name: no hook resources when auth is disabled
+    set:
+      redis.auth.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: no hook resources when redis subchart is disabled
+    set:
+      redis.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - name: bring-your-own secret name flows into RBAC scope and the Job script
+    set:
+      redis.auth.existingSecret: my-byo-redis-secret
+    asserts:
+      - contains:
+          path: rules[0].resourceNames
+          content: my-byo-redis-secret
+        documentSelector:
+          path: kind
+          value: Role
+      - matchRegex:
+          path: spec.template.spec.containers[0].command[2]
+          pattern: 'SECRET_NAME="my-byo-redis-secret"'
+        documentSelector:
+          path: kind
+          value: Job
+
+  - name: custom password key flows into the Job script
+    set:
+      redis.auth.existingSecretPasswordKey: custom-key
+    documentSelector:
+      path: kind
+      value: Job
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].command[2]
+          pattern: 'PASSWORD_KEY="custom-key"'
+
+---
+suite: Redis auth - client wiring (deployment)
+templates:
+  - deployment.yaml
+tests:
+  - name: app container assembles the authenticated URL by reference
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: redis-password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_URL
+            value: "redis://:$(APPSMITH_REDIS_PASSWORD)@RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local:6379"
+
+  - name: redis init container authenticates via REDISCLI_AUTH
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: REDISCLI_AUTH
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: redis-password
+
+  - name: custom password key propagates to the app secretKeyRef
+    set:
+      redis.auth.existingSecretPasswordKey: custom-key
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: custom-key
+
+  # ---- edge cases ----
+  - name: no redis password env when auth is disabled
+    set:
+      redis.auth.enabled: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: redis-password
+
+  - name: user-supplied APPSMITH_REDIS_URL is honored (no env override injected)
+    set:
+      applicationConfig.APPSMITH_REDIS_URL: redis://custom.example:6379
+    asserts:
+      # The chart must not inject its own password/URL env, which would take
+      # precedence over the user's value coming from the ConfigMap (envFrom).
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: redis-password
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APPSMITH_REDIS_URL
+            value: "redis://:$(APPSMITH_REDIS_PASSWORD)@RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local:6379"
+
+---
+suite: Redis auth - configMap URL suppression
+templates:
+  - configMap.yaml
+tests:
+  - name: passwordless APPSMITH_REDIS_URL is suppressed when auth is on
+    asserts:
+      - notExists:
+          path: data.APPSMITH_REDIS_URL
+
+  - name: passwordless APPSMITH_REDIS_URL is emitted when auth is off
+    set:
+      redis.auth.enabled: false
+    asserts:
+      - equal:
+          path: data.APPSMITH_REDIS_URL
+          value: redis://RELEASE-NAME-redis-master.NAMESPACE.svc.cluster.local:6379
+
+  # Regression: the host must track the subchart's fullname, not a naive
+  # "{release}-redis-master". When the release name contains "redis" the subchart
+  # collapses its fullname to just the release name, so the master Service is
+  # "{release}-master" (no doubled -redis-). See appsmith.redisMasterHost.
+  - name: host follows subchart fullname when release name contains "redis"
+    release:
+      name: myredis
+    set:
+      redis.auth.enabled: false
+    asserts:
+      - equal:
+          path: data.APPSMITH_REDIS_URL
+          value: redis://myredis-master.NAMESPACE.svc.cluster.local:6379
+
+  - name: no bundled redis URL when the subchart is disabled
+    set:
+      redis.enabled: false
+    asserts:
+      - notExists:
+          path: data.APPSMITH_REDIS_URL
+
+---
+# Guard: redis.auth.password is only allowed on the fully self-managed path
+# (existingSecret: "" + a matching applicationConfig.APPSMITH_REDIS_URL).
+# Validation lives in appsmith.validateRedisAuth, invoked from configMap.yaml.
+suite: Redis auth - password guard (validateRedisAuth)
+templates:
+  - configMap.yaml
+tests:
+  - name: rejects password with the default bootstrap secret still set
+    set:
+      redis.auth.password: hunter2
+    asserts:
+      - failedTemplate:
+          errorMessage: ""
+
+  - name: rejects password when no APPSMITH_REDIS_URL is supplied
+    set:
+      redis.auth.password: hunter2
+      redis.auth.existingSecret: ""
+    asserts:
+      - failedTemplate:
+          errorMessage: ""
+
+  - name: accepts the self-managed path (password + empty existingSecret + URL)
+    set:
+      redis.auth.password: hunter2
+      redis.auth.existingSecret: ""
+      applicationConfig.APPSMITH_REDIS_URL: redis://:hunter2@RELEASE-NAME-redis-master:6379
+    asserts:
+      - notFailedTemplate: {}
+
+---
+suite: Redis auth - self-managed path skips chart bootstrap
+templates:
+  - hooks/redis.yaml
+tests:
+  - name: no bootstrap hook when redis.auth.password is set (self-managed)
+    set:
+      redis.auth.password: hunter2
+      redis.auth.existingSecret: ""
+      applicationConfig.APPSMITH_REDIS_URL: redis://:hunter2@RELEASE-NAME-redis-master:6379
+    asserts:
+      - hasDocuments:
+          count: 0
+
+---
+suite: Redis auth - init container skips REDISCLI_AUTH on self-managed URL
+templates:
+  - deployment.yaml
+tests:
+  - name: no REDISCLI_AUTH when the operator supplies APPSMITH_REDIS_URL
+    set:
+      applicationConfig.APPSMITH_REDIS_URL: redis://custom.example:6379
+    asserts:
+      - notContains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: REDISCLI_AUTH
+            valueFrom:
+              secretKeyRef:
+                name: appsmith-redis-secret
+                key: redis-password

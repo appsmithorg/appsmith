@@ -356,9 +356,18 @@ redis: # @schema additionalProperties: true
   enabled: true
   # @schema hidden: true
   auth:
+    ## @param redis.auth.enabled Enable Redis authentication
     # -- Enable Redis authentication
     # @section -- Redis (Bitnami subchart)
-    enabled: false
+    enabled: true
+    ## @param redis.auth.existingSecret Name of the Secret holding the Redis password. Bootstrapped by the redisAuth.passwordInit Job when absent (see redisAuth below)
+    # -- Name of the Secret holding the Redis password. Bootstrapped by the redisAuth.passwordInit Job when absent (see redisAuth below)
+    # @section -- Redis (Bitnami subchart)
+    existingSecret: appsmith-redis-secret
+    ## @param redis.auth.existingSecretPasswordKey Key within existingSecret that holds the Redis password
+    # -- Key within existingSecret that holds the Redis password
+    # @section -- Redis (Bitnami subchart)
+    existingSecretPasswordKey: redis-password
   # @schema hidden: true
   master:
     # -- Node selector for Redis master pods
@@ -401,6 +410,35 @@ redis: # @schema additionalProperties: true
     # -- Redis image tag
     # @section -- Redis (Bitnami subchart)
     tag: 7.4.9
+
+## Redis auth bootstrap (Appsmith-managed, not passed to the subchart)
+## A pre-install/pre-upgrade Job generates the Redis password Secret referenced by
+## redis.auth.existingSecret when it does not already exist, keeping the password
+## stable across upgrades and ArgoCD re-syncs. Kept separate from `redis` so it is
+## never forwarded to the Bitnami subchart.
+redisAuth:
+  ## Password init Job image (pre-install/pre-upgrade hook that bootstraps the Redis password Secret).
+  ## The Job runs kubectl commands only, so any recent kubectl release works. Defaults to a floating tag
+  ## because the upstream alpine/kubectl repository periodically retires older patch tags; pin a specific
+  ## version if you need byte-level reproducibility.
+  passwordInit:
+    image:
+      ## @param redisAuth.passwordInit.image.registry Registry for the kubectl image
+      # -- Registry for the kubectl image
+      # @section -- Redis Auth
+      registry: docker.io
+      ## @param redisAuth.passwordInit.image.repository Repository path for the kubectl image
+      # -- Repository path for the kubectl image
+      # @section -- Redis Auth
+      repository: alpine/kubectl
+      ## @param redisAuth.passwordInit.image.tag Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      # -- Image tag. "latest" is used by default to sidestep upstream tag retention; pin for reproducibility.
+      # @section -- Redis Auth
+      tag: latest
+      ## @param redisAuth.passwordInit.image.pullPolicy Image pull policy for the Job
+      # -- Image pull policy for the Job
+      # @section -- Redis Auth
+      pullPolicy: IfNotPresent
 
 ## MongoDB parameters
 ## Values are passed through to the Bitnami mongodb subchart; not validated by this schema.
@@ -504,6 +542,11 @@ mongodbCommunity:
   # @section -- MongoDB Community Operator
   name: "" # @schema maxLength: 60; pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
   ## @param mongodbCommunity.version MongoDB version to deploy
+  ## On a private registry that only mirrors "-ubi8" tags, set this to
+  ## "8.0.20-ubi8": the operator consumes the CR spec.version verbatim, and the
+  ## init-container helper trims the duplicate suffix, so no
+  ## initContainer.mongodb.image override is needed. Leave it bare ("8.0.20")
+  ## for the official registry, where the operator auto-appends "-ubi8".
   # -- MongoDB version to deploy
   # @section -- MongoDB Community Operator
   version: "8.0.20"
