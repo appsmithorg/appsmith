@@ -73,6 +73,7 @@ export const NoDataFoundContainer = styled.div`
   text-align: center;
 `;
 
+/** Returns the expand/collapse chevron for a tree node switcher. */
 const getSvg = (expanded: boolean) => (
   <i
     style={{
@@ -92,6 +93,7 @@ const getSvg = (expanded: boolean) => (
   </i>
 );
 
+/** Renders the tree switcher icon while keeping leaf rows aligned. */
 const switcherIcon = (treeNode: TreeNodeProps) => {
   if (treeNode.isLeaf) {
     return (
@@ -109,6 +111,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   return getSvg(treeNode.expanded);
 };
 
+/** Tree-based single-select widget view with optional filtering and required-label support. */
 function SingleSelectTreeComponent({
   accentColor,
   allowClear,

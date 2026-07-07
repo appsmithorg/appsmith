@@ -31,6 +31,7 @@ import { Icon } from "@design-system/widgets-old";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
+/** Renders the selected-state icon used for multi-select menu rows. */
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
@@ -78,6 +79,7 @@ export interface MultiSelectProps
 
 const DEBOUNCE_TIMEOUT = 1000;
 
+/** Multi-select widget view with filtering, select-all, and required-label support. */
 function MultiSelectComponent({
   accentColor,
   allowSelectAll,
