@@ -132,6 +132,40 @@ public class SmtpPluginTest {
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
+    // GHSA-72m2-f9xp-wg9h: datasourceCreate must reject SSRF targets before building the session.
+    @Test
+    public void datasourceCreate_blocksCloudMetadataHost() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setEndpoints(List.of(new Endpoint("169.254.169.254", 25L)));
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(dsConfig))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage().equals(SMTPErrorMessages.DS_INVALID_HOST_ERROR_MSG))
+                .verify();
+    }
+
+    @Test
+    public void datasourceCreate_blocksLinkLocalHost() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setEndpoints(List.of(new Endpoint("169.254.10.20", 25L)));
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(dsConfig))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage().equals(SMTPErrorMessages.DS_INVALID_HOST_ERROR_MSG))
+                .verify();
+    }
+
+    @Test
+    public void datasourceCreate_allowsPrivateHostByDefault() {
+        // RFC1918 hosts are allowed by default so self-hosted internal mail servers keep working.
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setEndpoints(List.of(new Endpoint("10.1.2.3", 25L)));
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(dsConfig))
+                .assertNext(session -> assertNotNull(session))
+                .verifyComplete();
+    }
+
     @Test
     public void testInvalidPort() {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();

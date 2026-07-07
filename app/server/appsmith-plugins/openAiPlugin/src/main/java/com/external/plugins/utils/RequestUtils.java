@@ -5,12 +5,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.util.WebClientUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -94,12 +94,11 @@ public class RequestUtils {
     }
 
     private static WebClient createWebClient() {
-        // Initializing webClient to be used for http call
-        WebClient.Builder webClientBuilder = WebClient.builder();
-        return webClientBuilder
-                .exchangeStrategies(EXCHANGE_STRATEGIES)
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider())))
-                .build();
+        // Route outbound calls through WebClientUtils so the centralized SSRF address filter is
+        // applied (GHSA-h4wh-59p8-vqff). builder(HttpClient) installs the guarded resolver and the
+        // IP_CHECK_FILTER; we only override the exchange strategies for this plugin's codecs.
+        WebClient.Builder webClientBuilder = WebClientUtils.builder(HttpClient.create(connectionProvider()));
+        return webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
     }
 
     private static ConnectionProvider connectionProvider() {

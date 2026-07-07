@@ -28,6 +28,9 @@ public class SMTPErrorMessages {
     public static final String DS_MISSING_HOST_ADDRESS_ERROR_MSG =
             "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.";
 
+    public static final String DS_INVALID_HOST_ERROR_MSG =
+            "The SMTP host is not allowed. Please provide a routable external mail server hostname or address.";
+
     public static final String DS_NO_SUCH_PROVIDER_ERROR_MSG =
             "Unable to create underlying SMTP protocol. Please contact support";
 

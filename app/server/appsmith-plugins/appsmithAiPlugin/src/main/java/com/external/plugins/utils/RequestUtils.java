@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -132,11 +132,10 @@ public class RequestUtils {
 
     private static WebClient createWebClient() {
         // Initializing webClient to be used for http call
-        WebClient.Builder webClientBuilder = WebClient.builder();
-        return webClientBuilder
-                .exchangeStrategies(EXCHANGE_STRATEGIES)
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider())))
-                .build();
+        // Route outbound calls through WebClientUtils so the centralized SSRF address filter is
+        // applied (GHSA-h4wh-59p8-vqff).
+        WebClient.Builder webClientBuilder = WebClientUtils.builder(HttpClient.create(connectionProvider()));
+        return webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
     }
 
     private static ConnectionProvider connectionProvider() {

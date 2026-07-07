@@ -350,8 +350,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
             MethodConfig methodConfig = new MethodConfig(request);
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            // Route through WebClientUtils so the centralized SSRF address filter is applied on the
+            // trigger path too, matching the execution path above (GHSA-h4wh-59p8-vqff).
+            WebClient.Builder webClientBuilder = WebClientUtils.builder();
 
             triggerMethod.validateTriggerMethodRequest(methodConfig);
 

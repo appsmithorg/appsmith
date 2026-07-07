@@ -4,13 +4,13 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.util.WebClientUtils;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.constants.AnthropicErrorMessages;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -69,10 +69,11 @@ public class RequestUtils {
 
     private static WebClient createWebClient() {
         // Initializing webClient to be used for http call
-        WebClient.Builder webClientBuilder = WebClient.builder();
+        // Route outbound calls through WebClientUtils so the centralized SSRF address filter is
+        // applied (GHSA-h4wh-59p8-vqff).
+        WebClient.Builder webClientBuilder = WebClientUtils.builder(HttpClient.create(connectionProvider()));
         return webClientBuilder
                 .exchangeStrategies(AnthropicConstants.EXCHANGE_STRATEGIES)
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider())))
                 .build();
     }
 

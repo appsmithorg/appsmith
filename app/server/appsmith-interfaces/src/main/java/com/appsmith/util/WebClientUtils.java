@@ -41,6 +41,13 @@ public class WebClientUtils {
 
     private static final Set<String> DISALLOWED_HOSTS = computeDisallowedHosts();
 
+    // Opt-in strict egress mode (GHSA-4fjr-w826-cpwm). When enabled, outbound datasource/HTTP
+    // requests are additionally blocked from reaching loopback and RFC 1918 private ranges on ALL
+    // deployment types. Default is off so existing self-hosted deployments that legitimately connect
+    // datasources to internal/private hosts are not broken on upgrade.
+    private static final boolean BLOCK_PRIVATE_ADDRESSES =
+            "true".equalsIgnoreCase(System.getenv("APPSMITH_SSRF_BLOCK_PRIVATE_ADDRESS"));
+
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
@@ -239,9 +246,50 @@ public class WebClientUtils {
         return Optional.of(resolved[0]);
     }
 
+    /**
+     * Datasource-facing SSRF resolver for plugins that connect outside the WebClient pipeline (e.g.
+     * the SMTP plugin via JavaMail — GHSA-72m2-f9xp-wg9h). Mirrors the WebClient HTTP egress policy:
+     * the cloud-metadata denylist and the always-blocked address classes (link-local/IMDS,
+     * any-local, multicast, IPv6 ULA) are rejected on every deployment, while loopback is rejected
+     * only inside Docker or under strict egress, and RFC 1918 site-local only under strict egress.
+     *
+     * <p>Unlike {@link #resolveIfAllowed}, loopback and RFC 1918 are allowed by default so that
+     * self-hosted mail servers on private networks continue to work. Returns the resolved
+     * {@link InetAddress} so callers can pin the connection to it and defeat DNS-rebinding.
+     *
+     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked
+     */
+    public static Optional<InetAddress> resolveForDatasource(String host) {
+        if (!StringUtils.hasText(host)) {
+            return Optional.empty();
+        }
+
+        final String canonicalHost = normalizeHostForComparisonQuietly(host);
+        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
+            return Optional.empty();
+        }
+
+        final InetAddress[] resolved;
+        try {
+            resolved = InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            return Optional.empty();
+        }
+
+        final boolean inDocker = "1".equals(System.getenv("IN_DOCKER"));
+        for (InetAddress addr : resolved) {
+            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))
+                    || isBlockedResolvedAddress(addr, inDocker, BLOCK_PRIVATE_ADDRESSES)) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.of(resolved[0]);
+    }
+
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
         final String canonicalHost = normalizeHostForComparisonQuietly(host);
-        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost)) {
+        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedForEgress(canonicalHost)) {
             log.warn("Host {} is disallowed. Failing the request.", host);
             if (promise != null) {
                 promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));
@@ -269,7 +317,7 @@ public class WebClientUtils {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "IP Address resolution is invalid"));
         }
 
-        return (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost))
+        return (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedForEgress(canonicalHost))
                 ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
                 : Mono.just(request);
     }
@@ -285,11 +333,30 @@ public class WebClientUtils {
         }
     }
 
-    private static boolean matchesBlockedAddressClass(InetAddress address) {
-        if (address.isLoopbackAddress()
-                || address.isAnyLocalAddress()
-                || address.isLinkLocalAddress()
-                || address.isMulticastAddress()) {
+    /**
+     * Address classes that have no legitimate outbound-datasource use and are therefore blocked on
+     * EVERY deployment, independent of {@code IN_DOCKER} (GHSA-7wfp-6c63-99gq, GHSA-66gg-xpjf-p92v):
+     * link-local (covers the whole 169.254.0.0/16 IMDS range and IPv6 fe80::/10), any-local,
+     * multicast, and IPv6 Unique Local Addresses (fc00::/7).
+     *
+     * <p>Note this deliberately EXCLUDES loopback and RFC 1918 site-local ranges — those are gated
+     * separately (loopback under {@code IN_DOCKER} or strict mode; RFC 1918 under strict mode only)
+     * so that self-hosted deployments and local development that legitimately reach private/loopback
+     * services are not broken by default.
+     */
+    static boolean isAlwaysBlockedAddressClass(String canonicalHost) {
+        if (!isValidIpAddress(canonicalHost)) {
+            return false;
+        }
+        try {
+            return matchesAlwaysBlockedAddressClass(InetAddress.getByName(canonicalHost));
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    private static boolean matchesAlwaysBlockedAddressClass(InetAddress address) {
+        if (address.isAnyLocalAddress() || address.isLinkLocalAddress() || address.isMulticastAddress()) {
             return true;
         }
         if (address instanceof Inet6Address) {
@@ -300,8 +367,47 @@ public class WebClientUtils {
         return false;
     }
 
-    private static boolean isBlockedAddressClassInDocker(String canonicalHost) {
-        return "1".equals(System.getenv("IN_DOCKER")) && isBlockedIpAddressClass(canonicalHost);
+    private static boolean matchesBlockedAddressClass(InetAddress address) {
+        return address.isLoopbackAddress() || matchesAlwaysBlockedAddressClass(address);
+    }
+
+    /**
+     * Whether an IP-literal host must be blocked for outbound egress under the current deployment
+     * configuration. Used by both the WebClient HTTP path ({@link #requestFilterFn} /
+     * {@link #isDisallowedAndFail}) and the datasource resolver ({@link #resolveForDatasource}).
+     */
+    private static boolean isBlockedForEgress(String canonicalHost) {
+        if (!isValidIpAddress(canonicalHost)) {
+            return false;
+        }
+        final InetAddress address;
+        try {
+            address = InetAddress.getByName(canonicalHost);
+        } catch (UnknownHostException e) {
+            return false;
+        }
+        return isBlockedResolvedAddress(address, "1".equals(System.getenv("IN_DOCKER")), BLOCK_PRIVATE_ADDRESSES);
+    }
+
+    /**
+     * Pure address-class decision, extracted so it can be unit-tested deterministically without
+     * mutating process env.
+     *
+     * @param inDocker whether the process runs inside the Appsmith Docker image ({@code IN_DOCKER=1})
+     * @param blockPrivate whether strict egress mode ({@code APPSMITH_SSRF_BLOCK_PRIVATE_ADDRESS=true}) is on
+     */
+    static boolean isBlockedResolvedAddress(InetAddress address, boolean inDocker, boolean blockPrivate) {
+        // Always blocked, every deployment: link-local (incl. IMDS), any-local, multicast, IPv6 ULA.
+        if (matchesAlwaysBlockedAddressClass(address)) {
+            return true;
+        }
+        // Loopback: blocked inside Docker (existing behaviour) or when strict egress is enabled.
+        if ((inDocker || blockPrivate) && address.isLoopbackAddress()) {
+            return true;
+        }
+        // RFC 1918 site-local: blocked only under strict egress (never gated on IN_DOCKER, because
+        // Docker deployments routinely reach private-range services such as sibling containers).
+        return blockPrivate && address.isSiteLocalAddress();
     }
 
     private static boolean isValidIpAddress(String host) {

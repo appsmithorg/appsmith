@@ -12,6 +12,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.WebClientUtils;
 import com.external.plugins.exceptions.SMTPErrorMessages;
 import com.external.plugins.exceptions.SMTPPluginError;
 import jakarta.activation.DataHandler;
@@ -202,6 +203,18 @@ public class SmtpPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for SMTP plugin.");
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+
+            // GHSA-72m2-f9xp-wg9h: the SMTP plugin connects via JavaMail, outside the WebClient SSRF
+            // pipeline, so validate the destination host through the centralized guard before building
+            // the session. resolveForDatasource rejects cloud-metadata endpoints and the always-blocked
+            // address classes (link-local/IMDS, any-local, multicast, IPv6 ULA), and — on Docker or under
+            // strict egress mode — loopback and private ranges, while allowing legitimate internal mail
+            // servers on private networks by default.
+            if (WebClientUtils.resolveForDatasource(endpoint.getHost()).isEmpty()) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SMTPErrorMessages.DS_INVALID_HOST_ERROR_MSG));
+            }
 
             Properties prop = new Properties();
             prop.put("mail.transport.protocol", "smtp");
