@@ -516,6 +516,8 @@ save 15 1
 dir /appsmith-stacks/data/redis
 daemonize no
 logfile ""
+# Listen only on loopback so Redis is not reachable via the container bridge IP.
+bind 127.0.0.1 -::1
 requirepass ${APPSMITH_REDIS_PASSWORD:-}
 REDIS_CONF
       chmod 600 "$TMP/redis.conf"
