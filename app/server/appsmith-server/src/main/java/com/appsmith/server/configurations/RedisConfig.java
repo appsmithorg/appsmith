@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
+import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.AbstractRedisClient;
@@ -13,6 +14,7 @@ import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +60,22 @@ public class RedisConfig {
 
     @Value("${appsmith.redis.url:}")
     private String redisURL;
+
+    @Value("${appsmith.redis.git.url:}")
+    private String redisGitURL;
+
+    /**
+     * Teach the SSRF host filter which Redis the app is actually configured against, using the
+     * Spring-resolved property rather than only the {@code APPSMITH_REDIS_URL} env var the filter
+     * reads at static init. This closes a fail-open gap: an operator who sets {@code appsmith.redis.url}
+     * via application.properties or a {@code -D} system property (no env var) would otherwise leave
+     * the internal-Redis denylist empty, letting a datasource reach an in-cluster Redis. Runs once
+     * at startup, before any datasource can be tested. See GHSA-qhfj-g87x-m39w.
+     */
+    @PostConstruct
+    public void registerInternalRedisHostsWithSsrfFilter() {
+        RestrictedHostFilter.registerInternalRedisHosts(redisURL, redisGitURL);
+    }
 
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages

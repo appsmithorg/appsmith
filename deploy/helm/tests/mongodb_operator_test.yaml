@@ -69,6 +69,15 @@ tests:
           path: spec.version
           value: "6.0.27"
 
+  - name: CR should carry the -ubi8 version verbatim (private-registry single-value case)
+    set:
+      mongodbCommunity.enabled: true
+      mongodbCommunity.version: "8.0.20-ubi8"
+    asserts:
+      - equal:
+          path: spec.version
+          value: "8.0.20-ubi8"
+
   - name: should set correct user roles
     set:
       mongodbCommunity.enabled: true
@@ -175,6 +184,20 @@ tests:
     set:
       mongodb.enabled: false
       mongodbCommunity.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: mongo-init-container
+            image: "quay.io/mongodb/mongodb-community-server:8.0.20-ubi8"
+          count: 1
+          any: true
+
+  - name: should not double-append -ubi8 when version already carries it
+    set:
+      mongodb.enabled: false
+      mongodbCommunity.enabled: true
+      mongodbCommunity.version: "8.0.20-ubi8"
     asserts:
       - contains:
           path: spec.template.spec.initContainers
