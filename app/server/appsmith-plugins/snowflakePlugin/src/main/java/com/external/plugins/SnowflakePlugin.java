@@ -355,10 +355,15 @@ public class SnowflakePlugin extends BasePlugin {
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(SnowflakeErrorMessages.ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG, binding));
                     default:
+                        // An unrecognized data type would otherwise leave the placeholder unbound while it is
+                        // still tracked as an inserted parameter, surfacing as a confusing driver error later.
+                        log.warn("Unrecognized data type {} for binding {}; skipping parameter binding", valueType, binding);
                         break;
                 }
             } catch (SQLException | IllegalArgumentException | java.io.IOException e) {
-                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                if ((e instanceof SQLException)
+                        && e.getMessage() != null
+                        && e.getMessage().contains("The column index is out of range:")) {
                     // The parameter is likely being set inside a commented-out part of the query. Ignore it.
                 } else {
                     throw new AppsmithPluginException(
