@@ -166,7 +166,8 @@ public class SecurityConfig {
                     // bypassing authentication on the /actuator/** endpoints (GHSA-xfc5-796c-7hr9).
                     if (INTERNAL_PASSWORD != null
                             && !INTERNAL_PASSWORD.isEmpty()
-                            && INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
+                            && INTERNAL_PASSWORD.equals(
+                                    authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
