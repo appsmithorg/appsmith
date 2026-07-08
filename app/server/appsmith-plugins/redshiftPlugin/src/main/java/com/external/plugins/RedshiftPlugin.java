@@ -574,7 +574,10 @@ public class RedshiftPlugin extends BasePlugin {
                     default:
                         // An unrecognized data type would otherwise leave the placeholder unbound while it is
                         // still tracked as an inserted parameter, surfacing as a confusing driver error later.
-                        log.warn("Unrecognized data type {} for binding {}; skipping parameter binding", valueType, binding);
+                        log.warn(
+                                "Unrecognized data type {} for binding {}; skipping parameter binding",
+                                valueType,
+                                binding);
                         break;
                 }
             } catch (SQLException | IllegalArgumentException | java.io.IOException e) {
