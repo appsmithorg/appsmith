@@ -10,7 +10,6 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.internal.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -21,27 +20,31 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
 
+/**
+ * Factory for {@link WebClient} instances pre-wired with the SSRF host filter
+ * ({@link RestrictedHostFilter}). The filter is enforced at two layers:
+ *
+ * <ol>
+ *     <li>A request-stage {@link ExchangeFilterFunction} ({@link #IP_CHECK_FILTER}) that
+ *     rejects literal/canonical hosts on the deny set before DNS even runs.</li>
+ *     <li>A custom Netty {@link AddressResolver} ({@link ResolverGroup}) that runs DNS
+ *     itself and rejects when any resolved address lands on the deny set or matches a
+ *     non-routable address class.</li>
+ * </ol>
+ *
+ * <p>Host-filter logic lives in {@link RestrictedHostFilter} so non-HTTP plugins (Redis,
+ * SMTP, the Elasticsearch HttpAsyncClient hook, etc.) can call into the same denylist
+ * without depending on Spring/Netty.
+ */
 @Slf4j
 public class WebClientUtils {
-
-    private static final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
-
-    private static final Set<String> DISALLOWED_HOSTS = computeDisallowedHosts();
-
-    public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
@@ -65,37 +68,6 @@ public class WebClientUtils {
     private static volatile WebClient cloudServicesWebClient;
 
     private WebClientUtils() {}
-
-    private static Set<String> computeDisallowedHosts() {
-        final Set<String> hosts = new HashSet<>();
-        addDisallowedHosts(
-                hosts,
-                "169.254.169.254",
-                "168.63.129.16",
-                "fd00:ec2::254",
-                "fd20:ce::254",
-                "100.100.100.200",
-                "169.254.10.10",
-                "169.254.170.2",
-                "metadata.google.internal",
-                "metadata.tencentyun.com");
-
-        if ("1".equals(System.getenv("IN_DOCKER"))) {
-            addDisallowedHosts(hosts, "127.0.0.1", "::1");
-        }
-
-        return Collections.unmodifiableSet(hosts);
-    }
-
-    private static void addDisallowedHosts(Set<String> hosts, String... hostCandidates) {
-        for (String hostCandidate : hostCandidates) {
-            try {
-                hosts.add(normalizeHostForComparison(hostCandidate));
-            } catch (UnknownHostException e) {
-                throw new IllegalStateException("Invalid disallowed host configured: " + hostCandidate, e);
-            }
-        }
-    }
 
     public static WebClient create() {
         return builder().build();
@@ -199,58 +171,6 @@ public class WebClientUtils {
         }
     }
 
-    /**
-     * Resolves a hostname and validates that none of its addresses are disallowed for
-     * outbound connections from non-HTTP paths (e.g. SMTP via JavaMail). Checks against
-     * the cloud-metadata denylist, loopback, link-local, any-local, multicast, and IPv6
-     * Unique Local Addresses (fc00::/7). Returns the first validated resolved address so
-     * callers can connect to it directly, preventing DNS-rebinding TOCTOU bypasses.
-     *
-     * <p>RFC 1918 site-local ranges (10/8, 172.16/12, 192.168/16) are intentionally
-     * allowed because legitimate SMTP servers frequently reside on private networks.
-     *
-     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked
-     */
-    public static Optional<InetAddress> resolveIfAllowed(String host) {
-        if (!StringUtils.hasText(host)) {
-            return Optional.empty();
-        }
-
-        final String canonicalHost = normalizeHostForComparisonQuietly(host);
-
-        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
-            return Optional.empty();
-        }
-
-        final InetAddress[] resolved;
-        try {
-            resolved = InetAddress.getAllByName(host);
-        } catch (UnknownHostException e) {
-            return Optional.empty();
-        }
-
-        for (InetAddress addr : resolved) {
-            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))
-                    || matchesBlockedAddressClass(addr)) {
-                return Optional.empty();
-            }
-        }
-
-        return Optional.of(resolved[0]);
-    }
-
-    public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
-        final String canonicalHost = normalizeHostForComparisonQuietly(host);
-        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost)) {
-            log.warn("Host {} is disallowed. Failing the request.", host);
-            if (promise != null) {
-                promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));
-            }
-            return true;
-        }
-        return false;
-    }
-
     private static Mono<ClientRequest> requestFilterFn(ClientRequest request) {
         final String host = request.url().getHost();
 
@@ -259,117 +179,9 @@ public class WebClientUtils {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Requested url host is null or empty"));
         }
 
-        final String canonicalHost;
-        try {
-            canonicalHost = normalizeHostForComparison(host);
-        } catch (UnknownHostException e) {
-            // This exception is thrown, if the given host couldn't be resolved to an IP address. But, since we only
-            // canonicalize after ensuring that `host` is a valid IP address, this exception should never occur.
-            return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "IP Address resolution is invalid"));
-        }
-
-        return (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedAddressClassInDocker(canonicalHost))
-                ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
+        return RestrictedHostFilter.isLiteralBlocked(host)
+                ? Mono.error(new UnknownHostException(RestrictedHostFilter.HOST_NOT_ALLOWED))
                 : Mono.just(request);
-    }
-
-    static boolean isBlockedIpAddressClass(String canonicalHost) {
-        if (!isValidIpAddress(canonicalHost)) {
-            return false;
-        }
-        try {
-            return matchesBlockedAddressClass(InetAddress.getByName(canonicalHost));
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }
-
-    private static boolean matchesBlockedAddressClass(InetAddress address) {
-        if (address.isLoopbackAddress()
-                || address.isAnyLocalAddress()
-                || address.isLinkLocalAddress()
-                || address.isMulticastAddress()) {
-            return true;
-        }
-        if (address instanceof Inet6Address) {
-            // fc00::/7 — IPv6 Unique Local Addresses
-            byte firstByte = address.getAddress()[0];
-            return (firstByte & (byte) 0xFE) == (byte) 0xFC;
-        }
-        return false;
-    }
-
-    private static boolean isBlockedAddressClassInDocker(String canonicalHost) {
-        return "1".equals(System.getenv("IN_DOCKER")) && isBlockedIpAddressClass(canonicalHost);
-    }
-
-    private static boolean isValidIpAddress(String host) {
-        if (!StringUtils.hasText(host)) {
-            return false;
-        }
-        host = stripHostDecorators(host);
-        return inetAddressValidator.isValid(host);
-    }
-
-    private static String normalizeHostForComparison(String host) throws UnknownHostException {
-        if (!StringUtils.hasText(host)) {
-            return host;
-        }
-
-        final String normalizedHost = stripHostDecorators(host.trim().toLowerCase(Locale.ROOT));
-        return isValidIpAddress(normalizedHost) ? normalizeIpAddress(normalizedHost) : normalizedHost;
-    }
-
-    private static String normalizeHostForComparisonQuietly(String host) {
-        try {
-            return normalizeHostForComparison(host);
-        } catch (UnknownHostException e) {
-            return StringUtils.hasText(host) ? stripHostDecorators(host.trim().toLowerCase(Locale.ROOT)) : host;
-        }
-    }
-
-    private static String stripHostDecorators(String host) {
-        String sanitizedHost = host;
-        while (sanitizedHost.endsWith(".")) {
-            sanitizedHost = sanitizedHost.substring(0, sanitizedHost.length() - 1);
-        }
-        if (sanitizedHost.startsWith("[") && sanitizedHost.endsWith("]")) {
-            sanitizedHost = sanitizedHost.substring(1, sanitizedHost.length() - 1);
-        }
-        return sanitizedHost;
-    }
-
-    private static String normalizeIpAddress(String host) throws UnknownHostException {
-        final InetAddress address = InetAddress.getByName(host);
-
-        if (address instanceof Inet6Address) {
-            final byte[] addressBytes = address.getAddress();
-            // Normalize IPv4-compatible and IPv4-mapped IPv6 literals back to the embedded IPv4 address so a single
-            // denylist entry blocks equivalent literal representations such as `100.100.100.200` and
-            // `[::100.100.100.200]`.
-            if (isIpv4CompatibleOrMapped(addressBytes)) {
-                return InetAddress.getByAddress(Arrays.copyOfRange(addressBytes, 12, 16))
-                        .getHostAddress();
-            }
-        }
-
-        return address.getHostAddress();
-    }
-
-    private static boolean isIpv4CompatibleOrMapped(byte[] addressBytes) {
-        if (addressBytes.length != 16) {
-            return false;
-        }
-
-        for (int i = 0; i < 10; i++) {
-            if (addressBytes[i] != 0) {
-                return false;
-            }
-        }
-
-        return (addressBytes[10] == 0 && addressBytes[11] == 0)
-                || (addressBytes[10] == (byte) 0xff && addressBytes[11] == (byte) 0xff);
     }
 
     private static class NameResolver extends InetNameResolver {
@@ -380,7 +192,7 @@ public class WebClientUtils {
 
         @Override
         protected void doResolve(String inetHost, Promise<InetAddress> promise) {
-            if (isDisallowedAndFail(inetHost, promise)) {
+            if (RestrictedHostFilter.isDisallowedAndFail(inetHost, promise)) {
                 return;
             }
 
@@ -392,7 +204,7 @@ public class WebClientUtils {
                 return;
             }
 
-            if (isDisallowedAndFail(address.getHostAddress(), promise)) {
+            if (RestrictedHostFilter.isDisallowedAndFail(address.getHostAddress(), promise)) {
                 return;
             }
 
@@ -401,7 +213,7 @@ public class WebClientUtils {
 
         @Override
         protected void doResolveAll(String inetHost, Promise<List<InetAddress>> promise) {
-            if (isDisallowedAndFail(inetHost, promise)) {
+            if (RestrictedHostFilter.isDisallowedAndFail(inetHost, promise)) {
                 return;
             }
 
@@ -415,7 +227,7 @@ public class WebClientUtils {
 
             // Even if _one_ of the addresses is disallowed, we fail the request.
             for (InetAddress address : addresses) {
-                if (isDisallowedAndFail(address.getHostAddress(), promise)) {
+                if (RestrictedHostFilter.isDisallowedAndFail(address.getHostAddress(), promise)) {
                     return;
                 }
             }
