@@ -4,7 +4,6 @@ import { VERSION as buildVersion } from "./version"; // release version of the a
 
 const APPSMITH_RTS_PORT = process.env.APPSMITH_RTS_PORT || 8091;
 
-// Bind to loopback so RTS is not reachable via the container bridge IP.
 server.listen(APPSMITH_RTS_PORT, "127.0.0.1", () => {
   log.info(
     `RTS version ${buildVersion} running at http://localhost:${APPSMITH_RTS_PORT}`,
