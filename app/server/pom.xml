@@ -147,6 +147,28 @@
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                    <systemPropertyVariables>
+                        <!--
+                            Disable the always-on SSRF host filter for the entire surefire test
+                            JVM. Many integration tests (OAuth2ClientCredentialsTest, the bulk
+                            of RestApiPluginTest / ElasticSearchPluginTest / GraphQLPluginTest,
+                            the AI plugin tests, the template-helper tests, etc.) drive
+                            WebClient or HttpAsyncClient against MockWebServer / Testcontainers
+                            exposed on loopback and would otherwise fail with "Host not
+                            allowed.".
+
+                            Tests that actually exercise the filter re-enable it themselves:
+                            WebClientUtilsTest and RestrictedHostFilterTest at the class level
+                            (@BeforeAll); the testDeny* / sendTestEmail_WhenBlockedHost* /
+                            datasourceCreate_blockedHost_* methods across RestApiPluginTest,
+                            ElasticSearchPluginTest, GraphQLPluginTest, EnvManagerTest, and
+                            RedisPluginTest at the method level (try-finally around the body).
+                            Pair each setSsrfFilterDisabledForTesting(false) with
+                            resetSsrfFilterDisabledForTesting() to restore this JVM-wide
+                            default.
+                        -->
+                        <appsmith.test.bypass.ssrf>true</appsmith.test.bypass.ssrf>
+                    </systemPropertyVariables>
                     <testSourceDirectory>src/test/java</testSourceDirectory>
                     <skipTests>${skipUTs}</skipTests>
                 </configuration>

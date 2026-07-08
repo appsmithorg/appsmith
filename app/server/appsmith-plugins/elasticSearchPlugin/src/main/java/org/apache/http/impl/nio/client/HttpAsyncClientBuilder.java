@@ -29,7 +29,7 @@
 
 package org.apache.http.impl.nio.client;
 
-import com.appsmith.util.WebClientUtils;
+import com.appsmith.util.RestrictedHostFilter;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -654,12 +654,12 @@ public class HttpAsyncClientBuilder {
         // This `dnsResolver` is the only thing different from the original class.
         // In the original class, it is set to SystemDefaultDnsResolver.INSTANCE, inlined.
         final DnsResolver dnsResolver = host -> {
-            if (WebClientUtils.isDisallowedAndFail(host, null)) {
+            if (RestrictedHostFilter.isDisallowedAndFail(host, null)) {
                 throw new UnknownHostException("Host " + host + " is not allowed");
             }
             final InetAddress[] addresses = InetAddress.getAllByName(host);
             for (InetAddress address : addresses) {
-                if (WebClientUtils.isDisallowedAndFail(address.getHostAddress(), null)) {
+                if (RestrictedHostFilter.isDisallowedAndFail(address.getHostAddress(), null)) {
                     throw new UnknownHostException("Host " + host + " is not allowed");
                 }
             }
