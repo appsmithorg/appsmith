@@ -11,26 +11,50 @@ const defaultFlags = {
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
+  // When true, the requested flags are OVERLAID on the real feature flags from the
+  // backend instead of REPLACING them. The replace behavior drops every flag the test
+  // didn't list — including editor-infrastructure flags (e.g. release_app_sidebar_enabled)
+  // that the IDE needs to render at all. Tests that open the full editor (Anvil/AI) must
+  // preserve those, or the editor never mounts (.t--sidebar-Editor never appears).
+  preserveOtherFlags = false,
 ) => {
-  getConsolidatedDataApi({ ...flags, ...defaultFlags }, false);
-  const response = {
-    responseMeta: {
-      status: 200,
-      success: true,
-    },
-    data: {
-      ...flags,
-      ...defaultFlags,
-    },
-    errorDisplay: "",
-  };
-  cy.intercept("GET", "/api/v1/users/features", response);
+  getConsolidatedDataApi(
+    { ...flags, ...defaultFlags },
+    false,
+    preserveOtherFlags,
+  );
+  if (preserveOtherFlags) {
+    cy.intercept("GET", "/api/v1/users/features", (req) => {
+      req.reply((res: any) => {
+        const original = res?.body?.data ?? {};
+        res.send({
+          responseMeta: { status: 200, success: true },
+          data: { ...original, ...flags, ...defaultFlags },
+          errorDisplay: "",
+        });
+      });
+    });
+  } else {
+    const response = {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        ...flags,
+        ...defaultFlags,
+      },
+      errorDisplay: "",
+    };
+    cy.intercept("GET", "/api/v1/users/features", response);
+  }
   if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
 export const getConsolidatedDataApi = (
   flags: Record<string, boolean> = {},
   reload = true,
+  preserveOtherFlags = false,
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     delete req.headers["if-none-match"];
@@ -43,7 +67,9 @@ export const getConsolidatedDataApi = (
         const originalResponse = res?.body;
         try {
           const updatedResponse = JSON.parse(JSON.stringify(originalResponse));
-          updatedResponse.data.featureFlags.data = { ...flags };
+          updatedResponse.data.featureFlags.data = preserveOtherFlags
+            ? { ...updatedResponse.data.featureFlags.data, ...flags }
+            : { ...flags };
           return res.send(updatedResponse);
         } catch (e) {
           cy.log(`Featureflags.ts error `, e);

@@ -135,7 +135,7 @@ import type {
 import { appsmithTelemetry } from "instrumentation";
 import { getUsedWidgetTypes } from "selectors/widgetSelectors";
 import type BaseWidget from "widgets/BaseWidget";
-import { loadWidget } from "widgets";
+import { loadWidget } from "widgets/registry";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import { failFastApiCalls } from "./InitSagas";
 import { fetchJSLibraries } from "actions/JSLibraryActions";

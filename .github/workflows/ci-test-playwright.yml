@@ -91,27 +91,28 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Get Docker image id
+        env:
+          DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
         run: |
-          if [[ '${{ inputs.docker_image_name }}' != '' ]]; then
-            echo 'docker_container_name=${{ inputs.docker_image_name }}' >> "$GITHUB_ENV"
+          if [[ -n "$DOCKER_IMAGE_NAME" ]]; then
+            echo "docker_container_name=$DOCKER_IMAGE_NAME" >> "$GITHUB_ENV"
           else
             echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
           fi
 
-      - name: Restore Docker image cache
-        if: inputs.docker_image_name == ''
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ github.run_id }}
-
+      # The build job pushed the SUT image to GHCR tagged with this run's id;
+      # pull it from there (layer-parallel, no single-blob cache bottleneck).
       - name: Load Docker image
+        env:
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
+          DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
         run: |
-          if [[ '${{ inputs.docker_image_name }}' == '' ]]; then
-            gunzip cicontainer.tar.gz
-            docker load -i cicontainer.tar
+          if [[ -z "$DOCKER_IMAGE_NAME" ]]; then
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+            docker pull "$GHCR_IMAGE"
+            docker tag "$GHCR_IMAGE" cicontainer
           else
-            docker pull ${{ env.docker_container_name }}
+            docker pull "$DOCKER_IMAGE_NAME"
           fi
 
       - name: Create Appsmith stacks folder

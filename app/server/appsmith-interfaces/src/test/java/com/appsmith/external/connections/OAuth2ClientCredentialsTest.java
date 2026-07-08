@@ -39,6 +39,9 @@ public class OAuth2ClientCredentialsTest {
     public static void setUp() throws IOException {
         mockEndpoint = new MockWebServer();
         mockEndpoint.start();
+        // The SSRF filter is JVM-wide disabled for all surefire tests (see root pom), so this
+        // MockWebServer-on-loopback test works without further setup. The filter is exercised
+        // separately in RestrictedHostFilterTest / WebClientUtilsTest.
     }
 
     @AfterAll

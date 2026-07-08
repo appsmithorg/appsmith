@@ -13,12 +13,22 @@ set -o nounset
 # current FCV. Use `mongosh` if you want the live value.
 MONGO_FCV_MIN_MARKER="/appsmith-stacks/data/mongodb/.appsmith-mongo-fcv-min"
 
-# Minimum FCV this Appsmith release commits to preserve. We deliberately do
-# NOT raise FCV to 7.0 — keeping it at 6.0 preserves the ability to roll back
-# to a 6.x Appsmith release if something goes wrong. When MongoDB 8 arrives,
-# bump this constant to 7.0; the ensure_fcv_floor block below will handle the
-# `setFeatureCompatibilityVersion` call automatically.
-FCV_MIN="6.0"
+# Minimum FCV this Appsmith release commits to preserve. We raise this to 7.0
+# (up from 6.0) as groundwork for the upcoming MongoDB 8.x upgrade: MongoDB 8.x
+# refuses to start on data below FCV 7.0, so we bump the data to 7.0 now, while
+# this release still runs MongoDB 7.x. A later release can then ship MongoDB 8.x
+# and boot cleanly on data that is already at FCV 7.0.
+#
+# This release still ships MongoDB 7.x, whose binary only requires FCV >= 6.0 to
+# start (see entrypoint.sh::ensure_mongodb_fcv_compatible). The 7.0 floor here is
+# forward-prep applied by the block below, not a startup requirement yet — the
+# pre-flight check in entrypoint.sh is intentionally left at the 6.0 mongod floor.
+#
+# Tradeoff: raising FCV to 7.0 forfeits the ability to roll back to an Appsmith
+# release that bundles MongoDB 6.x (1.99 and earlier) without first deleting the
+# Mongo data files. Instances on this release are well past that line, so this is
+# an accepted one-way step.
+FCV_MIN="7.0"
 
 write_fcv_marker() {
   local value="$1"
@@ -42,11 +52,13 @@ while ! supervisorctl status mongodb | grep -q RUNNING; do
 done
 tlog "MongoDB is RUNNING"
 
-# Ensure FCV is at the floor this release commits to. In the steady state this
-# is a no-op — entrypoint.sh's pre-flight probe already guarantees mongod won't
-# come up on data below the supported FCV. The check is kept active so the
-# upgrade scaffolding is exercised and the next major-version bump is just a
-# constant change.
+# Ensure FCV is at the floor this release commits to. On the first boot of a
+# release that raises the floor, this performs the actual upgrade — e.g. issuing
+# setFeatureCompatibilityVersion to carry data from 6.0 up to 7.0. Because the
+# floor (7.0) now sits above the minimum FCV the embedded MongoDB 7.x binary needs
+# to start (6.0), this block — not entrypoint.sh's pre-flight probe — is what
+# raises the data to the committed floor. Once the data is already at the floor it
+# is a no-op, so it stays safe to run on every boot.
 tlog "Ensuring MongoDB featureCompatibilityVersion is at least $FCV_MIN"
 for _ in {1..60}; do
   if mongosh --quiet "$APPSMITH_DB_URL" --eval '

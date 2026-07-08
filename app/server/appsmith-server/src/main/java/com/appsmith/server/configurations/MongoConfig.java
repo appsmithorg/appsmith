@@ -5,6 +5,7 @@ import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
+import com.appsmith.server.helpers.EnterpriseDowngradeGuard;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -170,7 +171,11 @@ public class MongoConfig {
     */
     @Bean
     public MongockInitializingBeanRunner mongockInitializingBeanRunner(
-            ApplicationContext springContext, MongoClient mongoClient, MongoProperties mongoProperties) {
+            ApplicationContext springContext,
+            MongoClient mongoClient,
+            MongoProperties mongoProperties,
+            EnterpriseDowngradeGuard enterpriseDowngradeGuard,
+            DeploymentProperties deploymentProperties) {
         MongoReactiveDriver driver =
                 MongoReactiveDriver.withDefaultLock(mongoClient, mongoProperties.getMongoClientDatabase());
         driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
@@ -183,6 +188,14 @@ public class MongoConfig {
                 .setSpringContext(springContext);
 
         checkForbiddenIds(runnerBuilder);
+
+        // Only a CE build must refuse to start on an EE database. An EE build legitimately runs
+        // against EE data, and DeploymentProperties#getEdition() already returns "EE" there, so the
+        // guard is skipped for EE. This keeps the check entirely in CE with no EE-side override.
+        if (DeploymentPropertiesCE.EDITION_CE.equals(deploymentProperties.getEdition())) {
+            // Runs before any migration: hard-stop if this database was previously used by EE.
+            enterpriseDowngradeGuard.assertNotEnterpriseDatabase(mongoClient, mongoProperties.getMongoClientDatabase());
+        }
 
         return runnerBuilder.buildInitializingBeanRunner();
     }
