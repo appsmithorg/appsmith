@@ -12,8 +12,28 @@
             {
               "label": "",
               "internalLabel": "Query",
+              "propertyName": "query_prepared",
               "configProperty": "actionConfiguration.body",
-              "controlType": "QUERY_DYNAMIC_TEXT"
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "PARAMETER",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            },
+            {
+              "label": "",
+              "internalLabel": "Query",
+              "propertyName": "query_non_prepared",
+              "configProperty": "actionConfiguration.body",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
             }
           ]
         }

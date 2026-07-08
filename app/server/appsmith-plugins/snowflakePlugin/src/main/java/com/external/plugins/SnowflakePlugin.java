@@ -1,8 +1,13 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -12,8 +17,14 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.KeyPairAuth;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.utils.SnowflakeKeyUtils;
 import com.external.utils.SqlUtils;
@@ -23,6 +34,7 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeBasicDataSource;
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.pkcs.PKCSException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -31,16 +43,25 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.math.BigDecimal;
 import java.security.PrivateKey;
 import java.sql.*;
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.Authentication.DB_AUTH;
 import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
 import static com.appsmith.external.constants.PluginConstants.PluginName.SNOWFLAKE_PLUGIN_NAME;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.utils.ExecutionUtils.getRowsFromPreparedStatement;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.SnowflakeDatasourceUtils.getConnectionFromHikariConnectionPool;
 import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class SnowflakePlugin extends BasePlugin {
@@ -61,17 +82,28 @@ public class SnowflakePlugin extends BasePlugin {
     }
 
     @Extension
-    public static class SnowflakePluginExecutor implements PluginExecutor<HikariDataSource> {
+    public static class SnowflakePluginExecutor
+            implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
+        // Index of the "Use prepared statements" toggle within actionConfiguration.pluginSpecifiedTemplates.
+        private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        /**
+         * Overriding the default executeParameterized so that dynamic bindings ({{...}}) can be bound as
+         * PreparedStatement parameters instead of being substituted into the SQL text. When the user disables
+         * prepared statements (to bind identifiers/fragments that a PreparedStatement cannot parameterize), we
+         * fall back to the default mustache substitution path, matching the Postgres/MySQL/MSSQL plugins.
+         */
         @Override
-        public Mono<ActionExecutionResult> execute(
+        public Mono<ActionExecutionResult> executeParameterized(
                 HikariDataSource connection,
+                ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            log.debug(Thread.currentThread().getName() + ": execute() called for Snowflake plugin.");
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Snowflake plugin.");
             String query = actionConfiguration.getBody();
 
             if (!StringUtils.hasLength(query)) {
@@ -79,6 +111,72 @@ public class SnowflakePlugin extends BasePlugin {
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         SnowflakeErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
+
+            Boolean isPreparedStatement;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (properties == null
+                    || properties.size() <= PREPARED_STATEMENT_INDEX
+                    || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                // In case the prepared statement configuration is missing, default to true (safe by default).
+                isPreparedStatement = true;
+            } else {
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    // Only an explicit "false" disables prepared statements; any other value keeps it enabled.
+                    isPreparedStatement = !"false".equalsIgnoreCase(((String) psValue).trim());
+                } else {
+                    isPreparedStatement = true;
+                }
+            }
+
+            // In case of non-prepared statement, simply do bind replacement and execute the raw statement.
+            if (FALSE.equals(isPreparedStatement)) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeCommon(connection, actionConfiguration, FALSE, null, null);
+            }
+
+            // Prepared statement: replace every binding with a `?` and bind the values on the PreparedStatement.
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> execute(
+                HikariDataSource connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+            // Raw (non-parameterized) execution path. Reached only when prepared statements are disabled, after
+            // the framework has already performed mustache substitution on the action configuration.
+            return executeCommon(connection, actionConfiguration, FALSE, null, null);
+        }
+
+        private Mono<ActionExecutionResult> executeCommon(
+                HikariDataSource connection,
+                ActionConfiguration actionConfiguration,
+                Boolean preparedStatement,
+                List<MustacheBindingToken> mustacheValuesInOrder,
+                ExecuteActionDTO executeActionDTO) {
+
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for Snowflake plugin.");
+            String query = actionConfiguration.getBody();
+
+            if (!StringUtils.hasLength(query)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        SnowflakeErrorMessages.MISSING_QUERY_ERROR_MSG));
+            }
+
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement));
+            Map<String, Object> psParams = TRUE.equals(preparedStatement) ? new LinkedHashMap<>() : null;
+            String transformedQuery =
+                    TRUE.equals(preparedStatement) ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams =
+                    List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": Execute Snowflake Query");
@@ -114,12 +212,40 @@ public class SnowflakePlugin extends BasePlugin {
                                 threadsAwaitingConnection,
                                 totalConnections));
 
+                        // Declared outside the try so the prepared statement is always closed in the finally,
+                        // even if binding a parameter throws before execution.
+                        PreparedStatement preparedQuery = null;
                         try {
-                            // Connection staleness is checked as part of this method call.
-                            return getRowsFromQueryResult(connectionFromPool, query);
+                            // Connection staleness is checked as part of these method calls.
+                            if (FALSE.equals(preparedStatement)) {
+                                return getRowsFromQueryResult(connectionFromPool, query);
+                            }
+
+                            preparedQuery = connectionFromPool.prepareStatement(query);
+                            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                            preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(
+                                    preparedQuery, mustacheValuesInOrder, executeActionDTO.getParams(), parameters);
+
+                            requestData.put("ps-parameters", parameters);
+                            IntStream.range(0, parameters.size())
+                                    .forEachOrdered(i -> psParams.put(
+                                            getPSParamLabel(i + 1),
+                                            new PsParameterDTO(
+                                                    parameters.get(i).getKey(),
+                                                    parameters.get(i).getValue())));
+
+                            return getRowsFromPreparedStatement(connectionFromPool, preparedQuery);
                         } catch (AppsmithPluginException | StaleConnectionException e) {
                             throw e;
                         } finally {
+
+                            if (preparedQuery != null) {
+                                try {
+                                    preparedQuery.close();
+                                } catch (SQLException e) {
+                                    log.error("Execute Error closing Snowflake prepared statement", e);
+                                }
+                            }
 
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
@@ -146,10 +272,103 @@ public class SnowflakePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Object substituteValueInInput(
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args)
+                throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+            DataType valueType = appsmithType.type();
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
+
+            try {
+                switch (valueType) {
+                    case NULL: {
+                        preparedStatement.setNull(index, Types.NULL);
+                        break;
+                    }
+                    case BINARY: {
+                        preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                        break;
+                    }
+                    case BYTES: {
+                        preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                        break;
+                    }
+                    case INTEGER: {
+                        preparedStatement.setInt(index, Integer.parseInt(value));
+                        break;
+                    }
+                    case LONG: {
+                        preparedStatement.setLong(index, Long.parseLong(value));
+                        break;
+                    }
+                    case FLOAT:
+                    case DOUBLE: {
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                        break;
+                    }
+                    case BOOLEAN: {
+                        preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                        break;
+                    }
+                    case DATE: {
+                        // Fully qualified because this file wildcard-imports both java.sql.* and java.util.*.
+                        preparedStatement.setDate(index, java.sql.Date.valueOf(value));
+                        break;
+                    }
+                    case TIME: {
+                        preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
+                        break;
+                    }
+                    case STRING:
+                    case JSON_OBJECT: {
+                        preparedStatement.setString(index, value);
+                        break;
+                    }
+                    case ARRAY:
+                    case NULL_ARRAY:
+                        // Array-typed values cannot be bound as a scalar JDBC parameter. Fail fast with a clear
+                        // message rather than leaving the placeholder unbound and hitting a confusing driver error.
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(SnowflakeErrorMessages.ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG, binding));
+                    default:
+                        break;
+                }
+            } catch (SQLException | IllegalArgumentException | java.io.IOException e) {
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // The parameter is likely being set inside a commented-out part of the query. Ignore it.
+                } else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(SnowflakeErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
+                            e.getMessage());
+                }
+            }
+
+            return preparedStatement;
         }
 
         @Override
@@ -393,11 +612,14 @@ public class SnowflakePlugin extends BasePlugin {
                                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, invalids.toArray()[0]);
                             }
                             Statement statement = connectionFromPool.createStatement();
-                            final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
-                                    + datasourceConfiguration
+                            // Schema name comes from datasource configuration (requires MANAGE_DATASOURCES). Escape
+                            // single quotes so the value cannot break out of the string literal in the metadata query.
+                            final String schemaValue = String.valueOf(datasourceConfiguration
                                             .getProperties()
                                             .get(2)
-                                            .getValue() + "'";
+                                            .getValue())
+                                    .replace("'", "''");
+                            final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'" + schemaValue + "'";
                             ResultSet resultSet = statement.executeQuery(columnsQuery);
 
                             while (resultSet.next()) {

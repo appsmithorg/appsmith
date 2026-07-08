@@ -1,6 +1,9 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.datatypes.ClientDataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -8,6 +11,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.KeyPairAuth;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.UploadedFile;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
@@ -34,6 +38,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.PrivateKey;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
@@ -46,7 +53,9 @@ import static com.appsmith.external.constants.Authentication.DB_AUTH;
 import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @Slf4j
@@ -401,5 +410,214 @@ public class SnowflakePluginTest {
         PrivateKey privateKey = SnowflakeKeyUtils.readEncryptedPrivateKey(
                 auth.getPrivateKey().getDecodedContent(), auth.getPassphrase());
         assertInstanceOf(PrivateKey.class, privateKey);
+    }
+
+    // ------------------------------------------------------------------
+    // Review-fix regression tests
+    // ------------------------------------------------------------------
+
+    /** Builds a mocked Hikari pool that hands out the given connection and reports harmless pool stats. */
+    private HikariDataSource mockPool(Connection connection) throws SQLException {
+        HikariPoolMXBean mxbean = mock(HikariPoolMXBean.class);
+        when(mxbean.getActiveConnections()).thenReturn(1);
+        when(mxbean.getIdleConnections()).thenReturn(4);
+        when(mxbean.getTotalConnections()).thenReturn(5);
+        when(mxbean.getThreadsAwaitingConnection()).thenReturn(0);
+
+        HikariDataSource pool = mock(HikariDataSource.class);
+        when(pool.isClosed()).thenReturn(false);
+        when(pool.isRunning()).thenReturn(true);
+        when(pool.getConnection()).thenReturn(connection);
+        when(pool.getHikariPoolMXBean()).thenReturn(mxbean);
+        return pool;
+    }
+
+    /**
+     * Runs executeParameterized against a connection where BOTH the prepared and raw paths return an empty result
+     * set, so a test can assert which path was chosen for a given prepared-statement setting.
+     */
+    private Connection runSnowflake(List<Property> templates) throws SQLException {
+        Connection connection = mock(Connection.class);
+        when(connection.isValid(30)).thenReturn(true);
+
+        ResultSet rs = mock(ResultSet.class);
+        ResultSetMetaData meta = mock(ResultSetMetaData.class);
+        when(rs.getMetaData()).thenReturn(meta);
+        when(meta.getColumnCount()).thenReturn(0);
+        when(rs.next()).thenReturn(false);
+
+        PreparedStatement ps = mock(PreparedStatement.class);
+        when(connection.prepareStatement(any())).thenReturn(ps);
+        when(ps.executeQuery()).thenReturn(rs);
+
+        Statement st = mock(Statement.class);
+        when(connection.createStatement()).thenReturn(st);
+        when(st.executeQuery(any())).thenReturn(rs);
+
+        HikariDataSource pool = mockPool(connection);
+
+        ActionConfiguration ac = new ActionConfiguration();
+        ac.setBody("SELECT * FROM users WHERE name = {{Input1.text}}");
+        ac.setPluginSpecifiedTemplates(templates);
+
+        ExecuteActionDTO dto = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("value");
+        param.setClientDataType(ClientDataType.STRING);
+        dto.setParams(List.of(param));
+
+        StepVerifier.create(pluginExecutor.executeParameterized(pool, dto, new DatasourceConfiguration(), ac))
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+        return connection;
+    }
+
+    /** The prepared path is taken (binding bound as `?`, value never substituted into the SQL text). */
+    @Test
+    public void testExecuteParameterizedPreparedStatementBindsAndClosesStatement() throws SQLException {
+        Connection connection = mock(Connection.class);
+        when(connection.isValid(30)).thenReturn(true);
+
+        PreparedStatement ps = mock(PreparedStatement.class);
+        when(connection.prepareStatement(any())).thenReturn(ps);
+        ResultSet rs = mock(ResultSet.class);
+        when(ps.executeQuery()).thenReturn(rs);
+        ResultSetMetaData meta = mock(ResultSetMetaData.class);
+        when(rs.getMetaData()).thenReturn(meta);
+        when(meta.getColumnCount()).thenReturn(0);
+        when(rs.next()).thenReturn(false);
+
+        HikariDataSource pool = mockPool(connection);
+
+        ActionConfiguration ac = new ActionConfiguration();
+        ac.setBody("SELECT * FROM users WHERE name = {{Input1.text}}");
+        ac.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
+
+        final String paramValue = "O'Reilly -- value";
+        ExecuteActionDTO dto = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue(paramValue);
+        param.setClientDataType(ClientDataType.STRING);
+        dto.setParams(List.of(param));
+
+        StepVerifier.create(pluginExecutor.executeParameterized(pool, dto, new DatasourceConfiguration(), ac))
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+
+        verify(connection).prepareStatement("SELECT * FROM users WHERE name = ?");
+        verify(ps).setString(eq(1), eq(paramValue));
+        verify(connection, never()).createStatement();
+        verify(ps, atLeastOnce()).close();
+    }
+
+    /** The prepared-statement setting defaults to ON when absent or malformed. */
+    @Test
+    public void testPreparedStatementDefaultsOnWhenSettingAbsentOrMalformed() throws SQLException {
+        Property boolTrue = new Property();
+        boolTrue.setKey("preparedStatement");
+        boolTrue.setValue(Boolean.TRUE);
+
+        for (List<Property> templates : Arrays.asList(
+                (List<Property>) null,
+                new ArrayList<Property>(),
+                Arrays.asList((Property) null),
+                List.of(new Property("preparedStatement", "true")),
+                List.of(new Property("preparedStatement", "banana")),
+                List.of(boolTrue))) {
+            Connection connection = runSnowflake(templates);
+            verify(connection).prepareStatement("SELECT * FROM users WHERE name = ?");
+            verify(connection, never()).createStatement();
+        }
+    }
+
+    /** Raw execution is used only when the user explicitly disables prepared statements. */
+    @Test
+    public void testRawStatementOnlyWhenExplicitlyDisabled() throws SQLException {
+        Property boolFalse = new Property();
+        boolFalse.setKey("preparedStatement");
+        boolFalse.setValue(Boolean.FALSE);
+
+        for (List<Property> templates :
+                Arrays.asList(List.of(new Property("preparedStatement", "false")), List.of(boolFalse))) {
+            Connection connection = runSnowflake(templates);
+            verify(connection).createStatement();
+            verify(connection, never()).prepareStatement(any());
+        }
+    }
+
+    /** When binding a parameter throws, the prepared statement must still be closed (no resource leak). */
+    @Test
+    public void testExecuteParameterizedClosesPreparedStatementWhenBindingFails() throws SQLException {
+        Connection connection = mock(Connection.class);
+        when(connection.isValid(30)).thenReturn(true);
+
+        PreparedStatement ps = mock(PreparedStatement.class);
+        when(connection.prepareStatement(any())).thenReturn(ps);
+        doThrow(new SQLException("driver rejected value")).when(ps).setString(anyInt(), anyString());
+
+        HikariDataSource pool = mockPool(connection);
+
+        ActionConfiguration ac = new ActionConfiguration();
+        ac.setBody("SELECT * FROM users WHERE name = {{Input1.text}}");
+        ac.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
+
+        ExecuteActionDTO dto = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("x");
+        param.setClientDataType(ClientDataType.STRING);
+        dto.setParams(List.of(param));
+
+        StepVerifier.create(pluginExecutor.executeParameterized(pool, dto, new DatasourceConfiguration(), ac))
+                .expectError(AppsmithPluginException.class)
+                .verify();
+
+        verify(ps).close();
+    }
+
+    /** Array-typed params cannot be bound as scalar JDBC parameters and must fail with a clear message. */
+    @Test
+    public void testExecuteParameterizedRejectsArrayParams() throws SQLException {
+        Connection connection = mock(Connection.class);
+        when(connection.isValid(30)).thenReturn(true);
+
+        PreparedStatement ps = mock(PreparedStatement.class);
+        when(connection.prepareStatement(any())).thenReturn(ps);
+
+        HikariDataSource pool = mockPool(connection);
+
+        ActionConfiguration ac = new ActionConfiguration();
+        ac.setBody("SELECT * FROM t WHERE id = {{Input1.ids}}");
+        ac.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
+
+        ExecuteActionDTO dto = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.ids");
+        param.setValue("[1, 2, 3]");
+        param.setClientDataType(ClientDataType.ARRAY);
+        dto.setParams(List.of(param));
+
+        StepVerifier.create(pluginExecutor.executeParameterized(pool, dto, new DatasourceConfiguration(), ac))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage()
+                                .contains(String.format(
+                                        SnowflakeErrorMessages.ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG, "Input1.ids")))
+                .verify();
+
+        verify(connection, never()).createStatement();
+        verify(ps).close();
+    }
+
+    /** The plugin ships a dependency.json so the client re-evaluates the query body when the toggle flips. */
+    @Test
+    public void testDependencyConfigLinksBodyToPreparedStatementToggle() throws IOException {
+        InputStream input = new ClassPathResource("dependency.json").getInputStream();
+        String content = new BufferedReader(new InputStreamReader(input))
+                .lines()
+                .collect(Collectors.joining(System.lineSeparator()));
+        assertTrue(content.contains("actionConfiguration.body"));
+        assertTrue(content.contains("actionConfiguration.pluginSpecifiedTemplates[0].value"));
     }
 }

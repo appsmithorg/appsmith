@@ -18,6 +18,12 @@ public class RedshiftErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Error occurred while executing Redshift query. To know more please check the error details.";
 
+    public static final String QUERY_PREPARATION_FAILED_ERROR_MSG =
+            "Query preparation failed while inserting value: %s for binding: {{%s}}. Please check the query again.";
+
+    public static final String ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG =
+            "ARRAY parameters are not supported by prepared statements for this plugin. Binding: {{%s}}.";
+
     public static final String GET_STRUCTURE_ERROR_MSG =
             "Appsmith server has failed to fetch the structure of the database. "
                     + "Please check if the database credentials are valid and/or you have the required permissions.";

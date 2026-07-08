@@ -10,9 +10,27 @@
           "children": [
             {
               "label": "",
+              "propertyName": "query_prepared",
               "configProperty": "actionConfiguration.body",
               "controlType": "QUERY_DYNAMIC_TEXT",
-              "evaluationSubstitutionType": "TEMPLATE"
+              "evaluationSubstitutionType": "PARAMETER",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            },
+            {
+              "label": "",
+              "propertyName": "query_non_prepared",
+              "configProperty": "actionConfiguration.body",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
             }
           ]
         }

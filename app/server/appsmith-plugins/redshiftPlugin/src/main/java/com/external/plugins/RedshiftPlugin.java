@@ -1,8 +1,13 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -10,9 +15,14 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.external.plugins.exceptions.RedshiftPluginError;
 import com.external.utils.RedshiftDatasourceUtils;
@@ -20,6 +30,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -29,14 +40,21 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -46,13 +64,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.PluginName.REDSHIFT_PLUGIN_NAME;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -67,9 +90,12 @@ public class RedshiftPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class RedshiftPluginExecutor implements PluginExecutor<HikariDataSource> {
+    public static class RedshiftPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        // Index of the "Use prepared statements" toggle within actionConfiguration.pluginSpecifiedTemplates.
+        private static final int PREPARED_STATEMENT_INDEX = 0;
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n"
@@ -189,22 +215,92 @@ public class RedshiftPlugin extends BasePlugin {
             return row;
         }
 
+        /**
+         * Overriding the default executeParameterized so that dynamic bindings ({{...}}) can be bound as
+         * PreparedStatement parameters instead of being substituted into the SQL text. When the user disables
+         * prepared statements (to bind identifiers/fragments that a PreparedStatement cannot parameterize), we
+         * fall back to the default mustache substitution path, matching the Postgres/MySQL/MSSQL plugins.
+         */
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(
+                HikariDataSource connectionPool,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Redshift plugin.");
+            String query = actionConfiguration.getBody();
+            if (!StringUtils.hasLength(query)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        RedshiftErrorMessages.QUERY_PARAMETER_MISSING_ERROR_MSG));
+            }
+
+            Boolean isPreparedStatement;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (properties == null
+                    || properties.size() <= PREPARED_STATEMENT_INDEX
+                    || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                // In case the prepared statement configuration is missing, default to true (safe by default).
+                isPreparedStatement = true;
+            } else {
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    // Only an explicit "false" disables prepared statements; any other value keeps it enabled.
+                    isPreparedStatement = !"false".equalsIgnoreCase(((String) psValue).trim());
+                } else {
+                    isPreparedStatement = true;
+                }
+            }
+
+            // In case of non-prepared statement, simply do bind replacement and execute the raw statement.
+            if (FALSE.equals(isPreparedStatement)) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeCommon(connectionPool, actionConfiguration, FALSE, null, null);
+            }
+
+            // Prepared statement: replace every binding with a `?` and bind the values on the PreparedStatement.
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connectionPool, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+        }
+
         @Override
         public Mono<ActionExecutionResult> execute(
                 HikariDataSource connectionPool,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+            // Raw (non-parameterized) execution path. Reached only when prepared statements are disabled, after
+            // the framework has already performed mustache substitution on the action configuration.
+            return executeCommon(connectionPool, actionConfiguration, FALSE, null, null);
+        }
 
-            log.debug(Thread.currentThread().getName() + ": execute() called for Redshift plugin.");
+        private Mono<ActionExecutionResult> executeCommon(
+                HikariDataSource connectionPool,
+                ActionConfiguration actionConfiguration,
+                Boolean preparedStatement,
+                List<MustacheBindingToken> mustacheValuesInOrder,
+                ExecuteActionDTO executeActionDTO) {
+
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for Redshift plugin.");
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams =
-                    List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
 
             if (!StringUtils.hasLength(query)) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         RedshiftErrorMessages.QUERY_PARAMETER_MISSING_ERROR_MSG));
             }
+
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement));
+            Map<String, Object> psParams = TRUE.equals(preparedStatement) ? new LinkedHashMap<>() : null;
+            String transformedQuery =
+                    TRUE.equals(preparedStatement) ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams =
+                    List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
                         Connection connection = null;
@@ -241,14 +337,40 @@ public class RedshiftPlugin extends BasePlugin {
                         List<Map<String, Object>> rowsList = new ArrayList<>(50);
                         final List<String> columnsList = new ArrayList<>();
                         Statement statement = null;
+                        PreparedStatement preparedQuery = null;
                         ResultSet resultSet = null;
 
                         try {
-                            statement = connection.createStatement();
-                            boolean isResultSet = statement.execute(query);
+                            boolean isResultSet;
+                            int updateCount;
+
+                            if (FALSE.equals(preparedStatement)) {
+                                statement = connection.createStatement();
+                                isResultSet = statement.execute(query);
+                                updateCount = statement.getUpdateCount();
+                            } else {
+                                preparedQuery = connection.prepareStatement(query);
+
+                                List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                                preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(
+                                        preparedQuery, mustacheValuesInOrder, executeActionDTO.getParams(), parameters);
+
+                                requestData.put("ps-parameters", parameters);
+                                IntStream.range(0, parameters.size())
+                                        .forEachOrdered(i -> psParams.put(
+                                                getPSParamLabel(i + 1),
+                                                new PsParameterDTO(
+                                                        parameters.get(i).getKey(),
+                                                        parameters.get(i).getValue())));
+
+                                isResultSet = preparedQuery.execute();
+                                updateCount = preparedQuery.getUpdateCount();
+                            }
 
                             if (isResultSet) {
-                                resultSet = statement.getResultSet();
+                                resultSet = FALSE.equals(preparedStatement)
+                                        ? statement.getResultSet()
+                                        : preparedQuery.getResultSet();
                                 ResultSetMetaData metaData = resultSet.getMetaData();
                                 columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
@@ -257,8 +379,7 @@ public class RedshiftPlugin extends BasePlugin {
                                     rowsList.add(row);
                                 }
                             } else {
-                                rowsList.add(Map.of(
-                                        "affectedRows", ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0)));
+                                rowsList.add(Map.of("affectedRows", ObjectUtils.defaultIfNull(updateCount, 0)));
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
@@ -268,6 +389,15 @@ public class RedshiftPlugin extends BasePlugin {
                                     e.getMessage(),
                                     "SQLSTATE: " + e.getSQLState()));
                         } finally {
+                            if (preparedQuery != null) {
+                                try {
+                                    preparedQuery.close();
+                                } catch (SQLException e) {
+                                    log.error("Error closing Redshift PreparedStatement");
+                                    e.printStackTrace();
+                                }
+                            }
+
                             if (resultSet != null) {
                                 try {
                                     resultSet.close();
@@ -323,6 +453,7 @@ public class RedshiftPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
                         request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
@@ -365,6 +496,96 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return messages;
+        }
+
+        @Override
+        public Object substituteValueInInput(
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args)
+                throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+            DataType valueType = appsmithType.type();
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
+
+            try {
+                switch (valueType) {
+                    case NULL: {
+                        preparedStatement.setNull(index, Types.NULL);
+                        break;
+                    }
+                    case BINARY: {
+                        preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                        break;
+                    }
+                    case BYTES: {
+                        preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                        break;
+                    }
+                    case INTEGER: {
+                        preparedStatement.setInt(index, Integer.parseInt(value));
+                        break;
+                    }
+                    case LONG: {
+                        preparedStatement.setLong(index, Long.parseLong(value));
+                        break;
+                    }
+                    case FLOAT:
+                    case DOUBLE: {
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                        break;
+                    }
+                    case BOOLEAN: {
+                        preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                        break;
+                    }
+                    case DATE: {
+                        preparedStatement.setDate(index, Date.valueOf(value));
+                        break;
+                    }
+                    case TIME: {
+                        preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
+                        break;
+                    }
+                    case STRING:
+                    case JSON_OBJECT: {
+                        preparedStatement.setString(index, value);
+                        break;
+                    }
+                    case ARRAY:
+                    case NULL_ARRAY:
+                        // Array-typed values cannot be bound as a scalar JDBC parameter. Fail fast with a clear
+                        // message rather than leaving the placeholder unbound and hitting a confusing driver error.
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(RedshiftErrorMessages.ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG, binding));
+                    default:
+                        break;
+                }
+            } catch (SQLException | IllegalArgumentException | java.io.IOException e) {
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // The parameter is likely being set inside a commented-out part of the query. Ignore it.
+                } else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(RedshiftErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
+                            e.getMessage());
+                }
+            }
+
+            return preparedStatement;
         }
 
         @Override

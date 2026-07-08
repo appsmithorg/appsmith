@@ -11,6 +11,12 @@ public class SnowflakeErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Your query failed to execute. Please check more information in the error details.";
 
+    public static final String QUERY_PREPARATION_FAILED_ERROR_MSG =
+            "Query preparation failed while inserting value: %s for binding: {{%s}}. Please check the query again.";
+
+    public static final String ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG =
+            "ARRAY parameters are not supported by prepared statements for this plugin. Binding: {{%s}}.";
+
     public static final String UNABLE_TO_CREATE_CONNECTION_ERROR_MSG = "Unable to create connection to Snowflake URL";
 
     public static final String GET_STRUCTURE_ERROR_MSG =

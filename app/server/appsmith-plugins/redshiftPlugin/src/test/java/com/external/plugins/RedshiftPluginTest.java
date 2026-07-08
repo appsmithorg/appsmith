@@ -1,5 +1,7 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -8,7 +10,10 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -17,11 +22,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -40,13 +51,16 @@ import java.util.stream.Stream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -697,5 +711,235 @@ public class RedshiftPluginTest {
                     assertEquals("localhost_5439", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * When prepared statements are enabled (the default), a dynamic binding must be replaced by a `?`
+     * placeholder and its value bound on the PreparedStatement, not substituted into the SQL text. A param
+     * value containing SQL metacharacters must reach the driver as a bound parameter, never as SQL text.
+     */
+    @Test
+    public void testExecuteParameterizedBindsValuesInsteadOfInterpolating() throws SQLException {
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(false);
+        when(mockConnectionPool.isRunning()).thenReturn(true);
+
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(false);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+        when(mockConnectionPool.getConnection()).thenReturn(mockConnection);
+
+        // The prepared statement path must go through Connection.prepareStatement(...), never createStatement().
+        PreparedStatement mockPreparedStatement = mock(PreparedStatement.class);
+        when(mockConnection.prepareStatement(any())).thenReturn(mockPreparedStatement);
+        // A write-style statement: no result set, just an affected-row count. Keeps the mock minimal.
+        when(mockPreparedStatement.execute()).thenReturn(false);
+        when(mockPreparedStatement.getUpdateCount()).thenReturn(1);
+        doNothing().when(mockPreparedStatement).close();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Binding is unquoted so it becomes a `?` placeholder (the safe prepared-statement form).
+        actionConfiguration.setBody("SELECT * FROM users WHERE name = {{Input1.text}}");
+        // Prepared statements enabled (this is also the default when the property is absent).
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
+
+        final String paramValue = "O'Reilly -- value";
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue(paramValue);
+        param.setClientDataType(ClientDataType.STRING);
+        executeActionDTO.setParams(List.of(param));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
+
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(connPool ->
+                spyPluginExecutor.executeParameterized(connPool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+
+        // The binding must have been replaced by a `?` placeholder in the prepared query...
+        verify(mockConnection).prepareStatement("SELECT * FROM users WHERE name = ?");
+        // ...and the value must have been bound as a parameter, not concatenated into the SQL text.
+        verify(mockPreparedStatement).setString(eq(1), eq(paramValue));
+        // The raw Statement path must never be taken when prepared statements are enabled.
+        Mockito.verify(mockConnection, Mockito.never()).createStatement();
+    }
+
+    // ------------------------------------------------------------------
+    // Review-fix regression tests
+    // ------------------------------------------------------------------
+
+    /** Holder for a wired-up executeParameterized invocation so tests can inspect the mocks and the result Mono. */
+    private static class ExecHarness {
+        Mono<ActionExecutionResult> mono;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        Statement statement;
+    }
+
+    /**
+     * Wires a Redshift executor with both the prepared and raw JDBC paths mocked for a no-result-set (write) query,
+     * so a test can assert which path executeParameterized selects and how a single binding is bound.
+     */
+    private ExecHarness buildExec(List<Property> pluginSpecifiedTemplates, ClientDataType clientDataType, String value)
+            throws SQLException {
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(false);
+        when(mockConnectionPool.isRunning()).thenReturn(true);
+
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(false);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+        when(mockConnectionPool.getConnection()).thenReturn(mockConnection);
+
+        PreparedStatement mockPreparedStatement = mock(PreparedStatement.class);
+        when(mockConnection.prepareStatement(any())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.execute()).thenReturn(false);
+        when(mockPreparedStatement.getUpdateCount()).thenReturn(0);
+
+        Statement mockStatement = mock(Statement.class);
+        when(mockConnection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.execute(any())).thenReturn(false);
+        when(mockStatement.getUpdateCount()).thenReturn(0);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM users WHERE name = {{Input1.text}}");
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue(value);
+        param.setClientDataType(clientDataType);
+        executeActionDTO.setParams(List.of(param));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
+
+        ExecHarness harness = new ExecHarness();
+        harness.connection = mockConnection;
+        harness.preparedStatement = mockPreparedStatement;
+        harness.statement = mockStatement;
+        harness.mono = spyPluginExecutor.executeParameterized(
+                mockConnectionPool, executeActionDTO, dsConfig, actionConfiguration);
+        return harness;
+    }
+
+    private void assertPreparedPathTaken(List<Property> templates) throws SQLException {
+        ExecHarness harness = buildExec(templates, ClientDataType.STRING, "value");
+        StepVerifier.create(harness.mono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+        verify(harness.connection).prepareStatement("SELECT * FROM users WHERE name = ?");
+        Mockito.verify(harness.connection, Mockito.never()).createStatement();
+    }
+
+    private void assertRawPathTaken(List<Property> templates) throws SQLException {
+        ExecHarness harness = buildExec(templates, ClientDataType.STRING, "value");
+        StepVerifier.create(harness.mono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+        verify(harness.connection).createStatement();
+        Mockito.verify(harness.connection, Mockito.never()).prepareStatement(any());
+    }
+
+    /**
+     * The prepared-statement setting must default to ON whenever it is absent or malformed, so that saved actions
+     * without a populated setting are protected. Covers: missing list, empty list, present-but-null element,
+     * string "true" and boolean true.
+     */
+    @Test
+    public void testPreparedStatementDefaultsOnWhenSettingAbsentOrMalformed() throws SQLException {
+        Property boolTrue = new Property();
+        boolTrue.setKey("preparedStatement");
+        boolTrue.setValue(Boolean.TRUE);
+
+        assertPreparedPathTaken(null); // pluginSpecifiedTemplates missing entirely
+        assertPreparedPathTaken(new ArrayList<>()); // non-null but empty list (would previously throw IOOBE)
+        assertPreparedPathTaken(Arrays.asList((Property) null)); // index 0 present but null
+        assertPreparedPathTaken(List.of(new Property("preparedStatement", "true"))); // string "true"
+        assertPreparedPathTaken(List.of(boolTrue)); // boolean true
+        assertPreparedPathTaken(List.of(new Property("preparedStatement", "banana"))); // malformed non-boolean string
+    }
+
+    /** Raw (non-prepared) execution is used only when the user explicitly disables prepared statements. */
+    @Test
+    public void testRawStatementOnlyWhenExplicitlyDisabled() throws SQLException {
+        Property boolFalse = new Property();
+        boolFalse.setKey("preparedStatement");
+        boolFalse.setValue(Boolean.FALSE);
+
+        assertRawPathTaken(List.of(new Property("preparedStatement", "false"))); // string "false"
+        assertRawPathTaken(List.of(boolFalse)); // boolean false
+    }
+
+    /** Array-typed params cannot be bound as scalar JDBC parameters and must fail with a clear message. */
+    @Test
+    public void testExecuteParameterizedRejectsArrayParams() throws SQLException {
+        ExecHarness harness =
+                buildExec(List.of(new Property("preparedStatement", "true")), ClientDataType.ARRAY, "[1, 2, 3]");
+        // Redshift converts execution errors into a failed result (isExecutionSuccess=false) with errorInfo set.
+        StepVerifier.create(harness.mono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(String.valueOf(result.getBody())
+                            .contains(String.format(
+                                    RedshiftErrorMessages.ARRAY_PARAMETER_NOT_SUPPORTED_ERROR_MSG, "Input1.text")));
+                })
+                .verifyComplete();
+        Mockito.verify(harness.connection, Mockito.never()).createStatement();
+    }
+
+    /** A null param is bound via setNull rather than being interpolated as the string "null". */
+    @Test
+    public void testExecuteParameterizedBindsNull() throws SQLException {
+        ExecHarness harness =
+                buildExec(List.of(new Property("preparedStatement", "true")), ClientDataType.NULL, "null");
+        StepVerifier.create(harness.mono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+        verify(harness.preparedStatement).setNull(eq(1), Mockito.anyInt());
+    }
+
+    /**
+     * When the driver rejects a bound value, a clear preparation error is surfaced and the prepared statement is
+     * still closed (no resource leak).
+     */
+    @Test
+    public void testExecuteParameterizedBindFailureSurfacesErrorAndClosesStatement() throws SQLException {
+        ExecHarness harness =
+                buildExec(List.of(new Property("preparedStatement", "true")), ClientDataType.NUMBER, "123");
+        Mockito.doThrow(new SQLException("driver rejected value"))
+                .when(harness.preparedStatement)
+                .setInt(Mockito.anyInt(), Mockito.anyInt());
+
+        StepVerifier.create(harness.mono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    // The underlying driver error is surfaced to the user rather than being swallowed.
+                    assertTrue(String.valueOf(result.getBody()).contains("driver rejected value"));
+                })
+                .verifyComplete();
+        verify(harness.preparedStatement).close();
+    }
+
+    /** The plugin ships a dependency.json so the client re-evaluates the query body when the toggle flips. */
+    @Test
+    public void testDependencyConfigLinksBodyToPreparedStatementToggle() throws IOException {
+        InputStream input = new ClassPathResource("dependency.json").getInputStream();
+        String content = new BufferedReader(new InputStreamReader(input))
+                .lines()
+                .collect(Collectors.joining(System.lineSeparator()));
+        assertTrue(content.contains("actionConfiguration.body"));
+        assertTrue(content.contains("actionConfiguration.pluginSpecifiedTemplates[0].value"));
     }
 }
