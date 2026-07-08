@@ -2,7 +2,7 @@
 // import Widgets from "widgets";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
-import { loadAllWidgets } from "widgets";
+import { loadAllWidgets } from "widgets/registry";
 export const registerAllWidgets = async () => {
   try {
     const loadedWidgets = await loadAllWidgets();

@@ -153,6 +153,26 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         return !StringUtils.hasText(gitAuth.getPrivateKey()) || !StringUtils.hasText(gitAuth.getPublicKey());
     }
 
+    /**
+     * JGit throws a TransportException with message "Remote branch ''HEAD'' not found in upstream origin"
+     * when the remote repo has no checkout-able default branch. That is not an SSH problem, so we detect it
+     * here to avoid the misleading "SSH key misconfiguration" error.
+     * <p>
+     * We match specifically on the {@code HEAD} ref rather than the broader "not found in upstream" phrasing,
+     * which JGit also emits for a genuinely missing named branch/SHA (e.g. "Remote branch 'foo' not found in
+     * upstream origin"). This keeps the helper safe to reuse from branch-specific fetch/checkout paths.
+     */
+    static boolean isRemoteDefaultBranchMissing(Throwable error) {
+        for (Throwable t = error; t != null; t = t.getCause()) {
+            String msg = t.getMessage();
+            if (msg != null && msg.toLowerCase().contains("branch 'head' not found in upstream")) {
+                log.debug("Remote clone failed: repository has no default branch. JGit message: {}", msg);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Mono<String> fetchRemoteRepository(
             GitConnectDTO gitConnectDTO, GitAuth gitAuth, ArtifactJsonTransformationDTO jsonTransformationDTO) {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
@@ -176,8 +196,10 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                             .then(commonGitFileUtils.deleteLocalRepo(temporaryStorage))
                             .flatMap(isDeleted -> {
                                 if (error instanceof TransportException) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                                    AppsmithError transportError = isRemoteDefaultBranchMissing(error)
+                                            ? AppsmithError.GIT_DEFAULT_BRANCH_NOT_FOUND
+                                            : AppsmithError.INVALID_GIT_SSH_CONFIGURATION;
+                                    return Mono.error(new AppsmithException(transportError));
                                 } else if (error instanceof InvalidRemoteException) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
@@ -260,7 +282,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     AppsmithException appsmithException;
 
                     if (error instanceof TransportException) {
-                        appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                        appsmithException = isRemoteDefaultBranchMissing(error)
+                                ? new AppsmithException(AppsmithError.GIT_DEFAULT_BRANCH_NOT_FOUND)
+                                : new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                     } else if (error instanceof InvalidRemoteException) {
                         appsmithException = new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url");
                     } else if (error instanceof TimeoutException) {

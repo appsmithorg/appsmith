@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -414,28 +415,29 @@ public class PartialImportServiceTest {
                     // Verify that the application has the imported resource
                     assertThat(application.getPages()).hasSize(1);
 
+                    // Assert the exact, DISTINCT names so a duplicate (e.g. two "utils") is caught:
+                    // re-importing must rename the JS object rather than duplicating it.
                     assertThat(actionCollectionList).hasSize(2);
-                    Set<String> nameList = Set.of("utils", "utils1");
-                    actionCollectionList.forEach(collection -> {
-                        assertThat(nameList.contains(
-                                        collection.getUnpublishedCollection().getName()))
-                                .isTrue();
-                    });
+                    Set<String> collectionNames = actionCollectionList.stream()
+                            .map(collection ->
+                                    collection.getUnpublishedCollection().getName())
+                            .collect(Collectors.toSet());
+                    assertThat(collectionNames).containsExactlyInAnyOrder("utils", "utils1");
+
                     assertThat(actionList).hasSize(8);
-                    Set<String> actionNames = Set.of(
-                            "DeleteQuery",
-                            "UpdateQuery",
-                            "SelectQuery",
-                            "InsertQuery",
-                            "DeleteQuery1",
-                            "UpdateQuery1",
-                            "SelectQuery1",
-                            "InsertQuery1");
-                    actionList.forEach(action -> {
-                        assertThat(actionNames.contains(
-                                        action.getUnpublishedAction().getName()))
-                                .isTrue();
-                    });
+                    Set<String> actionNames = actionList.stream()
+                            .map(action -> action.getUnpublishedAction().getName())
+                            .collect(Collectors.toSet());
+                    assertThat(actionNames)
+                            .containsExactlyInAnyOrder(
+                                    "DeleteQuery",
+                                    "UpdateQuery",
+                                    "SelectQuery",
+                                    "InsertQuery",
+                                    "DeleteQuery1",
+                                    "UpdateQuery1",
+                                    "SelectQuery1",
+                                    "InsertQuery1");
                 })
                 .verifyComplete();
     }

@@ -20,6 +20,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -410,14 +411,22 @@ public class EnvManagerTest {
     @ParameterizedTest
     @ValueSource(strings = {"127.0.0.1", "169.254.169.254", "localhost"})
     public void sendTestEmail_WhenBlockedHost_ThrowsException(String host) {
-        mockSuperUser();
+        // Surefire bypasses the SSRF filter JVM-wide (see root pom) for the benefit of tests that
+        // use MockWebServer / Testcontainers on loopback. This test explicitly verifies the
+        // filter, so re-enable it for the test body.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            mockSuperUser();
 
-        StepVerifier.create(envManager.sendTestEmail(buildDto(host)))
-                .expectErrorSatisfies(e -> {
-                    assertThat(e).isInstanceOf(AppsmithException.class);
-                    assertThat(e.getMessage()).contains("Invalid SMTP configuration");
-                })
-                .verify();
+            StepVerifier.create(envManager.sendTestEmail(buildDto(host)))
+                    .expectErrorSatisfies(e -> {
+                        assertThat(e).isInstanceOf(AppsmithException.class);
+                        assertThat(e.getMessage()).contains("Invalid SMTP configuration");
+                    })
+                    .verify();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @ParameterizedTest

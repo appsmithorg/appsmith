@@ -211,8 +211,12 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 importingMetaDTO.setRefName(page.getRefName());
                                 Layout layout =
                                         page.getUnpublishedPage().getLayouts().get(0);
+                                // isFQN=false so the collision set includes action-collection (JS object)
+                                // and widget names, not just action names. These are plain entity names
+                                // (not dotted FQNs), so an imported JS object named "JSObject1" is correctly
+                                // detected against an existing "JSObject1" and renamed rather than duplicated.
                                 return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), true);
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
                             })
                             .flatMap(nameSet -> {
                                 // Fetch name of the existing resources in the page to avoid name clashing
