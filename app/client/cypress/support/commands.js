@@ -792,8 +792,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
     Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)
   ) {
-    // intercept features call for creating pages that support Anvil + WDS tests
-    featureFlagIntercept({ release_anvil_enabled: true }, false);
+    // intercept features call for creating pages that support Anvil + WDS tests.
+    // Preserve the real backend flags so editor-infrastructure flags (e.g.
+    // release_app_sidebar_enabled) survive — otherwise the full editor never mounts.
+    featureFlagIntercept({ release_anvil_enabled: true }, false, true);
   } else if (
     Cypress.currentTest.titlePath.some((title) =>
       title.toLowerCase().includes("git"),
