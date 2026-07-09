@@ -1,4 +1,5 @@
 import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { shouldTrackUser } from "ee/sagas/userSagas";
 
 const makeUser = (overrides: Partial<User>): User =>
@@ -38,7 +39,7 @@ describe("shouldTrackUser", () => {
   it("treats a user named anonymousUser as anonymous", () => {
     const user = makeUser({
       isAnonymous: false,
-      username: "anonymousUser",
+      username: ANONYMOUS_USERNAME,
       enableTelemetry: true,
     });
 

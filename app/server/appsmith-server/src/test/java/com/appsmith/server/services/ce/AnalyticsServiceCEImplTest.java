@@ -57,4 +57,22 @@ public class AnalyticsServiceCEImplTest {
 
         verify(analytics, never()).enqueue(any());
     }
+
+    // If the flag state can't be resolved, the gate must fail closed: complete without error (so
+    // fire-and-forget callers' chains don't break) and drop the anonymous event.
+    @Test
+    void sendEvent_anonymousUserWhenFlagCheckErrors_completesWithoutEnqueueing() {
+        Analytics analytics = mock(Analytics.class);
+        FeatureFlagService featureFlagService = mock(FeatureFlagService.class);
+        when(featureFlagService.check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users))
+                .thenReturn(Mono.error(new RuntimeException("flag service unavailable")));
+
+        AnalyticsServiceCEImpl analyticsService =
+                new AnalyticsServiceCEImpl(analytics, null, null, null, null, null, null, null, featureFlagService);
+
+        StepVerifier.create(analyticsService.sendEvent("execute_ACTION_TRIGGERED", "anonymousUser", Map.of("id", "x")))
+                .verifyComplete();
+
+        verify(analytics, never()).enqueue(any());
+    }
 }

@@ -50,6 +50,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   flushErrorsAndRedirect,
   safeCrashAppRequest,
@@ -157,7 +158,7 @@ export function shouldTrackUser(
 ): boolean {
   try {
     const isAnonymous =
-      currentUser?.isAnonymous || currentUser?.username === "anonymousUser";
+      currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
 
     if (!isAnonymous) {
       return true;
