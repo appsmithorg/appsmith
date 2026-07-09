@@ -67,7 +67,8 @@ public class NewActionApplicationImportableServiceCEImpl
                 NewAction.Fields.baseId,
                 NewAction.Fields.applicationId,
                 NewAction.Fields.gitSyncId,
-                NewAction.Fields.policies);
+                NewAction.Fields.policies,
+                NewAction.Fields.policyMap);
         return repository.findAllByApplicationIds(branchedArtifactIds, projectionForOtherBranches);
     }
 

@@ -67,7 +67,8 @@ public class ActionCollectionApplicationImportableServiceCEImpl
                 ActionCollection.Fields.baseId,
                 ActionCollection.Fields.applicationId,
                 ActionCollection.Fields.gitSyncId,
-                ActionCollection.Fields.policies);
+                ActionCollection.Fields.policies,
+                ActionCollection.Fields.policyMap);
         return repository.findAllByApplicationIds(branchedArtifactIds, projectionForOtherBranches);
     }
 
