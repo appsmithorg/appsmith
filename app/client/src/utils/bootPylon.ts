@@ -18,7 +18,7 @@ export function isPylonChatAvailable(): boolean {
 // is fully populated. Pylon reads chat_settings at SDK init time and exposes
 // no API to update identity post-init, so we must delay script loading until
 // the authenticated user's email_hash is on window.pylon.
-function injectPylonScriptOnce(appId: string) {
+function injectPylonScriptOnce(appId: string, onReady?: () => void) {
   const src = `https://widget.usepylon.com/widget/${appId}`;
 
   // Guard against duplicate injection (HMR, multiple boot callers, etc.) by
@@ -33,9 +33,61 @@ function injectPylonScriptOnce(appId: string) {
   script.type = "text/javascript";
   script.async = true;
   script.src = src;
+
+  // Pylon defines window.Pylon during script execution, so onReady (fired on
+  // the load event) is the earliest point custom fields can be attached. This
+  // lets us set issue metadata once at SDK boot, so it applies to issues
+  // created from ANY entry point — not just the Help-menu path that calls
+  // updatePylonChatIdentity.
+  if (onReady) {
+    script.addEventListener("load", onReady);
+  }
+
   const firstScript = document.getElementsByTagName("script")[0];
 
   firstScript.parentNode?.insertBefore(script, firstScript);
+}
+
+// Attach version/build/deployment metadata to every new Pylon issue. All values
+// come from getAppsmithConfigs() (no user needed), so this can run at SDK boot
+// to cover all entry points. instanceId is only available on the Help-menu path
+// (updatePylonChatIdentity), so it is passed in there and omitted at boot.
+//
+// NOTE: each key below must exist as a matching custom-field *slug* in the
+// Pylon dashboard, or Pylon silently drops the value (no client-side error).
+// appsmith_edition intentionally duplicates the edition embedded in
+// appsmith_version — the latter is a human-readable display string, the former
+// a discrete, filterable field for support triage.
+// Remember the instanceId once updatePylonChatIdentity has provided it, so a
+// later boot-time call (e.g. if the SDK "load" handler runs after the Help-menu
+// path) still carries instance_id. Pylon does not document whether
+// setNewIssueCustomFields merges or replaces across calls, so we never rely on a
+// prior call's instance_id surviving — we re-send it every time it is known.
+let cachedInstanceId: string | undefined;
+
+function setPylonNewIssueCustomFields(instanceId?: string) {
+  if (instanceId) {
+    cachedInstanceId = instanceId;
+  }
+
+  if (typeof window.Pylon !== "function") {
+    return;
+  }
+
+  const { appVersion, cloudHosting } = getAppsmithConfigs();
+  const effectiveInstanceId = instanceId ?? cachedInstanceId;
+
+  window.Pylon("setNewIssueCustomFields", {
+    appsmith_version: `Appsmith ${
+      !cloudHosting ? appVersion.edition : ""
+    } ${appVersion.id}`,
+    appsmith_edition: appVersion.edition,
+    build_sha: appVersion.sha,
+    build_date: appVersion.releaseDate,
+    deployment_type: cloudHosting ? "cloud" : "self-hosted",
+    ...(effectiveInstanceId ? { instance_id: effectiveInstanceId } : {}),
+    license_id: getLicenseKey() ?? "",
+  });
 }
 
 export default function bootPylon(user?: User) {
@@ -70,7 +122,9 @@ export default function bootPylon(user?: User) {
   // present prevents the widget from booting in unverified mode and then
   // getting 401s on message send.
   if (emailHash) {
-    injectPylonScriptOnce(pylonAppID);
+    // Set issue metadata as soon as the SDK is ready so it covers issues
+    // created from any entry point, not just the Help menu.
+    injectPylonScriptOnce(pylonAppID, () => setPylonNewIssueCustomFields());
   }
 }
 
@@ -79,7 +133,7 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
     return;
   }
 
-  const { appVersion, cloudHosting, pylonAppID } = getAppsmithConfigs();
+  const { pylonAppID } = getAppsmithConfigs();
 
   const email: string | undefined = user?.email;
   const username =
@@ -106,23 +160,13 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
   };
 
   if (sdkNotYetLoaded) {
-    injectPylonScriptOnce(pylonAppID);
+    injectPylonScriptOnce(pylonAppID, () =>
+      setPylonNewIssueCustomFields(instanceId),
+    );
   }
 
-  // NOTE: each key below must exist as a matching custom-field *slug* in the
-  // Pylon dashboard, or Pylon silently drops the value (no client-side error).
-  // appsmith_edition intentionally duplicates the edition embedded in
-  // appsmith_version — the latter is a human-readable display string, the
-  // former a discrete, filterable field for support triage.
-  window.Pylon("setNewIssueCustomFields", {
-    appsmith_version: `Appsmith ${
-      !cloudHosting ? appVersion.edition : ""
-    } ${appVersion.id}`,
-    appsmith_edition: appVersion.edition,
-    build_sha: appVersion.sha,
-    build_date: appVersion.releaseDate,
-    deployment_type: cloudHosting ? "cloud" : "self-hosted",
-    instance_id: instanceId,
-    license_id: getLicenseKey() ?? "",
-  });
+  // On this path the SDK is already loaded (gated by isPylonChatAvailable), so
+  // set the fields directly and include instance_id, which is only available
+  // here.
+  setPylonNewIssueCustomFields(instanceId);
 };
