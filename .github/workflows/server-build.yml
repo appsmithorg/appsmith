@@ -73,10 +73,6 @@ jobs:
         uses: actions/checkout@v4
         if: inputs.pr != 0
         with:
-          # Full history so tj-actions/changed-files can resolve the PR merge-base and
-          # correctly detect server changes (incl. deletions). With the default shallow
-          # fetch it could miss changes, skip the build/tests, and still report success.
-          fetch-depth: 0
           fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
@@ -85,7 +81,6 @@ jobs:
         if: inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           fetch-tags: true
           ref: ${{ inputs.branch }}
 
@@ -94,7 +89,6 @@ jobs:
         uses: actions/checkout@v4
         if: inputs.pr == 0 && inputs.branch == ''
         with:
-          fetch-depth: 0
           fetch-tags: true
 
       - name: Figure out the PR number
