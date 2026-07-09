@@ -109,10 +109,19 @@ export const updatePylonChatIdentity = (instanceId: string, user?: User) => {
     injectPylonScriptOnce(pylonAppID);
   }
 
+  // NOTE: each key below must exist as a matching custom-field *slug* in the
+  // Pylon dashboard, or Pylon silently drops the value (no client-side error).
+  // appsmith_edition intentionally duplicates the edition embedded in
+  // appsmith_version — the latter is a human-readable display string, the
+  // former a discrete, filterable field for support triage.
   window.Pylon("setNewIssueCustomFields", {
     appsmith_version: `Appsmith ${
       !cloudHosting ? appVersion.edition : ""
     } ${appVersion.id}`,
+    appsmith_edition: appVersion.edition,
+    build_sha: appVersion.sha,
+    build_date: appVersion.releaseDate,
+    deployment_type: cloudHosting ? "cloud" : "self-hosted",
     instance_id: instanceId,
     license_id: getLicenseKey() ?? "",
   });
