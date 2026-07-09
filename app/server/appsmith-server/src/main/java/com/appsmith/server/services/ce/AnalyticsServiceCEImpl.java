@@ -206,6 +206,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.empty();
         }
 
+        // If the event is for an anonymous user, respect the
+        // configure_block_event_tracking_for_anonymous_users feature flag. sendObjectEvent applies the same
+        // check upstream on the session user; gating here additionally covers direct sendEvent callers that
+        // pass an anonymous userId.
+        if (FieldName.ANONYMOUS_USER.equals(userId)) {
+            return featureFlagService
+                    .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
+                    .flatMap(isBlocked -> {
+                        if (Boolean.TRUE.equals(isBlocked)) {
+                            log.debug("Analytics event {} is not sent for anonymous user", event);
+                            return Mono.<Void>empty();
+                        }
+                        return sendEventInternal(event, userId, properties, hashUserId);
+                    });
+        }
+
+        return sendEventInternal(event, userId, properties, hashUserId);
+    }
+
+    private Mono<Void> sendEventInternal(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
         // Can't update the properties directly as it's throwing ImmutableCollection error
         // java.lang.UnsupportedOperationException: null
         // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
@@ -332,8 +352,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     if (user.isAnonymous()) {
                         return featureFlagService
                                 .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
-                                .flatMap(isDisabled -> {
-                                    if (isDisabled) {
+                                .flatMap(isBlocked -> {
+                                    if (isBlocked) {
                                         log.debug("Analytics event {} is not sent for anonymous user", eventTag);
                                         return Mono.empty();
                                     } else {
@@ -388,7 +408,9 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.remove(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
                     }
 
-                    return sendEvent(eventTag, username, analyticsProperties);
+                    // The anonymous-user flag was already evaluated above for this session user, so route
+                    // straight to sendEventInternal to avoid re-checking the (Redis-backed) flag on this hot path.
+                    return sendEventInternal(eventTag, username, analyticsProperties, true);
                 })
                 // Return the original object after sending the event
                 .then(Mono.just(object));

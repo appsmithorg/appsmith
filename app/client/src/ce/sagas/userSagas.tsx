@@ -89,7 +89,6 @@ import {
   segmentInitUncertain,
 } from "actions/analyticsActions";
 import { getSegmentState } from "selectors/analyticsSelectors";
-import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -152,9 +151,8 @@ function* getSessionRecordingConfig() {
   };
 }
 
-function shouldTrackUser(
+export function shouldTrackUser(
   currentUser: User,
-  licenseActive: boolean,
   featureFlag: boolean,
 ): boolean {
   try {
@@ -167,7 +165,10 @@ function shouldTrackUser(
 
     const telemetryOn = currentUser?.enableTelemetry ?? false;
 
-    return isAnonymous && (licenseActive || (telemetryOn && !featureFlag));
+    // When the block-anonymous-tracking flag is on, never track anonymous
+    // users — including on licensed instances. Otherwise, track only if
+    // telemetry is enabled.
+    return telemetryOn && !featureFlag;
   } catch (error) {
     return true;
   }
@@ -186,11 +187,9 @@ function* initTrackers(currentUser: User): SagaIterator {
     );
 
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    const organizationConfig = yield select(getOrganizationConfig);
 
     const shouldTrack = shouldTrackUser(
       currentUser,
-      organizationConfig.license.active,
       featureFlags.configure_block_event_tracking_for_anonymous_users,
     );
 
