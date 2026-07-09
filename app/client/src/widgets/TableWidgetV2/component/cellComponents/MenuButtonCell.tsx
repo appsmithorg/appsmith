@@ -4,7 +4,7 @@ import type { Alignment } from "@blueprintjs/core";
 
 import type { BaseCellComponentProps } from "../Constants";
 import type { ButtonVariant } from "components/constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import { ActionWrapper, CellWrapper } from "../TableStyledWrappers";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import MenuButtonTableComponent from "./menuButtonTableComponent";
 import type {
@@ -52,7 +52,7 @@ function MenuButton({
   };
 
   return (
-    <div onClick={handlePropagation}>
+    <ActionWrapper disabled={!!isDisabled} onClick={handlePropagation}>
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
@@ -72,7 +72,7 @@ function MenuButton({
         rowIndex={rowIndex}
         sourceData={sourceData}
       />
-    </div>
+    </ActionWrapper>
   );
 }
 
