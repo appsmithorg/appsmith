@@ -5,8 +5,14 @@ import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.util.WebClientUtils;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.test.StepVerifier;
 
 import java.util.UUID;
@@ -87,22 +93,34 @@ public class GitUtilsTest {
     }
 
     @Test
-    public void isRepoPrivate() {
+    public void isRepoPrivate() throws Exception {
+        // isRepoPrivate performs a live HTTP GET against the repo URL (2xx => public, otherwise/error => private).
+        // Mock WebClientUtils.create so the request hits a local MockWebServer instead of reaching out to
+        // github.com. The previous version asserted against real URLs, which made this test flaky whenever CI
+        // could not reach GitHub within the 2s timeout (rate-limits, DNS blips) and the error path defaulted to
+        // "private". WebClientUtils.create is mocked (rather than pointing straight at the server) because it wraps
+        // every WebClient in an SSRF host filter that would block a loopback address.
+        MockWebServer mockServer = new MockWebServer();
+        mockServer.start();
+        try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.anyString()))
+                    .thenReturn(WebClient.create(mockServer.url("/").toString()));
 
-        StepVerifier.create(GitUtils.isRepoPrivate(
-                        GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:test/testRepo.git")))
-                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
-                .verifyComplete();
+            // A reachable repo that responds 2xx is treated as public.
+            mockServer.enqueue(new MockResponse().setResponseCode(200));
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/public-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
+                    .verifyComplete();
 
-        StepVerifier.create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net/user/test/tests/testRepo.git")))
-                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
-                .verifyComplete();
-
-        StepVerifier.create(GitUtils.isRepoPrivate(
-                        GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:appsmithorg/appsmith.git")))
-                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
-                .verifyComplete();
+            // A repo that responds non-2xx (e.g. 404 because it requires auth) is treated as private.
+            mockServer.enqueue(new MockResponse().setResponseCode(404));
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/private-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                    .verifyComplete();
+        } finally {
+            mockServer.shutdown();
+        }
     }
 
     @Test
