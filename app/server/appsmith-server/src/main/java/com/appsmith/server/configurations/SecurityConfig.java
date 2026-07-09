@@ -159,7 +159,15 @@ public class SecurityConfig {
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
-                    if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
+                    // When no internal password is configured (APPSMITH_INTERNAL_PASSWORD is unset,
+                    // defaulting to an empty string), reject every request instead of treating an
+                    // empty supplied password as a match. Otherwise "".equals("") would grant the
+                    // INTERNAL authority to any caller sending empty Basic Auth credentials,
+                    // bypassing authentication on the /actuator/** endpoints (GHSA-xfc5-796c-7hr9).
+                    if (INTERNAL_PASSWORD != null
+                            && !INTERNAL_PASSWORD.isEmpty()
+                            && INTERNAL_PASSWORD.equals(
+                                    authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
