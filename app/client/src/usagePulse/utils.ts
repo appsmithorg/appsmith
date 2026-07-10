@@ -49,6 +49,31 @@ export const fetchWithRetry = (config: {
     });
 };
 
+/*
+ * Returns usage-pulse's own anonymous id, independent of Segment analytics.
+ * Persisted locally so the pulse keeps a stable id even when Segment is
+ * unavailable or intentionally blocked for anonymous users.
+ */
+const getOrCreateFallbackAnonymousId = (): string => {
+  try {
+    let fallback = localStorage.getItem(FALLBACK_KEY);
+
+    if (!fallback) {
+      fallback = nanoid();
+      localStorage.setItem(FALLBACK_KEY, fallback);
+    }
+
+    return fallback;
+  } catch {
+    /*
+     * localStorage can throw when it is unavailable (private mode, quota
+     * exceeded, or storage disabled). Return a non-persisted per-call id so
+     * the pulse still carries an anonymousUserId instead of failing.
+     */
+    return nanoid();
+  }
+};
+
 export const getUsagePulsePayload = (
   isTelemetryEnabled: boolean,
   isAnonymousUser: boolean,
@@ -67,16 +92,15 @@ export const getUsagePulsePayload = (
 
   if (isAnonymousUser) {
     if (isTelemetryEnabled) {
-      data["anonymousUserId"] = AnalyticsUtil.getAnonymousId();
+      /*
+       * Prefer Segment's anonymous id when available, but fall back to the
+       * locally persisted id when it is unavailable (e.g. Segment blocked for
+       * anonymous users) so the pulse always carries an anonymousUserId.
+       */
+      data["anonymousUserId"] =
+        AnalyticsUtil.getAnonymousId() ?? getOrCreateFallbackAnonymousId();
     } else {
-      let fallback = localStorage.getItem(FALLBACK_KEY);
-
-      if (!fallback) {
-        fallback = nanoid();
-        localStorage.setItem(FALLBACK_KEY, fallback);
-      }
-
-      data["anonymousUserId"] = fallback;
+      data["anonymousUserId"] = getOrCreateFallbackAnonymousId();
     }
   }
 
