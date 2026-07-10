@@ -56,6 +56,11 @@ public class ActionCollectionApplicationImportableServiceCEImpl
         return repository.findByApplicationId(artifact.getId(), Optional.empty(), Optional.empty());
     }
 
+    protected Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(
+            List<String> branchedArtifactIds, List<String> projectionForOtherBranches) {
+        return repository.findAllByApplicationIds(branchedArtifactIds, projectionForOtherBranches);
+    }
+
     @Override
     public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(List<String> branchedArtifactIds) {
         // Only project the fields consumed downstream during import (gitSyncId for the lookup map, and
@@ -66,10 +71,9 @@ public class ActionCollectionApplicationImportableServiceCEImpl
                 ActionCollection.Fields.id,
                 ActionCollection.Fields.baseId,
                 ActionCollection.Fields.applicationId,
-                ActionCollection.Fields.gitSyncId,
-                ActionCollection.Fields.policies,
-                ActionCollection.Fields.policyMap);
-        return repository.findAllByApplicationIds(branchedArtifactIds, projectionForOtherBranches);
+                ActionCollection.Fields.gitSyncId);
+
+        return getExistingResourcesInOtherBranchesFlux(branchedArtifactIds, projectionForOtherBranches);
     }
 
     @Override
