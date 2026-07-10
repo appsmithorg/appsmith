@@ -15,8 +15,22 @@ export const MODAL_WIDGET = ".t--modal-widget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const SWITCHGROUP_WIDGET = ".t--widget-switchgroupwidget";
 export const BUTTONGROUP_WIDGET = ".t--widget-buttongroupwidget";
-export const FOCUS_SELECTOR =
-  ":is(a, input, select, textarea, button, object, audio, video, [tabindex='-1']):not([data-tabbable='false'])";
+// NOTE: written as an expanded selector list (no :is) so it stays parseable
+// by jsdom/nwsapi in unit tests; equivalent to
+// :is(a, input, ...):not([data-tabbable='false'])
+export const FOCUS_SELECTOR = [
+  "a",
+  "input",
+  "select",
+  "textarea",
+  "button",
+  "object",
+  "audio",
+  "video",
+  "[tabindex='-1']",
+]
+  .map((selector) => `${selector}:not([data-tabbable='false'])`)
+  .join(", ");
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
 
 /**
@@ -89,10 +103,18 @@ export function getTabbableDescendants(
     activeWidget,
   );
 
-  if (sortedSiblings.length) return sortedSiblings;
+  // Only stay in this scope if something in it can actually receive focus.
+  // A trailing display-only widget (image, chart, divider...) would otherwise
+  // dead-end the tab sequence: handleTab exhausts the list without focusing
+  // anything and never reaches the parent-scope wrap-around below.
+  const hasFocusableSibling = sortedSiblings.some((sibling) =>
+    getFocussableElementOfWidget(sibling),
+  );
 
-  // there are no siblings, which means we are at the end of the tabbable list
-  // we have to go to next sibling widget of current canvas
+  if (sortedSiblings.length && hasFocusableSibling) return sortedSiblings;
+
+  // there are no (focusable) siblings, which means we are at the end of the
+  // tabbable list. We have to go to next sibling widget of current canvas
   const currentCanvas = currentNode.closest(
     CANVAS_WIDGET_EXCLUDING_SCOPE,
   ) as HTMLElement;

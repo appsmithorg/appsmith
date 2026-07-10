@@ -49,12 +49,12 @@ describe("TabOrderBadge", () => {
     expect(badge()).toHaveTextContent("3");
   });
 
-  it("renders 0 as a valid value", () => {
+  it("renders 1 as the earliest valid value", () => {
     mockState.showOverlay = true;
 
-    render(<TabOrderBadge tabOrder={0} />);
+    render(<TabOrderBadge tabOrder={1} />);
 
-    expect(badge()).toHaveTextContent("0");
+    expect(badge()).toHaveTextContent("1");
   });
 
   it("renders nothing when the overlay is off", () => {
@@ -83,7 +83,7 @@ describe("TabOrderBadge", () => {
   it("renders nothing for invalid values", () => {
     mockState.showOverlay = true;
 
-    for (const value of [-1, 1.5, "abc", null, ""]) {
+    for (const value of [0, -1, 1.5, "abc", null, ""]) {
       const { unmount } = render(<TabOrderBadge tabOrder={value} />);
 
       expect(badge()).not.toBeInTheDocument();

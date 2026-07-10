@@ -50,7 +50,7 @@ function assertSharedTabOrderControl(control: PropertyPaneControlConfig) {
   expect(control.isTriggerProperty).toBe(false);
   expect(control.validation).toEqual({
     type: ValidationTypes.NUMBER,
-    params: { min: 0, natural: true },
+    params: { min: 1, natural: true },
   });
 }
 

@@ -48,13 +48,14 @@ export function handleTab(event: KeyboardEvent) {
 
   // if nextTabbableDescendant is found, focus
   if (nextTabbableDescendant) {
-    event.preventDefault();
-
     const focusableElement = getFocussableElementOfWidget(
       nextTabbableDescendant,
     );
 
+    // only take over the Tab when we can actually move focus; otherwise
+    // preventDefault would leave the focus stuck on the current element
     if (focusableElement) {
+      event.preventDefault();
       focusableElement.focus();
     }
   }

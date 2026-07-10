@@ -62,8 +62,8 @@ describe("PositionedContainer data-tab-order", () => {
     expect(renderContainer(2)).toHaveAttribute("data-tab-order", "2");
   });
 
-  it("renders the attribute for 0", () => {
-    expect(renderContainer(0)).toHaveAttribute("data-tab-order", "0");
+  it("renders the attribute for 1, the earliest valid value", () => {
+    expect(renderContainer(1)).toHaveAttribute("data-tab-order", "1");
   });
 
   it("accepts valid numeric strings", () => {
@@ -84,6 +84,7 @@ describe("PositionedContainer data-tab-order", () => {
   });
 
   it("does not render the attribute for invalid values", () => {
+    expect(renderContainer(0)).not.toHaveAttribute("data-tab-order");
     expect(renderContainer(-1)).not.toHaveAttribute("data-tab-order");
     expect(renderContainer(1.5)).not.toHaveAttribute("data-tab-order");
     expect(renderContainer("abc")).not.toHaveAttribute("data-tab-order");

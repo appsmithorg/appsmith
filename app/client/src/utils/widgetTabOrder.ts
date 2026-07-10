@@ -1,10 +1,10 @@
 /**
  * Shared helpers for the platform-level `tabOrder` widget property.
  *
- * A valid explicit tab order is a non-negative integer (0 is valid and means
- * the earliest explicit order). Anything else — null, undefined, blank,
- * negative numbers, decimals, NaN, Infinity, non-numeric strings — means
- * "Auto" and must be ignored at runtime.
+ * A valid explicit tab order is a positive integer (1 is the earliest
+ * explicit order, consistent with the property pane stepper). Anything else —
+ * null, undefined, blank, zero, negative numbers, decimals, NaN, Infinity,
+ * non-numeric strings — means "Auto" and must be ignored at runtime.
  */
 
 /**
@@ -15,7 +15,7 @@
 export const TAB_ORDER_ATTRIBUTE = "data-tab-order";
 
 /**
- * Returns the explicit tab order as a non-negative integer, or undefined
+ * Returns the explicit tab order as a positive integer, or undefined
  * when the value is absent or invalid (i.e. the widget uses automatic order).
  */
 export function sanitizeTabOrder(value: unknown): number | undefined {
@@ -32,7 +32,7 @@ export function sanitizeTabOrder(value: unknown): number | undefined {
   }
 
   // Number.isInteger is false for NaN, Infinity and decimals
-  if (!Number.isInteger(parsed) || parsed < 0) return undefined;
+  if (!Number.isInteger(parsed) || parsed < 1) return undefined;
 
   return parsed;
 }

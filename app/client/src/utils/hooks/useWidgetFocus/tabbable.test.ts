@@ -1,4 +1,5 @@
 import { TAB_ORDER_ATTRIBUTE } from "utils/widgetTabOrder";
+import { handleTab } from "./handleTab";
 import {
   getExplicitTabOrder,
   getNextTabbableDescendant,
@@ -93,11 +94,11 @@ describe("getNextTabbableDescendant", () => {
 });
 
 describe("getExplicitTabOrder", () => {
-  it("reads valid explicit values, including 0", () => {
+  it("reads valid explicit values, 1 being the earliest", () => {
     const widget = createWidget(document.body, { top: 10, left: 10 });
 
-    widget.setAttribute(TAB_ORDER_ATTRIBUTE, "0");
-    expect(getExplicitTabOrder(widget)).toBe(0);
+    widget.setAttribute(TAB_ORDER_ATTRIBUTE, "1");
+    expect(getExplicitTabOrder(widget)).toBe(1);
 
     widget.setAttribute(TAB_ORDER_ATTRIBUTE, "3");
     expect(getExplicitTabOrder(widget)).toBe(3);
@@ -108,7 +109,16 @@ describe("getExplicitTabOrder", () => {
 
     expect(getExplicitTabOrder(widget)).toBeUndefined();
 
-    for (const value of ["", "  ", "-1", "1.5", "abc", "NaN", "Infinity"]) {
+    for (const value of [
+      "",
+      "  ",
+      "0",
+      "-1",
+      "1.5",
+      "abc",
+      "NaN",
+      "Infinity",
+    ]) {
       widget.setAttribute(TAB_ORDER_ATTRIBUTE, value);
       expect(getExplicitTabOrder(widget)).toBeUndefined();
     }
@@ -178,19 +188,19 @@ describe("sortTabbableWidgets", () => {
     );
   });
 
-  it("sorts explicitly ordered widgets first, 0 before 1, before Auto widgets", () => {
+  it("sorts explicitly ordered widgets first, 1 before 2, before Auto widgets", () => {
     const w1 = createWidget(
       document.body,
       { top: 10, left: 10 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const w2 = createWidget(
       document.body,
       { top: 10, left: 200 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
     const w3 = createWidget(document.body, { top: 100, left: 10 });
@@ -210,7 +220,7 @@ describe("sortTabbableWidgets", () => {
       document.body,
       { top: 100, left: 10 },
       {
-        tabOrder: "0",
+        tabOrder: "2",
       },
     );
     const w3 = createWidget(
@@ -230,21 +240,21 @@ describe("sortTabbableWidgets", () => {
       document.body,
       { top: 10, left: 10 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const w2 = createWidget(
       document.body,
       { top: 10, left: 200 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const w3 = createWidget(
       document.body,
       { top: 100, left: 10 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
 
@@ -256,14 +266,14 @@ describe("sortTabbableWidgets", () => {
       document.body,
       { top: 10, left: 10 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const w2 = createWidget(
       document.body,
       { top: 10, left: 200 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
     const w3 = createWidget(document.body, { top: 100, left: 10 });
@@ -280,14 +290,14 @@ describe("sortTabbableWidgets", () => {
       document.body,
       { top: 10, left: 10 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
     const w2 = createWidget(
       document.body,
       { top: 10, left: 200 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const w3 = createWidget(document.body, { top: 100, left: 10 });
@@ -313,8 +323,8 @@ describe("getTabbableDescendants: sibling scope", () => {
 
   it("explicit order overrides position order", () => {
     const canvas = createCanvas();
-    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
-    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "0" });
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "2" });
+    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "1" });
     const w3 = createWidget(canvas, { top: 100, left: 10 });
 
     // final sequence is [w2, w1, w3]
@@ -328,14 +338,14 @@ describe("getTabbableDescendants: sibling scope", () => {
       canvas,
       { top: 200, left: 10 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
     const above = createWidget(
       canvas,
       { top: 10, left: 10 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
 
@@ -344,8 +354,8 @@ describe("getTabbableDescendants: sibling scope", () => {
 
   it("reverses the same sequence for Shift+Tab", () => {
     const canvas = createCanvas();
-    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
-    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "0" });
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "2" });
+    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "1" });
     const w3 = createWidget(canvas, { top: 100, left: 10 });
 
     // final sequence is [w2, w1, w3]
@@ -356,8 +366,8 @@ describe("getTabbableDescendants: sibling scope", () => {
 describe("getTabbableDescendants: canvas scope", () => {
   it("returns the full explicit sequence when tabbing from the canvas", () => {
     const canvas = createCanvas();
-    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
-    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "0" });
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "2" });
+    const w2 = createWidget(canvas, { top: 10, left: 200 }, { tabOrder: "1" });
     const w3 = createWidget(canvas, { top: 100, left: 10 });
 
     expect(getTabbableDescendants(canvas)).toEqual([w2, w1, w3]);
@@ -407,7 +417,7 @@ describe("getTabbableDescendants: modal scope", () => {
   it("uses the explicit sequence inside the modal scope", () => {
     const { modal, trigger } = createModal();
     const m1 = createWidget(modal, { top: 10, left: 10 });
-    const m2 = createWidget(modal, { top: 110, left: 10 }, { tabOrder: "0" });
+    const m2 = createWidget(modal, { top: 110, left: 10 }, { tabOrder: "1" });
 
     expect(getTabbableDescendants(trigger)).toEqual([m2, m1]);
     expect(getTabbableDescendants(trigger, true)).toEqual([m1, m2]);
@@ -433,14 +443,14 @@ describe("getTabbableDescendants: nested container scope", () => {
       innerCanvas,
       { top: 120, left: 20 },
       {
-        tabOrder: "1",
+        tabOrder: "2",
       },
     );
     const in3 = createWidget(
       innerCanvas,
       { top: 220, left: 20 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
 
@@ -469,7 +479,7 @@ describe("getNextTabbableDescendant: container entry", () => {
       innerCanvas,
       { top: 120, left: 20 },
       {
-        tabOrder: "0",
+        tabOrder: "1",
       },
     );
 
@@ -498,12 +508,6 @@ describe("getNextTabbableDescendant: container entry", () => {
   });
 });
 
-// ponytail: handleTab itself isn't tested here — it ends in
-// getFocussableElementOfWidget, which calls node.matches(FOCUS_SELECTOR), and
-// that :is(...[tabindex='-1']) selector is unparseable by jsdom/nwsapi. The
-// new ordering logic is fully covered via getTabbableDescendants below;
-// handleTab is unchanged legacy plumbing.
-
 // Regression guard for the end-to-end seam: with three widgets whose explicit
 // tab order disagrees with their visual position, the tab sequence must follow
 // tabOrder, not position. Two widgets cannot catch this — a 2-cycle ping-pongs
@@ -530,5 +534,115 @@ describe("getTabbableDescendants: explicit order overrides position (3 widgets)"
     expect(getTabbableDescendants(inputOf(bottom))).toEqual([mid]);
     // Shift+Tab from mid (last): predecessors in reverse — bottom, then top
     expect(getTabbableDescendants(inputOf(mid), true)).toEqual([bottom, top]);
+  });
+});
+
+// Wrap-around regression suite (reported bug: forward tab got stuck on the
+// last numbered widget while backward wrapped fine). The culprit: a trailing
+// non-focusable widget (image/chart/divider) kept the sibling list non-empty
+// but unfocusable, so handleTab preventDefault-ed without moving focus and
+// the parent-scope wrap was never reached.
+describe("handleTab: wrap-around", () => {
+  function createTabEvent(target: HTMLElement, shiftKey = false) {
+    return {
+      target,
+      shiftKey,
+      preventDefault: jest.fn(),
+    } as unknown as KeyboardEvent;
+  }
+
+  it("wraps forward from the last numbered widget to the first", () => {
+    const canvas = createCanvas();
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+    const w2 = createWidget(canvas, { top: 110, left: 10 }, { tabOrder: "2" });
+
+    inputOf(w2).focus();
+
+    const event = createTabEvent(inputOf(w2));
+
+    handleTab(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(document.activeElement).toBe(inputOf(w1));
+  });
+
+  it("wraps forward past a trailing non-focusable widget (reported bug)", () => {
+    const canvas = createCanvas();
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+    const w2 = createWidget(canvas, { top: 110, left: 10 }, { tabOrder: "2" });
+
+    // display-only widget below the numbered ones, nothing focusable inside
+    createWidget(
+      canvas,
+      { top: 210, left: 10 },
+      { widgetClass: "t--widget-imagewidget", withInput: false },
+    );
+
+    inputOf(w2).focus();
+
+    const event = createTabEvent(inputOf(w2));
+
+    handleTab(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(document.activeElement).toBe(inputOf(w1));
+  });
+
+  it("wraps backward from the first numbered widget to the last", () => {
+    const canvas = createCanvas();
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+    const w2 = createWidget(canvas, { top: 110, left: 10 }, { tabOrder: "2" });
+
+    createWidget(
+      canvas,
+      { top: 210, left: 10 },
+      { widgetClass: "t--widget-imagewidget", withInput: false },
+    );
+
+    inputOf(w1).focus();
+
+    const event = createTabEvent(inputOf(w1), true);
+
+    handleTab(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(document.activeElement).toBe(inputOf(w2));
+  });
+
+  it("cycles the full explicit sequence forward: 1 -> 2 -> 3 -> 1", () => {
+    const canvas = createCanvas();
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+    const w2 = createWidget(canvas, { top: 110, left: 10 }, { tabOrder: "2" });
+    const w3 = createWidget(canvas, { top: 210, left: 10 }, { tabOrder: "3" });
+
+    inputOf(w1).focus();
+
+    for (const expected of [w2, w3, w1]) {
+      const event = createTabEvent(document.activeElement as HTMLElement);
+
+      handleTab(event);
+      expect(document.activeElement).toBe(inputOf(expected));
+    }
+  });
+
+  it("self-cycles when the current widget is the only focusable one", () => {
+    const canvas = createCanvas();
+    const w1 = createWidget(canvas, { top: 10, left: 10 }, { tabOrder: "1" });
+
+    // only sibling is non-focusable, so the wrap target is the widget itself
+    createWidget(
+      canvas,
+      { top: 110, left: 10 },
+      { widgetClass: "t--widget-imagewidget", withInput: false },
+    );
+
+    inputOf(w1).focus();
+
+    const event = createTabEvent(inputOf(w1));
+
+    handleTab(event);
+
+    // focus is never left stuck in limbo: the cycle of one wraps to itself
+    expect(document.activeElement).toBe(inputOf(w1));
   });
 });

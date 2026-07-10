@@ -1,16 +1,21 @@
 import { sanitizeTabOrder } from "./widgetTabOrder";
 
 describe("sanitizeTabOrder", () => {
-  it("accepts non-negative integers, including 0", () => {
-    expect(sanitizeTabOrder(0)).toBe(0);
+  it("accepts positive integers, 1 being the earliest", () => {
     expect(sanitizeTabOrder(1)).toBe(1);
+    expect(sanitizeTabOrder(2)).toBe(2);
     expect(sanitizeTabOrder(42)).toBe(42);
   });
 
-  it("accepts numeric strings, including '0'", () => {
-    expect(sanitizeTabOrder("0")).toBe(0);
+  it("accepts positive numeric strings", () => {
+    expect(sanitizeTabOrder("1")).toBe(1);
     expect(sanitizeTabOrder("3")).toBe(3);
     expect(sanitizeTabOrder("10")).toBe(10);
+  });
+
+  it("rejects zero (the stepper starts at 1)", () => {
+    expect(sanitizeTabOrder(0)).toBeUndefined();
+    expect(sanitizeTabOrder("0")).toBeUndefined();
   });
 
   it("treats null, undefined and blank values as Auto", () => {
