@@ -488,6 +488,7 @@
     "ws@^6.1.0": "6.2.4",
     "launch-editor": "2.14.1",
     "@babel/core": "7.29.6",
-    "http-proxy-middleware": "2.0.10"
+    "http-proxy-middleware": "2.0.10",
+    "ws": "^8.21.0"
   }
 }
