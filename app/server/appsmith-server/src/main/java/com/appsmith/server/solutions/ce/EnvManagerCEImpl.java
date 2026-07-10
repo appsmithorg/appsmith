@@ -28,7 +28,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.util.WebClientUtils;
+import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -816,7 +816,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
             }
 
-            var resolvedAddress = WebClientUtils.resolveIfAllowed(requestDTO.getSmtpHost());
+            var resolvedAddress = RestrictedHostFilter.resolveIfAllowed(requestDTO.getSmtpHost());
             if (resolvedAddress.isEmpty()) {
                 return Mono.error(
                         new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));

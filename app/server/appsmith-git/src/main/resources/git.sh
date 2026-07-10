@@ -90,6 +90,97 @@ upload_branches_to_redis_hash() {
     redis-exec "$redis_url" HSET "$key_value_pair_key" $branches
 }
 
+# Removes cached repository artifact and branch store from Redis.
+invalidate_redis_git_cache() {
+    local redis_key="$1"
+    local redis_url="$2"
+    local key_value_pair_key="$3"
+
+    log_warn "Invalidating corrupted Redis git cache for key: $redis_key"
+    redis-exec "$redis_url" DEL "$redis_key"
+    redis-exec "$redis_url" DEL "$key_value_pair_key"
+}
+
+# Verifies the extracted directory is a usable git repository.
+verify_git_repo_sanity() {
+    local target_folder="$1"
+
+    if [[ ! -d "$target_folder/.git" ]]; then
+        log_warn "Git sanity check failed: missing .git directory in $target_folder"
+        return 1
+    fi
+
+    if [[ ! -f "$target_folder/.git/HEAD" ]]; then
+        log_warn "Git sanity check failed: missing HEAD in $target_folder/.git"
+        return 1
+    fi
+
+    if [[ "$(git -C "$target_folder" rev-parse --is-inside-work-tree 2>/dev/null || echo false)" != "true" ]]; then
+        log_warn "Git sanity check failed: $target_folder is not a git work tree"
+        return 1
+    fi
+
+    if ! git -C "$target_folder" rev-parse --git-dir >/dev/null 2>&1; then
+        log_warn "Git sanity check failed: cannot resolve git dir for $target_folder"
+        return 1
+    fi
+
+    log_info "Git sanity check passed for $target_folder"
+    return 0
+}
+
+# Verifies cached branch tips in Redis match the extracted repository.
+verify_cached_branch_store() {
+    local target_folder="$1"
+    local redis_url="$2"
+    local key_value_pair_key="$3"
+
+    log_info "Verifying cached branch store for key: $key_value_pair_key"
+
+    local raw
+    raw=$(redis-exec "$redis_url" --raw HGETALL "$key_value_pair_key" | sed 's/\"//g')
+
+    if [[ -z "$raw" ]]; then
+        log_warn "Branch store empty or missing for key '$key_value_pair_key'; skipping branch sanity check"
+        return 0
+    fi
+
+    local arr=()
+    while IFS= read -r line; do
+        arr+=( "$line" )
+    done <<< "$raw"
+
+    for ((i=0; i<${#arr[@]}; i+=2)); do
+        local branch="${arr[i]}"
+        local expected_commit="${arr[i+1]}"
+
+        if [[ -z "$branch" || -z "$expected_commit" ]]; then
+            continue
+        fi
+
+        if ! git -C "$target_folder" show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
+            log_warn "Branch store sanity failed: branch '$branch' not found in repository"
+            return 1
+        fi
+
+        if ! git -C "$target_folder" cat-file -e "${expected_commit}^{commit}" 2>/dev/null; then
+            log_warn "Branch store sanity failed: commit '$expected_commit' for branch '$branch' not found"
+            return 1
+        fi
+
+        local actual_commit
+        actual_commit=$(git -C "$target_folder" rev-parse "refs/heads/$branch")
+
+        if [[ "$actual_commit" != "$expected_commit" && "$actual_commit" != "$expected_commit"* ]]; then
+            log_warn "Branch store sanity failed: branch '$branch' at '$actual_commit', expected '$expected_commit'"
+            return 1
+        fi
+    done
+
+    log_info "Branch store sanity check passed for $target_folder"
+    return 0
+}
+
 # Downloads git repo from Redis or clones if not cached
 git_download() {
     local author_email="$1"
@@ -113,8 +204,19 @@ git_download() {
       return 1
     fi
 
+    if ! verify_git_repo_sanity "$target_folder"; then
+        invalidate_redis_git_cache "$redis_key" "$redis_url" "$key_value_pair_key"
+        return 1
+    fi
+
     rm -f "$target_folder/.git/index.lock"
     git -C "$target_folder" reset --hard
+
+    if ! verify_cached_branch_store "$target_folder" "$redis_url" "$key_value_pair_key"; then
+        invalidate_redis_git_cache "$redis_key" "$redis_url" "$key_value_pair_key"
+        return 1
+    fi
+
     git -C "$target_folder" config user.name "$author_name"
     git -C "$target_folder" config user.email "$author_email"
 }

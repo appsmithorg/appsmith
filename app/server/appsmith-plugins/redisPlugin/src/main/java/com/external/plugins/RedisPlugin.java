@@ -13,6 +13,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.external.utils.RedisURIUtils;
@@ -25,11 +26,16 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSocketFactory;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisException;
+import redis.clients.jedis.util.JedisURIHelper;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.net.URI;
@@ -258,16 +264,69 @@ public class RedisPlugin extends BasePlugin {
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
+                        // SSRF enforcement is layered (GHSA-qhfj-g87x-m39w):
+                        //  1. assertHostAllowed below is an early, create-time pre-check so the user
+                        //     sees "Host not allowed." immediately on Save/Test for an obviously
+                        //     denylisted host. validateDatasource intentionally does not duplicate it
+                        //     (its contract is format-only; host-policy belongs on the connection path).
+                        //  2. The real, TOCTOU-proof guarantee is RestrictedHostJedisSocketFactory
+                        //     (wired below), which re-validates with a SINGLE DNS resolution at the
+                        //     moment the pool opens a socket and connects to the validated IP — so a
+                        //     DNS-rebinding resolver cannot slip a different IP past the pre-check.
+                        assertHostAllowed(datasourceConfiguration);
                         final JedisPoolConfig poolConfig = buildPoolConfig();
                         boolean isTlsEnabled = isTlsEnabled(datasourceConfiguration);
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration, isTlsEnabled);
-                        JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
+
+                        // Derive the client config exactly as Jedis's own URI constructor does (user,
+                        // password, db index, ssl scheme — see JedisFactory(URI, ...)), then route
+                        // socket creation through RestrictedHostJedisSocketFactory. This preserves all
+                        // existing URI parsing semantics while pinning the connection to a single
+                        // SSRF-validated DNS resolution.
+                        HostAndPort hostAndPort = new HostAndPort(uri.getHost(), uri.getPort());
+                        JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
+                                .connectionTimeoutMillis(timeout)
+                                .socketTimeoutMillis(timeout)
+                                .user(JedisURIHelper.getUser(uri))
+                                .password(JedisURIHelper.getPassword(uri))
+                                .database(JedisURIHelper.getDBIndex(uri))
+                                .ssl(JedisURIHelper.isRedisSSLScheme(uri))
+                                .build();
+                        JedisSocketFactory socketFactory =
+                                new RestrictedHostJedisSocketFactory(hostAndPort, clientConfig);
+                        JedisPool jedisPool = new JedisPool(poolConfig, socketFactory, clientConfig);
                         log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void assertHostAllowed(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
+                // Let the existing missing-host validation surface the error.
+                return;
+            }
+            final String host = datasourceConfiguration.getEndpoints().get(0).getHost();
+            // Create-time pre-check for fast, clear UX on Save/Test. This resolution and the one
+            // Jedis performs at connect time are technically distinct, so this check alone is
+            // subject to DNS rebinding — but it is no longer the security boundary:
+            // RestrictedHostJedisSocketFactory re-validates with a single resolution at connect
+            // time and is what actually closes the rebinding TOCTOU. See GHSA-qhfj-g87x-m39w.
+            if (RestrictedHostFilter.isHostBlocked(host)) {
+                // Most blocks land here (a user pointing a datasource at a disallowed host), so log
+                // it as the primary observability signal — the log framework tags this with the
+                // requesting userEmail / orgId / traceId, which makes a spike a useful recon flag.
+                // The connect-time sibling (RestrictedHostJedisSocketFactory) logs the rarer
+                // rebinding case.
+                log.warn(
+                        "Blocked a Redis datasource pointed at disallowed host '{}' (resolves to [{}]) — SSRF filter.",
+                        host,
+                        RestrictedHostFilter.describeResolvedAddresses(host));
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);
+            }
         }
 
         private boolean isTlsEnabled(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -318,6 +377,14 @@ public class RedisPlugin extends BasePlugin {
             if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
                 invalids.add(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
             }
+            // SSRF host-allowed enforcement intentionally lives in datasourceCreate (which goes
+            // through assertHostAllowed → RestrictedHostFilter.isHostBlocked on the
+            // bounded-elastic scheduler) rather than here. PluginExecutor#validateDatasource is
+            // documented as "mandatory fields and format only — does NOT check validity of
+            // those fields; use testDatasource for that". Host-on-denylist is a policy/validity
+            // check, not a format check, so it belongs on the connection path. testDatasource
+            // calls datasourceCreate to build the pool and surfaces "Host not allowed."
+            // immediately when the user clicks Test. See GHSA-qhfj-g87x-m39w.
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {
@@ -401,8 +468,15 @@ public class RedisPlugin extends BasePlugin {
             return Mono.just(connectionPool)
                     .flatMap(c -> verifyPing(connectionPool))
                     .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error ->
-                            Mono.just(new DatasourceTestResult(error.getCause().getMessage())));
+                    .onErrorResume(error -> {
+                        // Prefer the cause's message (driver wraps connection failures with an
+                        // IOException cause), but fall back to the error itself so a causeless
+                        // exception doesn't NPE here. The connection-time SSRF rejection throws a
+                        // causeless JedisConnectionException whose message is "Host not allowed.";
+                        // without this fallback it surfaced as a generic connection error.
+                        final Throwable reported = error.getCause() != null ? error.getCause() : error;
+                        return Mono.just(new DatasourceTestResult(reported.getMessage()));
+                    });
         }
     }
 }

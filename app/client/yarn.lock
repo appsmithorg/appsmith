@@ -23995,15 +23995,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.14.2":
-  version: 3.14.2
-  resolution: "js-yaml@npm:3.14.2"
+"js-yaml@npm:^3.15.0":
+  version: 3.15.0
+  resolution: "js-yaml@npm:3.15.0"
   dependencies:
     argparse: ^1.0.7
     esprima: ^4.0.0
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: 626fc207734a3452d6ba84e1c8c226240e6d431426ed94d0ab043c50926d97c509629c08b1d636f5d27815833b7cfd225865631da9fb33cb957374490bf3e90b
+  checksum: 0209830c3ce51cec4c2cefee4b2b68c547b56b36920004efbf7c6a91ae7eee784bf64341738ef1acffa975d16e7882e9b69234b9a4411f455b72b33d4d74771e
   languageName: node
   linkType: hard
 
@@ -36265,9 +36265,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.11.0, ws@npm:^8.18.0, ws@npm:^8.2.3":
-  version: 8.18.0
-  resolution: "ws@npm:8.18.0"
+"ws@npm:^8.21.0":
+  version: 8.21.0
+  resolution: "ws@npm:8.21.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -36276,7 +36276,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 91d4d35bc99ff6df483bdf029b9ea4bfd7af1f16fc91231a96777a63d263e1eabf486e13a2353970efc534f9faa43bdbf9ee76525af22f4752cbc5ebda333975
+  checksum: 83ff89ae011bc5c3c5605a45a0d50e12589143c7500ca4de83a8d43b3cd26e71f422cb3206fd1a9e6d541d666eeb66255c30d095d62d413b3c7afe5d2c5cb928
   languageName: node
   linkType: hard
 
