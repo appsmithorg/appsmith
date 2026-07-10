@@ -501,6 +501,11 @@ configure_supervisord() {
 
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
+  # The MCP server is opt-in. Remove its supervisord program unless explicitly enabled.
+  if [[ ${APPSMITH_MCP_ENABLED-} != 1 ]]; then
+    rm -f "$SUPERVISORD_CONF_TARGET/mcp.conf"
+  fi
+
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
     if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
@@ -718,7 +723,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
 export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
-mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mcp,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
 capture_infra_details

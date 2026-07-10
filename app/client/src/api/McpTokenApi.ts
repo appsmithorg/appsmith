@@ -1,0 +1,37 @@
+import Api from "api/Api";
+import type { ApiResponse } from "api/ApiResponses";
+
+export interface McpTokenMetadata {
+  createdAt: string;
+  id: string;
+}
+
+export interface CreatedMcpToken extends McpTokenMetadata {
+  token: string;
+}
+
+class McpTokenApi extends Api {
+  static url = "v1/users/mcp-tokens";
+
+  static async create(): Promise<ApiResponse<CreatedMcpToken>> {
+    const response = await Api.post(McpTokenApi.url);
+
+    return response as ApiResponse<CreatedMcpToken>;
+  }
+
+  static async list(): Promise<ApiResponse<McpTokenMetadata>[]> {
+    const response = await Api.get(McpTokenApi.url);
+
+    return (
+      Array.isArray(response) ? response : [response]
+    ) as ApiResponse<McpTokenMetadata>[];
+  }
+
+  static async revoke(tokenId: string): Promise<ApiResponse<boolean>> {
+    const response = await Api.delete(`${McpTokenApi.url}/${tokenId}`);
+
+    return response as ApiResponse<boolean>;
+  }
+}
+
+export default McpTokenApi;

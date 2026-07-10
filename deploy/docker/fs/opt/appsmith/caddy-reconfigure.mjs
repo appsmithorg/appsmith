@@ -14,6 +14,9 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
+// The MCP server is opt-in. Only route to it when explicitly enabled.
+const isMcpEnabled = process.env.APPSMITH_MCP_ENABLED === "1"
+
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
   try {
@@ -150,6 +153,15 @@ parts.push(`
   handle /rts/* {
     import reverse_proxy 8091
   }
+
+  ${isMcpEnabled ? `handle /mcp {
+    import reverse_proxy ${process.env.APPSMITH_MCP_PORT || 8092}
+  }
+
+  handle /mcp/health {
+    rewrite * /health
+    import reverse_proxy ${process.env.APPSMITH_MCP_PORT || 8092}
+  }` : ""}
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {

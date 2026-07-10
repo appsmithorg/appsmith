@@ -12,6 +12,8 @@ import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import { GitGlobalProfile as GitGlobalProfileNew } from "git";
 import { gitFetchGlobalProfile } from "git/store";
+import { MCP_TOKENS, createMessage } from "ee/constants/messages";
+import McpTokens from "./McpTokens";
 
 function GitGlobalProfile() {
   const isGitModEnabled = useGitModEnabled();
@@ -51,6 +53,12 @@ function UserProfile() {
     title: "Git user config",
     panelComponent: <GitGlobalProfile />,
     icon: "git-branch",
+  });
+  tabs.push({
+    key: "mcpTokens",
+    title: createMessage(MCP_TOKENS),
+    panelComponent: <McpTokens />,
+    icon: "key",
   });
 
   if (location.pathname === GIT_PROFILE_ROUTE) {

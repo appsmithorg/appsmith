@@ -20,6 +20,11 @@ while read -r line
            echo 'ERROR: Server is down';
            healthy=false
         fi
+      elif [[ "$process" == "mcp" ]]; then
+        if [[ $(curl -s -w "%{http_code}\n" http://localhost:${APPSMITH_MCP_PORT:-8092}/health -o /dev/null) -ne 200 ]]; then
+           echo 'ERROR: MCP is down';
+           healthy=false
+        fi
       elif [[ "$process" == "mongo" ]]; then
         if [[ $(mongo --eval  'db.runCommand("ping").ok') -ne 1 ]]; then
             echo 'ERROR: Mongo is down';
@@ -32,7 +37,7 @@ while read -r line
         fi
       fi
     fi
-  done <<< $(supervisorctl status editor rts backend)
+  done <<< $(supervisorctl status editor rts mcp backend)
 if [ $healthy == true ]; then
   exit 0
 else

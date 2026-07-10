@@ -1,10 +1,12 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.server.authentication.converters.McpTokenAuthenticationConverter;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.AuthenticationFailureHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
+import com.appsmith.server.authentication.managers.McpTokenAuthenticationManager;
 import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -44,6 +46,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
@@ -184,13 +187,21 @@ public class SecurityConfig {
 
     @Bean
     @SuppressWarnings("Convert2MethodRef") // Helps readability.
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http,
+            McpTokenAuthenticationManager mcpTokenAuthenticationManager,
+            McpTokenAuthenticationConverter mcpTokenAuthenticationConverter) {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+        AuthenticationWebFilter mcpTokenAuthenticationWebFilter =
+                new AuthenticationWebFilter(mcpTokenAuthenticationManager);
+        mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
+        mcpTokenAuthenticationWebFilter.setAuthenticationFailureHandler(failureHandler);
 
         csrfConfig.applyTo(http);
 
         return http.addFilterAt(this::sanityCheckFilter, SecurityWebFiltersOrder.FIRST)
+                .addFilterAt(mcpTokenAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec

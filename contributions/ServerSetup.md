@@ -232,6 +232,16 @@ APPSMITH_GIT_ROOT=/absolute/path/to/git-storage
 
         - You can check the status of the server by hitting the endpoint: [http://localhost:8080/api/v1/users/me](http://localhost:8080/api/v1/users/me) on your browser.
 
+11. Start the MCP server in a second terminal:
+
+    ```console
+    cd app/client/packages/mcp
+    cp .env.example .env
+    ./start-server.sh
+    ```
+
+    The service listens on `http://127.0.0.1:8092`; use `http://127.0.0.1:8092/health` to verify it. Its `/mcp` endpoint requires a bearer token.
+
 ## Local setup on Windows using WSL2
 
 ## Pre-requisites
@@ -393,9 +403,19 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
 By default, the server will start on port 8080.
 
-9. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
+9. Start the MCP server in a second terminal:
 
-10. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.
+```console
+cd app/client/packages/mcp
+cp .env.example .env
+./start-server.sh
+```
+
+The MCP service listens on `http://127.0.0.1:8092`; verify it with `http://127.0.0.1:8092/health`. Its `/mcp` endpoint requires a bearer token.
+
+10. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
+
+11. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.
 
 Now the last bit, let's get your Intellij IDEA up and running.
 
