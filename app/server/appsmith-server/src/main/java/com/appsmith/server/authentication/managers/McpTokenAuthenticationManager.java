@@ -12,14 +12,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Component
+// Intentionally NOT a @Component/@Bean: as the only ReactiveAuthenticationManager bean it would be auto-wired as the
+// global default and hijack form-login (which then rejects UsernamePasswordAuthenticationToken -> 500). SecurityConfig
+// constructs it directly for the MCP filter instead.
 @RequiredArgsConstructor
 public class McpTokenAuthenticationManager implements ReactiveAuthenticationManager {
 

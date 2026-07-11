@@ -19,6 +19,7 @@ import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.UserMcpTokenService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -189,10 +190,14 @@ public class SecurityConfig {
     @SuppressWarnings("Convert2MethodRef") // Helps readability.
     public SecurityWebFilterChain securityWebFilterChain(
             ServerHttpSecurity http,
-            McpTokenAuthenticationManager mcpTokenAuthenticationManager,
+            UserMcpTokenService userMcpTokenService,
             McpTokenAuthenticationConverter mcpTokenAuthenticationConverter) {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+        // Construct the MCP auth manager here rather than injecting a bean: as the only ReactiveAuthenticationManager
+        // bean it would be auto-wired as the global default and break form-login.
+        McpTokenAuthenticationManager mcpTokenAuthenticationManager =
+                new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
         AuthenticationWebFilter mcpTokenAuthenticationWebFilter =
                 new AuthenticationWebFilter(mcpTokenAuthenticationManager);
         mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
