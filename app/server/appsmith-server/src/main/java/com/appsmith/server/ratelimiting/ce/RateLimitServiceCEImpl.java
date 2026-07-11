@@ -60,6 +60,18 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
     }
 
     @Override
+    public Mono<Boolean> isRateLimitExceeded(String apiIdentifier, String userIdentifier) {
+        return sanitizeInput(apiIdentifier, userIdentifier)
+                .map(isInputValid -> rateLimitConfig
+                                .getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier)
+                                .getAvailableTokens()
+                        == 0)
+                // Since we are interacting with redis, we want to make sure that the operation is done on a separate
+                // thread pool
+                .subscribeOn(LoadShifter.elasticScheduler);
+    }
+
+    @Override
     public Mono<Void> resetCounter(String apiIdentifier, String userIdentifier) {
 
         return sanitizeInput(apiIdentifier, userIdentifier)

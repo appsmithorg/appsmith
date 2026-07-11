@@ -38,6 +38,9 @@ public class RateLimitConfig {
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
                 createBucketConfiguration(Duration.ofSeconds(5), 3));
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION,
+                createBucketConfiguration(Duration.ofMinutes(1), 5));
         // Add more API configurations as needed
     }
 

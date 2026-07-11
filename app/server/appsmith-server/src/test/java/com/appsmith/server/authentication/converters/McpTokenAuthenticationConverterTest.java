@@ -7,6 +7,8 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import reactor.test.StepVerifier;
 
+import java.net.InetSocketAddress;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class McpTokenAuthenticationConverterTest {
@@ -21,6 +23,8 @@ class McpTokenAuthenticationConverterTest {
                 .assertNext(authentication -> {
                     assertThat(authentication).isInstanceOf(McpTokenAuthentication.class);
                     assertThat(authentication.getCredentials()).isEqualTo("mcp_token");
+                    assertThat(((McpTokenAuthentication) authentication).getClientAddress())
+                            .isEqualTo("192.0.2.1");
                 })
                 .verifyComplete();
     }
@@ -32,7 +36,8 @@ class McpTokenAuthenticationConverterTest {
     }
 
     private MockServerWebExchange exchangeWithBearer(String token) {
-        return MockServerWebExchange.from(
-                MockServerHttpRequest.get("/api/v1/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+        return MockServerWebExchange.from(MockServerHttpRequest.get("/api/v1/users/me")
+                .remoteAddress(new InetSocketAddress("192.0.2.1", 8080))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
     }
 }

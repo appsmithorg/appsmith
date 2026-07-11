@@ -1,12 +1,17 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserMcpTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +26,24 @@ public class McpTokenControllerCE {
 
     @PostMapping
     public Mono<ResponseDTO<McpTokenResponseDTO>> create(@AuthenticationPrincipal User user) {
-        return userMcpTokenService.create(user).map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
+        // An MCP token must not be usable to mint more MCP tokens — that would let a leaked token persist past
+        // revocation. Token creation is allowed only from a normal (session) login.
+        return ReactiveSecurityContextHolder.getContext()
+                .map(context -> isMcpAuthenticated(context.getAuthentication()))
+                .defaultIfEmpty(false)
+                .flatMap(mcpAuthenticated -> {
+                    if (mcpAuthenticated) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+
+                    return userMcpTokenService.create(user).map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
+                });
+    }
+
+    private static boolean isMcpAuthenticated(Authentication authentication) {
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                        .anyMatch(authority -> McpTokenAuthentication.MCP_AUTHORITY.equals(authority.getAuthority()));
     }
 
     @GetMapping

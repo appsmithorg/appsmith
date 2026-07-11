@@ -12,9 +12,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +45,7 @@ class UserMcpTokenServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserMcpTokenServiceImpl(userMcpTokenRepository, userRepository, new BCryptPasswordEncoder());
+        service = new UserMcpTokenServiceImpl(userMcpTokenRepository, userRepository);
         user = new User();
         user.setId("user-id");
         user.setIsEnabled(true);
@@ -86,6 +91,47 @@ class UserMcpTokenServiceImplTest {
                 .verifyComplete();
     }
 
+    // Regression for the BCrypt CPU-exhaustion DoS: the token secret is high-entropy, so it must be stored as a
+    // plain fast SHA-256 hash (deterministic, no key stretching), not a BCrypt hash. Fails on the unpatched code,
+    // which stored passwordEncoder.encode(...) (a non-deterministic "$2a$"-prefixed BCrypt hash).
+    @Test
+    void create_storesFastSha256HashNotBcrypt() {
+        McpTokenResponseDTO generated = createToken();
+
+        assertThat(persistedToken.getTokenHash()).doesNotStartWith("$2");
+        assertThat(persistedToken.getTokenHash()).isEqualTo(sha256Base64Url(generated.token()));
+    }
+
+    // The exact DoS proof-of-concept payload — a valid tokenId with a wrong secret — must be rejected via the fast
+    // constant-time comparison, without invoking any key-stretching hash.
+    @Test
+    void authenticate_rejectsValidTokenIdWithWrongSecret() {
+        McpTokenResponseDTO generated = createToken();
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(persistedToken.getTokenId()))
+                .thenReturn(Mono.just(persistedToken));
+
+        String tamperedToken = "mcp_" + generated.id() + ".wrong-secret";
+        StepVerifier.create(service.authenticate(tamperedToken)).verifyComplete();
+    }
+
+    @Test
+    void create_setsFutureExpiry() {
+        createToken();
+
+        assertThat(persistedToken.getExpiresAt()).isNotNull();
+        assertThat(persistedToken.getExpiresAt()).isAfter(Instant.now());
+    }
+
+    @Test
+    void authenticate_rejectsExpiredToken() {
+        McpTokenResponseDTO generated = createToken();
+        persistedToken.setExpiresAt(Instant.now().minusSeconds(60));
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(persistedToken.getTokenId()))
+                .thenReturn(Mono.just(persistedToken));
+
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+    }
+
     @Test
     void revoke_onlyArchivesTokenOwnedByCurrentUser() {
         UserMcpToken storedToken = new UserMcpToken();
@@ -111,5 +157,16 @@ class UserMcpTokenServiceImplTest {
         });
 
         return service.create(user).block();
+    }
+
+    private static String sha256Base64Url(String value) {
+        try {
+            return Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(
+                            MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 }

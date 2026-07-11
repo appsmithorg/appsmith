@@ -2,6 +2,7 @@ package com.appsmith.server.authentication;
 
 import com.appsmith.server.authentication.converters.McpTokenAuthenticationConverter;
 import com.appsmith.server.authentication.managers.McpTokenAuthenticationManager;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.UserMcpTokenService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +44,11 @@ class McpTokenAuthenticationWebFilterTest {
     }
 
     private WebTestClient authenticationClient(UserMcpTokenService service) {
-        AuthenticationWebFilter filter = new AuthenticationWebFilter(new McpTokenAuthenticationManager(service));
+        RateLimitService rateLimitService = mock(RateLimitService.class);
+        when(rateLimitService.isRateLimitExceeded(anyString(), anyString())).thenReturn(Mono.just(false));
+        when(rateLimitService.tryIncreaseCounter(anyString(), anyString())).thenReturn(Mono.just(true));
+        AuthenticationWebFilter filter =
+                new AuthenticationWebFilter(new McpTokenAuthenticationManager(service, rateLimitService));
         filter.setServerAuthenticationConverter(new McpTokenAuthenticationConverter());
         filter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(
                 new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));

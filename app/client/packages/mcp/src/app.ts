@@ -9,13 +9,22 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { getCapabilities } from "./builder/capabilities.js";
+import { applyEdit, compileApp } from "./builder/compile.js";
+import type { WidgetNode } from "./builder/layout.js";
+import { listPresets, PRESETS } from "./builder/presets.js";
+import { appSpecSchema, editSpecSchema } from "./builder/schema.js";
 
 const MAX_ID_LENGTH = 128;
+
 export const MAX_ARTIFACT_BYTES = 1024 * 1024;
 export const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
 export const MAX_MCP_SESSIONS = 100;
 export const MAX_MCP_SESSIONS_PER_USER = 10;
 export const MCP_SESSION_TTL_MS = 15 * 60 * 1000;
+export const REQUEST_TIMEOUT_MS = 30 * 1000;
+export const HEADERS_TIMEOUT_MS = 10 * 1000;
+export const MAX_INBOUND_CONNECTIONS = 512;
 const MCP_TOKEN_PREFIX = "mcp_";
 const idSchema = z
   .string()
@@ -30,9 +39,7 @@ const artifactSchema = z.record(z.unknown()).superRefine((artifact, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message:
-        error instanceof Error
-          ? error.message
-          : "Artifact must be valid JSON",
+        error instanceof Error ? error.message : "Artifact must be valid JSON",
     });
   }
 });
@@ -59,6 +66,12 @@ export interface AppsmithApi {
     applicationId: string,
     pageId: string,
     artifact: Record<string, unknown>,
+  ) => Promise<unknown>;
+  updateLayout: (
+    applicationId: string,
+    pageId: string,
+    layoutId: string,
+    dsl: Record<string, unknown>,
   ) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
@@ -117,7 +130,10 @@ function serializeArtifact(artifact: Record<string, unknown>): string {
     },
   );
 
-  if (!serialized || Buffer.byteLength(serialized, "utf8") > MAX_ARTIFACT_BYTES) {
+  if (
+    !serialized ||
+    Buffer.byteLength(serialized, "utf8") > MAX_ARTIFACT_BYTES
+  ) {
     throw new Error(`Artifact must not exceed ${MAX_ARTIFACT_BYTES} bytes`);
   }
 
@@ -142,20 +158,30 @@ export function createAppsmithApi(
 ): AppsmithApi {
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const isMultipart = init?.body instanceof FormData;
-    const response = await fetchFn(`${apiBaseUrl}${path}`, {
-      ...init,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(isMultipart ? {} : { "Content-Type": "application/json" }),
-        ...init?.headers,
-      },
-    });
+    // Bound every upstream call so a hung Appsmith response cannot pin an MCP worker indefinitely. Preserve a
+    // caller-supplied signal when present; otherwise abort on our own timeout.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-    if (!response.ok) {
-      throw new Error(`Appsmith API request failed (${response.status})`);
+    try {
+      const response = await fetchFn(`${apiBaseUrl}${path}`, {
+        ...init,
+        signal: init?.signal ?? controller.signal,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(isMultipart ? {} : { "Content-Type": "application/json" }),
+          ...init?.headers,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Appsmith API request failed (${response.status})`);
+      }
+
+      return ((await response.json()) as ApiResponse<T>).data;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    return ((await response.json()) as ApiResponse<T>).data;
   }
 
   return {
@@ -198,8 +224,40 @@ export function createAppsmithApi(
           body: artifactUpload(artifact),
         },
       ),
+    updateLayout: async (applicationId, pageId, layoutId, dsl) =>
+      request(
+        `/api/v1/layouts/${encodeURIComponent(layoutId)}/pages/${encodeURIComponent(pageId)}?applicationId=${encodeURIComponent(applicationId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ dsl }),
+        },
+      ),
     validateToken: async () => request("/api/v1/users/me"),
   };
+}
+
+function validationError(issues: z.ZodIssue[]) {
+  return result({
+    valid: false,
+    errors: issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message,
+    })),
+  });
+}
+
+// The compiler enforces aggregate caps (depth, total widgets) and serializeArtifact enforces size/plain-JSON; surface
+// those as clean validation errors instead of letting them become a 500.
+function compileError(error: unknown) {
+  return result({
+    valid: false,
+    errors: [
+      {
+        path: "",
+        message: error instanceof Error ? error.message : "compilation failed",
+      },
+    ],
+  });
 }
 
 function result(data: unknown) {
@@ -233,35 +291,141 @@ export function buildMcpServer(api: AppsmithApi) {
       result(await api.getApplicationContext(applicationId, pageId, layoutId)),
   );
 
+  // The raw artifact-import tools were removed: they let an agent upload an arbitrary artifact (custom JS libs, JS
+  // objects, datasources) — a large content-injection surface. Authoring goes through the validated
+  // build_application / edit_page spec compiler instead.
+
   server.tool(
-    "import_application_artifact",
-    "Create an application by importing a validated Appsmith application artifact. Appsmith authorizes the import using the caller's bearer token.",
-    {
-      workspaceId: idSchema,
-      artifact: artifactSchema,
-    },
-    async ({ artifact, workspaceId }) =>
-      result(await api.importApplicationArtifact(workspaceId, artifact)),
+    "get_capabilities",
+    "Discover what the app builder supports: widget types, the page/app/edit spec shapes, presets, and the layout grid. Call this first when building an app.",
+    {},
+    async () => result(getCapabilities()),
   );
 
   server.tool(
-    "import_partial_application_artifact",
-    "Update an application page by importing a validated partial Appsmith artifact. Appsmith authorizes the import using the caller's bearer token.",
+    "list_presets",
+    "List ready-made page-spec presets (form, table-detail, card-grid, crud) that can be adapted into an app spec.",
+    {},
+    async () => result(listPresets()),
+  );
+
+  server.tool(
+    "get_preset",
+    "Get a preset page spec by name to use or adapt.",
+    { name: z.string().trim().min(1) },
+    async ({ name }) => {
+      const preset = PRESETS[name];
+
+      if (!preset) {
+        return result({
+          error: `unknown preset "${name}"`,
+          available: Object.keys(PRESETS),
+        });
+      }
+
+      return result(preset);
+    },
+  );
+
+  server.tool(
+    "validate_app_spec",
+    "Dry-run: validate and compile an app spec WITHOUT creating anything. Returns structured errors, or a summary of what would be built. Use this to iterate before build_application.",
+    { app: z.record(z.unknown()) },
+    async ({ app }) => {
+      const parsed = appSpecSchema.safeParse(app);
+
+      if (!parsed.success) {
+        return validationError(parsed.error.issues);
+      }
+
+      try {
+        compileApp(parsed.data);
+      } catch (error) {
+        return compileError(error);
+      }
+
+      return result({
+        valid: true,
+        application: parsed.data.name,
+        pages: parsed.data.pages.map((page) => ({
+          name: page.name,
+          widgets: page.widgets.length,
+        })),
+      });
+    },
+  );
+
+  server.tool(
+    "build_application",
+    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions.",
+    { workspaceId: idSchema, app: z.record(z.unknown()) },
+    async ({ app, workspaceId }) => {
+      const parsed = appSpecSchema.safeParse(app);
+
+      if (!parsed.success) {
+        return validationError(parsed.error.issues);
+      }
+
+      let artifact: Record<string, unknown>;
+
+      try {
+        artifact = compileApp(parsed.data);
+      } catch (error) {
+        return compileError(error);
+      }
+
+      return result(await api.importApplicationArtifact(workspaceId, artifact));
+    },
+  );
+
+  server.tool(
+    "edit_page",
+    "Append widgets to an existing page from a high-level edit spec, with best-effort placement (after a widget / inside a container). Existing widgets are never modified. Returns notes about how placement was resolved.",
     {
-      workspaceId: idSchema,
       applicationId: idSchema,
       pageId: idSchema,
-      artifact: artifactSchema,
+      layoutId: idSchema,
+      edit: z.record(z.unknown()),
     },
-    async ({ applicationId, artifact, pageId, workspaceId }) =>
-      result(
-        await api.importPartialApplicationArtifact(
-          workspaceId,
-          applicationId,
-          pageId,
-          artifact,
-        ),
-      ),
+    async ({ applicationId, edit, layoutId, pageId }) => {
+      const parsed = editSpecSchema.safeParse(edit);
+
+      if (!parsed.success) {
+        return validationError(parsed.error.issues);
+      }
+
+      const context = await api.getApplicationContext(
+        applicationId,
+        pageId,
+        layoutId,
+      );
+      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
+        ?.dsl;
+
+      if (!currentDsl) {
+        return result({ error: "could not read the current page layout" });
+      }
+
+      let dsl: WidgetNode;
+      let notes: string[];
+
+      try {
+        ({ dsl, notes } = applyEdit(currentDsl, parsed.data));
+        // Guard the write path with the same size + plain-JSON check the import path uses.
+        serializeArtifact(dsl as Record<string, unknown>);
+      } catch (error) {
+        return compileError(error);
+      }
+
+      const updated = await api.updateLayout(
+        applicationId,
+        pageId,
+        layoutId,
+        dsl,
+      );
+
+      return result({ notes, layout: updated });
+    },
   );
 
   return server;
@@ -294,6 +458,7 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 
   for await (const chunk of req) {
     const buffer = Buffer.from(chunk);
+
     byteLength += buffer.byteLength;
 
     if (byteLength > MAX_REQUEST_BODY_BYTES) {
@@ -341,6 +506,10 @@ export function createMcpHttpServer(
   options: McpHttpServerOptions = {},
 ): Server {
   const sessions = new Map<string, McpSession>();
+  // Reservations bridge the async gap between admitting an initialize and the session registering in
+  // onsessioninitialized, so concurrent initializes cannot all pass the caps before any of them registers.
+  let pendingTotal = 0;
+  const pendingByUser = new Map<string, number>();
   const maxSessions = options.maxSessions ?? MAX_MCP_SESSIONS;
   const maxSessionsPerUser =
     options.maxSessionsPerUser ?? MAX_MCP_SESSIONS_PER_USER;
@@ -353,7 +522,7 @@ export function createMcpHttpServer(
     for (const [id, session] of sessions) {
       if (session.expiresAt <= currentTime) {
         sessions.delete(id);
-        void session.transport.close();
+        void session.transport.close().catch(() => {});
       }
     }
   }
@@ -377,7 +546,10 @@ export function createMcpHttpServer(
     return profile.username;
   }
 
-  return createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
+    // Released in `finally`; holds a session reservation across the admission → registration gap.
+    let releasePending = () => {};
+
     try {
       const path = (req.url ?? "").split("?")[0];
 
@@ -389,6 +561,14 @@ export function createMcpHttpServer(
 
       if (path !== "/mcp") {
         writeJson(res, 404, { error: "not found" });
+
+        return;
+      }
+
+      // This endpoint serves programmatic MCP clients, not browsers. A cross-site page could otherwise use DNS
+      // rebinding to reach the loopback service, so reject any request that carries a browser Origin header.
+      if (req.headers.origin !== undefined) {
+        writeJson(res, 403, { error: "cross-origin requests are not allowed" });
 
         return;
       }
@@ -411,8 +591,8 @@ export function createMcpHttpServer(
 
       if (session) {
         if (!tokensMatch(session.token, token)) {
-          sessions.delete(sessionId!);
-          void session.transport.close();
+          // Do NOT evict the session here: a mismatched token must not let someone who guessed/leaked a session id
+          // tear down the real owner's session (targeted DoS). The owner's own token still binds it.
           writeJson(res, 401, { error: "invalid MCP session" });
 
           return;
@@ -423,18 +603,22 @@ export function createMcpHttpServer(
       }
 
       if (!transport && isInitializeRequest(body)) {
-        if (sessions.size >= maxSessions) {
-          writeJson(res, 503, { error: "MCP session limit reached" });
-
-          return;
-        }
-
         const api = createApi(token);
         const username = await authenticatedUsername(api);
-        let userSessionCount = 0;
+
+        // Check-and-reserve synchronously (no await between reading the counts and incrementing the reservation)
+        // so a burst of concurrent initializes can't all slip past the caps. `sessions.size + pendingTotal` counts
+        // both registered and in-flight sessions.
+        let userSessionCount = pendingByUser.get(username) ?? 0;
 
         for (const existing of sessions.values()) {
           if (existing.username === username) userSessionCount += 1;
+        }
+
+        if (sessions.size + pendingTotal >= maxSessions) {
+          writeJson(res, 503, { error: "MCP session limit reached" });
+
+          return;
         }
 
         if (userSessionCount >= maxSessionsPerUser) {
@@ -444,6 +628,17 @@ export function createMcpHttpServer(
 
           return;
         }
+
+        pendingTotal += 1;
+        pendingByUser.set(username, (pendingByUser.get(username) ?? 0) + 1);
+        releasePending = () => {
+          releasePending = () => {};
+          pendingTotal -= 1;
+          const remaining = (pendingByUser.get(username) ?? 1) - 1;
+
+          if (remaining <= 0) pendingByUser.delete(username);
+          else pendingByUser.set(username, remaining);
+        };
 
         transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: randomUUID,
@@ -475,6 +670,16 @@ export function createMcpHttpServer(
         error instanceof HttpError ? error.message : "MCP request failed";
 
       writeJson(res, status, { error: message });
+    } finally {
+      // By now the session has either registered (counted in `sessions`) or failed; release the reservation.
+      releasePending();
     }
   });
+
+  // Bound inbound sockets so a slow-loris or a flood of half-open connections can't pin the single process.
+  server.maxConnections = MAX_INBOUND_CONNECTIONS;
+  server.requestTimeout = REQUEST_TIMEOUT_MS;
+  server.headersTimeout = HEADERS_TIMEOUT_MS;
+
+  return server;
 }

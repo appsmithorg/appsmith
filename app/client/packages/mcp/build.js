@@ -7,6 +7,6 @@ await esbuild.build({
   minify: true,
   platform: "node",
   sourcemap: true,
-  target: `node${process.versions.node}`,
+  target: `node${process.versions.node.split(".")[0]}`,
   outdir: "dist/bundle",
 });

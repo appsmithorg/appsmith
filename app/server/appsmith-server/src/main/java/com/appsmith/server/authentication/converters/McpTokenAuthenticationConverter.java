@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.InetSocketAddress;
+
 @Component
 public class McpTokenAuthenticationConverter implements ServerAuthenticationConverter {
 
@@ -22,6 +24,17 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
         }
 
         String token = authorization.substring(BEARER_PREFIX.length()).trim();
-        return token.startsWith(MCP_TOKEN_PREFIX) ? Mono.just(new McpTokenAuthentication(token)) : Mono.empty();
+        return token.startsWith(MCP_TOKEN_PREFIX)
+                ? Mono.just(new McpTokenAuthentication(token, clientAddress(exchange)))
+                : Mono.empty();
+    }
+
+    private String clientAddress(ServerWebExchange exchange) {
+        InetSocketAddress remoteAddress = exchange.getRequest().getRemoteAddress();
+        if (remoteAddress == null || remoteAddress.getAddress() == null) {
+            return "unknown";
+        }
+
+        return remoteAddress.getAddress().getHostAddress();
     }
 }

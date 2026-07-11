@@ -8,6 +8,8 @@ import java.time.Duration;
 public interface RateLimitServiceCE {
     Mono<Boolean> tryIncreaseCounter(String apiIdentifier, String userIdentifier);
 
+    Mono<Boolean> isRateLimitExceeded(String apiIdentifier, String userIdentifier);
+
     Mono<Void> resetCounter(String apiIdentifier, String userIdentifier);
 
     Mono<Boolean> blockEndpointForConnectionRequest(

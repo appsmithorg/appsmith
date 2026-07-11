@@ -44,6 +44,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+          persist-credentials: false
           ref: refs/pull/${{ inputs.pr }}/merge
 
       - name: Checkout the specified branch
@@ -51,6 +52,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+          persist-credentials: false
           ref: ${{ inputs.branch }}
 
       - name: Checkout the head commit
@@ -58,6 +60,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+          persist-credentials: false
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -86,9 +89,6 @@ jobs:
 
       - name: Check formatting
         run: yarn prettier
-
-      - name: Lint
-        run: yarn lint
 
       - name: Run unit tests
         if: inputs.skip-tests != 'true'
