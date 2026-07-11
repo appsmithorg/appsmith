@@ -649,6 +649,10 @@ export function createMcpHttpServer(
               username,
               transport: transport!,
             });
+            // Release the reservation the moment the session is registered — the initialize response is a
+            // long-lived SSE stream, so waiting for `finally` (end of handleRequest) would let a client that
+            // never drains the stream pin the reservation until the session TTL and saturate the caps.
+            releasePending();
           },
         });
         transport.onclose = () => {

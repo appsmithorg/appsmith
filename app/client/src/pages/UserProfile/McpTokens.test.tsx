@@ -33,6 +33,7 @@ describe("McpTokens", () => {
       successResponse({
         id: "token-1",
         createdAt: "2026-07-10T12:00:00.000Z",
+        expiresAt: "2026-10-08T12:00:00.000Z",
       }),
     ]);
   });
@@ -57,6 +58,7 @@ describe("McpTokens", () => {
         id: "token-2",
         token: "secret-token",
         createdAt: "2026-07-10T12:00:00.000Z",
+        expiresAt: "2026-10-08T12:00:00.000Z",
       }),
     );
     renderComponent();

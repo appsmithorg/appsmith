@@ -126,7 +126,9 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
     }
 
     private static boolean isNotExpired(UserMcpToken storedToken) {
-        return storedToken.getExpiresAt() == null || storedToken.getExpiresAt().isAfter(Instant.now());
+        // Fail closed: a token with no expiry is rejected. Every token minted here carries one, so a missing
+        // expiry means a malformed/foreign record that must not authenticate.
+        return storedToken.getExpiresAt() != null && storedToken.getExpiresAt().isAfter(Instant.now());
     }
 
     private String extractTokenId(String token) {

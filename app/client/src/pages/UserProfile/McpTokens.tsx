@@ -18,6 +18,7 @@ import {
   MCP_TOKEN_CREATE_FAILED,
   MCP_TOKEN_CREATED,
   MCP_TOKEN_CREATED_AT,
+  MCP_TOKEN_EXPIRES_AT,
   MCP_TOKEN_CREATED_DESCRIPTION,
   MCP_TOKEN_VALUE_LABEL,
   MCP_TOKEN_REVOKE_FAILED,
@@ -106,7 +107,11 @@ function McpTokens() {
 
       setCreatedToken(token);
       setTokens((tokens) => [
-        { id: token.id, createdAt: token.createdAt },
+        {
+          id: token.id,
+          createdAt: token.createdAt,
+          expiresAt: token.expiresAt,
+        },
         ...tokens,
       ]);
     } catch (error) {
@@ -181,6 +186,10 @@ function McpTokens() {
                   {createMessage(MCP_TOKEN_CREATED_AT)}:{" "}
                   {formatCreatedAt(token.createdAt)}
                 </Text>
+                <Text kind="body-s">
+                  {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
+                  {formatCreatedAt(token.expiresAt)}
+                </Text>
                 <Button
                   aria-label={`${createMessage(REVOKE_MCP_TOKEN)} ${token.id}`}
                   isDisabled={isRevoking}
@@ -220,6 +229,10 @@ function McpTokens() {
               }}
               value={createdToken?.token ?? ""}
             />
+            <Text kind="body-s">
+              {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
+              {formatCreatedAt(createdToken?.expiresAt ?? "")}
+            </Text>
             <Button onClick={copyCreatedToken} size="md">
               {createMessage(COPY_MCP_TOKEN)}
             </Button>

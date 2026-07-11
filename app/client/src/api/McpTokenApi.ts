@@ -3,6 +3,7 @@ import type { ApiResponse } from "api/ApiResponses";
 
 export interface McpTokenMetadata {
   createdAt: string;
+  expiresAt: string;
   id: string;
 }
 
@@ -16,7 +17,7 @@ class McpTokenApi extends Api {
   static async create(): Promise<ApiResponse<CreatedMcpToken>> {
     const response = await Api.post(McpTokenApi.url);
 
-    return response as ApiResponse<CreatedMcpToken>;
+    return response as unknown as ApiResponse<CreatedMcpToken>;
   }
 
   static async list(): Promise<ApiResponse<McpTokenMetadata>[]> {
@@ -30,7 +31,7 @@ class McpTokenApi extends Api {
   static async revoke(tokenId: string): Promise<ApiResponse<boolean>> {
     const response = await Api.delete(`${McpTokenApi.url}/${tokenId}`);
 
-    return response as ApiResponse<boolean>;
+    return response as unknown as ApiResponse<boolean>;
   }
 }
 

@@ -252,6 +252,7 @@ export const MCP_TOKEN_COPY_FAILED = () => "Unable to copy MCP token.";
 export const MCP_TOKENS_LOADING = () => "Loading MCP tokens…";
 export const MCP_TOKENS_EMPTY = () => "No MCP tokens have been created.";
 export const MCP_TOKEN_CREATED_AT = () => "Created";
+export const MCP_TOKEN_EXPIRES_AT = () => "Expires";
 export const REVOKE_MCP_TOKEN = () => "Revoke";
 export const REVOKE_MCP_TOKEN_CONFIRM = () => "Revoke token";
 export const REVOKE_MCP_TOKEN_CONFIRMATION = () =>

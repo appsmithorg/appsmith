@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 healthy=true
+# MCP is opt-in (APPSMITH_MCP_ENABLED); its supervisord program is absent when disabled. Only health-check it when
+# it is actually a configured program, so a container with MCP off (the default) is not reported unhealthy.
+processes="editor rts backend"
+if supervisorctl status | grep -q '^mcp'; then
+  processes="$processes mcp"
+fi
 while read -r line
   do
     line_arr=($line)
@@ -37,7 +43,7 @@ while read -r line
         fi
       fi
     fi
-  done <<< $(supervisorctl status editor rts mcp backend)
+  done <<< $(supervisorctl status $processes)
 if [ $healthy == true ]; then
   exit 0
 else
