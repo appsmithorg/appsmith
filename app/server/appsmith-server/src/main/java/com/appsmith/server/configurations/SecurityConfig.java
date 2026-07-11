@@ -197,6 +197,17 @@ public class SecurityConfig {
                 new AuthenticationWebFilter(mcpTokenAuthenticationManager);
         mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
         mcpTokenAuthenticationWebFilter.setAuthenticationFailureHandler(failureHandler);
+        // Only engage for requests that actually carry an MCP token. Without this, the filter's default "any
+        // exchange" matcher sits at AUTHENTICATION order alongside the form-login filter and breaks the login flow
+        // (No provider found for UsernamePasswordAuthenticationToken -> 500).
+        mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(exchange -> {
+            final String mcpBearerPrefix = "Bearer mcp_";
+            final String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            return authorization != null
+                            && authorization.regionMatches(true, 0, mcpBearerPrefix, 0, mcpBearerPrefix.length())
+                    ? ServerWebExchangeMatcher.MatchResult.match()
+                    : ServerWebExchangeMatcher.MatchResult.notMatch();
+        });
 
         csrfConfig.applyTo(http);
 

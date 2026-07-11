@@ -47,12 +47,12 @@ public class McpTokenAuthenticationManager implements ReactiveAuthenticationMana
                             .authenticate((String) authentication.getCredentials())
                             .map(user -> (Authentication)
                                     UsernamePasswordAuthenticationToken.authenticated(user, null, mcpAuthorities(user)))
-                            .switchIfEmpty(rateLimitService
+                            .switchIfEmpty(Mono.defer(() -> rateLimitService
                                     .tryIncreaseCounter(
                                             RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION,
                                             mcpTokenAuthentication.getClientAddress())
                                     .onErrorResume(error -> Mono.empty())
-                                    .then(invalidMcpToken()));
+                                    .then(invalidMcpToken())));
                 });
     }
 

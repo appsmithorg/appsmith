@@ -21,6 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -97,7 +98,10 @@ class McpTokenAuthenticationManagerTest {
     }
 
     private McpTokenAuthenticationManager manager() {
-        when(rateLimitService.isRateLimitExceeded(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, "unknown"))
+        // Lenient: tests that reject non-MCP auth or a rate-limited source never reach this stub.
+        lenient()
+                .when(rateLimitService.isRateLimitExceeded(
+                        RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, "unknown"))
                 .thenReturn(Mono.just(false));
         return new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
     }
