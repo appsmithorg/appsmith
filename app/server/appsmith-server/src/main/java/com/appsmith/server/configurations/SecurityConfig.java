@@ -212,7 +212,10 @@ public class SecurityConfig {
         csrfConfig.applyTo(http);
 
         return http.addFilterAt(this::sanityCheckFilter, SecurityWebFiltersOrder.FIRST)
-                .addFilterAt(mcpTokenAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                // Add BEFORE the AUTHENTICATION slot (not AT it): placing a second AuthenticationWebFilter at the
+                // same order as form-login breaks its manager wiring (login -> 500). This runs the MCP bearer check
+                // just ahead of form-login and is inert for non-MCP requests (see the matcher above).
+                .addFilterBefore(mcpTokenAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec

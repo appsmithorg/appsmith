@@ -70,7 +70,9 @@ describe("McpTokens", () => {
 
     expect(tokenField).toHaveValue("secret-token");
     expect(tokenField).toHaveAttribute("readonly");
-    expect(tokenField).toHaveStyle("font-family: ui-monospace");
+    expect(tokenField).toHaveStyle(
+      "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Copy token" }));
 
     await waitFor(() =>
