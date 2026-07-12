@@ -26,10 +26,6 @@ export interface WidgetTemplate {
   build: (spec: WidgetSpec) => BuiltWidget;
 }
 
-function bindingPaths(...keys: string[]) {
-  return keys.map((key) => ({ key }));
-}
-
 export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
   text: {
     appsmithType: "TEXT_WIDGET",
@@ -124,6 +120,11 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     footprint: { columns: 16, rows: 4 },
     build: (spec) => {
       const text = spec.type === "button" ? spec.text ?? "Submit" : "Submit";
+      const run = spec.type === "button" ? spec.onClick?.run : undefined;
+
+      // M4: a bound onClick runs a named query via the closed vocabulary (`{{ <query>.run() }}`), registered as a
+      // dynamic trigger. Unbound, onClick is an inert stub (empty, no trigger path) — nothing is evaluated.
+      const onClick = run !== undefined ? `{{ ${run}.run() }}` : "";
 
       return {
         footprint: { columns: 16, rows: 4 },
@@ -134,6 +135,8 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           isDisabled: false,
           isDefaultClickDisabled: true,
           recaptchaType: "V3",
+          onClick,
+          dynamicTriggerPathList: run !== undefined ? [{ key: "onClick" }] : [],
           animateLoading: true,
           responsiveBehavior: "hug",
         },
@@ -169,12 +172,27 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     version: 2,
     footprint: { columns: 40, rows: 28 },
     build: (spec) => {
-      const data = spec.type === "table" ? spec.data ?? "" : "";
+      const rows = spec.type === "table" ? spec.data ?? [] : [];
+      const source = spec.type === "table" ? spec.source : undefined;
+
+      if (source !== undefined && rows.length > 0) {
+        throw new Error("table cannot set both 'data' and 'source'");
+      }
+
+      // Two safe data origins: (1) static literal rows serialized as JSON with NO binding, or (2) a query source
+      // compiled to `{{ <query>.data }}` from the closed vocabulary (the query name is a strict identifier, so the
+      // expression cannot be broken out of). Agents never author raw expression text either way.
+      const bound = source !== undefined;
+      const tableData = bound
+        ? `{{ ${source.query}.data }}`
+        : rows.length > 0
+          ? JSON.stringify(rows)
+          : "";
 
       return {
         footprint: { columns: 40, rows: 28 },
         props: {
-          tableData: data,
+          tableData,
           primaryColumns: {},
           columnOrder: [],
           columnWidthMap: {},
@@ -199,7 +217,8 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           inlineEditingSaveOption: "ROW_LEVEL",
           animateLoading: true,
           responsiveBehavior: "fill",
-          dynamicBindingPathList: data ? bindingPaths("tableData") : [],
+          // A query source is a real dynamic binding; static rows are not.
+          dynamicBindingPathList: bound ? [{ key: "tableData" }] : [],
           dynamicPropertyPathList: [],
         },
       };
@@ -227,5 +246,173 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
         },
       };
     },
+  },
+
+  form: {
+    appsmithType: "FORM_WIDGET",
+    version: 1,
+    footprint: { columns: 40, rows: 34 },
+    build: (spec) => {
+      const fields = spec.type === "form" ? spec.children ?? [] : [];
+      const submitLabel =
+        spec.type === "form" ? spec.submitLabel ?? "Submit" : "Submit";
+
+      // A form is a container that ends with a submit button. The synthetic button is a real child spec, compiled
+      // like any other widget; its onClick stays an inert stub until the data layer wires submission.
+      const children: WidgetSpec[] = [
+        ...fields,
+        { type: "button", text: submitLabel },
+      ];
+
+      return {
+        footprint: { columns: 40, rows: 34 },
+        children,
+        props: {
+          backgroundColor: "#FFFFFF",
+          borderColor: "#E0DEDE",
+          borderWidth: "1",
+          boxShadow: "NONE",
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  modal: {
+    appsmithType: "MODAL_WIDGET",
+    version: 2,
+    footprint: { columns: 32, rows: 24 },
+    build: (spec) => {
+      const children = spec.type === "modal" ? spec.children ?? [] : [];
+      const title = spec.type === "modal" ? spec.title ?? "Modal" : "Modal";
+
+      return {
+        footprint: { columns: 32, rows: 24 },
+        children,
+        props: {
+          canOutsideClickClose: true,
+          canEscapeKeyClose: true,
+          shouldScrollContents: true,
+          size: "MODAL_SMALL",
+          width: 456,
+          height: 252,
+          title,
+          animateLoading: true,
+          detachFromLayout: true,
+        },
+      };
+    },
+  },
+
+  datepicker: {
+    appsmithType: "DATE_PICKER_WIDGET2",
+    version: 2,
+    footprint: { columns: 20, rows: 7 },
+    build: (spec) => {
+      const label = spec.type === "datepicker" ? spec.label ?? "Date" : "Date";
+
+      return {
+        footprint: { columns: 20, rows: 7 },
+        props: {
+          label,
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelTextSize: "0.875rem",
+          dateFormat: "YYYY-MM-DD HH:mm",
+          isRequired: false,
+          isDisabled: false,
+          minDate: "1920-12-31T18:30:00.000Z",
+          maxDate: "2121-12-31T18:29:00.000Z",
+          firstDayOfWeek: 0,
+          timePrecision: "minute",
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  chart: {
+    appsmithType: "CHART_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 32 },
+    build: (spec) => {
+      const title = spec.type === "chart" ? spec.title ?? "Chart" : "Chart";
+      const chartType =
+        spec.type === "chart" ? spec.chartType ?? "LINE_CHART" : "LINE_CHART";
+      const series = spec.type === "chart" ? spec.series ?? [] : [];
+
+      // Static chartData: { <seriesId>: { seriesName, data: [{x,y}] } }. No binding — the points are literals.
+      const chartData: Record<string, unknown> = {};
+
+      series.forEach((oneSeries, index) => {
+        chartData[`series${index + 1}`] = {
+          seriesName: oneSeries.name ?? `Series ${index + 1}`,
+          data: (oneSeries.points ?? []).map((point) => ({
+            x: point.x,
+            y: point.y,
+          })),
+        };
+      });
+
+      return {
+        footprint: { columns: 24, rows: 32 },
+        props: {
+          chartType,
+          chartName: title,
+          allowScroll: false,
+          chartData,
+          xAxisName: "",
+          yAxisName: "",
+          labelOrientation: "auto",
+          setAdaptiveYMin: false,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+          dynamicBindingPathList: [],
+        },
+      };
+    },
+  },
+
+  list: {
+    appsmithType: "LIST_WIDGET_V2",
+    version: 3,
+    footprint: { columns: 40, rows: 30 },
+    build: (spec) => {
+      // The children are the repeating item template; they compile into the list's inner canvas.
+      const children = spec.type === "list" ? spec.children ?? [] : [];
+
+      return {
+        footprint: { columns: 40, rows: 30 },
+        children,
+        props: {
+          listData: [],
+          currentItemsView: "[]",
+          pageSize: 3,
+          serverSidePagination: false,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+          dynamicBindingPathList: [],
+          dynamicTriggerPathList: [],
+        },
+      };
+    },
+  },
+
+  tabs: {
+    appsmithType: "TABS_WIDGET",
+    version: 3,
+    footprint: { columns: 40, rows: 32 },
+    // Tabs is multi-canvas (one inner canvas per tab); the compiler builds its structure directly rather than via
+    // the single-inner-canvas container path. This template supplies only type/version/footprint + base props.
+    build: () => ({
+      footprint: { columns: 40, rows: 32 },
+      props: {
+        shouldShowTabs: true,
+        animateLoading: true,
+        responsiveBehavior: "fill",
+      },
+    }),
   },
 };

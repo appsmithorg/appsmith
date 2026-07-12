@@ -145,6 +145,11 @@ function createApi(
     listApplications: jest.fn(),
     listWorkspaces: jest.fn(),
     updateLayout: jest.fn(),
+    listDatasources: jest.fn(),
+    getDatasourceStructure: jest.fn(),
+    getApplication: jest.fn(async () => ({ workspaceId: "ws1" })),
+    listActions: jest.fn(),
+    createAction: jest.fn(),
     validateToken,
   });
 }
@@ -293,15 +298,18 @@ describe("MCP HTTP server", () => {
         "edit_page",
       ]),
     );
+
     // The raw artifact-import tools and the removed raw-DSL tools must not be exposed.
-    expect(names).not.toEqual(
-      expect.arrayContaining([
-        "create_application",
-        "update_layout",
-        "import_application_artifact",
-        "import_partial_application_artifact",
-      ]),
-    );
+    // Check each individually: not.arrayContaining passes if even one is absent, so it
+    // would miss a case where some (but not all) excluded tools leaked back in.
+    for (const excluded of [
+      "create_application",
+      "update_layout",
+      "import_application_artifact",
+      "import_partial_application_artifact",
+    ]) {
+      expect(names).not.toContain(excluded);
+    }
   });
 
   it("build_application compiles a page spec and imports the artifact", async () => {
@@ -327,7 +335,7 @@ describe("MCP HTTP server", () => {
       .set("Authorization", "Bearer mcp_user-token")
       .set("mcp-session-id", sessionId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
-    await supertest(server)
+    const call = await supertest(server)
       .post("/mcp")
       .set("Accept", "application/json, text/event-stream")
       .set("Authorization", "Bearer mcp_user-token")
@@ -357,6 +365,97 @@ describe("MCP HTTP server", () => {
     expect(artifact.clientSchemaVersion).toBe(2);
     expect(artifact.actionList).toEqual([]);
     expect(artifact.pageList).toHaveLength(1);
+
+    // Structural diagnostics are returned inline so the agent gets feedback without a second call.
+    const body = JSON.parse(parseJsonRpc(call).result.content[0].text);
+
+    expect(body.diagnostics).toEqual({
+      errors: 0,
+      warnings: 0,
+      pages: expect.any(Object),
+    });
+  });
+
+  it("inspect_page lints a live page read-back and reports structural issues", async () => {
+    // A page whose two widgets overlap on the same canvas — the lint must surface it.
+    const overlappingDsl = {
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 380,
+      leftColumn: 0,
+      rightColumn: 640,
+      children: [
+        {
+          widgetId: "a",
+          widgetName: "A",
+          type: "INPUT_WIDGET_V2",
+          topRow: 0,
+          bottomRow: 10,
+          leftColumn: 0,
+          rightColumn: 30,
+        },
+        {
+          widgetId: "b",
+          widgetName: "B",
+          type: "INPUT_WIDGET_V2",
+          topRow: 5,
+          bottomRow: 15,
+          leftColumn: 10,
+          rightColumn: 40,
+        },
+      ],
+    };
+    const getApplicationContext = jest.fn(async () => ({
+      pages: [],
+      page: {},
+      layout: { dsl: overlappingDsl },
+    }));
+    const updateLayout = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext,
+      updateLayout,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 5,
+        method: "tools/call",
+        params: {
+          name: "inspect_page",
+          arguments: { applicationId: "app1", pageId: "p1", layoutId: "l1" },
+        },
+      });
+
+    // Read-only: inspecting must never write the layout back.
+    expect(updateLayout).not.toHaveBeenCalled();
+    expect(getApplicationContext).toHaveBeenCalledTimes(1);
+    const body = JSON.parse(parseJsonRpc(call).result.content[0].text);
+
+    expect(body.diagnostics.warnings).toBeGreaterThan(0);
+    expect(
+      body.diagnostics.issues.map((i: { rule: string }) => i.rule),
+    ).toContain("overlap");
   });
 
   it("build_application rejects an invalid spec without importing", async () => {
@@ -491,6 +590,15 @@ describe("MCP HTTP server", () => {
 
     expect(children).toHaveLength(2);
     expect(children.map((c) => c.widgetName)).toContain("Email");
+
+    // edit_page returns structural diagnostics inline, same as build_application.
+    const body = JSON.parse(parseJsonRpc(call).result.content[0].text);
+
+    expect(body.diagnostics).toEqual({
+      errors: 0,
+      warnings: 0,
+      issues: [],
+    });
   });
 
   it("edit_page reports a read failure without writing when the layout is missing", async () => {
@@ -729,5 +837,343 @@ describe("MCP HTTP server", () => {
       status: 429,
       body: { error: "MCP session limit reached for this user" },
     });
+  });
+});
+
+describe("MCP instruction surface (M2)", () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function session(): Promise<{ server: any; sessionId: string }> {
+    const server = createMcpHttpServer(API_BASE_URL, createApi());
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    return { server, sessionId };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function rpc(method: string, params?: unknown): Promise<any> {
+    const { server, sessionId } = await session();
+    const response = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 9, method, params });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (parseJsonRpc(response) as any).result;
+  }
+
+  it("exposes exactly the intended instruction resources", async () => {
+    const result = await rpc("resources/list");
+    const uris = (result.resources as { uri: string }[])
+      .map((r) => r.uri)
+      .sort();
+
+    expect(uris).toEqual(
+      [
+        "appsmith://guide/bindings",
+        "appsmith://guide/naming",
+        "appsmith://guide/placement",
+        "appsmith://recipe/crud",
+        "appsmith://recipe/form",
+        "appsmith://recipe/table-detail",
+        "appsmith://reference/widgets",
+      ].sort(),
+    );
+  });
+
+  it("reads a resource and returns markdown content", async () => {
+    const result = await rpc("resources/read", {
+      uri: "appsmith://reference/widgets",
+    });
+    const [content] = result.contents as { text: string; mimeType: string }[];
+
+    expect(content.mimeType).toBe("text/markdown");
+    expect(content.text).toContain("# Widget reference");
+  });
+
+  it("exposes the guided-workflow prompts", async () => {
+    const result = await rpc("prompts/list");
+    const names = (result.prompts as { name: string }[]).map((p) => p.name);
+
+    expect(names).toContain("scaffold_crud");
+    expect(names).toContain("scaffold_form");
+  });
+
+  it("renders a scaffold prompt as a user message referencing real tools", async () => {
+    const result = await rpc("prompts/get", {
+      name: "scaffold_crud",
+      arguments: { entity: "Customer", fields: "email:EMAIL" },
+    });
+    const [message] = result.messages as {
+      role: string;
+      content: { type: string; text: string };
+    }[];
+
+    expect(message.role).toBe("user");
+    expect(message.content.text).toContain("CustomerTable");
+    expect(message.content.text).toContain("build_application");
+    expect(message.content.text).not.toContain("create_query");
+  });
+});
+
+describe("M4 data layer — sub-flag gates the data tools", () => {
+  async function toolNames(dataEnabled: boolean): Promise<string[]> {
+    const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+      dataEnabled,
+    });
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+    const listed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 7, method: "tools/list" });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = parseJsonRpc(listed).result as any;
+
+    return (result.tools as { name: string }[]).map((t) => t.name);
+  }
+
+  it("hides the data tools when the sub-flag is off (default)", async () => {
+    const names = await toolNames(false);
+
+    expect(names).not.toContain("list_datasources");
+    expect(names).not.toContain("get_datasource_structure");
+    // The build/authoring tools are still present.
+    expect(names).toContain("build_application");
+    // Raw artifact-import tools remain absent regardless.
+    expect(names).not.toContain("import_application_artifact");
+  });
+
+  it("exposes the data tools when the sub-flag is on", async () => {
+    const names = await toolNames(true);
+
+    expect(names).toContain("list_datasources");
+    expect(names).toContain("get_datasource_structure");
+    expect(names).not.toContain("import_application_artifact");
+  });
+
+  // Spin a data-enabled server with a custom api, handshake, call a tool, return the parsed result body.
+  async function callTool(
+    api: AppsmithApi,
+    name: string,
+    args: unknown,
+  ): Promise<Record<string, unknown>> {
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+    });
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 11,
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+
+    return JSON.parse(parseJsonRpc(call).result.content[0].text);
+  }
+
+  const validQuery = {
+    name: "getUsers",
+    applicationId: "app1",
+    pageId: "p1",
+    datasourceId: "ds1",
+    operation: "SELECT",
+    table: "users",
+  };
+
+  it("create_query appears only when the sub-flag is on", async () => {
+    expect(await toolNames(false)).not.toContain("create_query");
+    expect(await toolNames(true)).toContain("create_query");
+  });
+
+  it("create_query creates a parameterized query when the datasource is accessible", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [{ id: "ds1", name: "DB" }]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.body).toBe("SELECT * FROM users WHERE id = {{ 1 }};");
+    expect(createAction).toHaveBeenCalledTimes(1);
+    const dto = createAction.mock.calls[0][0] as { datasource: { id: string } };
+
+    expect(dto.datasource).toEqual({ id: "ds1" });
+  });
+
+  it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      // The caller's accessible datasources do NOT include ds1.
+      listDatasources: jest.fn(async () => [{ id: "other", name: "X" }]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", { query: validQuery });
+
+    expect(body.error).toMatch(/not accessible/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_query resolves the workspace from the application, not the agent (cross-tenant guard)", async () => {
+    const createAction = jest.fn();
+    // ds1 exists only in workspace A; the app resolves to workspace B, so the lookup there returns nothing.
+    const listDatasources = jest.fn(async (workspaceId: string) =>
+      workspaceId === "wsA" ? [{ id: "ds1" }] : [],
+    );
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplication: jest.fn(async () => ({ workspaceId: "wsB" })),
+      listDatasources,
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", { query: validQuery });
+
+    // Datasource is looked up in the app's OWN workspace (wsB), where ds1 is absent → refused, no POST.
+    expect(listDatasources).toHaveBeenCalledWith("wsB");
+    expect(body.error).toMatch(/not accessible/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_query is idempotent: returns the existing query instead of duplicating", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [{ id: "ds1" }]),
+      listActions: jest.fn(async () => [{ name: "getUsers", pageId: "p1" }]),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", { query: validQuery });
+
+    expect(body.created).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_query rejects a spec that could inject before any API call", async () => {
+    const listDatasources = jest.fn(async () => [{ id: "ds1" }]);
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources,
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", {
+      query: { ...validQuery, table: "users; DROP TABLE users" },
+    });
+
+    expect(body.valid).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("list_datasources projects to non-secret fields only, even if upstream leaks", async () => {
+    // Simulate a (hypothetical) upstream response that carries credential material — the tool must strip it.
+    const listDatasources = jest.fn(async () => [
+      {
+        id: "ds1",
+        name: "Prod DB",
+        pluginId: "postgres",
+        workspaceId: "ws1",
+        datasourceStorages: {
+          default: {
+            datasourceConfiguration: {
+              authentication: { password: "hunter2", token: "secret-oauth" },
+            },
+          },
+        },
+      },
+    ]);
+    const api: AppsmithApi = { ...createApi()(), listDatasources };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+    });
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 8,
+        method: "tools/call",
+        params: { name: "list_datasources", arguments: { workspaceId: "ws1" } },
+      });
+    const text = parseJsonRpc(call).result.content[0].text;
+
+    expect(text).toContain("Prod DB");
+    expect(text).not.toContain("hunter2");
+    expect(text).not.toContain("secret-oauth");
+    expect(text).not.toContain("password");
+    expect(text).not.toContain("datasourceStorages");
   });
 });

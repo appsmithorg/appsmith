@@ -61,7 +61,7 @@ describe("compileApp — import artifact contract", () => {
           {
             name: "Home",
             widgets: [
-              { type: "table", data: "{{q.data}}" },
+              { type: "table", data: [{ id: 1, name: "Ada" }] },
               { type: "input", label: "Email", inputType: "EMAIL" },
               { type: "button", text: "Go" },
             ],
@@ -74,7 +74,9 @@ describe("compileApp — import artifact contract", () => {
 
     expect(table.type).toBe("TABLE_WIDGET_V2");
     expect(table.version).toBe(2);
-    expect(table.tableData).toBe("{{q.data}}");
+    // Literal rows are serialized as static JSON and NOT registered as a dynamic binding.
+    expect(table.tableData).toBe(JSON.stringify([{ id: 1, name: "Ada" }]));
+    expect(table.dynamicBindingPathList).toEqual([]);
     expect(input.type).toBe("INPUT_WIDGET_V2");
     expect(input.inputType).toBe("EMAIL");
     expect(button.type).toBe("BUTTON_WIDGET");
@@ -145,10 +147,7 @@ describe("compileApp — import artifact contract", () => {
         pages: [
           {
             name: "Home",
-            widgets: [
-              { type: "table", data: "" },
-              { type: "table", data: "" },
-            ],
+            widgets: [{ type: "table" }, { type: "table" }],
           },
         ],
       },
@@ -294,15 +293,21 @@ describe("applyEdit — append to an existing page", () => {
 
   it("places a widget inside a named container's inner canvas", () => {
     const dsl = baseDsl();
+    // Add enough widgets to overflow the container's initial height, so growth is exercised (not just fit).
     const { dsl: edited } = applyEdit(
       dsl,
       {
-        add: [
-          { type: "input", label: "Note", placement: { inside: "Details" } },
-        ],
+        add: Array.from({ length: 6 }, (_, i) => ({
+          type: "input" as const,
+          label: `Note ${i}`,
+          placement: { inside: "Details" },
+        })),
       },
       ids(),
     );
+    const originalContainer = (dsl.children as WidgetNode[]).find(
+      (c) => c.widgetName === "Details",
+    )!;
     const container = (edited.children as WidgetNode[]).find(
       (c) => c.widgetName === "Details",
     )!;
@@ -310,6 +315,10 @@ describe("applyEdit — append to an existing page", () => {
     const names = (inner.children as WidgetNode[]).map((c) => c.type);
 
     expect(names).toContain("INPUT_WIDGET_V2");
+    // The container must grow to encompass the inner canvas's new extent, not clip it, and must maintain the
+    // build-time invariant container.bottomRow = container.topRow + innerCanvas.bottomRow.
+    expect(container.bottomRow).toBeGreaterThan(originalContainer.bottomRow);
+    expect(container.bottomRow).toBe(container.topRow + inner.bottomRow);
   });
 
   it("falls back with a note when placement.inside targets a non-container", () => {
@@ -376,5 +385,130 @@ describe("spec validation", () => {
     });
 
     expect(result.success).toBe(true);
+  });
+
+  it("rejects a placement that sets both after and inside", () => {
+    const result = editSpecSchema.safeParse({
+      add: [
+        { type: "input", label: "X", placement: { after: "Y", inside: "Z" } },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a placement that sets only inside", () => {
+    const result = editSpecSchema.safeParse({
+      add: [{ type: "input", label: "X", placement: { inside: "Z" } }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("security — agents never author raw expressions", () => {
+  const rawStrings = [
+    "{{ malicious() }}",
+    "trailing }} brace",
+    "template ${injection}",
+    "backtick `literal`",
+  ];
+
+  it.each(rawStrings)(
+    "rejects binding/template syntax in text: %s",
+    (value) => {
+      const result = appSpecSchema.safeParse({
+        name: "App",
+        pages: [{ name: "P", widgets: [{ type: "text", text: value }] }],
+      });
+
+      expect(result.success).toBe(false);
+    },
+  );
+
+  it("rejects binding syntax in a button label and an image url", () => {
+    expect(
+      appSpecSchema.safeParse({
+        name: "App",
+        pages: [{ name: "P", widgets: [{ type: "button", text: "{{x}}" }] }],
+      }).success,
+    ).toBe(false);
+    expect(
+      appSpecSchema.safeParse({
+        name: "App",
+        pages: [{ name: "P", widgets: [{ type: "image", image: "{{x}}" }] }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("no longer accepts table data as a free string (must be literal rows)", () => {
+    const asString = appSpecSchema.safeParse({
+      name: "App",
+      pages: [{ name: "P", widgets: [{ type: "table", data: "{{q.data}}" }] }],
+    });
+    const asRows = appSpecSchema.safeParse({
+      name: "App",
+      pages: [{ name: "P", widgets: [{ type: "table", data: [{ id: 1 }] }] }],
+    });
+
+    expect(asString.success).toBe(false);
+    expect(asRows.success).toBe(true);
+  });
+
+  it("rejects binding syntax hidden inside a literal table cell", () => {
+    const result = appSpecSchema.safeParse({
+      name: "App",
+      pages: [
+        {
+          name: "P",
+          widgets: [{ type: "table", data: [{ note: "{{ steal() }}" }] }],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a malicious table COLUMN KEY (not just the value)", () => {
+    // Column keys are embedded into a generated {{ }} binding on the client, so a hostile key must be rejected.
+    const result = appSpecSchema.safeParse({
+      name: "App",
+      pages: [
+        {
+          name: "P",
+          widgets: [{ type: "table", data: [{ "}} {{evil()}} {{": 1 }] }],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects binding/template syntax in the application name", () => {
+    expect(
+      appSpecSchema.safeParse({
+        name: "App {{evil()}}",
+        pages: [{ name: "P", widgets: [{ type: "text", text: "hi" }] }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("does not register static table data as a dynamic binding", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [{ type: "table", name: "T", data: [{ id: 1 }] }],
+          },
+        ],
+      },
+      ids(),
+    );
+    const table = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(table.dynamicBindingPathList).toEqual([]);
+    expect(table.tableData).toBe(JSON.stringify([{ id: 1 }]));
   });
 });

@@ -2,6 +2,7 @@ import type {
   AppSpec,
   EditSpec,
   PageSpec,
+  Theme,
   WidgetSpec,
   WidgetType,
 } from "./schema.js";
@@ -44,12 +45,40 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   image: "Image",
   table: "Table",
   container: "Container",
+  form: "Form",
+  modal: "Modal",
+  datepicker: "DatePicker",
+  chart: "Chart",
+  tabs: "Tabs",
+  list: "List",
 };
 
 interface CompileContext {
   idGen: IdGenerator;
   names: NameAllocator;
   remaining: { widgets: number };
+  theme?: Theme;
+}
+
+// Apply app-level theme tokens to a widget's props. Tokens are pre-validated (hex color, numeric radius, safe font
+// charset) so nothing injectable reaches a style prop. borderRadius applies broadly; primaryColor themes buttons;
+// fontFamily themes text.
+function applyTheme(
+  props: Record<string, unknown>,
+  appsmithType: string,
+  theme?: Theme,
+): void {
+  if (!theme) return;
+
+  if (theme.borderRadius !== undefined) props.borderRadius = theme.borderRadius;
+
+  if (theme.primaryColor !== undefined && appsmithType === "BUTTON_WIDGET") {
+    props.buttonColor = theme.primaryColor;
+  }
+
+  if (theme.fontFamily !== undefined && appsmithType === "TEXT_WIDGET") {
+    props.fontFamily = theme.fontFamily;
+  }
 }
 
 function compileWidgetAt(
@@ -74,13 +103,79 @@ function compileWidgetAt(
 
   const template = WIDGET_TEMPLATES[spec.type];
   const built = template.build(spec);
+
+  applyTheme(built.props, template.appsmithType, ctx.theme);
+
   const columns = Math.min(built.footprint.columns, availableColumns);
   const widgetId = ctx.idGen();
   const widgetName = ctx.names.allocate(
     spec.name ?? DEFAULT_BASE_NAME[spec.type],
   );
 
-  if (spec.type === "container") {
+  // Tabs is multi-canvas: one inner CANVAS_WIDGET per tab, plus a tabsObj describing them. Handled directly because
+  // the single-inner-canvas container path can't express it.
+  if (spec.type === "tabs") {
+    const tabSpecs =
+      spec.tabs && spec.tabs.length > 0 ? spec.tabs : [{ label: "Tab 1" }];
+    const tabsObj: Record<string, unknown> = {};
+    const canvases: WidgetNode[] = [];
+    let maxRows = built.footprint.rows;
+
+    tabSpecs.forEach((tab, index) => {
+      const tabId = ctx.idGen();
+      const canvasId = ctx.idGen();
+      const canvasName = ctx.names.allocate("Canvas");
+      const inner = stackWidgets(
+        tab.children ?? [],
+        ctx,
+        canvasId,
+        columns,
+        0,
+        depth + 1,
+      );
+      const rows = Math.max(built.footprint.rows, inner.endRow);
+
+      maxRows = Math.max(maxRows, rows);
+
+      const canvas = createInnerCanvas(
+        canvasId,
+        canvasName,
+        widgetId,
+        columns,
+        rows,
+        inner.nodes,
+      );
+
+      canvas.tabId = tabId;
+      canvas.tabName = tab.label;
+      canvases.push(canvas);
+      tabsObj[tabId] = {
+        id: tabId,
+        label: tab.label,
+        widgetId: canvasId,
+        index,
+        isVisible: true,
+      };
+    });
+
+    return stampWidget({
+      widgetId,
+      widgetName,
+      appsmithType: template.appsmithType,
+      version: template.version,
+      parentId,
+      topRow,
+      leftColumn: 0,
+      columns,
+      rows: maxRows,
+      props: { ...built.props, tabsObj, defaultTab: tabSpecs[0].label },
+      children: canvases,
+    });
+  }
+
+  // Any widget whose template returns `children` is container-like (container, form, modal, list): it gets an inner
+  // CANVAS_WIDGET that holds the nested widgets.
+  if (built.children !== undefined) {
     const innerId = ctx.idGen();
     const innerName = ctx.names.allocate("Canvas");
     const inner = stackWidgets(
@@ -180,8 +275,14 @@ function compilePage(
   pageSpec: PageSpec,
   idGen: IdGenerator,
   remaining: { widgets: number },
+  theme?: Theme,
 ) {
-  const ctx: CompileContext = { idGen, names: new NameAllocator(), remaining };
+  const ctx: CompileContext = {
+    idGen,
+    names: new NameAllocator(),
+    remaining,
+    theme,
+  };
   const dsl = compilePageDsl(pageSpec, ctx);
   const layout = { dsl, layoutOnLoadActions: [] as unknown[] };
 
@@ -208,7 +309,7 @@ export function compileApp(
   // One shared widget budget across all pages so total node count can't be multiplied by page count.
   const remaining = { widgets: MAX_TOTAL_WIDGETS };
   const pageList = appSpec.pages.map((page) =>
-    compilePage(page, idGen, remaining),
+    compilePage(page, idGen, remaining, appSpec.theme),
   );
   const pageNames = appSpec.pages.map((page) => page.name);
 
@@ -297,6 +398,19 @@ export function applyEdit(
       );
     } else if (bottom > (placement.canvas.bottomRow as number)) {
       placement.canvas.bottomRow = bottom;
+    }
+
+    // The inner canvas grew, but its enclosing container keeps its own height. Match the build-time invariant
+    // (container.bottomRow = container.topRow + innerCanvas.bottomRow) so the container encompasses the new extent
+    // instead of clipping it.
+    if (placement.container) {
+      const containerTop =
+        typeof placement.container.topRow === "number"
+          ? placement.container.topRow
+          : 0;
+
+      placement.container.bottomRow =
+        containerTop + (placement.canvas.bottomRow as number);
     }
   }
 

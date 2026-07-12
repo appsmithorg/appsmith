@@ -169,6 +169,9 @@ export function nextFreeRow(children: WidgetNode[]): number {
 export interface PlacementResult {
   // The canvas (root or a container's inner canvas) to append into.
   canvas: WidgetNode;
+  // The enclosing container widget when `canvas` is a container's inner canvas. The caller grows its height to
+  // encompass the canvas's new extent. Absent when appending to the root page canvas.
+  container?: WidgetNode;
   // The starting topRow for the appended widget(s).
   topRow: number;
   // Human-readable note about how placement was resolved (reported back to the caller).
@@ -224,6 +227,7 @@ export function resolvePlacement(
     if (innerCanvas) {
       return {
         canvas: innerCanvas,
+        container,
         topRow: nextFreeRow(innerCanvas.children ?? []),
       };
     }

@@ -11,8 +11,23 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { getCapabilities } from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
+import {
+  FIELDS_FORMAT,
+  GUIDES,
+  type InstructionDoc,
+  RECIPES,
+  scaffoldCrudPlan,
+  scaffoldFormPlan,
+  WIDGET_REFERENCE,
+} from "./builder/instructions.js";
 import type { WidgetNode } from "./builder/layout.js";
+import { lintArtifact, lintDsl } from "./builder/lint.js";
 import { listPresets, PRESETS } from "./builder/presets.js";
+import {
+  buildActionDto,
+  compileQuery,
+  querySpecSchema,
+} from "./builder/query.js";
 import { appSpecSchema, editSpecSchema } from "./builder/schema.js";
 
 const MAX_ID_LENGTH = 128;
@@ -73,6 +88,11 @@ export interface AppsmithApi {
     layoutId: string,
     dsl: Record<string, unknown>,
   ) => Promise<unknown>;
+  listDatasources: (workspaceId: string) => Promise<unknown>;
+  getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
+  getApplication: (applicationId: string) => Promise<unknown>;
+  listActions: (applicationId: string) => Promise<unknown>;
+  createAction: (action: Record<string, unknown>) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
 
@@ -232,8 +252,98 @@ export function createAppsmithApi(
           body: JSON.stringify({ dsl }),
         },
       ),
+    listDatasources: async (workspaceId) =>
+      request(
+        `/api/v1/datasources?workspaceId=${encodeURIComponent(workspaceId)}`,
+      ),
+    getDatasourceStructure: async (datasourceId) =>
+      request(
+        `/api/v1/datasources/${encodeURIComponent(datasourceId)}/structure`,
+      ),
+    getApplication: async (applicationId) =>
+      request(`/api/v1/applications/${encodeURIComponent(applicationId)}`),
+    listActions: async (applicationId) =>
+      request(
+        `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
+      ),
+    createAction: async (action) =>
+      request("/api/v1/actions", {
+        method: "POST",
+        body: JSON.stringify(action),
+      }),
     validateToken: async () => request("/api/v1/users/me"),
   };
+}
+
+// Least-privilege projection for list_datasources: the agent only needs enough to identify a datasource and author a
+// binding, so we forward a fixed whitelist of non-secret discovery fields and drop everything else. This is a
+// belt-and-braces egress guard on top of the server's JsonView secret-masking — a future server change can't leak
+// credentials/host details into the LLM's context through this tool, because only these keys are ever passed on.
+const DATASOURCE_PUBLIC_FIELDS = [
+  "id",
+  "name",
+  "pluginId",
+  "pluginName",
+  "workspaceId",
+  "type",
+] as const;
+
+function projectDatasources(response: unknown): unknown {
+  const project = (entry: unknown) => {
+    if (!entry || typeof entry !== "object") return entry;
+
+    const source = entry as Record<string, unknown>;
+    const projected: Record<string, unknown> = {};
+
+    for (const field of DATASOURCE_PUBLIC_FIELDS) {
+      if (source[field] !== undefined) projected[field] = source[field];
+    }
+
+    return projected;
+  };
+
+  return Array.isArray(response) ? response.map(project) : project(response);
+}
+
+// IDOR guard for create_query: the referenced datasource must be one the caller can actually access in the given
+// workspace (the server's create path fetches the datasource without a permission check — TODO in NewActionService —
+// so we cross-check here before POST).
+function datasourceAccessible(list: unknown, datasourceId: string): boolean {
+  return (
+    Array.isArray(list) &&
+    list.some(
+      (entry) =>
+        entry !== null &&
+        typeof entry === "object" &&
+        (entry as { id?: unknown }).id === datasourceId,
+    )
+  );
+}
+
+// Idempotency lookup: an existing action on the same page with the same name (the server rejects duplicates, so we
+// return the existing one instead of erroring on a retry).
+function findExistingAction(
+  list: unknown,
+  name: string,
+  pageId: string,
+): unknown {
+  if (!Array.isArray(list)) return undefined;
+
+  return list.find((entry) => {
+    if (entry === null || typeof entry !== "object") return false;
+
+    const action = entry as {
+      name?: unknown;
+      pageId?: unknown;
+      unpublishedAction?: { pageId?: unknown };
+    };
+    const actionPageId = action.pageId ?? action.unpublishedAction?.pageId;
+
+    return (
+      action.name === name &&
+      (actionPageId === undefined || actionPageId === pageId)
+    );
+  });
 }
 
 function validationError(issues: z.ZodIssue[]) {
@@ -266,7 +376,7 @@ function result(data: unknown) {
   };
 }
 
-export function buildMcpServer(api: AppsmithApi) {
+export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
   const server = new McpServer({ name: "appsmith-mcp", version: "0.0.1" });
 
   server.tool(
@@ -374,7 +484,15 @@ export function buildMcpServer(api: AppsmithApi) {
         return compileError(error);
       }
 
-      return result(await api.importApplicationArtifact(workspaceId, artifact));
+      // Structural diagnostics on the exact artifact being imported, returned inline so the agent gets feedback
+      // without a second call (build -> inspect -> fix loop).
+      const diagnostics = lintArtifact(artifact);
+      const imported = await api.importApplicationArtifact(
+        workspaceId,
+        artifact,
+      );
+
+      return result({ application: imported, diagnostics });
     },
   );
 
@@ -424,11 +542,188 @@ export function buildMcpServer(api: AppsmithApi) {
         dsl,
       );
 
-      return result({ notes, layout: updated });
+      const diagnostics = lintDsl(dsl);
+
+      return result({ notes, diagnostics, layout: updated });
     },
   );
 
+  server.tool(
+    "inspect_page",
+    "Lint a live page and return structural diagnostics (overlaps, off-grid widgets, clipped containers, duplicate names, dangling bindings). Use this to verify a build/edit and drive fixes. Read-only.",
+    { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
+    async ({ applicationId, layoutId, pageId }) => {
+      const context = await api.getApplicationContext(
+        applicationId,
+        pageId,
+        layoutId,
+      );
+      const dsl = (context.layout as { dsl?: WidgetNode } | undefined)?.dsl;
+
+      if (!dsl) {
+        return result({ error: "could not read the current page layout" });
+      }
+
+      return result({ diagnostics: lintDsl(dsl) });
+    },
+  );
+
+  // M4 data layer — gated behind APPSMITH_MCP_DATA_ENABLED. These read tools let an agent discover the datasources
+  // and structure it can bind widgets to (via the closed binding vocabulary: table.source / button.onClick). They
+  // wrap the existing ACL-enforced Appsmith REST endpoints under the caller's bearer token; no new server surface.
+  if (dataEnabled) {
+    server.tool(
+      "list_datasources",
+      "List datasources in a workspace that the authenticated user can access. Bind a table to one of these via a query name (table.source = { query }).",
+      { workspaceId: idSchema },
+      async ({ workspaceId }) =>
+        result(projectDatasources(await api.listDatasources(workspaceId))),
+    );
+
+    server.tool(
+      "get_datasource_structure",
+      "Read a datasource's structure (tables/columns) so you can shape queries and bindings. Read-only.",
+      { datasourceId: idSchema },
+      async ({ datasourceId }) =>
+        result(await api.getDatasourceStructure(datasourceId)),
+    );
+
+    server.tool(
+      "create_query",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      { query: z.record(z.unknown()) },
+      async ({ query }) => {
+        const parsed = querySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        // Resolve the workspace SERVER-AUTHORITATIVELY from the application — never trust an agent-supplied
+        // workspaceId — so a datasource can only be bound within the target page's own workspace (cross-tenant guard).
+        const application = (await api.getApplication(spec.applicationId)) as {
+          workspaceId?: string;
+        };
+        const workspaceId = application?.workspaceId;
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // IDOR guard: only bind a datasource the caller can access in the page's own workspace.
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        // Idempotency: return the existing query rather than creating a duplicate on retry.
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let body: string;
+
+        try {
+          body = compileQuery(spec);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(buildActionDto(spec, body));
+
+        return result({ created: true, body, action: created });
+      },
+    );
+  }
+
+  registerInstructions(server);
+
   return server;
+}
+
+// M2 — register instruction sets as MCP resources (reference/guides/recipes) and prompts (guided workflows), so an
+// agent can pull guidance through the protocol instead of only through tool output. All content is static text.
+function registerInstructions(server: McpServer): void {
+  const markdown = "text/markdown";
+
+  const registerDoc = (prefix: string, doc: InstructionDoc) => {
+    const uri = `appsmith://${prefix}/${doc.slug}`;
+
+    server.registerResource(
+      `${prefix}-${doc.slug}`,
+      uri,
+      { title: doc.title, description: doc.description, mimeType: markdown },
+      async () => ({
+        contents: [{ uri, mimeType: markdown, text: doc.render() }],
+      }),
+    );
+  };
+
+  registerDoc("reference", WIDGET_REFERENCE);
+
+  for (const guide of GUIDES) registerDoc("guide", guide);
+
+  for (const recipe of RECIPES) registerDoc("recipe", recipe);
+
+  const promptArgs = {
+    entity: z.string().trim().min(1).max(64),
+    fields: z.string().max(2000).optional(),
+  };
+
+  server.registerPrompt(
+    "scaffold_crud",
+    {
+      title: "Scaffold a CRUD page",
+      description: `Guided workflow to build a table + details form for an entity. fields: ${FIELDS_FORMAT}`,
+      argsSchema: promptArgs,
+    },
+    ({ entity, fields }) => ({
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: scaffoldCrudPlan(entity, fields ?? ""),
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    "scaffold_form",
+    {
+      title: "Scaffold a form page",
+      description: `Guided workflow to build a labelled input form. fields: ${FIELDS_FORMAT}`,
+      argsSchema: promptArgs,
+    },
+    ({ entity, fields }) => ({
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: scaffoldFormPlan(entity, fields ?? ""),
+          },
+        },
+      ],
+    }),
+  );
 }
 
 export function bearerToken(req: IncomingMessage): string | undefined {
@@ -487,6 +782,8 @@ export interface McpHttpServerOptions {
   maxSessionsPerUser?: number;
   now?: () => number;
   sessionTtlMs?: number;
+  // Gate for the M4 data layer (APPSMITH_MCP_DATA_ENABLED). Off by default: data tools are not registered.
+  dataEnabled?: boolean;
 }
 
 function tokensMatch(left: string, right: string): boolean {
@@ -515,6 +812,7 @@ export function createMcpHttpServer(
     options.maxSessionsPerUser ?? MAX_MCP_SESSIONS_PER_USER;
   const now = options.now ?? Date.now;
   const sessionTtlMs = options.sessionTtlMs ?? MCP_SESSION_TTL_MS;
+  const dataEnabled = options.dataEnabled ?? false;
 
   function removeExpiredSessions() {
     const currentTime = now();
@@ -658,7 +956,7 @@ export function createMcpHttpServer(
         transport.onclose = () => {
           if (transport?.sessionId) sessions.delete(transport.sessionId);
         };
-        await buildMcpServer(api).connect(transport);
+        await buildMcpServer(api, dataEnabled).connect(transport);
       }
 
       if (!transport) {

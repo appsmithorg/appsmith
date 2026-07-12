@@ -2,8 +2,10 @@ import { createMcpHttpServer } from "./app.js";
 
 const port = Number(process.env.APPSMITH_MCP_PORT ?? 8092);
 const apiBaseUrl = process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080";
+// M4 data layer is a second, independent opt-in on top of APPSMITH_MCP_ENABLED. Default off.
+const dataEnabled = process.env.APPSMITH_MCP_DATA_ENABLED === "1";
 
-const httpServer = createMcpHttpServer(apiBaseUrl);
+const httpServer = createMcpHttpServer(apiBaseUrl, undefined, { dataEnabled });
 
 // A truly uncaught exception leaves the process in an undefined state — exit so supervisord restarts it cleanly.
 process.once("uncaughtException", () => {

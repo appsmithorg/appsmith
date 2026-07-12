@@ -32,7 +32,7 @@ export const PRESETS: Record<string, Preset> = {
     spec: {
       name: "Records",
       widgets: [
-        { type: "table", name: "RecordsTable", data: "" },
+        { type: "table", name: "RecordsTable" },
         {
           type: "container",
           name: "DetailsCard",
@@ -78,7 +78,7 @@ export const PRESETS: Record<string, Preset> = {
     spec: {
       name: "Manage",
       widgets: [
-        { type: "table", name: "Records", data: "" },
+        { type: "table", name: "Records" },
         { type: "input", name: "EditName", label: "Name" },
         {
           type: "input",
