@@ -23,6 +23,9 @@ public class RestrictedHostFilterTest {
         // the kill-switch back. resetSsrfFilterDisabledForTesting() in @AfterAll restores
         // whatever the surefire-set default was.
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        // Neutralize the own-host set seeded from the test machine's real hostname so it can't
+        // interfere with the allow-list assertions. Own-host tests set it explicitly.
+        RestrictedHostFilter.setOwnHostsForTesting();
     }
 
     @AfterAll
@@ -38,6 +41,7 @@ public class RestrictedHostFilterTest {
         // — individual tests that toggle it (e.g. the kill-switch tests) still need to flip it
         // back themselves between cases.
         RestrictedHostFilter.setInternalRedisHostsForTesting();
+        RestrictedHostFilter.setOwnHostsForTesting();
         RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
     }
@@ -280,6 +284,74 @@ public class RestrictedHostFilterTest {
         RestrictedHostFilter.registerInternalRedisHosts("redis://property-redis.svc.cluster.local:6379");
         assertTrue(RestrictedHostFilter.isHostBlocked("env-seeded-redis.svc.cluster.local"));
         assertTrue(RestrictedHostFilter.isHostBlocked("property-redis.svc.cluster.local"));
+    }
+
+    // ---------- ownHosts: defense-in-depth block on the instance's own routable IP ----------
+    // The instance's own IP is always RFC 1918 / site-local (Docker bridge 172.17.x, k8s pod
+    // 10.x, ...), which the filter intentionally allows for legitimate private-network
+    // datasources. These tests use a stable public hostname (one.one.one.one -> 1.1.1.1) as a
+    // stand-in for the "own host" so the resolved IP is deterministic without depending on the
+    // test machine's actual hostname/IP — exactly mirroring the internal-Redis overlap tests.
+
+    @Test
+    public void isHostBlocked_blocksOwnIpWhenReachedByRawIpv4Literal() {
+        // Register the own host by name; a datasource pointed at the raw IP that name resolves to
+        // must be blocked via the resolved-address overlap — even though that IP class (a plain
+        // routable address here, RFC 1918 in production) is otherwise allowed.
+        RestrictedHostFilter.setOwnHostsForTesting("one.one.one.one");
+        assertTrue(RestrictedHostFilter.isHostBlocked("1.1.1.1"));
+    }
+
+    @Test
+    public void isHostBlocked_blocksOwnIpViaIpv4MappedIpv6() {
+        // ::ffff:1.1.1.1 canonicalizes to 1.1.1.1 (see normalizeIpAddress) and resolves to the
+        // same address, so the IPv4-mapped IPv6 form is caught by the same overlap check.
+        RestrictedHostFilter.setOwnHostsForTesting("one.one.one.one");
+        assertTrue(RestrictedHostFilter.isHostBlocked("::ffff:1.1.1.1"));
+    }
+
+    @Test
+    public void isHostBlocked_blocksOwnHostByHostnameLiteral() {
+        // Typing the instance's own hostname is blocked via the literal (canonical) match, and
+        // case-insensitively — datasource configs are user-entered.
+        RestrictedHostFilter.setOwnHostsForTesting("one.one.one.one");
+        assertTrue(RestrictedHostFilter.isHostBlocked("one.one.one.one"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("ONE.One.one.ONE"));
+    }
+
+    @Test
+    public void isHostBlocked_doesNotBlockDifferentRfc1918AddressWhenOwnHostConfigured() {
+        // Guardrail: only the instance's OWN address is blocked, not the rest of the private
+        // network. These RFC 1918 hosts don't overlap with the configured own host, so they stay
+        // allowed — proving we didn't over-block legitimate private-network datasources.
+        RestrictedHostFilter.setOwnHostsForTesting("one.one.one.one");
+        assertFalse(RestrictedHostFilter.isHostBlocked("192.168.1.1"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("10.0.0.1"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("172.16.0.1"));
+    }
+
+    @Test
+    public void registerOwnHost_blocksHostAndUnionsWithExistingSet() {
+        // Mirrors the server's startup path (RedisConfig#registerOwnHostWithSsrfFilter): the
+        // registration unions with — does not replace — the existing set, and null/blank entries
+        // are ignored.
+        RestrictedHostFilter.setOwnHostsForTesting("seeded-own.example.internal");
+        RestrictedHostFilter.registerOwnHost("one.one.one.one");
+        RestrictedHostFilter.registerOwnHost((String) null, "", "   ");
+        assertTrue(RestrictedHostFilter.isHostBlocked("seeded-own.example.internal"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("one.one.one.one"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("1.1.1.1"));
+    }
+
+    @Test
+    public void ssrfFilterDisabled_bypassesOwnHostBlock() {
+        RestrictedHostFilter.setOwnHostsForTesting("one.one.one.one");
+        // Sanity: blocked by default.
+        assertTrue(RestrictedHostFilter.isHostBlocked("1.1.1.1"));
+        // Kill-switch on — the own-host block is bypassed like every other check.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+        assertFalse(RestrictedHostFilter.isHostBlocked("1.1.1.1"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("one.one.one.one"));
     }
 
     @Test
