@@ -81,14 +81,18 @@ public class RedisConfig {
 
     /**
      * Defense-in-depth: teach the SSRF host filter to block datasources that target the Appsmith
-     * instance's own routable address. That address is always an RFC 1918 / site-local IP (Docker
+     * instance's own routable address. That address is typically an RFC 1918 / site-local IP (Docker
      * bridge {@code 172.17.x}, k8s pod {@code 10.x}, etc.), which the filter otherwise intentionally
      * allows so legitimate customer datasources on private networks keep working — leaving the
      * instance reachable from its own datasource layer. Registering the instance's own hostname(s)
      * lets the filter resolve and block just its own address(es), via either the container hostname
-     * or the raw own IP, without blocking the rest of the private network. The filter also seeds
-     * these at static init; re-registering here keeps the set aligned with the running container.
-     * Runs once at startup, before any datasource can be tested.
+     * or the raw own IP, without blocking the rest of the private network.
+     *
+     * <p>Coverage is best-effort: only the address(es) the registered own hostname(s) resolve to are
+     * blocked, not a full network-interface enumeration. A multi-homed container's secondary-interface
+     * IPs are out of scope by design (hostname-scope decision). The filter also seeds these at static
+     * init; re-registering here keeps the set aligned with the running container. Runs once at startup,
+     * before any datasource can be tested.
      */
     @PostConstruct
     public void registerOwnHostWithSsrfFilter() {
