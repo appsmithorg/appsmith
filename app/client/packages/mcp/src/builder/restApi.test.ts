@@ -56,6 +56,44 @@ describe("compileRestApi — structured REST actions", () => {
     });
   });
 
+  it("appends dynamic path segments from a widget (path '/us' + zip -> /us/{{ ZipInput.text }})", () => {
+    const compiled = compileRestApi(
+      parse({
+        ...base,
+        path: "/us",
+        pathParams: [{ widget: "ZipInput", property: "text" }],
+      }),
+    );
+
+    expect(compiled.path).toBe("/us/{{ ZipInput.text }}");
+  });
+
+  it("appends literal path segments and mixes them with a widget reference", () => {
+    const compiled = compileRestApi(
+      parse({
+        ...base,
+        path: "/api",
+        pathParams: [
+          { literal: "v2" },
+          { widget: "CountrySelect", property: "selectedOptionValue" },
+        ],
+      }),
+    );
+
+    expect(compiled.path).toBe(
+      "/api/v2/{{ CountrySelect.selectedOptionValue }}",
+    );
+  });
+
+  it("rejects unsafe dynamic path segments (template syntax, slashes, raw bindings)", () => {
+    for (const literal of ["a/b", "{{evil}}", "..", "a b"]) {
+      expect(
+        restApiSpecSchema.safeParse({ ...base, pathParams: [{ literal }] })
+          .success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles JSON and form bodies with compiler-authored widget bindings", () => {
     const json = compileRestApi(
       parse({

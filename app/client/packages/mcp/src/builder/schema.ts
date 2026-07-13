@@ -92,7 +92,21 @@ const bindingIdentifier = z
   .max(64)
   .regex(/^[A-Za-z0-9_]+$/, "must be a query name (alphanumeric/underscore)");
 
-const queryRef = z.object({ query: bindingIdentifier }).strict();
+// An optional dotted field path into a query's response, so a table can bind to a nested array (e.g. a REST API
+// that returns `{ places: [...] }` -> field "places" -> `{{ Query.data.places }}`). Strict identifier path so the
+// emitted binding cannot be broken out of.
+const responseFieldPath = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(
+    /^[A-Za-z_][A-Za-z0-9_.]*$/,
+    "field must be a dotted identifier path (e.g. 'places' or 'data.items')",
+  );
+
+const queryRef = z
+  .object({ query: bindingIdentifier, field: responseFieldPath.optional() })
+  .strict();
 const runRef = z.object({ run: bindingIdentifier }).strict();
 
 // A structured reference to one column of a table's selected row — the display-binding half of the CRUD loop
@@ -330,7 +344,7 @@ export type WidgetSpec =
       type: "table";
       name?: string;
       data?: TableRow[];
-      source?: { query: string };
+      source?: { query: string; field?: string };
       placement?: PlacementSpec;
     }
   | {

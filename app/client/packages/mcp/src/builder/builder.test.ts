@@ -310,6 +310,35 @@ describe("compileApp — import artifact contract", () => {
     expect(input.dynamicBindingPathList).toEqual([{ key: "defaultText" }]);
   });
 
+  it("binds a table to a query's data, optionally into a nested response field", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "table", name: "Whole", source: { query: "getRow" } },
+              {
+                type: "table",
+                name: "Nested",
+                source: { query: "lookupZip", field: "places" },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const whole = children.find((w) => w.widgetName === "Whole")!;
+    const nested = children.find((w) => w.widgetName === "Nested")!;
+
+    expect(whole.tableData).toBe("{{ getRow.data }}");
+    expect(nested.tableData).toBe("{{ lookupZip.data.places }}");
+    expect(nested.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
+  });
+
   it("keeps unbound text/input static with no dynamic paths", () => {
     const artifact = compileApp(
       {
@@ -460,7 +489,7 @@ describe("applyEdit — append to an existing page", () => {
     const { dsl: edited } = applyEdit(
       dsl,
       {
-        add: Array.from({ length: 6 }, (_, i) => ({
+        add: Array.from({ length: 12 }, (_, i) => ({
           type: "input" as const,
           label: `Note ${i}`,
           placement: { inside: "Details" },

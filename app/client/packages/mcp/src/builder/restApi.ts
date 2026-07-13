@@ -48,6 +48,31 @@ const keyValueRef = z
   })
   .strict();
 
+// A single dynamic path segment: either a safe literal segment, or a validated widget-property reference (e.g. a
+// zip code from an input). Literal segments use the same conservative charset as the static path; a widget
+// reference compiles to `{{ Widget.property }}` and is checked by SAFE_BINDING. The agent never writes raw `{{ }}`.
+const pathSegmentRef = z.union([
+  z
+    .object({
+      literal: z
+        .string()
+        .min(1)
+        .max(200)
+        .regex(PATH_SEGMENT, "must be a safe path segment"),
+    })
+    .strict(),
+  z
+    .object({
+      widget: actionName,
+      property: z
+        .string()
+        .min(1)
+        .max(128)
+        .regex(PROPERTY_PATH, "must be a dotted identifier path"),
+    })
+    .strict(),
+]);
+
 const safePath = z
   .string()
   .min(1)
@@ -125,6 +150,9 @@ export const restApiSpecSchema = z
     datasourceId: identifier,
     method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
     path: safePath,
+    // Optional dynamic path segments appended after `path` (e.g. path "/us" + a zip from an input widget ->
+    // /us/{{ ZipInput.text }}). Each is a safe literal or a validated widget reference.
+    pathParams: z.array(pathSegmentRef).max(8).optional(),
     queryParameters: z
       .array(keyValueRef)
       .max(20)
@@ -149,6 +177,7 @@ export const restApiSpecSchema = z
 
 export type RestApiSpec = z.infer<typeof restApiSpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
+type PathSegmentRef = z.infer<typeof pathSegmentRef>;
 type RestBody = z.infer<typeof body>;
 
 function emitValue(value: ValueRef): string {
@@ -163,6 +192,31 @@ function emitValue(value: ValueRef): string {
   }
 
   return binding;
+}
+
+// A single path segment: a literal (already a safe segment) or a widget reference compiled to a checked binding.
+function emitPathSegment(segment: PathSegmentRef): string {
+  if ("literal" in segment) {
+    return segment.literal;
+  }
+
+  const binding = `{{ ${segment.widget}.${segment.property} }}`;
+
+  if (!SAFE_BINDING.test(binding)) {
+    throw new Error(`unsafe path binding emitted: ${binding}`);
+  }
+
+  return binding;
+}
+
+// Appends any dynamic segments after the static path: "/us" + [zip] -> "/us/{{ ZipInput.text }}".
+function compilePath(spec: RestApiSpec): string {
+  const base = spec.path.endsWith("/") ? spec.path.slice(0, -1) : spec.path;
+  const suffix = (spec.pathParams ?? [])
+    .map((segment) => `/${emitPathSegment(segment)}`)
+    .join("");
+
+  return `${base}${suffix}`;
 }
 
 function emitParameterValue(value: ValueRef): string {
@@ -254,7 +308,7 @@ export function compileRestApi(spec: RestApiSpec): CompiledRestApi {
   compiledBody.bodyFormData.forEach((field) => assertBodySafe(field.value));
 
   return {
-    path: spec.path,
+    path: compilePath(spec),
     queryParameters: (spec.queryParameters ?? []).map(({ key, value }) => ({
       key,
       value: emitParameterValue(value),

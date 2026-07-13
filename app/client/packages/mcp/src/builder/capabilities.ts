@@ -52,7 +52,8 @@ export const WIDGET_CATALOG = [
     type: "table",
     fields: {
       data: "{ [column]: string|number|boolean|null }[] — static literal rows",
-      source: "{ query: '<queryName>' } — bind to a query's data (data layer)",
+      source:
+        "{ query: '<queryName>', field?: '<responsePath>' } — bind to a query's data, optionally a nested array like 'places' (data layer)",
     },
     purpose:
       "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query (not both).",

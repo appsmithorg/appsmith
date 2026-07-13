@@ -334,6 +334,11 @@ export function compileApp(
       publishedCustomJSLibs: [],
       pages: applicationPages.map((page) => ({ ...page })),
       publishedPages: applicationPages.map((page) => ({ ...page })),
+      // The compiler emits fixed-grid geometry (topRow/leftColumn/...). Pin the app to FIXED positioning so the
+      // import renders it as designed instead of reflowing it through auto-layout (which stretches widgets full
+      // width and stacks them with large gaps).
+      unpublishedApplicationDetail: { appPositioning: { type: "FIXED" } },
+      publishedApplicationDetail: { appPositioning: { type: "FIXED" } },
     },
     pageList,
     actionList: [],

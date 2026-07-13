@@ -2354,7 +2354,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_rest_api",
-      "Create a REST API action from a structured specification using an existing REST datasource. The datasource retains its server-side base URL and credentials. Supports only safe path segments, fixed headers, literals, and validated widget-property bindings. Idempotent by page + name.",
+      "Create a REST API action from a structured specification using an existing REST datasource. The datasource retains its server-side base URL and credentials. Supports safe path segments, dynamic path segments from widgets (pathParams, e.g. path '/us' + a zip from an input -> /us/{value}), query parameters, fixed headers, literals, and validated widget-property bindings. Idempotent by page + name.",
       { api: z.record(z.unknown()) },
       async ({ api: restApi }) => {
         const parsed = restApiSpecSchema.safeParse(restApi);
