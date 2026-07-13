@@ -417,7 +417,7 @@ The MCP service listens on `http://127.0.0.1:8092`; verify it with `http://127.0
 
 Create an MCP token from **User Profile → MCP tokens**. Copy the value when it is created: Appsmith only displays the token once. Configure a Streamable HTTP MCP client with:
 
-- URL: `http://127.0.0.1:8092/mcp` for local development, or `https://<your-appsmith-domain>/mcp` for a Docker deployment with `APPSMITH_MCP_ENABLED=1`.
+- URL: `http://127.0.0.1:8092/mcp` for local development, or `https://<your-appsmith-domain>/mcp` for a Docker deployment (the MCP server is enabled by default; admins can turn it off from **Admin Settings → Configuration** or with `APPSMITH_MCP_ENABLED=false`).
 - Header: `Authorization: Bearer <your-mcp-token>`.
 
 The service intentionally binds only to loopback; external clients connect through the Appsmith Caddy route, never directly to port `8092`. Leave `APPSMITH_MCP_DATA_ENABLED=0` unless datasource discovery and structured SQL query creation have been explicitly enabled for the deployment.
@@ -449,12 +449,12 @@ ChatGPT connects only to remote HTTPS MCP servers and its managed connector flow
 
 The MCP server is a **direct-authoring** interface: mutations happen through the existing, ACL-enforced Appsmith REST APIs under the caller's token. Agents never author raw widget DSL, SQL, or `{{ }}` bindings — every write goes through a validated, compiler-owned spec.
 
-Three independent gates control what is registered. Call `get_capabilities` to see the exact tool set active for a connection.
+The MCP server itself is **on by default** (`APPSMITH_MCP_ENABLED`, toggleable from **Admin Settings → Configuration**). Three further gates control what is registered — the first two are also on that admin page. Call `get_capabilities` to see the exact tool set active for a connection.
 
 | Gate | Env var | Enables |
 |------|---------|---------|
-| Data layer | `APPSMITH_MCP_DATA_ENABLED=1` | datasource discovery, structured SQL/REST action creation, action reads |
-| Restricted JS | `APPSMITH_MCP_JS_ENABLED=1` | declarative, restricted JS-object tools (requires data + governance) |
+| Data layer | `APPSMITH_MCP_DATA_ENABLED=true` (default off) | datasource discovery/creation, structured SQL/REST action creation, action reads |
+| Restricted JS | `APPSMITH_MCP_JS_ENABLED=true` (default off) | declarative, restricted JS-object tools (requires data + governance) |
 | Governance | `APPSMITH_MONGODB_URI`/`APPSMITH_DB_URL` **and** `APPSMITH_REDIS_URL` | governed mutations, destructive ops, audit history, rollback, publish |
 
 **Governance** is MCP-owned durable state, kept out of product documents: audit/rollback snapshots in the Mongo `mcp_changes` collection, and locks + one-time confirmation tokens in Redis (`appsmith:mcp:lock:*`, `appsmith:mcp:confirm:*`). When it is not configured, the server registers **read + spec-authoring tools only** — it never falls back to an in-memory store, and if a governance URL is set but unreachable it fails to start.

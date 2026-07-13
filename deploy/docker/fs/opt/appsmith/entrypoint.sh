@@ -121,6 +121,18 @@ init_env_file() {
         sed -i "s|^APPSMITH_REDIS_URL=.*|APPSMITH_REDIS_URL=redis://:${generated_appsmith_redis_password}@127.0.0.1:6379|" "$ENV_PATH"
       fi
     fi
+
+    # Backfill the MCP gates for installs whose docker.env predates them, so the Admin Settings UI
+    # (which reads/writes these variables) mirrors the actual defaults: server on, sub-features off.
+    if ! grep -q "^APPSMITH_MCP_ENABLED=" "$ENV_PATH"; then
+      echo $'\nAPPSMITH_MCP_ENABLED=true' >> "$ENV_PATH"
+    fi
+    if ! grep -q "^APPSMITH_MCP_DATA_ENABLED=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_DATA_ENABLED=false' >> "$ENV_PATH"
+    fi
+    if ! grep -q "^APPSMITH_MCP_JS_ENABLED=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_JS_ENABLED=false' >> "$ENV_PATH"
+    fi
   fi
 
   tlog "Load environment configuration"
@@ -501,10 +513,9 @@ configure_supervisord() {
 
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
-  # The MCP server is opt-in. Remove its supervisord program unless explicitly enabled.
-  if [[ ${APPSMITH_MCP_ENABLED-} != 1 ]]; then
-    rm -f "$SUPERVISORD_CONF_TARGET/mcp.conf"
-  fi
+  # The MCP program is always installed (enabled by default); run-mcp.sh itself parks when APPSMITH_MCP_ENABLED is
+  # explicitly disabled. This keeps the toggle switchable from Admin Settings -> Configuration without a container
+  # restart: a supervisord program restart re-reads docker.env via run-with-env.sh.
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then

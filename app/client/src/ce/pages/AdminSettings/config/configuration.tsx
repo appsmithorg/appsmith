@@ -82,6 +82,39 @@ export const APPSMITH_POOL_SIZE_CONFIG: Setting = {
   isVisible: () => !isAirgappedInstance,
 };
 
+export const APPSMITH_MCP_ENABLED_SETTING: Setting = {
+  id: "APPSMITH_MCP_ENABLED",
+  name: "APPSMITH_MCP_ENABLED",
+  category: SettingCategories.CONFIGURATION,
+  controlType: SettingTypes.CHECKBOX,
+  label: "MCP server",
+  text: "Allow AI agents to connect to this instance over MCP (Model Context Protocol)",
+  subText:
+    "* Agents authenticate with per-user MCP tokens (Profile → MCP tokens) and act with that user's permissions. Enabled by default; disabling removes the /mcp endpoint and rejects MCP tokens on restart.",
+  defaultValue: true,
+};
+
+export const APPSMITH_MCP_DATA_ENABLED_SETTING: Setting = {
+  id: "APPSMITH_MCP_DATA_ENABLED",
+  name: "APPSMITH_MCP_DATA_ENABLED",
+  category: SettingCategories.CONFIGURATION,
+  controlType: SettingTypes.CHECKBOX,
+  label: "MCP data tools",
+  text: "Let agents work with datasources and queries (create datasources/queries, run read-only actions)",
+  subText:
+    "* Off by default. All operations run under the connecting user's existing permissions; credentials are never exposed to agents.",
+};
+
+export const APPSMITH_MCP_JS_ENABLED_SETTING: Setting = {
+  id: "APPSMITH_MCP_JS_ENABLED",
+  name: "APPSMITH_MCP_JS_ENABLED",
+  category: SettingCategories.CONFIGURATION,
+  controlType: SettingTypes.CHECKBOX,
+  label: "MCP JS objects",
+  text: "Let agents author restricted JS objects (declarative grammar only — no arbitrary JavaScript)",
+  subText: "* Off by default. Requires MCP data tools.",
+};
+
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
@@ -161,6 +194,9 @@ export const config: AdminConfigType = {
     APPSMITH_REDIS_URL,
     APPSMITH_BASE_URL,
     APPSMITH_POOL_SIZE_CONFIG,
+    APPSMITH_MCP_ENABLED_SETTING,
+    APPSMITH_MCP_DATA_ENABLED_SETTING,
+    APPSMITH_MCP_JS_ENABLED_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 };

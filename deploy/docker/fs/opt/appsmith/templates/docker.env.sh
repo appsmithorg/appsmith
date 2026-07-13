@@ -86,4 +86,12 @@ APPSMITH_ALLOWED_FRAME_ANCESTORS="'self' *"
 
 APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
+# MCP (Model Context Protocol) server: lets AI agents connect to this instance at /mcp using
+# per-user MCP tokens (Profile -> MCP tokens). Also editable from Admin Settings -> Configuration.
+# The server is on by default; the data layer (datasources/queries) and restricted JS objects are
+# separate opt-ins.
+APPSMITH_MCP_ENABLED=true
+APPSMITH_MCP_DATA_ENABLED=false
+APPSMITH_MCP_JS_ENABLED=false
+
 EOF

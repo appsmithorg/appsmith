@@ -131,7 +131,17 @@ public class SecurityConfig {
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
+    // MCP server enablement, read from the APPSMITH_MCP_ENABLED env variable (default on). When disabled from Admin
+    // Settings, the MCP bearer-auth filter must not engage — otherwise "disabling MCP" would leave already-issued
+    // mcp_ tokens working as full API credentials until they expire. Same deny-list spelling as the deploy scripts.
+    @Value("${APPSMITH_MCP_ENABLED:true}")
+    private String mcpEnabledFlag;
+
     private static final String INTERNAL = "INTERNAL";
+
+    private boolean isMcpEnabled() {
+        return mcpEnabledFlag == null || !mcpEnabledFlag.trim().matches("(?i)^(false|0|no|off)$");
+    }
 
     /**
      * This routerFunction is required to map /public/** endpoints to the
@@ -205,7 +215,14 @@ public class SecurityConfig {
         // Only engage for requests that actually carry an MCP token. Without this, the filter's default "any
         // exchange" matcher sits at AUTHENTICATION order alongside the form-login filter and breaks the login flow
         // (No provider found for UsernamePasswordAuthenticationToken -> 500).
+        // When MCP is disabled the filter never engages, so an mcp_ bearer is treated as an unrecognized credential
+        // and rejected (401) instead of authenticating — this makes the Admin Settings toggle a real kill switch for
+        // already-issued tokens, not just a route removal.
+        final boolean mcpEnabled = isMcpEnabled();
         mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(exchange -> {
+            if (!mcpEnabled) {
+                return ServerWebExchangeMatcher.MatchResult.notMatch();
+            }
             final String mcpBearerPrefix = "Bearer mcp_";
             final String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             return authorization != null

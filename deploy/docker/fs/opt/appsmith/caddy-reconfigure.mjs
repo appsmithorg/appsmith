@@ -14,8 +14,9 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
-// The MCP server is opt-in. Only route to it when explicitly enabled.
-const isMcpEnabled = process.env.APPSMITH_MCP_ENABLED === "1"
+// The MCP server is enabled by default; the /mcp route is dropped only when explicitly disabled. This script re-runs
+// on every editor (caddy) program restart, so the Admin Settings toggle takes effect on Save & Restart.
+const isMcpEnabled = !/^(false|0|no|off)$/i.test(process.env.APPSMITH_MCP_ENABLED ?? "")
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {

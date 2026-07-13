@@ -88,6 +88,9 @@ export type Setting = ControlType & {
   sortOrder?: number;
   subText?: string;
   subTextLink?: string;
+  // For TOGGLE/CHECKBOX settings backed by an env variable: the state to show when the variable is absent from the
+  // fetched admin settings (e.g. an env file that predates the setting). Mirrors the runtime default.
+  defaultValue?: boolean;
   toggleText?: (value: boolean) => string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

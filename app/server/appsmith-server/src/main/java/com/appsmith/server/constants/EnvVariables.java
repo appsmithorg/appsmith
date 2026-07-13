@@ -26,5 +26,10 @@ public enum EnvVariables {
     APPSMITH_ALLOWED_FRAME_ANCESTORS,
     APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX,
     APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
-    APPSMITH_VERBOSE_LOGGING_ENABLED
+    APPSMITH_VERBOSE_LOGGING_ENABLED,
+    // MCP server gates: admin-editable so the Admin Settings UI can toggle the MCP service (on by default) and its
+    // data / restricted-JS sub-features (off by default).
+    APPSMITH_MCP_ENABLED,
+    APPSMITH_MCP_DATA_ENABLED,
+    APPSMITH_MCP_JS_ENABLED
 }
