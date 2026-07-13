@@ -71,8 +71,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
   input: {
     appsmithType: "INPUT_WIDGET_V2",
     version: 2,
-    // A single-line input is a labelled field ~40px tall; 7 rows left a large empty box.
-    footprint: { columns: 24, rows: 4 },
+    footprint: { columns: 24, rows: 7 },
     build: (spec) => {
       const label = spec.type === "input" ? spec.label ?? "Label" : "Label";
       const inputType =
@@ -86,7 +85,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       const defaultText = bound ? compileSelectedRowBinding(defaultValue) : "";
 
       return {
-        footprint: { columns: 24, rows: 4 },
+        footprint: { columns: 24, rows: 7 },
         props: {
           label,
           inputType,

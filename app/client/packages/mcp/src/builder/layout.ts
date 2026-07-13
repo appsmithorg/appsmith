@@ -5,6 +5,13 @@ export const GRID_COLUMNS = 64;
 export const ROW_HEIGHT = 10;
 export const ROOT_WIDGET_ID = "0";
 export const ROOT_WIDGET_NAME = "MainContainer";
+
+// The page DSL version the compiler emits. It MUST equal @shared/dsl's LATEST_DSL_VERSION: the client runs
+// migrateDSL on every load, applying every transform from the DSL's version up to LATEST. Emitting an older number
+// makes it rescale and rewrite our widgets (e.g. migration 075 flips a single-line input to MULTI_LINE_TEXT after an
+// earlier grid-density scale). Emitting LATEST means zero migrations run and our widgets render exactly as built.
+// A drift test asserts this equals the live constant so an Appsmith version bump can't silently regress it.
+export const LATEST_DSL_VERSION = 94;
 const ROW_GAP = 1;
 // Recomputed by the layout engine on render; sensible seed values keep the imported DSL well-formed.
 const DEFAULT_PARENT_COLUMN_SPACE = 10;
@@ -107,7 +114,8 @@ export function createRootCanvas(): WidgetNode {
   return {
     widgetName: ROOT_WIDGET_NAME,
     type: "CANVAS_WIDGET",
-    version: 4,
+    // The root widget's version is the page DSL version migrateDSL reads; emit LATEST so no migrations run.
+    version: LATEST_DSL_VERSION,
     widgetId: ROOT_WIDGET_ID,
     backgroundColor: "none",
     snapColumns: GRID_COLUMNS,
