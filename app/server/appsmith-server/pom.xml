@@ -199,7 +199,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-otel</artifactId>
-            <version>1.3.5</version>
+            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
