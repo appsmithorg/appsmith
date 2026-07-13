@@ -377,6 +377,34 @@ public class RestrictedHostFilterTest {
     }
 
     @Test
+    public void isDisallowedAndFail_ownIpCheckReadsCacheNotLiveDns() {
+        // Proves the resolver-hook hot path does NO DNS: the own hostname is unresolvable, yet an
+        // injected cached own IP is still blocked. If isDisallowedAndFail live-resolved ownHosts,
+        // the unresolvable name would yield no IPs and 10.123.45.67 would pass — so blocking it can
+        // only come from the cache. The check is pure set-membership, safe on the Netty EventLoop.
+        RestrictedHostFilter.setOwnHostsForTesting("unresolvable-own.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+        // Clearing the cache (without touching ownHosts) immediately stops blocking that IP — the
+        // decision is cache-driven, not re-derived from the hostname on each call.
+        RestrictedHostFilter.clearOwnResolvedIpsForTesting();
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+    }
+
+    @Test
+    public void registerOwnHost_recomputesOwnIpCacheOffHotPath() {
+        // registerOwnHost (the startup @PostConstruct path) recomputes the cached own-IP set from
+        // ownHosts. Seed a stale cached IP, then register an (unresolvable) own host: the refresh
+        // recomputes the cache from ownHosts — which resolves to nothing here — dropping the stale
+        // value. This is where own-hostname resolution happens, off the request hot path.
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.1.1.1");
+        RestrictedHostFilter.registerOwnHost("registered-own.invalid");
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.1.1.1", null));
+        // The registered hostname is still blocked literally (no DNS needed).
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("registered-own.invalid", null));
+    }
+
+    @Test
     public void firstAllowedRedisAddress_blocksResolvedOwnIp() throws Exception {
         // The Redis connect-time path shares the same address-level policy; a resolved address that
         // is the instance's own IP is rejected, while a different RFC 1918 address is returned.
