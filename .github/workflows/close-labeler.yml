@@ -56,7 +56,7 @@ jobs:
             for (const node of result.repository.pullRequest.closingIssuesReferences.nodes) {
               const shouldQA = node.labels.edges.find(edge => edge.node.name === "Enhancement" || edge.node.name === "Bug") != null
               if (!shouldQA) {
-                break
+                continue
               }
               console.log("Adding QA to", node.repository.owner.login, node.repository.name, node.number)
               github.rest.issues.addLabels({
