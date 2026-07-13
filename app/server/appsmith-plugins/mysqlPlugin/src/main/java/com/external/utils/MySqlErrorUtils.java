@@ -48,12 +48,15 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
              */
             R2dbcNonTransientResourceException r2dbcNonTransientResourceException =
                     (R2dbcNonTransientResourceException) externalError;
-            return r2dbcNonTransientResourceException
+            String message = r2dbcNonTransientResourceException
                     .getMessage()
                     .split(" : ")[1]
                     .split(" \\(")[0]
-                    .split("@")[0]
                     .trim();
+            // The account is formatted as 'user'@'host'; the username itself may legally contain '@'
+            // (e.g. 'me@localhost'@'%'), but the host never does, so split on the last '@' only.
+            int hostSeparatorIndex = message.lastIndexOf("@");
+            return hostSeparatorIndex == -1 ? message : message.substring(0, hostSeparatorIndex);
         }
 
         return externalError.getMessage();
