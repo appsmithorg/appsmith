@@ -254,15 +254,19 @@ public class MySqlPluginTest {
                 })
                 .flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
 
-        String gateway = mySQLContainer.getContainerInfo().getNetworkSettings().getGateway();
-        String expectedErrorMessage = new StringBuilder("Access denied for user 'mysql'@'")
-                .append(gateway)
-                .append("'")
-                .toString();
+        String expectedErrorMessage = "Access denied for user 'mysql'";
 
         StepVerifier.create(datasourceTestResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getInvalids().contains(expectedErrorMessage));
+                    result.getInvalids()
+                            .forEach(invalid -> assertFalse(
+                                    invalid.contains(
+                                            mySQLContainer
+                                                    .getContainerInfo()
+                                                    .getNetworkSettings()
+                                                    .getGateway()),
+                                    "Error message must not leak the server host/IP"));
                 })
                 .verifyComplete();
     }

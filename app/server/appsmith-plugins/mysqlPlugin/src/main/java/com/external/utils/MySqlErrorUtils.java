@@ -43,7 +43,8 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
             /**
              *@param [9000] [H1000] Fail to establish connection to [host:port] :
              * Access denied for user 'username'@'host' (using password: NO)
-             *@return Access denied for user 'username'@'host'
+             *@return Access denied for user 'username'
+             * Host is stripped out to avoid leaking server IP/hostname in the error message.
              */
             R2dbcNonTransientResourceException r2dbcNonTransientResourceException =
                     (R2dbcNonTransientResourceException) externalError;
@@ -51,6 +52,7 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
                     .getMessage()
                     .split(" : ")[1]
                     .split(" \\(")[0]
+                    .split("@")[0]
                     .trim();
         }
 
