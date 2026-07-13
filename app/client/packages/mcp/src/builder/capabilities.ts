@@ -245,7 +245,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_datasource",
       gate: "data",
-      summary: "create an unconfigured DB datasource (no credentials)",
+      summary:
+        "create a DB (unconfigured) or REST (base URL) datasource; no credentials",
     },
     {
       name: "get_datasource_structure",

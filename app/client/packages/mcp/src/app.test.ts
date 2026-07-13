@@ -67,6 +67,13 @@ describe("Appsmith API client", () => {
           "Bearer user-token",
       ),
     ).toBe(true);
+    // Every upstream call carries the CSRF-exemption header so multipart (import) POSTs aren't denied.
+    expect(
+      fetchFn.mock.calls.every(
+        ([, init]) =>
+          new Headers(init?.headers).get("X-Requested-By") === "Appsmith",
+      ),
+    ).toBe(true);
     expect(
       fetchFn.mock.calls.every(
         ([, init]) =>
@@ -1464,6 +1471,124 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     });
 
     expect(body.error).toMatch(/not installed/);
+    expect(createDatasource).not.toHaveBeenCalled();
+  });
+
+  it("create_datasource creates a CONFIGURED, ready-to-use REST datasource from a base URL", async () => {
+    const createDatasource = jest.fn<
+      Promise<Record<string, unknown>>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "ds-rest", name: "Zippopotam", pluginId: "p-rest" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-rest", packageName: "restapi-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "Zippopotam",
+      plugin: "rest",
+      url: "https://api.zippopotam.us",
+    });
+
+    expect(body.created).toBe(true);
+    // A no-auth REST datasource is complete — no credential hand-off.
+    expect(body.needsCredentials).toBe(false);
+    expect(createDatasource).toHaveBeenCalledTimes(1);
+
+    const dto = createDatasource.mock.calls[0][0] as unknown as {
+      pluginId: string;
+      datasourceStorages: Record<
+        string,
+        {
+          isConfigured: boolean;
+          datasourceConfiguration: { url?: string; endpoints?: unknown };
+        }
+      >;
+    };
+
+    expect(dto.pluginId).toBe("p-rest");
+    const storage = dto.datasourceStorages.unused_env;
+
+    // REST is created configured (usable immediately), carries the base URL, and has no DB endpoints/auth.
+    expect(storage.isConfigured).toBe(true);
+    expect(storage.datasourceConfiguration.url).toBe(
+      "https://api.zippopotam.us",
+    );
+    expect(storage.datasourceConfiguration.endpoints).toBeUndefined();
+    expect(JSON.stringify(dto)).not.toContain("dbAuth");
+  });
+
+  it("create_datasource enforces url-vs-connection per plugin family and rejects unsafe URLs", async () => {
+    const createDatasource = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-rest", packageName: "restapi-plugin" },
+        { id: "p-pg", packageName: "postgres-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+
+    // REST without a url.
+    expect(
+      JSON.stringify(
+        await callTool(api, "create_datasource", {
+          workspaceId: "ws1",
+          name: "R",
+          plugin: "rest",
+        }),
+      ),
+    ).toMatch(/requires 'url'/);
+
+    // REST with a database-style connection.
+    expect(
+      JSON.stringify(
+        await callTool(api, "create_datasource", {
+          workspaceId: "ws1",
+          name: "R",
+          plugin: "rest",
+          url: "https://api.example.com",
+          connection: { host: "db", databaseName: "x" },
+        }),
+      ),
+    ).toMatch(/'connection' is only for database/);
+
+    // Database with a url instead of a connection.
+    expect(
+      JSON.stringify(
+        await callTool(api, "create_datasource", {
+          workspaceId: "ws1",
+          name: "D",
+          plugin: "postgresql",
+          url: "https://api.example.com",
+        }),
+      ),
+    ).toMatch(/'url' is only for REST/);
+
+    // Unsafe URLs rejected at the schema (non-http scheme, whitespace, template syntax).
+    for (const url of [
+      "ftp://api.example.com",
+      "https://api.example.com/{{evil}}",
+      "https://api example.com",
+      "javascript:alert(1)",
+    ]) {
+      expect(
+        JSON.stringify(
+          await callTool(api, "create_datasource", {
+            workspaceId: "ws1",
+            name: "R",
+            plugin: "rest",
+            url,
+          }),
+        ),
+      ).toMatch(/error|invalid|url must be/i);
+    }
+
     expect(createDatasource).not.toHaveBeenCalled();
   });
 

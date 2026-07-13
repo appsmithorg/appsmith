@@ -37,6 +37,65 @@ describe("compileApp — import artifact contract", () => {
     expect((artifact.pageList as unknown[]).length).toBe(1);
   });
 
+  it("JSON-serializes cleanly — no shared array reference between pageOrder and publishedPageOrder", () => {
+    const artifact = compileApp(
+      {
+        name: "Zip Code Lookup",
+        pages: [
+          {
+            name: "Lookup",
+            widgets: [
+              { type: "text", name: "Title", text: "Zip Code Lookup" },
+              {
+                type: "input",
+                name: "ZipInput",
+                label: "Zip",
+                inputType: "TEXT",
+              },
+              { type: "button", name: "LookupButton", text: "Look up" },
+              { type: "table", name: "ResultsTable", data: [{ place: "BH" }] },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+
+    // pageOrder and publishedPageOrder must be independent arrays (a shared reference is valid JSON but the
+    // artifact serializer's guard rejected it, which broke every build_application call).
+    expect(artifact.pageOrder).not.toBe(artifact.publishedPageOrder);
+    expect(artifact.pageOrder).toEqual(artifact.publishedPageOrder);
+    // The whole artifact round-trips through JSON without throwing.
+    expect(() => JSON.stringify(artifact)).not.toThrow();
+  });
+
+  it("populates exportedApplication.pages so the imported app links to its pages", () => {
+    const artifact = compileApp(
+      {
+        name: "Multi",
+        pages: [
+          { name: "Lookup", widgets: [{ type: "text", text: "A" }] },
+          { name: "Details", widgets: [{ type: "text", text: "B" }] },
+        ],
+      },
+      ids(),
+    );
+    const application = artifact.exportedApplication as {
+      pages: { id: string; isDefault: boolean }[];
+      publishedPages: { id: string; isDefault: boolean }[];
+    };
+
+    // At the declared schema version the server runs no import migrations, so these must be present (the migration
+    // that derives them is skipped). Without them the imported app has zero pages.
+    expect(application.pages).toEqual([
+      { id: "Lookup", isDefault: true },
+      { id: "Details", isDefault: false },
+    ]);
+    expect(application.publishedPages).toEqual(application.pages);
+    // Independent object copies — no shared references between edit/view lists.
+    expect(application.pages[0]).not.toBe(application.publishedPages[0]);
+  });
+
   it("builds a root canvas with widgetId '0' and a 64-column grid", () => {
     const artifact = compileApp(
       {

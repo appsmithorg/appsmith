@@ -260,54 +260,59 @@ function serializeArtifact(artifact: Record<string, unknown>): string {
     throw new Error("Artifact must not be empty");
   }
 
-  const seen = new WeakSet<object>();
-  const serialized = JSON.stringify(
-    artifact,
-    function (this: Record<string, unknown>, _key, value) {
-      // JSON.stringify applies toJSON() before the replacer runs, so inspect the
-      // original value via the holder to reject Date and other non-plain objects
-      // that would otherwise be silently coerced to a string (e.g. an ISO date).
-      const original = this[_key];
+  let serialized: string;
 
-      if (
-        original !== null &&
-        typeof original === "object" &&
-        typeof (original as { toJSON?: unknown }).toJSON === "function"
-      ) {
-        throw new Error("Artifact must contain only plain JSON objects");
-      }
-
-      if (
-        value === undefined ||
-        typeof value === "bigint" ||
-        typeof value === "function" ||
-        typeof value === "symbol" ||
-        (typeof value === "number" && !Number.isFinite(value))
-      ) {
-        throw new Error("Artifact must contain only JSON values");
-      }
-
-      if (value && typeof value === "object") {
-        const prototype = Object.getPrototypeOf(value);
+  try {
+    serialized = JSON.stringify(
+      artifact,
+      function (this: Record<string, unknown>, _key, value) {
+        // JSON.stringify applies toJSON() before the replacer runs, so inspect the
+        // original value via the holder to reject Date and other non-plain objects
+        // that would otherwise be silently coerced to a string (e.g. an ISO date).
+        const original = this[_key];
 
         if (
-          !Array.isArray(value) &&
-          prototype !== Object.prototype &&
-          prototype !== null
+          original !== null &&
+          typeof original === "object" &&
+          typeof (original as { toJSON?: unknown }).toJSON === "function"
         ) {
           throw new Error("Artifact must contain only plain JSON objects");
         }
 
-        if (seen.has(value)) {
-          throw new Error("Artifact must not contain circular references");
+        if (
+          value === undefined ||
+          typeof value === "bigint" ||
+          typeof value === "function" ||
+          typeof value === "symbol" ||
+          (typeof value === "number" && !Number.isFinite(value))
+        ) {
+          throw new Error("Artifact must contain only JSON values");
         }
 
-        seen.add(value);
-      }
+        if (value && typeof value === "object") {
+          const prototype = Object.getPrototypeOf(value);
 
-      return value;
-    },
-  );
+          if (
+            !Array.isArray(value) &&
+            prototype !== Object.prototype &&
+            prototype !== null
+          ) {
+            throw new Error("Artifact must contain only plain JSON objects");
+          }
+        }
+
+        return value;
+      },
+    );
+  } catch (error) {
+    // A genuine cycle (an object reachable from itself) makes JSON.stringify throw a TypeError; shared
+    // references that form a DAG serialize fine (they are valid JSON, just duplicated). Only the former is an error.
+    if (error instanceof TypeError && /circular|cyclic/i.test(error.message)) {
+      throw new Error("Artifact must not contain circular references");
+    }
+
+    throw error;
+  }
 
   if (
     !serialized ||
@@ -349,6 +354,10 @@ export function createAppsmithApi(
         signal: init?.signal ?? controller.signal,
         headers: {
           Authorization: `Bearer ${token}`,
+          // These are server-to-server calls authenticated by a bearer token, with no cookies, so they carry no
+          // CSRF exposure. Appsmith's CSRF filter exempts JSON POSTs but not multipart (e.g. artifact import); this
+          // header is the documented exemption so import/upload requests aren't denied.
+          "X-Requested-By": "Appsmith",
           ...(isMultipart ? {} : { "Content-Type": "application/json" }),
           ...correlationHeaders,
           ...init?.headers,
@@ -559,6 +568,21 @@ const CREATABLE_DATASOURCE_PLUGINS: Record<
   mysql: { packageName: "mysql-plugin", defaultPort: 3306 },
   mssql: { packageName: "mssql-plugin", defaultPort: 1433 },
 };
+
+const REST_DATASOURCE_PACKAGE_NAME = "restapi-plugin";
+
+// A REST base URL: http(s) only, and no whitespace, template/binding syntax, quotes, backticks, or angle brackets
+// so it can't carry injection into the stored config. The value is the datasource's own base URL (not a secret);
+// egress/SSRF at execution time is enforced by the existing server-side REST-plugin guards, unchanged here.
+const restBaseUrlSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(2000)
+  .regex(
+    /^https?:\/\/[^\s{}<>"'`\\]+$/i,
+    "url must be an http(s) base URL with no whitespace or template syntax",
+  );
 
 function pluginIdByPackageName(
   plugins: unknown,
@@ -2051,7 +2075,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_datasource",
-      "Create a database datasource (PostgreSQL, MySQL, or Microsoft SQL Server) in a workspace from non-secret connection details (host/port/database/username). Credentials are NEVER accepted or transmitted by this tool: the datasource is created unconfigured, and the user completes the password in the Appsmith UI (Workspace -> Datasources -> Edit -> Test & Save). Idempotent by workspace + name.",
+      "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
       {
         workspaceId: idSchema,
         name: z
@@ -2063,7 +2087,8 @@ export function buildMcpServer(
             /^[A-Za-z0-9_ -]+$/,
             "name must be alphanumeric/underscore/space/dash",
           ),
-        plugin: z.enum(["postgresql", "mysql", "mssql"]),
+        plugin: z.enum(["postgresql", "mysql", "mssql", "rest"]),
+        // Database datasources only.
         connection: z
           .object({
             host: z
@@ -2090,20 +2115,66 @@ export function buildMcpServer(
               .regex(/^[A-Za-z0-9_.@-]+$/, "username has unsafe characters")
               .optional(),
           })
-          .strict(),
+          .strict()
+          .optional(),
+        // REST datasources only: the API base URL.
+        url: restBaseUrlSchema.optional(),
       },
-      async ({ connection, name, plugin, workspaceId }) => {
-        const family = CREATABLE_DATASOURCE_PLUGINS[plugin];
+      async ({ connection, name, plugin, url, workspaceId }) => {
+        const isRest = plugin === "rest";
+
+        // Enforce the input shape per plugin family: databases take `connection`, REST takes `url`. Reject a
+        // foreign field first (clearer feedback) before flagging a missing required one.
+        if (isRest) {
+          if (connection !== undefined) {
+            return result({
+              error:
+                "'connection' is only for database datasources; REST uses 'url'",
+            });
+          }
+
+          if (url === undefined) {
+            return result({
+              error: "a REST datasource requires 'url' (its base URL)",
+            });
+          }
+        } else {
+          if (url !== undefined) {
+            return result({
+              error:
+                "'url' is only for REST datasources; databases use 'connection'",
+            });
+          }
+
+          if (connection === undefined) {
+            return result({
+              error: `a ${plugin} datasource requires 'connection' details (host, databaseName, ...)`,
+            });
+          }
+        }
+
+        const packageName = isRest
+          ? REST_DATASOURCE_PACKAGE_NAME
+          : CREATABLE_DATASOURCE_PLUGINS[plugin].packageName;
 
         // Resolve the plugin DOCUMENT id from its stable packageName — plugin ids are per-instance.
         const plugins = await api.listPlugins(workspaceId);
-        const pluginId = pluginIdByPackageName(plugins, family.packageName);
+        const pluginId = pluginIdByPackageName(plugins, packageName);
 
         if (pluginId === undefined) {
           return result({
             error: `the ${plugin} plugin is not installed on this instance`,
           });
         }
+
+        // REST datasources with only a base URL and no auth are complete and immediately usable; database
+        // datasources are created unconfigured and await a password in the UI.
+        const nextStep = isRest
+          ? {
+              needsCredentials: false as const,
+              nextStep: `The REST datasource "${name}" is ready to use. Author actions against it with create_rest_api.`,
+            }
+          : datasourceNextStep(name);
 
         // Idempotency: a datasource with this name in this workspace is returned, not duplicated.
         const existing = findDatasourceNamed(
@@ -2117,12 +2188,42 @@ export function buildMcpServer(
             reason:
               "a datasource with this name already exists in this workspace",
             datasource: projectDatasources(existing),
-            ...datasourceNextStep(name),
+            ...nextStep,
           });
         }
 
-        // Created UNCONFIGURED (isConfigured: false, no credentials) — the same state as importing an app without
-        // configuring its datasources. CE keys every storage under the fixed "unused_env" environment.
+        // REST base URL is not a secret, so a no-auth REST datasource is created CONFIGURED. Database datasources
+        // are created UNCONFIGURED (no credentials) — the same state as importing an app without configuring them.
+        // CE keys every storage under the fixed "unused_env" environment.
+        const datasourceConfiguration = isRest
+          ? {
+              url,
+              headers: [],
+              queryParameters: [],
+              isSendSessionEnabled: false,
+            }
+          : {
+              connection: {
+                mode: "READ_WRITE",
+                ssl: { authType: "DEFAULT" },
+              },
+              endpoints: [
+                {
+                  host: connection!.host,
+                  port:
+                    connection!.port ??
+                    CREATABLE_DATASOURCE_PLUGINS[plugin].defaultPort,
+                },
+              ],
+              authentication: {
+                authenticationType: "dbAuth",
+                databaseName: connection!.databaseName,
+                ...(connection!.username !== undefined
+                  ? { username: connection!.username }
+                  : {}),
+              },
+            };
+
         const created = await api.createDatasource({
           name,
           workspaceId,
@@ -2130,26 +2231,8 @@ export function buildMcpServer(
           datasourceStorages: {
             [DEFAULT_ENVIRONMENT_ID]: {
               environmentId: DEFAULT_ENVIRONMENT_ID,
-              isConfigured: false,
-              datasourceConfiguration: {
-                connection: {
-                  mode: "READ_WRITE",
-                  ssl: { authType: "DEFAULT" },
-                },
-                endpoints: [
-                  {
-                    host: connection.host,
-                    port: connection.port ?? family.defaultPort,
-                  },
-                ],
-                authentication: {
-                  authenticationType: "dbAuth",
-                  databaseName: connection.databaseName,
-                  ...(connection.username !== undefined
-                    ? { username: connection.username }
-                    : {}),
-                },
-              },
+              isConfigured: isRest,
+              datasourceConfiguration,
             },
           },
         });
@@ -2157,7 +2240,7 @@ export function buildMcpServer(
         return result({
           created: true,
           datasource: projectDatasources(created),
-          ...datasourceNextStep(name),
+          ...nextStep,
         });
       },
     );

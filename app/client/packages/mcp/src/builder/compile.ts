@@ -312,6 +312,13 @@ export function compileApp(
     compilePage(page, idGen, remaining, appSpec.theme),
   );
   const pageNames = appSpec.pages.map((page) => page.name);
+  // The application's page list. At the declared serverSchemaVersion the server runs no import migrations, so the
+  // v4 migration that would derive these from pageOrder is skipped — we must emit them, or the imported app links
+  // to zero pages. The migration keys each ApplicationPage id on the page NAME and marks the first as default.
+  const applicationPages = pageNames.map((name) => ({
+    id: name,
+    isDefault: name === pageNames[0],
+  }));
 
   return {
     clientSchemaVersion: CLIENT_SCHEMA_VERSION,
@@ -325,6 +332,8 @@ export function compileApp(
       isPublic: false,
       unpublishedCustomJSLibs: [],
       publishedCustomJSLibs: [],
+      pages: applicationPages.map((page) => ({ ...page })),
+      publishedPages: applicationPages.map((page) => ({ ...page })),
     },
     pageList,
     actionList: [],
@@ -333,8 +342,10 @@ export function compileApp(
     customJSLibList: [],
     editModeTheme: { name: "Default", isSystemTheme: true },
     publishedTheme: { name: "Default", isSystemTheme: true },
-    pageOrder: pageNames,
-    publishedPageOrder: pageNames,
+    // Distinct array copies: sharing one reference between both fields is valid JSON but trips the
+    // artifact serializer's shared-reference guard.
+    pageOrder: [...pageNames],
+    publishedPageOrder: [...pageNames],
     unpublishedDefaultPageName: pageNames[0],
     publishedDefaultPageName: pageNames[0],
   };

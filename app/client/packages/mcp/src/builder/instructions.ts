@@ -124,9 +124,10 @@ Goal: a table of records with a details form to view/edit a selected row.
 6. \`inspect_page\` — verify no overlaps/off-grid/clipped-container issues; \`edit_page\` to fix.
 
 To make it live (when the data layer is enabled):
-7. \`list_datasources\` — find your DB. If none exists yet, \`create_datasource\` provisions an
-   unconfigured PostgreSQL/MySQL/SQL Server datasource from host/port/database (no credentials
-   pass through MCP — ask the user to enter the password in Appsmith and Test & Save).
+7. \`list_datasources\` — find your data source. If none exists yet, \`create_datasource\`
+   provisions one: a PostgreSQL/MySQL/SQL Server database from host/port/database (unconfigured —
+   ask the user to enter the password in Appsmith and Test & Save), or a REST API from a base
+   \`url\` (created ready to use when the API needs no auth). No credentials pass through MCP.
 8. \`get_datasource_structure\` — read its tables/columns.
 9. \`create_query\` — e.g. a SELECT plus an UPDATE over your table (structured spec, no raw SQL).
 10. \`edit_page\` / \`patch_widgets\` — bind the table (\`source\` = { query: '<name>' }), prefill the
