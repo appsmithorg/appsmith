@@ -312,11 +312,7 @@ function McpTokens() {
               >
                 {createMessage(CANCEL)}
               </Button>
-              <Button
-                isLoading={isRotating}
-                onClick={rotateToken}
-                size="md"
-              >
+              <Button isLoading={isRotating} onClick={rotateToken} size="md">
                 {createMessage(ROTATE_MCP_TOKEN_CONFIRM)}
               </Button>
             </ModalFooter>
