@@ -224,7 +224,7 @@ export interface AppsmithApi {
   getApplicationPages: (applicationId: string) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
-  getAction: (actionId: string) => Promise<unknown>;
+  getAction: (applicationId: string, actionId: string) => Promise<unknown>;
   updateAction: (
     actionId: string,
     action: Record<string, unknown>,
@@ -450,8 +450,29 @@ export function createAppsmithApi(
         method: "POST",
         body: JSON.stringify(action),
       }),
-    getAction: async (actionId) =>
-      request(`/api/v1/actions/${encodeURIComponent(actionId)}`),
+    getAction: async (applicationId, actionId) => {
+      // There is no GET /actions/{id} (that path is PUT/DELETE only, so a GET 405s). Fetch the application's
+      // actions and select by id.
+      const actions = await request<unknown>(
+        `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
+      );
+      const match = Array.isArray(actions)
+        ? actions.find(
+            (entry) =>
+              entry !== null &&
+              typeof entry === "object" &&
+              (entry as { id?: unknown }).id === actionId,
+          )
+        : undefined;
+
+      if (match === undefined) {
+        throw new Error(
+          `action ${actionId} was not found in application ${applicationId}`,
+        );
+      }
+
+      return match;
+    },
     updateAction: async (actionId, action) =>
       request(`/api/v1/actions/${encodeURIComponent(actionId)}`, {
         method: "PUT",
@@ -2405,9 +2426,9 @@ export function buildMcpServer(
     server.tool(
       "get_action",
       "Read safe metadata for a single action (id, name, page, plugin, datasource) plus a revision token for update/duplicate/delete. Never returns the query body, headers, or credentials.",
-      { actionId: idSchema },
-      async ({ actionId }) => {
-        const action = await api.getAction(actionId);
+      { applicationId: idSchema, actionId: idSchema },
+      async ({ actionId, applicationId }) => {
+        const action = await api.getAction(applicationId, actionId);
 
         return result({
           action: projectAction(action),
@@ -2419,9 +2440,9 @@ export function buildMcpServer(
     server.tool(
       "run_action",
       "Run a READ-ONLY stored action (REST GET/HEAD or a SELECT-only query) by id and return its result. Non-read-only actions are refused here — use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
-      { actionId: idSchema },
-      async ({ actionId }) => {
-        const action = await api.getAction(actionId);
+      { applicationId: idSchema, actionId: idSchema },
+      async ({ actionId, applicationId }) => {
+        const action = await api.getAction(applicationId, actionId);
 
         if (!isReadOnlyAction(action)) {
           return result({
@@ -2457,7 +2478,10 @@ export function buildMcpServer(
           let current: unknown;
 
           try {
-            current = await api.getAction(request.actionId);
+            current = await api.getAction(
+              request.applicationId,
+              request.actionId,
+            );
           } catch (error) {
             return compileError(error);
           }
@@ -2507,7 +2531,10 @@ export function buildMcpServer(
           let current: unknown;
 
           try {
-            current = await api.getAction(request.actionId);
+            current = await api.getAction(
+              request.applicationId,
+              request.actionId,
+            );
           } catch (error) {
             return compileError(error);
           }
@@ -2596,7 +2623,10 @@ export function buildMcpServer(
               }),
             });
 
-            const current = await api.getAction(parsed.data.actionId);
+            const current = await api.getAction(
+              parsed.data.applicationId,
+              parsed.data.actionId,
+            );
             const { changeId } = await govData.execute({
               actorId,
               entityKey: `action:${parsed.data.actionId}`,
@@ -2630,11 +2660,12 @@ export function buildMcpServer(
         "prepare_run_action",
         "Prepare to run an action. Non-read-only executions require this confirmation step. Returns a one-time token bound to this action and revision, plus whether the action is read-only. Pass a revision from get_action.",
         {
+          applicationId: idSchema,
           actionId: idSchema,
           revision: z.string().regex(/^[a-f0-9]{64}$/),
         },
-        async ({ actionId, revision }) => {
-          const action = await api.getAction(actionId);
+        async ({ actionId, applicationId, revision }) => {
+          const action = await api.getAction(applicationId, actionId);
           const confirmation = await govData.prepareDestructiveConfirmation({
             actorId,
             entityKey: `action:${actionId}`,
@@ -2656,11 +2687,12 @@ export function buildMcpServer(
         "confirm_run_action",
         "Run an action using a confirmation token from prepare_run_action. Token, actor, action, and revision must match, and the action must be unchanged since preparation. Returns the execution result and an audit change id.",
         {
+          applicationId: idSchema,
           actionId: idSchema,
           revision: z.string().regex(/^[a-f0-9]{64}$/),
           confirmationId: idSchema,
         },
-        async ({ actionId, confirmationId, revision }) => {
+        async ({ actionId, applicationId, confirmationId, revision }) => {
           try {
             await govData.consumeDestructiveConfirmation({
               confirmationId,
@@ -2671,7 +2703,7 @@ export function buildMcpServer(
               digest: operationDigest({ actionId }),
             });
 
-            const current = await api.getAction(actionId);
+            const current = await api.getAction(applicationId, actionId);
             const { changeId, value } = await govData.execute({
               actorId,
               entityKey: `action:${actionId}`,

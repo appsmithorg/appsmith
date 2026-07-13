@@ -110,6 +110,55 @@ describe("Appsmith API client", () => {
     );
   });
 
+  it("getAction fetches by applicationId and selects the action by id (no GET /actions/{id})", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async () =>
+      Response.json({
+        responseMeta: { success: true },
+        data: [
+          { id: "other", name: "Other" },
+          { id: "act1", name: "Target" },
+        ],
+      }),
+    );
+    const api = createAppsmithApi(
+      "user-token",
+      API_BASE_URL,
+      fetchFn as unknown as typeof fetch,
+    );
+
+    const action = (await api.getAction("app1", "act1")) as { name: string };
+
+    // It lists the application's actions (the single-action GET does not exist) and filters by id.
+    expect(String(fetchFn.mock.calls[0][0])).toBe(
+      `${API_BASE_URL}/api/v1/actions?applicationId=app1`,
+    );
+    expect(action.name).toBe("Target");
+  });
+
+  it("getAction throws a clear error when the action is not in the application", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async () =>
+      Response.json({
+        responseMeta: { success: true },
+        data: [{ id: "other" }],
+      }),
+    );
+    const api = createAppsmithApi(
+      "user-token",
+      API_BASE_URL,
+      fetchFn as unknown as typeof fetch,
+    );
+
+    await expect(api.getAction("app1", "missing")).rejects.toThrow(
+      /action missing was not found in application app1/,
+    );
+  });
+
   it("surfaces Appsmith API errors without obscuring their status", async () => {
     const fetchFn = jest.fn<
       Promise<Response>,
@@ -2042,7 +2091,10 @@ describe("governance-wrapped layout mutations", () => {
       governance: new McpGovernanceCoordinator(store),
     });
 
-    const read = await callTool(server, "get_action", { actionId: "act1" });
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
 
     expect(read.body.action.name).toBe("OldName");
     expect(read.text).not.toContain("actionConfiguration");
@@ -2639,7 +2691,10 @@ describe("governance-wrapped layout mutations", () => {
       }),
       { dataEnabled: true },
     );
-    const ro = await callTool(roServer, "run_action", { actionId: "act1" });
+    const ro = await callTool(roServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
 
     expect(ro.body.executed).toBe(true);
     expect(executeAction).toHaveBeenCalledWith("act1");
@@ -2654,7 +2709,10 @@ describe("governance-wrapped layout mutations", () => {
       }),
       { dataEnabled: true },
     );
-    const rw = await callTool(rwServer, "run_action", { actionId: "act1" });
+    const rw = await callTool(rwServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
 
     expect(rw.body.code).toBe("confirmation_required");
     expect(rwExecute).not.toHaveBeenCalled();
@@ -2673,8 +2731,12 @@ describe("governance-wrapped layout mutations", () => {
       { dataEnabled: true, governance: new McpGovernanceCoordinator(store) },
     );
 
-    const read = await callTool(server, "get_action", { actionId: "act1" });
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
     const prepared = await callTool(server, "prepare_run_action", {
+      applicationId: "app1",
       actionId: "act1",
       revision: read.body.revision,
     });
@@ -2682,6 +2744,7 @@ describe("governance-wrapped layout mutations", () => {
     expect(prepared.body.readOnly).toBe(false);
 
     const confirmed = await callTool(server, "confirm_run_action", {
+      applicationId: "app1",
       actionId: "act1",
       revision: read.body.revision,
       confirmationId: prepared.body.confirmationId,
