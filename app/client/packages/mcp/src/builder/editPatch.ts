@@ -15,7 +15,10 @@ const safeText = (max: number) =>
   z
     .string()
     .max(max)
-    .refine((value) => !RAW_EXPRESSION.test(value), "must not contain bindings");
+    .refine(
+      (value) => !RAW_EXPRESSION.test(value),
+      "must not contain bindings",
+    );
 
 const literalScalarSchema = z.union([
   safeText(10_000),
@@ -165,6 +168,7 @@ function requireWidget(
   const widget = widgets.get(name);
 
   if (!widget) throw new Error(`widget "${name}" was not found`);
+
   if (widget.node.widgetId === ROOT_WIDGET_ID) {
     throw new Error("the root canvas cannot be modified");
   }
@@ -180,7 +184,10 @@ function directCanvas(node: WidgetNode): WidgetNode | undefined {
 
 function isDescendant(ancestor: WidgetNode, candidate: WidgetNode): boolean {
   for (const child of ancestor.children ?? []) {
-    if (child.widgetId === candidate.widgetId || isDescendant(child, candidate)) {
+    if (
+      child.widgetId === candidate.widgetId ||
+      isDescendant(child, candidate)
+    ) {
       return true;
     }
   }
@@ -190,7 +197,9 @@ function isDescendant(ancestor: WidgetNode, candidate: WidgetNode): boolean {
 
 function removeFromParent(widget: LocatedWidget): void {
   if (!widget.parent?.children) {
-    throw new Error(`widget "${widget.node.widgetName}" has no removable parent`);
+    throw new Error(
+      `widget "${widget.node.widgetName}" has no removable parent`,
+    );
   }
 
   const index = widget.parent.children.findIndex(
@@ -239,7 +248,9 @@ export function applyWidgetPatch(
       changes.push({
         kind: "update",
         widgetName: operation.name,
-        changedProps: Object.keys(operation.props) as (keyof WidgetPropsPatch)[],
+        changedProps: Object.keys(
+          operation.props,
+        ) as (keyof WidgetPropsPatch)[],
       });
       continue;
     }
@@ -269,11 +280,14 @@ export function applyWidgetPatch(
           `parent "${operation.parent}" must name a canvas or widget with an inner canvas`,
         );
       }
+
       if (
         destination.widgetId === located.node.widgetId ||
         isDescendant(located.node, destination)
       ) {
-        throw new Error(`widget "${operation.name}" cannot be parented to itself`);
+        throw new Error(
+          `widget "${operation.name}" cannot be parented to itself`,
+        );
       }
 
       removeFromParent(located);

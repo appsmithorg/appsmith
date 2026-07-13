@@ -94,16 +94,19 @@ describe("action lifecycle builders", () => {
         }),
       ),
     ).toEqual({ ...reference, kind: "REST", name: "GetUsersCopy" });
-    expect(buildDeleteActionDto(deleteActionSpecSchema.parse(reference))).toEqual(
-      reference,
-    );
+    expect(
+      buildDeleteActionDto(deleteActionSpecSchema.parse(reference)),
+    ).toEqual(reference);
   });
 });
 
 describe("action lifecycle schemas reject unsafe action mutation", () => {
   const badUpdate: [string, Record<string, unknown>][] = [
     ["unsupported action kind", { kind: "GRAPHQL", name: "Bad" }],
-    ["raw SQL body", { kind: "SQL", query: { ...query, body: "DROP TABLE users" } }],
+    [
+      "raw SQL body",
+      { kind: "SQL", query: { ...query, body: "DROP TABLE users" } },
+    ],
     [
       "raw SQL binding",
       { kind: "SQL", query: { ...query, table: "{{ evil }}" } },
@@ -114,7 +117,10 @@ describe("action lifecycle schemas reject unsafe action mutation", () => {
     ],
     [
       "URL change",
-      { kind: "REST", rest: { ...rest, path: "https://attacker.example/users" } },
+      {
+        kind: "REST",
+        rest: { ...rest, path: "https://attacker.example/users" },
+      },
     ],
     [
       "arbitrary header",
@@ -139,12 +145,13 @@ describe("action lifecycle schemas reject unsafe action mutation", () => {
     ],
     [
       "mismatched application",
-      { kind: "SQL", name: "ListUsers", query: { ...query, applicationId: "app2" } },
+      {
+        kind: "SQL",
+        name: "ListUsers",
+        query: { ...query, applicationId: "app2" },
+      },
     ],
-    [
-      "mismatched action name",
-      { kind: "REST", name: "Other", rest },
-    ],
+    ["mismatched action name", { kind: "REST", name: "Other", rest }],
     ["empty update", { kind: "SQL" }],
   ];
 
@@ -164,15 +171,20 @@ describe("action lifecycle schemas reject unsafe action mutation", () => {
       }).success,
     ).toBe(false);
     expect(
-      deleteActionSpecSchema.safeParse({ actionId: "action1", applicationId: "app1" })
+      deleteActionSpecSchema.safeParse({
+        actionId: "action1",
+        applicationId: "app1",
+      }).success,
+    ).toBe(false);
+    expect(
+      deleteActionSpecSchema.safeParse({ ...reference, revision: "stale" })
         .success,
     ).toBe(false);
     expect(
-      deleteActionSpecSchema.safeParse({ ...reference, revision: "stale" }).success,
-    ).toBe(false);
-    expect(
-      deleteActionSpecSchema.safeParse({ ...reference, url: "https://attacker.example" })
-        .success,
+      deleteActionSpecSchema.safeParse({
+        ...reference,
+        url: "https://attacker.example",
+      }).success,
     ).toBe(false);
   });
 });

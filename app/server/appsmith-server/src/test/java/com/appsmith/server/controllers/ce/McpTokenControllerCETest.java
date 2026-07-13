@@ -21,11 +21,9 @@ import reactor.test.StepVerifier;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -79,22 +77,35 @@ class McpTokenControllerCETest {
 
     @Test
     void create_underMcpAuth_isRejectedAndNeverMints() {
+        // The session guard rejects before the mint Mono is subscribed; the flag proves no minting happened.
+        AtomicBoolean minted = new AtomicBoolean(false);
+        when(userMcpTokenService.create(user)).thenReturn(Mono.fromCallable(() -> {
+            minted.set(true);
+            return token("t1");
+        }));
+
         StepVerifier.create(controller
                         .create(user)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(mcpAuthentication())))
                 .verifyError(AppsmithException.class);
 
-        verify(userMcpTokenService, never()).create(user);
+        assertThat(minted).isFalse();
     }
 
     @Test
     void rotate_underMcpAuth_isRejectedAndNeverRotates() {
+        AtomicBoolean rotated = new AtomicBoolean(false);
+        when(userMcpTokenService.rotate(user, "t1")).thenReturn(Mono.fromCallable(() -> {
+            rotated.set(true);
+            return token("t1");
+        }));
+
         StepVerifier.create(controller
                         .rotate(user, "t1")
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(mcpAuthentication())))
                 .verifyError(AppsmithException.class);
 
-        verify(userMcpTokenService, never()).rotate(eq(user), eq("t1"));
+        assertThat(rotated).isFalse();
     }
 
     @Test

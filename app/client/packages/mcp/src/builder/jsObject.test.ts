@@ -108,12 +108,21 @@ describe("JS object grammar rejects source and dynamic syntax", () => {
     ["raw body", { body: "export default { unsafe() { return eval('1') } }" }],
     ["raw source", { source: "import x from 'x'" }],
     ["imports", { imports: ["node:fs"] }],
-    ["network API", { functions: [{ name: "bad", fetch: "https://evil.example" }] }],
+    [
+      "network API",
+      { functions: [{ name: "bad", fetch: "https://evil.example" }] },
+    ],
     ["eval", { functions: [{ name: "bad", eval: "1 + 1" }] }],
     ["global access", { functions: [{ name: "bad", global: "process" }] }],
-    ["computed properties", { functions: [{ name: "bad", returns: { "[key]": 1 } }] }],
+    [
+      "computed properties",
+      { functions: [{ name: "bad", returns: { "[key]": 1 } }] },
+    ],
     ["loops", { functions: [{ name: "bad", loop: "for (;;) {}" }] }],
-    ["arbitrary expression", { functions: [{ name: "bad", expression: "a + b" }] }],
+    [
+      "arbitrary expression",
+      { functions: [{ name: "bad", expression: "a + b" }] },
+    ],
     ["template binding", { constants: { value: "{{ GetUsers.data }}" } }],
     ["template literal", { constants: { value: "${GetUsers.data}" } }],
   ];

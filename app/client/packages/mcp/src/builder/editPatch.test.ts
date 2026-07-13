@@ -46,7 +46,7 @@ function page(): WidgetNode {
 describe("applyWidgetPatch", () => {
   it("updates only allowlisted literal properties and returns semantic details", () => {
     const original = page();
-    const { dsl, changes } = applyWidgetPatch(original, {
+    const { changes, dsl } = applyWidgetPatch(original, {
       operations: [
         {
           kind: "update",
@@ -55,7 +55,7 @@ describe("applyWidgetPatch", () => {
         },
       ],
     });
-    const greeting = dsl.children?.[0]!;
+    const greeting = dsl.children![0];
 
     expect(greeting).toMatchObject({ text: "Welcome", isVisible: false });
     expect(original.children?.[0]).toMatchObject({ text: "Hello" });
@@ -69,7 +69,7 @@ describe("applyWidgetPatch", () => {
   });
 
   it("moves a widget into a container's inner canvas and preserves its size", () => {
-    const { dsl, changes } = applyWidgetPatch(page(), {
+    const { changes, dsl } = applyWidgetPatch(page(), {
       operations: [
         {
           kind: "move",
@@ -79,9 +79,9 @@ describe("applyWidgetPatch", () => {
         },
       ],
     });
-    const container = dsl.children?.[0]!;
-    const innerCanvas = container.children?.[0]!;
-    const greeting = innerCanvas.children?.[0]!;
+    const container = dsl.children![0];
+    const innerCanvas = container.children![0];
+    const greeting = innerCanvas.children![0];
 
     expect(dsl.children?.map((child) => child.widgetName)).toEqual(["Details"]);
     expect(greeting).toMatchObject({
@@ -105,7 +105,7 @@ describe("applyWidgetPatch", () => {
   });
 
   it("removes a leaf widget by name", () => {
-    const { dsl, changes } = applyWidgetPatch(page(), {
+    const { changes, dsl } = applyWidgetPatch(page(), {
       operations: [{ kind: "remove", name: "Greeting" }],
     });
 
@@ -130,9 +130,7 @@ describe("applyWidgetPatch", () => {
     for (const text of ["{{ Query.data }}", "${dangerous}", "`dangerous`"]) {
       expect(
         widgetPatchSchema.safeParse({
-          operations: [
-            { kind: "update", name: "Greeting", props: { text } },
-          ],
+          operations: [{ kind: "update", name: "Greeting", props: { text } }],
         }).success,
       ).toBe(false);
     }

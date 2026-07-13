@@ -24,6 +24,7 @@ import java.util.Base64;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -169,7 +170,8 @@ class UserMcpTokenServiceImplTest {
         when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
 
         StepVerifier.create(service.authenticate(original.token())).verifyComplete();
-        verify(userMcpTokenRepository).save(userMcpTokenCaptor.capture());
+        // save() is called once by create() and once by rotate(); the last capture is the rotated token.
+        verify(userMcpTokenRepository, times(2)).save(userMcpTokenCaptor.capture());
         assertThat(userMcpTokenCaptor.getValue().getTokenHash()).doesNotContain(original.token());
     }
 

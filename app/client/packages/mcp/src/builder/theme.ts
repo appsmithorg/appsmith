@@ -110,6 +110,7 @@ export function buildThemeUpdatePayload(
   patchInput: unknown,
 ): Record<string, unknown> {
   const patch = themePatchSchema.parse(patchInput);
+
   storedThemeSchema.parse(currentTheme);
   const clonedTheme = JSON.parse(
     canonicalStableSerialize(currentTheme),

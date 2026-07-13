@@ -8,15 +8,16 @@ const REVISION = /^[a-f0-9]{64}$/;
 const identifier = z
   .string()
   .regex(APP_OR_PAGE_ID, "must be a 24-50 character Appsmith identifier");
-const revision = z
-  .string()
-  .regex(REVISION, "must be a SHA-256 revision token");
+const revision = z.string().regex(REVISION, "must be a SHA-256 revision token");
 const pageName = z
   .string()
   .trim()
   .min(1)
   .max(30)
-  .regex(PAGE_NAME, "must use safe letters, numbers, spaces, underscores, or hyphens")
+  .regex(
+    PAGE_NAME,
+    "must use safe letters, numbers, spaces, underscores, or hyphens",
+  )
   .refine(
     (value) => !RAW_EXPRESSION.test(value),
     "must not contain binding or template syntax",

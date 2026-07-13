@@ -19,7 +19,10 @@ const identifier = z
   .string()
   .min(1)
   .max(128)
-  .refine((value) => !RAW_EXPRESSION.test(value), "must not contain template syntax");
+  .refine(
+    (value) => !RAW_EXPRESSION.test(value),
+    "must not contain template syntax",
+  );
 const actionName = z
   .string()
   .min(1)
@@ -66,6 +69,7 @@ export const updateActionSpecSchema = z
         code: z.ZodIssueCode.custom,
         message: "must update a name or structured action configuration",
       });
+
       return;
     }
 
@@ -113,14 +117,13 @@ export interface UpdateActionRequest extends ActionLifecycleRequest {
   action: Record<string, unknown>;
 }
 
-function buildUpdateAction(
-  spec: UpdateActionSpec,
-): Record<string, unknown> {
+function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
   const source = spec.kind === "SQL" ? spec.query : spec.rest;
   const action: Record<string, unknown> = { id: spec.actionId };
   const name = spec.name ?? source?.name;
 
   if (name !== undefined) action.name = name;
+
   if (!source) return action;
 
   if (spec.kind === "SQL") {
@@ -139,7 +142,9 @@ function buildUpdateAction(
 
 // Builds the minimal, safe patch request. The output excludes every caller-controlled field except the closed
 // ActionDTO vocabulary produced by the structured SQL/REST compilers.
-export function buildUpdateActionDto(spec: UpdateActionSpec): UpdateActionRequest {
+export function buildUpdateActionDto(
+  spec: UpdateActionSpec,
+): UpdateActionRequest {
   return {
     actionId: spec.actionId,
     applicationId: spec.applicationId,

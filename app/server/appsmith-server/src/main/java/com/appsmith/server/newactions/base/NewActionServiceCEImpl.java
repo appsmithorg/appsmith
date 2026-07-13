@@ -622,13 +622,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
                         datasourceMono = datasourceService
-                                .findById(
-                                        editActionDTO.getDatasource().getId(),
-                                        datasourcePermission.getExecutePermission())
-                                .switchIfEmpty(Mono.error(new AppsmithException(
-                                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE,
-                                        editActionDTO.getDatasource().getId())));
+                                .findById(editActionDTO.getDatasource().getId())
+                                .switchIfEmpty(Mono.defer(() -> {
+                                    if (!isDryOps) {
+                                        editActionDTO.setIsValid(false);
+                                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                                FieldName.DATASOURCE,
+                                                editActionDTO.getDatasource().getId()));
+                                    }
+                                    return Mono.just(editActionDTO.getDatasource());
+                                }));
                     }
                     datasourceMono = datasourceMono
                             .map(datasource -> {

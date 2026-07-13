@@ -13,10 +13,11 @@ const entityId = z
   .string()
   .min(1)
   .max(128)
-  .refine((value) => !RAW_EXPRESSION.test(value), "must not contain template syntax");
-const revision = z
-  .string()
-  .regex(REVISION, "must be a SHA-256 revision token");
+  .refine(
+    (value) => !RAW_EXPRESSION.test(value),
+    "must not contain template syntax",
+  );
+const revision = z.string().regex(REVISION, "must be a SHA-256 revision token");
 const collectionName = z
   .string()
   .min(1)
@@ -29,23 +30,31 @@ const literal = z.union([
   z
     .string()
     .max(1_000)
-    .refine((value) => !RAW_EXPRESSION.test(value), "must not contain template syntax"),
+    .refine(
+      (value) => !RAW_EXPRESSION.test(value),
+      "must not contain template syntax",
+    ),
   z.number().finite(),
   z.boolean(),
   z.null(),
 ]);
 
-const constants = z.record(identifier, literal).refine(
-  (value) => Object.keys(value).length <= 50,
-  "must contain at most 50 constants",
-);
+const constants = z
+  .record(identifier, literal)
+  .refine(
+    (value) => Object.keys(value).length <= 50,
+    "must contain at most 50 constants",
+  );
 
 const functionSpecSchema = z
   .object({
     name: identifier,
     // A run is a named, stored Appsmith query. The compiler owns both `await` and `.run()`; callers never supply
     // a callee, arguments, property access, or source code.
-    run: z.array(z.object({ query: identifier }).strict()).max(20).optional(),
+    run: z
+      .array(z.object({ query: identifier }).strict())
+      .max(20)
+      .optional(),
     // Return values are a literal object only. A caller cannot smuggle expressions, computed fields, or global
     // references through the generated function.
     returns: z.record(identifier, literal).optional(),
@@ -167,7 +176,9 @@ export interface DeleteJsObjectRequest {
   };
 }
 
-function renderObject(entries: Record<string, z.infer<typeof literal>>): string {
+function renderObject(
+  entries: Record<string, z.infer<typeof literal>>,
+): string {
   return Object.entries(entries)
     .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
     .join(", ");
@@ -234,6 +245,7 @@ export function buildUpdateJsObjectRequest(
   };
 
   if (spec.name !== undefined) actionCollection.name = spec.name;
+
   if (spec.functions !== undefined) {
     actionCollection.body = compileJsObject({
       constants: spec.constants,
