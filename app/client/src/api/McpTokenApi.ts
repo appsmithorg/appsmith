@@ -2,8 +2,9 @@ import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 
 export interface McpTokenMetadata {
-  createdAt: string;
-  expiresAt: string;
+  // The server serializes Instant fields as epoch seconds (a number); older/other paths may send an ISO string.
+  createdAt: string | number;
+  expiresAt: string | number;
   id: string;
 }
 

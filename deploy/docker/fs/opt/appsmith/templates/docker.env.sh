@@ -93,5 +93,7 @@ APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 APPSMITH_MCP_ENABLED=true
 APPSMITH_MCP_DATA_ENABLED=false
 APPSMITH_MCP_JS_ENABLED=false
+# How long a newly created/rotated MCP token stays valid (days). Default 90; range 1-3650.
+APPSMITH_MCP_TOKEN_TTL_DAYS=90
 
 EOF

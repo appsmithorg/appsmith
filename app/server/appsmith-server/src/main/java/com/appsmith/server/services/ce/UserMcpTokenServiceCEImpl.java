@@ -7,6 +7,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserMcpTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,15 +25,29 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
     private static final String TOKEN_HASH_ALGORITHM = "SHA-256";
     private static final int MAX_ACTIVE_TOKENS_PER_USER = 10;
     private static final String TOKEN_PREFIX = "mcp_";
-    private static final Duration TOKEN_TTL = Duration.ofDays(90);
+    // Admin-configurable via APPSMITH_MCP_TOKEN_TTL_DAYS. Bounded to a sane range so a misconfiguration can't mint
+    // effectively-immortal or already-expired credentials.
+    private static final long DEFAULT_TOKEN_TTL_DAYS = 90;
+    private static final long MIN_TOKEN_TTL_DAYS = 1;
+    private static final long MAX_TOKEN_TTL_DAYS = 3650;
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final UserMcpTokenRepository userMcpTokenRepository;
     private final UserRepository userRepository;
 
+    // Instance field (not static) so the admin-configured lifetime applies. Setter-injected below; unit tests that
+    // construct the service directly keep the default.
+    private Duration tokenTtl = Duration.ofDays(DEFAULT_TOKEN_TTL_DAYS);
+
     public UserMcpTokenServiceCEImpl(UserMcpTokenRepository userMcpTokenRepository, UserRepository userRepository) {
         this.userMcpTokenRepository = userMcpTokenRepository;
         this.userRepository = userRepository;
+    }
+
+    @Value("${APPSMITH_MCP_TOKEN_TTL_DAYS:" + DEFAULT_TOKEN_TTL_DAYS + "}")
+    public void setTokenTtlDays(long tokenTtlDays) {
+        long bounded = Math.max(MIN_TOKEN_TTL_DAYS, Math.min(MAX_TOKEN_TTL_DAYS, tokenTtlDays));
+        this.tokenTtl = Duration.ofDays(bounded);
     }
 
     @Override
@@ -52,7 +67,7 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                     userMcpToken.setTokenId(tokenId);
                     userMcpToken.setUserId(user.getId());
                     userMcpToken.setTokenHash(hashToken(token));
-                    userMcpToken.setExpiresAt(Instant.now().plus(TOKEN_TTL));
+                    userMcpToken.setExpiresAt(Instant.now().plus(tokenTtl));
 
                     return userMcpTokenRepository
                             .save(userMcpToken)
@@ -81,7 +96,7 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                 .flatMap(existingToken -> {
                     String token = TOKEN_PREFIX + existingToken.getTokenId() + "." + generateSecret();
                     existingToken.setTokenHash(hashToken(token));
-                    existingToken.setExpiresAt(Instant.now().plus(TOKEN_TTL));
+                    existingToken.setExpiresAt(Instant.now().plus(tokenTtl));
 
                     return userMcpTokenRepository
                             .save(existingToken)

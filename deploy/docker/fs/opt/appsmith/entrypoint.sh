@@ -133,6 +133,9 @@ init_env_file() {
     if ! grep -q "^APPSMITH_MCP_JS_ENABLED=" "$ENV_PATH"; then
       echo 'APPSMITH_MCP_JS_ENABLED=false' >> "$ENV_PATH"
     fi
+    if ! grep -q "^APPSMITH_MCP_TOKEN_TTL_DAYS=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_TOKEN_TTL_DAYS=90' >> "$ENV_PATH"
+    fi
   fi
 
   tlog "Load environment configuration"

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
+  Flex,
   Input,
   Modal,
   ModalBody,
@@ -8,6 +9,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
+  Tooltip,
   toast,
 } from "@appsmith/ads";
 import {
@@ -45,11 +47,29 @@ import McpTokenApi, {
 } from "api/McpTokenApi";
 import type { ApiResponse } from "api/ApiResponses";
 import styled from "styled-components";
-import { Wrapper } from "./StyledComponents";
 
-const TokensWrapper = styled(Wrapper)`
+const TokensWrapper = styled.div`
   width: 640px;
   max-width: 100%;
+  & > div {
+    margin-bottom: 16px;
+  }
+`;
+
+const TokenRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-4);
+  padding: var(--ads-v2-spaces-4) 0;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+`;
+
+const TokenMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-1);
+  flex: 1;
+  min-width: 0;
 `;
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -66,10 +86,20 @@ const ensureSuccess = <T,>(response: ApiResponse<T>) => {
   return response.data;
 };
 
-const formatCreatedAt = (createdAt: string) => {
-  const date = new Date(createdAt);
+// Timestamps arrive as epoch seconds (Jackson's Instant serialization). Detect and normalize to milliseconds so
+// they don't render as 1970; ISO strings pass through unchanged.
+const formatTimestamp = (value: string | number) => {
+  const numeric = typeof value === "number" ? value : Number(value);
+  let date: Date;
 
-  return Number.isNaN(date.getTime()) ? createdAt : date.toLocaleString();
+  if (!Number.isNaN(numeric) && String(value).trim() !== "") {
+    // Values below ~year 2286 in ms are actually seconds; scale them up.
+    date = new Date(numeric < 1e12 ? numeric * 1000 : numeric);
+  } else {
+    date = new Date(value);
+  }
+
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
 };
 
 function McpTokens() {
@@ -200,17 +230,23 @@ function McpTokens() {
   return (
     <>
       <TokensWrapper>
-        <Text kind="body-m">{createMessage(MCP_TOKENS_DESCRIPTION)}</Text>
+        <Flex alignItems="center" gap="spaces-4" justifyContent="space-between">
+          <Text kind="body-m">{createMessage(MCP_TOKENS_DESCRIPTION)}</Text>
+          <Button
+            className="t--create-mcp-token"
+            isLoading={isCreating}
+            onClick={createToken}
+            size="md"
+            startIcon="plus"
+          >
+            {createMessage(CREATE_MCP_TOKEN)}
+          </Button>
+        </Flex>
         {error && (
           <Text aria-atomic="true" kind="body-m" role="alert">
             {error}
           </Text>
         )}
-        <div>
-          <Button isLoading={isCreating} onClick={createToken} size="md">
-            {createMessage(CREATE_MCP_TOKEN)}
-          </Button>
-        </div>
         {isLoading ? (
           <Text aria-live="polite" kind="body-m" role="status">
             {createMessage(MCP_TOKENS_LOADING)}
@@ -220,16 +256,16 @@ function McpTokens() {
         ) : (
           <div aria-label={createMessage(MCP_TOKENS)} role="list">
             {tokens.map((token) => (
-              <div key={token.id} role="listitem">
-                <Text kind="body-m">{token.id}</Text>
-                <Text kind="body-s">
-                  {createMessage(MCP_TOKEN_CREATED_AT)}:{" "}
-                  {formatCreatedAt(token.createdAt)}
-                </Text>
-                <Text kind="body-s">
-                  {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
-                  {formatCreatedAt(token.expiresAt)}
-                </Text>
+              <TokenRow key={token.id} role="listitem">
+                <TokenMeta>
+                  <Text kind="body-m">{token.id}</Text>
+                  <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    {createMessage(MCP_TOKEN_CREATED_AT)}:{" "}
+                    {formatTimestamp(token.createdAt)} ·{" "}
+                    {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
+                    {formatTimestamp(token.expiresAt)}
+                  </Text>
+                </TokenMeta>
                 <Button
                   aria-label={`${createMessage(ROTATE_MCP_TOKEN)} ${token.id}`}
                   isDisabled={isRevoking || isRotating}
@@ -242,13 +278,13 @@ function McpTokens() {
                 <Button
                   aria-label={`${createMessage(REVOKE_MCP_TOKEN)} ${token.id}`}
                   isDisabled={isRevoking || isRotating}
-                  kind="secondary"
+                  kind="error"
                   onClick={() => setRevokeTokenId(token.id)}
                   size="sm"
                 >
                   {createMessage(REVOKE_MCP_TOKEN)}
                 </Button>
-              </div>
+              </TokenRow>
             ))}
           </div>
         )}
@@ -268,23 +304,35 @@ function McpTokens() {
             <Text kind="body-m">
               {createMessage(MCP_TOKEN_CREATED_DESCRIPTION)}
             </Text>
-            <Input
-              UNSAFE_width="100%"
-              isReadOnly
-              label={createMessage(MCP_TOKEN_VALUE_LABEL)}
-              style={{
-                fontFamily:
-                  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-              }}
-              value={createdToken?.token ?? ""}
-            />
-            <Text kind="body-s">
+            <Flex alignItems="flex-end" gap="spaces-2" width="100%">
+              <Flex flex="1" minWidth="0">
+                <Input
+                  UNSAFE_width="100%"
+                  isReadOnly
+                  label={createMessage(MCP_TOKEN_VALUE_LABEL)}
+                  style={{
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  }}
+                  value={createdToken?.token ?? ""}
+                />
+              </Flex>
+              <Tooltip content={createMessage(COPY_MCP_TOKEN)}>
+                <Button
+                  aria-label={createMessage(COPY_MCP_TOKEN)}
+                  className="t--copy-mcp-token-icon"
+                  isIconButton
+                  kind="tertiary"
+                  onClick={copyCreatedToken}
+                  size="md"
+                  startIcon="copy-control"
+                />
+              </Tooltip>
+            </Flex>
+            <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
               {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
-              {formatCreatedAt(createdToken?.expiresAt ?? "")}
+              {formatTimestamp(createdToken?.expiresAt ?? "")}
             </Text>
-            <Button onClick={copyCreatedToken} size="md">
-              {createMessage(COPY_MCP_TOKEN)}
-            </Button>
           </ModalBody>
         </ModalContent>
       </Modal>

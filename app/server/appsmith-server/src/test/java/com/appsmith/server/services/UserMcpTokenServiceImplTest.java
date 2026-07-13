@@ -18,6 +18,7 @@ import reactor.test.StepVerifier;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -120,6 +121,32 @@ class UserMcpTokenServiceImplTest {
 
         assertThat(persistedToken.getExpiresAt()).isNotNull();
         assertThat(persistedToken.getExpiresAt()).isAfter(Instant.now());
+    }
+
+    @Test
+    void create_appliesAdminConfiguredTokenTtl() {
+        service.setTokenTtlDays(30);
+        createToken();
+
+        assertThat(persistedToken.getExpiresAt())
+                .isAfter(Instant.now().plus(Duration.ofDays(29)))
+                .isBefore(Instant.now().plus(Duration.ofDays(31)));
+    }
+
+    @Test
+    void setTokenTtlDays_clampsOutOfRangeValuesToBounds() {
+        // Above the 3650-day ceiling clamps down; a zero/negative floor clamps up to 1 day.
+        service.setTokenTtlDays(1_000_000);
+        createToken();
+        assertThat(persistedToken.getExpiresAt())
+                .isAfter(Instant.now().plus(Duration.ofDays(3649)))
+                .isBefore(Instant.now().plus(Duration.ofDays(3651)));
+
+        service.setTokenTtlDays(0);
+        createToken();
+        assertThat(persistedToken.getExpiresAt())
+                .isAfter(Instant.now().plus(Duration.ofHours(23)))
+                .isBefore(Instant.now().plus(Duration.ofDays(2)));
     }
 
     @Test

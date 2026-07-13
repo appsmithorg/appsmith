@@ -366,7 +366,9 @@ export function createAppsmithApi(
   }
 
   return {
-    listWorkspaces: async () => request("/api/v1/workspaces"),
+    // The user's accessible workspaces come from /workspaces/home; a plain GET /workspaces collides with the
+    // create (POST) mapping and returns 405.
+    listWorkspaces: async () => request("/api/v1/workspaces/home"),
     listApplications: async (workspaceId) =>
       request(
         `/api/v1/applications/home?workspaceId=${encodeURIComponent(workspaceId)}`,

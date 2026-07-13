@@ -52,7 +52,7 @@ describe("Appsmith API client", () => {
     );
 
     expect(fetchFn.mock.calls.map(([url]) => String(url))).toEqual([
-      `${API_BASE_URL}/api/v1/workspaces`,
+      `${API_BASE_URL}/api/v1/workspaces/home`,
       `${API_BASE_URL}/api/v1/applications/home?workspaceId=workspace-1`,
       `${API_BASE_URL}/api/v1/pages?applicationId=application-1`,
       `${API_BASE_URL}/api/v1/pages/page-1`,

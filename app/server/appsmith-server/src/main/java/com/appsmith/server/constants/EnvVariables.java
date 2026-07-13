@@ -31,5 +31,6 @@ public enum EnvVariables {
     // data / restricted-JS sub-features (off by default).
     APPSMITH_MCP_ENABLED,
     APPSMITH_MCP_DATA_ENABLED,
-    APPSMITH_MCP_JS_ENABLED
+    APPSMITH_MCP_JS_ENABLED,
+    APPSMITH_MCP_TOKEN_TTL_DAYS
 }
