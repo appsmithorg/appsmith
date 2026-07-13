@@ -5,6 +5,13 @@ import {
   createMcpHttpServer,
   type AppsmithApi,
 } from "./app.js";
+import { fingerprintDsl } from "./builder/semantic.js";
+import { McpGovernanceCoordinator } from "./governance/coordinator.js";
+import type {
+  McpChangeRecord,
+  McpGovernanceStore,
+  PreparedConfirmation,
+} from "./governance/store.js";
 
 const API_BASE_URL = "https://appsmith.example";
 
@@ -19,12 +26,16 @@ function successfulFetch() {
 }
 
 describe("Appsmith API client", () => {
-  it("forwards the user bearer token for read and artifact import requests", async () => {
+  it("forwards bearer and correlation headers for read and artifact import requests", async () => {
     const fetchFn = successfulFetch();
     const api = createAppsmithApi(
       "user-token",
       API_BASE_URL,
       fetchFn as unknown as typeof fetch,
+      {
+        "X-Appsmith-Request-Id": "internal-request-id",
+        "X-Request-Id": "client-request-id",
+      },
     );
 
     await api.listWorkspaces();
@@ -54,6 +65,15 @@ describe("Appsmith API client", () => {
         ([, init]) =>
           new Headers(init?.headers).get("Authorization") ===
           "Bearer user-token",
+      ),
+    ).toBe(true);
+    expect(
+      fetchFn.mock.calls.every(
+        ([, init]) =>
+          new Headers(init?.headers).get("X-Appsmith-Request-Id") ===
+            "internal-request-id" &&
+          new Headers(init?.headers).get("X-Request-Id") ===
+            "client-request-id",
       ),
     ).toBe(true);
 
@@ -147,9 +167,24 @@ function createApi(
     updateLayout: jest.fn(),
     listDatasources: jest.fn(),
     getDatasourceStructure: jest.fn(),
-    getApplication: jest.fn(async () => ({ workspaceId: "ws1" })),
+    getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
     listActions: jest.fn(),
     createAction: jest.fn(),
+    getAction: jest.fn(),
+    updateAction: jest.fn(),
+    deleteAction: jest.fn(),
+    executeAction: jest.fn(),
+    getCurrentTheme: jest.fn(),
+    updateTheme: jest.fn(),
+    createPage: jest.fn(),
+    updatePage: jest.fn(),
+    deletePage: jest.fn(),
+    publishApplication: jest.fn(),
+    listPlugins: jest.fn(),
+    listActionCollections: jest.fn(),
+    createActionCollection: jest.fn(),
+    updateActionCollection: jest.fn(),
+    deleteActionCollection: jest.fn(),
     validateToken,
   });
 }
@@ -1030,6 +1065,52 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(await toolNames(true)).toContain("create_query");
   });
 
+  it("inspect_page reports bindings to queries that do not exist", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: {
+          dsl: {
+            widgetId: "0",
+            widgetName: "MainContainer",
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 380,
+            leftColumn: 0,
+            rightColumn: 640,
+            children: [
+              {
+                widgetId: "table1",
+                widgetName: "OrdersTable",
+                type: "TABLE_WIDGET_V2",
+                topRow: 0,
+                bottomRow: 20,
+                leftColumn: 0,
+                rightColumn: 64,
+                tableData: "{{ missingQuery.data }}",
+              },
+            ],
+          },
+        },
+      })),
+      listActions: jest.fn(async () => [{ name: "getOrders", pageId: "p1" }]),
+    };
+
+    const body = await callTool(api, "inspect_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+
+    expect(
+      (body.diagnostics as { issues: { rule: string }[] }).issues.map(
+        (issue) => issue.rule,
+      ),
+    ).toContain("dangling-binding");
+  });
+
   it("create_query creates a parameterized query when the datasource is accessible", async () => {
     const createAction = jest.fn<
       Promise<{ id: string }>,
@@ -1037,7 +1118,9 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     >(async () => ({ id: "act1" }));
     const api: AppsmithApi = {
       ...createApi()(),
-      listDatasources: jest.fn(async () => [{ id: "ds1", name: "DB" }]),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
       listActions: jest.fn(async () => []),
       createAction,
     };
@@ -1071,6 +1154,22 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).not.toHaveBeenCalled();
   });
 
+  it("create_query refuses non-SQL datasources", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Users API", pluginId: "rest-api-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", { query: validQuery });
+
+    expect(body.error).toMatch(/supports only/i);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_query resolves the workspace from the application, not the agent (cross-tenant guard)", async () => {
     const createAction = jest.fn();
     // ds1 exists only in workspace A; the app resolves to workspace B, so the lookup there returns nothing.
@@ -1079,7 +1178,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     );
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplication: jest.fn(async () => ({ workspaceId: "wsB" })),
+      getApplicationPages: jest.fn(async () => ({ workspaceId: "wsB" })),
       listDatasources,
       listActions: jest.fn(async () => []),
       createAction,
@@ -1096,7 +1195,9 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
       ...createApi()(),
-      listDatasources: jest.fn(async () => [{ id: "ds1" }]),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", pluginId: "postgres-plugin" },
+      ]),
       listActions: jest.fn(async () => [{ name: "getUsers", pageId: "p1" }]),
       createAction,
     };
@@ -1175,5 +1276,890 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(text).not.toContain("secret-oauth");
     expect(text).not.toContain("password");
     expect(text).not.toContain("datasourceStorages");
+  });
+});
+
+describe("governance-wrapped layout mutations", () => {
+  class MemoryGovernanceStore implements McpGovernanceStore {
+    readonly changes: McpChangeRecord[] = [];
+    readonly confirmations = new Map<string, PreparedConfirmation>();
+    locked = new Set<string>();
+
+    async acquireLock(entityKey: string): Promise<string | undefined> {
+      if (this.locked.has(entityKey)) return undefined;
+
+      this.locked.add(entityKey);
+
+      return `lock:${entityKey}`;
+    }
+    async releaseLock(entityKey: string): Promise<void> {
+      this.locked.delete(entityKey);
+    }
+    async createConfirmation(c: PreparedConfirmation): Promise<void> {
+      this.confirmations.set(c.id, c);
+    }
+    async consumeConfirmation(
+      id: string,
+    ): Promise<PreparedConfirmation | undefined> {
+      const c = this.confirmations.get(id);
+
+      this.confirmations.delete(id);
+
+      return c;
+    }
+    async saveChange(change: McpChangeRecord): Promise<void> {
+      this.changes.push(change);
+    }
+    async getChange(
+      id: string,
+      actorId: string,
+    ): Promise<McpChangeRecord | undefined> {
+      return this.changes.find((c) => c.id === id && c.actorId === actorId);
+    }
+    async listChanges(
+      actorId: string,
+      limit: number,
+    ): Promise<McpChangeRecord[]> {
+      return this.changes
+        .filter((c) => c.actorId === actorId)
+        .slice(-limit)
+        .reverse();
+    }
+  }
+
+  const ROOT_DSL = {
+    widgetId: "0",
+    widgetName: "MainContainer",
+    type: "CANVAS_WIDGET",
+    topRow: 0,
+    bottomRow: 380,
+    leftColumn: 0,
+    rightColumn: 640,
+    children: [],
+  };
+
+  async function initSession(server: ReturnType<typeof createMcpHttpServer>) {
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    return sessionId;
+  }
+
+  function makeServer(store: McpGovernanceStore) {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: ROOT_DSL },
+      })),
+      updateLayout: jest.fn(async () => ({ ok: true })),
+    };
+
+    return createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store, {
+        now: () => new Date("2026-07-12T00:00:00.000Z"),
+      }),
+    });
+  }
+
+  async function editPage(
+    server: ReturnType<typeof createMcpHttpServer>,
+    args: Record<string, unknown>,
+  ) {
+    const sessionId = await initSession(server);
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 12,
+        method: "tools/call",
+        params: { name: "edit_page", arguments: args },
+      });
+
+    return JSON.parse(parseJsonRpc(call).result.content[0].text);
+  }
+
+  const baseArgs = {
+    applicationId: "app1",
+    pageId: "p1",
+    layoutId: "l1",
+    edit: { add: [{ type: "button", text: "Go" }] },
+  };
+
+  it("requires a revision when governance is enabled", async () => {
+    const store = new MemoryGovernanceStore();
+    const body = await editPage(makeServer(store), baseArgs);
+
+    expect(body.code).toBe("revision_required");
+    expect(store.changes).toHaveLength(0);
+  });
+
+  it("commits a governed edit, returns a changeId, and records an audit change", async () => {
+    const store = new MemoryGovernanceStore();
+    const revision = fingerprintDsl(ROOT_DSL as never);
+    const body = await editPage(makeServer(store), { ...baseArgs, revision });
+
+    expect(typeof body.changeId).toBe("string");
+    expect(body.revision).toMatch(/^[a-f0-9]{64}$/);
+    expect(store.changes).toHaveLength(1);
+    expect(store.changes[0].operation).toBe("edit_page");
+    expect(store.changes[0].actorId).toBe("user@appsmith.com");
+    // Rollback snapshot captures the prior DSL.
+    expect(store.changes[0].rollback).toHaveProperty("dsl");
+  });
+
+  it("rejects a stale revision with a revision_conflict code", async () => {
+    const store = new MemoryGovernanceStore();
+    const body = await editPage(makeServer(store), {
+      ...baseArgs,
+      revision: "0".repeat(64),
+    });
+
+    expect(body.code).toBe("revision_conflict");
+    expect(store.changes).toHaveLength(0);
+  });
+
+  const THEME = {
+    config: { colorMode: "LIGHT" },
+    stylesheet: { BUTTON_WIDGET: {} },
+    properties: {
+      colors: { primaryColor: "#553DE9" },
+      borderRadius: { appBorderRadius: "0.375rem" },
+      fontFamily: { appFont: "Nunito Sans" },
+    },
+  };
+
+  async function callTool(
+    server: ReturnType<typeof createMcpHttpServer>,
+    name: string,
+    args: Record<string, unknown>,
+  ) {
+    const sessionId = await initSession(server);
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 13,
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+    const text = parseJsonRpc(call).result.content[0].text;
+
+    return { body: JSON.parse(text), text };
+  }
+
+  it("read_theme returns only safe tokens and a revision (no stylesheet/config)", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getCurrentTheme: jest.fn(async () => THEME),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const { body, text } = await callTool(server, "read_theme", {
+      applicationId: "app1",
+    });
+
+    expect(body.theme.primaryColor).toBe("#553DE9");
+    expect(body.theme.fontFamily).toBe("Nunito Sans");
+    expect(body.theme.revision).toMatch(/^[a-f0-9]{64}$/);
+    expect(text).not.toContain("stylesheet");
+    expect(text).not.toContain("colorMode");
+  });
+
+  it("update_theme commits a governed token change and records an audit", async () => {
+    const store = new MemoryGovernanceStore();
+    const updateTheme = jest.fn<
+      Promise<unknown>,
+      [string, Record<string, unknown>]
+    >(async () => ({
+      ...THEME,
+      properties: {
+        ...THEME.properties,
+        colors: { primaryColor: "#0A66C2" },
+      },
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getCurrentTheme: jest.fn(async () => THEME),
+      updateTheme,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+    // Discover the current revision first (as an agent would via read_theme).
+    const read = await callTool(server, "read_theme", {
+      applicationId: "app1",
+    });
+    const update = await callTool(server, "update_theme", {
+      applicationId: "app1",
+      revision: read.body.theme.revision,
+      patch: { primaryColor: "#0A66C2" },
+    });
+
+    expect(updateTheme).toHaveBeenCalledTimes(1);
+    expect(update.body.theme.primaryColor).toBe("#0A66C2");
+    expect(typeof update.body.changeId).toBe("string");
+    expect(store.changes).toHaveLength(1);
+    expect(store.changes[0].operation).toBe("update_theme");
+    // The safe update payload must never smuggle stylesheet edits from the agent.
+    const sentBody = updateTheme.mock.calls[0][1];
+
+    expect(sentBody).toHaveProperty("properties");
+  });
+
+  it("update_theme is unavailable when governance is not configured", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getCurrentTheme: jest.fn(async () => THEME),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const sessionId = await initSession(server);
+    const listed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 14, method: "tools/list" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const names = (parseJsonRpc(listed).result as any).tools.map(
+      (t: { name: string }) => t.name,
+    );
+
+    expect(names).toContain("read_theme");
+    expect(names).not.toContain("update_theme");
+  });
+
+  const APP_ID = "a".repeat(24);
+  const PAGE_ID = "b".repeat(24);
+  const PAGES = { pages: [{ id: PAGE_ID, name: "Extra", slug: "extra" }] };
+
+  function pageServer(store: McpGovernanceStore, deletePage = jest.fn()) {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+      deletePage,
+    };
+
+    return createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+  }
+
+  it("prepare_delete_page then confirm_delete_page deletes with a bound one-time token", async () => {
+    const store = new MemoryGovernanceStore();
+    const deletePage = jest.fn(async () => ({ ok: true }));
+    const server = pageServer(store, deletePage);
+
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+    const revision = read.body.revision;
+
+    const prepared = await callTool(server, "prepare_delete_page", {
+      spec: { applicationId: APP_ID, pageId: PAGE_ID, revision },
+    });
+
+    expect(typeof prepared.body.confirmationId).toBe("string");
+
+    const confirmed = await callTool(server, "confirm_delete_page", {
+      spec: { applicationId: APP_ID, pageId: PAGE_ID, revision },
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(confirmed.body.deleted).toBe(true);
+    expect(deletePage).toHaveBeenCalledWith(PAGE_ID);
+    expect(typeof confirmed.body.changeId).toBe("string");
+    expect(store.changes.some((c) => c.operation === "delete_page")).toBe(true);
+
+    // Replay: the one-time token cannot be used again.
+    const replay = await callTool(server, "confirm_delete_page", {
+      spec: { applicationId: APP_ID, pageId: PAGE_ID, revision },
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(replay.body.code).toBe("confirmation_invalid");
+    expect(deletePage).toHaveBeenCalledTimes(1);
+  });
+
+  it("confirm_delete_page rejects a token that was never prepared (and replay)", async () => {
+    const store = new MemoryGovernanceStore();
+    const deletePage = jest.fn();
+    const server = pageServer(store, deletePage);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    const confirmed = await callTool(server, "confirm_delete_page", {
+      spec: {
+        applicationId: APP_ID,
+        pageId: PAGE_ID,
+        revision: read.body.revision,
+      },
+      confirmationId: "unprepared-token",
+    });
+
+    expect(confirmed.body.code).toBe("confirmation_invalid");
+    expect(deletePage).not.toHaveBeenCalled();
+  });
+
+  it("page CRUD tools are unavailable without governance", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const sessionId = await initSession(server);
+    const listed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 15, method: "tools/list" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const names = (parseJsonRpc(listed).result as any).tools.map(
+      (t: { name: string }) => t.name,
+    );
+
+    expect(names).toContain("read_pages");
+
+    for (const tool of [
+      "create_page",
+      "rename_page",
+      "prepare_delete_page",
+      "confirm_delete_page",
+    ]) {
+      expect(names).not.toContain(tool);
+    }
+  });
+
+  const STORED_ACTION = {
+    id: "act1",
+    name: "OldName",
+    pageId: "p1",
+    pluginType: "DB",
+    updatedAt: "2026-07-12T00:00:00.000Z",
+    datasource: { id: "ds1", pluginId: "postgres" },
+  };
+
+  it("get_action returns safe metadata + revision, and update_action commits a governed rename", async () => {
+    const store = new MemoryGovernanceStore();
+    const updateAction = jest.fn<
+      Promise<unknown>,
+      [string, Record<string, unknown>]
+    >(async () => ({ ...STORED_ACTION, name: "NewName" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getAction: jest.fn(async () => STORED_ACTION),
+      updateAction,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "get_action", { actionId: "act1" });
+
+    expect(read.body.action.name).toBe("OldName");
+    expect(read.text).not.toContain("actionConfiguration");
+    expect(read.body.revision).toMatch(/^[a-f0-9]{64}$/);
+
+    const updated = await callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        name: "NewName",
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(updateAction).toHaveBeenCalledTimes(1);
+    // The DTO sent to the server carries only id + safe fields, never a raw body from the caller.
+    expect(updateAction.mock.calls[0][1]).toEqual({
+      id: "act1",
+      name: "NewName",
+    });
+    expect(typeof updated.body.changeId).toBe("string");
+    expect(store.changes.some((c) => c.operation === "update_action")).toBe(
+      true,
+    );
+  });
+
+  it("records an audit change and rolls a layout edit back to its prior snapshot", async () => {
+    const store = new MemoryGovernanceStore();
+    let current: Record<string, unknown> = ROOT_DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const before = fingerprintDsl(ROOT_DSL as never);
+    const edited = await callTool(server, "edit_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: before,
+      edit: { add: [{ type: "button", text: "Go" }] },
+    });
+
+    expect(edited.body.changeId).toBeDefined();
+    expect(current).not.toBe(ROOT_DSL); // an edit was applied
+
+    const list = await callTool(server, "list_changes", {});
+    const change = list.body.changes.find(
+      (c: { operation: string }) => c.operation === "edit_page",
+    );
+
+    expect(change.rollbackAvailable).toBe(true);
+    // History never leaks the snapshot DSL.
+    expect(list.text).not.toContain("MainContainer");
+
+    const prepared = await callTool(server, "prepare_rollback", {
+      changeId: change.id,
+    });
+    const rolled = await callTool(server, "confirm_rollback", {
+      changeId: change.id,
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(rolled.body.rolledBack).toBe(true);
+    expect(rolled.body.revision).toBe(before); // restored to the original snapshot
+  });
+
+  it("get_capabilities advertises EXACTLY the registered tools (no drift), under all gates", async () => {
+    for (const gate of [
+      { dataEnabled: false, governed: false, js: false },
+      { dataEnabled: true, governed: false, js: false },
+      { dataEnabled: true, governed: true, js: false },
+      { dataEnabled: true, governed: true, js: true },
+      { dataEnabled: false, governed: true, js: true },
+    ]) {
+      const server = createMcpHttpServer(API_BASE_URL, () => createApi()(), {
+        dataEnabled: gate.dataEnabled,
+        jsEnabled: gate.js,
+        governance: gate.governed
+          ? new McpGovernanceCoordinator(new MemoryGovernanceStore())
+          : undefined,
+      });
+      const sessionId = await initSession(server);
+      const listed = await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({ jsonrpc: "2.0", id: 20, method: "tools/list" });
+      const registered = new Set<string>(
+        parseJsonRpc(listed).result.tools.map((t) => t.name),
+      );
+
+      const caps = await callTool(server, "get_capabilities", {});
+      const advertised = new Set<string>(
+        (caps.body.tools as string[]).map((line) => line.split(" — ")[0]),
+      );
+
+      expect([...advertised].sort()).toEqual([...registered].sort());
+    }
+  });
+
+  it("wire_event binds a widget event via the closed vocabulary and is governed", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+        {
+          widgetId: "m",
+          widgetName: "EditModal",
+          type: "MODAL_WIDGET",
+          topRow: 5,
+          bottomRow: 20,
+          leftColumn: 0,
+          rightColumn: 32,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const wired = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: { showModal: "EditModal" },
+      },
+    });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+    const button = written.children.find((w) => w.widgetName === "SaveBtn");
+
+    expect(button?.onClick).toBe("{{ showModal('EditModal') }}");
+  });
+
+  it("wire_event rejects an action targeting a missing modal", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    const updateLayout = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: DSL },
+      })),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const wired = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: { showModal: "Ghost" },
+      },
+    });
+
+    expect(wired.body.error).toMatch(/was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("create_js_object resolves plugin/workspace and commits a governed, restricted JS object", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll1", name: "Helpers" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => []),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "Helpers",
+        revision: read.body.revision,
+        functions: [{ name: "loadUsers", run: [{ query: "getUsers" }] }],
+      },
+    });
+
+    expect(created.body.created).toBe(true);
+    expect(createActionCollection).toHaveBeenCalledTimes(1);
+    // The compiled JS body is emitted by the compiler (async fn running a named query), not raw agent input.
+    const body = createActionCollection.mock.calls[0][0] as { body?: string };
+
+    expect(body.body).toContain("await getUsers.run();");
+    expect(body.body).not.toMatch(/\$\{|`/);
+    expect(typeof created.body.changeId).toBe("string");
+  });
+
+  it("JS-object tools are unavailable without the JS gate", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, () => createApi()(), {
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const sessionId = await initSession(server);
+    const listed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 22, method: "tools/list" });
+    const names = new Set(parseJsonRpc(listed).result.tools.map((t) => t.name));
+
+    for (const tool of [
+      "read_js_object",
+      "create_js_object",
+      "update_js_object",
+      "prepare_delete_js_object",
+      "confirm_delete_js_object",
+    ]) {
+      expect(names.has(tool)).toBe(false);
+    }
+  });
+
+  // Item K.2 — tool-level coverage for the always-on read/patch and data-layer reads.
+  const TEXT_DSL = {
+    ...ROOT_DSL,
+    children: [
+      {
+        widgetId: "g",
+        widgetName: "Greeting",
+        type: "TEXT_WIDGET",
+        text: "Hi",
+        topRow: 0,
+        bottomRow: 4,
+        leftColumn: 0,
+        rightColumn: 24,
+      },
+    ],
+  };
+
+  function textServer(
+    updateLayout: AppsmithApi["updateLayout"] = jest.fn(async () => ({
+      ok: true,
+    })),
+  ) {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: TEXT_DSL },
+      })),
+      updateLayout,
+    };
+
+    return createMcpHttpServer(API_BASE_URL, () => api);
+  }
+
+  it("read_semantic_page returns a safe projection and a revision", async () => {
+    const read = await callTool(textServer(), "read_semantic_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+
+    expect(read.body.revision).toBe(fingerprintDsl(TEXT_DSL as never));
+    expect(JSON.stringify(read.body.page)).toContain("Greeting");
+  });
+
+  it("patch_widgets updates an allowlisted property and writes it back", async () => {
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async () => ({ ok: true }));
+    const patched = await callTool(textServer(updateLayout), "patch_widgets", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(TEXT_DSL as never),
+      patch: {
+        operations: [
+          { kind: "update", name: "Greeting", props: { text: "Welcome" } },
+        ],
+      },
+    });
+
+    expect(patched.body.changes).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; text?: string }[];
+    };
+
+    expect(
+      written.children.find((w) => w.widgetName === "Greeting")?.text,
+    ).toBe("Welcome");
+  });
+
+  it("list_actions returns safe metadata only (no bodies, headers, or credentials)", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActions: jest.fn(async () => [
+        {
+          id: "act1",
+          name: "getUsers",
+          pageId: "p1",
+          pluginType: "DB",
+          actionConfiguration: {
+            body: "SELECT secret_col FROM t",
+            headers: [{ key: "Authorization", value: "Bearer xyz" }],
+          },
+          datasource: { id: "ds1", pluginId: "postgres" },
+        },
+      ]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+    });
+    const { body, text } = await callTool(server, "list_actions", {
+      applicationId: "app1",
+    });
+
+    expect(JSON.stringify(body)).toContain("getUsers");
+    expect(text).not.toContain("SELECT secret_col");
+    expect(text).not.toContain("Bearer xyz");
+    expect(text).not.toContain("actionConfiguration");
+  });
+
+  // Item E — run_action / prepare_run_action / confirm_run_action.
+  const READ_ONLY_ACTION = {
+    id: "act1",
+    name: "getUsers",
+    pageId: "p1",
+    pluginType: "DB",
+    updatedAt: "2026-07-12T00:00:00.000Z",
+    actionConfiguration: { body: "SELECT * FROM users;" },
+    datasource: { id: "ds1", pluginId: "postgres" },
+  };
+  const WRITE_ACTION = {
+    ...READ_ONLY_ACTION,
+    name: "insertUser",
+    actionConfiguration: { body: "INSERT INTO users (name) VALUES ({{x}});" },
+  };
+
+  it("run_action executes a read-only action and refuses a non-read-only one", async () => {
+    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+    const roServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => READ_ONLY_ACTION),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const ro = await callTool(roServer, "run_action", { actionId: "act1" });
+
+    expect(ro.body.executed).toBe(true);
+    expect(executeAction).toHaveBeenCalledWith("act1");
+
+    const rwExecute = jest.fn();
+    const rwServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => WRITE_ACTION),
+        executeAction: rwExecute,
+      }),
+      { dataEnabled: true },
+    );
+    const rw = await callTool(rwServer, "run_action", { actionId: "act1" });
+
+    expect(rw.body.code).toBe("confirmation_required");
+    expect(rwExecute).not.toHaveBeenCalled();
+  });
+
+  it("prepare_run_action + confirm_run_action runs a non-read-only action with a token", async () => {
+    const store = new MemoryGovernanceStore();
+    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => WRITE_ACTION),
+        executeAction,
+      }),
+      { dataEnabled: true, governance: new McpGovernanceCoordinator(store) },
+    );
+
+    const read = await callTool(server, "get_action", { actionId: "act1" });
+    const prepared = await callTool(server, "prepare_run_action", {
+      actionId: "act1",
+      revision: read.body.revision,
+    });
+
+    expect(prepared.body.readOnly).toBe(false);
+
+    const confirmed = await callTool(server, "confirm_run_action", {
+      actionId: "act1",
+      revision: read.body.revision,
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(confirmed.body.executed).toBe(true);
+    expect(executeAction).toHaveBeenCalledWith("act1");
+    expect(typeof confirmed.body.changeId).toBe("string");
+    expect(store.changes.some((c) => c.operation === "run_action")).toBe(true);
   });
 });

@@ -12,6 +12,8 @@ public interface UserMcpTokenService extends UserMcpTokenServiceCE {
 
     Flux<McpTokenResponseDTO> list(User user);
 
+    Mono<McpTokenResponseDTO> rotate(User user, String tokenId);
+
     Mono<Boolean> revoke(User user, String tokenId);
 
     Mono<User> authenticate(String token);

@@ -101,11 +101,245 @@ export const WIDGET_CATALOG = [
   },
 ] as const;
 
-export function getCapabilities() {
+// Gate under which a tool is registered. Kept as the SINGLE source of truth so get_capabilities can never drift from
+// what buildMcpServer actually registers (item J). When a tool is added/removed, update this list.
+type ToolGate =
+  | "always"
+  | "governance"
+  | "data"
+  | "data_governance"
+  | "js"
+  | "js_governance";
+
+export interface CapabilityGates {
+  data: boolean;
+  js: boolean;
+  governance: boolean;
+}
+
+export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
+  [
+    // Always-on: discovery, spec authoring, and safe reads.
+    {
+      name: "list_workspaces",
+      gate: "always",
+      summary: "list accessible workspaces",
+    },
+    {
+      name: "list_applications",
+      gate: "always",
+      summary: "list applications in a workspace",
+    },
+    {
+      name: "get_application_context",
+      gate: "always",
+      summary: "read a page + layout",
+    },
+    { name: "get_capabilities", gate: "always", summary: "this catalog" },
+    { name: "list_presets", gate: "always", summary: "ready page specs" },
+    { name: "get_preset", gate: "always", summary: "get a preset page spec" },
+    {
+      name: "validate_app_spec",
+      gate: "always",
+      summary: "dry-run compile a spec",
+    },
+    {
+      name: "build_application",
+      gate: "always",
+      summary: "create an app from a spec",
+    },
+    { name: "edit_page", gate: "always", summary: "append widgets to a page" },
+    {
+      name: "patch_widgets",
+      gate: "always",
+      summary: "typed widget update/move/remove",
+    },
+    {
+      name: "wire_event",
+      gate: "always",
+      summary: "wire a widget event to a safe action",
+    },
+    { name: "inspect_page", gate: "always", summary: "lint a live page" },
+    {
+      name: "read_semantic_page",
+      gate: "always",
+      summary: "safe page read + revision",
+    },
+    {
+      name: "read_pages",
+      gate: "always",
+      summary: "safe page list + revision",
+    },
+    {
+      name: "read_theme",
+      gate: "always",
+      summary: "safe theme tokens + revision",
+    },
+    {
+      name: "read_publish_status",
+      gate: "always",
+      summary: "publish state + revision",
+    },
+    // Governed mutations + audit/rollback + publish (require Mongo+Redis governance).
+    {
+      name: "update_theme",
+      gate: "governance",
+      summary: "change theme tokens (governed)",
+    },
+    {
+      name: "create_page",
+      gate: "governance",
+      summary: "create a blank page (governed)",
+    },
+    {
+      name: "rename_page",
+      gate: "governance",
+      summary: "rename a page (governed)",
+    },
+    {
+      name: "prepare_delete_page",
+      gate: "governance",
+      summary: "prepare page delete (confirmation)",
+    },
+    {
+      name: "confirm_delete_page",
+      gate: "governance",
+      summary: "delete a page with a token",
+    },
+    { name: "list_changes", gate: "governance", summary: "audit history" },
+    { name: "get_change", gate: "governance", summary: "one audit record" },
+    {
+      name: "get_change_diff",
+      gate: "governance",
+      summary: "semantic change summary",
+    },
+    {
+      name: "prepare_rollback",
+      gate: "governance",
+      summary: "prepare a layout rollback",
+    },
+    {
+      name: "confirm_rollback",
+      gate: "governance",
+      summary: "roll back a layout change",
+    },
+    {
+      name: "prepare_publish",
+      gate: "governance",
+      summary: "prepare publish (confirmation)",
+    },
+    {
+      name: "confirm_publish",
+      gate: "governance",
+      summary: "deploy with a token",
+    },
+    // Data layer (APPSMITH_MCP_DATA_ENABLED).
+    { name: "list_datasources", gate: "data", summary: "discover datasources" },
+    {
+      name: "get_datasource_structure",
+      gate: "data",
+      summary: "datasource tables/columns",
+    },
+    { name: "list_actions", gate: "data", summary: "safe action metadata" },
+    { name: "create_query", gate: "data", summary: "structured SQL query" },
+    {
+      name: "create_rest_api",
+      gate: "data",
+      summary: "structured REST action",
+    },
+    {
+      name: "get_action",
+      gate: "data",
+      summary: "safe action read + revision",
+    },
+    {
+      name: "run_action",
+      gate: "data",
+      summary: "run a read-only action",
+    },
+    // Data + governance.
+    {
+      name: "update_action",
+      gate: "data_governance",
+      summary: "update an action (governed)",
+    },
+    {
+      name: "duplicate_action",
+      gate: "data_governance",
+      summary: "duplicate an action (governed)",
+    },
+    {
+      name: "prepare_delete_action",
+      gate: "data_governance",
+      summary: "prepare action delete",
+    },
+    {
+      name: "confirm_delete_action",
+      gate: "data_governance",
+      summary: "delete an action with a token",
+    },
+    {
+      name: "prepare_run_action",
+      gate: "data_governance",
+      summary: "prepare a confirmed action run",
+    },
+    {
+      name: "confirm_run_action",
+      gate: "data_governance",
+      summary: "run an action with a token",
+    },
+    // Restricted JS objects (APPSMITH_MCP_JS_ENABLED).
+    {
+      name: "read_js_object",
+      gate: "js",
+      summary: "safe JS-object metadata + revisions",
+    },
+    {
+      name: "create_js_object",
+      gate: "js_governance",
+      summary: "create a restricted JS object (governed)",
+    },
+    {
+      name: "update_js_object",
+      gate: "js_governance",
+      summary: "update a restricted JS object (governed)",
+    },
+    {
+      name: "prepare_delete_js_object",
+      gate: "js_governance",
+      summary: "prepare JS-object delete",
+    },
+    {
+      name: "confirm_delete_js_object",
+      gate: "js_governance",
+      summary: "delete a JS object with a token",
+    },
+  ];
+
+function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
+  switch (gate) {
+    case "always":
+      return true;
+    case "governance":
+      return gates.governance;
+    case "data":
+      return gates.data;
+    case "data_governance":
+      return gates.data && gates.governance;
+    case "js":
+      return gates.js;
+    case "js_governance":
+      return gates.js && gates.governance;
+  }
+}
+
+export function getCapabilities(
+  gates: CapabilityGates = { data: false, js: false, governance: false },
+) {
   return {
     description:
-      "Build Appsmith apps from a high-level page spec. The MCP layer auto-places widgets on a 64-column grid and " +
-      "compiles to a real Appsmith artifact imported via the ACL-enforced API. You never author raw widget DSL.",
+      "Build and safely modify Appsmith apps. The MCP layer auto-places widgets on a 64-column grid and compiles to " +
+      "real Appsmith artifacts via the ACL-enforced API. You never author raw widget DSL, SQL, or bindings.",
     widgets: WIDGET_CATALOG,
     common: {
       name: "optional widget name (alphanumeric/underscore); auto-named if omitted",
@@ -120,18 +354,26 @@ export function getCapabilities() {
     editSpec: { add: "widget spec[] — appended to an existing page" },
     presets: listPresets(),
     grid: { columns: GRID_COLUMNS, rowHeightPx: ROW_HEIGHT },
-    tools: [
-      "get_capabilities — this catalog",
-      "list_presets / get_preset — ready page specs to adapt",
-      "validate_app_spec — dry-run compile; returns errors, imports nothing",
-      "build_application — compile an app spec and create the app",
-      "edit_page — append widgets to an existing page (best-effort placement)",
-      "inspect_page — lint a live page and return structural diagnostics",
-    ],
-    dataTools: [
-      "list_datasources / get_datasource_structure — discover what to query (data layer)",
-      "create_query — build a SELECT/INSERT/UPDATE/DELETE query from a structured spec (data layer)",
-    ],
+    // Generated from the single TOOL_CATALOG so this list can never drift from what is actually registered.
+    tools: TOOL_CATALOG.filter((tool) => gateActive(tool.gate, gates)).map(
+      (tool) => `${tool.name} — ${tool.summary}`,
+    ),
+    gates: {
+      dataLayer: gates.data,
+      restrictedJsObjects: gates.js,
+      governance: gates.governance,
+    },
+    governanceNote: gates.governance
+      ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token."
+      : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered.",
+    workflows: {
+      available: false,
+      note: "CE workflow tools are not available via MCP.",
+    },
+    gitSync: {
+      available: false,
+      note: "Git sync is Appsmith platform functionality and is out of MCP scope.",
+    },
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings} — technique guides",

@@ -73,6 +73,27 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
     }
 
     @Override
+    public Mono<McpTokenResponseDTO> rotate(User user, String tokenId) {
+        return userMcpTokenRepository
+                .findByTokenIdAndUserIdAndDeletedAtIsNull(tokenId, user.getId())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "MCP token", tokenId)))
+                .flatMap(existingToken -> {
+                    String token = TOKEN_PREFIX + existingToken.getTokenId() + "." + generateSecret();
+                    existingToken.setTokenHash(hashToken(token));
+                    existingToken.setExpiresAt(Instant.now().plus(TOKEN_TTL));
+
+                    return userMcpTokenRepository
+                            .save(existingToken)
+                            .map(savedToken -> new McpTokenResponseDTO(
+                                    savedToken.getTokenId(),
+                                    token,
+                                    savedToken.getCreatedAt(),
+                                    savedToken.getExpiresAt()));
+                });
+    }
+
+    @Override
     public Mono<Boolean> revoke(User user, String tokenId) {
         return userMcpTokenRepository
                 .findByTokenIdAndUserIdAndDeletedAtIsNull(tokenId, user.getId())

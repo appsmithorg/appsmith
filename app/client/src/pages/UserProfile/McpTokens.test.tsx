@@ -11,6 +11,7 @@ jest.mock("api/McpTokenApi", () => ({
   default: {
     create: jest.fn(),
     list: jest.fn(),
+    rotate: jest.fn(),
     revoke: jest.fn(),
   },
 }));
@@ -102,6 +103,31 @@ describe("McpTokens", () => {
       expect(McpTokenApi.revoke).toHaveBeenCalledWith("token-1"),
     );
     expect(screen.queryByText("token-1")).not.toBeInTheDocument();
+  });
+
+  it("rotates a token only after confirmation and shows its replacement once", async () => {
+    (McpTokenApi.rotate as jest.Mock).mockResolvedValue(
+      successResponse({
+        id: "token-1",
+        token: "rotated-secret",
+        createdAt: "2026-07-10T12:00:00.000Z",
+        expiresAt: "2026-10-08T12:00:00.000Z",
+      }),
+    );
+    renderComponent();
+
+    await screen.findByText("token-1");
+    fireEvent.click(screen.getByRole("button", { name: "Rotate token-1" }));
+    expect(McpTokenApi.rotate).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Rotate token" }));
+
+    await waitFor(() =>
+      expect(McpTokenApi.rotate).toHaveBeenCalledWith("token-1"),
+    );
+    expect(await screen.findByLabelText("MCP token")).toHaveValue(
+      "rotated-secret",
+    );
   });
 
   it("renders an accessible error when the token list fails", async () => {

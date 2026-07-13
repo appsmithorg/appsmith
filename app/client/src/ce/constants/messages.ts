@@ -253,6 +253,11 @@ export const MCP_TOKENS_LOADING = () => "Loading MCP tokens…";
 export const MCP_TOKENS_EMPTY = () => "No MCP tokens have been created.";
 export const MCP_TOKEN_CREATED_AT = () => "Created";
 export const MCP_TOKEN_EXPIRES_AT = () => "Expires";
+export const ROTATE_MCP_TOKEN = () => "Rotate";
+export const ROTATE_MCP_TOKEN_CONFIRM = () => "Rotate token";
+export const ROTATE_MCP_TOKEN_CONFIRMATION = () =>
+  "Rotate this MCP token? The current secret will stop working immediately.";
+export const MCP_TOKEN_ROTATED = () => "MCP token rotated";
 export const REVOKE_MCP_TOKEN = () => "Revoke";
 export const REVOKE_MCP_TOKEN_CONFIRM = () => "Revoke token";
 export const REVOKE_MCP_TOKEN_CONFIRMATION = () =>
@@ -260,6 +265,7 @@ export const REVOKE_MCP_TOKEN_CONFIRMATION = () =>
 export const MCP_TOKEN_REVOKED = () => "MCP token revoked";
 export const MCP_TOKENS_LOAD_FAILED = () => "Unable to load MCP tokens.";
 export const MCP_TOKEN_CREATE_FAILED = () => "Unable to create MCP token.";
+export const MCP_TOKEN_ROTATE_FAILED = () => "Unable to rotate MCP token.";
 export const MCP_TOKEN_REVOKE_FAILED = () => "Unable to revoke MCP token.";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;

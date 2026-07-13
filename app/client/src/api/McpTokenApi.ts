@@ -28,6 +28,12 @@ class McpTokenApi extends Api {
     ) as ApiResponse<McpTokenMetadata>[];
   }
 
+  static async rotate(tokenId: string): Promise<ApiResponse<CreatedMcpToken>> {
+    const response = await Api.post(`${McpTokenApi.url}/${tokenId}/rotate`);
+
+    return response as unknown as ApiResponse<CreatedMcpToken>;
+  }
+
   static async revoke(tokenId: string): Promise<ApiResponse<boolean>> {
     const response = await Api.delete(`${McpTokenApi.url}/${tokenId}`);
 

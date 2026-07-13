@@ -413,6 +413,58 @@ cp .env.example .env
 
 The MCP service listens on `http://127.0.0.1:8092`; verify it with `http://127.0.0.1:8092/health`. Its `/mcp` endpoint requires a bearer token.
 
+### Connecting an MCP client
+
+Create an MCP token from **User Profile → MCP tokens**. Copy the value when it is created: Appsmith only displays the token once. Configure a Streamable HTTP MCP client with:
+
+- URL: `http://127.0.0.1:8092/mcp` for local development, or `https://<your-appsmith-domain>/mcp` for a Docker deployment with `APPSMITH_MCP_ENABLED=1`.
+- Header: `Authorization: Bearer <your-mcp-token>`.
+
+The service intentionally binds only to loopback; external clients connect through the Appsmith Caddy route, never directly to port `8092`. Leave `APPSMITH_MCP_DATA_ENABLED=0` unless datasource discovery and structured SQL query creation have been explicitly enabled for the deployment.
+
+For example, Claude Code can register the local server with:
+
+```console
+claude mcp add --transport http appsmith http://127.0.0.1:8092/mcp --header "Authorization: Bearer $APPSMITH_MCP_TOKEN"
+```
+
+Cursor accepts the same remote endpoint in `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "appsmith": {
+      "url": "https://<your-appsmith-domain>/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:APPSMITH_MCP_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+ChatGPT connects only to remote HTTPS MCP servers and its managed connector flow expects OAuth-compatible authentication. The current Appsmith bearer-token flow therefore works with clients that allow static authorization headers; OAuth support is required before documenting ChatGPT as a supported direct connection.
+
+#### Authoring model, gates, and governance
+
+The MCP server is a **direct-authoring** interface: mutations happen through the existing, ACL-enforced Appsmith REST APIs under the caller's token. Agents never author raw widget DSL, SQL, or `{{ }}` bindings — every write goes through a validated, compiler-owned spec.
+
+Three independent gates control what is registered. Call `get_capabilities` to see the exact tool set active for a connection.
+
+| Gate | Env var | Enables |
+|------|---------|---------|
+| Data layer | `APPSMITH_MCP_DATA_ENABLED=1` | datasource discovery, structured SQL/REST action creation, action reads |
+| Restricted JS | `APPSMITH_MCP_JS_ENABLED=1` | declarative, restricted JS-object tools (requires data + governance) |
+| Governance | `APPSMITH_MONGODB_URI`/`APPSMITH_DB_URL` **and** `APPSMITH_REDIS_URL` | governed mutations, destructive ops, audit history, rollback, publish |
+
+**Governance** is MCP-owned durable state, kept out of product documents: audit/rollback snapshots in the Mongo `mcp_changes` collection, and locks + one-time confirmation tokens in Redis (`appsmith:mcp:lock:*`, `appsmith:mcp:confirm:*`). When it is not configured, the server registers **read + spec-authoring tools only** — it never falls back to an in-memory store, and if a governance URL is set but unreachable it fails to start.
+
+**Revision flow (optimistic concurrency).** Read an entity first (`read_semantic_page`, `read_pages`, `read_theme`, `read_publish_status`, `get_action`) to obtain a SHA-256 `revision`, then pass it back to the mutating tool. A stale revision returns `revision_conflict`; a busy entity returns `entity_locked`. Every governed mutation returns a `changeId` recorded in the audit history (`list_changes` / `get_change` / `get_change_diff`).
+
+**Confirmation flow (destructive / high-impact).** Deleting a page/action, and publishing, require a two-step token: call `prepare_*` to get a one-time `confirmationId` bound to actor + entity + operation + revision, then `confirm_*` with it. Tokens are single-use and expire.
+
+**Out of scope:** Git sync (Appsmith platform functionality) and CE workflow tools are intentionally not exposed via MCP; `get_capabilities` reports both as unavailable.
+
 10. When the server starts, it automatically runs migrations on MongoDB and will populate it with some initial required data.
 
 11. You can check the status of the server by hitting the endpoint: [http://localhost:8080](http://localhost:8080) on your browser. By default you should see an HTTP 401 error.

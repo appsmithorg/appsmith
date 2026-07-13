@@ -23,6 +23,8 @@ import {
   MCP_TOKEN_VALUE_LABEL,
   MCP_TOKEN_REVOKE_FAILED,
   MCP_TOKEN_REVOKED,
+  MCP_TOKEN_ROTATE_FAILED,
+  MCP_TOKEN_ROTATED,
   MCP_TOKENS,
   MCP_TOKENS_DESCRIPTION,
   MCP_TOKENS_EMPTY,
@@ -32,6 +34,9 @@ import {
   REVOKE_MCP_TOKEN,
   REVOKE_MCP_TOKEN_CONFIRM,
   REVOKE_MCP_TOKEN_CONFIRMATION,
+  ROTATE_MCP_TOKEN,
+  ROTATE_MCP_TOKEN_CONFIRM,
+  ROTATE_MCP_TOKEN_CONFIRMATION,
   createMessage,
 } from "ee/constants/messages";
 import McpTokenApi, {
@@ -75,6 +80,8 @@ function McpTokens() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [rotateTokenId, setRotateTokenId] = useState<string | null>(null);
+  const [isRotating, setIsRotating] = useState(false);
   const [revokeTokenId, setRevokeTokenId] = useState<string | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
 
@@ -157,6 +164,39 @@ function McpTokens() {
     }
   };
 
+  const rotateToken = async () => {
+    if (!rotateTokenId) {
+      return;
+    }
+
+    setIsRotating(true);
+    setError(null);
+
+    try {
+      const token = ensureSuccess(await McpTokenApi.rotate(rotateTokenId));
+
+      setCreatedToken(token);
+      setTokens((tokens) =>
+        tokens.map((existing) =>
+          existing.id === token.id
+            ? {
+                id: token.id,
+                createdAt: token.createdAt,
+                expiresAt: token.expiresAt,
+              }
+            : existing,
+        ),
+      );
+      setRotateTokenId(null);
+      toast.show(createMessage(MCP_TOKEN_ROTATED), { kind: "success" });
+    } catch (error) {
+      setRotateTokenId(null);
+      setError(getErrorMessage(error, createMessage(MCP_TOKEN_ROTATE_FAILED)));
+    } finally {
+      setIsRotating(false);
+    }
+  };
+
   return (
     <>
       <TokensWrapper>
@@ -191,8 +231,17 @@ function McpTokens() {
                   {formatCreatedAt(token.expiresAt)}
                 </Text>
                 <Button
+                  aria-label={`${createMessage(ROTATE_MCP_TOKEN)} ${token.id}`}
+                  isDisabled={isRevoking || isRotating}
+                  kind="secondary"
+                  onClick={() => setRotateTokenId(token.id)}
+                  size="sm"
+                >
+                  {createMessage(ROTATE_MCP_TOKEN)}
+                </Button>
+                <Button
                   aria-label={`${createMessage(REVOKE_MCP_TOKEN)} ${token.id}`}
-                  isDisabled={isRevoking}
+                  isDisabled={isRevoking || isRotating}
                   kind="secondary"
                   onClick={() => setRevokeTokenId(token.id)}
                   size="sm"
@@ -236,6 +285,41 @@ function McpTokens() {
             <Button onClick={copyCreatedToken} size="md">
               {createMessage(COPY_MCP_TOKEN)}
             </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        onOpenChange={(open) => {
+          if (!open) {
+            setRotateTokenId(null);
+          }
+        }}
+        open={Boolean(rotateTokenId)}
+      >
+        <ModalContent style={{ width: "480px" }}>
+          <ModalHeader>{createMessage(ROTATE_MCP_TOKEN)}</ModalHeader>
+          <ModalBody>
+            <Text kind="body-m">
+              {createMessage(ROTATE_MCP_TOKEN_CONFIRMATION)}
+            </Text>
+            <ModalFooter>
+              <Button
+                isDisabled={isRotating}
+                kind="secondary"
+                onClick={() => setRotateTokenId(null)}
+                size="md"
+              >
+                {createMessage(CANCEL)}
+              </Button>
+              <Button
+                isLoading={isRotating}
+                onClick={rotateToken}
+                size="md"
+              >
+                {createMessage(ROTATE_MCP_TOKEN_CONFIRM)}
+              </Button>
+            </ModalFooter>
           </ModalBody>
         </ModalContent>
       </Modal>

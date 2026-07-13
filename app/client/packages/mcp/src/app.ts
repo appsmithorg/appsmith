@@ -1,4 +1,4 @@
-import { randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import {
   createServer,
   type IncomingMessage,
@@ -9,8 +9,22 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import {
+  buildDuplicateActionDto,
+  buildUpdateActionDto,
+  deleteActionSpecSchema,
+  duplicateActionSpecSchema,
+  updateActionSpecSchema,
+} from "./builder/actionPatch.js";
 import { getCapabilities } from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
+import {
+  applyEvent,
+  eventReference,
+  widgetExists,
+  wireEventSpecSchema,
+} from "./builder/events.js";
+import { applyWidgetPatch, widgetPatchSchema } from "./builder/editPatch.js";
 import {
   FIELDS_FORMAT,
   GUIDES,
@@ -22,13 +36,129 @@ import {
 } from "./builder/instructions.js";
 import type { WidgetNode } from "./builder/layout.js";
 import { lintArtifact, lintDsl } from "./builder/lint.js";
+import {
+  buildCreateJsObjectRequest,
+  buildUpdateJsObjectRequest,
+  createJsObjectSpecSchema,
+  deleteJsObjectSpecSchema,
+  updateJsObjectSpecSchema,
+} from "./builder/jsObject.js";
+import {
+  buildCreatePageRequest,
+  buildRenamePageRequest,
+  createPageSpecSchema,
+  deletePageSpecSchema,
+  renamePageSpecSchema,
+} from "./builder/pages.js";
 import { listPresets, PRESETS } from "./builder/presets.js";
 import {
   buildActionDto,
   compileQuery,
   querySpecSchema,
 } from "./builder/query.js";
+import {
+  buildRestActionDto,
+  compileRestApi,
+  restApiSpecSchema,
+} from "./builder/restApi.js";
+import {
+  canonicalStableSerialize,
+  fingerprintDsl,
+  projectSemanticPage,
+} from "./builder/semantic.js";
+import {
+  buildThemeUpdatePayload,
+  projectTheme,
+  themePatchSchema,
+} from "./builder/theme.js";
 import { appSpecSchema, editSpecSchema } from "./builder/schema.js";
+import {
+  DestructiveConfirmationError,
+  GovernanceLockError,
+  GovernanceRevisionConflictError,
+  type McpChangeRecord,
+  type McpGovernanceCoordinator,
+} from "./governance/coordinator.js";
+
+// Safe audit-record projection for the history tools: never returns the rollback snapshot (it can hold full DSL) —
+// only metadata and the semantic summary, plus whether a safe rollback exists.
+function isLayoutRollbackable(change: McpChangeRecord): boolean {
+  const rollback = change.rollback as { kind?: unknown; dsl?: unknown };
+
+  return rollback?.kind === "layout" && rollback.dsl !== undefined;
+}
+
+function projectChange(change: McpChangeRecord): Record<string, unknown> {
+  return {
+    id: change.id,
+    operation: change.operation,
+    entityKey: change.entityKey,
+    revisionBefore: change.revisionBefore,
+    revisionAfter: change.revisionAfter,
+    createdAt: change.createdAt,
+    summary: change.summary,
+    rollbackAvailable: isLayoutRollbackable(change),
+  };
+}
+
+// Context passed to every tool handler: which gated tool families are enabled, the governance coordinator (present
+// only when Mongo+Redis are configured), and the authenticated MCP username used as the governance actor identity.
+export interface ServerContext {
+  dataEnabled: boolean;
+  jsEnabled: boolean;
+  governance?: McpGovernanceCoordinator;
+  actorId: string;
+}
+
+// A page is the lock/audit entity for layout, page-metadata, and event mutations.
+function pageEntityKey(applicationId: string, pageId: string): string {
+  return `page:${applicationId}:${pageId}`;
+}
+
+// The application's page list is the lock/revision entity for page-list mutations (create/rename/delete page).
+function pagesEntityKey(applicationId: string): string {
+  return `application:${applicationId}:pages`;
+}
+
+// Binds a destructive confirmation to the exact operation payload so a token can only confirm the specific change it
+// was prepared for (not a different page/action).
+function operationDigest(payload: unknown): string {
+  return createHash("sha256")
+    .update(canonicalStableSerialize(payload), "utf8")
+    .digest("hex");
+}
+
+interface ToolResult {
+  content: { type: "text"; text: string }[];
+  // Matches the SDK's CallToolResult, which carries an index signature. Without this an `interface` (unlike a type
+  // alias) is not assignable to it, so governed tool handlers returning ToolResult fail to typecheck.
+  [key: string]: unknown;
+}
+
+// Map governance failures to a stable, safe MCP error payload so agents get a consistent stale/busy/confirmation
+// signal instead of an opaque 500. Returns undefined for non-governance errors (let the caller handle those).
+function governanceError(error: unknown): ToolResult | undefined {
+  if (error instanceof GovernanceRevisionConflictError) {
+    return result({
+      error:
+        "page revision is stale; re-read the entity before retrying this mutation",
+      code: "revision_conflict",
+    });
+  }
+
+  if (error instanceof GovernanceLockError) {
+    return result({
+      error: "this entity is currently being changed; retry shortly",
+      code: "entity_locked",
+    });
+  }
+
+  if (error instanceof DestructiveConfirmationError) {
+    return result({ error: error.message, code: "confirmation_invalid" });
+  }
+
+  return undefined;
+}
 
 const MAX_ID_LENGTH = 128;
 
@@ -90,9 +220,36 @@ export interface AppsmithApi {
   ) => Promise<unknown>;
   listDatasources: (workspaceId: string) => Promise<unknown>;
   getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
-  getApplication: (applicationId: string) => Promise<unknown>;
+  getApplicationPages: (applicationId: string) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
+  getAction: (actionId: string) => Promise<unknown>;
+  updateAction: (
+    actionId: string,
+    action: Record<string, unknown>,
+  ) => Promise<unknown>;
+  deleteAction: (actionId: string) => Promise<unknown>;
+  executeAction: (actionId: string) => Promise<unknown>;
+  getCurrentTheme: (applicationId: string) => Promise<unknown>;
+  updateTheme: (
+    applicationId: string,
+    theme: Record<string, unknown>,
+  ) => Promise<unknown>;
+  createPage: (body: Record<string, unknown>) => Promise<unknown>;
+  updatePage: (
+    pageId: string,
+    body: Record<string, unknown>,
+  ) => Promise<unknown>;
+  deletePage: (pageId: string) => Promise<unknown>;
+  publishApplication: (applicationId: string) => Promise<unknown>;
+  listPlugins: () => Promise<unknown>;
+  listActionCollections: (applicationId: string) => Promise<unknown>;
+  createActionCollection: (body: Record<string, unknown>) => Promise<unknown>;
+  updateActionCollection: (
+    collectionId: string,
+    body: Record<string, unknown>,
+  ) => Promise<unknown>;
+  deleteActionCollection: (collectionId: string) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
 
@@ -175,6 +332,7 @@ export function createAppsmithApi(
   token: string,
   apiBaseUrl: string,
   fetchFn: typeof fetch = fetch,
+  correlationHeaders: Record<string, string> = {},
 ): AppsmithApi {
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const isMultipart = init?.body instanceof FormData;
@@ -190,6 +348,7 @@ export function createAppsmithApi(
         headers: {
           Authorization: `Bearer ${token}`,
           ...(isMultipart ? {} : { "Content-Type": "application/json" }),
+          ...correlationHeaders,
           ...init?.headers,
         },
       });
@@ -260,8 +419,10 @@ export function createAppsmithApi(
       request(
         `/api/v1/datasources/${encodeURIComponent(datasourceId)}/structure`,
       ),
-    getApplication: async (applicationId) =>
-      request(`/api/v1/applications/${encodeURIComponent(applicationId)}`),
+    getApplicationPages: async (applicationId) =>
+      request(
+        `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}&mode=EDIT`,
+      ),
     listActions: async (applicationId) =>
       request(
         `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
@@ -271,6 +432,80 @@ export function createAppsmithApi(
         method: "POST",
         body: JSON.stringify(action),
       }),
+    getAction: async (actionId) =>
+      request(`/api/v1/actions/${encodeURIComponent(actionId)}`),
+    updateAction: async (actionId, action) =>
+      request(`/api/v1/actions/${encodeURIComponent(actionId)}`, {
+        method: "PUT",
+        body: JSON.stringify(action),
+      }),
+    deleteAction: async (actionId) =>
+      request(`/api/v1/actions/${encodeURIComponent(actionId)}`, {
+        method: "DELETE",
+      }),
+    executeAction: async (actionId) => {
+      // Execute a STORED action by id only. The agent never supplies an execute payload, so this cannot proxy
+      // arbitrary parameters/body — the server runs the persisted action under the caller's ACL.
+      const formData = new FormData();
+
+      formData.append(
+        "executeActionDTO",
+        JSON.stringify({ actionId, viewMode: false }),
+      );
+
+      return request("/api/v1/actions/execute", {
+        method: "POST",
+        body: formData,
+      });
+    },
+    getCurrentTheme: async (applicationId) =>
+      request(
+        `/api/v1/themes/applications/${encodeURIComponent(applicationId)}/current?mode=EDIT`,
+      ),
+    updateTheme: async (applicationId, theme) =>
+      request(
+        `/api/v1/themes/applications/${encodeURIComponent(applicationId)}`,
+        { method: "PUT", body: JSON.stringify(theme) },
+      ),
+    createPage: async (body) =>
+      request("/api/v1/pages", { method: "POST", body: JSON.stringify(body) }),
+    updatePage: async (pageId, body) =>
+      request(`/api/v1/pages/${encodeURIComponent(pageId)}`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    deletePage: async (pageId) =>
+      request(`/api/v1/pages/${encodeURIComponent(pageId)}`, {
+        method: "DELETE",
+      }),
+    publishApplication: async (applicationId) =>
+      request(
+        `/api/v1/applications/publish/${encodeURIComponent(applicationId)}`,
+        { method: "POST" },
+      ),
+    listPlugins: async () => request("/api/v1/plugins"),
+    listActionCollections: async (applicationId) =>
+      request(
+        `/api/v1/collections/actions?applicationId=${encodeURIComponent(applicationId)}`,
+      ),
+    createActionCollection: async (body) =>
+      request("/api/v1/collections/actions", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    updateActionCollection: async (collectionId, body) =>
+      request(
+        `/api/v1/collections/actions/${encodeURIComponent(collectionId)}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(body),
+        },
+      ),
+    deleteActionCollection: async (collectionId) =>
+      request(
+        `/api/v1/collections/actions/${encodeURIComponent(collectionId)}`,
+        { method: "DELETE" },
+      ),
     validateToken: async () => request("/api/v1/users/me"),
   };
 }
@@ -287,6 +522,19 @@ const DATASOURCE_PUBLIC_FIELDS = [
   "workspaceId",
   "type",
 ] as const;
+
+// `create_query` emits SQL and relies on the SQL plugin prepared-statement
+// contract. Do not accept another plugin merely because it has a datasource
+// identifier: REST, GraphQL, Mongo, and Sheets need their own typed builders.
+const SQL_PLUGIN_IDS = new Set([
+  "mariadb-plugin",
+  "mssql-plugin",
+  "mysql-plugin",
+  "oracle-plugin",
+  "postgres-plugin",
+  "snowflake-plugin",
+]);
+const REST_PLUGIN_IDS = new Set(["restapi-plugin"]);
 
 function projectDatasources(response: unknown): unknown {
   const project = (entry: unknown) => {
@@ -305,9 +553,8 @@ function projectDatasources(response: unknown): unknown {
   return Array.isArray(response) ? response.map(project) : project(response);
 }
 
-// IDOR guard for create_query: the referenced datasource must be one the caller can actually access in the given
-// workspace (the server's create path fetches the datasource without a permission check — TODO in NewActionService —
-// so we cross-check here before POST).
+// IDOR guard for action creation: the referenced datasource must be one the caller can actually access in the given
+// workspace. The server also verifies execute permission; this check keeps the MCP response deterministic and scoped.
 function datasourceAccessible(list: unknown, datasourceId: string): boolean {
   return (
     Array.isArray(list) &&
@@ -318,6 +565,238 @@ function datasourceAccessible(list: unknown, datasourceId: string): boolean {
         (entry as { id?: unknown }).id === datasourceId,
     )
   );
+}
+
+function isSqlDatasource(list: unknown, datasourceId: string): boolean {
+  if (!Array.isArray(list)) return false;
+
+  return list.some((entry) => {
+    if (entry === null || typeof entry !== "object") return false;
+
+    const datasource = entry as { id?: unknown; pluginId?: unknown };
+
+    return (
+      datasource.id === datasourceId &&
+      typeof datasource.pluginId === "string" &&
+      SQL_PLUGIN_IDS.has(datasource.pluginId)
+    );
+  });
+}
+
+function isRestDatasource(list: unknown, datasourceId: string): boolean {
+  if (!Array.isArray(list)) return false;
+
+  return list.some((entry) => {
+    if (entry === null || typeof entry !== "object") return false;
+
+    const datasource = entry as { id?: unknown; pluginId?: unknown };
+
+    return (
+      datasource.id === datasourceId &&
+      typeof datasource.pluginId === "string" &&
+      REST_PLUGIN_IDS.has(datasource.pluginId)
+    );
+  });
+}
+
+function workspaceIdFromApplicationPages(
+  response: unknown,
+): string | undefined {
+  if (response === null || typeof response !== "object") return undefined;
+
+  const pages = response as {
+    workspaceId?: unknown;
+    application?: { workspaceId?: unknown };
+  };
+  const workspaceId = pages.workspaceId ?? pages.application?.workspaceId;
+
+  return typeof workspaceId === "string" ? workspaceId : undefined;
+}
+
+// Safe page-list metadata: never returns DSL, actions, or bindings — only identity/name/slug/visibility. This is
+// both the read projection and the basis for the page-list revision used for optimistic concurrency on page CRUD.
+function projectPages(
+  response: unknown,
+): { id: string; name: string; slug?: string; isHidden?: boolean }[] {
+  const pages = (response as { pages?: unknown } | null)?.pages;
+
+  if (!Array.isArray(pages)) return [];
+
+  return pages
+    .filter((page) => page !== null && typeof page === "object")
+    .map((page) => {
+      const entry = page as {
+        id?: unknown;
+        name?: unknown;
+        slug?: unknown;
+        isHidden?: unknown;
+      };
+
+      return {
+        id: String(entry.id ?? ""),
+        name: String(entry.name ?? ""),
+        ...(typeof entry.slug === "string" ? { slug: entry.slug } : {}),
+        ...(typeof entry.isHidden === "boolean"
+          ? { isHidden: entry.isHidden }
+          : {}),
+      };
+    });
+}
+
+function fingerprintPages(response: unknown): string {
+  return createHash("sha256")
+    .update(canonicalStableSerialize(projectPages(response)), "utf8")
+    .digest("hex");
+}
+
+// Safe projection + revision for a single stored action. The revision folds in the server-side `updatedAt` so any
+// change to the (never-exposed) action body still bumps it, giving real optimistic concurrency without leaking the
+// body/headers/credentials.
+function projectAction(action: unknown): Record<string, unknown> {
+  return (projectActions([action])[0] as Record<string, unknown>) ?? {};
+}
+
+function actionUpdatedAt(action: unknown): unknown {
+  const entry = action as {
+    updatedAt?: unknown;
+    unpublishedAction?: { updatedAt?: unknown };
+  } | null;
+
+  return entry?.updatedAt ?? entry?.unpublishedAction?.updatedAt;
+}
+
+function fingerprintAction(action: unknown): string {
+  return createHash("sha256")
+    .update(
+      canonicalStableSerialize({
+        ...projectAction(action),
+        updatedAt: actionUpdatedAt(action),
+      }),
+      "utf8",
+    )
+    .digest("hex");
+}
+
+// Classify a stored action as read-only. Read-only actions (REST GET/HEAD, or SQL/DB queries that only SELECT) may be
+// run without a confirmation; anything else is treated as non-read-only and requires prepare/confirm. Defaults to
+// non-read-only (safe) when it cannot be determined.
+function isReadOnlyAction(action: unknown): boolean {
+  const source =
+    (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
+    action;
+  const config = (
+    source as {
+      actionConfiguration?: { httpMethod?: unknown; body?: unknown };
+    } | null
+  )?.actionConfiguration;
+  const method = config?.httpMethod;
+
+  if (typeof method === "string") {
+    return ["GET", "HEAD"].includes(method.toUpperCase());
+  }
+
+  const body = config?.body;
+
+  if (typeof body === "string") {
+    const head = body.trim().toUpperCase();
+
+    return (
+      head.startsWith("SELECT") ||
+      head.startsWith("SHOW") ||
+      head.startsWith("EXPLAIN") ||
+      head.startsWith("WITH")
+    );
+  }
+
+  return false;
+}
+
+// Clone a STORED action (server data, not agent input) under a new name, keeping only the permitted fields and
+// preserving its datasource by id. The agent never supplies action configuration here.
+function cloneActionForDuplicate(
+  stored: unknown,
+  newName: string,
+): Record<string, unknown> {
+  const source =
+    (stored as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
+    stored;
+  const entry = source as {
+    pageId?: unknown;
+    pluginId?: unknown;
+    actionConfiguration?: unknown;
+    datasource?: { id?: unknown };
+  };
+
+  return {
+    name: newName,
+    ...(entry.pageId !== undefined ? { pageId: entry.pageId } : {}),
+    ...(entry.pluginId !== undefined ? { pluginId: entry.pluginId } : {}),
+    ...(entry.actionConfiguration !== undefined
+      ? { actionConfiguration: entry.actionConfiguration }
+      : {}),
+    ...(typeof entry.datasource?.id === "string"
+      ? { datasource: { id: entry.datasource.id } }
+      : {}),
+  };
+}
+
+// The fixed JS plugin id (agents never supply it). Resolved from the plugins list by type/packageName.
+function jsPluginId(plugins: unknown): string | undefined {
+  if (!Array.isArray(plugins)) return undefined;
+
+  const js = plugins.find(
+    (plugin) =>
+      plugin !== null &&
+      typeof plugin === "object" &&
+      ((plugin as { type?: unknown }).type === "JS" ||
+        (plugin as { packageName?: unknown }).packageName === "js-plugin"),
+  );
+  const id = (js as { id?: unknown } | undefined)?.id;
+
+  return typeof id === "string" ? id : undefined;
+}
+
+// Safe JS-object projection: id, name, page, and the declared function names. Never returns the compiled JS body.
+function projectJsObject(collection: unknown): Record<string, unknown> {
+  const entry = collection as {
+    id?: unknown;
+    name?: unknown;
+    pageId?: unknown;
+    actions?: { name?: unknown }[];
+  } | null;
+
+  return {
+    id: entry?.id,
+    name: entry?.name,
+    pageId: entry?.pageId,
+    functions: Array.isArray(entry?.actions)
+      ? entry.actions
+          .map((action) => (action as { name?: unknown }).name)
+          .filter((name): name is string => typeof name === "string")
+      : [],
+  };
+}
+
+function fingerprintJsObject(collection: unknown): string {
+  return createHash("sha256")
+    .update(
+      canonicalStableSerialize({
+        ...projectJsObject(collection),
+        updatedAt: (collection as { updatedAt?: unknown } | null)?.updatedAt,
+      }),
+      "utf8",
+    )
+    .digest("hex");
+}
+
+function projectJsList(collections: unknown): Record<string, unknown>[] {
+  return Array.isArray(collections) ? collections.map(projectJsObject) : [];
+}
+
+function fingerprintJsList(collections: unknown): string {
+  return createHash("sha256")
+    .update(canonicalStableSerialize(projectJsList(collections)), "utf8")
+    .digest("hex");
 }
 
 // Idempotency lookup: an existing action on the same page with the same name (the server rejects duplicates, so we
@@ -344,6 +823,84 @@ function findExistingAction(
       (actionPageId === undefined || actionPageId === pageId)
     );
   });
+}
+
+function actionNames(list: unknown): string[] {
+  if (!Array.isArray(list)) return [];
+
+  return list.flatMap((entry) => {
+    if (entry === null || typeof entry !== "object") return [];
+
+    const action = entry as {
+      name?: unknown;
+      unpublishedAction?: { name?: unknown };
+    };
+    const name = action.name ?? action.unpublishedAction?.name;
+
+    return typeof name === "string" ? [name] : [];
+  });
+}
+
+function projectActions(list: unknown): unknown[] {
+  if (!Array.isArray(list)) return [];
+
+  return list.flatMap((entry) => {
+    if (entry === null || typeof entry !== "object") return [];
+
+    const action = entry as {
+      id?: unknown;
+      name?: unknown;
+      pageId?: unknown;
+      pluginType?: unknown;
+      unpublishedAction?: {
+        id?: unknown;
+        name?: unknown;
+        pageId?: unknown;
+        pluginType?: unknown;
+        datasource?: { id?: unknown; pluginId?: unknown };
+      };
+      datasource?: { id?: unknown; pluginId?: unknown };
+    };
+    const source = action.unpublishedAction ?? action;
+    const datasource = source.datasource;
+
+    return [
+      {
+        id: action.id ?? source.id,
+        name: source.name,
+        pageId: source.pageId,
+        pluginType: source.pluginType,
+        ...(datasource
+          ? {
+              datasource: {
+                id: datasource.id,
+                pluginId: datasource.pluginId,
+              },
+            }
+          : {}),
+      },
+    ];
+  });
+}
+
+async function lintLiveDsl(
+  api: AppsmithApi,
+  applicationId: string,
+  dsl: WidgetNode,
+  dataEnabled: boolean,
+) {
+  if (!dataEnabled) return lintDsl(dsl);
+
+  // Query names are authoritative on the server. If this optional diagnostic read
+  // fails after a successful write, preserve the write result and return the
+  // structural diagnostics that are still available locally.
+  try {
+    return lintDsl(dsl, {
+      knownDataNames: actionNames(await api.listActions(applicationId)),
+    });
+  } catch {
+    return lintDsl(dsl);
+  }
 }
 
 function validationError(issues: z.ZodIssue[]) {
@@ -376,8 +933,112 @@ function result(data: unknown) {
   };
 }
 
-export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
+export function buildMcpServer(
+  api: AppsmithApi,
+  ctx: ServerContext = { dataEnabled: false, jsEnabled: false, actorId: "" },
+) {
+  const { actorId, dataEnabled, governance, jsEnabled } = ctx;
   const server = new McpServer({ name: "appsmith-mcp", version: "0.0.1" });
+
+  // Shared commit path for layout mutations (edit_page / patch_widgets). When governance is active it wraps the
+  // write in a distributed lock + mandatory revision check + audit record (returning a changeId) and maps
+  // governance failures to stable error codes; otherwise it performs the plain, already-revision-checked write.
+  async function commitLayout(params: {
+    applicationId: string;
+    pageId: string;
+    layoutId: string;
+    currentDsl: WidgetNode;
+    currentRevision: string;
+    revision: string | undefined;
+    operation: string;
+    newDsl: WidgetNode;
+    extra: Record<string, unknown>;
+  }): Promise<ToolResult> {
+    const write = async () => {
+      const layout = await api.updateLayout(
+        params.applicationId,
+        params.pageId,
+        params.layoutId,
+        params.newDsl,
+      );
+      const diagnostics = await lintLiveDsl(
+        api,
+        params.applicationId,
+        params.newDsl,
+        dataEnabled,
+      );
+
+      return { layout, diagnostics };
+    };
+    const revisionAfter = fingerprintDsl(params.newDsl);
+
+    // A stale revision is rejected consistently in both paths. The revision is a content hash of the public DSL (not
+    // a secret), so a plain comparison is fine and avoids length-mismatch throws.
+    if (
+      params.revision !== undefined &&
+      params.revision !== params.currentRevision
+    ) {
+      return result({
+        error:
+          "page revision is stale; re-read the page before retrying this mutation",
+        code: "revision_conflict",
+        revision: params.currentRevision,
+      });
+    }
+
+    if (!governance) {
+      const { diagnostics, layout } = await write();
+
+      return result({
+        ...params.extra,
+        diagnostics,
+        layout,
+        revision: revisionAfter,
+      });
+    }
+
+    // Governance active -> a revision is mandatory (B): a blind write cannot be reconciled or rolled back.
+    if (params.revision === undefined) {
+      return result({
+        error:
+          "a page revision is required when governance is enabled; read the page first",
+        code: "revision_required",
+      });
+    }
+
+    try {
+      const { changeId, value } = await governance.execute({
+        actorId,
+        entityKey: pageEntityKey(params.applicationId, params.pageId),
+        operation: params.operation,
+        expectedRevision: params.revision,
+        currentRevision: params.currentRevision,
+        mutate: async () => ({
+          value: await write(),
+          revisionAfter,
+          // A layout snapshot the rollback tools can re-apply. Never returned to the agent.
+          rollback: {
+            kind: "layout",
+            applicationId: params.applicationId,
+            pageId: params.pageId,
+            layoutId: params.layoutId,
+            dsl: params.currentDsl,
+          },
+          summary: params.extra,
+        }),
+      });
+
+      return result({
+        ...params.extra,
+        diagnostics: value.diagnostics,
+        layout: value.layout,
+        revision: revisionAfter,
+        changeId,
+      });
+    } catch (error) {
+      return governanceError(error) ?? compileError(error);
+    }
+  }
 
   server.tool(
     "list_workspaces",
@@ -407,9 +1068,16 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
 
   server.tool(
     "get_capabilities",
-    "Discover what the app builder supports: widget types, the page/app/edit spec shapes, presets, and the layout grid. Call this first when building an app.",
+    "Discover what this MCP server supports: widget types, spec shapes, presets, the layout grid, and the exact set of tools available under the current gates (data layer, restricted JS, governance). Call this first.",
     {},
-    async () => result(getCapabilities()),
+    async () =>
+      result(
+        getCapabilities({
+          data: dataEnabled,
+          js: jsEnabled,
+          governance: governance !== undefined,
+        }),
+      ),
   );
 
   server.tool(
@@ -498,14 +1166,18 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
 
   server.tool(
     "edit_page",
-    "Append widgets to an existing page from a high-level edit spec, with best-effort placement (after a widget / inside a container). Existing widgets are never modified. Returns notes about how placement was resolved.",
+    "Append widgets to an existing page from a high-level edit spec. Read the page with read_semantic_page first and pass its revision token to detect stale writes. Existing widgets are never modified.",
     {
       applicationId: idSchema,
       pageId: idSchema,
       layoutId: idSchema,
+      revision: z
+        .string()
+        .regex(/^[a-f0-9]{64}$/)
+        .optional(),
       edit: z.record(z.unknown()),
     },
-    async ({ applicationId, edit, layoutId, pageId }) => {
+    async ({ applicationId, edit, layoutId, pageId, revision }) => {
       const parsed = editSpecSchema.safeParse(edit);
 
       if (!parsed.success) {
@@ -524,6 +1196,8 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
         return result({ error: "could not read the current page layout" });
       }
 
+      const currentRevision = fingerprintDsl(currentDsl);
+
       let dsl: WidgetNode;
       let notes: string[];
 
@@ -535,16 +1209,17 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
         return compileError(error);
       }
 
-      const updated = await api.updateLayout(
+      return commitLayout({
         applicationId,
         pageId,
         layoutId,
-        dsl,
-      );
-
-      const diagnostics = lintDsl(dsl);
-
-      return result({ notes, diagnostics, layout: updated });
+        currentDsl,
+        currentRevision,
+        revision,
+        operation: "edit_page",
+        newDsl: dsl,
+        extra: { notes },
+      });
     },
   );
 
@@ -564,9 +1239,698 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
         return result({ error: "could not read the current page layout" });
       }
 
-      return result({ diagnostics: lintDsl(dsl) });
+      return result({
+        diagnostics: await lintLiveDsl(api, applicationId, dsl, dataEnabled),
+      });
     },
   );
+
+  server.tool(
+    "patch_widgets",
+    "Directly update, move, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected.",
+    {
+      applicationId: idSchema,
+      pageId: idSchema,
+      layoutId: idSchema,
+      revision: z.string().regex(/^[a-f0-9]{64}$/),
+      patch: z.record(z.unknown()),
+    },
+    async ({ applicationId, layoutId, pageId, patch, revision }) => {
+      const parsed = widgetPatchSchema.safeParse(patch);
+
+      if (!parsed.success) return validationError(parsed.error.issues);
+
+      const context = await api.getApplicationContext(
+        applicationId,
+        pageId,
+        layoutId,
+      );
+      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
+        ?.dsl;
+
+      if (!currentDsl) {
+        return result({ error: "could not read the current page layout" });
+      }
+
+      const currentRevision = fingerprintDsl(currentDsl);
+
+      let patched: ReturnType<typeof applyWidgetPatch>;
+
+      try {
+        patched = applyWidgetPatch(currentDsl, parsed.data);
+        serializeArtifact(patched.dsl as Record<string, unknown>);
+      } catch (error) {
+        return compileError(error);
+      }
+
+      return commitLayout({
+        applicationId,
+        pageId,
+        layoutId,
+        currentDsl,
+        currentRevision,
+        revision,
+        operation: "patch_widgets",
+        newDsl: patched.dsl,
+        extra: { changes: patched.changes },
+      });
+    },
+  );
+
+  server.tool(
+    "wire_event",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, or show/close a modal. Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    {
+      applicationId: idSchema,
+      pageId: idSchema,
+      layoutId: idSchema,
+      revision: z
+        .string()
+        .regex(/^[a-f0-9]{64}$/)
+        .optional(),
+      spec: z.record(z.unknown()),
+    },
+    async ({ applicationId, layoutId, pageId, revision, spec }) => {
+      const parsed = wireEventSpecSchema.safeParse(spec);
+
+      if (!parsed.success) return validationError(parsed.error.issues);
+
+      const context = await api.getApplicationContext(
+        applicationId,
+        pageId,
+        layoutId,
+      );
+      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
+        ?.dsl;
+
+      if (!currentDsl) {
+        return result({ error: "could not read the current page layout" });
+      }
+
+      // Dangling-reference guard: the referenced query/page/widget must exist before we write the trigger.
+      const reference = eventReference(parsed.data.action);
+
+      if (
+        reference.kind === "widget" &&
+        !widgetExists(currentDsl, reference.name)
+      ) {
+        return result({
+          error: `modal/widget "${reference.name}" was not found on this page`,
+        });
+      }
+
+      if (reference.kind === "page") {
+        const pages = projectPages(
+          await api.getApplicationPages(applicationId),
+        );
+
+        if (!pages.some((page) => page.name === reference.name)) {
+          return result({ error: `page "${reference.name}" was not found` });
+        }
+      }
+
+      if (reference.kind === "query" && dataEnabled) {
+        const known = actionNames(await api.listActions(applicationId));
+
+        if (!known.includes(reference.name)) {
+          return result({ error: `query "${reference.name}" was not found` });
+        }
+      }
+
+      const currentRevision = fingerprintDsl(currentDsl);
+      let newDsl: WidgetNode;
+
+      try {
+        ({ dsl: newDsl } = applyEvent(currentDsl, parsed.data));
+        serializeArtifact(newDsl as Record<string, unknown>);
+      } catch (error) {
+        return compileError(error);
+      }
+
+      return commitLayout({
+        applicationId,
+        pageId,
+        layoutId,
+        currentDsl,
+        currentRevision,
+        revision,
+        operation: "wire_event",
+        newDsl,
+        extra: { widget: parsed.data.widget, event: parsed.data.event },
+      });
+    },
+  );
+
+  server.tool(
+    "read_semantic_page",
+    "Read a compact, safe semantic view of a page for targeted authoring. Returns widget hierarchy, geometry, and allowlisted static properties, plus a revision token for a later write. It never returns arbitrary DSL properties, events, or raw bindings.",
+    { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
+    async ({ applicationId, layoutId, pageId }) => {
+      const context = await api.getApplicationContext(
+        applicationId,
+        pageId,
+        layoutId,
+      );
+      const dsl = (context.layout as { dsl?: WidgetNode } | undefined)?.dsl;
+
+      if (!dsl) {
+        return result({ error: "could not read the current page layout" });
+      }
+
+      return result({
+        revision: fingerprintDsl(dsl),
+        page: projectSemanticPage(dsl),
+        diagnostics: await lintLiveDsl(api, applicationId, dsl, dataEnabled),
+      });
+    },
+  );
+
+  server.tool(
+    "read_pages",
+    "List an application's pages (safe metadata: id, name, slug, visibility) plus a revision token for create_page / rename_page / delete_page. Never returns DSL, actions, or bindings.",
+    { applicationId: idSchema },
+    async ({ applicationId }) => {
+      const pages = await api.getApplicationPages(applicationId);
+
+      return result({
+        pages: projectPages(pages),
+        revision: fingerprintPages(pages),
+      });
+    },
+  );
+
+  server.tool(
+    "read_publish_status",
+    "Read the application's publish state (last deployed time, public flag, name) plus the current page-list revision to pass to prepare_publish.",
+    { applicationId: idSchema },
+    async ({ applicationId }) => {
+      const pages = await api.getApplicationPages(applicationId);
+      const application =
+        (pages as { application?: Record<string, unknown> } | null)
+          ?.application ?? {};
+
+      return result({
+        publish: {
+          name: application.name,
+          lastDeployedAt: application.lastDeployedAt,
+          isPublic: application.isPublic,
+        },
+        revision: fingerprintPages(pages),
+      });
+    },
+  );
+
+  server.tool(
+    "read_theme",
+    "Read the application's safe theme tokens (primaryColor, borderRadius, fontFamily) plus a revision token for a later update_theme. Stylesheet and config internals are never returned.",
+    { applicationId: idSchema },
+    async ({ applicationId }) => {
+      try {
+        return result({
+          theme: projectTheme(await api.getCurrentTheme(applicationId)),
+        });
+      } catch (error) {
+        return compileError(error);
+      }
+    },
+  );
+
+  // Governed mutation tools require the Mongo+Redis governance coordinator (lock + revision + audit). When it is not
+  // configured they are not registered at all, so a caller cannot perform a governed change without governance.
+  if (governance) {
+    const gov = governance;
+
+    server.tool(
+      "update_theme",
+      "Update the application's theme tokens (primaryColor, borderRadius, fontFamily only) using a revision from read_theme. Stylesheets, CSS, URLs, and bindings are never accepted. Returns the new tokens, revision, and change id.",
+      {
+        applicationId: idSchema,
+        revision: z.string().regex(/^[a-f0-9]{64}$/),
+        patch: z.record(z.unknown()),
+      },
+      async ({ applicationId, patch, revision }) => {
+        const parsed = themePatchSchema.safeParse(patch);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        let currentTheme: unknown;
+        let current: ReturnType<typeof projectTheme>;
+
+        try {
+          currentTheme = await api.getCurrentTheme(applicationId);
+          current = projectTheme(currentTheme);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        try {
+          const { changeId, value } = await gov.execute({
+            actorId,
+            entityKey: `theme:${applicationId}`,
+            operation: "update_theme",
+            expectedRevision: revision,
+            currentRevision: current.revision,
+            mutate: async () => {
+              const body = buildThemeUpdatePayload(currentTheme, parsed.data);
+              const projection = projectTheme(
+                await api.updateTheme(applicationId, body),
+              );
+
+              return {
+                value: projection,
+                revisionAfter: projection.revision,
+                rollback: { tokens: current },
+                summary: { tokens: parsed.data },
+              };
+            },
+          });
+
+          return result({ theme: value, revision: value.revision, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    // Item I — audit history + bounded rollback over the MCP-owned change records.
+    server.tool(
+      "list_changes",
+      "List recent MCP governance change records for the authenticated user (audit trail). Returns safe change headers and semantic summaries — never rollback snapshots.",
+      { limit: z.number().int().min(1).max(100).optional() },
+      async ({ limit }) =>
+        result({
+          changes: (await gov.listChanges(actorId, limit ?? 20)).map(
+            projectChange,
+          ),
+        }),
+    );
+
+    server.tool(
+      "get_change",
+      "Get a single MCP change record by id (audit metadata + semantic summary; the rollback snapshot is never exposed).",
+      { changeId: idSchema },
+      async ({ changeId }) => {
+        const change = await gov.getChange(changeId, actorId);
+
+        return change
+          ? result({ change: projectChange(change) })
+          : result({ error: "change not found" });
+      },
+    );
+
+    server.tool(
+      "get_change_diff",
+      "Get the semantic before/after summary for a change (operation, revisions, summary).",
+      { changeId: idSchema },
+      async ({ changeId }) => {
+        const change = await gov.getChange(changeId, actorId);
+
+        return change
+          ? result({
+              operation: change.operation,
+              revisionBefore: change.revisionBefore,
+              revisionAfter: change.revisionAfter,
+              summary: change.summary,
+            })
+          : result({ error: "change not found" });
+      },
+    );
+
+    server.tool(
+      "prepare_rollback",
+      "Prepare to roll back a layout change (edit_page/patch_widgets). Returns a one-time confirmation token. Only offered when a safe layout snapshot exists.",
+      { changeId: idSchema },
+      async ({ changeId }) => {
+        const change = await gov.getChange(changeId, actorId);
+
+        if (!change) return result({ error: "change not found" });
+
+        if (!isLayoutRollbackable(change)) {
+          return result({
+            error: "this change cannot be safely rolled back",
+            code: "rollback_unavailable",
+          });
+        }
+
+        const confirmation = await gov.prepareDestructiveConfirmation({
+          actorId,
+          entityKey: change.entityKey,
+          operation: "rollback",
+          revision: change.revisionAfter,
+          digest: operationDigest({ changeId }),
+        });
+
+        return result({
+          confirmationId: confirmation.id,
+          expiresAt: confirmation.expiresAt,
+          changeId,
+        });
+      },
+    );
+
+    server.tool(
+      "confirm_rollback",
+      "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change.",
+      { changeId: idSchema, confirmationId: idSchema },
+      async ({ changeId, confirmationId }) => {
+        const change = await gov.getChange(changeId, actorId);
+
+        if (!change) return result({ error: "change not found" });
+
+        const rollback = change.rollback as {
+          kind?: string;
+          applicationId?: string;
+          pageId?: string;
+          layoutId?: string;
+          dsl?: WidgetNode;
+        };
+
+        if (
+          rollback?.kind !== "layout" ||
+          !rollback.applicationId ||
+          !rollback.pageId ||
+          !rollback.layoutId ||
+          !rollback.dsl
+        ) {
+          return result({
+            error: "this change cannot be safely rolled back",
+            code: "rollback_unavailable",
+          });
+        }
+
+        try {
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            actorId,
+            entityKey: change.entityKey,
+            operation: "rollback",
+            revision: change.revisionAfter,
+            digest: operationDigest({ changeId }),
+          });
+
+          const context = await api.getApplicationContext(
+            rollback.applicationId,
+            rollback.pageId,
+            rollback.layoutId,
+          );
+          const currentDsl = (
+            context.layout as { dsl?: WidgetNode } | undefined
+          )?.dsl;
+
+          if (!currentDsl) {
+            return result({ error: "could not read the current page layout" });
+          }
+
+          const snapshot = rollback.dsl;
+          const { changeId: newChangeId } = await gov.execute({
+            actorId,
+            entityKey: change.entityKey,
+            operation: "rollback",
+            // The page must be unchanged since the change being rolled back.
+            expectedRevision: change.revisionAfter,
+            currentRevision: fingerprintDsl(currentDsl),
+            mutate: async () => {
+              const layout = await api.updateLayout(
+                rollback.applicationId!,
+                rollback.pageId!,
+                rollback.layoutId!,
+                snapshot,
+              );
+
+              return {
+                value: { layout },
+                revisionAfter: fingerprintDsl(snapshot),
+                rollback: {
+                  kind: "layout",
+                  applicationId: rollback.applicationId,
+                  pageId: rollback.pageId,
+                  layoutId: rollback.layoutId,
+                  dsl: currentDsl,
+                },
+                summary: { rolledBackChange: changeId },
+              };
+            },
+          });
+
+          return result({
+            rolledBack: true,
+            revision: fingerprintDsl(snapshot),
+            changeId: newChangeId,
+          });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    // Item H — publish is high-impact, so it is confirmation-gated.
+    server.tool(
+      "prepare_publish",
+      "Publishing (deploying) the application is high-impact. Returns a one-time confirmation token bound to the application and its current page-list revision. Call confirm_publish with the token to deploy.",
+      {
+        applicationId: idSchema,
+        revision: z.string().regex(/^[a-f0-9]{64}$/),
+      },
+      async ({ applicationId, revision }) => {
+        const confirmation = await gov.prepareDestructiveConfirmation({
+          actorId,
+          entityKey: `application:${applicationId}`,
+          operation: "publish",
+          revision,
+          digest: operationDigest({ applicationId }),
+        });
+
+        return result({
+          confirmationId: confirmation.id,
+          expiresAt: confirmation.expiresAt,
+          operation: "publish",
+        });
+      },
+    );
+
+    server.tool(
+      "confirm_publish",
+      "Publish (deploy) the application using a confirmation token from prepare_publish. Token, actor, application, and revision must match, and the page-list revision must be unchanged since preparation.",
+      {
+        applicationId: idSchema,
+        revision: z.string().regex(/^[a-f0-9]{64}$/),
+        confirmationId: idSchema,
+      },
+      async ({ applicationId, confirmationId, revision }) => {
+        try {
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            actorId,
+            entityKey: `application:${applicationId}`,
+            operation: "publish",
+            revision,
+            digest: operationDigest({ applicationId }),
+          });
+
+          const currentRevision = fingerprintPages(
+            await api.getApplicationPages(applicationId),
+          );
+          const { changeId } = await gov.execute({
+            actorId,
+            entityKey: `application:${applicationId}`,
+            operation: "publish",
+            expectedRevision: revision,
+            currentRevision,
+            mutate: async () => {
+              await api.publishApplication(applicationId);
+
+              return {
+                value: {},
+                revisionAfter: currentRevision,
+                rollback: {},
+                summary: { applicationId },
+              };
+            },
+          });
+
+          return result({ published: true, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    server.tool(
+      "create_page",
+      "Create a new blank page in an application. The caller cannot supply DSL, actions, or bindings — only a safe page name. Pass a page-list revision from the application's pages for optimistic concurrency. Returns the safe page list, new revision, and change id.",
+      { spec: z.record(z.unknown()) },
+      async ({ spec }) => {
+        const parsed = createPageSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const request = buildCreatePageRequest(parsed.data);
+        const currentRevision = fingerprintPages(
+          await api.getApplicationPages(parsed.data.applicationId),
+        );
+
+        try {
+          const { changeId, value } = await gov.execute({
+            actorId,
+            entityKey: pagesEntityKey(parsed.data.applicationId),
+            operation: "create_page",
+            expectedRevision: parsed.data.revision,
+            currentRevision,
+            mutate: async () => {
+              const created = await api.createPage(request.body);
+              const after = await api.getApplicationPages(
+                parsed.data.applicationId,
+              );
+
+              return {
+                value: {
+                  pageId: (created as { id?: string } | null)?.id,
+                  pages: projectPages(after),
+                },
+                revisionAfter: fingerprintPages(after),
+                rollback: {
+                  createdPageId: (created as { id?: string } | null)?.id,
+                },
+                summary: { name: parsed.data.name },
+              };
+            },
+          });
+
+          return result({ created: true, ...value, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    server.tool(
+      "rename_page",
+      "Rename a page. Pass the application's page-list revision for optimistic concurrency. Returns the safe page list, new revision, and change id.",
+      { spec: z.record(z.unknown()) },
+      async ({ spec }) => {
+        const parsed = renamePageSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const request = buildRenamePageRequest(parsed.data);
+        const currentRevision = fingerprintPages(
+          await api.getApplicationPages(parsed.data.applicationId),
+        );
+
+        try {
+          const { changeId, value } = await gov.execute({
+            actorId,
+            entityKey: pagesEntityKey(parsed.data.applicationId),
+            operation: "rename_page",
+            expectedRevision: parsed.data.revision,
+            currentRevision,
+            mutate: async () => {
+              await api.updatePage(parsed.data.pageId, request.body);
+              const after = await api.getApplicationPages(
+                parsed.data.applicationId,
+              );
+
+              return {
+                value: { pages: projectPages(after) },
+                revisionAfter: fingerprintPages(after),
+                rollback: { pageId: parsed.data.pageId },
+                summary: { name: parsed.data.name },
+              };
+            },
+          });
+
+          return result({ renamed: true, ...value, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    server.tool(
+      "prepare_delete_page",
+      "Prepare to delete a page. Deleting a page is destructive, so this returns a one-time confirmation token bound to this exact page and revision. Call confirm_delete_page with the token to perform the deletion.",
+      { spec: z.record(z.unknown()) },
+      async ({ spec }) => {
+        const parsed = deletePageSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const confirmation = await gov.prepareDestructiveConfirmation({
+          actorId,
+          entityKey: pagesEntityKey(parsed.data.applicationId),
+          operation: "delete_page",
+          revision: parsed.data.revision,
+          digest: operationDigest({
+            applicationId: parsed.data.applicationId,
+            pageId: parsed.data.pageId,
+          }),
+        });
+
+        return result({
+          confirmationId: confirmation.id,
+          expiresAt: confirmation.expiresAt,
+          operation: "delete_page",
+          pageId: parsed.data.pageId,
+        });
+      },
+    );
+
+    server.tool(
+      "confirm_delete_page",
+      "Delete a page using a confirmation token from prepare_delete_page. The token, actor, page, and revision must all match, and the page-list revision must be unchanged since preparation.",
+      {
+        spec: z.record(z.unknown()),
+        confirmationId: idSchema,
+      },
+      async ({ confirmationId, spec }) => {
+        const parsed = deletePageSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        try {
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            actorId,
+            entityKey: pagesEntityKey(parsed.data.applicationId),
+            operation: "delete_page",
+            revision: parsed.data.revision,
+            digest: operationDigest({
+              applicationId: parsed.data.applicationId,
+              pageId: parsed.data.pageId,
+            }),
+          });
+
+          const currentRevision = fingerprintPages(
+            await api.getApplicationPages(parsed.data.applicationId),
+          );
+          const { changeId, value } = await gov.execute({
+            actorId,
+            entityKey: pagesEntityKey(parsed.data.applicationId),
+            operation: "delete_page",
+            expectedRevision: parsed.data.revision,
+            currentRevision,
+            mutate: async () => {
+              await api.deletePage(parsed.data.pageId);
+              const after = await api.getApplicationPages(
+                parsed.data.applicationId,
+              );
+
+              return {
+                value: { pages: projectPages(after) },
+                revisionAfter: fingerprintPages(after),
+                rollback: { deletedPageId: parsed.data.pageId },
+                summary: { pageId: parsed.data.pageId },
+              };
+            },
+          });
+
+          return result({ deleted: true, ...value, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+  }
 
   // M4 data layer — gated behind APPSMITH_MCP_DATA_ENABLED. These read tools let an agent discover the datasources
   // and structure it can bind widgets to (via the closed binding vocabulary: table.source / button.onClick). They
@@ -589,6 +1953,14 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
     );
 
     server.tool(
+      "list_actions",
+      "List safe metadata for the authenticated user's actions in an application. Query bodies, headers, credentials, and raw action configuration are intentionally excluded.",
+      { applicationId: idSchema },
+      async ({ applicationId }) =>
+        result(projectActions(await api.listActions(applicationId))),
+    );
+
+    server.tool(
       "create_query",
       "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       { query: z.record(z.unknown()) },
@@ -601,10 +1973,9 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
 
         // Resolve the workspace SERVER-AUTHORITATIVELY from the application — never trust an agent-supplied
         // workspaceId — so a datasource can only be bound within the target page's own workspace (cross-tenant guard).
-        const application = (await api.getApplication(spec.applicationId)) as {
-          workspaceId?: string;
-        };
-        const workspaceId = application?.workspaceId;
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
 
         if (typeof workspaceId !== "string") {
           return result({
@@ -618,6 +1989,13 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
         if (!datasourceAccessible(datasources, spec.datasourceId)) {
           return result({
             error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        if (!isSqlDatasource(datasources, spec.datasourceId)) {
+          return result({
+            error:
+              "create_query currently supports only MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, and Snowflake datasources",
           });
         }
 
@@ -649,6 +2027,606 @@ export function buildMcpServer(api: AppsmithApi, dataEnabled = false) {
         return result({ created: true, body, action: created });
       },
     );
+
+    server.tool(
+      "create_rest_api",
+      "Create a REST API action from a structured specification using an existing REST datasource. The datasource retains its server-side base URL and credentials. Supports only safe path segments, fixed headers, literals, and validated widget-property bindings. Idempotent by page + name.",
+      { api: z.record(z.unknown()) },
+      async ({ api: restApi }) => {
+        const parsed = restApiSpecSchema.safeParse(restApi);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        if (!isRestDatasource(datasources, spec.datasourceId)) {
+          return result({
+            error: "create_rest_api requires an existing REST API datasource",
+          });
+        }
+
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "an action with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        try {
+          const compiled = compileRestApi(spec);
+          const created = await api.createAction(
+            buildRestActionDto(spec, compiled),
+          );
+
+          return result({
+            created: true,
+            action: created,
+            request: {
+              method: spec.method,
+              path: compiled.path,
+              queryParameterCount: compiled.queryParameters.length,
+            },
+          });
+        } catch (error) {
+          return compileError(error);
+        }
+      },
+    );
+
+    server.tool(
+      "get_action",
+      "Read safe metadata for a single action (id, name, page, plugin, datasource) plus a revision token for update/duplicate/delete. Never returns the query body, headers, or credentials.",
+      { actionId: idSchema },
+      async ({ actionId }) => {
+        const action = await api.getAction(actionId);
+
+        return result({
+          action: projectAction(action),
+          revision: fingerprintAction(action),
+        });
+      },
+    );
+
+    server.tool(
+      "run_action",
+      "Run a READ-ONLY stored action (REST GET/HEAD or a SELECT-only query) by id and return its result. Non-read-only actions are refused here — use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
+      { actionId: idSchema },
+      async ({ actionId }) => {
+        const action = await api.getAction(actionId);
+
+        if (!isReadOnlyAction(action)) {
+          return result({
+            error:
+              "this action is not read-only; use prepare_run_action then confirm_run_action",
+            code: "confirmation_required",
+            readOnly: false,
+          });
+        }
+
+        return result({
+          executed: true,
+          readOnly: true,
+          result: await api.executeAction(actionId),
+        });
+      },
+    );
+
+    // Action mutations additionally require governance (lock + revision + audit / confirmation).
+    if (governance) {
+      const govData = governance;
+
+      server.tool(
+        "update_action",
+        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const parsed = updateActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const request = buildUpdateActionDto(parsed.data);
+          let current: unknown;
+
+          try {
+            current = await api.getAction(request.actionId);
+          } catch (error) {
+            return compileError(error);
+          }
+
+          try {
+            const { changeId, value } = await govData.execute({
+              actorId,
+              entityKey: `action:${request.actionId}`,
+              operation: "update_action",
+              expectedRevision: parsed.data.revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => {
+                const updated = await api.updateAction(
+                  request.actionId,
+                  request.action,
+                );
+
+                return {
+                  value: {
+                    action: projectAction(updated),
+                    revision: fingerprintAction(updated),
+                  },
+                  revisionAfter: fingerprintAction(updated),
+                  rollback: { actionId: request.actionId },
+                  summary: { actionId: request.actionId },
+                };
+              },
+            });
+
+            return result({ updated: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      server.tool(
+        "duplicate_action",
+        "Duplicate a stored action under a new name, preserving its datasource server-side. No action configuration is accepted from the caller. Pass a revision from get_action. Governed.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const parsed = duplicateActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const request = buildDuplicateActionDto(parsed.data);
+          let current: unknown;
+
+          try {
+            current = await api.getAction(request.actionId);
+          } catch (error) {
+            return compileError(error);
+          }
+
+          try {
+            const { changeId, value } = await govData.execute({
+              actorId,
+              entityKey: `action:${request.actionId}`,
+              operation: "duplicate_action",
+              expectedRevision: parsed.data.revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => {
+                const created = await api.createAction(
+                  cloneActionForDuplicate(current, request.name),
+                );
+
+                return {
+                  value: {
+                    action: projectAction(created),
+                    revision: fingerprintAction(created),
+                  },
+                  revisionAfter: fingerprintAction(created),
+                  rollback: {
+                    createdActionId: (created as { id?: string } | null)?.id,
+                  },
+                  summary: { name: request.name },
+                };
+              },
+            });
+
+            return result({ duplicated: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      server.tool(
+        "prepare_delete_action",
+        "Prepare to delete an action. Returns a one-time confirmation token bound to this exact action and revision. Call confirm_delete_action with the token to delete it.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const parsed = deleteActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const confirmation = await govData.prepareDestructiveConfirmation({
+            actorId,
+            entityKey: `action:${parsed.data.actionId}`,
+            operation: "delete_action",
+            revision: parsed.data.revision,
+            digest: operationDigest({
+              applicationId: parsed.data.applicationId,
+              actionId: parsed.data.actionId,
+            }),
+          });
+
+          return result({
+            confirmationId: confirmation.id,
+            expiresAt: confirmation.expiresAt,
+            operation: "delete_action",
+            actionId: parsed.data.actionId,
+          });
+        },
+      );
+
+      server.tool(
+        "confirm_delete_action",
+        "Delete an action using a confirmation token from prepare_delete_action. Token, actor, action, and revision must all match, and the action's revision must be unchanged since preparation.",
+        { spec: z.record(z.unknown()), confirmationId: idSchema },
+        async ({ confirmationId, spec }) => {
+          const parsed = deleteActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          try {
+            await govData.consumeDestructiveConfirmation({
+              confirmationId,
+              actorId,
+              entityKey: `action:${parsed.data.actionId}`,
+              operation: "delete_action",
+              revision: parsed.data.revision,
+              digest: operationDigest({
+                applicationId: parsed.data.applicationId,
+                actionId: parsed.data.actionId,
+              }),
+            });
+
+            const current = await api.getAction(parsed.data.actionId);
+            const { changeId } = await govData.execute({
+              actorId,
+              entityKey: `action:${parsed.data.actionId}`,
+              operation: "delete_action",
+              expectedRevision: parsed.data.revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => {
+                await api.deleteAction(parsed.data.actionId);
+
+                return {
+                  value: {},
+                  revisionAfter: "deleted",
+                  rollback: { deletedActionId: parsed.data.actionId },
+                  summary: { actionId: parsed.data.actionId },
+                };
+              },
+            });
+
+            return result({
+              deleted: true,
+              actionId: parsed.data.actionId,
+              changeId,
+            });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      server.tool(
+        "prepare_run_action",
+        "Prepare to run an action. Non-read-only executions require this confirmation step. Returns a one-time token bound to this action and revision, plus whether the action is read-only. Pass a revision from get_action.",
+        {
+          actionId: idSchema,
+          revision: z.string().regex(/^[a-f0-9]{64}$/),
+        },
+        async ({ actionId, revision }) => {
+          const action = await api.getAction(actionId);
+          const confirmation = await govData.prepareDestructiveConfirmation({
+            actorId,
+            entityKey: `action:${actionId}`,
+            operation: "run_action",
+            revision,
+            digest: operationDigest({ actionId }),
+          });
+
+          return result({
+            confirmationId: confirmation.id,
+            expiresAt: confirmation.expiresAt,
+            operation: "run_action",
+            readOnly: isReadOnlyAction(action),
+          });
+        },
+      );
+
+      server.tool(
+        "confirm_run_action",
+        "Run an action using a confirmation token from prepare_run_action. Token, actor, action, and revision must match, and the action must be unchanged since preparation. Returns the execution result and an audit change id.",
+        {
+          actionId: idSchema,
+          revision: z.string().regex(/^[a-f0-9]{64}$/),
+          confirmationId: idSchema,
+        },
+        async ({ actionId, confirmationId, revision }) => {
+          try {
+            await govData.consumeDestructiveConfirmation({
+              confirmationId,
+              actorId,
+              entityKey: `action:${actionId}`,
+              operation: "run_action",
+              revision,
+              digest: operationDigest({ actionId }),
+            });
+
+            const current = await api.getAction(actionId);
+            const { changeId, value } = await govData.execute({
+              actorId,
+              entityKey: `action:${actionId}`,
+              operation: "run_action",
+              expectedRevision: revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => ({
+                value: { result: await api.executeAction(actionId) },
+                revisionAfter: fingerprintAction(current),
+                rollback: {},
+                summary: { actionId },
+              }),
+            });
+
+            return result({ executed: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+    }
+  }
+
+  // Item G — restricted JS objects, gated behind APPSMITH_MCP_JS_ENABLED. The agent supplies only a declarative,
+  // restricted definition (constants + async functions that run named queries and return literal objects); the
+  // jsObject compiler emits the JS. Raw JS source is never accepted.
+  if (jsEnabled) {
+    server.tool(
+      "read_js_object",
+      "List the application's JS objects with safe metadata (id, name, page, function names) and revision tokens for update/delete, plus a list revision for create. Never returns JS source.",
+      { applicationId: idSchema },
+      async ({ applicationId }) => {
+        const collections = await api.listActionCollections(applicationId);
+
+        return result({
+          jsObjects: (Array.isArray(collections) ? collections : []).map(
+            (collection) => ({
+              ...projectJsObject(collection),
+              revision: fingerprintJsObject(collection),
+            }),
+          ),
+          revision: fingerprintJsList(collections),
+        });
+      },
+    );
+
+    if (governance) {
+      const govJs = governance;
+
+      server.tool(
+        "create_js_object",
+        "Create a restricted JS object from a declarative spec (constants + async functions that run named queries and return literal objects). No raw JS, imports, globals, network calls, or loops. Pass a JS-list revision from read_js_object. Governed.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const raw = spec as Record<string, unknown>;
+          const applicationId = raw.applicationId;
+
+          if (typeof applicationId !== "string") {
+            return result({ error: "spec.applicationId is required" });
+          }
+
+          // Resolve workspace + JS plugin server-side; the agent never supplies these ids.
+          const workspaceId = workspaceIdFromApplicationPages(
+            await api.getApplicationPages(applicationId),
+          );
+          const pluginId = jsPluginId(await api.listPlugins());
+
+          if (typeof workspaceId !== "string" || pluginId === undefined) {
+            return result({
+              error: "could not resolve the workspace or JS plugin",
+            });
+          }
+
+          const parsed = createJsObjectSpecSchema.safeParse({
+            ...raw,
+            workspaceId,
+            pluginId,
+          });
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const request = buildCreateJsObjectRequest(parsed.data);
+          const currentRevision = fingerprintJsList(
+            await api.listActionCollections(applicationId),
+          );
+
+          try {
+            const { changeId, value } = await govJs.execute({
+              actorId,
+              entityKey: `application:${applicationId}:jsobjects`,
+              operation: "create_js_object",
+              expectedRevision: parsed.data.revision,
+              currentRevision,
+              mutate: async () => {
+                const created = await api.createActionCollection(request.body);
+
+                return {
+                  value: { jsObject: projectJsObject(created) },
+                  revisionAfter: fingerprintJsList(
+                    await api.listActionCollections(applicationId),
+                  ),
+                  rollback: {
+                    createdCollectionId: (created as { id?: string } | null)
+                      ?.id,
+                  },
+                  summary: { name: parsed.data.name },
+                };
+              },
+            });
+
+            return result({ created: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      server.tool(
+        "update_js_object",
+        "Update a restricted JS object from a declarative spec. Pass a revision from read_js_object. No raw JS. Governed.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const parsed = updateJsObjectSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const collections = await api.listActionCollections(
+            parsed.data.applicationId,
+          );
+          const current = (Array.isArray(collections) ? collections : []).find(
+            (collection) =>
+              (collection as { id?: unknown } | null)?.id ===
+              parsed.data.collectionId,
+          );
+
+          if (current === undefined) {
+            return result({ error: "js object not found" });
+          }
+
+          const request = buildUpdateJsObjectRequest(parsed.data);
+
+          try {
+            const { changeId, value } = await govJs.execute({
+              actorId,
+              entityKey: `jsobject:${parsed.data.collectionId}`,
+              operation: "update_js_object",
+              expectedRevision: parsed.data.revision,
+              currentRevision: fingerprintJsObject(current),
+              mutate: async () => {
+                const updated = await api.updateActionCollection(
+                  parsed.data.collectionId,
+                  request.body,
+                );
+
+                return {
+                  value: { jsObject: projectJsObject(updated) },
+                  revisionAfter: fingerprintJsObject(updated),
+                  rollback: { collectionId: parsed.data.collectionId },
+                  summary: { collectionId: parsed.data.collectionId },
+                };
+              },
+            });
+
+            return result({ updated: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      server.tool(
+        "prepare_delete_js_object",
+        "Prepare to delete a JS object. Returns a one-time confirmation token bound to this object and revision.",
+        { spec: z.record(z.unknown()) },
+        async ({ spec }) => {
+          const parsed = deleteJsObjectSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const confirmation = await govJs.prepareDestructiveConfirmation({
+            actorId,
+            entityKey: `jsobject:${parsed.data.collectionId}`,
+            operation: "delete_js_object",
+            revision: parsed.data.revision,
+            digest: operationDigest({
+              applicationId: parsed.data.applicationId,
+              collectionId: parsed.data.collectionId,
+            }),
+          });
+
+          return result({
+            confirmationId: confirmation.id,
+            expiresAt: confirmation.expiresAt,
+            operation: "delete_js_object",
+            collectionId: parsed.data.collectionId,
+          });
+        },
+      );
+
+      server.tool(
+        "confirm_delete_js_object",
+        "Delete a JS object using a confirmation token from prepare_delete_js_object. Token, actor, object, and revision must all match.",
+        { spec: z.record(z.unknown()), confirmationId: idSchema },
+        async ({ confirmationId, spec }) => {
+          const parsed = deleteJsObjectSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          try {
+            await govJs.consumeDestructiveConfirmation({
+              confirmationId,
+              actorId,
+              entityKey: `jsobject:${parsed.data.collectionId}`,
+              operation: "delete_js_object",
+              revision: parsed.data.revision,
+              digest: operationDigest({
+                applicationId: parsed.data.applicationId,
+                collectionId: parsed.data.collectionId,
+              }),
+            });
+
+            const collections = await api.listActionCollections(
+              parsed.data.applicationId,
+            );
+            const current = (
+              Array.isArray(collections) ? collections : []
+            ).find(
+              (collection) =>
+                (collection as { id?: unknown } | null)?.id ===
+                parsed.data.collectionId,
+            );
+            const { changeId } = await govJs.execute({
+              actorId,
+              entityKey: `jsobject:${parsed.data.collectionId}`,
+              operation: "delete_js_object",
+              expectedRevision: parsed.data.revision,
+              currentRevision: fingerprintJsObject(current),
+              mutate: async () => {
+                await api.deleteActionCollection(parsed.data.collectionId);
+
+                return {
+                  value: {},
+                  revisionAfter: "deleted",
+                  rollback: { deletedCollectionId: parsed.data.collectionId },
+                  summary: { collectionId: parsed.data.collectionId },
+                };
+              },
+            });
+
+            return result({
+              deleted: true,
+              collectionId: parsed.data.collectionId,
+              changeId,
+            });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+    }
   }
 
   registerInstructions(server);
@@ -738,6 +2716,47 @@ function writeJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+function logMcpEvent(event: string, fields: Record<string, unknown>) {
+  // Keep audit records machine-readable and intentionally omit bearer tokens,
+  // request bodies, and tool arguments because they can contain credentials or
+  // customer data.
+  process.stderr.write(
+    `${JSON.stringify({ event, timestamp: new Date().toISOString(), ...fields })}\n`,
+  );
+}
+
+function requestOperation(body: unknown): { method?: string; tool?: string } {
+  if (!body || typeof body !== "object") return {};
+
+  const request = body as {
+    method?: unknown;
+    params?: { name?: unknown };
+  };
+  const method =
+    typeof request.method === "string" ? request.method : undefined;
+  const tool =
+    method === "tools/call" && typeof request.params?.name === "string"
+      ? request.params.name
+      : undefined;
+
+  return { method, tool };
+}
+
+function correlationHeaders(req: IncomingMessage): Record<string, string> {
+  const internalRequestId = req.headers["x-appsmith-request-id"];
+  const requestId = req.headers["x-request-id"];
+  const headers: Record<string, string> = {
+    "X-Appsmith-Request-Id":
+      typeof internalRequestId === "string" ? internalRequestId : randomUUID(),
+  };
+
+  if (typeof requestId === "string") {
+    headers["X-Request-Id"] = requestId;
+  }
+
+  return headers;
+}
+
 class HttpError extends Error {
   constructor(
     readonly status: number,
@@ -784,6 +2803,11 @@ export interface McpHttpServerOptions {
   sessionTtlMs?: number;
   // Gate for the M4 data layer (APPSMITH_MCP_DATA_ENABLED). Off by default: data tools are not registered.
   dataEnabled?: boolean;
+  // Gate for restricted JS objects (APPSMITH_MCP_JS_ENABLED). Off by default.
+  jsEnabled?: boolean;
+  // Governance coordinator (present only when Mongo+Redis are configured). When absent, governed/destructive tools
+  // are not registered and normal mutations run unlocked (still revision-checked).
+  governance?: McpGovernanceCoordinator;
 }
 
 function tokensMatch(left: string, right: string): boolean {
@@ -798,8 +2822,11 @@ function tokensMatch(left: string, right: string): boolean {
 
 export function createMcpHttpServer(
   apiBaseUrl: string,
-  createApi: (token: string) => AppsmithApi = (token) =>
-    createAppsmithApi(token, apiBaseUrl),
+  createApi: (
+    token: string,
+    requestHeaders?: Record<string, string>,
+  ) => AppsmithApi = (token, requestHeaders) =>
+    createAppsmithApi(token, apiBaseUrl, fetch, requestHeaders),
   options: McpHttpServerOptions = {},
 ): Server {
   const sessions = new Map<string, McpSession>();
@@ -813,6 +2840,8 @@ export function createMcpHttpServer(
   const now = options.now ?? Date.now;
   const sessionTtlMs = options.sessionTtlMs ?? MCP_SESSION_TTL_MS;
   const dataEnabled = options.dataEnabled ?? false;
+  const jsEnabled = options.jsEnabled ?? false;
+  const governance = options.governance;
 
   function removeExpiredSessions() {
     const currentTime = now();
@@ -847,6 +2876,24 @@ export function createMcpHttpServer(
   const server = createServer(async (req, res) => {
     // Released in `finally`; holds a session reservation across the admission → registration gap.
     let releasePending = () => {};
+    const startedAt = Date.now();
+    const upstreamHeaders = correlationHeaders(req);
+    const requestId = upstreamHeaders["X-Appsmith-Request-Id"];
+    let username: string | undefined;
+    let operation: { method?: string; tool?: string } = {};
+
+    res.once("finish", () => {
+      logMcpEvent("appsmith_mcp_request", {
+        requestId,
+        path: (req.url ?? "").split("?")[0],
+        httpMethod: req.method,
+        mcpMethod: operation.method,
+        tool: operation.tool,
+        username,
+        status: res.statusCode,
+        durationMs: Date.now() - startedAt,
+      });
+    });
 
     try {
       const path = (req.url ?? "").split("?")[0];
@@ -885,6 +2932,8 @@ export function createMcpHttpServer(
       const sessionId = req.headers["mcp-session-id"] as string | undefined;
       const session = sessionId ? sessions.get(sessionId) : undefined;
       const body = req.method === "POST" ? await readBody(req) : undefined;
+
+      operation = requestOperation(body);
       let transport = session?.transport;
 
       if (session) {
@@ -896,21 +2945,25 @@ export function createMcpHttpServer(
           return;
         }
 
-        await authenticatedUsername(createApi(token));
+        username = await authenticatedUsername(
+          createApi(token, upstreamHeaders),
+        );
         session.expiresAt = now() + sessionTtlMs;
       }
 
       if (!transport && isInitializeRequest(body)) {
-        const api = createApi(token);
-        const username = await authenticatedUsername(api);
+        const api = createApi(token, upstreamHeaders);
+        const authenticatedUser = await authenticatedUsername(api);
+
+        username = authenticatedUser;
 
         // Check-and-reserve synchronously (no await between reading the counts and incrementing the reservation)
         // so a burst of concurrent initializes can't all slip past the caps. `sessions.size + pendingTotal` counts
         // both registered and in-flight sessions.
-        let userSessionCount = pendingByUser.get(username) ?? 0;
+        let userSessionCount = pendingByUser.get(authenticatedUser) ?? 0;
 
         for (const existing of sessions.values()) {
-          if (existing.username === username) userSessionCount += 1;
+          if (existing.username === authenticatedUser) userSessionCount += 1;
         }
 
         if (sessions.size + pendingTotal >= maxSessions) {
@@ -928,14 +2981,17 @@ export function createMcpHttpServer(
         }
 
         pendingTotal += 1;
-        pendingByUser.set(username, (pendingByUser.get(username) ?? 0) + 1);
+        pendingByUser.set(
+          authenticatedUser,
+          (pendingByUser.get(authenticatedUser) ?? 0) + 1,
+        );
         releasePending = () => {
           releasePending = () => {};
           pendingTotal -= 1;
-          const remaining = (pendingByUser.get(username) ?? 1) - 1;
+          const remaining = (pendingByUser.get(authenticatedUser) ?? 1) - 1;
 
-          if (remaining <= 0) pendingByUser.delete(username);
-          else pendingByUser.set(username, remaining);
+          if (remaining <= 0) pendingByUser.delete(authenticatedUser);
+          else pendingByUser.set(authenticatedUser, remaining);
         };
 
         transport = new StreamableHTTPServerTransport({
@@ -944,7 +3000,7 @@ export function createMcpHttpServer(
             sessions.set(id, {
               expiresAt: now() + sessionTtlMs,
               token,
-              username,
+              username: authenticatedUser,
               transport: transport!,
             });
             // Release the reservation the moment the session is registered — the initialize response is a
@@ -956,7 +3012,12 @@ export function createMcpHttpServer(
         transport.onclose = () => {
           if (transport?.sessionId) sessions.delete(transport.sessionId);
         };
-        await buildMcpServer(api, dataEnabled).connect(transport);
+        await buildMcpServer(api, {
+          dataEnabled,
+          jsEnabled,
+          governance,
+          actorId: authenticatedUser,
+        }).connect(transport);
       }
 
       if (!transport) {

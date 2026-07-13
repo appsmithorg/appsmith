@@ -1422,7 +1422,7 @@ public class ActionServiceCE_Test {
 
     @Test
     @WithUserDetails("api_user")
-    public void validateAndSaveActionToRepository_noDatasourceEditPermission() {
+    public void validateAndSaveActionToRepository_rejectsDatasourceWithoutExecutePermission() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
@@ -1444,12 +1444,20 @@ public class ActionServiceCE_Test {
 
         Set<Policy> datasourceExistingPolicies = datasource.getPolicies();
         datasource.setPolicies(Set.of());
-        Datasource updatedDatasource = datasourceRepository.save(datasource).block();
-        ActionDTO savedAction =
-                newActionService.validateAndSaveActionToRepository(newAction).block();
-        assertThat(savedAction.getIsValid()).isTrue();
-        datasource.setPolicies(datasourceExistingPolicies);
-        datasource = datasourceRepository.save(datasource).block();
+        datasourceRepository.save(datasource).block();
+
+        try {
+            StepVerifier.create(newActionService.validateAndSaveActionToRepository(newAction))
+                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                            && throwable
+                                    .getMessage()
+                                    .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.DATASOURCE, datasource.getId())))
+                    .verify();
+        } finally {
+            datasource.setPolicies(datasourceExistingPolicies);
+            datasource = datasourceRepository.save(datasource).block();
+        }
     }
 
     @Test

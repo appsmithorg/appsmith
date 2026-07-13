@@ -26,24 +26,34 @@ public class McpTokenControllerCE {
 
     @PostMapping
     public Mono<ResponseDTO<McpTokenResponseDTO>> create(@AuthenticationPrincipal User user) {
-        // An MCP token must not be usable to mint more MCP tokens — that would let a leaked token persist past
-        // revocation. Token creation is allowed only from a normal (session) login.
-        return ReactiveSecurityContextHolder.getContext()
-                .map(context -> isMcpAuthenticated(context.getAuthentication()))
-                .defaultIfEmpty(false)
-                .flatMap(mcpAuthenticated -> {
-                    if (mcpAuthenticated) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    }
+        return requireSessionAuthentication()
+                .then(userMcpTokenService.create(user))
+                .map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
+    }
 
-                    return userMcpTokenService.create(user).map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
-                });
+    @PostMapping("/{tokenId}/rotate")
+    public Mono<ResponseDTO<McpTokenResponseDTO>> rotate(
+            @AuthenticationPrincipal User user, @PathVariable String tokenId) {
+        // Rotation returns a replacement bearer secret, so MCP-authenticated calls must not be able to use a leaked
+        // token to perpetuate access beyond its intended revocation window.
+        return requireSessionAuthentication()
+                .then(userMcpTokenService.rotate(user, tokenId))
+                .map(token -> new ResponseDTO<>(HttpStatus.OK, token));
     }
 
     private static boolean isMcpAuthenticated(Authentication authentication) {
         return authentication != null
                 && authentication.getAuthorities().stream()
                         .anyMatch(authority -> McpTokenAuthentication.MCP_AUTHORITY.equals(authority.getAuthority()));
+    }
+
+    private Mono<Void> requireSessionAuthentication() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(context -> isMcpAuthenticated(context.getAuthentication()))
+                .defaultIfEmpty(false)
+                .flatMap(mcpAuthenticated -> mcpAuthenticated
+                        ? Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS))
+                        : Mono.empty());
     }
 
     @GetMapping

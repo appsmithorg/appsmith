@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
+    "mongodb": "^7.5.0",
+    "redis": "^6.1.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {

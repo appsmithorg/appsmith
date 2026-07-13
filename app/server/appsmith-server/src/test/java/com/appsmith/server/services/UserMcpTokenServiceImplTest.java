@@ -148,6 +148,31 @@ class UserMcpTokenServiceImplTest {
         verify(userMcpTokenRepository).archiveById("mongo-id");
     }
 
+    @Test
+    void rotate_replacesSecretPreservesTokenIdAndInvalidatesOldSecret() {
+        McpTokenResponseDTO original = createToken();
+        Instant originalExpiry = persistedToken.getExpiresAt();
+        when(userMcpTokenRepository.findByTokenIdAndUserIdAndDeletedAtIsNull(original.id(), user.getId()))
+                .thenReturn(Mono.just(persistedToken));
+
+        StepVerifier.create(service.rotate(user, original.id()))
+                .assertNext(rotated -> {
+                    assertThat(rotated.id()).isEqualTo(original.id());
+                    assertThat(rotated.token()).startsWith("mcp_" + original.id() + ".");
+                    assertThat(rotated.token()).isNotEqualTo(original.token());
+                    assertThat(rotated.expiresAt()).isAfter(originalExpiry);
+                })
+                .verifyComplete();
+
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(original.id()))
+                .thenReturn(Mono.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(service.authenticate(original.token())).verifyComplete();
+        verify(userMcpTokenRepository).save(userMcpTokenCaptor.capture());
+        assertThat(userMcpTokenCaptor.getValue().getTokenHash()).doesNotContain(original.token());
+    }
+
     private McpTokenResponseDTO createToken() {
         when(userMcpTokenRepository.countByUserIdAndDeletedAtIsNull(user.getId()))
                 .thenReturn(Mono.just(0L));

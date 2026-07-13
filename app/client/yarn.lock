@@ -4667,12 +4667,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mongodb-js/saslprep@npm:^1.1.0, @mongodb-js/saslprep@npm:^1.1.9":
-  version: 1.2.0
-  resolution: "@mongodb-js/saslprep@npm:1.2.0"
+"@mongodb-js/saslprep@npm:^1.1.0, @mongodb-js/saslprep@npm:^1.1.9, @mongodb-js/saslprep@npm:^1.4.11":
+  version: 1.4.12
+  resolution: "@mongodb-js/saslprep@npm:1.4.12"
   dependencies:
     sparse-bitfield: ^3.0.3
-  checksum: a2df7bf5fde7c0a46fb0022208720ec8235dfaad0ed078200af16d123b8fa63c03083a7e086045d2d7e9ce7a5602e7766064c415c21406e9f176767802fae715
+  checksum: 86c9aee11f45897fe45f4496bbaa629da57b97b84b5122614b330bd88381f8ddc25c3d7163985c2190fc706deaf55c64443465b165044e7c29626e71941ec9c7
   languageName: node
   linkType: hard
 
@@ -8661,6 +8661,59 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redis/bloom@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@redis/bloom@npm:6.1.0"
+  peerDependencies:
+    "@redis/client": ^6.1.0
+  checksum: 0030676e862d187c7f96f722b861f606e5a8491521e5a45b1bfecdb02e88e4e7b9000e8974c62be5b7f3249e5244b02be3d5bbf826448f71545b85de2401b019
+  languageName: node
+  linkType: hard
+
+"@redis/client@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@redis/client@npm:6.1.0"
+  dependencies:
+    cluster-key-slot: 1.1.2
+  peerDependencies:
+    "@node-rs/xxhash": ^1.1.0
+    "@opentelemetry/api": ">=1 <2"
+  peerDependenciesMeta:
+    "@node-rs/xxhash":
+      optional: true
+    "@opentelemetry/api":
+      optional: true
+  checksum: 3ed8008c551703eec94c9af247c97efb91f8f1bfff1dd6a2bb28120be3db27eac5df8795420f0fed46efaf70f96aca351e6336698b5619968bbdaf61e931e0b3
+  languageName: node
+  linkType: hard
+
+"@redis/json@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@redis/json@npm:6.1.0"
+  peerDependencies:
+    "@redis/client": ^6.1.0
+  checksum: 838942cdc9f0b5a9ff22713c400a3f28275446d739a15adb1621ed72a12be9b18db6850b9d61c48a4b9045eecb02dd0fd78407a67f87f815d7f02a9d9745b200
+  languageName: node
+  linkType: hard
+
+"@redis/search@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@redis/search@npm:6.1.0"
+  peerDependencies:
+    "@redis/client": ^6.1.0
+  checksum: ce880ca96cab880412ea16acc1e06566ae704f398444947e26c554eeb214e705e10f3f20b23701847f62d2898395cc06c1d365010b58ea317dddf88f70a98cd1
+  languageName: node
+  linkType: hard
+
+"@redis/time-series@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@redis/time-series@npm:6.1.0"
+  peerDependencies:
+    "@redis/client": ^6.1.0
+  checksum: 186b9059c2d0dfea641bf77022a038068c32584f6752c24c48efdab8ed0c1c4470aa44b4718bfb1db99dee47e9978c0ca4471ae9b94f8b41d87af11a9b8f94b2
+  languageName: node
+  linkType: hard
+
 "@redux-saga/core@npm:1.1.3, @redux-saga/core@npm:^1.1.3":
   version: 1.1.3
   resolution: "@redux-saga/core@npm:1.1.3"
@@ -12408,6 +12461,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/whatwg-url@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@types/whatwg-url@npm:13.0.0"
+  dependencies:
+    "@types/webidl-conversions": "*"
+  checksum: 82018c7dc057dd4b5ee6137e54a659d2d043146eaade8afc2dda472773cc66f2abad73525020a2bf399a09b1bf448504f9e519d6b2d7495e6e781bb5de686753
+  languageName: node
+  linkType: hard
+
 "@types/whatwg-url@npm:^8.2.1":
   version: 8.2.2
   resolution: "@types/whatwg-url@npm:8.2.2"
@@ -13928,6 +13990,8 @@ __metadata:
     "@types/supertest": ^6.0.2
     esbuild: ^0.25.0
     jest: ^29.6.1
+    mongodb: ^7.5.0
+    redis: ^6.1.0
     supertest: ^6.3.3
     ts-jest: ^29.1.0
     typescript: ^5.5.4
@@ -15630,6 +15694,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bson@npm:^7.2.0":
+  version: 7.3.1
+  resolution: "bson@npm:7.3.1"
+  checksum: a6200043480f50feccd943356dfa228bd377c8a53f0913e631676a155485d6d4472f1d2ef491e5ee72558e6ca7d84078d2c08bc6e89209ea74c0debd831786e9
+  languageName: node
+  linkType: hard
+
 "buffer-crc32@npm:~0.2.3":
   version: 0.2.13
   resolution: "buffer-crc32@npm:0.2.13"
@@ -16368,6 +16439,13 @@ __metadata:
   version: 2.0.0
   resolution: "clsx@npm:2.0.0"
   checksum: a2cfb2351b254611acf92faa0daf15220f4cd648bdf96ce369d729813b85336993871a4bf6978ddea2b81b5a130478339c20d9d0b5c6fc287e5147f0c059276e
+  languageName: node
+  linkType: hard
+
+"cluster-key-slot@npm:1.1.2":
+  version: 1.1.2
+  resolution: "cluster-key-slot@npm:1.1.2"
+  checksum: be0ad2d262502adc998597e83f9ded1b80f827f0452127c5a37b22dfca36bab8edf393f7b25bb626006fb9fb2436106939ede6d2d6ecf4229b96a47f27edd681
   languageName: node
   linkType: hard
 
@@ -26620,6 +26698,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb-connection-string-url@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "mongodb-connection-string-url@npm:7.0.1"
+  dependencies:
+    "@types/whatwg-url": ^13.0.0
+    whatwg-url: ^14.1.0
+  checksum: b1d1fc452e480195f819e0e12af32dc24fbb1737c37411afe8db3aa0da164a4597150a8bd687c31c0fea3ea902b6b694a2599aacb8d8edfe368d5939ac9fab3e
+  languageName: node
+  linkType: hard
+
 "mongodb@npm:^5.8.0":
   version: 5.9.2
   resolution: "mongodb@npm:5.9.2"
@@ -26683,6 +26771,40 @@ __metadata:
     socks:
       optional: true
   checksum: 1971fa021b79769427b93941788c3e9db301b2bd7444869b0ac0331d58a5a40bea361c5d8526e9983a8b1ee2e5bb783dffa939c6a36f512edf0009cdf409e020
+  languageName: node
+  linkType: hard
+
+"mongodb@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "mongodb@npm:7.5.0"
+  dependencies:
+    "@mongodb-js/saslprep": ^1.4.11
+    bson: ^7.2.0
+    mongodb-connection-string-url: ^7.0.1
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.806.0
+    "@mongodb-js/zstd": ^7.0.0
+    gcp-metadata: ^7.0.1
+    kerberos: ^7.0.0
+    mongodb-client-encryption: ^7.2.0
+    snappy: ^7.3.2
+    socks: ^2.8.6
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    "@mongodb-js/zstd":
+      optional: true
+    gcp-metadata:
+      optional: true
+    kerberos:
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+    socks:
+      optional: true
+  checksum: 442037ded8d5ecf5c52c20ec91dc673a9de48e9afcacb07d0a80c20f60326f595bfc4b5ccb6e3294c4e5dcc460f2e8fd7cbbb2c6742ca0e417cf778ff288b22d
   languageName: node
   linkType: hard
 
@@ -31312,6 +31434,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redis@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "redis@npm:6.1.0"
+  dependencies:
+    "@redis/bloom": 6.1.0
+    "@redis/client": 6.1.0
+    "@redis/json": 6.1.0
+    "@redis/search": 6.1.0
+    "@redis/time-series": 6.1.0
+  checksum: 40ad752f4829e1918f485cbe563b447be6843690b4be7119505594bbc8506c8e171ec20f3cb01381d205e810967edb9ef59802cc8c16727ab298fe99c7304e48
+  languageName: node
+  linkType: hard
+
 "redux-devtools-extension@npm:^2.13.8":
   version: 2.13.8
   resolution: "redux-devtools-extension@npm:2.13.8"
@@ -34551,12 +34686,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tr46@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "tr46@npm:5.0.0"
+"tr46@npm:^5.1.0":
+  version: 5.1.1
+  resolution: "tr46@npm:5.1.1"
   dependencies:
     punycode: ^2.3.1
-  checksum: 8d8b021f8e17675ebf9e672c224b6b6cfdb0d5b92141349e9665c14a2501c54a298d11264bbb0b17b447581e1e83d4fc3c038c929f3d210e3964d4be47460288
+  checksum: da7a04bd3f77e641abdabe948bb84f24e6ee73e81c8c96c36fe79796c889ba97daf3dbacae778f8581ff60307a4136ee14c9540a5f85ebe44f99c6cc39a97690
   languageName: node
   linkType: hard
 
@@ -36213,13 +36348,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-url@npm:^14.1.0 || ^13.0.0":
-  version: 14.1.1
-  resolution: "whatwg-url@npm:14.1.1"
+"whatwg-url@npm:^14.1.0, whatwg-url@npm:^14.1.0 || ^13.0.0":
+  version: 14.2.0
+  resolution: "whatwg-url@npm:14.2.0"
   dependencies:
-    tr46: ^5.0.0
+    tr46: ^5.1.0
     webidl-conversions: ^7.0.0
-  checksum: d44667005e35b545587b49371e0c75ddc6355407c07d9c6aaafc01d8ed3dfadf44393fa74c74cda3d8d5f41d3860acf408b4e81820c6de7cc5a17d9eb274349f
+  checksum: c4f1ae1d353b9e56ab3c154cd73bf2b621cea1a2499fd2a9b2a17d448c2ed5e73a8922a0f395939de565fc3661461140111ae2aea26d4006a1ad0cfbf021c034
   languageName: node
   linkType: hard
 
