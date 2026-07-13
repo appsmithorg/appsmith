@@ -56,6 +56,7 @@ export interface SemanticBindingRef {
   table?: string;
   column?: string;
   query?: string;
+  field?: string;
 }
 
 export interface SemanticWidget {
@@ -135,7 +136,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 // hidden, preserving the projection's no-raw-bindings guarantee.
 const SELECTED_ROW_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.selectedRow\["([A-Za-z0-9_ ]+)"\] \}\}$/;
-const QUERY_DATA_BINDING = /^\{\{ ([A-Za-z0-9_]+)\.data \}\}$/;
+// Matches the compiler's table-source binding: `{{ Query.data ?? [] }}` or `{{ Query.data?.field ?? [] }}`.
+const QUERY_DATA_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\] \}\}$/;
 
 function safeBindings(
   node: WidgetNode,
@@ -155,7 +158,11 @@ function safeBindings(
   if (typeof node.tableData === "string") {
     const match = QUERY_DATA_BINDING.exec(node.tableData);
 
-    if (match) bindings.tableData = { query: match[1] };
+    if (match) {
+      bindings.tableData = match[2]
+        ? { query: match[1], field: match[2] }
+        : { query: match[1] };
+    }
   }
 
   return Object.keys(bindings).length > 0 ? bindings : undefined;

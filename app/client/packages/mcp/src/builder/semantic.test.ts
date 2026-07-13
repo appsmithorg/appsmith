@@ -132,7 +132,7 @@ describe("projectSemanticPage", () => {
           widgetId: "table",
           widgetName: "Users",
           type: "TABLE_WIDGET_V2",
-          tableData: "{{ getUsers.data }}",
+          tableData: "{{ getUsers.data ?? [] }}",
         }),
         node({
           widgetId: "handwritten",

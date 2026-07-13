@@ -334,8 +334,9 @@ describe("compileApp — import artifact contract", () => {
     const whole = children.find((w) => w.widgetName === "Whole")!;
     const nested = children.find((w) => w.widgetName === "Nested")!;
 
-    expect(whole.tableData).toBe("{{ getRow.data }}");
-    expect(nested.tableData).toBe("{{ lookupZip.data.places }}");
+    // Optional chaining + `?? []` keeps the table valid before the query runs (no "Data is undefined" error).
+    expect(whole.tableData).toBe("{{ getRow.data ?? [] }}");
+    expect(nested.tableData).toBe("{{ lookupZip.data?.places ?? [] }}");
     expect(nested.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
   });
 

@@ -205,12 +205,16 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       }
 
       // Two safe data origins: (1) static literal rows serialized as JSON with NO binding, or (2) a query source
-      // compiled to `{{ <query>.data }}` (optionally into a nested field, e.g. `.data.places`) from the closed
-      // vocabulary. Query name and field path are strict identifier paths, so the expression cannot be broken out
-      // of. Agents never author raw expression text either way.
+      // compiled to a binding into the query's response (optionally a nested field, e.g. `.data.places`) from the
+      // closed vocabulary. Query name and field path are strict identifier paths, so the expression cannot be broken
+      // out of. Agents never author raw expression text either way. Optional chaining + `?? []` keeps the table valid
+      // before the query has run (data undefined), avoiding a "Data is undefined" widget error.
       const bound = source !== undefined;
+      const dataPath = source?.field
+        ? `${source.query}.data?.${source.field}`
+        : `${source?.query}.data`;
       const tableData = bound
-        ? `{{ ${source.query}.data${source.field ? `.${source.field}` : ""} }}`
+        ? `{{ ${dataPath} ?? [] }}`
         : rows.length > 0
           ? JSON.stringify(rows)
           : "";

@@ -256,7 +256,7 @@ describe("M4 binding vocabulary — safe query bindings only", () => {
       build([{ type: "table", name: "T", source: { query: "getUsers" } }]),
     );
 
-    expect(table.tableData).toBe("{{ getUsers.data }}");
+    expect(table.tableData).toBe("{{ getUsers.data ?? [] }}");
     expect(table.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
   });
 
