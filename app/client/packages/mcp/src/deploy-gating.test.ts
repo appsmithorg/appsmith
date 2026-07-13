@@ -37,10 +37,10 @@ describe("supervisord, run script, and healthcheck keep MCP default-on and toggl
     // The old conditional `rm mcp.conf` must NOT return: removing the program at boot would make the
     // Admin Settings toggle require a full container restart to re-enable.
     expect(entrypoint).not.toMatch(/rm\s+-f\s+"?\$?\{?SUPERVISORD[^\n]*mcp/);
-    // Existing installs get the gates backfilled into docker.env so the Admin UI mirrors reality.
+    // Existing installs get the gates backfilled into docker.env so the Admin UI mirrors reality (all on by default).
     expect(entrypoint).toMatch(/APPSMITH_MCP_ENABLED=true/);
-    expect(entrypoint).toMatch(/APPSMITH_MCP_DATA_ENABLED=false/);
-    expect(entrypoint).toMatch(/APPSMITH_MCP_JS_ENABLED=false/);
+    expect(entrypoint).toMatch(/APPSMITH_MCP_DATA_ENABLED=true/);
+    expect(entrypoint).toMatch(/APPSMITH_MCP_JS_ENABLED=true/);
   });
 
   it("run-mcp.sh parks (never crash-loops) when explicitly disabled and runs by default", () => {
@@ -52,14 +52,14 @@ describe("supervisord, run script, and healthcheck keep MCP default-on and toggl
     expect(runMcp).toContain("exec node --enable-source-maps");
   });
 
-  it("docker.env template seeds the gates (server on, sub-features off)", () => {
+  it("docker.env template seeds the gates (server + data + JS all on by default)", () => {
     const dockerEnv = readDeployFile(
       "deploy/docker/fs/opt/appsmith/templates/docker.env.sh",
     );
 
     expect(dockerEnv).toContain("APPSMITH_MCP_ENABLED=true");
-    expect(dockerEnv).toContain("APPSMITH_MCP_DATA_ENABLED=false");
-    expect(dockerEnv).toContain("APPSMITH_MCP_JS_ENABLED=false");
+    expect(dockerEnv).toContain("APPSMITH_MCP_DATA_ENABLED=true");
+    expect(dockerEnv).toContain("APPSMITH_MCP_JS_ENABLED=true");
   });
 
   it("healthcheck probes the MCP endpoint only when the gate is enabled", () => {

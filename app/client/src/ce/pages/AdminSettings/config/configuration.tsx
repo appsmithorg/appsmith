@@ -102,7 +102,8 @@ export const APPSMITH_MCP_DATA_ENABLED_SETTING: Setting = {
   label: "MCP data tools",
   text: "Let agents work with datasources and queries (create datasources/queries, run read-only actions)",
   subText:
-    "* Off by default. All operations run under the connecting user's existing permissions; credentials are never exposed to agents.",
+    "* Enabled by default. All operations run under the connecting user's existing permissions; credentials are never exposed to agents.",
+  defaultValue: true,
 };
 
 export const APPSMITH_MCP_JS_ENABLED_SETTING: Setting = {
@@ -112,7 +113,8 @@ export const APPSMITH_MCP_JS_ENABLED_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "MCP JS objects",
   text: "Let agents author restricted JS objects (declarative grammar only — no arbitrary JavaScript)",
-  subText: "* Off by default. Requires MCP data tools.",
+  subText: "* Enabled by default. Requires MCP data tools.",
+  defaultValue: true,
 };
 
 export const APPSMITH_MCP_TOKEN_TTL_DAYS_SETTING: Setting = {

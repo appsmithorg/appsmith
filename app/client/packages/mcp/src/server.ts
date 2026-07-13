@@ -1,6 +1,6 @@
 import type { Server } from "node:http";
 import { createMcpHttpServer } from "./app.js";
-import { gateEnabled } from "./gates.js";
+import { gateEnabledByDefault } from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
   createGovernanceStoreFromEnv,
@@ -10,9 +10,10 @@ import {
 const port = Number(process.env.APPSMITH_MCP_PORT ?? 8092);
 const apiBaseUrl = process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080";
 
-// The data layer and restricted JS objects are independent opt-ins on top of APPSMITH_MCP_ENABLED. Default off.
-const dataEnabled = gateEnabled(process.env.APPSMITH_MCP_DATA_ENABLED);
-const jsEnabled = gateEnabled(process.env.APPSMITH_MCP_JS_ENABLED);
+// The data layer and restricted JS objects are ON by default (like APPSMITH_MCP_ENABLED); an admin turns them off
+// explicitly. Governed/destructive tools still require Mongo+Redis, so they only register when that infra is present.
+const dataEnabled = gateEnabledByDefault(process.env.APPSMITH_MCP_DATA_ENABLED);
+const jsEnabled = gateEnabledByDefault(process.env.APPSMITH_MCP_JS_ENABLED);
 
 let httpServer: Server | undefined;
 let governanceStore: MongoRedisGovernanceStore | undefined;

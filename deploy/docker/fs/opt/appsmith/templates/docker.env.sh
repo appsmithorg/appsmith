@@ -88,11 +88,10 @@ APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
 # MCP (Model Context Protocol) server: lets AI agents connect to this instance at /mcp using
 # per-user MCP tokens (Profile -> MCP tokens). Also editable from Admin Settings -> Configuration.
-# The server is on by default; the data layer (datasources/queries) and restricted JS objects are
-# separate opt-ins.
+# The server, the data layer (datasources/queries), and restricted JS objects are all on by default.
 APPSMITH_MCP_ENABLED=true
-APPSMITH_MCP_DATA_ENABLED=false
-APPSMITH_MCP_JS_ENABLED=false
+APPSMITH_MCP_DATA_ENABLED=true
+APPSMITH_MCP_JS_ENABLED=true
 # How long a newly created/rotated MCP token stays valid (days). Default 90; range 1-3650.
 APPSMITH_MCP_TOKEN_TTL_DAYS=90
 

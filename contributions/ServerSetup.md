@@ -420,7 +420,7 @@ Create an MCP token from **User Profile → MCP tokens**. Copy the value when it
 - URL: `http://127.0.0.1:8092/mcp` for local development, or `https://<your-appsmith-domain>/mcp` for a Docker deployment (the MCP server is enabled by default; admins can turn it off from **Admin Settings → Configuration** or with `APPSMITH_MCP_ENABLED=false`).
 - Header: `Authorization: Bearer <your-mcp-token>`.
 
-The service intentionally binds only to loopback; external clients connect through the Appsmith Caddy route, never directly to port `8092`. Leave `APPSMITH_MCP_DATA_ENABLED=0` unless datasource discovery and structured SQL query creation have been explicitly enabled for the deployment.
+The service intentionally binds only to loopback; external clients connect through the Appsmith Caddy route, never directly to port `8092`. The data layer is on by default; set `APPSMITH_MCP_DATA_ENABLED=false` to disable datasource discovery and structured SQL/REST query creation for a deployment.
 
 For example, Claude Code can register the local server with:
 
@@ -453,8 +453,8 @@ The MCP server itself is **on by default** (`APPSMITH_MCP_ENABLED`, toggleable f
 
 | Gate | Env var | Enables |
 |------|---------|---------|
-| Data layer | `APPSMITH_MCP_DATA_ENABLED=true` (default off) | datasource discovery/creation, structured SQL/REST action creation, action reads |
-| Restricted JS | `APPSMITH_MCP_JS_ENABLED=true` (default off) | declarative, restricted JS-object tools (requires data + governance) |
+| Data layer | `APPSMITH_MCP_DATA_ENABLED` (default on) | datasource discovery/creation, structured SQL/REST action creation, action reads |
+| Restricted JS | `APPSMITH_MCP_JS_ENABLED` (default on) | declarative, restricted JS-object tools (requires data + governance) |
 | Governance | `APPSMITH_MONGODB_URI`/`APPSMITH_DB_URL` **and** `APPSMITH_REDIS_URL` | governed mutations, destructive ops, audit history, rollback, publish |
 
 **Governance** is MCP-owned durable state, kept out of product documents: audit/rollback snapshots in the Mongo `mcp_changes` collection, and locks + one-time confirmation tokens in Redis (`appsmith:mcp:lock:*`, `appsmith:mcp:confirm:*`). When it is not configured, the server registers **read + spec-authoring tools only** — it never falls back to an in-memory store, and if a governance URL is set but unreachable it fails to start.
