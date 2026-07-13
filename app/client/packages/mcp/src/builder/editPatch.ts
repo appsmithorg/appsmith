@@ -2,8 +2,11 @@ import { z } from "zod";
 import { ROOT_WIDGET_ID, type WidgetNode } from "./layout.js";
 import {
   compileSelectedRowBinding,
+  compileTableDataBinding,
   selectedRowRefSchema,
+  tableDataRefSchema,
   type SelectedRowRef,
+  type TableDataRef,
 } from "./schema.js";
 
 const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
@@ -24,6 +27,20 @@ const safeText = (max: number) =>
       (value) => !RAW_EXPRESSION.test(value),
       "must not contain bindings",
     );
+
+// A literal CSS color for style props (e.g. table row colors), emitted raw into a styled-component
+// `background: ${color}` declaration. This is a COLOR-GRAMMAR allowlist, not a loose charset: hex, an
+// rgb/rgba/hsl/hsla function with a numeric-only argument list, or a bare named-color token. Crucially it cannot
+// spell `url(...)` (letters are forbidden inside the function parens), so it admits no CSS egress primitive — a
+// value can neither fetch a URL (tracking beacon / internal-network probe) nor form a binding/expression.
+const cssColor = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(
+    /^(?:#[0-9A-Fa-f]{3,8}|(?:rgb|rgba|hsl|hsla)\(\s*[0-9.,%/ ]+\s*\)|[A-Za-z]+)$/,
+    "color must be a literal color: hex (#rgb/#rrggbb), rgb()/rgba()/hsl()/hsla(), or a named color",
+  );
 
 const literalScalarSchema = z.union([
   safeText(10_000),
@@ -48,6 +65,8 @@ export const widgetPropsPatchSchema = z
     text: safeText(10_000).optional(),
     source: selectedRowRefSchema.optional(),
     defaultValue: selectedRowRefSchema.optional(),
+    // Re-bind a table's data (optionally clear-when-empty). Compiled, never literal-assigned.
+    tableData: tableDataRefSchema.optional(),
     label: safeText(200).optional(),
     inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
     options: z.array(optionSchema).max(200).optional(),
@@ -69,6 +88,10 @@ export const widgetPropsPatchSchema = z
     isRequired: z.boolean().optional(),
     isDisabled: z.boolean().optional(),
     isVisible: z.boolean().optional(),
+    // Table row-striping (TableWidgetV2 style props). Literal colors only — never bindings — so the zebra effect
+    // ships as static style, not an evaluated expression.
+    oddRowColor: cssColor.optional(),
+    evenRowColor: cssColor.optional(),
   })
   .strict()
   .refine((props) => Object.keys(props).length > 0, "must update a property");
@@ -272,6 +295,42 @@ function applySelectedRowBinding(
   registerDynamicBinding(node, expected.property);
 }
 
+// Re-bind a table's data to a query (optionally clear-when-empty). Type-checks the target, verifies the guard input
+// exists, emits the binding from the closed vocabulary, and registers the dynamic path. The agent never supplies
+// expression text.
+function applyTableDataBinding(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: TableDataRef,
+): void {
+  if (node.type !== "TABLE_WIDGET_V2") {
+    throw new Error(
+      `'tableData' can only be set on a TABLE_WIDGET_V2 ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  // The guard is emitted as `${guard}.text` — so it must be an input widget. A non-input has no `.text` (undefined
+  // is falsy), which would silently keep the table permanently empty; reject that up front instead.
+  if (ref.clearWhenEmpty !== undefined) {
+    const guard = widgets.get(ref.clearWhenEmpty);
+
+    if (!guard) {
+      throw new Error(
+        `clearWhenEmpty input "${ref.clearWhenEmpty}" was not found`,
+      );
+    }
+
+    if (guard.node.type !== "INPUT_WIDGET_V2") {
+      throw new Error(
+        `clearWhenEmpty "${ref.clearWhenEmpty}" must be an input widget (it is ${guard.node.type})`,
+      );
+    }
+  }
+
+  node.tableData = compileTableDataBinding(ref);
+  registerDynamicBinding(node, "tableData");
+}
+
 function moveToPosition(
   node: WidgetNode,
   position: { topRow: number; leftColumn: number },
@@ -300,7 +359,7 @@ export function applyWidgetPatch(
 
     if (operation.kind === "update") {
       // Structured binding refs are compiled (never literal-assigned); everything else is a plain literal.
-      const { defaultValue, source, ...literals } = operation.props;
+      const { defaultValue, source, tableData, ...literals } = operation.props;
 
       // A binding and a literal for the same property in one patch would silently race; reject the ambiguity.
       if (source !== undefined && literals.text !== undefined) {
@@ -327,6 +386,10 @@ export function applyWidgetPatch(
           property: "defaultText",
           field: "defaultValue",
         });
+      }
+
+      if (tableData !== undefined) {
+        applyTableDataBinding(widgets, located.node, tableData);
       }
 
       Object.assign(located.node, literals);

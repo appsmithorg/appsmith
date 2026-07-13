@@ -161,6 +161,56 @@ describe("projectSemanticPage", () => {
       "appsmith.store",
     );
   });
+
+  it("projects a guarded (clear-when-empty) table binding as a structured ref", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "table",
+          widgetName: "Results",
+          type: "TABLE_WIDGET_V2",
+          tableData:
+            "{{ ZipInput.text ? (lookupZip.data?.places ?? []) : [] }}",
+        }),
+      ],
+    });
+    const widgets = projectSemanticPage(dsl).widgets;
+    const results = widgets.find((widget) => widget.name === "Results");
+
+    expect(results?.bindings).toEqual({
+      tableData: {
+        query: "lookupZip",
+        field: "places",
+        clearWhenEmpty: "ZipInput",
+      },
+    });
+  });
+
+  it("projects a guarded binding with no field", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "table",
+          widgetName: "Results",
+          type: "TABLE_WIDGET_V2",
+          tableData: "{{ Search.text ? (getRows.data ?? []) : [] }}",
+        }),
+      ],
+    });
+    const results = projectSemanticPage(dsl).widgets.find(
+      (widget) => widget.name === "Results",
+    );
+
+    expect(results?.bindings).toEqual({
+      tableData: { query: "getRows", clearWhenEmpty: "Search" },
+    });
+  });
 });
 
 describe("DSL fingerprints", () => {

@@ -296,7 +296,8 @@ class Linter {
   }
 }
 
-// Binding heads that are always valid: JS/Appsmith globals the agent may legitimately reference.
+// Binding heads that are always valid: JS/Appsmith globals and the platform action functions the compiler emits
+// (e.g. wire_event -> resetWidget/navigateTo/showAlert), so they aren't mistaken for dangling entity references.
 const GLOBAL_BINDING_HEADS = new Set([
   "appsmith",
   "moment",
@@ -309,6 +310,18 @@ const GLOBAL_BINDING_HEADS = new Set([
   "Boolean",
   "Date",
   "window",
+  // Platform action functions (compiler-emitted event bindings).
+  "resetWidget",
+  "navigateTo",
+  "showModal",
+  "closeModal",
+  "showAlert",
+  "storeValue",
+  "clearStore",
+  "removeValue",
+  "copyToClipboard",
+  "download",
+  "postWindowMessage",
 ]);
 
 export function lintDsl(

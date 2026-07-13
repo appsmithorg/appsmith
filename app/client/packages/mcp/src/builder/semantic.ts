@@ -57,6 +57,8 @@ export interface SemanticBindingRef {
   column?: string;
   query?: string;
   field?: string;
+  // Present on a guarded table binding: the input whose emptiness clears the table.
+  clearWhenEmpty?: string;
 }
 
 export interface SemanticWidget {
@@ -139,6 +141,9 @@ const SELECTED_ROW_BINDING =
 // Matches the compiler's table-source binding: `{{ Query.data ?? [] }}` or `{{ Query.data?.field ?? [] }}`.
 const QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\] \}\}$/;
+// The guarded (clear-when-empty) variant: `{{ Input.text ? (Query.data?.field ?? []) : [] }}`.
+const GUARDED_QUERY_DATA_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.text \? \(([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\]\) : \[\] \}\}$/;
 
 function safeBindings(
   node: WidgetNode,
@@ -156,12 +161,22 @@ function safeBindings(
   }
 
   if (typeof node.tableData === "string") {
-    const match = QUERY_DATA_BINDING.exec(node.tableData);
+    const guarded = GUARDED_QUERY_DATA_BINDING.exec(node.tableData);
 
-    if (match) {
-      bindings.tableData = match[2]
-        ? { query: match[1], field: match[2] }
-        : { query: match[1] };
+    if (guarded) {
+      bindings.tableData = {
+        query: guarded[2],
+        ...(guarded[3] ? { field: guarded[3] } : {}),
+        clearWhenEmpty: guarded[1],
+      };
+    } else {
+      const match = QUERY_DATA_BINDING.exec(node.tableData);
+
+      if (match) {
+        bindings.tableData = match[2]
+          ? { query: match[1], field: match[2] }
+          : { query: match[1] };
+      }
     }
   }
 

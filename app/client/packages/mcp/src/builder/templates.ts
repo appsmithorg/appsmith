@@ -1,5 +1,6 @@
 import {
   compileSelectedRowBinding,
+  compileTableDataBinding,
   type WidgetSpec,
   type WidgetType,
 } from "./schema.js";
@@ -210,11 +211,8 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       // out of. Agents never author raw expression text either way. Optional chaining + `?? []` keeps the table valid
       // before the query has run (data undefined), avoiding a "Data is undefined" widget error.
       const bound = source !== undefined;
-      const dataPath = source?.field
-        ? `${source.query}.data?.${source.field}`
-        : `${source?.query}.data`;
       const tableData = bound
-        ? `{{ ${dataPath} ?? [] }}`
+        ? compileTableDataBinding(source)
         : rows.length > 0
           ? JSON.stringify(rows)
           : "";

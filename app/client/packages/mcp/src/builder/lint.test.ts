@@ -198,6 +198,21 @@ describe("lintDsl — dangling-binding check is dormant until M4", () => {
 
     expect(diagnostics.issues.map((i) => i.rule)).toContain("dangling-binding");
   });
+
+  it("treats platform action functions as valid binding heads (compiler-emitted event bindings)", () => {
+    // A Clear button whose onClick resets an input and a table — the head is resetWidget, not an entity name.
+    const dsl = canvas([
+      widget({
+        widgetId: "b",
+        widgetName: "ClearButton",
+        onClick:
+          "{{ resetWidget('ZipInput', true); resetWidget('Results', true) }}",
+      }),
+    ]);
+    const diagnostics = lintDsl(dsl, { knownDataNames: ["getPlaces"] });
+
+    expect(diagnostics.errors).toBe(0);
+  });
 });
 
 describe("lintArtifact — compiler output is lint-clean", () => {

@@ -1384,7 +1384,7 @@ export function buildMcpServer(
 
   server.tool(
     "patch_widgets",
-    "Directly update, move, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected.",
+    "Directly update, move, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table).",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -1436,7 +1436,7 @@ export function buildMcpServer(
 
   server.tool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, or show an alert. A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, or reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,

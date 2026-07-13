@@ -55,6 +55,42 @@ describe("compileEventBinding — closed vocabulary", () => {
     expect(compileEventBinding({ showAlert: "Heads up" })).toBe(
       "{{ showAlert('Heads up', 'info') }}",
     );
+    // Reset a single widget, and several at once (a Clear button).
+    expect(compileEventBinding({ reset: "ZipInput" })).toBe(
+      "{{ resetWidget('ZipInput', true) }}",
+    );
+    expect(compileEventBinding({ reset: ["ZipInput", "Results"] })).toBe(
+      "{{ resetWidget('ZipInput', true); resetWidget('Results', true) }}",
+    );
+  });
+
+  it("validates and references every widget in a reset action", () => {
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "ClearButton",
+        event: "onClick",
+        action: { reset: ["ZipInput", "Results"] },
+      }).success,
+    ).toBe(true);
+    // Injection in a reset target is rejected — both the array form and the single-string form.
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "ClearButton",
+        event: "onClick",
+        action: { reset: ["ZipInput'); evil("] },
+      }).success,
+    ).toBe(false);
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "ClearButton",
+        event: "onClick",
+        action: { reset: "ZipInput'); evil(" },
+      }).success,
+    ).toBe(false);
+    expect(eventReferences({ reset: ["ZipInput", "Results"] })).toEqual([
+      { kind: "widget", name: "ZipInput" },
+      { kind: "widget", name: "Results" },
+    ]);
   });
 
   it("compiles the canonical submit -> refresh -> close -> alert chain", () => {
@@ -71,6 +107,27 @@ describe("compileEventBinding — closed vocabulary", () => {
     ).toBe(
       "{{ insertUser.run().then(() => { getUsers.run(); closeModal('AddUserModal'); showAlert('Saved', 'success'); }).catch(() => { showAlert('Save failed', 'error'); }) }}",
     );
+  });
+
+  it("compiles reset as an onSuccess follow-up of a run chain", () => {
+    expect(
+      compileEventBinding({
+        run: "deleteRow",
+        onSuccess: [{ run: "getRows" }, { reset: ["ZipInput", "Results"] }],
+      }),
+    ).toBe(
+      "{{ deleteRow.run().then(() => { getRows.run(); resetWidget('ZipInput', true); resetWidget('Results', true); }) }}",
+    );
+    // And it round-trips through eventReferences (primary query + reset widgets).
+    expect(
+      eventReferences({
+        run: "deleteRow",
+        onSuccess: [{ reset: "ZipInput" }],
+      }),
+    ).toEqual([
+      { kind: "query", name: "deleteRow" },
+      { kind: "widget", name: "ZipInput" },
+    ]);
   });
 
   it("compiles onSuccess without onError (and vice versa)", () => {

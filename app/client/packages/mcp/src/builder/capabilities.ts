@@ -53,10 +53,10 @@ export const WIDGET_CATALOG = [
     fields: {
       data: "{ [column]: string|number|boolean|null }[] — static literal rows",
       source:
-        "{ query: '<queryName>', field?: '<responsePath>' } — bind to a query's data, optionally a nested array like 'places' (data layer)",
+        "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } — bind to a query's data, optionally a nested array like 'places'; clearWhenEmpty gates the rows on an input holding text so resetting the input clears the table (data layer)",
     },
     purpose:
-      "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query (not both).",
+      "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query (not both). Style alternating rows via patch_widgets oddRowColor/evenRowColor.",
   },
   {
     type: "container",

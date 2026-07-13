@@ -68,6 +68,217 @@ describe("applyWidgetPatch", () => {
     ]);
   });
 
+  it("sets literal table row-striping colors (oddRowColor/evenRowColor)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+    const { changes, dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: { oddRowColor: "#ffffff", evenRowColor: "#e6f2ff" },
+        },
+      ],
+    });
+    const table = dsl.children![2];
+
+    expect(table).toMatchObject({
+      oddRowColor: "#ffffff",
+      evenRowColor: "#e6f2ff",
+    });
+    // Literal style props are NOT dynamic bindings.
+    expect(table.dynamicBindingPathList).toBeUndefined();
+    expect(changes[0].changedProps).toEqual(["oddRowColor", "evenRowColor"]);
+  });
+
+  it("re-binds a table's data with a clear-when-empty guard", () => {
+    const withWidgets = page();
+
+    withWidgets.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+      node({
+        widgetId: "in1",
+        widgetName: "ZipInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+    const { changes, dsl } = applyWidgetPatch(withWidgets, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: {
+            tableData: {
+              query: "lookupZip",
+              field: "places",
+              clearWhenEmpty: "ZipInput",
+            },
+          },
+        },
+      ],
+    });
+    const table = dsl.children![2];
+
+    expect(table.tableData).toBe(
+      "{{ ZipInput.text ? (lookupZip.data?.places ?? []) : [] }}",
+    );
+    expect(table.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
+    expect(changes[0].changedProps).toEqual(["tableData"]);
+  });
+
+  it("re-binds a table's data without a guard (plain binding)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+    const { dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: { tableData: { query: "getRows" } },
+        },
+      ],
+    });
+
+    expect(dsl.children![2].tableData).toBe("{{ getRows.data ?? [] }}");
+  });
+
+  it("rejects a tableData binding on a non-table, or a missing guard input", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+
+    // tableData only applies to tables.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { tableData: { query: "getRows" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a TABLE_WIDGET_V2/);
+
+    // The guard input must exist.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Results",
+            props: { tableData: { query: "getRows", clearWhenEmpty: "Nope" } },
+          },
+        ],
+      }),
+    ).toThrow(/clearWhenEmpty input "Nope" was not found/);
+  });
+
+  it("re-binds a table's data with a guard but no field", () => {
+    const withWidgets = page();
+
+    withWidgets.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+      node({
+        widgetId: "in1",
+        widgetName: "Search",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+    const { dsl } = applyWidgetPatch(withWidgets, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: { tableData: { query: "getRows", clearWhenEmpty: "Search" } },
+        },
+      ],
+    });
+
+    expect(dsl.children![2].tableData).toBe(
+      "{{ Search.text ? (getRows.data ?? []) : [] }}",
+    );
+  });
+
+  it("rejects a clearWhenEmpty guard that is not an input widget", () => {
+    const withWidgets = page();
+
+    withWidgets.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+
+    // "Greeting" is a TEXT_WIDGET — it has no `.text` value to gate on.
+    expect(() =>
+      applyWidgetPatch(withWidgets, {
+        operations: [
+          {
+            kind: "update",
+            name: "Results",
+            props: {
+              tableData: { query: "getRows", clearWhenEmpty: "Greeting" },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/must be an input widget/);
+  });
+
+  it("rejects a binding/template/egress smuggled through a row color", () => {
+    // Bindings/templates, AND a CSS url() egress primitive (tracking beacon / internal probe), rejected on both
+    // odd and even row colors.
+    const bad = [
+      "{{ evil() }}",
+      "${x}",
+      "red`",
+      "url(//attacker.example/beacon)",
+      "url(/x)",
+    ];
+
+    for (const color of bad) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Results", props: { evenRowColor: color } },
+          ],
+        }).success,
+      ).toBe(false);
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Results", props: { oddRowColor: color } },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("accepts legitimate literal color forms for row striping", () => {
+    for (const color of [
+      "#fff",
+      "#e6f2ff",
+      "rgb(230, 242, 255)",
+      "rgba(0,0,0,0.5)",
+      "hsl(210, 100%, 96%)",
+      "lightblue",
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Results", props: { evenRowColor: color } },
+          ],
+        }).success,
+      ).toBe(true);
+    }
+  });
+
   it("compiles a selected-row binding onto a text widget (source)", () => {
     const withTable = page();
 

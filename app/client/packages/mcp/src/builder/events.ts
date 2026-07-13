@@ -35,14 +35,23 @@ const alertMessage = z
 
 const alertStyle = z.enum(["info", "success", "warning", "error"]);
 
-// A follow-up step inside a run's onSuccess/onError callback: the same closed kinds plus showAlert. Follow-ups can
-// never nest further (no callbacks on callbacks), so the compiled binding stays one bounded promise chain.
+// Reset (clear) one or more widgets to their default state — e.g. a Clear button that empties an input and resets a
+// table. Each name is a strict widget identifier, so the emitted resetWidget('Name', true) cannot be broken out of.
+const resetAction = z
+  .object({
+    reset: z.union([widgetName, z.array(widgetName).min(1).max(10)]),
+  })
+  .strict();
+
+// A follow-up step inside a run's onSuccess/onError callback: the same closed kinds plus showAlert and reset.
+// Follow-ups can never nest further (no callbacks on callbacks), so the compiled binding stays one bounded chain.
 const followUpActionSchema = z.union([
   z.object({ run: queryName }).strict(),
   z.object({ navigate: pageName }).strict(),
   z.object({ showModal: widgetName }).strict(),
   z.object({ closeModal: widgetName }).strict(),
   z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
+  resetAction,
 ]);
 
 export type FollowUpAction = z.infer<typeof followUpActionSchema>;
@@ -61,6 +70,7 @@ export const eventActionSchema = z.union([
   z.object({ showModal: widgetName }).strict(),
   z.object({ closeModal: widgetName }).strict(),
   z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
+  resetAction,
 ]);
 
 export type EventAction = z.infer<typeof eventActionSchema>;
@@ -95,6 +105,12 @@ function compileStatement(action: FollowUpAction): string {
   if ("showModal" in action) return `showModal('${action.showModal}')`;
 
   if ("closeModal" in action) return `closeModal('${action.closeModal}')`;
+
+  if ("reset" in action) {
+    const names = Array.isArray(action.reset) ? action.reset : [action.reset];
+
+    return names.map((name) => `resetWidget('${name}', true)`).join("; ");
+  }
 
   return `showAlert('${action.showAlert}', '${action.style ?? "info"}')`;
 }
@@ -142,6 +158,12 @@ export function eventReferences(action: EventAction): {
 
     if ("closeModal" in step) {
       return [{ kind: "widget" as const, name: step.closeModal }];
+    }
+
+    if ("reset" in step) {
+      const names = Array.isArray(step.reset) ? step.reset : [step.reset];
+
+      return names.map((name) => ({ kind: "widget" as const, name }));
     }
 
     return [];

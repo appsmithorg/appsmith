@@ -104,10 +104,49 @@ const responseFieldPath = z
     "field must be a dotted identifier path (e.g. 'places' or 'data.items')",
   );
 
-const queryRef = z
-  .object({ query: bindingIdentifier, field: responseFieldPath.optional() })
+// An optional guard: the name of an input widget whose emptiness clears the table. When set, the compiled table
+// binding shows the query's data only while that input holds a value — so a Clear button that resets the input also
+// empties the table (resetWidget alone can't clear a query-bound table; the bound data re-evaluates and persists).
+// At BUILD time the referenced input's existence is not checked (a missing `Input.text` is falsy → empty table, a
+// safe fail, not a crash). The EDIT path (editPatch.ts applyTableDataBinding) has the widget map and does verify
+// both that the guard exists and that it is an input.
+const guardWidget = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_]+$/, "must be a widget name (alphanumeric/underscore)");
+
+// The ONE table-data reference schema, shared by the build-time table `source` (below) and the edit-time
+// patch_widgets `tableData` (editPatch.ts imports this), so the two entry points can never drift apart.
+export const tableDataRefSchema = z
+  .object({
+    query: bindingIdentifier,
+    field: responseFieldPath.optional(),
+    clearWhenEmpty: guardWidget.optional(),
+  })
   .strict();
+const queryRef = tableDataRefSchema;
 const runRef = z.object({ run: bindingIdentifier }).strict();
+
+export interface TableDataRef {
+  query: string;
+  field?: string;
+  clearWhenEmpty?: string;
+}
+
+// The single emitter for a table's data binding. All parts are schema-validated identifier paths, so the emitted
+// expression cannot be broken out of. Optional chaining + `?? []` keeps the table valid before the query has run.
+// With `clearWhenEmpty`, the data is gated on the guard input holding text: `{{ In.text ? (Q.data ?? []) : [] }}`.
+export function compileTableDataBinding(ref: TableDataRef): string {
+  const dataPath = ref.field
+    ? `${ref.query}.data?.${ref.field}`
+    : `${ref.query}.data`;
+  const base = `${dataPath} ?? []`;
+
+  return ref.clearWhenEmpty
+    ? `{{ ${ref.clearWhenEmpty}.text ? (${base}) : [] }}`
+    : `{{ ${base} }}`;
+}
 
 // A structured reference to one column of a table's selected row — the display-binding half of the CRUD loop
 // (detail views, edit-form prefill). Same charset as table column keys; the compiler emits bracket access with
@@ -344,7 +383,7 @@ export type WidgetSpec =
       type: "table";
       name?: string;
       data?: TableRow[];
-      source?: { query: string; field?: string };
+      source?: { query: string; field?: string; clearWhenEmpty?: string };
       placement?: PlacementSpec;
     }
   | {
