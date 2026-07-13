@@ -1,4 +1,5 @@
 import {
+  compileInputValidation,
   compileSelectedRowBinding,
   compileTableDataBinding,
   type WidgetSpec,
@@ -85,6 +86,13 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       const bound = defaultValue !== undefined;
       const defaultText = bound ? compileSelectedRowBinding(defaultValue) : "";
 
+      // Named-format validation compiles to literal regex + errorMessage props. A validated input is required by
+      // default so an empty value is also invalid (otherwise isValid is true when empty).
+      const validation = spec.type === "input" ? spec.validation : undefined;
+      const validationProps = validation
+        ? compileInputValidation(validation)
+        : undefined;
+
       return {
         footprint: { columns: 24, rows: 7 },
         props: {
@@ -95,12 +103,13 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           labelTextSize: "0.875rem",
           labelWidth: 5,
           defaultText,
-          isRequired: false,
+          isRequired: validationProps !== undefined,
           isDisabled: false,
           resetOnSubmit: true,
           showStepArrows: false,
           animateLoading: true,
           responsiveBehavior: "fill",
+          ...(validationProps ?? {}),
           dynamicBindingPathList: bound ? [{ key: "defaultText" }] : [],
         },
       };

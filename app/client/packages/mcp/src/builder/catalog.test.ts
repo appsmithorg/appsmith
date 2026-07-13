@@ -21,6 +21,28 @@ function children(node: WidgetNode): WidgetNode[] {
 }
 
 describe("M3 catalog — new widgets", () => {
+  it("compiles an input with named-format validation (vetted regex + required)", () => {
+    const [input] = children(
+      build([
+        { type: "input", label: "Zip", validation: { format: "zipcode" } },
+      ]),
+    );
+
+    expect(input.type).toBe("INPUT_WIDGET_V2");
+    expect(input.regex).toBe("^\\d{5}$");
+    expect(input.errorMessage).toBe("Please enter a 5-digit zip code");
+    expect(input.isRequired).toBe(true);
+  });
+
+  it("leaves an un-validated input optional (isRequired false, no regex)", () => {
+    const [input] = children(build([{ type: "input", label: "Name" }]));
+
+    expect(input.type).toBe("INPUT_WIDGET_V2");
+    expect(input.isRequired).toBe(false);
+    expect(input.regex).toBeUndefined();
+    expect(input.errorMessage).toBeUndefined();
+  });
+
   it("compiles a datepicker leaf to the correct type/version", () => {
     const [picker] = children(build([{ type: "datepicker", label: "When" }]));
 

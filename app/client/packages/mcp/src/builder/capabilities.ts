@@ -24,8 +24,11 @@ export const WIDGET_CATALOG = [
       inputType: "TEXT | NUMBER | EMAIL | PASSWORD",
       defaultValue:
         "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
+      validation:
+        "{ format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } — vetted regex + error message; makes the input required (never author a raw regex)",
     },
-    purpose: "Single-line text entry.",
+    purpose:
+      "Single-line text entry. Pair validation with a button's disableWhenInvalid (patch_widgets) so bad input can't run a query.",
   },
   {
     type: "select",

@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { WidgetNode } from "./layout.js";
 import { applyWidgetPatch, widgetPatchSchema } from "./editPatch.js";
+import {
+  compileInputValidation,
+  INPUT_VALIDATION_FORMATS,
+  type InputValidationFormat,
+} from "./schema.js";
 
 function node(
   overrides: Partial<WidgetNode> &
@@ -229,6 +234,236 @@ describe("applyWidgetPatch", () => {
         ],
       }),
     ).toThrow(/must be an input widget/);
+  });
+
+  it("adds named-format validation to an input (regex + errorMessage + required)", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({
+        widgetId: "in1",
+        widgetName: "ZipInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+    const { changes, dsl } = applyWidgetPatch(withInput, {
+      operations: [
+        {
+          kind: "update",
+          name: "ZipInput",
+          props: { validation: { format: "zipcode" } },
+        },
+      ],
+    });
+    const input = dsl.children![2];
+
+    expect(input.regex).toBe("^\\d{5}$");
+    expect(input.errorMessage).toBe("Please enter a 5-digit zip code");
+    expect(input.isRequired).toBe(true);
+    expect(changes[0].changedProps).toEqual(["validation"]);
+  });
+
+  it("lets the caller override the validation error message", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({
+        widgetId: "in1",
+        widgetName: "ZipInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+    const { dsl } = applyWidgetPatch(withInput, {
+      operations: [
+        {
+          kind: "update",
+          name: "ZipInput",
+          props: {
+            validation: { format: "zipcode", message: "5 digits only" },
+          },
+        },
+      ],
+    });
+
+    expect(dsl.children![2].errorMessage).toBe("5 digits only");
+  });
+
+  it("compiles a vetted, binding-free regex + message for every named format", () => {
+    const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+
+    for (const format of Object.keys(
+      INPUT_VALIDATION_FORMATS,
+    ) as InputValidationFormat[]) {
+      const { errorMessage, regex } = compileInputValidation({ format });
+
+      // The compiled regex is exactly the vetted preset and carries no Appsmith binding syntax (regex is a
+      // bind-evaluated prop, so a `{{ }}` in it would be an injection).
+      expect(regex).toBe(INPUT_VALIDATION_FORMATS[format].regex);
+      expect(RAW_EXPRESSION.test(regex)).toBe(false);
+      expect(errorMessage).toBe(INPUT_VALIDATION_FORMATS[format].message);
+      // Each regex compiles to a real RegExp.
+      expect(() => new RegExp(regex)).not.toThrow();
+    }
+
+    // Spot-check the exact patterns so a typo in any preset is caught.
+    expect(compileInputValidation({ format: "email" }).regex).toBe(
+      "^[^\\s@]{1,64}@[^\\s@]{1,255}\\.[^\\s@]{1,63}$",
+    );
+    expect(compileInputValidation({ format: "usPhone" }).regex).toBe(
+      "^\\d{10}$",
+    );
+    expect(compileInputValidation({ format: "integer" }).regex).toBe(
+      "^-?\\d+$",
+    );
+  });
+
+  it("rejects validation on a non-input widget", () => {
+    expect(() =>
+      applyWidgetPatch(page(), {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { validation: { format: "zipcode" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on an INPUT_WIDGET_V2/);
+  });
+
+  it("disables a button while a named input is invalid", () => {
+    const withWidgets = page();
+
+    withWidgets.children!.push(
+      node({
+        widgetId: "in1",
+        widgetName: "ZipInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+      node({
+        widgetId: "b1",
+        widgetName: "LookupButton",
+        type: "BUTTON_WIDGET",
+      }),
+    );
+    const { dsl } = applyWidgetPatch(withWidgets, {
+      operations: [
+        {
+          kind: "update",
+          name: "LookupButton",
+          props: { disableWhenInvalid: "ZipInput" },
+        },
+      ],
+    });
+    const button = dsl.children![3];
+
+    expect(button.isDisabled).toBe("{{ !ZipInput.isValid }}");
+    expect(button.dynamicBindingPathList).toEqual([{ key: "isDisabled" }]);
+  });
+
+  it("rejects disableWhenInvalid on a missing or non-input widget, or with a literal isDisabled", () => {
+    const withButton = page();
+
+    withButton.children!.push(
+      node({
+        widgetId: "b1",
+        widgetName: "LookupButton",
+        type: "BUTTON_WIDGET",
+      }),
+    );
+
+    // Missing input.
+    expect(() =>
+      applyWidgetPatch(withButton, {
+        operations: [
+          {
+            kind: "update",
+            name: "LookupButton",
+            props: { disableWhenInvalid: "Nope" },
+          },
+        ],
+      }),
+    ).toThrow(/disableWhenInvalid input "Nope" was not found/);
+
+    // Non-input (Greeting is a TEXT_WIDGET).
+    expect(() =>
+      applyWidgetPatch(withButton, {
+        operations: [
+          {
+            kind: "update",
+            name: "LookupButton",
+            props: { disableWhenInvalid: "Greeting" },
+          },
+        ],
+      }),
+    ).toThrow(/must be an input widget/);
+
+    // Ambiguous: literal isDisabled AND disableWhenInvalid.
+    expect(() =>
+      applyWidgetPatch(withButton, {
+        operations: [
+          {
+            kind: "update",
+            name: "LookupButton",
+            props: { isDisabled: false, disableWhenInvalid: "LookupButton" },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'isDisabled' and 'disableWhenInvalid'/);
+  });
+
+  it("rejects an unknown validation format at the schema", () => {
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "ZipInput",
+            props: { validation: { format: "ssn" } },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a validation message that carries binding/template syntax", () => {
+    for (const message of ["{{ evil() }}", "bad ${x}", "back`tick"]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            {
+              kind: "update",
+              name: "ZipInput",
+              props: { validation: { format: "zipcode", message } },
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("rejects setting a literal isRequired alongside validation (would defeat the guard)", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({
+        widgetId: "in1",
+        widgetName: "ZipInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+
+    expect(() =>
+      applyWidgetPatch(withInput, {
+        operations: [
+          {
+            kind: "update",
+            name: "ZipInput",
+            props: { validation: { format: "zipcode" }, isRequired: false },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'isRequired' and 'validation'/);
   });
 
   it("rejects a binding/template/egress smuggled through a row color", () => {

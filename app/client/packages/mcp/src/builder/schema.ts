@@ -148,6 +148,67 @@ export function compileTableDataBinding(ref: TableDataRef): string {
     : `{{ ${base} }}`;
 }
 
+// Named input-validation formats -> a vetted LITERAL regex + default error message. Agents pick a format and never
+// author a regex: an input's `regex`/`errorMessage` props are bind-evaluated, so a raw agent regex could smuggle a
+// `{{ }}` expression. Every regex below is a static string with no binding syntax (single-brace quantifiers like
+// `{5}` are not Appsmith bindings, which require `{{ }}`).
+export const INPUT_VALIDATION_FORMATS = {
+  zipcode: { regex: "^\\d{5}$", message: "Please enter a 5-digit zip code" },
+  // Local/domain parts are bounded to cap worst-case regex work: the adjacent `[^\s@]+` classes share the `.`
+  // delimiter, which is polynomial (not catastrophic) backtracking, but bounding keeps it strictly linear-ish.
+  email: {
+    regex: "^[^\\s@]{1,64}@[^\\s@]{1,255}\\.[^\\s@]{1,63}$",
+    message: "Please enter a valid email address",
+  },
+  number: { regex: "^-?\\d*\\.?\\d+$", message: "Please enter a number" },
+  integer: { regex: "^-?\\d+$", message: "Please enter a whole number" },
+  usPhone: {
+    regex: "^\\d{10}$",
+    message: "Please enter a 10-digit phone number",
+  },
+} as const;
+
+export type InputValidationFormat = keyof typeof INPUT_VALIDATION_FORMATS;
+
+// The enum is derived from the format map so the two can never drift: adding a format is a one-line map edit.
+const INPUT_VALIDATION_FORMAT_NAMES = Object.keys(INPUT_VALIDATION_FORMATS) as [
+  InputValidationFormat,
+  ...InputValidationFormat[],
+];
+
+export const inputValidationSchema = z
+  .object({
+    format: z.enum(INPUT_VALIDATION_FORMAT_NAMES),
+    // Optional override of the default error message. Safe text (no binding/template syntax), emitted as a literal
+    // into the input's `errorMessage`.
+    message: safeText(200).optional(),
+  })
+  .strict();
+
+export interface InputValidationRef {
+  format: InputValidationFormat;
+  message?: string;
+}
+
+// Emits the two literal input props for a named validation format: the vetted regex and the (overridable) message.
+export function compileInputValidation(ref: InputValidationRef): {
+  regex: string;
+  errorMessage: string;
+} {
+  const preset = INPUT_VALIDATION_FORMATS[ref.format];
+
+  return { regex: preset.regex, errorMessage: ref.message ?? preset.message };
+}
+
+// A structured "disable this widget while the named input is invalid" wire — emits `{{ !<input>.isValid }}` onto the
+// target's `isDisabled`, so e.g. a submit button greys out until the input passes its validation. The input name is
+// a strict identifier, so the emitted expression cannot be broken out of. This is a cross-widget wire (a button
+// referencing an input by name), so it is exposed only on the EDIT path (editPatch.ts), where the widget map exists
+// to verify the referenced input's existence and type — not on the build-time widget spec.
+export function compileDisableWhenInvalid(input: string): string {
+  return `{{ !${input}.isValid }}`;
+}
+
 // A structured reference to one column of a table's selected row — the display-binding half of the CRUD loop
 // (detail views, edit-form prefill). Same charset as table column keys; the compiler emits bracket access with
 // double quotes (`{{ Table1.selectedRow["col name"] }}`), and the charset admits no quote/backslash/brace, so the
@@ -211,6 +272,8 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
         // Display binding: prefill the input from a table's selected row (edit forms). Compiler-emitted.
         defaultValue: selectedRowRefSchema.optional(),
+        // Input validation from a named format (e.g. zipcode) — compiler emits a vetted regex + error message.
+        validation: inputValidationSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -362,6 +425,7 @@ export type WidgetSpec =
       label?: string;
       inputType?: "TEXT" | "NUMBER" | "EMAIL" | "PASSWORD";
       defaultValue?: SelectedRowRef;
+      validation?: InputValidationRef;
       placement?: PlacementSpec;
     }
   | {

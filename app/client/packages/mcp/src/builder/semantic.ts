@@ -33,6 +33,10 @@ const SAFE_PROP_KEYS = [
   "isRequired",
   "isDisabled",
   "isVisible",
+  // Validation reads back as the compiled literal regex + message (the named `format` isn't persisted, so there is
+  // no reverse structured ref). safeScalar still hides any value carrying binding syntax.
+  "regex",
+  "errorMessage",
 ] as const;
 
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];
@@ -59,6 +63,8 @@ export interface SemanticBindingRef {
   field?: string;
   // Present on a guarded table binding: the input whose emptiness clears the table.
   clearWhenEmpty?: string;
+  // Present on an isDisabled binding: the input whose invalidity disables this widget.
+  disableWhenInvalid?: string;
 }
 
 export interface SemanticWidget {
@@ -144,6 +150,8 @@ const QUERY_DATA_BINDING =
 // The guarded (clear-when-empty) variant: `{{ Input.text ? (Query.data?.field ?? []) : [] }}`.
 const GUARDED_QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.text \? \(([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\]\) : \[\] \}\}$/;
+// The disable-when-invalid binding: `{{ !Input.isValid }}`.
+const DISABLE_WHEN_INVALID_BINDING = /^\{\{ !([A-Za-z0-9_]+)\.isValid \}\}$/;
 
 function safeBindings(
   node: WidgetNode,
@@ -178,6 +186,12 @@ function safeBindings(
           : { query: match[1] };
       }
     }
+  }
+
+  if (typeof node.isDisabled === "string") {
+    const match = DISABLE_WHEN_INVALID_BINDING.exec(node.isDisabled);
+
+    if (match) bindings.isDisabled = { disableWhenInvalid: match[1] };
   }
 
   return Object.keys(bindings).length > 0 ? bindings : undefined;

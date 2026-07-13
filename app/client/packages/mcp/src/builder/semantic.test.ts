@@ -211,6 +211,78 @@ describe("projectSemanticPage", () => {
       tableData: { query: "getRows", clearWhenEmpty: "Search" },
     });
   });
+
+  it("surfaces an input's literal validation props (regex + errorMessage)", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "in1",
+          widgetName: "ZipInput",
+          type: "INPUT_WIDGET_V2",
+          regex: "^\\d{5}$",
+          errorMessage: "Please enter a 5-digit zip code",
+          isRequired: true,
+        }),
+      ],
+    });
+    const input = projectSemanticPage(dsl).widgets.find(
+      (widget) => widget.name === "ZipInput",
+    );
+
+    expect(input?.props).toMatchObject({
+      regex: "^\\d{5}$",
+      errorMessage: "Please enter a 5-digit zip code",
+      isRequired: true,
+    });
+  });
+
+  it("hides a binding-bearing regex from the projection (no raw expression leak)", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "in1",
+          widgetName: "Sneaky",
+          type: "INPUT_WIDGET_V2",
+          regex: "{{ appsmith.store.secret }}",
+        }),
+      ],
+    });
+    const input = projectSemanticPage(dsl).widgets.find(
+      (widget) => widget.name === "Sneaky",
+    );
+
+    expect(input?.props.regex).toBeUndefined();
+    expect(JSON.stringify(input)).not.toContain("appsmith.store");
+  });
+
+  it("projects a disable-when-invalid binding as a structured ref", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "btn",
+          widgetName: "LookupButton",
+          type: "BUTTON_WIDGET",
+          isDisabled: "{{ !ZipInput.isValid }}",
+        }),
+      ],
+    });
+    const button = projectSemanticPage(dsl).widgets.find(
+      (widget) => widget.name === "LookupButton",
+    );
+
+    expect(button?.bindings).toEqual({
+      isDisabled: { disableWhenInvalid: "ZipInput" },
+    });
+  });
 });
 
 describe("DSL fingerprints", () => {

@@ -1,10 +1,14 @@
 import { z } from "zod";
 import { ROOT_WIDGET_ID, type WidgetNode } from "./layout.js";
 import {
+  compileDisableWhenInvalid,
+  compileInputValidation,
   compileSelectedRowBinding,
   compileTableDataBinding,
+  inputValidationSchema,
   selectedRowRefSchema,
   tableDataRefSchema,
+  type InputValidationRef,
   type SelectedRowRef,
   type TableDataRef,
 } from "./schema.js";
@@ -67,6 +71,10 @@ export const widgetPropsPatchSchema = z
     defaultValue: selectedRowRefSchema.optional(),
     // Re-bind a table's data (optionally clear-when-empty). Compiled, never literal-assigned.
     tableData: tableDataRefSchema.optional(),
+    // Add named-format validation to an input (compiled to a vetted regex + error message).
+    validation: inputValidationSchema.optional(),
+    // Disable this widget while the named input is invalid — compiled to `{{ !<input>.isValid }}`.
+    disableWhenInvalid: widgetNameSchema.optional(),
     label: safeText(200).optional(),
     inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
     options: z.array(optionSchema).max(200).optional(),
@@ -331,6 +339,45 @@ function applyTableDataBinding(
   registerDynamicBinding(node, "tableData");
 }
 
+// Add named-format validation to an input: emits a vetted literal regex + error message and marks the input
+// required (so an empty value is invalid too). Input-only; the agent never supplies a regex.
+function applyInputValidation(node: WidgetNode, ref: InputValidationRef): void {
+  if (node.type !== "INPUT_WIDGET_V2") {
+    throw new Error(
+      `'validation' can only be set on an INPUT_WIDGET_V2 ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  const { errorMessage, regex } = compileInputValidation(ref);
+
+  node.regex = regex;
+  node.errorMessage = errorMessage;
+  node.isRequired = true;
+}
+
+// Disable a widget while the named input is invalid — emits `{{ !<input>.isValid }}` onto isDisabled and registers
+// the dynamic path. The referenced widget must be an input (only inputs expose `.isValid`).
+function applyDisableWhenInvalid(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  inputName: string,
+): void {
+  const input = widgets.get(inputName);
+
+  if (!input) {
+    throw new Error(`disableWhenInvalid input "${inputName}" was not found`);
+  }
+
+  if (input.node.type !== "INPUT_WIDGET_V2") {
+    throw new Error(
+      `disableWhenInvalid "${inputName}" must be an input widget (it is ${input.node.type})`,
+    );
+  }
+
+  node.isDisabled = compileDisableWhenInvalid(inputName);
+  registerDynamicBinding(node, "isDisabled");
+}
+
 function moveToPosition(
   node: WidgetNode,
   position: { topRow: number; leftColumn: number },
@@ -359,7 +406,14 @@ export function applyWidgetPatch(
 
     if (operation.kind === "update") {
       // Structured binding refs are compiled (never literal-assigned); everything else is a plain literal.
-      const { defaultValue, source, tableData, ...literals } = operation.props;
+      const {
+        defaultValue,
+        disableWhenInvalid,
+        source,
+        tableData,
+        validation,
+        ...literals
+      } = operation.props;
 
       // A binding and a literal for the same property in one patch would silently race; reject the ambiguity.
       if (source !== undefined && literals.text !== undefined) {
@@ -369,6 +423,24 @@ export function applyWidgetPatch(
       if (defaultValue !== undefined && literals.defaultText !== undefined) {
         throw new Error(
           "cannot set both 'defaultText' and 'defaultValue' in one update",
+        );
+      }
+
+      // disableWhenInvalid emits an isDisabled binding; a literal isDisabled in the same update would race it.
+      if (
+        disableWhenInvalid !== undefined &&
+        literals.isDisabled !== undefined
+      ) {
+        throw new Error(
+          "cannot set both 'isDisabled' and 'disableWhenInvalid' in one update",
+        );
+      }
+
+      // validation marks the input required (so empty is invalid too); a literal isRequired in the same update runs
+      // last via Object.assign and would silently clobber it — reject the ambiguity rather than defeat the guard.
+      if (validation !== undefined && literals.isRequired !== undefined) {
+        throw new Error(
+          "cannot set both 'isRequired' and 'validation' in one update",
         );
       }
 
@@ -392,6 +464,14 @@ export function applyWidgetPatch(
         applyTableDataBinding(widgets, located.node, tableData);
       }
 
+      if (validation !== undefined) {
+        applyInputValidation(located.node, validation);
+      }
+
+      if (disableWhenInvalid !== undefined) {
+        applyDisableWhenInvalid(widgets, located.node, disableWhenInvalid);
+      }
+
       Object.assign(located.node, literals);
 
       // A literal overwriting a previously bound property also clears its dynamic-path registration.
@@ -401,6 +481,11 @@ export function applyWidgetPatch(
 
       if (literals.defaultText !== undefined) {
         unregisterDynamicBinding(located.node, "defaultText");
+      }
+
+      // A literal isDisabled replacing a prior disableWhenInvalid binding clears its dynamic-path registration.
+      if (literals.isDisabled !== undefined) {
+        unregisterDynamicBinding(located.node, "isDisabled");
       }
 
       changes.push({
